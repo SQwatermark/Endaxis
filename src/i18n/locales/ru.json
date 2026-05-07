@@ -414,7 +414,12 @@
       "empty": "Нет ударов",
       "tickTime": "Время",
       "tickStagger": "Ошел.",
-      "tickSpGain": "ОН",
+      "tickSpGain": "Кол-во ОН",
+      "tickSpKind": "Тип ОН",
+      "spKindRecover": "Восст.",
+      "spKindRefund": "Возврат",
+      "spKindRecoverShort": "Вос",
+      "spKindRefundShort": "Воз",
       "bindEffects": "Привязать статус",
       "bindPlaceholder": "Выберите статус"
     },
@@ -507,7 +512,7 @@
     "link_cd_reduction": "КД комбонавыка"
   },
   "actionItem": {
-    "tickTooltip": "Время: {time}\nОшеломление: {stagger}\nОН: {sp}",
+    "tickTooltip": "Время: {time}\nОшеломление: {stagger}\nОН {spKind}: {sp}",
     "lockedTitle": "Заблокировано",
     "disabledTitle": "Отключено"
   }

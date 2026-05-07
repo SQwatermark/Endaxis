@@ -343,7 +343,7 @@ function updateActionFrameProp(key, value) {
 
 function addDamageTick() {
   const currentTicks = targetData.value.damageTicks ? [...targetData.value.damageTicks] : []
-  currentTicks.push({ offset: 0, stagger: 0, sp: 0, boundEffects: [] })
+  currentTicks.push({ offset: 0, stagger: 0, sp: 0, spKind: 'recover', boundEffects: [] })
   currentTicks.sort((a, b) => a.offset - b.offset)
   commitUpdate({ damageTicks: currentTicks })
   isTicksExpanded.value = true
@@ -740,6 +740,27 @@ function handleStartConnection(id, type = null) {
                 </div>
               </div>
               <div class="tick-row binding-row">
+                <div class="tick-col tick-col-kind">
+                  <label>{{ t('propertiesPanel.damage.tickSpKind') }}</label>
+                  <div class="tick-kind-toggle">
+                    <button
+                      type="button"
+                      class="tick-kind-btn"
+                      :class="{ 'is-active': (tick.spKind || 'recover') === 'recover' }"
+                      @click="updateDamageTick(index, 'spKind', 'recover')"
+                    >
+                      {{ t('propertiesPanel.damage.spKindRecoverShort') }}
+                    </button>
+                    <button
+                      type="button"
+                      class="tick-kind-btn"
+                      :class="{ 'is-active': tick.spKind === 'refund' }"
+                      @click="updateDamageTick(index, 'spKind', 'refund')"
+                    >
+                      {{ t('propertiesPanel.damage.spKindRefundShort') }}
+                    </button>
+                  </div>
+                </div>
                 <div class="tick-col full-width">
                   <label>{{ t('propertiesPanel.damage.bindEffects') }}</label>
                   <el-select
@@ -1031,9 +1052,21 @@ function handleStartConnection(id, type = null) {
 .tick-idx { font-size: 10px; font-weight: 900; font-family: 'Inter', monospace; letter-spacing: 1px; text-transform: uppercase; }
 .tick-row { display: flex; gap: 2px; align-items: flex-end; }
 .binding-row { align-items: flex-start; }
+.tick-col { flex: 1; min-width: 0; }
+.binding-row .tick-col-kind { flex: 1 1 0; }
 .tick-col label { font-size: 9px !important; color: rgba(255, 255, 255, 0.3) !important; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px !important; }
 .tick-col.full-width { flex: 1; }
+.binding-row .tick-col.full-width { flex: 2 1 0; }
+.tick-kind-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 28px; }
+.tick-kind-btn { height: 28px; box-sizing: border-box; appearance: none; -webkit-appearance: none; border-radius: 0; display: flex; align-items: center; justify-content: center; border: 1px solid #444; background: #111; color: rgba(255, 255, 255, 0.72); font-size: 10px; line-height: 1; padding: 0 4px; margin: 0; cursor: pointer; transition: all 0.15s ease; }
+.tick-kind-btn.is-active { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.08); }
 .tick-select { width: 100%; }
+:deep(.tick-select .el-select__wrapper),
+:deep(.tick-select .el-input__wrapper) { min-height: 28px; height: 28px; box-sizing: border-box; background-color: #111; box-shadow: none; border: 1px solid #444; }
+:deep(.tick-select .el-input__inner) { color: #eee; font-size: 11px; }
+:deep(.tick-select .el-select__selected-item) { font-size: 11px; }
+:deep(.tick-select .el-select__placeholder) { color: rgba(255, 255, 255, 0.4); }
+:deep(.el-select-dropdown__item) { font-size: 11px; }
 .binding-option { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
 .binding-option__icon { width: 18px; height: 18px; border-radius: 3px; object-fit: cover; background: #111; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; flex: 0 0 auto; }
 .binding-option__label { font-size: 12px; color: #e6e6e6; }

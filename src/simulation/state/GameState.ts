@@ -35,6 +35,7 @@ export class GameState implements BaseGameState<GameSnapshot> {
 
   setActor(actorSnapshot: ActorSnapshot) {
     this.actors.set(actorSnapshot.id, new ActorState(actorSnapshot));
+    this.initialSnapshot = this.snapshot();
   }
 
   getActor(id: string): ActorState {

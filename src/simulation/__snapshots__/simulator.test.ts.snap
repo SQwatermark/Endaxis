@@ -280,9 +280,273 @@ exports[`SimulationEngine Integration > should match Stagger snapshot 1`] = `
 
 exports[`SimulationEngine Integration > should match ultimate charge snapshots 1`] = `
 {
-  "AKEKURI": [],
-  "CHENQIANYU": [],
-  "ENDMINISTRATOR": [],
-  "ESTELLA": [],
+  "AKEKURI": [
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0.065,
+      "time": 0,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.065,
+      "time": 3.2,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.13,
+      "time": 3.2,
+      "val": 13,
+    },
+    {
+      "ratio": 0.13,
+      "time": 13.3,
+      "val": 13,
+    },
+    {
+      "ratio": 0.195,
+      "time": 13.3,
+      "val": 19.5,
+    },
+    {
+      "ratio": 0.195,
+      "time": 24,
+      "val": 19.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 24,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 26.5,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.36,
+      "time": 26.5,
+      "val": 36,
+    },
+    {
+      "ratio": 0.36,
+      "time": 27.3,
+      "val": 36,
+    },
+  ],
+  "CHENQIANYU": [
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0.065,
+      "time": 0,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.065,
+      "time": 3.2,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.13,
+      "time": 3.2,
+      "val": 13,
+    },
+    {
+      "ratio": 0.13,
+      "time": 5.300000000000001,
+      "val": 13,
+    },
+    {
+      "ratio": 0.23,
+      "time": 5.300000000000001,
+      "val": 23,
+    },
+    {
+      "ratio": 0.23,
+      "time": 13.3,
+      "val": 23,
+    },
+    {
+      "ratio": 0.295,
+      "time": 13.3,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 22.7,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.395,
+      "time": 22.7,
+      "val": 39.5,
+    },
+    {
+      "ratio": 0.395,
+      "time": 26.5,
+      "val": 39.5,
+    },
+    {
+      "ratio": 0.46,
+      "time": 26.5,
+      "val": 46,
+    },
+    {
+      "ratio": 0.46,
+      "time": 27.3,
+      "val": 46,
+    },
+  ],
+  "ENDMINISTRATOR": [
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0.065,
+      "time": 0,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.065,
+      "time": 3.2,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.13,
+      "time": 3.2,
+      "val": 13,
+    },
+    {
+      "ratio": 0.13,
+      "time": 9.2,
+      "val": 13,
+    },
+    {
+      "ratio": 0.23,
+      "time": 9.2,
+      "val": 23,
+    },
+    {
+      "ratio": 0.23,
+      "time": 13.3,
+      "val": 23,
+    },
+    {
+      "ratio": 0.295,
+      "time": 13.3,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 25.7,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.395,
+      "time": 25.7,
+      "val": 39.5,
+    },
+    {
+      "ratio": 0.395,
+      "time": 26.5,
+      "val": 39.5,
+    },
+    {
+      "ratio": 0.46,
+      "time": 26.5,
+      "val": 46,
+    },
+    {
+      "ratio": 0.46,
+      "time": 27.3,
+      "val": 46,
+    },
+  ],
+  "ESTELLA": [
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0,
+      "time": 0,
+      "val": 0,
+    },
+    {
+      "ratio": 0.065,
+      "time": 0,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.065,
+      "time": 3.2,
+      "val": 6.5,
+    },
+    {
+      "ratio": 0.13,
+      "time": 3.2,
+      "val": 13,
+    },
+    {
+      "ratio": 0.13,
+      "time": 13.3,
+      "val": 13,
+    },
+    {
+      "ratio": 0.195,
+      "time": 13.3,
+      "val": 19.5,
+    },
+    {
+      "ratio": 0.195,
+      "time": 20.5,
+      "val": 19.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 20.5,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.295,
+      "time": 26.5,
+      "val": 29.5,
+    },
+    {
+      "ratio": 0.36,
+      "time": 26.5,
+      "val": 36,
+    },
+    {
+      "ratio": 0.36,
+      "time": 27.3,
+      "val": 36,
+    },
+  ],
 }
 `;

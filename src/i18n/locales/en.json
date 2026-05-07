@@ -414,7 +414,12 @@
       "empty": "No points",
       "tickTime": "Time",
       "tickStagger": "Stagger",
-      "tickSpGain": "SP",
+      "tickSpGain": "SP Amount",
+      "tickSpKind": "SP Type",
+      "spKindRecover": "Recover",
+      "spKindRefund": "Refund",
+      "spKindRecoverShort": "Rec",
+      "spKindRefundShort": "Ref",
       "bindEffects": "Bind Status Icon",
       "bindPlaceholder": "Select status to bind"
     },
@@ -507,7 +512,7 @@
     "link_cd_reduction": "Combo CD reduction"
   },
   "actionItem": {
-    "tickTooltip": "Time: {time}\nStagger: {stagger}\nSP: {sp}",
+    "tickTooltip": "Time: {time}\nStagger: {stagger}\nSP {spKind}: {sp}",
     "lockedTitle": "Locked",
     "disabledTitle": "Disabled"
   }

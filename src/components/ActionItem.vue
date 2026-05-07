@@ -96,10 +96,14 @@ function isCoveredBeforeStart(startTime) {
 
 function getDamageTickTitle(tick) {
   if (!tick) return ''
+  const spKind = tick.data?.spKind === 'refund'
+    ? t('propertiesPanel.damage.spKindRefund')
+    : t('propertiesPanel.damage.spKindRecover')
   return t('actionItem.tickTooltip', {
     time: store.formatTimeLabel(tick.data?.offset),
     stagger: tick.data?.stagger || 0,
     sp: tick.data?.sp || 0,
+    spKind,
   })
 }
 

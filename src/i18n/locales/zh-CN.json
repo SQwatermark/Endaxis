@@ -414,7 +414,12 @@
       "empty": "暂无判定点",
       "tickTime": "触发时间",
       "tickStagger": "失衡值",
-      "tickSpGain": "技力回复",
+      "tickSpGain": "技力数值",
+      "tickSpKind": "技力类型",
+      "spKindRecover": "回复",
+      "spKindRefund": "返还",
+      "spKindRecoverShort": "回",
+      "spKindRefundShort": "返",
       "bindEffects": "绑定状态图标",
       "bindPlaceholder": "选择要绑定的状态"
     },
@@ -507,7 +512,7 @@
     "link_cd_reduction": "连携冷却缩减"
   },
   "actionItem": {
-    "tickTooltip": "时间: {time}\n失衡值: {stagger}\n技力回复: {sp}",
+    "tickTooltip": "时间: {time}\n失衡值: {stagger}\n技力{spKind}: {sp}",
     "lockedTitle": "位置已锁定",
     "disabledTitle": "已禁用：不参与计算"
   }
