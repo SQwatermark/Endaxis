@@ -27,7 +27,7 @@ const RIGHT_PANEL_MIN_WIDTH = 240
 const BOTTOM_PANEL_MIN_HEIGHT = 220
 const TIMELINE_MAIN_MIN_WIDTH = 540
 const TIMELINE_MAIN_MIN_HEIGHT = 600
-const DEFAULT_LEFT_PANEL_WIDTH = 240
+const DEFAULT_LEFT_PANEL_WIDTH = 200
 const DEFAULT_RIGHT_PANEL_WIDTH = 240
 const DEFAULT_BOTTOM_PANEL_HEIGHT = 220
 const watermarkEl = ref(null)
@@ -987,16 +987,17 @@ onUnmounted(() => {
 /* App Layout */
 .app-layout { display: grid; grid-template-rows: 100vh; height: 100vh; overflow: hidden; background-color: #1e1f22; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 .workbench-layout { gap: 0; }
-.activity-bar { grid-column: 1; display: flex; flex-direction: column; align-items: center; background: #181a1b; border-right: 1px solid rgba(255, 255, 255, 0.06); padding: 10px 0 12px; }
+.activity-bar { grid-column: 1; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, #1f1f1f 0%, #151515 100%); border-right: 1px solid rgba(255, 255, 255, 0.06); padding: 10px 0 12px; }
 .activity-bar--right { grid-column: 7; border-right: none; border-left: 1px solid rgba(255, 255, 255, 0.06); }
 .activity-bar__group { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
 .activity-bar__group--top { padding-top: 2px; }
 .activity-bar__group--bottom { margin-top: auto; padding-top: 14px; }
-.activity-bar__button { position: relative; width: 100%; height: 42px; display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: rgba(255, 255, 255, 0.42); cursor: pointer; padding: 0; transition: color 0.14s ease, background-color 0.14s ease; }
-.activity-bar__button::before { content: ''; position: absolute; left: 0; top: 7px; bottom: 7px; width: 2px; background: #ffd700; opacity: 0; transform: scaleY(0.65); transition: opacity 0.14s ease, transform 0.14s ease; }
+.activity-bar__button { position: relative; width: 100%; height: 42px; display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: rgba(255, 255, 255, 0.42); cursor: pointer; padding: 0; transition: color 0.14s ease; }
+.activity-bar__button::after { content: ''; position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.14s ease, background-color 0.14s ease, border-color 0.14s ease; pointer-events: none; }
 .activity-bar__button:hover { color: rgba(255, 255, 255, 0.84); background: rgba(255, 255, 255, 0.035); }
-.activity-bar__button.is-active { color: #f2f2f2; background: rgba(255, 255, 255, 0.05); }
-.activity-bar__button.is-active::before { opacity: 1; transform: scaleY(1); }
+.activity-bar__button:hover::after { opacity: 0.55; }
+.activity-bar__button.is-active { color: #f2f2f2; }
+.activity-bar__button.is-active::after { opacity: 1; background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.09); }
 .activity-bar__icon { width: 24px; height: 24px; display: block; opacity: 0.78; transition: transform 0.14s ease, opacity 0.14s ease; }
 .activity-bar__button:hover .activity-bar__icon,
 .activity-bar__button.is-active .activity-bar__icon { opacity: 1; transform: scale(1.02); }
@@ -1042,7 +1043,7 @@ onUnmounted(() => {
 .workbench-rail__button:hover { color: rgba(255, 255, 255, 0.9); background: rgba(255, 255, 255, 0.06); }
 
 /* Header */
-.timeline-header { height: 50px; flex-shrink: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background-color: #252526; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 0; cursor: default; user-select: none; }
+.timeline-header { height: 50px; flex-shrink: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background-color: #3a3a3a; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 0; cursor: default; user-select: none; }
 
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .divider-vertical { width: 1px; height: 20px; background-color: #555; margin: 0 5px; }
