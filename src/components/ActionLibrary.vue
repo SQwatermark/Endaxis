@@ -6,6 +6,24 @@ import { useI18n } from 'vue-i18n'
 
 const store = useTimelineStore()
 const { t } = useI18n()
+const props = defineProps({
+  onResetPanel: {
+    type: Function,
+    default: null
+  },
+  onCollapsePanel: {
+    type: Function,
+    default: null
+  }
+})
+
+function handleResetPanel() {
+  props.onResetPanel?.()
+}
+
+function handleCollapsePanel() {
+  props.onCollapsePanel?.()
+}
 
 // === 核心数据逻辑 ===
 const activeTrack = computed(() => store.tracks.find(t => t.id === store.activeTrackId))
@@ -416,9 +434,17 @@ function onNativeDragEnd() {
   <div class="library-container">
     <div class="lib-header">
       <div class="header-main">
-        <div class="header-icon-bar"></div>
-        <h3 class="char-name">{{ activeLibraryTitle }}</h3>
+        <div class="header-main-title">
+          <div class="header-icon-bar"></div>
+          <h3 class="char-name">{{ activeLibraryTitle }}</h3>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="header-tool-btn" @click="handleResetPanel">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></svg>
+          </button>
+        </div>
       </div>
+      <div class="header-divider"></div>
       <div class="lib-tabs">
         <button
           class="lib-tab"
@@ -444,7 +470,6 @@ function onNativeDragEnd() {
           {{ t('actionLibrary.tabs.set') }}
         </button>
       </div>
-      <div class="header-divider"></div>
     </div>
 
     <div v-if="activeTrack && activeCharacter && activeLibraryTab === 'character'" class="gauge-settings-panel">
@@ -707,9 +732,13 @@ function onNativeDragEnd() {
 }
 /* 头部样式 */
 .lib-header { display: flex; flex-direction: column; gap: 4px; }
-.header-main { display: flex; align-items: center; gap: 10px; }
+.header-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.header-main-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .header-icon-bar { width: 4px; height: 18px; background-color: #ffd700; }
 .char-name { margin: 0; color: #fff; font-size: 18px; letter-spacing: 1px; }
+.header-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; margin-right: -2px; }
+.header-tool-btn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 4px; background: transparent; color: rgba(255, 255, 255, 0.34); cursor: pointer; padding: 0; transition: color 0.14s ease, background-color 0.14s ease; }
+.header-tool-btn:hover { color: rgba(255, 255, 255, 0.86); background: rgba(255, 255, 255, 0.055); }
 .lib-tabs { display: flex; gap: 8px; margin-top: 6px; }
 .lib-tab {
   background: #1f1f1f;

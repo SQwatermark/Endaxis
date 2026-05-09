@@ -78,6 +78,7 @@ const boxRect = ref({ left: 0, top: 0, width: 0, height: 0 })
 const draggingTrackOrderIndex = ref(null)
 const reorderDropTargetIndex = ref(null)
 const isResizingPrep = ref(false)
+const prepDurationPreview = ref(null)
 
 function onReorderDragStart(evt, index) {
   draggingTrackOrderIndex.value = index
@@ -732,7 +733,16 @@ const totalWidthComputed = computed(() => {
   return store.totalTimelineWidthPx
 })
 
-const prepZoneWidthPxRounded = computed(() => Math.round(store.prepZoneWidthPx))
+const activePrepDuration = computed(() => (
+  prepDurationPreview.value !== null ? prepDurationPreview.value : store.prepDuration
+))
+
+const prepZoneWidthPxRounded = computed(() => {
+  const dur = Number(activePrepDuration.value) || 0
+  if (dur <= 0) return 0
+  if (store.prepExpanded) return Math.round(dur * store.timeBlockWidth)
+  return Math.round(store.prepZoneWidthPx)
+})
 
 const transformStyle = computed(() => {
   return {
@@ -785,7 +795,7 @@ const rawDynamicTicks = computed(() => {
   const width = TIME_BLOCK_WIDTH.value;
   const viewWindow = getViewWindow({ bufferPx: 100 });
 
-  const prep = store.prepDuration || 0
+  const prep = activePrepDuration.value || 0
   const realStartVT = viewWindow.startTime;
   const realEndVT = viewWindow.endTime;
 
@@ -909,7 +919,9 @@ function onPrepResizeMouseDown(evt) {
   evt.stopPropagation()
   evt.preventDefault()
   isResizingPrep.value = true
+  prepDurationPreview.value = Number(store.prepDuration) || 0
   document.body.classList.add('is-dragging')
+  document.body.style.cursor = 'ew-resize'
   window.addEventListener('mousemove', onPrepResizeMouseMove)
   window.addEventListener('mouseup', onPrepResizeMouseUp)
 }
@@ -917,16 +929,21 @@ function onPrepResizeMouseDown(evt) {
 function onPrepResizeMouseMove(evt) {
   if (!isResizingPrep.value) return
   const newDuration = calculateTimeFromEvent(evt, store.snapStep)
-  store.setPrepDuration(newDuration, { commit: false })
+  prepDurationPreview.value = newDuration
 }
 
 function onPrepResizeMouseUp() {
   if (!isResizingPrep.value) return
+  const finalDuration = prepDurationPreview.value
   isResizingPrep.value = false
-  store.commitState()
+  prepDurationPreview.value = null
   document.body.classList.remove('is-dragging')
+  document.body.style.cursor = ''
   window.removeEventListener('mousemove', onPrepResizeMouseMove)
   window.removeEventListener('mouseup', onPrepResizeMouseUp)
+  if (finalDuration !== null) {
+    store.setPrepDuration(finalDuration)
+  }
 }
 
 const isPrepDurationEditorOpen = ref(false)
@@ -934,7 +951,7 @@ const prepDurationDraft = ref('')
 const prepDurationInputRef = ref(null)
 
 function openPrepDurationEditor() {
-  prepDurationDraft.value = String(timeToFrame(store.prepDuration))
+  prepDurationDraft.value = String(timeToFrame(activePrepDuration.value))
   isPrepDurationEditorOpen.value = true
   nextTick(() => prepDurationInputRef.value?.focus?.())
 }
@@ -1909,12 +1926,12 @@ onUnmounted(() => {
 
     <div class="time-ruler-wrapper" ref="timeRulerWrapperRef" @click="store.selectTrack(null)">
       <div class="ruler-content-container" :style="transformStyle">
-      <div v-if="store.prepDuration > 0" class="prep-zone-bg prep-zone-bg--ruler" :style="{ width: `${prepZoneWidthPxRounded}px` }"></div>
-       <div v-if="store.prepDuration > 0" class="battle-start-line battle-start-line--ruler" :style="{ left: `${prepZoneWidthPxRounded}px` }">
+      <div v-if="activePrepDuration > 0" class="prep-zone-bg prep-zone-bg--ruler" :style="{ width: `${prepZoneWidthPxRounded}px` }"></div>
+       <div v-if="activePrepDuration > 0" class="battle-start-line battle-start-line--ruler" :style="{ left: `${prepZoneWidthPxRounded}px` }">
          <div v-if="store.prepExpanded" class="battle-start-handle" @mousedown.stop.prevent="onPrepResizeMouseDown"></div>
        </div>
        <div
-         v-if="store.prepDuration > 0 && store.prepExpanded"
+         v-if="activePrepDuration > 0 && store.prepExpanded"
          class="prep-ruler-controls"
          :style="{ left: `${prepZoneWidthPxRounded}px` }"
        >
@@ -1925,7 +1942,7 @@ onUnmounted(() => {
            </svg>
          </button>
        </div>
-       <div v-if="store.prepDuration > 0 && !store.prepExpanded" class="prep-zone-controls" :style="{ width: `${prepZoneWidthPxRounded}px`, bottom: showGameTime ? '40px' : '20px' }">
+       <div v-if="activePrepDuration > 0 && !store.prepExpanded" class="prep-zone-controls" :style="{ width: `${prepZoneWidthPxRounded}px`, bottom: showGameTime ? '40px' : '20px' }">
           <button type="button" class="prep-mini-btn" :title="t('timelineGrid.prep.setDurationTitle')" @click.stop="openPrepDurationEditor">
            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
              <circle cx="12" cy="12" r="9"></circle>
@@ -1949,7 +1966,7 @@ onUnmounted(() => {
         <span class="prep-duration-unit">f</span>
       </div>
 
-      <div v-if="store.prepDuration > 0" class="prep-rtgt-wrapper" :style="{ width: `${prepZoneWidthPxRounded}px` }">
+      <div v-if="activePrepDuration > 0" class="prep-rtgt-wrapper" :style="{ width: `${prepZoneWidthPxRounded}px` }">
         <div v-if="showGameTime" class="prep-rtgt-row prep-rtgt-row--game">
            <button type="button" class="timeline-label interactable" :title="t('timelineGrid.ruler.gameTimeCollapseTitle')" @click.stop="isGameTimeCollapsed = true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
@@ -2181,12 +2198,12 @@ onUnmounted(() => {
         <div v-if="isBoxSelecting" class="selection-box-overlay" :style="{ left: `${boxRect.left}px`, top: `${boxRect.top}px`, width: `${boxRect.width}px`, height: `${boxRect.height}px` }"></div>
 
         <div class="tracks-content">
-          <div v-if="store.prepDuration > 0" class="prep-zone-bg prep-zone-bg--content" :style="{ width: `${prepZoneWidthPxRounded}px` }"></div>
-          <div v-if="store.prepDuration > 0" class="battle-start-line battle-start-line--content" :style="{ left: `${prepZoneWidthPxRounded}px` }">
+          <div v-if="activePrepDuration > 0" class="prep-zone-bg prep-zone-bg--content" :style="{ width: `${prepZoneWidthPxRounded}px` }"></div>
+          <div v-if="activePrepDuration > 0" class="battle-start-line battle-start-line--content" :style="{ left: `${prepZoneWidthPxRounded}px` }">
             <div v-if="store.prepExpanded" class="battle-start-handle" @mousedown.stop.prevent="onPrepResizeMouseDown"></div>
           </div>
           <div
-            v-if="store.prepDuration > 0 && !store.prepExpanded"
+            v-if="activePrepDuration > 0 && !store.prepExpanded"
             class="prep-collapsed-entry"
             :style="{ width: `${prepZoneWidthPxRounded}px` }"
           >
@@ -2200,7 +2217,7 @@ onUnmounted(() => {
           </div>
 
           <div
-            v-if="store.prepDuration > 0 && store.prepExpanded"
+            v-if="activePrepDuration > 0 && store.prepExpanded"
             class="prep-expanded-collapse"
             :style="{ left: `${Math.max(0, prepZoneWidthPxRounded - 18)}px` }"
           >
@@ -3946,7 +3963,7 @@ body.capture-mode .davinci-range {
   background: #d3adff;
   box-shadow: 0 0 6px #d3adff;
   pointer-events: auto;
-  cursor: col-resize;
+  cursor: ew-resize;
   z-index: 4;
   transition: background-color 0.1s, box-shadow 0.1s;
 }
@@ -4017,7 +4034,7 @@ body.capture-mode .davinci-range {
   bottom: 0;
   width: 10px;
   background: transparent;
-  cursor: col-resize;
+  cursor: ew-resize;
   z-index: 20;
 }
 @keyframes pulse-border {
@@ -4222,7 +4239,7 @@ body.capture-mode .davinci-range {
 }
 :global(body.is-dragging) {
   user-select: none !important;
-  cursor: col-resize !important;
+  cursor: ew-resize !important;
 }
 .guide-line-vertical {
   position: absolute;

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useTimelineStore } from '../stores/timelineStore.js'
 import { storeToRefs } from 'pinia'
 import CustomNumberInput from './CustomNumberInput.vue'
@@ -14,9 +14,74 @@ const ENEMY_TIERS = store.ENEMY_TIERS
 const TIER_WEIGHTS = { 'boss': 5, 'head': 4, 'champion': 3, 'elite': 2, 'normal': 1 }
 
 // === 布局常量 ===
-const TOTAL_HEIGHT = 200
-const STAGGER_HEIGHT = 60
-const SP_HEIGHT = 140
+const MIN_CHART_HEIGHT = 116
+const MAX_CHART_HEIGHT = 520
+
+const monitorRootRef = ref(null)
+const chartViewportRef = ref(null)
+const monitorHeight = ref(0)
+const chartViewportHeight = ref(0)
+
+let resizeObserver = null
+let resizeRaf = null
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function flushMonitorMetrics() {
+  resizeRaf = null
+  monitorHeight.value = monitorRootRef.value?.clientHeight || 0
+  chartViewportHeight.value = chartViewportRef.value?.clientHeight || 0
+}
+
+function queueMonitorMetrics() {
+  if (resizeRaf !== null) return
+  resizeRaf = requestAnimationFrame(flushMonitorMetrics)
+}
+
+onMounted(() => {
+  queueMonitorMetrics()
+  if (typeof ResizeObserver === 'undefined') return
+
+  resizeObserver = new ResizeObserver(() => {
+    queueMonitorMetrics()
+  })
+
+  if (monitorRootRef.value) resizeObserver.observe(monitorRootRef.value)
+  if (chartViewportRef.value) resizeObserver.observe(chartViewportRef.value)
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+  if (resizeRaf !== null) {
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = null
+  }
+})
+
+const TOTAL_HEIGHT = computed(() => {
+  const measured = chartViewportHeight.value || 200
+  return clamp(Math.round(measured), MIN_CHART_HEIGHT, MAX_CHART_HEIGHT)
+})
+
+const CHART_TOP_PADDING = computed(() => 10)
+const CHART_BOTTOM_PADDING = computed(() => 18)
+const SECTION_GAP = computed(() => 10)
+const CHART_CONTENT_HEIGHT = computed(() => Math.max(96, TOTAL_HEIGHT.value - CHART_TOP_PADDING.value - CHART_BOTTOM_PADDING.value - SECTION_GAP.value))
+const STAGGER_PLOT_HEIGHT = computed(() => Math.max(26, Math.round(CHART_CONTENT_HEIGHT.value * 0.25)))
+const SP_PLOT_HEIGHT = computed(() => Math.max(52, CHART_CONTENT_HEIGHT.value - STAGGER_PLOT_HEIGHT.value))
+const PADDING_TOP_STAGGER = computed(() => CHART_TOP_PADDING.value)
+const BASE_Y_STAGGER = computed(() => PADDING_TOP_STAGGER.value + STAGGER_PLOT_HEIGHT.value)
+const PADDING_TOP_SP = computed(() => BASE_Y_STAGGER.value + SECTION_GAP.value)
+const BASE_Y_SP = computed(() => PADDING_TOP_SP.value + SP_PLOT_HEIGHT.value)
+const EFFECTIVE_HEIGHT_SP = computed(() => Math.max(28, BASE_Y_SP.value - PADDING_TOP_SP.value))
+const SECTION_DIVIDER_Y = computed(() => BASE_Y_STAGGER.value + Math.round(SECTION_GAP.value / 2))
+const chartLabelFontSize = computed(() => 9)
+const warningLabelText = computed(() => t('resourceMonitor.sp.insufficient'))
 const gridLineTimes = computed(() => {
   const prep = Number(store.prepDuration) || 0
   const startBt = -prep
@@ -121,12 +186,10 @@ const staggerPoints = computed(() => staggerResult.value.points || [])
 const lockSegments = computed(() => staggerResult.value.lockSegments || [])
 const nodeSegments = computed(() => staggerResult.value.nodeSegments || [])
 
-const BASE_Y_STAGGER = STAGGER_HEIGHT - 5
-const PADDING_TOP_STAGGER = 10
 const scaleY_Stagger = computed(() => {
   const max = store.systemConstants.maxStagger
   if (!max || max <= 0) return 1
-  return (BASE_Y_STAGGER - PADDING_TOP_STAGGER) / max
+  return (BASE_Y_STAGGER.value - PADDING_TOP_STAGGER.value) / max
 })
 
 const staggerPolyline = computed(() => {
@@ -134,7 +197,7 @@ const staggerPolyline = computed(() => {
   return staggerPoints.value.map(p => {
     const x = store.timeToPx(p.time)
     const val = Math.min(p.val, store.systemConstants.maxStagger)
-    const y = BASE_Y_STAGGER - (val * scaleY_Stagger.value)
+    const y = BASE_Y_STAGGER.value - (val * scaleY_Stagger.value)
     return `${x},${y}`
   }).join(' ')
 })
@@ -143,13 +206,13 @@ const staggerArea = computed(() => {
   if (staggerPoints.value.length === 0) return ''
   const line = staggerPolyline.value
   const lastX = store.timeToPx(staggerPoints.value[staggerPoints.value.length - 1].time)
-  return `0,${BASE_Y_STAGGER} ${line} ${lastX},${BASE_Y_STAGGER}`
+  return `0,${BASE_Y_STAGGER.value} ${line} ${lastX},${BASE_Y_STAGGER.value}`
 })
 
 const nodeZones = computed(() => nodeSegments.value.map(seg => ({
   x: store.timeToPx(seg.start),
   width: store.timeToPx(seg.end) - store.timeToPx(seg.start),
-  y: BASE_Y_STAGGER - (seg.thresholdVal * scaleY_Stagger.value)
+  y: BASE_Y_STAGGER.value - (seg.thresholdVal * scaleY_Stagger.value)
 })))
 
 const lockZones = computed(() => lockSegments.value.map(seg => ({
@@ -167,16 +230,13 @@ const spData = computed(() => {
 })
 
 // 技力绘图坐标计算
-const BASE_Y_SP = STAGGER_HEIGHT + SP_HEIGHT - 20
-const PADDING_TOP_SP = STAGGER_HEIGHT + 2
-const EFFECTIVE_HEIGHT_SP = BASE_Y_SP - PADDING_TOP_SP
-const scaleY_SP = computed(() => EFFECTIVE_HEIGHT_SP / 300)
+const scaleY_SP = computed(() => EFFECTIVE_HEIGHT_SP.value / 300)
 
 const spPolyline = computed(() => {
   if (spData.value.length === 0) return ''
   return spData.value.map(p => {
     const x = store.timeToPx(p.time)
-    const y = BASE_Y_SP - (p.sp * scaleY_SP.value)
+    const y = BASE_Y_SP.value - (p.sp * scaleY_SP.value)
     return `${x},${y}`
   }).join(' ')
 })
@@ -185,11 +245,11 @@ const spArea = computed(() => {
   if (spData.value.length === 0) return ''
   const points = spData.value.map(p => {
     const x = store.timeToPx(p.time)
-    const y = BASE_Y_SP - (p.sp * scaleY_SP.value)
+    const y = BASE_Y_SP.value - (p.sp * scaleY_SP.value)
     return `${x},${y}`
   })
   const lastX = store.timeToPx(spData.value[spData.value.length - 1].time)
-  return `0,${BASE_Y_SP} ${points.join(' ')} ${lastX},${BASE_Y_SP}`
+  return `0,${BASE_Y_SP.value} ${points.join(' ')} ${lastX},${BASE_Y_SP.value}`
 })
 
 const spWarningZones = computed(() => spData.value.filter(p => p.sp < 0).map(p => ({
@@ -206,7 +266,7 @@ const transformStyle = computed(() => {
 </script>
 
 <template>
-  <div class="resource-monitor-layout">
+  <div ref="monitorRootRef" class="resource-monitor-layout">
 
     <div class="monitor-sidebar">
       <div class="enemy-select-module" @click="isEnemySelectorVisible = true">
@@ -265,7 +325,7 @@ const transformStyle = computed(() => {
       </div>
     </div>
 
-    <div class="chart-scroll-wrapper">
+    <div ref="chartViewportRef" class="chart-scroll-wrapper">
       <div :style="transformStyle">
         <svg class="chart-svg" :height="TOTAL_HEIGHT" :width="store.totalTimelineWidthPx">
           <defs>
@@ -310,7 +370,7 @@ const transformStyle = computed(() => {
 
             <g v-for="(zone, i) in lockZones" :key="`lock-${i}`">
               <rect :x="zone.x" :y="PADDING_TOP_STAGGER" :width="zone.width" :height="BASE_Y_STAGGER - PADDING_TOP_STAGGER" fill="url(#stun-pattern)" class="stun-bg-anim" />
-              <text :x="zone.x + zone.width / 2" :y="(BASE_Y_STAGGER + PADDING_TOP_STAGGER) / 2 + 4" fill="#fff" font-size="12" font-weight="900" text-anchor="middle" style="text-shadow: 0 0 2px #ff7a45; letter-spacing: 1px;">WEAK</text>
+              <text :x="zone.x + zone.width / 2" :y="(BASE_Y_STAGGER + PADDING_TOP_STAGGER) / 2 + 4" fill="#fff" font-size="10" font-weight="900" text-anchor="middle" style="text-shadow: 0 0 2px #ff7a45; letter-spacing: 1px;">WEAK</text>
             </g>
 
             <polygon :points="staggerArea" fill="url(#stagger-grad)"/>
@@ -319,7 +379,7 @@ const transformStyle = computed(() => {
                     :cy="BASE_Y_STAGGER - (Math.min(p.val, store.systemConstants.maxStagger) * scaleY_Stagger)" r="2" :fill="COLOR_STAGGER"/>
           </g>
 
-          <line x1="0" :y1="STAGGER_HEIGHT" :x2="store.totalTimelineWidthPx" :y2="STAGGER_HEIGHT" stroke="#444" stroke-width="2"/>
+          <line x1="0" :y1="SECTION_DIVIDER_Y" :x2="store.totalTimelineWidthPx" :y2="SECTION_DIVIDER_Y" stroke="#444" stroke-width="2"/>
 
           <g class="layer-sp">
             <line x1="0" :y1="BASE_Y_SP - (300 * scaleY_SP)" :x2="store.totalTimelineWidthPx" :y2="BASE_Y_SP - (300 * scaleY_SP)" stroke="#444" stroke-width="1" stroke-dasharray="2"/>
@@ -327,8 +387,8 @@ const transformStyle = computed(() => {
             <line x1="0" :y1="BASE_Y_SP - (100 * scaleY_SP)" :x2="store.totalTimelineWidthPx" :y2="BASE_Y_SP - (100 * scaleY_SP)" stroke="#444" stroke-width="1" stroke-dasharray="2"/>
             <line x1="0" :y1="BASE_Y_SP" :x2="store.totalTimelineWidthPx" :y2="BASE_Y_SP" stroke="#aaa" stroke-width="2"/>
 
-            <text x="5" :y="BASE_Y_SP - (300 * scaleY_SP) + 12" fill="#888" font-size="10">MAX(300)</text>
-            <text x="5" :y="BASE_Y_SP + 12" fill="#666" font-size="10">0</text>
+            <text x="5" :y="BASE_Y_SP - (300 * scaleY_SP) + 12" fill="#888" :font-size="chartLabelFontSize">MAX(300)</text>
+            <text x="5" :y="BASE_Y_SP + 12" fill="#666" :font-size="chartLabelFontSize">0</text>
 
             <rect x="0" :y="BASE_Y_SP" :width="store.totalTimelineWidthPx" :height="TOTAL_HEIGHT - BASE_Y_SP" :fill="`${COLOR_SP_WARN}26`"/>
             <polygon :points="spArea" fill="url(#sp-fill-gradient)"/>
@@ -346,7 +406,7 @@ const transformStyle = computed(() => {
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
           </span>
-          {{ t('resourceMonitor.sp.insufficient') }}
+          {{ warningLabelText }}
         </div>
       </div>
     </div>
@@ -442,13 +502,15 @@ const transformStyle = computed(() => {
 /* 基础布局与侧边栏容器 */
 .resource-monitor-layout {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 180px minmax(0, 1fr);
   width: 100%;
   height: 100%;
   background: #1a1a1a;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .monitor-sidebar {
@@ -599,12 +661,13 @@ const transformStyle = computed(() => {
 
 /* 图表展示区 */
 .chart-scroll-wrapper {
-  grid-column: 2 / 3;
   width: 100%;
   height: 100%;
   overflow: hidden;
   position: relative;
   background: #18181c;
+  min-width: 0;
+  min-height: 0;
 }
 
 .chart-svg { display: block; }
@@ -623,6 +686,7 @@ const transformStyle = computed(() => {
   gap: 3px;
   border: 1px solid rgba(255, 77, 79, 0.3);
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  white-space: nowrap;
 }
 
 /* 敌人选择弹窗容器 */

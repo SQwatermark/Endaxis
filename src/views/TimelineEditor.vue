@@ -19,8 +19,185 @@ const store = useTimelineStore()
 const { t, locale } = useI18n({ useScope: 'global' })
 const { copyShareCode, importFromCode } = useShareProject()
 
+const TIMELINE_LAYOUT_KEY = 'endaxis:timeline-workbench-layout:v1'
+const ACTIVITY_BAR_WIDTH = 48
+const PANEL_MAX_WIDTH = 480
+const LEFT_PANEL_MIN_WIDTH = 200
+const RIGHT_PANEL_MIN_WIDTH = 240
+const BOTTOM_PANEL_MIN_HEIGHT = 220
+const TIMELINE_MAIN_MIN_WIDTH = 540
+const TIMELINE_MAIN_MIN_HEIGHT = 600
+const DEFAULT_LEFT_PANEL_WIDTH = 240
+const DEFAULT_RIGHT_PANEL_WIDTH = 240
+const DEFAULT_BOTTOM_PANEL_HEIGHT = 220
 const watermarkEl = ref(null)
 const watermarkSubText = ref('Created by Endaxis')
+const appLayoutRef = ref(null)
+const timelineWorkspaceRef = ref(null)
+const leftPanelWidth = ref(DEFAULT_LEFT_PANEL_WIDTH)
+const rightPanelWidth = ref(DEFAULT_RIGHT_PANEL_WIDTH)
+const bottomPanelHeight = ref(DEFAULT_BOTTOM_PANEL_HEIGHT)
+const isLeftPanelCollapsed = ref(false)
+const isRightPanelCollapsed = ref(false)
+const isBottomPanelCollapsed = ref(false)
+const activeWorkbenchDrag = ref(null)
+
+let workbenchDragState = null
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function getSafeLocalStorage() {
+  if (typeof window === 'undefined') return null
+  return window.localStorage
+}
+
+function persistWorkbenchLayout() {
+  const storage = getSafeLocalStorage()
+  if (!storage) return
+
+  storage.setItem(TIMELINE_LAYOUT_KEY, JSON.stringify({
+    leftPanelWidth: Math.round(leftPanelWidth.value),
+    rightPanelWidth: Math.round(rightPanelWidth.value),
+    bottomPanelHeight: Math.round(bottomPanelHeight.value),
+    isLeftPanelCollapsed: isLeftPanelCollapsed.value,
+    isRightPanelCollapsed: isRightPanelCollapsed.value,
+    isBottomPanelCollapsed: isBottomPanelCollapsed.value,
+  }))
+}
+
+function restoreWorkbenchLayout() {
+  const storage = getSafeLocalStorage()
+  if (!storage) return
+
+  try {
+    const raw = storage.getItem(TIMELINE_LAYOUT_KEY)
+    if (!raw) return
+
+    const parsed = JSON.parse(raw)
+    if (Number.isFinite(parsed.leftPanelWidth)) {
+      leftPanelWidth.value = clamp(parsed.leftPanelWidth, LEFT_PANEL_MIN_WIDTH, PANEL_MAX_WIDTH)
+    }
+    if (Number.isFinite(parsed.rightPanelWidth)) {
+      rightPanelWidth.value = clamp(parsed.rightPanelWidth, RIGHT_PANEL_MIN_WIDTH, PANEL_MAX_WIDTH)
+    }
+    if (Number.isFinite(parsed.bottomPanelHeight)) {
+      bottomPanelHeight.value = Math.max(BOTTOM_PANEL_MIN_HEIGHT, parsed.bottomPanelHeight)
+    }
+    isLeftPanelCollapsed.value = parsed.isLeftPanelCollapsed === true
+    isRightPanelCollapsed.value = parsed.isRightPanelCollapsed === true
+    isBottomPanelCollapsed.value = parsed.isBottomPanelCollapsed === true
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function resetWorkbenchLayout(target = 'all') {
+  if (target === 'all' || target === 'left') {
+    leftPanelWidth.value = DEFAULT_LEFT_PANEL_WIDTH
+    isLeftPanelCollapsed.value = false
+  }
+  if (target === 'all' || target === 'right') {
+    rightPanelWidth.value = DEFAULT_RIGHT_PANEL_WIDTH
+    isRightPanelCollapsed.value = false
+  }
+  if (target === 'all' || target === 'bottom') {
+    bottomPanelHeight.value = DEFAULT_BOTTOM_PANEL_HEIGHT
+    isBottomPanelCollapsed.value = false
+  }
+  persistWorkbenchLayout()
+}
+
+function toggleWorkbenchPanel(target) {
+  if (target === 'left') {
+    isLeftPanelCollapsed.value = !isLeftPanelCollapsed.value
+  } else if (target === 'right') {
+    isRightPanelCollapsed.value = !isRightPanelCollapsed.value
+  } else if (target === 'bottom') {
+    isBottomPanelCollapsed.value = !isBottomPanelCollapsed.value
+  }
+  persistWorkbenchLayout()
+}
+
+function beginWorkbenchResize(type, event) {
+  event.preventDefault()
+  activeWorkbenchDrag.value = type
+  workbenchDragState = {
+    startX: event.clientX,
+    startY: event.clientY,
+    leftPanelWidth: leftPanelWidth.value,
+    rightPanelWidth: rightPanelWidth.value,
+    bottomPanelHeight: bottomPanelHeight.value,
+  }
+  document.body.style.userSelect = 'none'
+  document.body.style.cursor = type === 'bottom' ? 'ns-resize' : 'ew-resize'
+  window.addEventListener('pointermove', onWorkbenchResizeMove)
+  window.addEventListener('pointerup', endWorkbenchResize)
+}
+
+function applyWorkbenchResize(event) {
+  if (!activeWorkbenchDrag.value || !workbenchDragState) return
+
+  if (activeWorkbenchDrag.value === 'left' || activeWorkbenchDrag.value === 'right') {
+    const rect = appLayoutRef.value?.getBoundingClientRect()
+    if (!rect) return
+
+    const availableWidth = rect.width - TIMELINE_MAIN_MIN_WIDTH
+
+    if (activeWorkbenchDrag.value === 'left') {
+      const maxPanelWidth = clamp(Math.floor(availableWidth / 2), LEFT_PANEL_MIN_WIDTH, PANEL_MAX_WIDTH)
+      const nextWidth = workbenchDragState.leftPanelWidth + (event.clientX - workbenchDragState.startX)
+      leftPanelWidth.value = clamp(nextWidth, LEFT_PANEL_MIN_WIDTH, maxPanelWidth)
+      return
+    }
+
+    const maxPanelWidth = clamp(Math.floor(availableWidth / 2), RIGHT_PANEL_MIN_WIDTH, PANEL_MAX_WIDTH)
+    const nextWidth = workbenchDragState.rightPanelWidth - (event.clientX - workbenchDragState.startX)
+    rightPanelWidth.value = clamp(nextWidth, RIGHT_PANEL_MIN_WIDTH, maxPanelWidth)
+    return
+  }
+
+  const rect = timelineWorkspaceRef.value?.getBoundingClientRect()
+  if (!rect) return
+
+  const maxBottomHeight = Math.max(BOTTOM_PANEL_MIN_HEIGHT, rect.height - TIMELINE_MAIN_MIN_HEIGHT)
+  const nextHeight = workbenchDragState.bottomPanelHeight - (event.clientY - workbenchDragState.startY)
+  bottomPanelHeight.value = clamp(nextHeight, BOTTOM_PANEL_MIN_HEIGHT, maxBottomHeight)
+}
+
+function onWorkbenchResizeMove(event) {
+  applyWorkbenchResize(event)
+}
+
+function endWorkbenchResize() {
+  workbenchDragState = null
+  activeWorkbenchDrag.value = null
+  document.body.style.userSelect = ''
+  document.body.style.cursor = ''
+  window.removeEventListener('pointermove', onWorkbenchResizeMove)
+  window.removeEventListener('pointerup', endWorkbenchResize)
+  persistWorkbenchLayout()
+}
+
+const appLayoutStyle = computed(() => ({
+  gridTemplateColumns: `${ACTIVITY_BAR_WIDTH}px ${isLeftPanelCollapsed.value ? 0 : leftPanelWidth.value}px ${isLeftPanelCollapsed.value ? 0 : 1}px minmax(${TIMELINE_MAIN_MIN_WIDTH}px, 1fr) ${isRightPanelCollapsed.value ? 0 : 1}px ${isRightPanelCollapsed.value ? 0 : rightPanelWidth.value}px ${ACTIVITY_BAR_WIDTH}px`,
+}))
+
+const timelineWorkspaceStyle = computed(() => ({
+  gridTemplateRows: `minmax(${TIMELINE_MAIN_MIN_HEIGHT}px, 1fr) ${isBottomPanelCollapsed.value ? 0 : 1}px ${isBottomPanelCollapsed.value ? 0 : bottomPanelHeight.value}px`,
+}))
+
+function toggleActivityPanel(target) {
+  if (target === 'library') {
+    isLeftPanelCollapsed.value = !isLeftPanelCollapsed.value
+  } else if (target === 'right') {
+    isRightPanelCollapsed.value = !isRightPanelCollapsed.value
+  } else if (target === 'bottom') {
+    isBottomPanelCollapsed.value = !isBottomPanelCollapsed.value
+  }
+  persistWorkbenchLayout()
+}
 
 function changeLocale(next) {
   setLocale(next)
@@ -122,12 +299,14 @@ watch(() => store.scenarioList.length, async () => {
 })
 
 onMounted(() => {
+  restoreWorkbenchLayout()
   window.addEventListener('keydown', handleGlobalKeydown)
   window.addEventListener('resize', updateScrollMask) // 窗口缩放时重算
   nextTick(() => updateScrollMask())
 })
 
 onUnmounted(() => {
+  endWorkbenchResize()
   window.removeEventListener('keydown', handleGlobalKeydown)
   window.removeEventListener('resize', updateScrollMask)
 })
@@ -466,8 +645,88 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <div v-if="!store.isLoading" class="app-layout">
-    <aside class="action-library"><ActionLibrary/></aside>
+  <div v-if="!store.isLoading" ref="appLayoutRef" class="app-layout workbench-layout" :style="appLayoutStyle">
+    <aside class="activity-bar">
+      <div class="activity-bar__group activity-bar__group--top">
+        <button
+          type="button"
+          class="activity-bar__button activity-bar__button--lib"
+          :class="{ 'is-active': !isLeftPanelCollapsed }"
+          @click="toggleActivityPanel('library')"
+        >
+          <svg
+              class="activity-bar__icon activity-bar__icon--lib"
+              viewBox="0 0 184 182"
+              aria-hidden="true"
+              shape-rendering="crispEdges"
+          >
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M88.6 1.7 L53.5 38.1 L92 76.3 L127.1 38.1 Z M56.9 65.9 L26.8 97.1 L31.8 104 L61.9 72.8 Z M123.7 65.9 L118.7 72.8 L150.5 104 L155.5 98.8 Z M53.5 90.1 L92 128.3 L128.8 90.1 L128.8 175.1 L53.5 175.1 Z M3.3 138.7 L21.7 156 L51.8 126.5 L31.8 109.2 Z M148.9 109.2 L132.3 128.3 L162.3 156 L179 138.7 Z"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="activity-bar__group activity-bar__group--bottom">
+        <button
+          type="button"
+          class="activity-bar__button activity-bar__button--panel"
+          :class="{ 'is-active': !isBottomPanelCollapsed }"
+          @click="toggleActivityPanel('bottom')"
+        >
+          <svg
+              class="activity-bar__icon activity-bar__icon--panel"
+              viewBox="0 0 288 288"
+              aria-hidden="true"
+          >
+            <defs>
+              <mask id="enemyPanelMask">
+                <rect width="288" height="288" fill="black" />
+
+                <g fill="white">
+                  <rect x="74" y="38" width="140" height="38" />
+                  <circle cx="80" cy="131" r="40" />
+                  <path d=" M40 89 H248 V194 H210 L192 214 V256 H96 V214 L78 194 H40 Z " />
+                </g>
+
+                <g fill="black">
+                  <path d="M95 130 L117 152 L95 174 L73 152 Z" />
+                  <path d="M193 130 L215 152 L193 174 L171 152 Z" />
+                </g>
+              </mask>
+            </defs>
+
+            <rect
+                width="288"
+                height="288"
+                fill="currentColor"
+                mask="url(#enemyPanelMask)"
+            />
+          </svg>
+
+        </button>
+      </div>
+    </aside>
+
+    <aside class="workbench-panel action-library-panel">
+      <template v-if="!isLeftPanelCollapsed">
+        <div class="workbench-panel__body action-library">
+          <ActionLibrary
+            :on-reset-panel="() => resetWorkbenchLayout('left')"
+            :on-collapse-panel="() => toggleWorkbenchPanel('left')"
+          />
+        </div>
+      </template>
+    </aside>
+
+    <div
+      v-if="!isLeftPanelCollapsed"
+      class="workbench-resizer workbench-resizer--vertical workbench-resizer--left"
+      :class="{ 'is-active': activeWorkbenchDrag === 'left' }"
+      @pointerdown="beginWorkbenchResize('left', $event)"
+      @dblclick="resetWorkbenchLayout('left')"
+    ></div>
 
     <main class="timeline-main">
       <header class="timeline-header" @click="store.selectTrack(null)">
@@ -600,9 +859,22 @@ onUnmounted(() => {
         </div>
       </header>
 
-      <div class="timeline-workspace">
+      <div ref="timelineWorkspaceRef" class="timeline-workspace" :style="timelineWorkspaceStyle">
         <div class="timeline-grid-container"><TimelineGrid/></div>
-        <div class="resource-monitor-panel"><ResourceMonitor/></div>
+
+        <div
+          v-if="!isBottomPanelCollapsed"
+          class="workbench-resizer workbench-resizer--horizontal workbench-resizer--bottom"
+          :class="{ 'is-active': activeWorkbenchDrag === 'bottom' }"
+          @pointerdown="beginWorkbenchResize('bottom', $event)"
+          @dblclick="resetWorkbenchLayout('bottom')"
+        ></div>
+
+        <div v-if="!isBottomPanelCollapsed" class="workbench-panel resource-monitor-panel">
+          <div class="workbench-panel__body resource-monitor-panel__body">
+            <ResourceMonitor />
+          </div>
+        </div>
 
         <div class="export-watermark" ref="watermarkEl">
           Endaxis
@@ -611,7 +883,41 @@ onUnmounted(() => {
       </div>
     </main>
 
-    <aside class="properties-sidebar"><PropertiesPanel/></aside>
+    <div
+      v-if="!isRightPanelCollapsed"
+      class="workbench-resizer workbench-resizer--vertical workbench-resizer--right"
+      :class="{ 'is-active': activeWorkbenchDrag === 'right' }"
+      @pointerdown="beginWorkbenchResize('right', $event)"
+      @dblclick="resetWorkbenchLayout('right')"
+    ></div>
+
+    <aside class="workbench-panel properties-sidebar" :class="{ 'is-collapsed-rail': isRightPanelCollapsed }">
+      <template v-if="!isRightPanelCollapsed">
+        <div class="workbench-panel__body properties-sidebar__body">
+          <PropertiesPanel
+            :on-reset-panel="() => resetWorkbenchLayout('right')"
+            :on-collapse-panel="() => toggleWorkbenchPanel('right')"
+          />
+        </div>
+      </template>
+    </aside>
+
+    <aside class="activity-bar activity-bar--right">
+      <div class="activity-bar__group activity-bar__group--top">
+        <button
+          type="button"
+          class="activity-bar__button activity-bar__button--inspector"
+          :class="{ 'is-active': !isRightPanelCollapsed }"
+          @click="toggleActivityPanel('right')"
+        >
+          <svg class="activity-bar__icon activity-bar__icon--inspector" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M8 9.2h16v3H8Zm0 10.8h16v3H8Z" fill="#4f5054"/>
+            <path d="M12.2 7.3h3.6v6.8h-3.6Zm4 10.8h3.6v6.8h-3.6Z" fill="#f5c31e"/>
+            <path d="M13.9 14.1a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4Zm4.1 10.8a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4Z" fill="#ffffff"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
 
     <el-dialog v-model="exportDialogVisible" :title="t('timeline.export.dialogTitle')" width="460px" align-center class="custom-dialog">
       <div class="export-form">
@@ -679,13 +985,64 @@ onUnmounted(() => {
 
 <style scoped>
 /* App Layout */
-.app-layout { display: grid; grid-template-columns: 200px 1fr 250px; grid-template-rows: 100vh; height: 100vh; overflow: hidden; background-color: #2c2c2c; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-.action-library { background-color: #333; border-right: 1px solid #444; display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
-.timeline-main { display: flex; flex-direction: column; overflow: hidden; background-color: #282828; z-index: 1; border-right: 1px solid #444; }
-.properties-sidebar { background-color: #333; overflow: hidden; z-index: 10; }
+.app-layout { display: grid; grid-template-rows: 100vh; height: 100vh; overflow: hidden; background-color: #1e1f22; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.workbench-layout { gap: 0; }
+.activity-bar { grid-column: 1; display: flex; flex-direction: column; align-items: center; background: #181a1b; border-right: 1px solid rgba(255, 255, 255, 0.06); padding: 10px 0 12px; }
+.activity-bar--right { grid-column: 7; border-right: none; border-left: 1px solid rgba(255, 255, 255, 0.06); }
+.activity-bar__group { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.activity-bar__group--top { padding-top: 2px; }
+.activity-bar__group--bottom { margin-top: auto; padding-top: 14px; }
+.activity-bar__button { position: relative; width: 100%; height: 42px; display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: rgba(255, 255, 255, 0.42); cursor: pointer; padding: 0; transition: color 0.14s ease, background-color 0.14s ease; }
+.activity-bar__button::before { content: ''; position: absolute; left: 0; top: 7px; bottom: 7px; width: 2px; background: #ffd700; opacity: 0; transform: scaleY(0.65); transition: opacity 0.14s ease, transform 0.14s ease; }
+.activity-bar__button:hover { color: rgba(255, 255, 255, 0.84); background: rgba(255, 255, 255, 0.035); }
+.activity-bar__button.is-active { color: #f2f2f2; background: rgba(255, 255, 255, 0.05); }
+.activity-bar__button.is-active::before { opacity: 1; transform: scaleY(1); }
+.activity-bar__icon { width: 24px; height: 24px; display: block; opacity: 0.78; transition: transform 0.14s ease, opacity 0.14s ease; }
+.activity-bar__button:hover .activity-bar__icon,
+.activity-bar__button.is-active .activity-bar__icon { opacity: 1; transform: scale(1.02); }
+.activity-bar__button--lib .activity-bar__icon { width: 24px; height: 24px; }
+.activity-bar__button--panel .activity-bar__icon { width: 24px; height: 24px; transform: translateY(0.5px); }
+.activity-bar__button--inspector .activity-bar__icon { width: 22px; height: 22px; }
+.workbench-panel { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: #252526; }
+.action-library-panel { grid-column: 2; }
+.timeline-main { grid-column: 4; }
+.properties-sidebar { grid-column: 6; }
+.workbench-panel__header { height: 25px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; padding: 0 8px 0 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.035); background: #252526; }
+.workbench-panel__header--dense { height: 24px; }
+.workbench-panel__label { color: rgba(255, 255, 255, 0.56); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.workbench-panel__tools { display: flex; align-items: center; gap: 2px; }
+.workbench-icon-btn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 4px; background: transparent; color: rgba(255, 255, 255, 0.38); cursor: pointer; padding: 0; }
+.workbench-icon-btn:hover { color: rgba(255, 255, 255, 0.84); background: rgba(255, 255, 255, 0.045); }
+.workbench-panel__body { flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.panel-chrome { position: absolute; top: 8px; z-index: 35; display: flex; align-items: center; gap: 2px; padding: 2px 4px 2px 6px; border-radius: 8px 0 0 8px; border: 1px solid rgba(255, 255, 255, 0.06); border-right: none; background: linear-gradient(90deg, rgba(37, 37, 38, 0.86) 0%, rgba(37, 37, 38, 0.62) 100%); backdrop-filter: blur(4px); opacity: 0.18; transform: translateX(2px); transition: opacity 0.14s ease, background-color 0.14s ease, transform 0.14s ease; }
+.action-library-panel:hover .panel-chrome,
+.properties-sidebar:hover .panel-chrome,
+.resource-monitor-panel:hover .panel-chrome,
+.panel-chrome:focus-within { opacity: 1; background: linear-gradient(90deg, rgba(37, 37, 38, 0.96) 0%, rgba(37, 37, 38, 0.82) 100%); transform: translateX(0); }
+.panel-chrome--left { right: 0; }
+.panel-chrome--right { right: 0; }
+.panel-chrome__btn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 4px; background: transparent; color: rgba(255, 255, 255, 0.38); cursor: pointer; padding: 0; }
+.panel-chrome__btn:hover { color: rgba(255, 255, 255, 0.88); background: rgba(255, 255, 255, 0.055); }
+.workbench-resizer { position: relative; background: rgba(255, 255, 255, 0.05); z-index: 30; touch-action: none; }
+.workbench-resizer--left { grid-column: 3; }
+.workbench-resizer--right { grid-column: 5; }
+.workbench-resizer::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.12s ease, background-color 0.12s ease; }
+.workbench-resizer:hover::before, .workbench-resizer.is-active::before { opacity: 1; background: rgba(255, 255, 255, 0.12); }
+.workbench-resizer--vertical { cursor: ew-resize; }
+.workbench-resizer--horizontal { cursor: ns-resize; }
+.workbench-resizer--vertical::after { content: ''; position: absolute; top: 0; left: 50%; width: 9px; height: 100%; transform: translateX(-50%); }
+.workbench-resizer--horizontal::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 9px; transform: translateY(-50%); }
+.action-library-panel { z-index: 10; }
+.action-library { background-color: #252526; display: flex; flex-direction: column; overflow-y: auto; z-index: 10; height: 100%; }
+.timeline-main { position: relative; display: flex; flex-direction: column; overflow: hidden; background-color: #1f1f22; z-index: 1; min-width: 0; }
+.properties-sidebar { z-index: 10; }
+.properties-sidebar__body { background-color: #252526; }
+.workbench-rail { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
+.workbench-rail__button { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 6px; background: transparent; color: rgba(255, 255, 255, 0.48); cursor: pointer; padding: 0; }
+.workbench-rail__button:hover { color: rgba(255, 255, 255, 0.9); background: rgba(255, 255, 255, 0.06); }
 
 /* Header */
-.timeline-header { height: 50px; flex-shrink: 0; border-bottom: 1px solid #444; background-color: #3a3a3a; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 0; cursor: default; user-select: none; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+.timeline-header { height: 50px; flex-shrink: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background-color: #252526; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 0; cursor: default; user-select: none; }
 
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .divider-vertical { width: 1px; height: 20px; background-color: #555; margin: 0 5px; }
@@ -721,9 +1078,11 @@ onUnmounted(() => {
 .project-btn-group .group-item:hover { z-index: 2; border-color: currentColor; }
 
 /* Workspace & Panels */
-.timeline-workspace { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-.timeline-grid-container { flex-grow: 1; overflow: hidden; min-height: 0; }
-.resource-monitor-panel { height: 200px; flex-shrink: 0; border-top: 1px solid #444; z-index: 20; background: #252525; }
+.timeline-workspace { flex-grow: 1; display: grid; overflow: hidden; position: relative; min-height: 0; background: #1f1f22; }
+.timeline-grid-container { grid-row: 1; overflow: hidden; min-height: 0; min-width: 0; }
+.workbench-resizer--bottom { grid-row: 2; }
+.resource-monitor-panel { grid-row: 3; z-index: 20; background: #252526; min-height: 0; }
+.resource-monitor-panel__body { background: #252526; position: relative; }
 
 /* Loading */
 .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #18181c; z-index: 9999; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px; }

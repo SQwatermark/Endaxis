@@ -13,6 +13,24 @@ import { frameToTime, timeToFrame } from '@/utils/time.js'
 const store = useTimelineStore()
 const connectionHandler = useDragConnection()
 const { t } = useI18n({ useScope: 'global' })
+const props = defineProps({
+  onResetPanel: {
+    type: Function,
+    default: null
+  },
+  onCollapsePanel: {
+    type: Function,
+    default: null
+  }
+})
+
+function handleResetPanel() {
+  props.onResetPanel?.()
+}
+
+function handleCollapsePanel() {
+  props.onCollapsePanel?.()
+}
 // ===================================================================================
 // 1. 常量与配置
 // ===================================================================================
@@ -628,11 +646,10 @@ function handleStartConnection(id, type = null) {
           </h3>
           <span v-if="targetData && isLibraryMode" class="mode-badge">{{ t('propertiesPanel.globalMode') }}</span>
         </div>
-
-        <div class="right-group">
-          <div v-if="targetData" class="skill-type-minimal">
-            {{ getFullTypeName(currentSkillType) }}
-          </div>
+        <div class="header-actions">
+          <button type="button" class="header-tool-btn" @click="handleResetPanel">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></svg>
+          </button>
         </div>
       </div>
       <div class="header-divider"></div>
@@ -1017,6 +1034,9 @@ function handleStartConnection(id, type = null) {
 .header-icon-bar { width: 4px; height: 18px; background-color: #ffd700; }
 .char-name { margin: 0; color: #fff; font-size: 18px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mode-badge { font-size: 10px; color: #888; background: #333; padding: 1px 4px; border-radius: 2px; }
+.header-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; margin-right: -2px; }
+.header-tool-btn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 4px; background: transparent; color: rgba(255, 255, 255, 0.34); cursor: pointer; padding: 0; transition: color 0.14s ease, background-color 0.14s ease; }
+.header-tool-btn:hover { color: rgba(255, 255, 255, 0.86); background: rgba(255, 255, 255, 0.055); }
 .skill-type-minimal { font-size: 11px; color: #666; background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 1px; }
 .mode-badge, .skill-type-minimal { flex-shrink: 0; white-space: nowrap; }
 .header-divider { height: 2px; background: linear-gradient(90deg, #ffd700 0%, transparent 100%); opacity: 0.3; margin-top: 3px; }
