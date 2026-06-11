@@ -10,7 +10,6 @@ import {
 } from '@/data/gameText'
 import { useWeaponStore } from '@/stores/weaponStore'
 import { getSkillBounds } from '@/utils/weaponBounds'
-import { rarityColors } from '@/utils/theme'
 
 const LEVELS = [1, 20, 40, 60, 80, 90]
 const ALL_SKILL_KEYS = ['skill1', 'skill2', 'skill3']
@@ -28,7 +27,8 @@ const weaponStore = useWeaponStore()
 const { t } = useI18n()
 
 const weapon = computed(() => (props.instance ? getWeapon(props.instance.weaponSlug) : null))
-const color = computed(() => (weapon.value ? rarityColors[weapon.value.rarity] : '#888') ?? '#888')
+const color = computed(() => (weapon.value ? getRarityBaseColor(Number(weapon.value.rarity) || 0) : '#888'))
+const potentialColor = '#FF4500'
 
 const activeSkillKeys = computed(() => {
   if (!weapon.value) return ALL_SKILL_KEYS
@@ -50,6 +50,13 @@ const canTune = computed(() => {
   if (!props.instance) return false
   return props.instance.level !== 1 && props.instance.level !== 90
 })
+
+function getRarityBaseColor(rarity) {
+  if (rarity === 6) return '#FFD700'
+  if (rarity === 5) return '#ffc400'
+  if (rarity === 4) return '#d8b4fe'
+  return '#888'
+}
 
 function update(updates) {
   if (props.instance) weaponStore.updateWeapon(props.instance.id, updates)
@@ -149,13 +156,17 @@ function getSkillName(skillKey) {
     <template v-if="instance && weapon">
       <div class="layout">
         <div class="header">
-          <div class="portrait-frame" :style="{ borderColor: color }">
+          <div
+            class="portrait-frame"
+            :class="`rarity-${weapon.rarity}-style`"
+            :style="weapon.rarity === 6 ? {} : { borderColor: color }"
+          >
             <img :src="weapon.icon" class="portrait" />
           </div>
           <div class="header-info">
             <div class="name-row">
               <span class="name">{{ displayName || getWeaponGameName(instance.weaponSlug) || instance.weaponSlug }}</span>
-              <span class="stars" :style="{ color }">{{ '*'.repeat(weapon.rarity) }}</span>
+              <span class="stars" :class="`header-rarity-${weapon.rarity}`" :style="{ color }">{{ '★'.repeat(weapon.rarity) }}</span>
             </div>
             <div class="tags">
               <span class="tag">{{ getGameWeaponTypeName(weapon.type) }}</span>
@@ -186,7 +197,7 @@ function getSkillName(skillKey) {
                   :key="p"
                   class="diamond"
                   :class="{ active: instance.potential >= p }"
-                  :style="instance.potential >= p ? { background: color } : {}"
+                  :style="instance.potential >= p ? { background: potentialColor } : {}"
                   @click="update({ potential: instance.potential === p ? p - 1 : p })"
                 />
               </div>
@@ -237,7 +248,7 @@ function getSkillName(skillKey) {
 
     <template #footer>
       <div class="footer">
-        <button class="ea-btn ea-btn--sm ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
+        <button class="ea-btn ea-btn--sm ea-btn--square ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">{{ t('common.close') }}</button>
       </div>
     </template>
@@ -247,14 +258,27 @@ function getSkillName(skillKey) {
 <style scoped>
 .layout { display: flex; flex-direction: column; gap: 20px; }
 .header { display: flex; gap: 20px; align-items: flex-start; }
-.portrait-frame { width: 120px; min-width: 120px; height: 120px; border-radius: 8px; border: 2px solid #555; overflow: hidden; background: #1a1a1e; }
+.portrait-frame { width: 120px; min-width: 120px; height: 120px; border: 2px solid #555; overflow: hidden; background: #1a1a1e; }
 .portrait { width: 100%; height: 100%; object-fit: contain; }
+.rarity-6-style.portrait-frame {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#1a1a1e, #1a1a1e) padding-box,
+    linear-gradient(135deg, #FFD700, #FF8C00, #FF4500) border-box;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+}
 .header-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .name-row { display: flex; align-items: baseline; gap: 10px; }
 .name { font-size: 22px; font-weight: 700; color: #f0f0f0; }
 .stars { font-size: 14px; letter-spacing: 1px; }
+.header-rarity-6.stars {
+  background: linear-gradient(45deg, #FFD700, #FF8C00, #FF4500);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent !important;
+}
 .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.tag { display: inline-flex; align-items: center; padding: 2px 10px; font-size: 11px; border: 1px solid #555; border-radius: 3px; color: #bbb; background: rgba(255,255,255,0.04); }
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; font-size: 11px; border: 1px solid #555; color: #bbb; background: rgba(255,255,255,0.04); }
 .level-display { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
 .level-num { font-size: 28px; font-weight: 700; color: #f0f0f0; line-height: 1; }
 .level-text { font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
@@ -266,7 +290,7 @@ function getSkillName(skillKey) {
 .diamond.active { border-color: transparent; }
 .level-selector { display: flex; gap: 6px; }
 .level-btn { flex: 1; justify-content: center; }
-.section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 16px; }
+.section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 16px; }
 .section-title { font-size: 11px; font-weight: 700; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
 .skill-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .skill-row:last-child { border-bottom: none; }
@@ -275,7 +299,7 @@ function getSkillName(skillKey) {
 .skill-value { font-size: 12px; color: #aaa; margin-left: 8px; }
 .skill-bar-area { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
 .skill-slots { display: flex; gap: 3px; }
-.skill-slot { width: 22px; height: 22px; border: none; border-radius: 2px; font-size: 14px; font-weight: 700; line-height: 22px; text-align: center; padding: 0; font-family: 'Roboto Mono', monospace; }
+.skill-slot { width: 22px; height: 22px; border: none; font-size: 14px; font-weight: 700; line-height: 22px; text-align: center; padding: 0; font-family: 'Roboto Mono', monospace; }
 .skill-slot.slot-base { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
 .skill-slot.slot-active { background: rgba(234,179,8,0.25); color: #eab308; cursor: pointer; }
 .skill-slot.slot-empty { background: rgba(255,255,255,0.04); color: transparent; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }

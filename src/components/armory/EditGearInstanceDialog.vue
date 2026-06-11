@@ -9,6 +9,7 @@ import {
   getGearPieceGameName,
   getGearSetGameName,
 } from '@/data/gameText'
+import { getEffectName } from '@/data/effectPresets'
 import { resolveLeveled } from '@/data/types'
 import { useGearStore } from '@/stores/gearStore'
 import { qualityColors } from '@/utils/theme'
@@ -50,7 +51,7 @@ function formatStatLabel(effect) {
   if (stat.modifier === 'artsIntensity') return t('actionLibrary.labels.originiumArtsPower')
   if (stat.modifier === 'ultimateGainEfficiency') return t('actionLibrary.labels.chargeEfficiency')
   if (stat.modifier === 'susceptibility') return t('armory.common.susceptibility')
-  return stat.modifier
+  return getEffectName(effect)
 }
 
 function update(updates) {
@@ -127,8 +128,8 @@ function formatStatValue(value) {
                 <button
                   v-for="artSlot in 3"
                   :key="artSlot"
-                  class="art-slot"
-                  :class="slotClass(slotIdx, artSlot)"
+                  class="ea-btn ea-btn--icon ea-btn--icon-22 ea-btn--glass-rect ea-btn--accent-gold art-slot"
+                  :class="{ 'is-active': slotClass(slotIdx, artSlot) === 'slot-active' }"
                   @click="setArtificingLevel(slotIdx, artSlot)"
                 >
                   <template v-if="slotClass(slotIdx, artSlot) === 'slot-empty'">&nbsp;</template>
@@ -145,7 +146,7 @@ function formatStatValue(value) {
 
     <template #footer>
       <div class="footer">
-        <button v-if="isGold" class="ea-btn ea-btn--sm ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
+        <button v-if="isGold" class="ea-btn ea-btn--sm ea-btn--square ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">{{ t('common.close') }}</button>
       </div>
     </template>
@@ -155,16 +156,16 @@ function formatStatValue(value) {
 <style scoped>
 .layout { display: flex; flex-direction: column; gap: 20px; }
 .header { display: flex; gap: 20px; align-items: flex-start; }
-.portrait-frame { width: 100px; min-width: 100px; height: 100px; border-radius: 8px; border: 2px solid #555; overflow: hidden; background: #1a1a1e; display: flex; align-items: center; justify-content: center; }
+.portrait-frame { width: 100px; min-width: 100px; height: 100px; border: 2px solid #555; overflow: hidden; background: #1a1a1e; display: flex; align-items: center; justify-content: center; }
 .portrait { width: 80%; height: 80%; object-fit: contain; }
 .header-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .name { font-size: 20px; font-weight: 700; color: #f0f0f0; }
 .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.tag { display: inline-flex; align-items: center; padding: 2px 10px; font-size: 11px; border: 1px solid #555; border-radius: 3px; color: #bbb; background: rgba(255,255,255,0.04); }
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; font-size: 11px; border: 1px solid #555; color: #bbb; background: rgba(255,255,255,0.04); }
 .row { display: flex; align-items: center; gap: 8px; }
 .section-label { font-size: 11px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
 .value { font-size: 16px; font-weight: 700; color: #f0f0f0; }
-.section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 16px; }
+.section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 16px; }
 .section-title { font-size: 11px; font-weight: 700; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
 .stat-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .stat-row:last-child { border-bottom: none; }
@@ -173,9 +174,8 @@ function formatStatValue(value) {
 .stat-value-inline { font-weight: 400; color: #aaa; margin-left: 6px; }
 .stat-bar-area { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .stat-slots { display: flex; gap: 3px; }
-.art-slot { width: 22px; height: 22px; border: none; border-radius: 2px; font-size: 14px; font-weight: 700; line-height: 22px; text-align: center; padding: 0; font-family: 'Roboto Mono', monospace; }
-.art-slot.slot-active { background: rgba(234,179,8,0.25); color: #eab308; cursor: pointer; }
-.art-slot.slot-empty { background: rgba(255,255,255,0.04); color: transparent; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+.art-slot { font-family: 'Roboto Mono', monospace; }
+.art-slot:not(.is-active) { color: transparent; }
 .stat-level { font-size: 13px; font-weight: 700; color: #ccc; min-width: 24px; text-align: right; font-family: 'Roboto Mono', monospace; }
 .stat-locked { color: #777; font-size: 12px; }
 .footer { display: flex; justify-content: flex-end; gap: 8px; width: 100%; }

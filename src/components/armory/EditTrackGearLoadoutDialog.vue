@@ -9,6 +9,7 @@ import {
   getGearPieceGameName,
   getGearSetGameName,
 } from '@/data/gameText'
+import { getEffectName } from '@/data/effectPresets'
 import { resolveLeveled } from '@/data/types'
 import { useGearStore } from '@/stores/gearStore'
 import { useTimelineStore } from '@/stores/timelineStore'
@@ -98,7 +99,7 @@ function formatStatLabel(effect) {
   if (stat.modifier === 'artsIntensity') return t('actionLibrary.labels.originiumArtsPower')
   if (stat.modifier === 'ultimateGainEfficiency') return t('actionLibrary.labels.chargeEfficiency')
   if (stat.modifier === 'susceptibility') return tr('armory.common.susceptibility', 'Susceptibility')
-  return stat.modifier
+  return getEffectName(effect)
 }
 
 function formatStatValue(value) {
@@ -219,8 +220,8 @@ function openItemEditor(slot) {
                   v-for="level in [0, 1, 2, 3]"
                   :key="`${slot.slotKey}-${level}`"
                   type="button"
-                  class="refine-btn"
-                  :class="{ active: slot.refine === level }"
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold refine-btn"
+                  :class="{ 'is-active': slot.refine === level }"
                   @click="setRefine(slot, level)"
                 >
                   {{ level === 0 ? tr('timelineGrid.equipmentDialog.refineBase', 'Base') : level }}
@@ -249,7 +250,7 @@ function openItemEditor(slot) {
 
     <template #footer>
       <div class="footer">
-        <button class="ea-btn ea-btn--sm ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
+        <button class="ea-btn ea-btn--sm ea-btn--square ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">{{ t('common.close') }}</button>
       </div>
     </template>
@@ -273,7 +274,6 @@ function openItemEditor(slot) {
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -310,7 +310,6 @@ function openItemEditor(slot) {
   font-size: 10px;
   color: #bbb;
   border: 1px solid #555;
-  border-radius: 3px;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -328,7 +327,6 @@ function openItemEditor(slot) {
   align-items: center;
   justify-content: center;
   border: 2px solid #555;
-  border-radius: 6px;
   background: #1a1a1e;
 }
 
@@ -401,18 +399,6 @@ function openItemEditor(slot) {
   min-width: 34px;
   height: 24px;
   padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #bbb;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.refine-btn.active {
-  color: #ffd700;
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.14);
 }
 
 .refine-locked,

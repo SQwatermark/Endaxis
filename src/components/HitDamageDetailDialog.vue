@@ -37,7 +37,7 @@ function skillTypeLabel(value) {
   const map = {
     basicAttack: 'skillType.attack',
     finalStrike: 'skillType.attack',
-    dive: 'skillType.dodge',
+    dive: 'skillType.dive',
     battleSkill: 'skillType.skill',
     comboSkill: 'skillType.link',
     ultimate: 'skillType.ultimate',

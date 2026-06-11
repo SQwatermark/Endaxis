@@ -38,10 +38,6 @@ const displayLabel = computed(() => {
     : ''
   const suffix = `${variantSuffix}${comboSuffix}`
 
-  if (type === 'dive') {
-    return `${TYPE_SHORTHAND[type] || '?'}${suffix}`
-  }
-
   if (props.action.kind === 'attack_segment') {
     const total = Number(props.action.attackSequenceTotal) || 0
     const idx = Number(props.action.attackSequenceIndex) || 0

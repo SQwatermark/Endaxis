@@ -5,9 +5,11 @@ import { useTimelineStore } from '@/stores/timelineStore.js'
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
 import { toLegacyDisplayType } from '@/utils/hitModel.js'
+import { findWeaponInstance, findGearInstance } from '@/stores/timeline/instanceLookup'
 
 const store = useTimelineStore()
 const { t, locale } = useI18n({ useScope: 'global' })
+const DEFAULT_ICON = '/icons/default_icon.webp'
 
 const loadoutOpen = ref(false)
 const loadoutTrackIndex = ref(null)
@@ -132,7 +134,7 @@ function getTrackAvatar(track) {
   const id = track?.id
   const roster = Array.isArray(store.characterRoster) ? store.characterRoster : []
   const found = roster.find((c) => c && c.id === id)
-  return found?.avatar || '/avatars/default.webp'
+  return found?.avatar || DEFAULT_ICON
 }
 
 function withBaseUrl(input) {
@@ -150,7 +152,7 @@ function withBaseUrl(input) {
 
 function onAssetError(evt) {
   try {
-    evt.target.src = withBaseUrl('/avatars/default.webp')
+    evt.target.src = withBaseUrl(DEFAULT_ICON)
   } catch {
     // ignore
   }
@@ -180,11 +182,20 @@ const selectedTrack = computed(() => {
   return tracks.value[i] || null
 })
 
+const selectedWeaponInstance = computed(() => {
+  const id = selectedTrack.value?.weaponInstanceId
+  return id ? findWeaponInstance(id) : null
+})
+
 const selectedWeapon = computed(() => {
-  const id = selectedTrack.value?.weaponId
+  const id = selectedWeaponInstance.value?.weaponSlug || selectedTrack.value?.weaponId
   if (!id || typeof store.getWeaponById !== 'function') return null
   return store.getWeaponById(id) || null
 })
+
+const selectedWeaponSkill1Level = computed(() => selectedWeaponInstance.value?.skill1Level ?? selectedTrack.value?.weaponCommon1Tier ?? 1)
+const selectedWeaponSkill2Level = computed(() => selectedWeaponInstance.value?.skill2Level ?? selectedTrack.value?.weaponCommon2Tier ?? 1)
+const selectedWeaponSkill3Level = computed(() => selectedWeaponInstance.value?.skill3Level ?? selectedTrack.value?.weaponBuffTier ?? 1)
 
 function formatSlotLabel(slot) {
   void locale.value
@@ -217,25 +228,32 @@ const equipmentSlots = computed(() => {
   const track = selectedTrack.value
   if (!track) return []
 
-  const resolve = (slotKey, id, refineTier) => {
-    const item = (typeof store.getEquipmentById === 'function') ? store.getEquipmentById(id) : null
+  const resolve = (slotKey, id, refineTier, instanceId) => {
+    const instance = instanceId ? findGearInstance(instanceId) : null
+    const equipmentId = instance?.gearPieceId || id
+    const item = (typeof store.getEquipmentById === 'function') ? store.getEquipmentById(equipmentId) : null
+    const artificingLevels = Array.isArray(instance?.artificingLevels) ? instance.artificingLevels : []
+    const instanceRefine = artificingLevels.length
+      ? Math.max(...artificingLevels.map(level => Number(level) || 0))
+      : null
     const level = item?.level !== undefined ? Number(item.level) : null
     const is70 = level === 70
     return {
       slotKey,
       slotLabel: t(`timeline.mobile.loadout.slot.${slotKey}`),
-      id: id || null,
+      id: equipmentId || null,
+      instance,
       item,
       level: Number.isFinite(level) ? level : null,
-      refineTier: is70 ? (Number(refineTier) || 0) : null,
+      refineTier: is70 ? (Number(instanceRefine ?? refineTier) || 0) : null,
     }
   }
 
   return [
-    resolve('armor', track.equipArmorId, track.equipArmorRefineTier),
-    resolve('gloves', track.equipGlovesId, track.equipGlovesRefineTier),
-    resolve('accessory1', track.equipAccessory1Id, track.equipAccessory1RefineTier),
-    resolve('accessory2', track.equipAccessory2Id, track.equipAccessory2RefineTier),
+    resolve('armor', track.equipArmorId, track.equipArmorRefineTier, track.equipArmorInstanceId),
+    resolve('gloves', track.equipGlovesId, track.equipGlovesRefineTier, track.equipGlovesInstanceId),
+    resolve('accessory1', track.equipAccessory1Id, track.equipAccessory1RefineTier, track.equipAccessory1InstanceId),
+    resolve('accessory2', track.equipAccessory2Id, track.equipAccessory2RefineTier, track.equipAccessory2InstanceId),
   ]
 })
 
@@ -265,7 +283,7 @@ function getActionColor(action) {
   if (displayType === 'skill') return store.getColor('skill')
   if (displayType === 'link') return store.getColor('link')
   if (displayType === 'execution') return store.getColor('execution')
-  if (displayType === 'dodge') return store.getColor('dodge')
+  if (displayType === 'dive') return store.getColor('dodge')
   if (displayType === 'ultimate') return store.getColor('ultimate')
   if (typeof store.getColor === 'function') return store.getColor(action?.element || displayType || 'default')
   return '#8c8c8c'
@@ -343,7 +361,7 @@ const resolvedOperator = computed(() => {
   return {
     id,
     name: found?.name || id,
-    avatar: found?.avatar || '/avatars/default.webp',
+    avatar: found?.avatar || DEFAULT_ICON,
   }
 })
 
@@ -800,7 +818,7 @@ async function doImport() {
             <div class="m-label">{{ t('timeline.mobile.loadout.weapon') }}</div>
             <div class="loadout-item tech-style">
               <div class="loadout-item__icon">
-                <img :src="withBaseUrl(selectedWeapon?.icon || '/avatars/default.webp')" :alt="selectedWeapon?.name || ''" @error="onAssetError" />
+                <img :src="withBaseUrl(selectedWeapon?.icon || DEFAULT_ICON)" :alt="selectedWeapon?.name || ''" @error="onAssetError" />
               </div>
               <div class="loadout-item__main">
                 <div class="loadout-item__title">
@@ -809,17 +827,17 @@ async function doImport() {
                 <div class="loadout-item__sub loadout-weapon-sub" v-if="selectedTrack && selectedWeapon">
                   <div class="loadout-weapon-line">
                     <span class="loadout-weapon-name">{{ selectedWeaponSlot1Label }}</span>
-                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedTrack.weaponCommon1Tier) }}</span>
+                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedWeaponSkill1Level) }}</span>
                   </div>
                   <div class="loadout-weapon-line">
                     <span class="loadout-weapon-name">{{ selectedWeaponSlot2Label }}</span>
-                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedTrack.weaponCommon2Tier) }}</span>
+                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedWeaponSkill2Level) }}</span>
                   </div>
                   <div class="loadout-weapon-line">
                     <span class="loadout-weapon-name">
                       {{ selectedWeapon?.buffName || t('actionLibrary.labels.exclusiveBuff') }}：{{ selectedWeaponBuffKeysLabel }}
                     </span>
-                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedTrack.weaponBuffTier) }}</span>
+                    <span class="loadout-weapon-tier mono">{{ formatTierLabel(selectedWeaponSkill3Level) }}</span>
                   </div>
                 </div>
               </div>
@@ -831,7 +849,7 @@ async function doImport() {
             <div class="loadout-eq-list">
               <div v-for="slot in equipmentSlots" :key="slot.slotKey" class="loadout-item tech-style">
                 <div class="loadout-item__icon">
-                  <img :src="withBaseUrl(slot.item?.icon || '/avatars/default.webp')" :alt="slot.item?.name || ''" @error="onAssetError" />
+                  <img :src="withBaseUrl(slot.item?.icon || DEFAULT_ICON)" :alt="slot.item?.name || ''" @error="onAssetError" />
                 </div>
                 <div class="loadout-item__main">
                   <div class="loadout-item__title">

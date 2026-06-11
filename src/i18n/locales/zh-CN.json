@@ -435,6 +435,7 @@
   "skillType": {
     "attack": "重击",
     "dodge": "闪避",
+    "dive": "下落攻击",
     "execution": "处决",
     "skill": "战技",
     "link": "连携",

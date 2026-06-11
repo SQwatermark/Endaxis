@@ -269,6 +269,10 @@
   --ea-btn-radius: 6px;
 }
 
+.ea-btn--square {
+  --ea-btn-radius: 0px;
+}
+
 .ea-btn--text-bright {
   --ea-btn-color: #fff;
 }

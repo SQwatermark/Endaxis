@@ -435,6 +435,7 @@
   "skillType": {
     "attack": "Final Strike",
     "dodge": "Dodge",
+    "dive": "Dive Attack",
     "execution": "Finisher",
     "skill": "Skill",
     "link": "Combo",

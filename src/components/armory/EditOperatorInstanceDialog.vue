@@ -48,7 +48,7 @@ const { t } = useI18n()
 
 const op = computed(() => (props.instance ? getOperator(props.instance.operatorSlug) : null))
 const color = computed(() => (op.value ? getRarityBaseColor(Number(op.value.rarity) || 0) : '#888'))
-const potentialColor = computed(() => (Number(op.value?.rarity) === 6 ? '#e34b4b' : color.value))
+const potentialColor = '#FF4500'
 const elColor = computed(() => (op.value ? elementColors[op.value.element] : '#888') ?? '#888')
 const skillMax = computed(() =>
   props.instance ? getOperatorSkillMax(props.instance.level, props.instance.promoted) : 1,
@@ -313,7 +313,7 @@ function promotedLabel() {
 
     <template #footer>
       <div class="footer">
-        <button class="ea-btn ea-btn--sm ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
+        <button class="ea-btn ea-btn--sm ea-btn--square ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">{{ t('common.close') }}</button>
       </div>
     </template>

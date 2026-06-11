@@ -653,7 +653,7 @@ function handleStartConnection(id, type = null) {
               <CustomNumberInput :model-value="targetData.gaugeCost" @update:model-value="val => updateActionProp('gaugeCost', val)" :min="0" :border-color="HIGHLIGHT_COLORS.blue" text-align="center"/>
             </div>
 
-            <div class="form-group compact" v-if="!['execution','dodge'].includes(currentSkillType)">
+            <div class="form-group compact" v-if="!['execution','dive'].includes(currentSkillType)">
               <label>{{ t('propertiesPanel.labels.gaugeGain') }}</label>
               <CustomNumberInput :model-value="targetData.gaugeGain" @update:model-value="val => updateActionProp('gaugeGain', val)" :min="0" :border-color="HIGHLIGHT_COLORS.blue" text-align="center"/>
             </div>
@@ -669,7 +669,7 @@ function handleStartConnection(id, type = null) {
           </div>
         </div>
 
-      <div v-if="currentSkillType !== 'dodge'" class="section-container tech-style border-red" @click="isTicksExpanded = !isTicksExpanded" style="cursor: pointer;">
+      <div class="section-container tech-style border-red" @click="isTicksExpanded = !isTicksExpanded" style="cursor: pointer;">
         <div class="panel-tag-mini red">{{ t('propertiesPanel.damage.title') }} ({{ editableHits.length }})</div>
 
         <div class="section-header-tech">
@@ -768,7 +768,7 @@ function handleStartConnection(id, type = null) {
         </div>
       </div>
 
-      <div v-if="currentSkillType !== 'dodge'" class="section-container tech-style">
+      <div class="section-container tech-style">
         <div class="panel-tag-mini">{{ t('propertiesPanel.effects.title') }}</div>
         <div class="anomalies-editor-container" style="background: transparent; border-color: rgba(255,255,255,0.1); margin-top: 10px;">
           <draggable v-model="editableHits" item-key="_editorId" class="rows-container" handle=".row-handle" :animation="200">

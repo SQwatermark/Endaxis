@@ -101,7 +101,7 @@ function getFullTypeName(type) {
           : type === 'finisher'
             ? 'execution'
             : type === 'dive'
-              ? 'dodge'
+              ? 'dive'
               : type
   const key = `skillType.${displayType}`
   const out = t(key)

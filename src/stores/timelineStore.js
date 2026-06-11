@@ -80,7 +80,7 @@ const OPTIMIZER_TO_DISPLAY_TYPE = {
     comboSkill: 'link',
     ultimate: 'ultimate',
     finisher: 'execution',
-    dive: 'dodge',
+    dive: 'dive',
 }
 const DEFAULT_BATTLE_SKILL_UE = 6.5
 const DEFAULT_COMBO_SKILL_UE = 10
@@ -871,6 +871,11 @@ export const useTimelineStore = defineStore('timeline', () => {
     const MAX_HISTORY = 50
 
     function commitState() {
+        const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value)
+        if (currentScenario) {
+            currentScenario.data = _createSnapshot()
+        }
+
         if (historyIndex.value < historyStack.value.length - 1) {
             historyStack.value = historyStack.value.slice(0, historyIndex.value + 1)
         }

@@ -4,7 +4,6 @@ const LEGACY_TO_OPTIMIZER_TYPE = Object.freeze({
   link: 'comboSkill',
   ultimate: 'ultimate',
   execution: 'finisher',
-  dodge: 'dive',
 })
 
 const OPTIMIZER_TO_LEGACY_TYPE = Object.freeze({
@@ -13,7 +12,7 @@ const OPTIMIZER_TO_LEGACY_TYPE = Object.freeze({
   comboSkill: 'link',
   ultimate: 'ultimate',
   finisher: 'execution',
-  dive: 'dodge',
+  dive: 'dive',
 })
 
 const PHYSICAL_STATUS_TYPES = new Set([
