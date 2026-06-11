@@ -3,20 +3,19 @@ import { computed } from 'vue'
 import { useTimelineStore } from '../stores/timelineStore.js'
 import { useDragConnection } from '../composables/useDragConnection.js'
 import ActionLinkPorts from './ActionLinkPorts.vue'
-import { getRectPos } from '@/utils/layoutUtils.js'
 import { useI18n } from 'vue-i18n'
 import { snapTimeToFrame } from '@/utils/time.js'
-
 const props = defineProps({
   action: { type: Object, required: true },
   showDecorations: { type: Boolean, default: true },
 })
+const emit = defineEmits(['hit-click'])
 
 const store = useTimelineStore()
 const connectionHandler = useDragConnection()
 const { t } = useI18n({ useScope: 'global' })
 const TYPE_SHORTHAND = {
-  'attack': 'A', 'dodge': 'D', 'execution': 'X', 'skill': 'C', 'link': 'E', 'ultimate': 'U'
+  'basicAttack': 'A', 'dive': 'D', 'finisher': 'X', 'battleSkill': 'C', 'comboSkill': 'E', 'ultimate': 'U'
 }
 
 const isVariant = computed(() => {
@@ -39,7 +38,7 @@ const displayLabel = computed(() => {
     : ''
   const suffix = `${variantSuffix}${comboSuffix}`
 
-  if (type === 'dodge') {
+  if (type === 'dive') {
     return `${TYPE_SHORTHAND[type] || '?'}${suffix}`
   }
 
@@ -68,10 +67,10 @@ const isGhostMode = computed(() => (props.action.triggerWindow || 0) < 0)
 // 计算主题色
 const themeColor = computed(() => {
   if (props.action.customColor) return props.action.customColor
-  if (props.action.type === 'link') return store.getColor('link')
-  if (props.action.type === 'execution') return store.getColor('execution')
-  if (props.action.type === 'attack') return store.getColor('attack')
-  if (props.action.type === 'dodge') return store.getColor('dodge')
+  if (props.action.type === 'comboSkill') return store.getColor('link')
+  if (props.action.type === 'finisher') return store.getColor('execution')
+  if (props.action.type === 'basicAttack') return store.getColor('attack')
+  if (props.action.type === 'dive') return store.getColor('dodge')
   if (props.action.element) return store.getColor(props.action.element)
 
   let charId = null
@@ -95,23 +94,26 @@ function isCoveredBeforeStart(startTime) {
   return coverStart <= itemStart + 0.0001
 }
 
-function getDamageTickTitle(tick) {
-  if (!tick) return ''
-  const spKind = tick.data?.spKind === 'refund'
-    ? t('propertiesPanel.damage.spKindRefund')
-    : t('propertiesPanel.damage.spKindRecover')
-  return t('actionItem.tickTooltip', {
-    time: store.formatTimeLabel(tick.data?.offset),
-    stagger: tick.data?.stagger || 0,
-    sp: tick.data?.sp || 0,
-    spKind,
+function getDamageHitValue(hit) {
+  return Number(store.getHitDisplayDamage?.(hit?.data) ?? hit?.data?._expectedDamage ?? hit?.data?._damageBreakdown?.expectedDamage ?? 0) || 0
+}
+
+function getDamageHitTitle(hit) {
+  return t('actionItem.damageHitTooltip', {
+    damage: Math.floor(getDamageHitValue(hit)).toLocaleString(),
   })
 }
 
+function onDamageHitClick(hit) {
+  if (!hit?.data?._damageBreakdown) return
+  emit('hit-click', hit.data)
+}
+
 // 连携冷却计算
+
 const effectiveCooldown = computed(() => {
   const baseCd = props.action.cooldown || 0
-  if (props.action.type !== 'link') return baseCd
+  if (props.action.type !== 'comboSkill') return baseCd
   const track = store.tracks.find(t => t.actions?.some(a => a.instanceId === props.action.instanceId))
   const clamp = (val) => {
     const num = Number(val) || 0
@@ -160,7 +162,7 @@ const style = computed(() => {
   let borderStyle = ''
   if (isSelected.value) {
     borderStyle = `2px dashed #ffffff`
-  } else if (props.action.type === 'attack') {
+  } else if (props.action.type === 'basicAttack') {
     borderStyle = `1.5px solid ${hexToRgba(color, 0.4)}`
   } else {
     borderStyle = `2px dashed ${color}`
@@ -180,7 +182,7 @@ const style = computed(() => {
     }
   }
 
-  if (props.action.type === 'link' && !props.action.isDisabled) {
+  if (props.action.type === 'comboSkill' && !props.action.isDisabled) {
     return {
       ...layoutStyle,
       border: `1.5px solid ${color}`,
@@ -337,23 +339,6 @@ const animationTimeWidth = computed(() => {
   return 0
 })
 
-const char = computed(() => {
-  const action = store.getActionById(props.action.instanceId)
-  let charId = action?.trackId
-  return store.characterRoster.find(c => c.id === charId)
-})
-
-// 辅助函数
-function getEffectColor(type) { return store.getColor(type) }
-function getIconPath(type) {
-  if (char.value && char.value.exclusive_buffs) {
-    const exclusive = char.value.exclusive_buffs.find(b => b.key === type)
-    if (exclusive?.path) {
-      return exclusive.path
-    }
-  }
-  return store.iconDatabase[type] || store.iconDatabase['default'] || ''
-}
 function hexToRgba(hex, alpha) {
   if (!hex) return `rgba(255,255,255,${alpha})`
   let c = hex.substring(1).split('');
@@ -374,54 +359,69 @@ const connectionSourceActionId = computed(() => {
 })
 
 // 计算判定点的位置样式
-const renderableTicks = computed(() => {
+const renderableHits = computed(() => {
   const resolvedAction = store.compiledTimeline?.actionMap.get(props.action.instanceId)
-  return resolvedAction?.resolvedDamageTicks
-    .filter(tick => !isCoveredBeforeStart(tick.realTime))
-    .map(tick => {
-      const left = store.timeToPx(tick.realTime) - store.timeToPx(resolvedAction.realStartTime)
+  if (!resolvedAction) return []
+
+  const firedHitRefs = new Set(
+    (store.simLog || [])
+      .filter((entry) => entry.type === 'DAMAGE_HIT' && entry.payload.actionId === props.action.instanceId)
+      .map((entry) => entry.payload.hitData),
+  )
+
+  const baseHits = (resolvedAction.resolvedHits || [])
+    .filter((hit) => !hit._noDamage)
+    .filter((hit) => !hit._condition || firedHitRefs.has(hit))
+    .filter((hit) => !isCoveredBeforeStart(hit.realTime))
+    .map((hit) => {
+      const left = store.timeToPx(hit.realTime) - store.timeToPx(resolvedAction.realStartTime)
       return {
         style: { left: `${left}px` },
-        data: tick
+        data: hit,
+        linkBuffed: Object.values(hit.consumedStacks || {}).some((value) => (Number(value) || 0) > 0),
       }
-    }) || []
-})
+    })
 
-const renderableAnomalies = computed(() => {
-  const raw = props.action.physicalAnomaly || []
-  if (raw.length === 0) return []
-  const rows = Array.isArray(raw[0]) ? raw : [raw]
-  const resultRows = []
+  const actionStart = resolvedAction.realStartTime
+  const trackActionStarts = [...(store.compiledTimeline?.actionMap.entries() ?? [])]
+    .filter(([, action]) => action.trackId === resolvedAction.trackId)
+    .map(([id, action]) => ({ id, start: action.realStartTime }))
+    .sort((left, right) => right.start - left.start)
 
-  let globalFlatIndex = 0
+  const triggeredHits = (store.simLog || [])
+    .filter((entry) => entry.type === 'DAMAGE_HIT')
+    .filter((entry) => entry.payload.hitData?.triggered)
+    .filter((entry) => !entry.payload.hitData?._reactionMeta)
+    .filter((entry) => !String(entry.payload.hitData?.triggeredBy || '').startsWith('dot:'))
+    .filter((entry) => entry.payload.sourceId === resolvedAction.trackId)
+    .filter((entry) => {
+      const owner = trackActionStarts.find((item) => item.start <= entry.time)
+      return owner?.id === props.action.instanceId
+    })
+    .filter((entry) => !isCoveredBeforeStart(entry.time))
+    .map((entry) => {
+      const left = store.timeToPx(entry.time) - store.timeToPx(actionStart)
+      return {
+        style: { left: `${left}px` },
+        data: entry.payload.hitData,
+        linkBuffed: Object.values(entry.payload.hitData?.consumedStacks || {}).some((value) => (Number(value) || 0) > 0),
+        _time: entry.time,
+      }
+    })
 
-  rows.forEach((row, rowIndex) => {
-    row.forEach((effect, colIndex) => {
-      const myEffectIndex = globalFlatIndex++
-      const effectId = effect._id
-      
-      const layout = store.effectLayouts.get(effectId)
-      if (!layout) return
-      if (isCoveredBeforeStart(layout.startTime)) return
-
-      resultRows.push({
-        data: effect, 
-        rowIndex, 
-        colIndex, 
-        flatIndex: myEffectIndex,
-        style: {
-          transform: layout.localTransform,
-          zIndex: 15 + rowIndex,
-        },
-        barWidth: layout.barData.width, 
-        isConsumed: layout.barData.isConsumed, 
-        displayDuration: layout.barData.displayDuration,
-        extensionAmount: layout.barData.extensionAmount,
-        effectId: effectId
-      })
+  const groupedTriggeredHits = new Map()
+  triggeredHits.forEach((hit) => {
+    const key = Number(hit._time) || 0
+    if (!groupedTriggeredHits.has(key)) groupedTriggeredHits.set(key, [])
+    groupedTriggeredHits.get(key).push(hit)
+  })
+  groupedTriggeredHits.forEach((group) => {
+    group.forEach((hit, index) => {
+      hit.style['--stack-index'] = index
     })
   })
-  return resultRows
+
+  return [...baseHits, ...triggeredHits]
 })
 
 const showPorts = computed(() => {
@@ -443,11 +443,6 @@ const isActionValidConnectionTarget = computed(() => {
   return connectionHandler.isNodeValid(props.action.instanceId)
 })
 
-function onIconClick(evt, item, flatIndex) {
-  evt.stopPropagation()
-  store.selectAnomaly(props.action.instanceId, item.rowIndex, item.colIndex)
-}
-
 function handleConnectionDrop(port) {
   connectionHandler.endDrag(props.action.instanceId, port)
 }
@@ -461,32 +456,6 @@ function handleConnectionSnap(port, snapPos) {
 function handleActionDragStart(startPos, port) {
   connectionHandler.newConnectionFrom(startPos, props.action.instanceId, port)
 }
-
-function handleEffectDragStart(event, effectId) {
-  if (!connectionHandler.toolEnabled.value || connectionHandler.isDragging.value) {
-    return
-  }
-  const effectLayout = store.effectLayouts.get(effectId)
-  if (!effectLayout) return
-  const rect = effectLayout.rect
-  const timelinePoint = getRectPos(rect, 'right')
-  connectionHandler.newConnectionFrom(timelinePoint, effectId, 'right')
-}
-
-function handleEffectSnap(event, effectId) {
-  if (!connectionHandler.isNodeValid(effectId)) {
-    return
-  }
-  const effectLayout = store.effectLayouts.get(effectId)
-  if (!effectLayout) return
-  const rect = effectLayout.rect
-  const timelinePoint = getRectPos(rect, 'left')
-  connectionHandler.snapTo(effectId, 'left', timelinePoint)
-}
-
-function handleEffectDrop(effectId) {
-  connectionHandler.endDrag(effectId, 'left')
-}
 </script>
 
 <template>
@@ -497,8 +466,6 @@ function handleEffectDrop(effectId) {
        :style="style"
        @click.stop
        @dragstart.prevent>
-
-
     <div v-if="showDecorations && !isGhostMode && effectiveCooldown > 0" class="cd-bar-container bottom-bar" :style="cdStyle">
       <div class="cd-line" :style="{ backgroundColor: themeColor }"></div>
 
@@ -542,11 +509,19 @@ function handleEffectDrop(effectId) {
     </template>
 
     <div v-if="showDecorations && !isGhostMode" class="damage-ticks-layer">
-      <div v-for="(tick, idx) in renderableTicks" :key="idx"
+      <div v-for="(tick, idx) in renderableHits" :key="idx"
            class="damage-tick-wrapper"
-           :style="tick.style"
-           :title="getDamageTickTitle(tick)">
-        <div class="tick-marker"></div>
+           :style="tick.style">
+        <div
+          class="tick-marker"
+          :class="{
+            'is-triggered': tick.data?.triggered,
+            'is-link-buffed': tick.linkBuffed,
+            'is-forced-crit': store.isHitForcedCrit(tick.data?._actionInstanceId, tick.data?._hitIndex),
+          }"
+          :title="getDamageHitTitle(tick)"
+          @mousedown.stop="onDamageHitClick(tick)"
+        ></div>
       </div>
     </div>
 
@@ -591,47 +566,6 @@ function handleEffectDrop(effectId) {
                      :rect="store.nodeRects[action.instanceId]?.rect"
                      v-if="showPorts && showDecorations"
                      :color="themeColor" />
-
-    <div v-if="showDecorations && !isGhostMode" class="anomalies-overlay">
-      <div v-for="(item, index) in renderableAnomalies" :key="`${item.rowIndex}-${item.colIndex}`"
-           class="anomaly-wrapper" :style="item.style" :data-id="item.effectId">
-
-        <div :id="item.effectId"
-             class="anomaly-icon-box"
-             :class="{ 'is-linking': connectionHandler.isDragging.value, 'is-link-target-valid': connectionHandler.isNodeValid(item.data._id) }"
-             @mousedown.stop="handleEffectDragStart($event, item.data._id)"
-             @mouseover.stop="handleEffectSnap($event, item.data._id)"
-             @mouseup.stop="handleEffectDrop(item.data._id)"
-             @mouseleave="connectionHandler.clearSnap()"
-             @click.stop="onIconClick($event, item, index)">
-
-          <img :src="getIconPath(item.data.type)" class="anomaly-icon" />
-          <div v-if="item.data.stacks > 1" class="anomaly-stacks">{{ item.data.stacks }}</div>
-        </div>
-
-        <div class="anomaly-duration-bar"
-           v-if="!item.data.hideDuration"
-           :style="{width: `${item.barWidth}px`,backgroundColor: getEffectColor(item.data.type),display: (item.displayDuration > 0 || item.data.duration > 0 || item.isConsumed) ? 'flex' : 'none'}"
-           :class="{ 'is-consumed-bar': item.isConsumed }">
-
-          <div class="striped-bg"></div>
-          <span class="duration-text">
-            {{ store.formatTimeLabel(item.isConsumed ? item.displayDuration : item.data.duration) }}
-            <span v-if="!item.isConsumed && item.extensionAmount > 0" class="extension-label">
-              (+{{ store.formatTimeLabel(item.extensionAmount) }})
-            </span>
-          </span>
-
-          <div v-if="item.isConsumed"
-               :id="`${item.effectId}_transfer`"
-               class="transfer-node-wrapper">
-            <div class="transfer-node"></div>
-            <div class="transfer-line"></div>
-          </div>
-
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -647,35 +581,6 @@ function handleEffectDrop(effectId) {
 .action-item-wrapper:hover { filter: brightness(1.2); }
 
 /* === 异常状态层 === */
-.anomalies-overlay { position: absolute; top: 0; left: -1px; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-.anomaly-wrapper { position: absolute; display: flex; align-items: center; pointer-events: none; white-space: nowrap; bottom: 100% }
-
-/* 图标样式 */
-.anomaly-icon-box {
-  width: 20px; height: 20px; background-color: #333; border: 1px solid #999;
-  box-sizing: border-box; display: flex; align-items: center; justify-content: center;
-  position: relative; z-index: 10; flex-shrink: 0; pointer-events: auto; cursor: pointer;
-  transition: transform 0.1s, border-color 0.1s, box-shadow 0.2s;
-}
-.anomaly-icon-box:hover { border-color: #ffd700; transform: scale(1.2); z-index: 20; }
-.anomaly-icon-box.is-linking {
-  opacity: 0.5;
-  pointer-events: none;
-}
-.anomaly-icon-box.is-linking.is-link-target-valid {
-  opacity: 1;
-  pointer-events: auto;
-  border-color: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-  transform: scale(1.1); animation: pulse-target 1s infinite; z-index: 100;
-}
-@keyframes pulse-target {
-  0% { box-shadow: 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 10px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
-}
-.anomaly-icon { width: 100%; height: 100%; object-fit: cover; }
-.anomaly-stacks {
-  position: absolute; bottom: -2px; right: -2px; background: rgba(0, 0, 0, 0.8);
-  color: #ffd700; font-size: 8px; padding: 0 2px; line-height: 1; border-radius: 2px;
-}
 
 .status-icon {
   position: absolute;
@@ -713,17 +618,18 @@ function handleEffectDrop(effectId) {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 12px;
-  margin-left: -6px;
+  width: 8px;
+  margin-left: -4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  pointer-events: auto;
+  pointer-events: none;
   z-index: 20;
 }
 
 .tick-marker {
+  position: relative;
   width: 6px;
   height: 6px;
   background-color: #ff4d4f;
@@ -731,55 +637,38 @@ function handleEffectDrop(effectId) {
   transform: translateY(50%) rotate(45deg);
   box-shadow: 0 1px 2px rgba(0,0,0,0.5);
   transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+  cursor: default;
 }
 
-.damage-tick-wrapper:hover .tick-marker {
+.tick-marker.is-triggered {
+  background-color: #faad14;
+  border-color: #d48806;
+  transform: translateY(calc(50% + 14px + var(--stack-index, 0) * 10px)) rotate(45deg);
+}
+
+.tick-marker.is-link-buffed {
+  background-color: #64c8ff;
+  border-color: #3a9fd4;
+  box-shadow: 0 0 6px rgba(100, 200, 255, 0.8);
+}
+
+.tick-marker.is-forced-crit {
+  background-color: #ff6b6b;
+  border-color: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
+}
+
+.tick-marker:hover {
   background-color: #ffd700;
   border-color: #fff;
-  transform: translateY(50%) rotate(45deg) scale(2.0);
+  transform: translateY(50%) rotate(45deg) scale(1.65);
   box-shadow: 0 0 8px rgba(255, 215, 0, 1);
   z-index: 30;
 }
 
-/* === 时长条样式 === */
-.anomaly-duration-bar {
-  height: 16px; border: none; border-radius: 2px; position: relative;
-  display: flex; align-items: center; overflow: visible;
-  box-sizing: border-box; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  z-index: 1; margin-left: 2px;
-}
-.is-consumed-bar { opacity: 0.95; border-right: none; }
-.striped-bg {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
-  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2) 2px, transparent 2px, transparent 6px);
-}
-.duration-text {
-  position: absolute; left: 4px; font-size: 11px; color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); z-index: 2; font-weight: bold; line-height: 1; font-family: sans-serif;
-}
-
-/* === 被消耗节点 === */
-.transfer-node-wrapper {
-  position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
-  width: 12px; height: 12px; display: flex; align-items: center; justify-content: center;
-  z-index: 20; pointer-events: none;
-}
-.transfer-node {
-  width: 6px; height: 6px; background-color: #fff; border: 1px solid #ffd700;
-  transform: rotate(45deg); box-shadow: 0 0 4px #ffd700, 0 0 8px rgba(255, 215, 0, 0.6);
-  position: relative; z-index: 2;
-}
-.transfer-line {
-  position: absolute;
-  width: 2px;
-  height: 14px;
-  background-color: #fff;
-  border-radius: 1px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
-  z-index: 1;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+.tick-marker.is-triggered:hover {
+  transform: translateY(calc(50% + 14px + var(--stack-index, 0) * 10px)) rotate(45deg) scale(1.35);
 }
 
 /* === 其他样式 === */

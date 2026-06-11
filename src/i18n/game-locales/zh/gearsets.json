@@ -1,0 +1,112 @@
+{
+  "frontiers": {
+    "setName": "拓荒",
+    "passive": "",
+    "conditional": ""
+  },
+  "type-50-yinglung": {
+    "setName": "50式应龙",
+    "passive": "",
+    "conditional": ""
+  },
+  "bonekrusha": {
+    "setName": "碾骨",
+    "passive": "",
+    "conditional": ""
+  },
+  "tide-surge": {
+    "setName": "潮涌",
+    "passive": "",
+    "conditional": ""
+  },
+  "qingbo": {
+    "setName": "清波",
+    "passive": "",
+    "conditional": ""
+  },
+  "mi-security": {
+    "setName": "M.I.警用",
+    "passive": "",
+    "conditional": ""
+  },
+  "xiranflow": {
+    "setName": "壤流",
+    "passive": "",
+    "conditional": ""
+  },
+  "hot-work": {
+    "setName": "动火用",
+    "passive": "",
+    "conditional": ""
+  },
+  "lynx": {
+    "setName": "生物辅助",
+    "passive": "",
+    "conditional": ""
+  },
+  "swordmancer": {
+    "setName": "点剑",
+    "passive": "",
+    "conditional": ""
+  },
+  "aethertech": {
+    "setName": "轻超域",
+    "passive": "",
+    "conditional": ""
+  },
+  "pulser-labs": {
+    "setName": "脉冲式",
+    "passive": "",
+    "conditional": ""
+  },
+  "eternal-xiranite": {
+    "setName": "长息",
+    "passive": "",
+    "conditional": ""
+  },
+  "roving-msgr": {
+    "setName": "巡行信使",
+    "passive": "",
+    "conditional": ""
+  },
+  "aburreys-legacy": {
+    "setName": "阿伯莉遗声",
+    "passive": "",
+    "conditional": ""
+  },
+  "armored-msgr": {
+    "setName": "重装信使",
+    "passive": "",
+    "conditional": ""
+  },
+  "catastrophe": {
+    "setName": "天灾防护",
+    "passive": "",
+    "conditional": ""
+  },
+  "mordvolt-resistant": {
+    "setName": "蚀电防护",
+    "passive": "",
+    "conditional": ""
+  },
+  "mordvolt-insulation": {
+    "setName": "蚀电屏蔽",
+    "passive": "",
+    "conditional": ""
+  },
+  "aic-heavy": {
+    "setName": "集成重型",
+    "passive": "",
+    "conditional": ""
+  },
+  "aic-light": {
+    "setName": "集成轻型",
+    "passive": "",
+    "conditional": ""
+  },
+  "no-set-bonuses": {
+    "setName": "无套装加成",
+    "passive": "",
+    "conditional": ""
+  }
+}

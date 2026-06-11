@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 export function useDragConnection() {
     const store = useTimelineStore()
 
-    const { connectionDragState, connectionSnapState, enableConnectionTool, validConnectionTargetIds, actionMap, effectsMap, statusMap, connections, toggleConnectionTool } = storeToRefs(store)
+    const { connectionDragState, connectionSnapState, enableConnectionTool, validConnectionTargetIds, actionMap, effectsMap, connections, toggleConnectionTool } = storeToRefs(store)
     const isDragging = computed(() => {
         return connectionDragState.value.isDragging
     })
@@ -40,12 +40,6 @@ export function useDragConnection() {
         for (const effect of effectsMap.value.values()) {
             if (validateConnection(sourceId, effect.id)) {
                 validSet.add(effect.id)
-            }
-        }
-
-        for (const status of statusMap.value.values()) {
-            if (validateConnection(sourceId, status.id)) {
-                validSet.add(status.id)
             }
         }
 

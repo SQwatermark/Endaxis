@@ -6,9 +6,18 @@ import CustomNumberInput from './CustomNumberInput.vue'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { useDragConnection } from '@/composables/useDragConnection.js'
 import { getRectPos } from '@/utils/layoutUtils.js'
-import { buildEffectBindingOptions } from '@/utils/effectBindingOptions.js'
 import { useI18n } from 'vue-i18n'
 import { frameToTime, timeToFrame } from '@/utils/time.js'
+import { getDisplayKeyCandidates, resolveEffectDisplayKey, toLegacyUiKey } from '@/utils/effectDisplay.js'
+import {
+  createEditorEffect,
+  createEditorHit,
+  createHitModelId,
+  ensureActionLikeModel,
+  ensureEffectId,
+  normalizeHits,
+  toLegacyDisplayType,
+} from '@/utils/hitModel.js'
 
 const store = useTimelineStore()
 const connectionHandler = useDragConnection()
@@ -41,17 +50,18 @@ const HIGHLIGHT_COLORS = {
 }
 
 function getEffectDisplayName(type) {
-  if (!type) return t('common.unknown')
-  const key = `effects.name.${type}`
+  const displayType = toLegacyUiKey(type) || type
+  if (!displayType) return t('common.unknown')
+  const key = `effects.name.${displayType}`
   const out = t(key)
-  return out === key ? type : out
+  return out === key ? displayType : out
 }
 
 const GROUP_DEFINITIONS = computed(() => [
-  { label: t('effects.group.physical'), keys: ['break', 'armor_break', 'stagger', 'knockdown', 'knockup', 'ice_shatter'] },
-  { label: t('effects.group.attach'), matcher: (key) => key.endsWith('_attach') },
+  { label: t('effects.group.physical'), keys: ['vulnerability', 'breach', 'crush', 'lift', 'knockdown', 'shatter'] },
+  { label: t('effects.group.attach'), matcher: (key) => key.endsWith('_infliction') || key.endsWith('_attach') },
   { label: t('effects.group.burst'), matcher: (key) => key.endsWith('_burst') },
-  { label: t('effects.group.status'), keys: ['burning', 'conductive', 'frozen', 'corrosion'] },
+  { label: t('effects.group.status'), keys: ['combustion', 'electrification', 'solidification', 'corrosion'] },
   { label: t('effects.group.other'), keys: ['default'] }
 ])
 
@@ -67,7 +77,7 @@ const PORT_OPTIONS = computed(() => [
 ])
 
 function getFullTypeName(type) {
-  const key = `skillType.${type}`
+  const key = `skillType.${toLegacyDisplayType(type)}`
   const out = t(key)
   return out === key ? t('skillType.unknown') : out
 }
@@ -79,20 +89,7 @@ function getFullTypeName(type) {
 const isTicksExpanded = ref(false)
 const isBarsExpanded = ref(false)
 const localSelectedAnomalyId = ref(null) // 用于库模式下的本地选中状态
-const selectedWeaponStatus = computed(() => {
-  if (!store.selectedWeaponStatusId) return null
-  return store.weaponStatuses.find(s => s.id === store.selectedWeaponStatusId) || null
-})
-const isWeaponStatusMode = computed(() => !!selectedWeaponStatus.value)
-const isSetLibraryMode = computed(() => store.selectedLibrarySource === 'set')
-const activeLibraryList = computed(() => {
-  if (store.selectedLibrarySource === 'weapon') return store.activeWeaponSkillLibrary
-  if (store.selectedLibrarySource === 'set') return store.activeSetBonusLibrary
-  return store.activeSkillLibrary
-})
-const isWeaponLibraryMode = computed(() => store.selectedLibrarySource === 'weapon')
 
-// 监听选中切换，重置本地状态
 watch(() => store.selectedLibrarySkillId, () => {
   localSelectedAnomalyId.value = null
 })
@@ -107,17 +104,20 @@ const targetData = computed(() => {
   }
   if (store.selectedLibrarySkillId) {
     // 寻找库模板
-    return activeLibraryList.value.find(s => s.id === store.selectedLibrarySkillId)
-  }
-  if (selectedWeaponStatus.value) {
-    return selectedWeaponStatus.value
+    return store.activeSkillLibrary.find(s => s.id === store.selectedLibrarySkillId)
   }
   return null
 })
 
 const isLibraryMode = computed(() => {
-  return !!store.selectedLibrarySkillId && !store.selectedActionId && !isWeaponStatusMode.value
+  return !!store.selectedLibrarySkillId && !store.selectedActionId
 })
+
+watch(targetData, (value) => {
+  if (value) {
+    ensureActionLikeModel(value, { deleteLegacy: false, aliasStyle: 'camel' })
+  }
+}, { immediate: true })
 
 const currentCharacter = computed(() => {
   if (!targetData.value) return null
@@ -128,6 +128,11 @@ const currentCharacter = computed(() => {
     return store.characterRoster.find(c => c.id === track.id)
   }
 
+  if (store.activeTrackIndex !== null && store.activeTrackIndex !== undefined) {
+    const track = store.tracks[store.activeTrackIndex]
+    if (track?.id) return store.characterRoster.find(c => c.id === track.id)
+  }
+
   if (store.activeTrackId) {
     return store.characterRoster.find(c => c.id === store.activeTrackId)
   }
@@ -135,8 +140,7 @@ const currentCharacter = computed(() => {
 })
 
 const currentSkillType = computed(() => {
-  if (isWeaponStatusMode.value) return 'weapon'
-  return targetData.value?.type || 'unknown'
+  return toLegacyDisplayType(targetData.value?.type) || 'unknown'
 })
 
 // === 分段连携 ===
@@ -178,40 +182,41 @@ function toggleComboLinked() {
   updateActionProp('comboLinked', !comboLinked.value)
 }
 
-// === 统一更新函数 ===
+// === 统一更新函数===
 function commitUpdate(payload) {
   if (!targetData.value) return
 
-  if (isWeaponStatusMode.value) {
-    store.updateWeaponStatus(store.selectedWeaponStatusId, payload)
-    return
-  }
 
   if (isLibraryMode.value) {
-    if (isSetLibraryMode.value) {
-      const category = targetData.value.setCategory
-      if (!category) return
-      if (payload.duration !== undefined) {
-        store.updateEquipmentCategoryOverride(category, {
-          setBonus: { duration: payload.duration }
-        })
-      }
-      return
-    }
-
-    // 更新库技能 (Character/Weapon Overrides)
+    // Update character library override
     store.updateLibrarySkill(targetData.value.id, payload)
   } else {
-    // 更新时间轴实例
     store.updateAction(store.selectedActionId, payload)
   }
 }
 
 // === 异常状态相关 ===
 
-const anomalyRows = computed({
-  get: () => targetData.value?.physicalAnomaly || [],
-  set: (val) => commitUpdate({ physicalAnomaly: val })
+function ensureHitUiKey(hit) {
+  if (!hit || typeof hit !== 'object') return
+  const desc = Object.getOwnPropertyDescriptor(hit, '_editorId')
+  if (!desc) {
+    Object.defineProperty(hit, '_editorId', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: createHitModelId()
+    })
+  }
+}
+
+const editableHits = computed({
+  get: () => {
+    const hits = normalizeHits(targetData.value?.hits || [], targetData.value?.element)
+    hits.forEach(ensureHitUiKey)
+    return hits
+  },
+  set: (val) => commitUpdate({ hits: normalizeHits(val, targetData.value?.element) })
 })
 
 const activeAnomalyId = computed(() => {
@@ -221,10 +226,9 @@ const activeAnomalyId = computed(() => {
 const currentSelectedCoords = computed(() => {
   if (!activeAnomalyId.value || !targetData.value) return null
 
-  const rows = targetData.value.physicalAnomaly || []
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r]
-    const c = row.findIndex(e => e._id === activeAnomalyId.value)
+  for (let r = 0; r < editableHits.value.length; r++) {
+    const row = Array.isArray(editableHits.value[r]?.effects) ? editableHits.value[r].effects : []
+    const c = row.findIndex(e => e?._id === activeAnomalyId.value)
     if (c !== -1) return { rowIndex: r, colIndex: c }
   }
   return null
@@ -233,17 +237,15 @@ const currentSelectedCoords = computed(() => {
 const editingEffectData = computed(() => {
   const coords = currentSelectedCoords.value
   if (!coords) return null
-  return anomalyRows.value[coords.rowIndex]?.[coords.colIndex]
+  return editableHits.value[coords.rowIndex]?.effects?.[coords.colIndex] || null
 })
 
 const totalStagger = computed(() => {
-  if (!targetData.value || !targetData.value.damageTicks) return 0
-  return targetData.value.damageTicks.reduce((acc, tick) => acc + (Number(tick.stagger) || 0), 0)
+  return editableHits.value.reduce((acc, hit) => acc + (Number(hit?.stagger) || 0), 0)
 })
 
 const totalSpGain = computed(() => {
-  if (!targetData.value || !targetData.value.damageTicks) return 0
-  return targetData.value.damageTicks.reduce((acc, tick) => acc + (Number(tick.sp) || 0), 0)
+  return editableHits.value.reduce((acc, hit) => acc + (Number(hit?.spRecovery) || 0) + (Number(hit?.spReturn) || 0), 0)
 })
 
 function isEditing(r, c) {
@@ -256,9 +258,9 @@ function isEditing(r, c) {
 // ===================================================================================
 
 function toggleEditEffect(r, c) {
-  const effect = anomalyRows.value[r]?.[c]
+  const effect = editableHits.value[r]?.effects?.[c]
   if (!effect) return
-  if (!effect._id) effect._id = Math.random().toString(36).substring(2, 9)
+  ensureEffectId(effect)
 
   const targetId = effect._id
 
@@ -279,10 +281,11 @@ function updateEffectProp(key, value) {
   const coords = currentSelectedCoords.value
   if (!coords) return
   const { rowIndex, colIndex } = coords
-  const rows = JSON.parse(JSON.stringify(anomalyRows.value))
-  if (rows[rowIndex] && rows[rowIndex][colIndex]) {
-    rows[rowIndex][colIndex][key] = value
-    commitUpdate({ physicalAnomaly: rows })
+  const hits = JSON.parse(JSON.stringify(editableHits.value))
+  const effect = hits[rowIndex]?.effects?.[colIndex]
+  if (effect) {
+    effect[key] = value
+    commitUpdate({ hits: normalizeHits(hits, targetData.value?.element) })
   }
 }
 
@@ -291,19 +294,12 @@ function updateEffectFrameProp(key, value) {
 }
 
 function addRow() {
-  const rows = JSON.parse(JSON.stringify(anomalyRows.value))
-  const allowed = targetData.value.allowedTypes || []
-  const defaultType = allowed.length > 0 ? allowed[0] : 'default'
-
-  rows.push([{
-    _id: Math.random().toString(36).substring(2, 9),
-    type: defaultType, stacks: 1, duration: 0, offset: 0, sp: 0, stagger: 0
-  }])
-
-  commitUpdate({ physicalAnomaly: rows })
-
-  const lastRowIndex = rows.length - 1
-  const newEffect = rows[lastRowIndex][0]
+  const explicitAllowed = Array.isArray(targetData.value?.allowedEffectTypes) ? targetData.value.allowedEffectTypes : []
+  const existingTypes = editableHits.value.flatMap(hit => (hit.effects || []).map(effect => resolveEffectDisplayKey(effect)).filter(Boolean))
+  const defaultType = explicitAllowed[0] || existingTypes[0] || currentCharacter.value?.exclusive_buffs?.[0]?.key || 'default'
+  const newEffect = createEditorEffect(defaultType)
+  const nextHits = [...editableHits.value, createEditorHit({ element: targetData.value?.element, effects: [newEffect] })]
+  commitUpdate({ hits: normalizeHits(nextHits, targetData.value?.element) })
   if (newEffect) {
     if (isLibraryMode.value) localSelectedAnomalyId.value = newEffect._id
     else store.setSelectedAnomalyId(newEffect._id)
@@ -311,36 +307,29 @@ function addRow() {
 }
 
 function addEffectToRow(rowIndex) {
-  const rows = JSON.parse(JSON.stringify(anomalyRows.value))
-  const allowed = targetData.value.allowedTypes || []
-  const defaultType = allowed.length > 0 ? allowed[0] : 'default'
+  const explicitAllowed = Array.isArray(targetData.value?.allowedEffectTypes) ? targetData.value.allowedEffectTypes : []
+  const existingTypes = editableHits.value.flatMap(hit => (hit.effects || []).map(effect => resolveEffectDisplayKey(effect)).filter(Boolean))
+  const defaultType = explicitAllowed[0] || existingTypes[0] || currentCharacter.value?.exclusive_buffs?.[0]?.key || 'default'
+  const hits = JSON.parse(JSON.stringify(editableHits.value))
+  if (!hits[rowIndex]) return
 
-  if (rows[rowIndex]) {
-    const newEffect = {
-      _id: Math.random().toString(36).substring(2, 9),
-      type: defaultType, stacks: 1, duration: 0, offset: 0, sp: 0, stagger: 0
-    }
-    rows[rowIndex].push(newEffect)
-    commitUpdate({ physicalAnomaly: rows })
+  const newEffect = createEditorEffect(defaultType)
+  if (!Array.isArray(hits[rowIndex].effects)) hits[rowIndex].effects = []
+  hits[rowIndex].effects.push(newEffect)
+  commitUpdate({ hits: normalizeHits(hits, targetData.value?.element) })
 
-    if (isLibraryMode.value) localSelectedAnomalyId.value = newEffect._id
-    else store.setSelectedAnomalyId(newEffect._id)
-  }
+  if (isLibraryMode.value) localSelectedAnomalyId.value = newEffect._id
+  else store.setSelectedAnomalyId(newEffect._id)
 }
 
 function removeEffect(r, c) {
-  if (isLibraryMode.value) {
-    const rows = JSON.parse(JSON.stringify(anomalyRows.value))
-    if (rows[r]) {
-      rows[r].splice(c, 1)
-      if (rows[r].length === 0) rows.splice(r, 1)
-      commitUpdate({ physicalAnomaly: rows })
-      localSelectedAnomalyId.value = null
-    }
-    return
-  }
-  store.removeAnomaly(store.selectedActionId, r, c)
+  const hits = JSON.parse(JSON.stringify(editableHits.value))
+  if (!hits[r]?.effects?.[c]) return
+  hits[r].effects.splice(c, 1)
+  commitUpdate({ hits: normalizeHits(hits, targetData.value?.element) })
+  if (!isLibraryMode.value) store.removeAnomaly(store.selectedActionId, r, c)
   store.setSelectedAnomalyId(null)
+  localSelectedAnomalyId.value = null
 }
 
 function updateActionProp(key, value) {
@@ -360,55 +349,45 @@ function updateActionFrameProp(key, value) {
 }
 
 function addDamageTick() {
-  const currentTicks = targetData.value.damageTicks ? [...targetData.value.damageTicks] : []
-  currentTicks.push({ offset: 0, stagger: 0, sp: 0, spKind: 'recover', boundEffects: [] })
-  currentTicks.sort((a, b) => a.offset - b.offset)
-  commitUpdate({ damageTicks: currentTicks })
+  const currentTicks = [...editableHits.value, createEditorHit({ element: targetData.value?.element })]
+  commitUpdate({ hits: normalizeHits(currentTicks, targetData.value?.element) })
   isTicksExpanded.value = true
 }
 
 function removeDamageTick(index) {
-  const currentTicks = [...(targetData.value.damageTicks || [])]
+  const currentTicks = [...editableHits.value]
   currentTicks.splice(index, 1)
-  commitUpdate({ damageTicks: currentTicks })
+  commitUpdate({ hits: normalizeHits(currentTicks, targetData.value?.element) })
 }
 
 function updateDamageTick(index, key, value) {
-  const currentTicks = [...(targetData.value.damageTicks || [])]
-  currentTicks[index] = { ...currentTicks[index], [key]: value }
+  const currentTicks = JSON.parse(JSON.stringify(editableHits.value))
+  if (!currentTicks[index]) return
+  if (key === 'sp') {
+    if (currentTicks[index].spKind === 'refund') {
+      currentTicks[index].spReturn = Number(value) || 0
+      currentTicks[index].spRecovery = 0
+    } else {
+      currentTicks[index].spRecovery = Number(value) || 0
+      currentTicks[index].spReturn = 0
+    }
+  } else if (key === 'spKind') {
+    const currentValue = (Number(currentTicks[index].spReturn) || Number(currentTicks[index].spRecovery) || 0)
+    currentTicks[index].spReturn = value === 'refund' ? currentValue : 0
+    currentTicks[index].spRecovery = value === 'refund' ? 0 : currentValue
+    currentTicks[index].spKind = value
+  } else {
+    currentTicks[index] = { ...currentTicks[index], [key]: value }
+  }
   if (key === 'offset') {
     currentTicks.sort((a, b) => a.offset - b.offset)
   }
-  commitUpdate({ damageTicks: currentTicks })
+  commitUpdate({ hits: normalizeHits(currentTicks, targetData.value?.element) })
 }
 
 function updateDamageTickFrame(index, key, value) {
   updateDamageTick(index, key, timeValueFromFrame(value))
 }
-
-const availableEffectOptions = computed(() => {
-  if (!targetData.value || !targetData.value.physicalAnomaly) return []
-  const rowsRaw = targetData.value.physicalAnomaly
-  if (!rowsRaw || rowsRaw.length === 0) return []
-  const rows = Array.isArray(rowsRaw[0]) ? rowsRaw : [rowsRaw]
-
-  rows.forEach(row => {
-    row.forEach(effect => {
-      if (!effect._id) effect._id = Math.random().toString(36).substring(2, 9)
-    })
-  })
-
-  const getEffectName = (type) => {
-    const key = `effects.name.${type}`
-    const translated = t(key)
-    if (translated !== key) return translated
-    const exclusive = currentCharacter.value?.exclusive_buffs?.find(b => b.key === type)
-    if (exclusive?.name) return exclusive.name
-    return type || t('common.unknown')
-  }
-
-  return buildEffectBindingOptions(rowsRaw, { getEffectName })
-})
 
 const customBarsList = computed(() => targetData.value?.customBars || [])
 
@@ -441,17 +420,19 @@ function updateCustomBarFrame(index, key, value) {
 
 const iconOptions = computed(() => {
   const allGlobalKeys = Object.keys(store.iconDatabase)
-  const allowed = targetData.value?.allowedTypes
-  const availableKeys = allGlobalKeys.filter(key =>
-      (allowed && allowed.includes(key)) || key === 'default'
-  )
+  const explicitAllowed = Array.isArray(targetData.value?.allowedEffectTypes) ? targetData.value.allowedEffectTypes : []
+  const currentTypes = editableHits.value.flatMap(hit => (hit.effects || []).map(effect => resolveEffectDisplayKey(effect)).filter(Boolean))
+  const filterSet = new Set([...explicitAllowed, ...currentTypes, 'default'])
+  const availableKeys = filterSet.size > 1
+    ? allGlobalKeys.filter(key => filterSet.has(key) || key === 'default')
+    : allGlobalKeys
 
   const groups = []
   if (currentCharacter.value && currentCharacter.value.exclusive_buffs) {
     let exclusiveOpts = currentCharacter.value.exclusive_buffs.map(buff => ({
       label: `★ ${buff.name}`, value: buff.key, path: buff.path
     }))
-    if (allowed && allowed.length > 0) exclusiveOpts = exclusiveOpts.filter(opt => allowed.includes(opt.value))
+    if (explicitAllowed.length > 0) exclusiveOpts = exclusiveOpts.filter(opt => explicitAllowed.includes(opt.value))
     if (exclusiveOpts.length > 0) groups.push({ label: t('effects.group.exclusive'), options: exclusiveOpts })
   }
 
@@ -487,13 +468,17 @@ const iconOptions = computed(() => {
 })
 
 function getIconPath(type, charId = null) {
-  if (store.iconDatabase[type]) return store.iconDatabase[type]
+  for (const candidate of getDisplayKeyCandidates(type)) {
+    if (store.iconDatabase[candidate]) return store.iconDatabase[candidate]
+  }
   const targetChar = charId
       ? store.characterRoster.find(c => c.id === charId)
       : currentCharacter.value
   if (targetChar && targetChar.exclusive_buffs) {
-    const exclusive = targetChar.exclusive_buffs.find(b => b.key === type)
-    if (exclusive) return exclusive.path
+    for (const candidate of getDisplayKeyCandidates(type)) {
+      const exclusive = targetChar.exclusive_buffs.find(b => b.key === candidate)
+      if (exclusive) return exclusive.path
+    }
   }
   return store.iconDatabase['default'] || ''
 }
@@ -501,10 +486,8 @@ function getIconPath(type, charId = null) {
 const relevantConnections = computed(() => {
   if (isLibraryMode.value) return []
 
-  const selectedStatusId = store.selectedWeaponStatusId
   const selectedActionId = store.selectedActionId
-
-  if (!selectedStatusId && !selectedActionId) return []
+  if (!selectedActionId) return []
 
   const getEndpointId = (conn, side) => {
     if (!conn) return null
@@ -519,9 +502,21 @@ const relevantConnections = computed(() => {
     return false
   }
 
-  const matchesSelectedStatus = (nodeWrap, statusId) => {
-    if (!nodeWrap || !statusId) return false
-    return nodeWrap.type === 'status' && nodeWrap.id === statusId
+  const getActionName = (nodeWrap) => {
+    if (!nodeWrap) return ''
+    if (nodeWrap.type === 'action') return nodeWrap.node?.name || ''
+    if (nodeWrap.type === 'effect') {
+      const action = store.getActionById(nodeWrap.actionId)?.node
+      return action?.name || ''
+    }
+    return ''
+  }
+
+  const getCharIdByNode = (nodeWrap) => {
+    if (!nodeWrap) return null
+    if (nodeWrap.type === 'action') return nodeWrap.trackId
+    if (nodeWrap.type === 'effect') return store.getActionById(nodeWrap.actionId)?.trackId || null
+    return null
   }
 
   return store.connections
@@ -534,75 +529,31 @@ const relevantConnections = computed(() => {
       const toNode = store.resolveNode(toId)
       if (!fromNode || !toNode) return null
 
-      let isOutgoing = false
-      let isRelevant = false
+      const fromMatch = matchesSelectedAction(fromNode, selectedActionId)
+      const toMatch = matchesSelectedAction(toNode, selectedActionId)
+      if (!fromMatch && !toMatch) return null
 
-      if (selectedActionId) {
-        const fromMatch = matchesSelectedAction(fromNode, selectedActionId)
-        const toMatch = matchesSelectedAction(toNode, selectedActionId)
-        isRelevant = fromMatch || toMatch
-        isOutgoing = fromMatch && !toMatch
-        if (fromMatch && toMatch) isOutgoing = true
-      } else if (selectedStatusId) {
-        const fromMatch = matchesSelectedStatus(fromNode, selectedStatusId)
-        const toMatch = matchesSelectedStatus(toNode, selectedStatusId)
-        isRelevant = fromMatch || toMatch
-        isOutgoing = fromMatch && !toMatch
-        if (fromMatch && toMatch) isOutgoing = true
-      }
-
-      if (!isRelevant) return null
-
-      const otherNode = isOutgoing ? toNode : fromNode
-
-      let otherActionName = t('common.unknownSkill')
-      if (otherNode.type === 'action') {
-        otherActionName = otherNode.node?.name || t('common.unknownSkill')
-      } else if (otherNode.type === 'effect') {
-        otherActionName = getEffectDisplayName(otherNode.node?.type) || t('common.unknown')
-      } else if (otherNode.type === 'status') {
-        otherActionName = otherNode.node?.name || t('weapon.effect')
-      }
-
-      const getCharIdByNode = (node) => {
-        if (!node) return null
-        if (node.type === 'action') return node.trackId
-        if (node.type === 'effect') return store.getActionById(node.actionId)?.trackId || null
-        if (node.type === 'status') return node.trackId
-        return null
-      }
-
+      const isOutgoing = fromMatch && !toMatch ? true : (fromMatch && toMatch)
       const myNode = isOutgoing ? fromNode : toNode
+      const otherNode = isOutgoing ? toNode : fromNode
       const myCharId = getCharIdByNode(myNode)
       const otherCharId = getCharIdByNode(otherNode)
 
-      let myIconPath = null
-      if (myNode.type === 'effect') {
-        myIconPath = getIconPath(myNode.node?.type, myCharId)
-      } else if (myNode.type === 'status') {
-        myIconPath = myNode.node?.icon || null
-      }
-
-      let otherIconPath = null
-      if (otherNode.type === 'effect') {
-        otherIconPath = getIconPath(otherNode.node?.type, otherCharId)
-      } else if (otherNode.type === 'status') {
-        otherIconPath = otherNode.node?.icon || null
-      }
+      const myIconPath = myNode.type === 'effect' ? getIconPath(myNode.node?.type, myCharId) : null
+      const otherIconPath = otherNode.type === 'effect' ? getIconPath(otherNode.node?.type, otherCharId) : null
 
       return {
         id: conn.id,
         direction: isOutgoing ? t('connection.direction.to') : t('connection.direction.from'),
         isOutgoing,
         rawConnection: conn,
-        otherActionName,
+        otherActionName: getActionName(otherNode),
         myIconPath,
         otherIconPath
       }
     })
     .filter(Boolean)
 })
-
 function updateConnPort(connId, type, event) {
   const val = event.target.value
   store.updateConnectionPort(connId, type, val)
@@ -621,8 +572,6 @@ function handleStartConnection(id, type = null) {
     rect = store.nodeRects?.[id]?.rect || null
   } else if (resolvedType === 'effect') {
     rect = store.effectLayouts.get(id)?.rect || null
-  } else if (resolvedType === 'status') {
-    rect = store.statusNodeRects.get(id)?.rect || null
   }
 
   if (!rect) {
@@ -704,7 +653,7 @@ function handleStartConnection(id, type = null) {
               <CustomNumberInput :model-value="targetData.gaugeCost" @update:model-value="val => updateActionProp('gaugeCost', val)" :min="0" :border-color="HIGHLIGHT_COLORS.blue" text-align="center"/>
             </div>
 
-            <div class="form-group compact" v-if="!['execution','dodge','weapon','set'].includes(currentSkillType)">
+            <div class="form-group compact" v-if="!['execution','dodge'].includes(currentSkillType)">
               <label>{{ t('propertiesPanel.labels.gaugeGain') }}</label>
               <CustomNumberInput :model-value="targetData.gaugeGain" @update:model-value="val => updateActionProp('gaugeGain', val)" :min="0" :border-color="HIGHLIGHT_COLORS.blue" text-align="center"/>
             </div>
@@ -720,8 +669,8 @@ function handleStartConnection(id, type = null) {
           </div>
         </div>
 
-      <div v-if="!isWeaponLibraryMode && !isWeaponStatusMode && !isSetLibraryMode && currentSkillType !== 'dodge'" class="section-container tech-style border-red" @click="isTicksExpanded = !isTicksExpanded" style="cursor: pointer;">
-        <div class="panel-tag-mini red">{{ t('propertiesPanel.damage.title') }} ({{ (targetData.damageTicks || []).length }})</div>
+      <div v-if="currentSkillType !== 'dodge'" class="section-container tech-style border-red" @click="isTicksExpanded = !isTicksExpanded" style="cursor: pointer;">
+        <div class="panel-tag-mini red">{{ t('propertiesPanel.damage.title') }} ({{ editableHits.length }})</div>
 
         <div class="section-header-tech">
           <div class="module-deco">
@@ -736,11 +685,11 @@ function handleStartConnection(id, type = null) {
         </div>
 
         <div v-if="isTicksExpanded" class="section-content-tech" @click.stop>
-          <div v-if="!targetData.damageTicks || targetData.damageTicks.length === 0" class="empty-hint">{{ t('propertiesPanel.damage.empty') }}</div>
-            <div v-for="(tick, index) in (targetData.damageTicks || [])" :key="index" class="tick-item red-theme">
+          <div v-if="editableHits.length === 0" class="empty-hint">{{ t('propertiesPanel.damage.empty') }}</div>
+            <div v-for="(tick, index) in editableHits" :key="tick._editorId || index" class="tick-item red-theme">
               <div class="tick-header">
                 <span class="tick-idx">HIT {{ index + 1 }}</span>
-                <button type="button" class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="removeDamageTick(index)">×</button>
+                <button type="button" class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="removeDamageTick(index)">x</button>
               </div>
               <div class="tick-row">
                 <div class="tick-col">
@@ -778,40 +727,12 @@ function handleStartConnection(id, type = null) {
                     </button>
                   </div>
                 </div>
-                <div class="tick-col full-width">
-                  <label>{{ t('propertiesPanel.damage.bindEffects') }}</label>
-                  <el-select
-                      :model-value="tick.boundEffects || []"
-                      @update:model-value="val => updateDamageTick(index, 'boundEffects', val)"
-                      multiple
-                      collapse-tags
-                      collapse-tags-tooltip
-                      popper-class="ea-tick-binding-popper"
-                      :placeholder="t('propertiesPanel.damage.bindPlaceholder')"
-                      size="small"
-                      class="tick-select"
-                      :disabled="availableEffectOptions.length === 0"
-                  >
-                    <el-option
-                        v-for="opt in availableEffectOptions"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                    >
-                      <div class="binding-option">
-                        <img :src="getIconPath(opt.type)" class="binding-option__icon" />
-                        <span class="binding-option__label">{{ opt.label }}</span>
-                        <span class="binding-option__hint">{{ opt.hint }}</span>
-                      </div>
-                    </el-option>
-                  </el-select>
-                </div>
               </div>
           </div>
         </div>
       </div>
 
-      <div v-if="!isWeaponLibraryMode && !isWeaponStatusMode && !isSetLibraryMode" class="section-container tech-style border-blue" @click="isBarsExpanded = !isBarsExpanded" style="cursor: pointer;">
+      <div v-if="true" class="section-container tech-style border-blue" @click="isBarsExpanded = !isBarsExpanded" style="cursor: pointer;">
         <div class="panel-tag-mini blue">{{ t('propertiesPanel.bars.title') }} ({{ customBarsList.length }})</div>
 
         <div class="section-header-tech">
@@ -831,7 +752,7 @@ function handleStartConnection(id, type = null) {
             <div v-for="(bar, index) in customBarsList" :key="index" class="tick-item blue-theme">
               <div class="tick-header">
                 <input type="text" :value="bar.text" @input="e => updateCustomBarItem(index, 'text', e.target.value)" :placeholder="t('propertiesPanel.bars.namePlaceholder')" class="simple-input">
-                <button type="button" class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="removeCustomBar(index)">×</button>
+                <button type="button" class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="removeCustomBar(index)">x</button>
               </div>
               <div class="tick-row">
                 <div class="tick-col">
@@ -847,19 +768,19 @@ function handleStartConnection(id, type = null) {
         </div>
       </div>
 
-      <div v-if="!isWeaponLibraryMode && !isWeaponStatusMode && !isSetLibraryMode && currentSkillType !== 'dodge'" class="section-container tech-style">
+      <div v-if="currentSkillType !== 'dodge'" class="section-container tech-style">
         <div class="panel-tag-mini">{{ t('propertiesPanel.effects.title') }}</div>
         <div class="anomalies-editor-container" style="background: transparent; border-color: rgba(255,255,255,0.1); margin-top: 10px;">
-          <draggable v-model="anomalyRows" item-key="rowIndex" class="rows-container" handle=".row-handle" :animation="200">
+          <draggable v-model="editableHits" item-key="_editorId" class="rows-container" handle=".row-handle" :animation="200">
             <template #item="{ element: row, index: rowIndex }">
               <div class="anomaly-editor-row">
-                <div class="row-handle">⋮</div>
-                <draggable :list="row" item-key="_id" class="row-items-list" :group="{ name: 'effects' }" :animation="150"
-                           @change="() => commitUpdate({ physicalAnomaly: anomalyRows })">
+                <div class="row-handle">::</div>
+                <draggable :list="row.effects" item-key="_id" class="row-items-list" :group="{ name: 'effects' }" :animation="150"
+                           @change="() => commitUpdate({ hits: normalizeHits(editableHits, targetData?.element) })">
                   <template #item="{ element: effect, index: colIndex }">
                     <div class="icon-wrapper" :class="{ 'is-editing': isEditing(rowIndex, colIndex) }"
                          @click="toggleEditEffect(rowIndex, colIndex)">
-                      <img :src="getIconPath(effect.type)" class="mini-icon"/>
+                      <img :src="getIconPath(effect)" class="mini-icon"/>
                       <div v-if="effect.stacks > 1" class="mini-stacks">{{ effect.stacks }}</div>
                     </div>
                   </template>
@@ -929,7 +850,7 @@ function handleStartConnection(id, type = null) {
         </div>
       </div>
 
-      <div v-if="!isLibraryMode && !isWeaponLibraryMode" class="section-container tech-style">
+      <div v-if="!isLibraryMode" class="section-container tech-style">
         <div class="panel-tag-mini">{{ t('propertiesPanel.connections.title') }}</div>
 
         <div class="connection-header-group">
@@ -945,8 +866,8 @@ function handleStartConnection(id, type = null) {
 
           <button
             class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold ea-btn--glass-rect-accent"
-            @click.stop="handleStartConnection(store.selectedWeaponStatusId || store.selectedActionId)"
-            :class="{ 'is-linking': connectionHandler.isDragging.value && connectionHandler.state.value.sourceId === (store.selectedWeaponStatusId || store.selectedActionId) }"
+            @click.stop="handleStartConnection(store.selectedActionId)"
+            :class="{ 'is-linking': connectionHandler.isDragging.value && connectionHandler.state.value.sourceId === store.selectedActionId }"
           >
             <span class="plus-icon"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
             {{ (connectionHandler.isDragging.value) ? t('propertiesPanel.connections.chooseTarget') : t('propertiesPanel.connections.new') }}
@@ -992,7 +913,7 @@ function handleStartConnection(id, type = null) {
             </div>
 
             <div class="conn-row-actions">
-              <template v-if="conn.isOutgoing && (conn.rawConnection.fromEffectIndex != null || conn.rawConnection.fromNodeType === 'status')">
+              <template v-if="conn.isOutgoing && conn.rawConnection.fromEffectIndex != null">
                 <div class="ea-btn ea-btn--glass-rect ea-btn--glass-rect-tag ea-btn--accent-gold ea-btn--glass-rect-hover-accent"
                  :class="{ 'active': conn.rawConnection.isConsumption }"
                  @click="store.updateConnection(conn.id, { isConsumption: !conn.rawConnection.isConsumption })">
@@ -1014,7 +935,7 @@ function handleStartConnection(id, type = null) {
               </template>
 
               <div class="spacer"></div>
-              <button class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="store.removeConnection(conn.id)">×</button>
+              <button class="ea-btn ea-btn--icon ea-btn--icon-18 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger" @click="store.removeConnection(conn.id)">x</button>
             </div>
 
           </div>

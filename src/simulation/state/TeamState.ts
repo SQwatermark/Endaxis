@@ -41,6 +41,8 @@ export class TeamState implements BaseGameState<TeamSnapshot> {
       recoverSp: this.recoverSp,
       refundSp: this.refundSp,
       debtSp: this.debtSp,
+      spRecovered: this.recoverSp,
+      spReturned: this.refundSp,
       spRegenRate: this.config.spRegenRate,
       maxSp: this.config.maxSp,
       isSpRegenPaused: this.isSpRegenPaused,
@@ -57,6 +59,14 @@ export class TeamState implements BaseGameState<TeamSnapshot> {
   }
 
   getRefundSp() {
+    return this.refundSp;
+  }
+
+  getSpRecovered() {
+    return this.recoverSp;
+  }
+
+  getSpReturned() {
     return this.refundSp;
   }
 
@@ -92,12 +102,22 @@ export class TeamState implements BaseGameState<TeamSnapshot> {
     return this.getSp();
   }
 
+  modifySpRecovery(amount: number): number {
+    return this.addSp(amount, "recover");
+  }
+
+  modifySpReturn(amount: number): number {
+    return this.addSp(amount, "refund");
+  }
+
   consumeSp(amount: number) {
     if (!Number.isFinite(amount) || amount <= 0) {
       return {
         sp: this.getSp(),
         recoverConsumed: 0,
         refundConsumed: 0,
+        recoveredConsumed: 0,
+        returnedConsumed: 0,
         debtIncurred: 0,
       };
     }
@@ -119,6 +139,8 @@ export class TeamState implements BaseGameState<TeamSnapshot> {
       sp: this.getSp(),
       recoverConsumed,
       refundConsumed,
+      recoveredConsumed: recoverConsumed,
+      returnedConsumed: refundConsumed,
       debtIncurred: remaining,
     };
   }

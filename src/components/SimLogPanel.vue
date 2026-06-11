@@ -9,10 +9,12 @@ const store = useTimelineStore()
 const { t } = useI18n({ useScope: 'global' })
 
 const ACTION_TYPE_ACCENTS = {
-  attack: '#b8b8b8',
-  skill: '#8fd9ff',
-  link: '#ffd84d',
+  basicAttack: '#b8b8b8',
+  battleSkill: '#8fd9ff',
+  comboSkill: '#ffd84d',
   ultimate: '#ff7875',
+  finisher: '#f59e0b',
+  dive: '#5eead4',
   switch: '#c4b5fd',
   status: '#b8c4d4',
   summon: '#5eead4',
@@ -34,6 +36,59 @@ function formatSignedNumber(value) {
   return `${num}`
 }
 
+function formatDamageNumber(value) {
+  const num = Number(value)
+  if (!Number.isFinite(num)) return '0'
+  return Number.isInteger(num) ? String(num) : num.toFixed(2)
+}
+
+function getDamageValue(entry) {
+  return Number(entry?.payload?.hitData?._expectedDamage ?? entry?.payload?.damage ?? 0) || 0
+}
+
+function getDamageBreakdown(entry) {
+  return entry?.payload?.hitData?._damageBreakdown || null
+}
+
+function getDamageElement(entry) {
+  const hitData = entry?.payload?.hitData
+  const breakdown = getDamageBreakdown(entry)
+  return breakdown?.element || hitData?.element || ''
+}
+
+function getReactionLabel(entry) {
+  const hitData = entry?.payload?.hitData
+  const breakdown = getDamageBreakdown(entry)
+  return breakdown?.reactionType || hitData?._reactionMeta?.reactionType || ''
+}
+
+function getConsumedStacksLabel(entry) {
+  const hitData = entry?.payload?.hitData
+  const consumed = hitData?.consumedStacks || hitData?._reactionMeta?.consumedStackSources
+  if (!consumed || typeof consumed !== 'object') return ''
+  return Object.entries(consumed)
+    .filter(([, value]) => Number(value) !== 0)
+    .map(([key, value]) => `${key}:${formatDamageNumber(value)}`)
+    .join(', ')
+}
+
+function getLmdiLabel(entry) {
+  const hitData = entry?.payload?.hitData
+  if (!hitData || hitData._lmdiSelf == null) return ''
+  const external = hitData._lmdiExternal && typeof hitData._lmdiExternal === 'object'
+    ? Object.entries(hitData._lmdiExternal)
+        .filter(([, value]) => Number(value) !== 0)
+        .map(([key, value]) => `${key}:${formatDamageNumber(value)}`)
+        .join(', ')
+    : ''
+  const self = `self:${formatDamageNumber(hitData._lmdiSelf)}`
+  return external ? `${self} ext:${external}` : self
+}
+
+function getGroupDamageTotal(group) {
+  return group.damage.reduce((sum, entry) => sum + getDamageValue(entry), 0)
+}
+
 function getActionAccent(actionType) {
   if (!actionType) return ACTION_TYPE_ACCENTS.default
   return ACTION_TYPE_ACCENTS[actionType] || ACTION_TYPE_ACCENTS.default
@@ -45,12 +100,13 @@ function getEntryActionId(entry) {
     case 'ACTION_START':
     case 'ACTION_END':
       return entry.payload?.actionId || null
-    case 'DAMAGE_TICK':
+    case 'DAMAGE_HIT':
       return entry.payload?.actionId || null
     case 'STAGGER':
       return entry.payload?.actionId || null
     case 'SP_CHANGE':
       return entry.payload?.sourceId || null
+    case 'ULT_ENERGY_CHANGE':
     case 'ULTIMATE_CHARGE_CHANGE':
       return entry.payload?.sourceId || null
     case 'EFFECT_START':
@@ -72,7 +128,7 @@ function getActionDisplayName(actionId) {
   const node = info?.node
   if (node?.name) return node.name
   if (node?.id) return node.id
-  return actionId
+  return formatEffectId(actionId)
 }
 
 function getActionType(actionId) {
@@ -96,9 +152,21 @@ function formatEntryLine(entry) {
 }
 
 function formatEffectId(effectId) {
+  if (!effectId) return ''
   const key = `battleLog.effectNames.${effectId}`
   const out = t(key)
-  return out === key ? effectId : out
+  if (out !== key) return out
+  const effectNameKey = `effects.name.${effectId}`
+  const effectName = t(effectNameKey)
+  return effectName === effectNameKey ? effectId : effectName
+}
+
+function formatEffectSourceId(sourceId) {
+  if (!sourceId) return ''
+  const action = store.getActionById?.(sourceId)
+  if (action?.node?.name) return action.node.name
+  if (action?.node?.id) return action.node.id
+  return formatEffectId(sourceId)
 }
 
 function getTypeLabel(type) {
@@ -109,7 +177,7 @@ function getTypeLabel(type) {
 
 function getSummaryStats(group) {
   return [
-    { key: 'damage', label: t('battleLog.summary.damage'), value: group.damage.length },
+    { key: 'damage', label: t('battleLog.summary.damage'), value: formatDamageNumber(getGroupDamageTotal(group)) },
     { key: 'gauge', label: t('battleLog.summary.gauge'), value: group.gauge.length },
     { key: 'stagger', label: t('battleLog.summary.stagger'), value: group.stagger.length },
   ]
@@ -263,7 +331,7 @@ const actionGroups = computed(() => {
         group.endTime = group.endTime ?? entry.time
         group.other.push(entry)
         break
-      case 'DAMAGE_TICK':
+      case 'DAMAGE_HIT':
         group.damage.push(entry)
         break
       case 'EFFECT_START':
@@ -276,6 +344,7 @@ const actionGroups = computed(() => {
       case 'SP_CHANGE':
         group.sp.push(entry)
         break
+      case 'ULT_ENERGY_CHANGE':
       case 'ULTIMATE_CHARGE_CHANGE':
         group.gauge.push(entry)
         break
@@ -464,12 +533,16 @@ onMounted(() => {
                 <div v-for="(entry, idx) in group.damage" :key="idx" class="event-row">
                   <span class="event-row__time">t={{ formatFrameTime(entry.time) }}</span>
                   <span class="event-pill">{{ getTypeLabel(entry.type) }}</span>
-                  <span class="event-value">dmg={{ entry.payload.damage }}</span>
+                  <span class="event-value">dmg={{ formatDamageNumber(getDamageValue(entry)) }}</span>
+                  <span v-if="getDamageElement(entry)" class="event-value">elem={{ getDamageElement(entry) }}</span>
+                  <span v-if="getReactionLabel(entry)" class="event-value">rx={{ getReactionLabel(entry) }}</span>
+                  <span v-if="getConsumedStacksLabel(entry)" class="event-value">consume={{ getConsumedStacksLabel(entry) }}</span>
+                  <span v-if="getLmdiLabel(entry)" class="event-value">lmdi={{ getLmdiLabel(entry) }}</span>
                   <span class="event-value">stg={{ entry.payload.stagger }}</span>
-                  <span v-if="entry.payload.tickData?.sp > 0" class="event-value">sp+={{ entry.payload.tickData.sp }}</span>
+                  <span v-if="(entry.payload.hitData?.spReturn || entry.payload.hitData?.spRecovery) > 0" class="event-value">sp+={{ entry.payload.hitData?.spReturn || entry.payload.hitData?.spRecovery }}</span>
                 </div>
                 <div
-                  v-if="group.damage.every((entry) => Number(entry.payload.damage) === 0)"
+                  v-if="group.damage.every((entry) => getDamageValue(entry) === 0)"
                   class="event-hint"
                 >
                   {{ t('battleLog.ui.damageHint') }}
@@ -531,7 +604,8 @@ onMounted(() => {
                   <span class="event-pill">{{ getTypeLabel(entry.type) }}</span>
                   <span class="event-value">chg={{ formatSignedNumber(entry.payload.change) }}</span>
                   <span class="event-value">gauge={{ Number(entry.payload.gauge).toFixed(1) }}</span>
-                  <span v-if="entry.payload.targetId" class="event-muted">({{ entry.payload.targetId }})</span>
+                  <span v-if="entry.payload.actorId" class="event-muted">-> {{ getTrackDisplayName(entry.payload.actorId) }}</span>
+                  <span v-if="entry.payload.sourceId" class="event-muted">({{ formatEffectSourceId(entry.payload.sourceId) }})</span>
                 </div>
               </div>
             </section>

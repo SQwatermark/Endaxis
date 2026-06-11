@@ -1,61 +1,88 @@
-import type { EventHandler } from "@/simulation/events/EventHandler.ts";
-import type { SpChangeEvent } from "@/simulation/events/event.types.ts";
-import type { SimulationContext } from "@/simulation/engine/SimulationContext.ts";
+import type { EventHandler } from '@/simulation/events/EventHandler.ts';
+import type { SpChangeEvent } from '@/simulation/events/event.types.ts';
+import type { SimulationContext } from '@/simulation/engine/SimulationContext.ts';
+import type { TriggerRegistry } from '@/simulation/engine/TriggerRegistry';
+import { passesSkillFilter } from '@/data/filter';
 
 export class SpChangeHandler implements EventHandler<SpChangeEvent> {
+  private registry?: TriggerRegistry;
+  constructor(registry?: TriggerRegistry) {
+    this.registry = registry;
+  }
+
   handle(e: SpChangeEvent, ctx: SimulationContext) {
-    const prepEnd = Number(ctx.state.team.config.prepDuration) || 0;
-    if (prepEnd > 0 && e.time < prepEnd - 0.0001) {
-      // 战前准备区：技力不会发生任何变化
-      return;
+    let sp = e.payload.spChange;
+    const isReturn = e.payload.spType === 'return';
+
+    // Apply recovery modifiers only to positive recovery-type SP gains
+    if (sp > 0 && !isReturn) {
+      const action = ctx.getAction(e.payload.sourceId);
+      // Prefer event-level stamps (HitHandler sets these from hit.skillType/skillId so
+      // sub-variants carry the right pair); fall back to action.node when the event
+      // came from a non-hit pathway.
+      const type = e.payload.skillType ?? action?.node.type;
+      const skillId = e.payload.skillId ?? action?.node.skillId;
+      const time = ctx.state.getCurrentTime();
+      const entries = ctx.getOperatorEffects(e.payload.actorId).getActiveEntries(time);
+      let flat = 0;
+      let percent = 0;
+      for (const entry of entries) {
+        if (!entry.stat) continue;
+        const { modifier } = entry.stat;
+        if (modifier !== 'spRecoveryFlat' && modifier !== 'spRecoveryPercent') continue;
+        // `skillTypes` modifier scope matches the action's type (covers sub-variants).
+        if ('skillTypes' in entry.stat && entry.stat.skillTypes != null) {
+          if (!type || !passesSkillFilter(entry.stat.skillTypes, type)) continue;
+        }
+        // `skillId` modifier scope matches the specific skillId.
+        if ('skillId' in entry.stat && entry.stat.skillId != null) {
+          if (!skillId || !passesSkillFilter(entry.stat.skillId, skillId)) continue;
+        }
+        const val = entry.value * entry.stacks;
+        if (modifier === 'spRecoveryFlat') flat += val;
+        else percent += val / 100;
+      }
+      sp = (sp + flat) * (1 + percent);
     }
 
-    // TODO: run sp change through calculation pipeline
-    let recoverConsumed = 0;
-
-    if (e.payload.spChange > 0) {
-      ctx.state.team.addSp(
-        e.payload.spChange,
-        e.payload.sourceKind || "recover",
-      );
-    } else if (e.payload.spChange < 0) {
-      const consumeResult = ctx.state.team.consumeSp(Math.abs(e.payload.spChange));
-      recoverConsumed = consumeResult.recoverConsumed;
-
-      if (recoverConsumed > 0 && e.payload.reason === "skill_cost") {
-        const baseTeamCharge = recoverConsumed * 0.065;
-        ctx.state.getActors().forEach((actor) => {
-          ctx.queue.enqueue({
-            type: "ULTIMATE_CHARGE_CHANGE",
-            time: e.time,
-            payload: {
-              actorId: actor.id,
-              sourceActorId: e.payload.actorId,
-              actionId: e.payload.sourceId,
-              change: baseTeamCharge,
-              reason: "skill_sp_recover",
-              sourceId: e.payload.sourceId,
-              isTeamGain: true,
-              parent: e,
-            },
-          });
-        });
+    if (sp > 0) {
+      if (isReturn) {
+        ctx.state.team.modifySpReturn(sp);
+      } else {
+        ctx.state.team.modifySpRecovery(sp);
+      }
+    } else if (sp < 0) {
+      // Consumption: consume returned SP first, then recovered
+      const { returnedConsumed } = ctx.state.team.consumeSp(-sp);
+      // Stamp returned SP consumed on the action for UE scaling in ActionEndHandler
+      const action = ctx.getAction(e.payload.sourceId);
+      if (action) {
+        (action as any)._returnedConsumed = returnedConsumed;
+        (action as any)._actualSpCost = -sp;
       }
     }
 
+    const spType = isReturn ? 'return' : 'recovery';
+
     ctx.simLog({
-      type: "SP_CHANGE",
+      type: 'SP_CHANGE',
       time: e.time,
       payload: {
         sp: ctx.state.team.getSp(),
-        change: e.payload.spChange,
+        change: sp,
+        actorId: e.payload.actorId,
         sourceId: e.payload.sourceId,
         reason: e.payload.reason,
-        sourceKind: e.payload.sourceKind,
+        spType,
         recoverSp: ctx.state.team.getRecoverSp(),
         refundSp: ctx.state.team.getRefundSp(),
         debtSp: ctx.state.team.getDebtSp(),
       },
     });
+
+    // Only trigger onSpRecovery for recovery-type gains
+    if (sp > 0 && !isReturn) {
+      this.registry?.onSpRecovery({ ...e, payload: { ...e.payload, spChange: sp } }, ctx);
+    }
   }
 }

@@ -3,15 +3,22 @@ import type {
   ResolvedAction,
   ResolvedEffect,
 } from "@/simulation/compiler/types.ts";
+import type { BaseStatValues } from "@/data/stats/types";
 
 export interface ActorSnapshot {
   id: string;
+  element?: string;
   stats: ActorStats;
+  baseStats?: BaseStatValues | null;
+  triggerEffects?: any[];
   acceptTeamGauge?: boolean;
+  acceptTeamUltEnergy?: boolean;
+  ultimateEnergyCostOverride?: number | null;
   resources: {
     hp: number;
     gauge: number;
     maxGauge: number;
+    ultimateEnergy?: number;
   };
   cooldowns: Map<string, number>;
   activeBuffs: Map<string, ResolvedEffect>;
@@ -32,6 +39,8 @@ export interface TeamSnapshot {
   recoverSp: number;
   refundSp: number;
   debtSp: number;
+  spRecovered?: number;
+  spReturned?: number;
   spRegenRate: number;
   maxSp: number;
   isSpRegenPaused: boolean;
@@ -44,6 +53,10 @@ export interface EnemyConfig {
   staggerNodeDuration: number;
   staggerBreakDuration: number;
   executionRecovery: number;
+  finisherRecovery?: number;
+  finisherMultiplier?: number;
+  defense?: number;
+  tier?: string;
 }
 
 export interface EnemySnapshot {

@@ -6,10 +6,11 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { executeSave } from '@/api/saveStrategy.js'
 import { CORE_STATS } from '@/utils/coreStats.js'
-import { buildEffectBindingOptions } from '@/utils/effectBindingOptions.js'
 import { frameToTime, snapTimeToFrame, timeToFrame } from '@/utils/time.js'
 import { serializeGameData } from '@/utils/timeSerialization.js'
 import draggable from 'vuedraggable'
+import { getDisplayKeyCandidates, resolveEffectDisplayKey, toLegacyUiKey } from '@/utils/effectDisplay.js'
+import { createEditorHit, ensureActionLikeModel, normalizeHits } from '@/utils/hitModel.js'
 
 const store = useTimelineStore()
 const { characterRoster, iconDatabase, enemyDatabase, enemyCategories, weaponDatabase, equipmentDatabase, equipmentCategories, equipmentCategoryConfigs, misc } = storeToRefs(store)
@@ -1926,16 +1927,18 @@ function getDamageTicks(char, type) {
   if (type === 'attack') {
     const idx = Math.min(Math.max(attackSegmentIndex.value, 0), ATTACK_SEGMENT_COUNT - 1)
     const seg = Array.isArray(char.attack_segments) ? char.attack_segments[idx] : null
-    return Array.isArray(seg?.damage_ticks) ? seg.damage_ticks : []
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    return Array.isArray(seg?.hits) ? seg.hits : []
   }
 
   if (type === 'link' && Array.isArray(char.link_segments) && char.link_segments.length > 0) {
     ensureLinkSegments(char)
     const idx = Math.min(Math.max(linkSegmentIndex.value, 0), char.link_segments.length - 1)
     const seg = char.link_segments[idx]
-    if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
-    normalizeDamageTicks(seg.damage_ticks)
-    return seg.damage_ticks
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    if (!Array.isArray(seg.hits)) seg.hits = []
+    seg.hits = normalizeDamageTicks(seg.hits)
+    return seg.hits
   }
 
   const key = `${type}_damage_ticks`
@@ -1950,9 +1953,9 @@ function addDamageTick(char, type) {
     ensureAttackSegments(char)
     const idx = Math.min(Math.max(attackSegmentIndex.value, 0), ATTACK_SEGMENT_COUNT - 1)
     const seg = char.attack_segments[idx]
-    if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
-    normalizeDamageTicks(seg.damage_ticks)
-    seg.damage_ticks.push({ offset: 0, stagger: 0, sp: 0, spKind: 'recover', boundEffects: [] })
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    if (!Array.isArray(seg.hits)) seg.hits = []
+    seg.hits.push(createEditorHit())
     return
   }
 
@@ -1960,15 +1963,15 @@ function addDamageTick(char, type) {
     ensureLinkSegments(char)
     const idx = Math.min(Math.max(linkSegmentIndex.value, 0), char.link_segments.length - 1)
     const seg = char.link_segments[idx]
-    if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
-    normalizeDamageTicks(seg.damage_ticks)
-    seg.damage_ticks.push({ offset: 0, stagger: 0, sp: 0, spKind: 'recover', boundEffects: [] })
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    if (!Array.isArray(seg.hits)) seg.hits = []
+    seg.hits.push(createEditorHit())
     return
   }
 
   const list = getDamageTicks(char, type)
   // 默认判定点：0秒时，造成0失衡，回复0技力
-  list.push({ offset: 0, stagger: 0, sp: 0, boundEffects: [] })
+  list.push(createEditorHit())
 }
 
 function removeDamageTick(char, type, index) {
@@ -1977,8 +1980,9 @@ function removeDamageTick(char, type, index) {
     ensureAttackSegments(char)
     const idx = Math.min(Math.max(attackSegmentIndex.value, 0), ATTACK_SEGMENT_COUNT - 1)
     const seg = char.attack_segments[idx]
-    if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
-    seg.damage_ticks.splice(index, 1)
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    if (!Array.isArray(seg.hits)) seg.hits = []
+    seg.hits.splice(index, 1)
     return
   }
 
@@ -1986,8 +1990,9 @@ function removeDamageTick(char, type, index) {
     ensureLinkSegments(char)
     const idx = Math.min(Math.max(linkSegmentIndex.value, 0), char.link_segments.length - 1)
     const seg = char.link_segments[idx]
-    if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
-    seg.damage_ticks.splice(index, 1)
+    ensureActionLikeModel(seg, { deleteLegacy: false, aliasStyle: 'snake' })
+    if (!Array.isArray(seg.hits)) seg.hits = []
+    seg.hits.splice(index, 1)
     return
   }
 
@@ -1996,10 +2001,7 @@ function removeDamageTick(char, type, index) {
 }
 
 function normalizeDamageTicks(list = []) {
-  list.forEach(tick => {
-    if (!tick.boundEffects) tick.boundEffects = []
-    if (tick.spKind !== 'refund') tick.spKind = 'recover'
-  })
+  return normalizeHits(list)
 }
 
 
@@ -2177,16 +2179,20 @@ function ensureEffectIds(rows) {
 }
 
 function getEffectDisplayName(type) {
-  if (EFFECT_NAMES[type]) return EFFECT_NAMES[type]
-  const exclusive = selectedChar.value?.exclusive_buffs?.find(b => b.key === type)
+  const displayType = toLegacyUiKey(type) || type
+  if (EFFECT_NAMES[displayType]) return EFFECT_NAMES[displayType]
+  const exclusive = selectedChar.value?.exclusive_buffs?.find(b => b.key === displayType || b.key === type)
   if (exclusive?.name) return exclusive.name
-  return type || 'Unknown'
+  return displayType || 'Unknown'
 }
 
 function getEffectIconPath(type) {
-  const exclusive = selectedChar.value?.exclusive_buffs?.find(b => b.key === type)
-  if (exclusive?.path) return exclusive.path
-  return iconDatabase.value?.[type] || iconDatabase.value?.default || ''
+  for (const candidate of getDisplayKeyCandidates(type)) {
+    const exclusive = selectedChar.value?.exclusive_buffs?.find(b => b.key === candidate)
+    if (exclusive?.path) return exclusive.path
+    if (iconDatabase.value?.[candidate]) return iconDatabase.value[candidate]
+  }
+  return iconDatabase.value?.default || ''
 }
 
 function getVariantAvailableOptions(variant, variantIdx) {
@@ -2221,17 +2227,17 @@ function getAvailableAnomalyOptions(skillType) {
 
 function buildOptions(keysSet) {
   return Array.from(keysSet).map(key => {
-    if (EFFECT_NAMES[key]) return { label: EFFECT_NAMES[key], value: key }
-    const exclusive = selectedChar.value?.exclusive_buffs.find(b => b.key === key)
-    if (exclusive) return { label: `★ ${exclusive.name}`, value: key }
-    return { label: key, value: key }
+    const displayKey = resolveEffectDisplayKey(key)
+    const label = getEffectDisplayName(displayKey)
+    if (label && label !== 'Unknown') return { label, value: displayKey }
+    const exclusive = selectedChar.value?.exclusive_buffs.find(b => b.key === displayKey || b.key === key)
+    if (exclusive) return { label: `★ ${exclusive.name}`, value: displayKey }
+    return { label: displayKey, value: displayKey }
   })
 }
 
 function buildBindingOptionsFromAnomalies(raw) {
-  if (!raw || raw.length === 0) return []
-  ensureEffectIds(raw)
-  return buildEffectBindingOptions(raw, { getEffectName: (type) => getEffectDisplayName(type) })
+  return []
 }
 
 function getBindingOptions(skillType) {
@@ -2411,7 +2417,7 @@ function getVariantTicks(variant, variantIdx) {
 // 变体里的判定点操作
 function addVariantDamageTick(variant, variantIdx) {
   const ticks = getVariantTicks(variant, variantIdx)
-  ticks.push({ offset: 0, stagger: 0, sp: 0, boundEffects: [] })
+  ticks.push(createEditorHit())
 }
 function removeVariantDamageTick(variant, variantIdx, index) {
   const ticks = getVariantTicks(variant, variantIdx)
@@ -2444,6 +2450,7 @@ function normalizeCharacterForSave(char) {
 
   ensureAttackSegments(char)
   for (const seg of char.attack_segments || []) {
+    ensureActionLikeModel(seg, { deleteLegacy: true, aliasStyle: 'snake' })
     if (!seg.damage_ticks) seg.damage_ticks = []
     normalizeDamageTicks(seg.damage_ticks)
     ensureEffectIds(seg.anomalies)
@@ -2467,6 +2474,7 @@ function normalizeCharacterForSave(char) {
       if (!Array.isArray(seg.damage_ticks)) seg.damage_ticks = []
       normalizeDamageTicks(seg.damage_ticks)
       ensureEffectIds(seg.anomalies)
+      ensureActionLikeModel(seg, { deleteLegacy: true, aliasStyle: 'snake' })
     }
   }
 
@@ -2482,6 +2490,7 @@ function normalizeCharacterForSave(char) {
       if (variant?.type === 'attack') {
         ensureVariantAttackSegments(variant, char)
         for (const seg of variant.attackSegments || []) {
+          ensureActionLikeModel(seg, { deleteLegacy: true, aliasStyle: 'camel' })
           if (!seg.damageTicks) seg.damageTicks = []
           normalizeDamageTicks(seg.damageTicks)
           ensureEffectIds(seg.physicalAnomaly)
@@ -2490,6 +2499,7 @@ function normalizeCharacterForSave(char) {
       } else if (variant?.type === 'link' && Array.isArray(variant.segments)) {
         ensureVariantLinkSegments(variant)
         for (const seg of variant.segments || []) {
+          ensureActionLikeModel(seg, { deleteLegacy: true, aliasStyle: 'camel' })
           if (!seg.damageTicks) seg.damageTicks = []
           normalizeDamageTicks(seg.damageTicks)
           ensureEffectIds(seg.physicalAnomaly)
@@ -2498,6 +2508,7 @@ function normalizeCharacterForSave(char) {
         }
         if (variant.segments[variant.segments.length - 1]) variant.segments[variant.segments.length - 1].followupDelay = 0
       } else {
+        ensureActionLikeModel(variant, { deleteLegacy: true, aliasStyle: 'camel' })
         if (!variant.damageTicks) variant.damageTicks = []
         normalizeDamageTicks(variant.damageTicks)
         ensureEffectIds(variant.physicalAnomaly)

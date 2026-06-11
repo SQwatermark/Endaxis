@@ -1,16 +1,41 @@
-import { describe, it, expect } from "vitest";
-import { simulate } from "./simulator";
-import { simulatorFixture1 } from "./fixture/simulator.fixture";
-import { projectSpSeries } from "./projection/projectSpSeries";
-import { projectStaggerSeries } from "./projection/projectStaggerSeries";
-import { projectUltimateSeries } from "./projection/projectUltimateSeries";
+import { describe, expect, it } from "vitest";
 import { compileScenario } from "./compiler/compileScenario";
-import { formatSimLogEntry } from "./formatSimLogEntry";
-import { createDefaultStats } from "@/utils/coreStats";
 import type { Action, ScenarioData, ScenarioTrack } from "./compiler/types";
+import { simulate } from "./simulator";
+import { TriggerRegistry } from "./engine/TriggerRegistry";
+import { compileEndaxisScenario } from "./adapters/compileEndaxisScenario";
+import { projectEnemyAfflictionViz, projectOptimizerResult } from "./adapters/projectOptimizerResult";
+import { projectActionBuffs } from "./projection/projectActionBuffs";
+import { createDefaultStats } from "@/utils/coreStats";
+import { collectTriggerEffects, patchCombatSkills } from "@/data/collect";
+import estellaSheet from "@/data/operators/estella";
+import { extractRawEntries, resolveHitsFromSheet } from "@/stores/timeline/resolveHits";
+import type { BaseStatValues } from "@/data/stats/types";
+import type { Effect, TriggerEffect } from "@/data/types";
+import type { GearInstance, OperatorInstance, TeamInstance, WeaponInstance } from "@/types";
 
 type TrackPatch = Omit<Partial<ScenarioTrack>, "stats"> & {
   stats?: Partial<ScenarioTrack["stats"]>;
+  triggerEffects?: Array<{
+    sourceTrackId: string;
+    sourceSkillType?: string;
+    triggerEffect: TriggerEffect;
+  }>;
+};
+
+const BASE_STATS: BaseStatValues = {
+  level: 60,
+  baseAtk: 1000,
+  baseHp: 1000,
+  weaponAtk: 0,
+  baseAttrs: {
+    strength: 100,
+    agility: 100,
+    intellect: 100,
+    will: 100,
+  },
+  mainAttributeName: "agility",
+  secondaryAttributeName: "intellect",
 };
 
 function createAction(
@@ -23,6 +48,7 @@ function createAction(
     id,
     instanceId: patch.instanceId || `${id}_inst`,
     type,
+    skillId: patch.skillId || id,
     name: patch.name || id,
     startTime,
     logicalStartTime: patch.logicalStartTime ?? startTime,
@@ -39,9 +65,7 @@ function createAction(
     triggerWindow: 0,
     animationTime: 0,
     isDisabled: false,
-    allowedTypes: [],
-    damageTicks: [],
-    physicalAnomaly: [],
+    hits: [],
     ...patch,
   };
 }
@@ -56,10 +80,12 @@ function createTrack(
     ...createDefaultStats(),
     ...(statsPatch || {}),
   } as ScenarioTrack["stats"];
+
   return {
     id,
     actions,
     stats,
+    baseStats: BASE_STATS,
     gaugeEfficiency: Number(stats.ult_charge_eff) || 100,
     originiumArtsPower: Number(stats.originium_arts_power) || 0,
     linkCdReduction: Number(stats.link_cd_reduction) || 0,
@@ -71,256 +97,1077 @@ function createTrack(
 }
 
 function createScenario(tracks: ScenarioTrack[]): ScenarioData {
+  return { tracks, connections: [] };
+}
+
+function runScenario(
+  tracks: ScenarioTrack[],
+  registry?: TriggerRegistry,
+  options: { lmdiAttributionMode?: "stacks" | "applier" } = {},
+) {
+  const { timeline, teamConfig, enemyConfig, actors } = compileScenario(createScenario(tracks));
+  const baseStatsByTrack = new Map<string, BaseStatValues>(
+    actors.map((actor) => [actor.id, BASE_STATS]),
+  );
+  return simulate(timeline, teamConfig, enemyConfig, actors, registry, undefined, {
+    baseStatsByTrack,
+    enemyDef: 100,
+    lmdiAttributionMode: options.lmdiAttributionMode,
+  });
+}
+
+function registry(entries: TrackPatch["triggerEffects"]) {
+  return new TriggerRegistry(entries ?? []);
+}
+
+function createOperatorInstance(id = "op_alpha", operatorSlug = "estella"): OperatorInstance {
   return {
-    tracks,
-    connections: [],
+    id,
+    operatorSlug,
+    level: 60,
+    promoted: true,
+    potential: 0,
+    skillLevels: {
+      basicAttack: 1,
+      battleSkill: 9,
+      comboSkill: 9,
+      ultimate: 9,
+    },
+    talentStates: {},
+    trustLevel: 0,
   };
 }
 
-function getUltimateChargeLogs(result: ReturnType<typeof simulate>) {
-  return result.simLog.filter((entry) => entry.type === "ULTIMATE_CHARGE_CHANGE");
+function createWeaponInstance(
+  id = "wp_thermite",
+  weaponSlug = "thermite-cutter",
+): WeaponInstance {
+  return {
+    id,
+    weaponSlug,
+    level: 60,
+    tuned: true,
+    potential: 0,
+    skill1Level: 9,
+    skill2Level: 9,
+    skill3Level: 9,
+  };
 }
 
-describe("SimulationEngine Integration", () => {
-  it("keeps skill SP-derived base team charge", () => {
-    const scenario = createScenario([
-      createTrack("alpha", [
-        createAction("alpha_skill", "skill", {
-          spCost: 100,
-        }),
-      ]),
-      createTrack("beta", []),
-    ]);
+function createGearInstance(id: string, gearPieceId: string): GearInstance {
+  return { id, gearPieceId, artificingLevels: [] };
+}
 
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const gaugeLogs = getUltimateChargeLogs(result);
+function createTeam(
+  operatorId = "op_alpha",
+  weaponId: string | null = null,
+  gear: Partial<TeamInstance["slots"][number]["gear"]> = {},
+): TeamInstance {
+  return {
+    id: "team",
+    name: "team",
+    slots: [
+      {
+        operatorId,
+        weaponId,
+        gear: {
+          armor: gear.armor ?? null,
+          gloves: gear.gloves ?? null,
+          kit1: gear.kit1 ?? null,
+          kit2: gear.kit2 ?? null,
+        },
+      },
+      { operatorId: null, weaponId: null, gear: { armor: null, gloves: null, kit1: null, kit2: null } },
+      { operatorId: null, weaponId: null, gear: { armor: null, gloves: null, kit1: null, kit2: null } },
+      { operatorId: null, weaponId: null, gear: { armor: null, gloves: null, kit1: null, kit2: null } },
+    ],
+  };
+}
 
-    expect(gaugeLogs).toHaveLength(2);
-    expect(gaugeLogs).toEqual([
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "alpha",
-          change: 6.5,
-          reason: "skill_sp_recover",
-        }),
-      }),
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "beta",
-          change: 6.5,
-          reason: "skill_sp_recover",
-        }),
-      }),
-    ]);
-  });
+function collectRuntimeTriggers(
+  team: TeamInstance,
+  operatorInstances: OperatorInstance[],
+  weaponInstances: WeaponInstance[] = [],
+  gearInstances: GearInstance[] = [],
+  tracks: ScenarioTrack[],
+): NonNullable<TrackPatch["triggerEffects"]> {
+  const triggers = collectTriggerEffects(
+    team,
+    operatorInstances,
+    weaponInstances,
+    gearInstances,
+    new Map(),
+  );
+  return triggers.map((entry) => ({
+    ...entry,
+    sourceTrackId: tracks[entry.sourceSlotIndex]?.id ?? entry.sourceOperatorSlug,
+  })) as NonNullable<TrackPatch["triggerEffects"]>;
+}
 
-  it("stacks manual skill self gauge gain with SP-derived charge", () => {
-    const scenario = createScenario([
-      createTrack("alpha", [
-        createAction("alpha_skill", "skill", {
-          spCost: 100,
-          gaugeGain: 10,
-        }),
-      ]),
-      createTrack("beta", []),
-    ]);
+function damageFor(result: ReturnType<typeof runScenario>, actionId: string): number {
+  const entry = result.simLog.find(
+    (item) => item.type === "DAMAGE_HIT" && item.payload.actionId === actionId,
+  );
+  if (!entry || entry.type !== "DAMAGE_HIT") {
+    throw new Error(`Missing DAMAGE_HIT for action ${actionId}`);
+  }
+  return Number(entry.payload.hitData._expectedDamage ?? 0);
+}
 
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const gaugeLogs = getUltimateChargeLogs(result);
+function resolveSheetHits(
+  skillKey: string,
+  segmentIndex = 0,
+): ReturnType<typeof resolveHitsFromSheet> {
+  const flatSkills = patchCombatSkills(estellaSheet, { talentStates: {}, potential: 0 });
+  const segment = flatSkills[skillKey]?.segments?.[segmentIndex];
+  const rawEntries = extractRawEntries({ segments: [segment] }, 0);
+  return resolveHitsFromSheet([], rawEntries, 0, { preserveCondition: true });
+}
 
-    const alphaChanges = gaugeLogs
-      .filter((entry) => entry.payload.actorId === "alpha")
-      .map((entry) => ({ change: entry.payload.change, reason: entry.payload.reason }));
-    const betaChanges = gaugeLogs
-      .filter((entry) => entry.payload.actorId === "beta")
-      .map((entry) => ({ change: entry.payload.change, reason: entry.payload.reason }));
-
-    expect(alphaChanges).toEqual([
-      { change: 6.5, reason: "skill_sp_recover" },
-      { change: 10, reason: "skill_gain" },
-    ]);
-    expect(betaChanges).toEqual([
-      { change: 6.5, reason: "skill_sp_recover" },
-    ]);
-  });
-
-  it("applies manual skill team charge only to actors that accept team gauge", () => {
-    const scenario = createScenario([
-      createTrack("alpha", [
-        createAction("alpha_skill", "skill", {
-          teamGaugeGain: 5,
-        }),
-      ]),
-      createTrack("beta", [], {
-        acceptTeamGauge: false,
-      }),
-      createTrack("gamma", []),
-    ]);
-
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const gaugeLogs = getUltimateChargeLogs(result);
-
-    expect(gaugeLogs).toEqual([
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "alpha",
-          change: 5,
-          reason: "skill_team_gain",
-        }),
-      }),
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "gamma",
-          change: 5,
-          reason: "skill_team_gain",
-        }),
-      }),
-    ]);
-  });
-
-  it("applies ult charge efficiency to manual skill gauge gains", () => {
-    const scenario = createScenario([
+describe("optimizer-native runtime parity", () => {
+  it("compiles Endaxis UI state into optimizer-native scenario inputs", () => {
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        sourceSkillType: "battleSkill",
+        triggerEffect: {
+          trigger: { kind: "onHit" },
+          effects: [
+            {
+              id: "consume-vulnerability-hit",
+              kind: "damageHit",
+              element: "physical",
+              multiplier: 50,
+              readConsumedStacks: { statusKey: "vulnerability", target: "enemy" },
+            } as Effect,
+          ],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+    const runtimeInitialEffects = [
+      {
+        targetTrackId: "alpha",
+        id: "hidden-passive",
+        stat: { modifier: "atkPercent" as const },
+        value: 10,
+        sourceId: "alpha",
+        effect: { id: "hidden-passive", kind: "status" as const, hide: true },
+      },
+    ];
+    const tracks = [
       createTrack(
         "alpha",
         [
-          createAction("alpha_skill", "skill", {
-            gaugeGain: 10,
-            teamGaugeGain: 5,
+          createAction("status", "battleSkill", {
+            hits: [
+              {
+                offset: 0,
+                multiplier: 100,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [
+                  {
+                    kind: "damageHit",
+                    element: "physical",
+                    multiplier: 10,
+                    readConsumedStacks: { statusKey: "combo-state", target: "enemy" },
+                  } as Effect,
+                ],
+              },
+            ],
           }),
         ],
-        {
-          stats: {
-            ult_charge_eff: 200,
-          },
-        },
+        { triggerEffects },
       ),
-      createTrack("beta", [], {
-        stats: {
-          ult_charge_eff: 300,
+    ];
+
+    const compiled = compileEndaxisScenario({
+      scenarioData: createScenario(tracks),
+      tracks,
+      characterRoster: [
+        {
+          id: "alpha",
+          element: "heat",
+          accept_team_gauge: false,
+          maxUltimateGauge: 150,
         },
-      }),
-    ]);
-
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const gaugeLogs = getUltimateChargeLogs(result);
-
-    expect(gaugeLogs).toEqual([
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "alpha",
-          change: 20,
-          reason: "skill_gain",
-        }),
-      }),
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "alpha",
-          change: 10,
-          reason: "skill_team_gain",
-        }),
-      }),
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          actorId: "beta",
-          change: 15,
-          reason: "skill_team_gain",
-        }),
-      }),
-    ]);
-  });
-
-  it("blocks manual skill gauge gain during ultimate animation and enhancement windows", () => {
-    const scenario = createScenario([
-      createTrack("alpha", [
-        createAction("alpha_ultimate", "ultimate", {
-          startTime: 0,
-          duration: 0.5,
-          animationTime: 1.5,
-          enhancementTime: 1.5,
-        }),
-        createAction("alpha_skill", "skill", {
-          startTime: 1,
-          duration: 1,
-          gaugeGain: 10,
-        }),
-      ]),
-    ]);
-
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const gaugeLogs = getUltimateChargeLogs(result);
-
-    expect(gaugeLogs).toEqual([]);
-  });
-
-  it("should match SP snapshot", () => {
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(
-      simulatorFixture1.scenario,
-    );
-
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-
-    result.simLog.forEach((entry) => {
-      console.log(formatSimLogEntry(entry));
+      ],
+      systemConstants: {
+        maxSp: 300,
+        initialSp: 123,
+        spRegenRate: 8,
+        skillSpCostDefault: 100,
+      },
+      prepDuration: 3,
+      activeEnemyId: "eny_0051_rodin",
+      runtimeInitialEffects,
+      simulationEndline: 9,
+      lmdiAttributionMode: "applier",
     });
 
-    const projection = projectSpSeries(
-      result.simLog,
-      result.state.getInitialSnapshot(),
-    );
-
-    expect(projection).toMatchSnapshot();
+    expect(compiled).toBeTruthy();
+    expect(compiled?.teamConfig).toMatchObject({ initialSp: 123, prepDuration: 3 });
+    expect(compiled?.enemyConfig).toMatchObject({
+      maxStagger: 280,
+      staggerNodeCount: 1,
+      staggerNodeDuration: 2,
+      staggerBreakDuration: 10,
+      finisherRecovery: 100,
+      defense: 100,
+      tier: "boss",
+    });
+    expect(compiled?.actors[0]).toMatchObject({
+      id: "alpha",
+      element: "heat",
+      acceptTeamGauge: false,
+      acceptTeamUltEnergy: false,
+      ultimateEnergyCostOverride: 150,
+    });
+    expect(compiled?.triggerRegistry).toBeInstanceOf(TriggerRegistry);
+    expect(compiled?.triggerEntries).toHaveLength(1);
+    expect(compiled?.consumedStacksWriteKeys.has("combo-state")).toBe(true);
+    expect(compiled?.consumedStacksWriteKeys.has("vulnerability")).toBe(true);
+    expect(compiled?.initialEffects).toBe(runtimeInitialEffects);
+    expect(compiled?.baseStatsByTrack.get("alpha")).toEqual(BASE_STATS);
+    expect(compiled?.enemyDef).toBe(100);
+    expect(compiled?.endlineTime).toBe(9);
+    expect(compiled?.lmdiAttributionMode).toBe("applier");
   });
 
-  it("should match Stagger snapshot", () => {
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(
-      simulatorFixture1.scenario,
-      {
-        systemConstants: {
-          maxStagger: 125,
-          staggerNodeDuration: 2,
-          staggerNodeCount: 0,
-        },
-      },
-    );
-
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-
-    const projection = projectStaggerSeries(
-      result.simLog,
-      result.state.getInitialSnapshot(),
-      enemyConfig,
-    );
-
-    expect(projection.nodeStep).toBe(125);
-
-    expect(projection).toMatchSnapshot();
-  });
-
-  it("should match ultimate charge snapshots", () => {
-    const { timeline, teamConfig, enemyConfig, actors } = compileScenario(
-      simulatorFixture1.scenario,
-    );
-
-    const result = simulate(timeline, teamConfig, enemyConfig, actors);
-    const initialSnapshot = result.state.getInitialSnapshot();
-
-    const projections = Object.fromEntries(
-      actors.map((actor) => [
-        actor.id,
-        projectUltimateSeries(
-          result.simLog,
-          initialSnapshot,
-          actor.id,
-          timeline.meta.totalDuration,
-        ),
+  it("routes newly resolved arts infliction effects from sheet hits into enemyLog", () => {
+    const hits = resolveSheetHits("battleSkill");
+    expect(hits.flatMap((hit) => hit.effects ?? [])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "infliction", element: "cryo" }),
       ]),
     );
 
-    expect(projections).toMatchSnapshot();
+    const result = runScenario([
+      createTrack("alpha", [
+        createAction("estella_battle", "battleSkill", {
+          element: "cryo",
+          hits,
+        }),
+      ]),
+    ]);
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "INFLICTION_APPLY",
+          element: "cryo",
+          sourceId: "alpha",
+        }),
+      ]),
+    );
+  });
+
+  it("routes newly resolved physical status effects from sheet hits into enemyLog", () => {
+    const hits = resolveSheetHits("comboSkill");
+    expect(hits.flatMap((hit) => hit.effects ?? [])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "physicalStatus", physicalType: "lift" }),
+      ]),
+    );
+
+    const result = runScenario([
+      createTrack("alpha", [
+        createAction("estella_combo", "comboSkill", {
+          element: "physical",
+          hits,
+        }),
+      ]),
+    ]);
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "PHYSICAL_STATUS",
+          physicalType: "lift",
+          sourceId: "alpha",
+        }),
+      ]),
+    );
+  });
+
+  it("routes thermite-cutter SP and link triggers through operatorLog, lower buff projection, and damage", () => {
+    const thermiteEffect: Effect = {
+      id: "thermite-cutter-skill3",
+      kind: "status",
+      stat: { modifier: "atkPercent" },
+      target: "team",
+      value: 14,
+      stackStrategy: "INDEPENDENT",
+      maxStacks: 2,
+      duration: 20,
+      sourceGroup: "weapon",
+      icon: "/weapons/sword/wpn_sword_0012.webp",
+    } as Effect;
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: {
+            kind: "onSpRecovery",
+            skillTypes: ["battleSkill", "comboSkill", "ultimate"],
+          },
+          effects: [thermiteEffect],
+        },
+      },
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: {
+            kind: "onStatusApplied",
+            status: { modifier: "link" },
+            target: "self",
+          },
+          effects: [thermiteEffect],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+
+    const thermiteDamageAction = createAction("damage", "battleSkill", {
+      startTime: 6,
+      hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+    });
+    const tracks = [
+      createTrack(
+        "alpha",
+        [
+          createAction("recover", "battleSkill", {
+            startTime: 0,
+            hits: [{ offset: 0, spRecovery: 10, spReturn: 0, stagger: 0 }],
+          }),
+          createAction("link", "battleSkill", {
+            startTime: 5,
+            hits: [
+              {
+                offset: 0,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [
+                  {
+                    id: "runtime-link",
+                    kind: "status",
+                    stat: { modifier: "link" },
+                    target: "self",
+                    duration: 1,
+                    hide: true,
+                  },
+                ],
+              },
+            ],
+          }),
+          thermiteDamageAction,
+        ],
+        { triggerEffects },
+      ),
+      createTrack("beta", []),
+    ];
+
+    const baseline = runScenario([
+      createTrack("alpha", [thermiteDamageAction]),
+      createTrack("beta", []),
+    ]);
+    const result = runScenario(tracks, registry(triggerEffects));
+    const applies = result.operatorLog.filter(
+      (entry) => entry.type === "OPERATOR_EFFECT_APPLY" && entry.id === "thermite-cutter-skill3",
+    );
+
+    expect(applies).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          targetTrackId: "alpha",
+          stacks: 1,
+          maxStacks: 2,
+          stackStrategy: "INDEPENDENT",
+          effect: expect.objectContaining({ sourceGroup: "weapon", target: "team" }),
+        }),
+        expect.objectContaining({
+          targetTrackId: "beta",
+          effect: expect.objectContaining({ sourceGroup: "weapon", target: "team" }),
+        }),
+      ]),
+    );
+    expect(damageFor(result, "damage_inst")).toBeGreaterThan(damageFor(baseline, "damage_inst"));
+
+    const layout = projectActionBuffs(result.operatorLog, 30).get("alpha");
+    expect(layout?.upper).toHaveLength(0);
+    expect(layout?.lower.map((segment) => ({
+      start: segment.start,
+      end: segment.end,
+      stacks: segment.stacks,
+      sourceGroup: segment.sourceGroup,
+    }))).toEqual([
+      { start: 0, end: 5, stacks: 1, sourceGroup: "weapon" },
+      { start: 5, end: 20, stacks: 2, sourceGroup: "weapon" },
+      { start: 20, end: 25, stacks: 1, sourceGroup: "weapon" },
+    ]);
+  });
+
+  it("collects real thermite-cutter sheet triggers into runtime and lower buff projection", () => {
+    const tracks = [
+      createTrack("alpha", [
+        createAction("recover", "battleSkill", {
+          startTime: 0,
+          hits: [{ offset: 0, spRecovery: 10, spReturn: 0, stagger: 0 }],
+        }),
+        createAction("damage", "battleSkill", {
+          startTime: 2,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+      ]),
+    ];
+    const team = createTeam("op_alpha", "wp_thermite");
+    const operatorInstances = [createOperatorInstance()];
+    const weaponInstances = [createWeaponInstance()];
+    const triggerEffects = collectRuntimeTriggers(team, operatorInstances, weaponInstances, [], tracks);
+
+    expect(
+      triggerEffects.filter((entry) =>
+        entry.triggerEffect.effects.some((effect: any) => effect.id === "thermite-cutter-skill3"),
+      ),
+    ).toHaveLength(2);
+    expect(
+      triggerEffects.flatMap((entry) => entry.triggerEffect.effects).filter(
+        (effect: any) => effect.id === "thermite-cutter-skill3",
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceGroup: "weapon",
+          target: "team",
+          stackStrategy: "INDEPENDENT",
+          maxStacks: 2,
+          duration: 20,
+          icon: "/weapons/sword/wpn_sword_0012.webp",
+        }),
+      ]),
+    );
+
+    const result = runScenario(tracks, registry(triggerEffects));
+    expect(result.operatorLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "OPERATOR_EFFECT_APPLY",
+          id: "thermite-cutter-skill3",
+          targetTrackId: "alpha",
+          sourceId: "alpha",
+          effect: expect.objectContaining({ sourceGroup: "weapon" }),
+        }),
+      ]),
+    );
+    expect(projectActionBuffs(result.operatorLog, 25).get("alpha")?.lower[0]).toMatchObject({
+      sourceGroup: "weapon",
+      start: 0,
+      end: 20,
+      maxStacks: 2,
+    });
+  });
+
+  it("projects a 3-piece gear-set onHit stack in the lower buff layer and affects later damage", () => {
+    const gearEffect: Effect = {
+      id: "mi-security-stack",
+      kind: "status",
+      stat: { modifier: "atkPercent" },
+      target: "self",
+      value: 5,
+      maxStacks: 5,
+      duration: 5,
+      sourceGroup: "gearSet",
+      icon: "/equipment/item_equip_t4_suit_criti01_edc_03.webp",
+    } as Effect;
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: { kind: "onHit" },
+          effects: [gearEffect],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+    const gearDamageAction = createAction("damage", "basicAttack", {
+      startTime: 1,
+      hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+    });
+    const tracks = [
+      createTrack(
+        "alpha",
+        [
+          createAction("stack", "basicAttack", {
+            startTime: 0,
+            hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+          }),
+          gearDamageAction,
+        ],
+        { triggerEffects },
+      ),
+    ];
+
+    const baseline = runScenario([createTrack("alpha", [gearDamageAction])]);
+    const result = runScenario(tracks, registry(triggerEffects));
+    const apply = result.operatorLog.find(
+      (entry) => entry.type === "OPERATOR_EFFECT_APPLY" && entry.id === "mi-security-stack",
+    );
+
+    expect(apply).toMatchObject({
+      targetTrackId: "alpha",
+      effect: expect.objectContaining({ sourceGroup: "gearSet" }),
+    });
+    expect(damageFor(result, "damage_inst")).toBeGreaterThan(damageFor(baseline, "damage_inst"));
+    expect(
+      projectActionBuffs(result.operatorLog, 8)
+        .get("alpha")
+        ?.lower.map((segment) => ({
+          sourceGroup: segment.sourceGroup,
+          start: segment.start,
+          end: segment.end,
+          stacks: segment.stacks,
+        })),
+    ).toEqual([
+      { sourceGroup: "gearSet", start: 0, end: 1, stacks: 1 },
+      { sourceGroup: "gearSet", start: 1, end: 6, stacks: 2 },
+    ]);
+  });
+
+  it("collects real mi-security 3-piece trigger into runtime and lower buff projection", () => {
+    const tracks = [
+      createTrack("alpha", [
+        createAction("stack", "basicAttack", {
+          startTime: 0,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+        createAction("damage", "basicAttack", {
+          startTime: 1,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+      ]),
+    ];
+    const gearInstances = [
+      createGearInstance("gear_armor", "mi-security-armor"),
+      createGearInstance("gear_gloves", "mi-security-gloves"),
+      createGearInstance("gear_kit", "mi-security-toolkit"),
+    ];
+    const team = createTeam("op_alpha", null, {
+      armor: "gear_armor",
+      gloves: "gear_gloves",
+      kit1: "gear_kit",
+    });
+    const operatorInstances = [createOperatorInstance()];
+    const triggerEffects = collectRuntimeTriggers(team, operatorInstances, [], gearInstances, tracks);
+    const miSecurityEffects = triggerEffects.flatMap((entry) => entry.triggerEffect.effects).filter(
+      (effect) => effect.id === "mi-security-stack",
+    );
+
+    expect(miSecurityEffects).toEqual([
+      expect.objectContaining({
+        sourceGroup: "gearSet",
+        maxStacks: 5,
+        duration: 5,
+      }),
+    ]);
+
+    const baseline = runScenario([
+      createTrack("alpha", [
+        createAction("damage", "basicAttack", {
+          startTime: 1,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+      ]),
+    ]);
+    const result = runScenario(tracks, registry(triggerEffects));
+    expect(damageFor(result, "damage_inst")).toBeGreaterThan(damageFor(baseline, "damage_inst"));
+    expect(projectActionBuffs(result.operatorLog, 8).get("alpha")?.lower[0]).toMatchObject({
+      sourceGroup: "gearSet",
+      start: 0,
+      end: 1,
+      stacks: 1,
+    });
+  });
+
+  it("honors onHit weapon skill type filters", () => {
+    const weaponEffect: Effect = {
+      id: "artzy-tyrannical-stack",
+      kind: "status",
+      stat: { modifier: "dmgBonus", elements: "cryo" },
+      target: "self",
+      value: 28,
+      stackStrategy: "INDEPENDENT",
+      maxStacks: 3,
+      duration: 30,
+      sourceGroup: "weapon",
+    } as Effect;
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: { kind: "onHit", skillTypes: ["battleSkill", "comboSkill"] },
+          effects: [weaponEffect],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+
+    const result = runScenario(
+      [
+        createTrack(
+          "alpha",
+          [
+            createAction("basic", "basicAttack", {
+              startTime: 0,
+              hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+            }),
+            createAction("battle", "battleSkill", {
+              startTime: 1,
+              element: "cryo",
+              hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+            }),
+            createAction("combo", "comboSkill", {
+              startTime: 2,
+              element: "cryo",
+              hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+            }),
+          ],
+          { triggerEffects },
+        ),
+      ],
+      registry(triggerEffects),
+    );
+
+    const applies = result.operatorLog.filter(
+      (entry): entry is Extract<(typeof result.operatorLog)[number], { type: "OPERATOR_EFFECT_APPLY" }> =>
+        entry.type === "OPERATOR_EFFECT_APPLY" &&
+        entry.id === "artzy-tyrannical-stack" &&
+        !entry.isContinuation,
+    );
+    expect(applies).toHaveLength(2);
+    expect(applies.map((entry) => entry.time)).toEqual([1, 2]);
+    expect(applies.every((entry) => entry.effect?.sourceGroup === "weapon")).toBe(true);
+  });
+
+  it("keeps nested damageHit.hit.effects ids and sourceGroup through triggered runtime hits", () => {
+    const nestedStatus: Effect = {
+      id: "nested-gear-status",
+      kind: "status",
+      stat: { modifier: "dmgBonus", elements: "physical" },
+      target: "self",
+      value: 25,
+      duration: 10,
+      sourceGroup: "gearSet",
+    } as Effect;
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: { kind: "onHit" },
+          effects: [
+            {
+              id: "nested-gear-hit",
+              kind: "damageHit",
+              element: "physical",
+              multiplier: 50,
+              sourceGroup: "gearSet",
+              hit: {
+                stagger: 0,
+                effects: [nestedStatus],
+              },
+            } as Effect,
+          ],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+
+    const result = runScenario(
+      [
+        createTrack(
+          "alpha",
+          [
+            createAction("starter", "battleSkill", {
+              startTime: 0,
+              hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+            }),
+          ],
+          { triggerEffects },
+        ),
+      ],
+      registry(triggerEffects),
+    );
+
+    const triggeredHit = result.simLog.find(
+      (entry) =>
+        entry.type === "DAMAGE_HIT" &&
+        entry.payload.hitData.triggeredBy === "nested-gear-hit",
+    );
+    const nestedApply = result.operatorLog.find(
+      (entry) => entry.type === "OPERATOR_EFFECT_APPLY" && entry.id === "nested-gear-status",
+    );
+
+    expect(triggeredHit).toBeDefined();
+    expect(nestedApply).toMatchObject({
+      targetTrackId: "alpha",
+      effect: expect.objectContaining({
+        id: "nested-gear-status",
+        sourceGroup: "gearSet",
+      }),
+    });
+    expect(projectActionBuffs(result.operatorLog, 12).get("alpha")?.lower[0]).toMatchObject({
+      sourceGroup: "gearSet",
+      start: 0,
+      end: 10,
+    });
+  });
+
+  it("runs arts infliction consume, reaction damage, enemy projection, and LMDI source attribution", () => {
+    const tracks = [
+      createTrack("alpha", [
+        createAction("heat", "battleSkill", {
+          startTime: 0,
+          element: "heat",
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: "infliction", element: "heat", stacks: 2 } as Effect],
+            },
+          ],
+        }),
+      ]),
+      createTrack("beta", [
+        createAction("electric", "battleSkill", {
+          startTime: 1,
+          element: "electric",
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: "infliction", element: "electric", stacks: 1 } as Effect],
+            },
+          ],
+        }),
+      ]),
+    ];
+    const result = runScenario(tracks);
+    const reactionHit = result.simLog.find(
+      (entry) =>
+        entry.type === "DAMAGE_HIT" &&
+        entry.payload.hitData?._reactionMeta?.reactionType === "electrification",
+    );
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "INFLICTION_APPLY", element: "heat", sourceId: "alpha" }),
+        expect.objectContaining({ type: "INFLICTION_CONSUMED", element: "heat", consumedStacks: 2 }),
+        expect.objectContaining({ type: "REACTION_TRIGGER", reactionType: "electrification", sourceId: "beta" }),
+        expect.objectContaining({ type: "DEBUFF_APPLY", debuffType: "electrification", sourceId: "beta" }),
+        expect.objectContaining({ type: "INFLICTION_APPLY", element: "electric", sourceId: "beta", triggerOnly: true }),
+      ]),
+    );
+    expect(reactionHit).toBeDefined();
+    const reactionHitData = (reactionHit as any)?.payload?.hitData;
+    expect(reactionHitData?._expectedDamage).toBeGreaterThan(0);
+    expect(reactionHitData?._reactionMeta?.consumedStackSources).toEqual(
+      expect.objectContaining({ alpha: 2 }),
+    );
+    expect(reactionHitData?._lmdiSelf).toBeDefined();
+    expect(reactionHitData?._lmdiExternal).toBeDefined();
+
+    const projection = projectOptimizerResult({
+      simulation: result,
+      compiledScenario: compileScenario(createScenario(tracks)),
+      tracks,
+      viewDuration: 12,
+    });
+    expect(projection.enemyAfflictionViz.attachment.segments[0]).toMatchObject({
+      typeKey: "heat_infliction",
+      start: 0,
+      end: 1,
+    });
+    expect(projection.enemyAfflictionViz.anomalies.segments[0]).toMatchObject({
+      typeKey: "electrification",
+      kind: "anomaly",
+    });
+  });
+
+  it("runs physical vulnerability stack, consume, reaction damage, and enemy projection", () => {
+    const tracks = [
+      createTrack("alpha", [
+        createAction("lift", "comboSkill", {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: "physicalStatus", physicalType: "lift" } as Effect],
+            },
+          ],
+        }),
+        createAction("knockdown", "comboSkill", {
+          startTime: 1,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: "physicalStatus", physicalType: "knockdown" } as Effect],
+            },
+          ],
+        }),
+        createAction("breach", "comboSkill", {
+          startTime: 2,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: "physicalStatus", physicalType: "breach" } as Effect],
+            },
+          ],
+        }),
+      ]),
+    ];
+    const result = runScenario(tracks);
+    const breachHit = result.simLog.find(
+      (entry) =>
+        entry.type === "DAMAGE_HIT" &&
+        entry.payload.hitData?._reactionMeta?.reactionType === "breach",
+    );
+    const projection = projectOptimizerResult({
+      simulation: result,
+      compiledScenario: compileScenario(createScenario(tracks)),
+      tracks,
+      viewDuration: 12,
+    });
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "PHYSICAL_STATUS", physicalType: "lift" }),
+        expect.objectContaining({ type: "VULNERABILITY_CHANGE", stacks: 1 }),
+        expect.objectContaining({ type: "PHYSICAL_STATUS", physicalType: "knockdown" }),
+        expect.objectContaining({ type: "VULNERABILITY_CHANGE", stacks: 2 }),
+        expect.objectContaining({ type: "VULNERABILITY_CONSUMED", consumedStacks: 2 }),
+        expect.objectContaining({ type: "DEBUFF_APPLY", debuffType: "breach", level: 2 }),
+      ]),
+    );
+    expect((breachHit as any)?.payload?.hitData?._expectedDamage).toBeGreaterThan(0);
+    expect(projection.enemyAfflictionViz.physical.segments[0]).toMatchObject({
+      typeKey: "vulnerability",
+      start: 0,
+      end: 1,
+      stacks: 1,
+    });
+    expect(projection.enemyAfflictionViz.physical.markers).toEqual([
+      expect.objectContaining({ typeKey: "vulnerability", time: 0, stacks: 1 }),
+      expect.objectContaining({ typeKey: "knockdown", time: 1, stacks: 2 }),
+      expect.objectContaining({ typeKey: "breach", time: 2, stacks: 2 }),
+    ]);
+  });
+
+  it("projects optimizer-native logs through the UI result adapter", () => {
+    const gearEffect: Effect = {
+      id: "adapter-gear-stack",
+      kind: "status",
+      stat: { modifier: "atkPercent" },
+      target: "self",
+      value: 5,
+      duration: 8,
+      sourceGroup: "gearSet",
+    } as Effect;
+    const triggerEffects = [
+      {
+        sourceTrackId: "alpha",
+        triggerEffect: {
+          trigger: { kind: "onHit" },
+          effects: [gearEffect],
+        },
+      },
+    ] satisfies TrackPatch["triggerEffects"];
+    const tracks = [
+      createTrack(
+        "alpha",
+        [
+          createAction("status", "battleSkill", {
+            startTime: 0,
+            spGain: 10,
+            gaugeGain: 12,
+            element: "heat",
+            hits: [
+              {
+                offset: 0,
+                multiplier: 100,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 5,
+                effects: [{ kind: "infliction", element: "heat", stacks: 1 } as Effect],
+              },
+            ],
+          }),
+        ],
+        { triggerEffects },
+      ),
+    ];
+    const compiledScenario = compileScenario(createScenario(tracks));
+    const baseStatsByTrack = new Map<string, BaseStatValues>(
+      compiledScenario.actors.map((actor) => [actor.id, BASE_STATS]),
+    );
+    const simulation = simulate(
+      compiledScenario.timeline,
+      compiledScenario.teamConfig,
+      compiledScenario.enemyConfig,
+      compiledScenario.actors,
+      registry(triggerEffects),
+      undefined,
+      { baseStatsByTrack, enemyDef: 100 },
+    );
+
+    const projection = projectOptimizerResult({
+      simulation,
+      compiledScenario,
+      tracks,
+      viewDuration: 12,
+      prepDuration: 0,
+      simulationEndline: null,
+    });
+
+    expect(projection.simLog).toBe(simulation.simLog);
+    expect(projection.operatorLog).toBe(simulation.operatorLog);
+    expect(projection.enemyLog).toBe(simulation.enemyLog);
+    expect(projection.spSeries.length).toBeGreaterThan(1);
+    expect(projection.staggerSeries.points.length).toBeGreaterThan(1);
+    expect(projection.gaugeSeriesByTrackId.get("alpha")?.length).toBeGreaterThan(1);
+    expect(projection.trackBuffLayouts.get("alpha")?.lower[0]).toMatchObject({
+      sourceGroup: "gearSet",
+      start: 0,
+      end: 8,
+    });
+    expect(
+      projection.enemyEffectLayout.positionedSegments.some(
+        (segment: any) => segment.group === 2 && segment.effect?.kind === "infliction",
+      ),
+    ).toBe(true);
+    expect(projection.enemyAfflictionViz.attachment.segments[0]).toMatchObject({
+      typeKey: "heat_infliction",
+      kind: "attachment",
+      stacks: 1,
+      start: 0,
+    });
+  });
+
+  it("maps optimizer enemy effect layout into ResourceMonitor affliction groups", () => {
+    const viz = projectEnemyAfflictionViz({
+      positionedSegments: [
+        {
+          group: 0,
+          subRow: 0,
+          start: 1,
+          end: 5,
+          stacks: 2,
+          icon: null,
+          effect: { kind: "physicalStatus", physicalType: "vulnerability" },
+        },
+        {
+          group: 2,
+          subRow: 0,
+          start: 2,
+          end: 8,
+          stacks: 3,
+          icon: null,
+          effect: { kind: "infliction", element: "heat" },
+        },
+        {
+          group: 3,
+          subRow: 1,
+          start: 3,
+          end: 9,
+          stacks: 1,
+          icon: null,
+          effect: { kind: "reaction", reactionType: "combustion" },
+        },
+        {
+          group: 4,
+          subRow: 0,
+          start: 4,
+          end: 10,
+          stacks: 1,
+          icon: null,
+          effect: { kind: "status", id: "resistanceShred" },
+        },
+      ],
+    });
+
+    expect(viz.physical.segments[0]).toMatchObject({
+      typeKey: "vulnerability",
+      kind: "physical",
+      tracksComboState: true,
+    });
+    expect(viz.attachment.segments[0]).toMatchObject({
+      typeKey: "heat_infliction",
+      kind: "attachment",
+      stacks: 3,
+    });
+    expect(viz.anomalies.segments[0]).toMatchObject({
+      typeKey: "combustion",
+      kind: "anomaly",
+      row: 1,
+    });
+    expect(viz.statuses.segments[0]).toMatchObject({
+      typeKey: "resistanceShred",
+      kind: "status",
+    });
+    expect(viz.anomalies.rowCount).toBe(2);
+    expect(viz.statuses.rowCount).toBe(1);
+  });
+
+  it("normalizes physical marker display without changing runtime effect state", () => {
+    const viz = projectEnemyAfflictionViz({
+      positionedSegments: [
+        {
+          group: 0,
+          subRow: 0,
+          start: 0,
+          end: 0,
+          stacks: 1,
+          icon: "/legacy/crush.webp",
+          effect: { kind: "physicalStatus", physicalType: "crush" },
+        },
+        {
+          group: 0,
+          subRow: 0,
+          start: 1,
+          end: 2,
+          stacks: 3,
+          icon: null,
+          effect: { kind: "physicalStatus", physicalType: "vulnerability" },
+        },
+        {
+          group: 0,
+          subRow: 0,
+          start: 2,
+          end: 2,
+          stacks: 3,
+          icon: "/legacy/crush.webp",
+          effect: { kind: "physicalStatus", physicalType: "crush" },
+        },
+      ],
+    });
+
+    expect(viz.physical.markers).toEqual([
+      expect.objectContaining({ typeKey: "vulnerability", time: 0, stacks: 1 }),
+      expect.objectContaining({ typeKey: "crush", time: 2, stacks: 3 }),
+    ]);
   });
 });

@@ -3,33 +3,39 @@ import type {
   EnemyConfig,
   TeamConfig,
 } from "@/simulation/state/types.ts";
+import type { OperatorStatus, ComputedEnemyStatus } from "@/types";
 import type { TimeContext } from "@/simulation/compiler/timeContext.ts";
+import type {
+  Effect,
+  EffectCondition,
+  OperatorStat,
+  ResolvedScalingDef,
+} from "@/data/types";
+import type { DamageBreakdown } from "@/data/stats/computeDamage";
+import type { BaseStatValues } from "@/data/stats/types";
+
+export type { Effect };
 
 export interface ScenarioData {
   tracks: ScenarioTrack[];
   connections?: Connection[];
 
-  // config
   systemConstants?: SystemConstants;
   characterOverrides?: Record<string, any>;
   weaponOverrides?: Record<string, any>;
   equipmentCategoryOverrides?: Record<string, any>;
-  weaponStatuses?: any[];
 
-  // enemy
   activeEnemyId?: string;
   customEnemyParams?: Partial<EnemyConfig>;
-
   switchEvents?: SwitchEvent[];
 
-  // others
   [key: string]: any;
 }
 
 export type SystemConstants = EnemyConfig & TeamConfig;
 
 export interface SwitchEvent {
-  // TOOD
+  // TODO
 }
 
 export interface Connection {
@@ -71,31 +77,27 @@ export type ActorStats = {
 export type ActorStatKeys = keyof ActorStats;
 
 export interface ScenarioTrack {
-  // 角色名
   id: string;
+  element?: string;
   actions: Action[];
 
-  // stats
   stats: ActorStats;
-  /**
-   * @deprecated - use stats.ult_charge_eff
-   */
   gaugeEfficiency: number;
-  /**
-   * @deprecated - use stats.originium_arts_power
-   */
   originiumArtsPower: number;
-  /**
-   * @deprecated - use stats.link_cd_reduction
-   */
   linkCdReduction: number;
 
-  // config
   initialGauge: number;
   maxGaugeOverride?: number | null;
+  maxUltimateGauge?: number | null;
+  ultimate_gaugeMax?: number | null;
   acceptTeamGauge?: boolean;
+  acceptTeamUltEnergy?: boolean;
+  ultimateEnergyCostOverride?: number | null;
+  operatorStatus?: OperatorStatus | null;
+  baseStats?: BaseStatValues | null;
+  enemyStatus?: ComputedEnemyStatus | null;
+  triggerEffects?: any[];
 
-  // equipment
   weaponId?: string | null;
   weaponCommon1Tier?: number;
   weaponCommon2Tier?: number;
@@ -108,7 +110,6 @@ export interface ScenarioTrack {
 }
 
 export interface GameDatabase {
-  // TODO
   weapons?: any[];
 }
 
@@ -122,41 +123,106 @@ export interface CompiledScenario {
 
 export type SpGainKind = "recover" | "refund";
 
-export interface Anomaly {
-  _id: string;
-  offset: number;
-  duration: number;
-  type: string;
-  sp?: number;
-  stagger?: number;
-  stacks: number | string; // numeric string
+export interface ConsumedStatEffect {
+  stat: OperatorStat;
+  value: number;
 }
 
-export interface DamageTick {
+export type CompiledEffect = Effect & {
+  _id?: string;
+};
+
+export interface Hit {
+  id?: string;
   offset: number;
-  sp: number;
-  spKind?: SpGainKind;
+  _noDamage?: boolean;
+  multiplier?: number;
+  _multiplierScaling?: ResolvedScalingDef;
+  element?: string;
+  spRecovery: number;
+  spReturn: number;
   stagger: number;
-  boundEffects?: string[];
+  durationExtension?: number;
+  effects?: CompiledEffect[];
+  _condition?: EffectCondition | EffectCondition[];
 }
 
-export interface ResolvedDamageTick extends DamageTick {
+export interface ResolvedHit extends Hit {
   realTime: number;
   realOffset: number;
   time: number;
+  triggered?: boolean;
+  triggeredBy?: string;
+  skillType?: string;
+  skillId?: string;
+  element?: string;
+  _actionInstanceId?: string;
+  _hitIndex?: number;
+  consumedStacks?: Record<string, number>;
+  consumedStatEffects?: ConsumedStatEffect[];
+  _expectedDamage?: number;
+  _damageBreakdown?: DamageBreakdown;
+  _staggerMult?: number;
+  _staggerContributions?: Record<string, number>;
+  _finisherMult?: number;
+  _reactionMeta?: {
+    reactionType: string;
+    level: number;
+    element?: string;
+    effectiveness?: number;
+    consumedStackSources?: Record<string, number>;
+    synthetic?: boolean;
+  };
+  _reactionStaggerMult?: number;
+  _canCrit?: boolean;
+  _critRateScale?: number;
+  _lmdiSelf?: unknown;
+  _lmdiExternal?: unknown;
 }
 
 export type ActionType =
-  | "execution" // 处决
-  | "skill" // 技能
-  | "link" // 连携
-  | "ultimate" // 终结技
-  | "attack"; // 重击
+  | "finisher"
+  | "dive"
+  | "battleSkill"
+  | "comboSkill"
+  | "ultimate"
+  | "basicAttack";
+
+export function resolveOptimizerSkillType(action: {
+  type?: ActionType | null;
+}) {
+  return action?.type || null;
+}
+
+export function isBattleSkillLikeAction(action: {
+  type?: ActionType | null;
+}) {
+  return resolveOptimizerSkillType(action) === "battleSkill";
+}
+
+export function isComboSkillLikeAction(action: {
+  type?: ActionType | null;
+}) {
+  return resolveOptimizerSkillType(action) === "comboSkill";
+}
+
+export function isUltimateLikeAction(action: {
+  type?: ActionType | null;
+}) {
+  return resolveOptimizerSkillType(action) === "ultimate";
+}
+
+export function isFinalStrikeLikeAction(action: {
+  type?: ActionType | null;
+}) {
+  return resolveOptimizerSkillType(action) === "finisher";
+}
 
 export interface Action {
   id: string;
   instanceId: string;
   type: ActionType;
+  skillId: string;
   name: string;
   startTime: number;
   logicalStartTime: number;
@@ -170,6 +236,9 @@ export interface Action {
   gaugeCost: number;
   gaugeGain: number;
   teamGaugeGain: number;
+  ultimateEnergyCost?: number;
+  ultimateEnergyGain?: number;
+  teamUltimateEnergyGain?: number;
   enhancementTime?: number;
   duration: number;
   triggerWindow?: number;
@@ -177,9 +246,8 @@ export interface Action {
   isDisabled?: boolean;
   weaponId?: string | null;
   sourceWeaponId?: string | null;
-  allowedTypes: string[];
-  damageTicks: DamageTick[];
-  physicalAnomaly: Anomaly[][];
+  hits: Hit[];
+  effects?: CompiledEffect[];
 
   isLocked?: boolean;
   customBars?: any[];
@@ -194,17 +262,17 @@ export interface ActionNode {
   node: Action;
 }
 
-export interface AnomalyNode {
+export interface EffectNode {
   type: "effect";
   id: string;
   actionId: string;
-  colIndex: number;
-  rowIndex: number;
+  hitIndex: number;
+  effectIndex: number;
   flatIndex: number;
-  node: Anomaly;
+  node: CompiledEffect;
 }
 
-export interface ResolvedEffect extends AnomalyNode {
+export interface ResolvedEffect extends EffectNode {
   uniqueId: string;
   realDuration: number;
   realStartTime: number;
@@ -225,9 +293,12 @@ export interface ResolvedAction extends ActionNode {
     startTime: number;
     duration: number;
   };
-  resolvedDamageTicks: ResolvedDamageTick[];
+  resolvedHits: ResolvedHit[];
   extensionAmount: number;
   freezeDuration?: number;
+  consumedStacks?: Record<string, number>;
+  consumedStatEffects?: ConsumedStatEffect[];
+  consumedLinkSources?: Record<string, number>;
 }
 
 export interface TimeExtension {

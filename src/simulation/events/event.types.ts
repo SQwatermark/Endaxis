@@ -1,11 +1,13 @@
+import type { ActionType, ResolvedHit, ConsumedStatEffect } from '../compiler/types';
 import type {
-  ActionType,
-  ResolvedDamageTick,
-  SpGainKind,
-} from "../compiler/types";
-import type { EffectSnapshot } from "../effects/types";
+  EnemyEffectApplyEvent,
+  EnemyEffectExpireEvent,
+  ArtsBurstEvent,
+  OperatorEffectApplyEvent,
+  OperatorEffectExpireEvent,
+} from '../engine/types';
 
-export type SimEventType = SimEvent["type"];
+export type SimEventType = SimEvent['type'];
 type SimBaseEvent<Name extends string, Data = {}> = {
   // real time
   time: number;
@@ -13,7 +15,7 @@ type SimBaseEvent<Name extends string, Data = {}> = {
   payload: Data;
 };
 export type ActionStartEvent = SimBaseEvent<
-  "ACTION_START",
+  'ACTION_START',
   {
     skillId: string;
     actionId: string;
@@ -24,94 +26,121 @@ export type ActionStartEvent = SimBaseEvent<
   }
 >;
 export type ActionEndEvent = SimBaseEvent<
-  "ACTION_END",
+  'ACTION_END',
   {
     skillId: string;
     actionId: string;
-    spGain?: number;
-    spGainKind?: SpGainKind;
     actorId: string;
     type: ActionType;
   }
 >;
-export type DamageTickEvent = SimBaseEvent<
-  "DAMAGE_TICK",
+export type HitEvent = SimBaseEvent<
+  'DAMAGE_HIT',
   {
     targetId: string;
     sourceId: string;
-    damage: number;
     stagger: number;
-    tickData: ResolvedDamageTick;
+    hitData: ResolvedHit;
     actionId: string;
   }
 >;
 export type SpChangeEvent = SimBaseEvent<
-  "SP_CHANGE",
+  'SP_CHANGE',
   {
     actorId: string;
     spChange: number;
-    sourceKind?: SpGainKind;
     reason: string;
     sourceId: string;
     parent: SimEvent;
-  }
->;
-export type UltimateChargeChangeEvent = SimBaseEvent<
-  "ULTIMATE_CHARGE_CHANGE",
-  {
-    actorId: string;
-    sourceActorId?: string;
-    actionId?: string;
-    change: number;
-    reason: string;
-    sourceId: string;
-    isTeamGain?: boolean;
-    parent?: SimEvent;
+    spType?: 'recovery' | 'return';
+    /** Skill type (action type, e.g. 'comboSkill') of the hit/effect. Used as fallback
+     *  when sourceId refers to a synthetic triggered action (no action in ctx).
+     *  Matches `trigger.skillTypes` filters. */
+    skillType?: string;
+    /** Specific skill identity (e.g. 'alesh-enhanced-combo'). Matches `trigger.skillId` filters. */
+    skillId?: string;
   }
 >;
 export type SpRegenPauseEvent = SimBaseEvent<
-  "SP_REGEN_PAUSE",
+  'SP_REGEN_PAUSE',
   {
     sourceId: string;
     duration: number;
   }
 >;
-export type EffectStartEvent = SimBaseEvent<
-  "EFFECT_START",
-  {
-    actorId: string;
-    actionId?: string;
-    targetId: string;
-    effect: EffectSnapshot;
-  }
->;
-export type EffectEndEvent = SimBaseEvent<
-  "EFFECT_END",
-  {
-    effectInstanceId: string;
-    type: "consumption" | "expiration";
-  }
->;
 export type StaggerChangeEvent = SimBaseEvent<
-  "STAGGER_CHANGE",
+  'STAGGER_CHANGE',
   {
     stagger: number;
     actorId: string;
     actionId: string;
     targetId: string;
+    /** Action-type tag (e.g. 'comboSkill'). Matches `stat.skillTypes` / `trigger.skillTypes`. */
+    skillType?: string;
+    /** Specific skill identity. Matches `stat.skillId` / `trigger.skillId`. */
+    skillId?: string;
+    reactionStaggerMult?: number;
+  }
+>;
+
+export type UltEnergyChangeEvent = SimBaseEvent<
+  'ULT_ENERGY_CHANGE',
+  {
+    actorId: string;
+    change: number;
+    sourceId: string;
+  }
+>;
+
+export type CorrosionTickSimEvent = SimBaseEvent<
+  'CORROSION_TICK',
+  {
+    sourceId: string;
+    /** Pre-computed per-second shred increment. */
+    perSecond: number;
+    /** Pre-computed max shred cap. */
+    maxShred: number;
+    /** Tick index (1-based). */
+    tickIndex: number;
+    /** Corrosion expiry time — tick should not fire past this. */
+    expiresAt: number;
+  }
+>;
+
+export type DotTickSimEvent = SimBaseEvent<
+  'DOT_TICK',
+  {
+    sourceId: string;
+    effectId: string;
+    element: string;
+    multiplier: number;
+    /** Action type (e.g. 'comboSkill'). Matches `stat.skillTypes` on DOT-tick damage. */
+    skillType?: string;
+    /** Specific skillId (e.g. 'alesh-enhanced-combo'). Matches `stat.skillId` on DOT-tick damage. */
+    skillId?: string;
+    canCrit?: boolean;
+    consumedStacks?: Record<string, number>;
+    consumedStatEffects?: ConsumedStatEffect[];
   }
 >;
 
 export type SimEvent =
   | ActionStartEvent
   | ActionEndEvent
-  | DamageTickEvent
+  | HitEvent
   | SpChangeEvent
-  | UltimateChargeChangeEvent
   | SpRegenPauseEvent
-  | EffectStartEvent
-  | EffectEndEvent
-  | StaggerChangeEvent;
+  | StaggerChangeEvent
+  | UltEnergyChangeEvent
+  // Enemy state events
+  | EnemyEffectApplyEvent
+  | EnemyEffectExpireEvent
+  | ArtsBurstEvent
+  | CorrosionTickSimEvent
+  | DotTickSimEvent
+  // Operator effect events
+  | OperatorEffectApplyEvent
+  | OperatorEffectExpireEvent;
 
 export type SimLogEntryBase<Name extends string, Data = {}> = {
   type: Name;
@@ -121,7 +150,7 @@ export type SimLogEntryBase<Name extends string, Data = {}> = {
 
 export type SimLogEntry =
   | SimLogEntryBase<
-      "SP_REGEN_PAUSE",
+      'SP_REGEN_PAUSE',
       {
         sourceId: string;
         duration: number;
@@ -129,31 +158,21 @@ export type SimLogEntry =
       }
     >
   | SimLogEntryBase<
-      "SP_CHANGE",
+      'SP_CHANGE',
       {
         sp: number;
         change: number;
-        sourceId: string;
-        reason: string;
-        sourceKind?: SpGainKind;
-        recoverSp: number;
-        refundSp: number;
-        debtSp: number;
-      }
-    >
-  | SimLogEntryBase<
-      "ULTIMATE_CHARGE_CHANGE",
-      {
         actorId: string;
-        gauge: number;
-        maxGauge: number;
-        change: number;
         sourceId: string;
         reason: string;
+        spType?: 'recovery' | 'return';
+        recoverSp?: number;
+        refundSp?: number;
+        debtSp?: number;
       }
     >
   | SimLogEntryBase<
-      "STAGGER",
+      'STAGGER',
       {
         actorId: string;
         actionId: string;
@@ -166,18 +185,17 @@ export type SimLogEntry =
       }
     >
   | SimLogEntryBase<
-      "DAMAGE_TICK",
+      'DAMAGE_HIT',
       {
         targetId: string;
         sourceId: string;
-        damage: number;
         stagger: number;
-        tickData: ResolvedDamageTick;
+        hitData: ResolvedHit;
         actionId: string;
       }
     >
   | SimLogEntryBase<
-      "ACTION_START",
+      'ACTION_START',
       {
         skillId: string;
         actionId: string;
@@ -186,47 +204,36 @@ export type SimLogEntry =
       }
     >
   | SimLogEntryBase<
-      "ACTION_END",
+      'ACTION_END',
       {
         skillId: string;
         actionId: string;
         type: ActionType;
-        spGain?: number;
-        spGainKind?: SpGainKind;
       }
     >
   | SimLogEntryBase<
-      "EFFECT_START",
+      'ULT_ENERGY_CHANGE',
       {
-        effectSnapshot: EffectSnapshot;
-        targetId: string;
-        actorId?: string;
-        actionId?: string;
-      }
-    >
-  | SimLogEntryBase<
-      "REACTION_OCCURRED",
-      {
-        reactionName: string;
         actorId: string;
-        actionId?: string;
+        change: number;
+        sourceId: string;
       }
     >
   | SimLogEntryBase<
-      "EFFECT_APPLIED",
+      'LINK_CONSUMED',
       {
-        name: string;
-        tags: any[];
-        targetId: string;
+        actionId: string;
+        actorId: string;
+        stacks: number;
       }
     >
   | SimLogEntryBase<
-      "EFFECT_END",
+      'CD_REDUCTION',
       {
-        effectId: string;
-        targetId: string;
-        type: "consumption" | "expiration";
-        actorId?: string;
-        actionId?: string;
+        actorId: string;
+        /** instanceId of the action whose cooldown bar is shortened. */
+        actionId: string;
+        /** Seconds removed from the cooldown (always a flat positive value). */
+        reduction: number;
       }
     >;

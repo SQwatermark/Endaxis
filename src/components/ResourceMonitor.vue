@@ -1,20 +1,29 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useTimelineStore } from '../stores/timelineStore.js'
 import { storeToRefs } from 'pinia'
 import CustomNumberInput from './CustomNumberInput.vue'
 import ConnectionPath from './ConnectionPath.vue'
+import HitDamageDetailDialog from './HitDamageDetailDialog.vue'
 import { Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { getDisplayKeyCandidates } from '@/utils/effectDisplay.js'
 
 const store = useTimelineStore()
 const { t } = useI18n({ useScope: 'global' })
+const props = defineProps({
+  expandAllToken: { type: Number, default: 0 },
+})
+const emit = defineEmits(['collapse-panel'])
+const reactionHitDetailHit = ref(null)
+const showReactionHitDetail = computed(() => reactionHitDetailHit.value !== null)
+const reactionHitDetailBreakdown = computed(() => reactionHitDetailHit.value?._damageBreakdown ?? null)
 
 const { enemyDatabase, enemyCategories } = storeToRefs(store)
 const ENEMY_TIERS = store.ENEMY_TIERS
 const TIER_WEIGHTS = { 'boss': 5, 'head': 4, 'champion': 3, 'elite': 2, 'normal': 1 }
 
-// === 布局常量 ===
+// === 甯冨眬甯搁噺 ===
 const MIN_CHART_HEIGHT = 116
 const MAX_CHART_HEIGHT = 520
 
@@ -29,6 +38,20 @@ let sectionResizeState = null
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
+}
+
+function openReactionHitDetail(hitData) {
+  if (!hitData?._damageBreakdown) return
+  reactionHitDetailHit.value = hitData
+}
+
+function closeReactionHitDetail() {
+  reactionHitDetailHit.value = null
+}
+
+function getReactionHitTitle(hitData) {
+  const damage = Math.floor(Number(hitData?._expectedDamage ?? hitData?._damageBreakdown?.expectedDamage ?? 0) || 0)
+  return damage > 0 ? t('actionItem.damageHitTooltip', { damage: damage.toLocaleString() }) : ''
 }
 
 function beginSectionResize(which, event) {
@@ -188,6 +211,10 @@ function normalizeSectionCollapsed(next) {
   }
 }
 
+function areAllSectionsCollapsed(state) {
+  return SECTION_KEYS.every(key => state?.[key] === true)
+}
+
 function persistSectionCollapsed() {
   try {
     localStorage.setItem(SECTION_COLLAPSE_KEY, JSON.stringify(sectionCollapsed.value))
@@ -200,18 +227,22 @@ function restoreSectionCollapsed() {
   try {
     const raw = localStorage.getItem(SECTION_COLLAPSE_KEY)
     if (!raw) return
-    sectionCollapsed.value = normalizeSectionCollapsed(JSON.parse(raw))
+    const restored = normalizeSectionCollapsed(JSON.parse(raw))
+    sectionCollapsed.value = areAllSectionsCollapsed(restored)
+      ? { affliction: false, stagger: false, sp: false }
+      : restored
   } catch {
     // ignore
   }
 }
 
 function getNormalizedCollapsedState(source = sectionCollapsed.value) {
-  const normalized = normalizeSectionCollapsed(source)
-  if (normalized.affliction && normalized.stagger && normalized.sp) {
-    normalized.sp = false
-  }
-  return normalized
+  return normalizeSectionCollapsed(source)
+}
+
+function expandAllSections() {
+  sectionCollapsed.value = { affliction: false, stagger: false, sp: false }
+  persistSectionCollapsed()
 }
 
 function toggleSectionCollapsed(which) {
@@ -220,9 +251,18 @@ function toggleSectionCollapsed(which) {
     ...sectionCollapsed.value,
     [which]: !sectionCollapsed.value[which],
   })
+  if (areAllSectionsCollapsed(next)) {
+    expandAllSections()
+    emit('collapse-panel')
+    return
+  }
   sectionCollapsed.value = next
   persistSectionCollapsed()
 }
+
+watch(() => props.expandAllToken, () => {
+  expandAllSections()
+})
 
 onMounted(() => {
   restoreSectionWeights()
@@ -360,353 +400,70 @@ const gridLineTimes = computed(() => {
   return result
 })
 
-// === 颜色常量 ===
+// === 棰滆壊甯搁噺 ===
 const COLOR_STAGGER = '#ff7875'
 const COLOR_LIMIT = '#d32f2f'
 const COLOR_SP_MAIN = '#ffd700'
 const COLOR_SP_WARN = '#ff4d4f'
 
-const AFFLICTION_COLORS = {
-  ELEMENT_HEAT: '#ff4d4f',
-  ELEMENT_CRYO: '#00e5ff',
-  ELEMENT_ELECTRIC: '#ffd666',
-  ELEMENT_NATURE: '#73d13d',
-  ELEMENT_COMBUSTION: '#ff7875',
-  ELEMENT_ELECTRIFICATION: '#fff566',
-  ELEMENT_SOLIDIFICATION: '#40a9ff',
-  ELEMENT_CORROSION: '#95de64',
-  ELEMENT_HEAT_BURST: '#ff7875',
-  ELEMENT_CRYO_BURST: '#69c0ff',
-  ELEMENT_ELECTRIC_BURST: '#fff566',
-  ELEMENT_NATURE_BURST: '#b7eb8f',
-  PHYSICAL_VULNERABLE: '#e0e0e0',
-  PHYSICAL_KNOCK_DOWN: '#d9d9d9',
-  PHYSICAL_LIFT: '#d9d9d9',
-  PHYSICAL_CRUSH: '#d9d9d9',
-  PHYSICAL_BREACH: '#d9d9d9',
-}
-
-function getAfflictionColor(effectId) {
-  return AFFLICTION_COLORS[effectId] || '#aaaaaa'
-}
-
-function getAfflictionIcon(effectId) {
-  const map = {
-    // Arts inflictions (attachments)
-    ELEMENT_HEAT: '/icons/icon_energy_fusion_fire.webp',
-    ELEMENT_CRYO: '/icons/icon_energy_fusion_cryst.webp',
-    ELEMENT_ELECTRIC: '/icons/icon_energy_fusion_pulse.webp',
-    ELEMENT_NATURE: '/icons/icon_energy_fusion_nature.webp',
-    // Arts reactions (anomalies)
-    ELEMENT_COMBUSTION: '/icons/icon_battle_debuff_burning.webp',
-    ELEMENT_ELECTRIFICATION: '/icons/icon_battle_debuff_conduct.webp',
-    ELEMENT_SOLIDIFICATION: '/icons/icon_battle_debuff_frozen.webp',
-    ELEMENT_CORROSION: '/icons/icon_battle_debuff_corrupt.webp',
-    // Bursts (treat as marker)
-    ELEMENT_HEAT_BURST: '/icons/icon_burst_fusion_fire.webp',
-    ELEMENT_CRYO_BURST: '/icons/icon_burst_fusion_cryst.webp',
-    ELEMENT_ELECTRIC_BURST: '/icons/icon_burst_fusion_pulse.webp',
-    ELEMENT_NATURE_BURST: '/icons/icon_burst_fusion_nature.webp',
-
-	    // Physical statuses
-	    PHYSICAL_VULNERABLE: '/icons/icon_battle_affix_physical_vulnerable.webp',
-	    PHYSICAL_KNOCK_DOWN: '/icons/icon_battle_physical_knockdown.webp',
-	    PHYSICAL_LIFT: '/icons/icon_battle_physical_airborne.webp',
-	    PHYSICAL_CRUSH: '/icons/icon_battle_physical_crush.webp',
-	    PHYSICAL_BREACH: '/icons/icon_battle_physical_fracture.webp',
-	  }
-
-  return map[effectId] || '/icons/default_icon.webp'
-}
-
-function getStackDurationSeconds(effectId, stacks) {
-  const s = Math.max(1, Math.min(4, Number(stacks) || 1))
-  if (effectId === 'ELEMENT_ELECTRIFICATION') return [12, 18, 24, 30][s - 1]
-  if (effectId === 'ELEMENT_SOLIDIFICATION') return [6, 7, 8, 9][s - 1]
-  if (effectId === 'PHYSICAL_BREACH') return [12, 18, 24, 30][s - 1]
-  if (effectId === 'ELEMENT_CORROSION') return 15
-  if (effectId === 'ELEMENT_COMBUSTION') return 10
-  return null
-}
-
-function isArtsAttachment(effectId) {
-  return (
-    effectId === 'ELEMENT_HEAT' ||
-    effectId === 'ELEMENT_CRYO' ||
-    effectId === 'ELEMENT_ELECTRIC' ||
-    effectId === 'ELEMENT_NATURE'
-  )
-}
-
-function isArtsAnomaly(effectId) {
-  return (
-    effectId === 'ELEMENT_ELECTRIFICATION' ||
-    effectId === 'ELEMENT_CORROSION' ||
-    effectId === 'ELEMENT_COMBUSTION' ||
-    effectId === 'ELEMENT_SOLIDIFICATION'
-  )
-}
-
-function isBurst(effectId) {
-  return typeof effectId === 'string' && effectId.endsWith('_BURST')
-}
-
-function isPhysical(effectId) {
-  return typeof effectId === 'string' && effectId.startsWith('PHYSICAL_')
-}
-
-function isDurationControlled(effectId) {
-  return effectId === 'PHYSICAL_BREACH' || isArtsAnomaly(effectId)
-}
-
-function isBossTarget(targetId) {
-  return targetId === 'boss' || targetId === '' || targetId === undefined || targetId === null
-}
-
-function effectIdToTypeKey(effectId) {
-  const map = {
-    PHYSICAL_VULNERABLE: 'break',
-    PHYSICAL_LIFT: 'knockup',
-    PHYSICAL_KNOCK_DOWN: 'knockdown',
-    PHYSICAL_BREACH: 'armor_break',
-    PHYSICAL_CRUSH: 'stagger',
-
-    ELEMENT_HEAT: 'blaze_attach',
-    ELEMENT_CRYO: 'cold_attach',
-    ELEMENT_ELECTRIC: 'emag_attach',
-    ELEMENT_NATURE: 'nature_attach',
-
-    ELEMENT_COMBUSTION: 'burning',
-    ELEMENT_ELECTRIFICATION: 'conductive',
-    ELEMENT_SOLIDIFICATION: 'frozen',
-    ELEMENT_CORROSION: 'corrosion',
-
-    ELEMENT_HEAT_BURST: 'blaze_burst',
-    ELEMENT_CRYO_BURST: 'cold_burst',
-    ELEMENT_ELECTRIC_BURST: 'emag_burst',
-    ELEMENT_NATURE_BURST: 'nature_burst',
-  }
-
-  return map[effectId] || 'default'
-}
-
-function typeKeyToEffectId(typeKey) {
-  const map = {
-    blaze_attach: 'ELEMENT_HEAT',
-    cold_attach: 'ELEMENT_CRYO',
-    emag_attach: 'ELEMENT_ELECTRIC',
-    nature_attach: 'ELEMENT_NATURE',
-  }
-  return map[typeKey] || null
-}
-
-function isAttachmentTypeKey(typeKey) {
-  return (
-    typeKey === 'blaze_attach' ||
-    typeKey === 'cold_attach' ||
-    typeKey === 'emag_attach' ||
-    typeKey === 'nature_attach'
-  )
-}
-
 function getMarkerPriority(typeKey) {
   const w = {
-    armor_break: 500,
-    knockup: 400,
+    breach: 500,
+    lift: 400,
     knockdown: 300,
-    stagger: 200,
-    break: 100,
+    crush: 200,
+    vulnerability: 100,
   }
   return w[typeKey] || 0
 }
 
-function inferIncomingAttachmentTypeKeyAt(timeSeconds, logs, epsilon) {
-  const time = Number(timeSeconds) || 0
-  const timeline = store.compiledTimeline
-  const actionMap = timeline?.actionMap
-  if (!actionMap) return null
-
-  for (let i = 0; i < logs.length; i++) {
-    const entry = logs[i]
-    if (!entry || entry.type !== 'REACTION_OCCURRED') continue
-    if (Math.abs((Number(entry.time) || 0) - time) > epsilon) continue
-    const actionId = entry.payload?.actionId
-    if (!actionId) continue
-
-    const action = actionMap.get(actionId)
-    if (!action) continue
-
-    const eff = (action.effects || []).find((e) => {
-      if (!e) return false
-      if (Math.abs((Number(e.realStartTime) || 0) - time) > epsilon) return false
-      return isAttachmentTypeKey(e.node?.type)
-    })
-
-    if (eff?.node?.type) {
-      return eff.node.type
-    }
-  }
-
-  return null
+function getComboStacksAtTime(segments, time, epsilon = 0.001) {
+  return Math.max(
+    0,
+    ...(segments || [])
+      .filter((seg) =>
+        seg?.typeKey === 'vulnerability' &&
+        seg?.tracksComboState === true &&
+        Number(seg.start) <= time + epsilon &&
+        Number(seg.end) > time + epsilon,
+      )
+      .map((seg) => Number(seg.stacks) || 1),
+  )
 }
 
+function getPreviousComboStacksAtTime(segments, time, epsilon = 0.001) {
+  return Math.max(
+    0,
+    ...(segments || [])
+      .filter((seg) =>
+        seg?.typeKey === 'vulnerability' &&
+        seg?.tracksComboState === true &&
+        Number(seg.start) < time - epsilon &&
+        Number(seg.end) > time - epsilon,
+      )
+      .map((seg) => Number(seg.stacks) || 1),
+  )
+}
+
+const PHYSICAL_REACTION_MARKERS = new Set(['lift', 'knockdown', 'breach', 'crush'])
+const PHYSICAL_STACKING_MARKERS = new Set(['lift', 'knockdown'])
+const PHYSICAL_CONSUMING_MARKERS = new Set(['breach', 'crush'])
+const PHYSICAL_CANONICAL_ICON_KEYS = new Set(['vulnerability', 'lift', 'knockdown', 'breach', 'crush'])
+
 const afflictionViz = computed(() => {
-  const endTime = Number(store.viewDuration) || store.TOTAL_DURATION
-  const epsilon = 0.001
-
-  const logs = Array.isArray(store.simLog) ? store.simLog : []
-
-  // For durationless effects, show as marker icons.
-  const physicalMarkers = []
-  const physicalSegments = []
-  const attachmentSegments = []
-  const attachmentMarkers = []
-  const anomalySegments = []
-  const anomalyMarkers = []
-
-  // Track open segments by effectId for effects we treat as segments (override/refresh behaviour).
-  const open = new Map()
-
-  function closeOpen(effectId, end) {
-    const seg = open.get(effectId)
-    if (!seg) return
-    open.delete(effectId)
-    const finalEnd = Math.min(endTime, end)
-    if (Number.isFinite(seg.start) && Number.isFinite(finalEnd) && finalEnd > seg.start + epsilon) {
-      seg.end = finalEnd
-      if (seg.kind === 'physical') physicalSegments.push(seg)
-      else if (seg.kind === 'attachment') attachmentSegments.push(seg)
-      else if (seg.kind === 'anomaly') anomalySegments.push(seg)
-    }
-  }
-
-  // Step 1: process EFFECT_START and build segments/markers.
-  logs.forEach((entry) => {
-    if (!entry || !entry.type) return
-    if (entry.type !== 'EFFECT_START') return
-
-    const effectId = entry.payload?.effectSnapshot?.id
-    const targetId = entry.payload?.targetId
-    if (!effectId || !isBossTarget(targetId)) return
-
-    const time = Number(entry.time) || 0
-    const stacks = Number(entry.payload?.effectSnapshot?.currentStacks) || 1
-
-    // Bursts are treated as instant markers.
-    if (isBurst(effectId)) {
-      anomalyMarkers.push({ effectId, time })
-      return
-    }
-
-    // Physical: only Breach has defined duration; others show as markers (per requirement).
-    if (isPhysical(effectId)) {
-      const dur = getStackDurationSeconds(effectId, stacks)
-      if (!dur) {
-        physicalMarkers.push({ effectId, time, stacks })
-        return
-      }
-
-      closeOpen(effectId, time)
-      open.set(effectId, {
-        kind: 'physical',
-        effectId,
-        stacks,
-        start: time,
-        end: time + dur,
-      })
-      return
-    }
-
-    // Arts attachment: single lane; show as segments. No explicit duration, ends when consumed or overridden.
-    if (isArtsAttachment(effectId)) {
-      // Close any other attachment at this time (only one should exist).
-      for (const [openId, seg] of open.entries()) {
-        if (seg.kind === 'attachment' && openId !== effectId) {
-          closeOpen(openId, time)
-        }
-      }
-      closeOpen(effectId, time)
-      open.set(effectId, {
-        kind: 'attachment',
-        effectId,
-        stacks,
-        start: time,
-        end: endTime,
-      })
-      return
-    }
-
-    // Arts anomalies: durations are specified; can be packed into rows.
-    if (isArtsAnomaly(effectId)) {
-      const dur = getStackDurationSeconds(effectId, stacks)
-      if (!dur) {
-        anomalyMarkers.push({ effectId, time, stacks })
-        return
-      }
-
-      closeOpen(effectId, time)
-      open.set(effectId, {
-        kind: 'anomaly',
-        effectId,
-        stacks,
-        start: time,
-        end: time + dur,
-      })
-      return
-    }
-
-    // Unknown element effects: show as markers.
-    attachmentMarkers.push({ effectId, time, stacks })
-  })
-
-  // Step 2: process EFFECT_END to close segments early (consumption/expiration).
-  logs.forEach((entry) => {
-    if (!entry || entry.type !== 'EFFECT_END') return
-    const effectId = entry.payload?.effectId
-    const targetId = entry.payload?.targetId
-    if (!effectId || !isBossTarget(targetId)) return
-    const time = Number(entry.time) || 0
-    const endType = entry.payload?.type
-
-    if (!Number.isFinite(time)) return
-
-    if (endType === 'consumption' && isArtsAttachment(effectId)) {
-      const incomingTypeKey = inferIncomingAttachmentTypeKeyAt(time, logs, epsilon)
-      const incomingEffectId = incomingTypeKey ? typeKeyToEffectId(incomingTypeKey) : null
-      attachmentMarkers.push({ effectId: incomingEffectId || effectId, time, stacks: 1 })
-    }
-    closeOpen(effectId, time)
-  })
-
-  // Step 3: close remaining open segments to endTime.
-  for (const [effectId, seg] of open.entries()) {
-    closeOpen(effectId, seg.end ?? endTime)
-  }
-
-  // Step 4: pack anomalies into rows (first-fit, reuse row once it ends).
-  anomalySegments.sort((a, b) => a.start - b.start)
-  const rowEnds = []
-  anomalySegments.forEach((seg) => {
-    const start = seg.start
-    let row = rowEnds.findIndex((end) => end <= start + epsilon)
-    if (row === -1) {
-      row = rowEnds.length
-      rowEnds.push(seg.end)
-    } else {
-      rowEnds[row] = seg.end
-    }
-    seg.row = row
-  })
-
-  return {
-    physical: { segments: physicalSegments, markers: physicalMarkers },
-    attachment: { segments: attachmentSegments, markers: attachmentMarkers },
-    anomalies: { segments: anomalySegments, markers: anomalyMarkers, rowCount: rowEnds.length },
-  }
+  return store.enemyAfflictionViz
 })
-
-function getTypeIcon(typeKey) {
-  return store.iconDatabase?.[typeKey] || store.iconDatabase?.default || '/icons/default_icon.webp'
+function getTypeIcon(typeKey, icon) {
+  const candidates = getDisplayKeyCandidates(typeKey)
+  const canonical = candidates[0]
+  if (PHYSICAL_CANONICAL_ICON_KEYS.has(canonical) && store.iconDatabase?.[canonical]) {
+    return store.iconDatabase[canonical]
+  }
+  if (icon) return icon
+  for (const candidate of candidates) {
+    if (store.iconDatabase?.[candidate]) return store.iconDatabase[candidate]
+  }
+  return store.iconDatabase?.default || '/icons/default_icon.webp'
 }
 
 function getTypeColor(typeKey) {
@@ -720,47 +477,72 @@ const afflictionItems = computed(() => {
   const epsilon = 0.001
 
   const out = []
+  const physicalMarkerTimeKeys = new Set(
+    (afflictionViz.value.physical.markers || []).map((marker) =>
+      Math.round((Number(marker.time) || 0) / epsilon),
+    ),
+  )
 
   // segments
   for (const seg of afflictionViz.value.physical.segments || []) {
-    const typeKey = effectIdToTypeKey(seg.effectId)
+    if (seg.tracksComboState) continue
+    const start = Number(seg.start) || 0
     out.push({
       row: 'physical',
       rowIndex: 0,
       isMarker: false,
-      startTime: seg.start,
+      startTime: start,
       endTime: seg.end,
-      typeKey,
+      typeKey: seg.typeKey,
       stacks: seg.stacks || 1,
       slotIndex: 0,
+      icon: seg.icon || null,
+      hideIcon: physicalMarkerTimeKeys.has(Math.round(start / epsilon)),
     })
   }
 
   for (const seg of afflictionViz.value.attachment.segments || []) {
-    const typeKey = effectIdToTypeKey(seg.effectId)
     out.push({
       row: 'attach',
       rowIndex: 0,
       isMarker: false,
       startTime: seg.start,
       endTime: seg.end,
-      typeKey,
+      typeKey: seg.typeKey,
       stacks: seg.stacks || 1,
       slotIndex: 0,
+      icon: seg.icon || null,
+      hideIcon: false,
     })
   }
 
   for (const seg of afflictionViz.value.anomalies.segments || []) {
-    const typeKey = effectIdToTypeKey(seg.effectId)
     out.push({
       row: 'anomaly',
       rowIndex: Number(seg.row) || 0,
       isMarker: false,
       startTime: seg.start,
       endTime: seg.end,
-      typeKey,
+      typeKey: seg.typeKey,
       stacks: seg.stacks || 1,
       slotIndex: 0,
+      icon: seg.icon || null,
+      hideIcon: false,
+    })
+  }
+
+  for (const seg of afflictionViz.value.statuses.segments || []) {
+    out.push({
+      row: 'status',
+      rowIndex: Number(seg.row) || 0,
+      isMarker: false,
+      startTime: seg.start,
+      endTime: seg.end,
+      typeKey: seg.typeKey,
+      stacks: seg.stacks || 1,
+      slotIndex: 0,
+      icon: seg.icon || null,
+      hideIcon: false,
     })
   }
 
@@ -769,36 +551,86 @@ const afflictionItems = computed(() => {
     const groups = []
     for (const m of markers || []) {
       const time = Number(m.time) || 0
-      const typeKey = effectIdToTypeKey(m.effectId)
+      const typeKey = m.typeKey
+      if (!typeKey) continue
       let g = groups.find((x) => Math.abs(x.time - time) <= epsilon)
       if (!g) {
         g = { time, list: [] }
         groups.push(g)
       }
-      g.list.push({ typeKey, stacks: m.stacks || 1 })
+      g.list.push({
+        typeKey,
+        stacks: m.stacks || 1,
+        icon: m.icon || null,
+        isDamageHit: !!m.isDamageHit,
+        hitData: m.hitData || null,
+        damageHits: Array.isArray(m.damageHits) ? m.damageHits : [],
+      })
+      if (Array.isArray(m.damageHits)) {
+        for (const hitData of m.damageHits) {
+          g.list.push({
+            typeKey,
+            stacks: m.stacks || 1,
+            icon: null,
+            isDamageHit: true,
+            hitData,
+            damageHits: [],
+          })
+        }
+      }
     }
 
     groups.sort((a, b) => a.time - b.time)
     groups.forEach((g) => {
       if (row === 'physical') {
-        const breakItem = g.list.find((x) => x.typeKey === 'break')
-        if (breakItem) {
-          let replaced = false
-          g.list = g.list.map((x) => {
-            if (x.typeKey === 'knockup' || x.typeKey === 'knockdown') {
-              replaced = true
-              return { ...x, stacks: Math.max(Number(x.stacks) || 1, Number(breakItem.stacks) || 1) }
-            }
-            return x
-          })
-          if (replaced) {
-            g.list = g.list.filter((x) => x.typeKey !== 'break')
+        const previousComboStacks = getPreviousComboStacksAtTime(
+          afflictionViz.value.physical.segments,
+          g.time,
+          epsilon,
+        )
+        const activeComboStacks = getComboStacksAtTime(
+          afflictionViz.value.physical.segments,
+          g.time,
+          epsilon,
+        )
+        const comboItems = g.list.filter((x) => !x.isDamageHit && PHYSICAL_REACTION_MARKERS.has(x.typeKey))
+        if (comboItems.length > 0) {
+          let representative =
+            [...comboItems].sort((a, b) => getMarkerPriority(b.typeKey) - getMarkerPriority(a.typeKey))[0] ||
+            comboItems[0]
+          let mergedStacks = 1
+
+          if (previousComboStacks <= 0) {
+            representative = { typeKey: 'vulnerability', stacks: 1, icon: null }
+          } else if (PHYSICAL_CONSUMING_MARKERS.has(representative.typeKey)) {
+            mergedStacks = Math.min(
+              4,
+              Math.max(previousComboStacks, ...comboItems.map((x) => Number(x.stacks) || 1)),
+            )
+          } else if (PHYSICAL_STACKING_MARKERS.has(representative.typeKey)) {
+            mergedStacks = Math.min(4, Math.max(activeComboStacks, previousComboStacks + 1))
+          } else {
+            mergedStacks = Math.min(
+              4,
+              Math.max(activeComboStacks, previousComboStacks, Number(representative?.stacks) || 1),
+            )
           }
+
+          g.list = g.list.filter((x) =>
+            x.isDamageHit || (x.typeKey !== 'vulnerability' && !PHYSICAL_REACTION_MARKERS.has(x.typeKey)),
+          )
+          g.list.push({
+            typeKey: representative?.typeKey || 'vulnerability',
+            stacks: Math.max(1, mergedStacks || Number(representative?.stacks) || 1),
+            icon: representative?.icon || null,
+          })
         }
       }
 
       g.list.sort((a, b) => getMarkerPriority(b.typeKey) - getMarkerPriority(a.typeKey))
+      let iconSlotIndex = 0
       g.list.forEach((it, idx) => {
+        const slotIndex = it.isDamageHit ? idx : iconSlotIndex++
         out.push({
           row,
           rowIndex,
@@ -807,7 +639,11 @@ const afflictionItems = computed(() => {
           endTime: null,
           typeKey: it.typeKey,
           stacks: it.stacks || 1,
-          slotIndex: idx,
+          slotIndex,
+          icon: it.icon || null,
+          isDamageHit: !!it.isDamageHit,
+          hitData: it.hitData || null,
+          hideIcon: false,
         })
       })
     })
@@ -816,28 +652,35 @@ const afflictionItems = computed(() => {
   pushGroupedMarkers('physical', 0, afflictionViz.value.physical.markers)
   pushGroupedMarkers('attach', 0, afflictionViz.value.attachment.markers)
   pushGroupedMarkers('anomaly', 0, afflictionViz.value.anomalies.markers)
+  pushGroupedMarkers('status', 0, afflictionViz.value.statuses.markers)
 
   // calculate px/top in-place for rendering
   return out.map((it, idx) => {
     const leftBase = store.timeToPx(it.startTime)
-    const left = leftBase + (it.isMarker ? it.slotIndex * (iconSize + 2) : 0)
+    const hiddenIconOffset = !it.isMarker && it.hideIcon ? iconSize : 0
+      const markerOffset = it.isMarker && !it.isDamageHit
+        ? it.slotIndex * (iconSize + 2)
+        : 0
+      const left = leftBase + hiddenIconOffset + markerOffset
 
     let top = afflictionLayout.value.yPhysical
     if (it.row === 'attach') top = afflictionLayout.value.yAttachment
     else if (it.row === 'anomaly') top = afflictionLayout.value.yAnomalyStart + (it.rowIndex || 0) * (rowHeight + gap)
+    else if (it.row === 'status') top = afflictionLayout.value.yStatusStart + (it.rowIndex || 0) * (rowHeight + gap)
 
     const barWidth =
       it.isMarker || !Number.isFinite(it.endTime)
         ? 0
         : Math.max(0, store.timeToPx(it.endTime) - leftBase - iconSize - 2)
 
-    return {
-      ...it,
-      _key: `${it.row}-${it.isMarker ? 'm' : 's'}-${it.typeKey}-${it.startTime}-${it.rowIndex}-${it.slotIndex}-${idx}`,
-      leftPx: left,
-      topPx: top + Math.floor((rowHeight - iconSize) / 2),
-      barWidthPx: barWidth,
-    }
+      return {
+        ...it,
+        _key: `${it.row}-${it.isMarker ? 'm' : 's'}-${it.typeKey}-${it.startTime}-${it.rowIndex}-${it.slotIndex}-${idx}`,
+        leftPx: left,
+        topPx: top + Math.floor((rowHeight - iconSize) / 2),
+        diamondTopPx: top + Math.floor((rowHeight - iconSize) / 2) + iconSize - 3,
+        barWidthPx: barWidth,
+      }
   })
 })
 
@@ -870,7 +713,8 @@ const afflictionLayout = computed(() => {
 
   const baseRows = 2 // physical + attachment
   const anomalyRows = Math.max(0, afflictionViz.value.anomalies.rowCount)
-  const totalRows = baseRows + Math.max(1, anomalyRows)
+  const statusRows = Math.max(0, afflictionViz.value.statuses.rowCount)
+  const totalRows = baseRows + Math.max(1, anomalyRows) + statusRows
 
   const available = Math.max(0, height - header - padding * 2 - gap * (totalRows - 1))
   const rawRow = Math.floor(available / totalRows)
@@ -880,6 +724,7 @@ const afflictionLayout = computed(() => {
   const yPhysical = startY
   const yAttachment = yPhysical + rowHeight + gap
   const yAnomalyStart = yAttachment + rowHeight + gap
+  const yStatusStart = yAnomalyStart + Math.max(1, anomalyRows) * (rowHeight + gap)
 
   return {
     height,
@@ -891,11 +736,12 @@ const afflictionLayout = computed(() => {
     yPhysical,
     yAttachment,
     yAnomalyStart,
+    yStatusStart,
     totalRows,
   }
 })
 
-// === 敌人选择器逻辑 ===
+// === 鏁屼汉閫夋嫨鍣ㄩ€昏緫 ===
 const CATEGORY_ALL = '__ALL__'
 const CATEGORY_UNCATEGORIZED = '__UNCAT__'
 const isEnemySelectorVisible = ref(false)
@@ -970,7 +816,7 @@ function selectEnemy(id) {
   isEnemySelectorVisible.value = false
 }
 
-// === 数据计算 (失衡)===
+// === 鏁版嵁璁＄畻 (澶辫　)===
 const staggerResult = computed(() => {
   return store.staggerSeries
 })
@@ -1014,7 +860,7 @@ const lockZones = computed(() => lockSegments.value.map(seg => ({
 })))
 
 
-// === 数据计算 (技力) ===
+// === 鏁版嵁璁＄畻 (鎶€鍔? ===
 const spData = computed(() => {
   return store.spSeries
 })
@@ -1026,7 +872,7 @@ const SP_ZERO_Y = computed(() => {
 })
 const SP_WARNING_TAG_TOP = computed(() => `${Math.min(Math.max(6, SP_ZERO_Y.value + 4), Math.max(6, SP_BODY_HEIGHT.value - 18))}px`)
 
-// 技力绘图坐标计算
+// 鎶€鍔涚粯鍥惧潗鏍囪绠?
 const scaleY_SP = computed(() => {
   return SP_BODY_HEIGHT.value / SP_TOTAL_RANGE.value
 })
@@ -1227,10 +1073,14 @@ const transformStyle = computed(() => {
                     v-for="it in afflictionItems"
                     :key="it._key"
                     class="anomaly-wrapper affliction-item"
-                    :style="{ left: it.leftPx + 'px', top: it.topPx + 'px' }"
+                    :class="{ 'is-damage-hit': it.isDamageHit }"
+                    :style="{ left: it.leftPx + 'px', top: (it.isDamageHit ? it.diamondTopPx : it.topPx) + 'px' }"
+                    :title="it.isDamageHit ? getReactionHitTitle(it.hitData) : ''"
+                    @mousedown.stop="it.isDamageHit && openReactionHitDetail(it.hitData)"
                   >
-                    <div class="anomaly-icon-box">
-                      <img :src="getTypeIcon(it.typeKey)" class="anomaly-icon" />
+                    <div v-if="it.isDamageHit" class="enemy-damage-diamond" :class="{ 'link-buffed': it.hitData?.consumedStacks?.link > 0 }"></div>
+                    <div v-else-if="!it.hideIcon" class="anomaly-icon-box">
+                      <img :src="getTypeIcon(it.typeKey, it.icon)" class="anomaly-icon" />
                       <div class="anomaly-stacks">{{ it.stacks || 1 }}</div>
                     </div>
 
@@ -1525,11 +1375,18 @@ const transformStyle = computed(() => {
       </div>
     </el-dialog>
 
+    <HitDamageDetailDialog
+      :visible="showReactionHitDetail"
+      :breakdown="reactionHitDetailBreakdown"
+      :hit-data="reactionHitDetailHit"
+      @update:visible="closeReactionHitDetail"
+    />
+
   </div>
 </template>
 
 <style scoped>
-/* 基础布局与侧边栏容器 */
+/* 鍩虹甯冨眬涓庝晶杈规爮瀹瑰櫒 */
 .resource-monitor-layout {
   display: grid;
   grid-template-columns: 180px minmax(0, 1fr);
@@ -1552,7 +1409,7 @@ const transformStyle = computed(() => {
   height: 100%;
 }
 
-/* 敌人选择模块 */
+/* 鏁屼汉閫夋嫨妯″潡 */
 .enemy-select-module {
   padding: 8px 10px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
@@ -1637,7 +1494,7 @@ const transformStyle = computed(() => {
   margin-top: 1px;
 }
 
-/* 属性设置区 */
+/* 灞炴€ц缃尯 */
 .settings-scroll-area {
   flex-grow: 1;
   overflow-y: auto;
@@ -1689,7 +1546,7 @@ const transformStyle = computed(() => {
   font-size: 11px !important;
 }
 
-/* 图表展示区 */
+/* 鍥捐〃灞曠ず鍖?*/
 .chart-scroll-wrapper {
   width: 100%;
   height: 100%;
@@ -1833,7 +1690,7 @@ const transformStyle = computed(() => {
   transform: rotate(-135deg);
 }
 
-/* === 附着/异常叠层 === */
+/* === 闄勭潃/寮傚父鍙犲眰 === */
 .affliction-connections-overlay {
   position: absolute;
   top: 0;
@@ -1863,6 +1720,38 @@ const transformStyle = computed(() => {
   align-items: center;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.affliction-item.is-damage-hit {
+  width: 6px;
+  height: 6px;
+  pointer-events: auto;
+  cursor: default;
+  z-index: 20;
+}
+
+.enemy-damage-diamond {
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+  border: 1px solid #666;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.enemy-damage-diamond.link-buffed {
+  background-color: #64c8ff;
+  border-color: #3a9fd4;
+  box-shadow: 0 0 6px 2px rgba(100, 200, 255, 0.6);
+}
+
+.affliction-item.is-damage-hit:hover .enemy-damage-diamond {
+  background-color: #ffd700;
+  border-color: #fff;
+  box-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
+  transform: rotate(45deg) scale(1.3);
 }
 
 .anomaly-icon-box {
@@ -1945,7 +1834,7 @@ const transformStyle = computed(() => {
   white-space: nowrap;
 }
 
-/* 敌人选择弹窗容器 */
+/* 鏁屼汉閫夋嫨寮圭獥瀹瑰櫒 */
 .enemy-list-grid {
   max-height: 450px;
   overflow-y: auto;
@@ -1954,7 +1843,7 @@ const transformStyle = computed(() => {
 }
 .enemy-list-grid::-webkit-scrollbar { display: none; }
 
-/* 分类页签 */
+/* 鍒嗙被椤电 */
 .category-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -1974,7 +1863,7 @@ const transformStyle = computed(() => {
   --ea-btn-px: 16px;
 }
 
-/* --- 分组标题样式 --- */
+/* --- 鍒嗙粍鏍囬鏍峰紡 --- */
 .enemy-group-section {
   margin-bottom: 24px;
 }
@@ -1998,7 +1887,7 @@ const transformStyle = computed(() => {
   font-weight: normal;
 }
 
-/* --- 敌人卡片网格布局 (3列) --- */
+/* --- 鏁屼汉鍗＄墖缃戞牸甯冨眬 (3鍒? --- */
 .group-items {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2093,7 +1982,7 @@ const transformStyle = computed(() => {
   text-overflow: ellipsis;
 }
 
-/* 自定义敌人的特殊头像样式 */
+/* 鑷畾涔夋晫浜虹殑鐗规畩澶村儚鏍峰紡 */
 .enemy-avatar.custom {
   width: 100%;
   height: 100%;
@@ -2110,14 +1999,14 @@ const transformStyle = computed(() => {
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
-/* 选中状态下的自定义头像变化 */
+/* 閫変腑鐘舵€佷笅鐨勮嚜瀹氫箟澶村儚鍙樺寲 */
 .enemy-card.selected .enemy-avatar.custom {
   background: rgba(255, 215, 0, 0.15);
   border-style: solid;
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
 }
 
-/* 动画定义 */
+/* 鍔ㄧ敾瀹氫箟 */
 @keyframes scan {
   0% { transform: translateY(-10cqh); }
   100% { transform: translateY(110cqh); }

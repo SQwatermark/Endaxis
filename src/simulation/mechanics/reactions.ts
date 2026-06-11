@@ -93,11 +93,30 @@ function cloneEffectWithStacks(effect: Effect, stacks: number): Effect {
 export const ReactionRegistry = {
   check(target: EffectManager, incoming: Effect): ReactionResult | null {
     if (hasPhysicalAffliction(incoming.tags)) {
+      const forced = incoming.properties?.forced === true;
       const vulnerables = target.getByTag("PHYSICAL_VULNERABLE") || [];
 
       assert(vulnerables.length <= 1, "Multiple vulnerable effects found");
 
       if (vulnerables.length === 0) {
+        if (
+          forced &&
+          (incoming.tags.includes("PHYSICAL_LIFT") ||
+            incoming.tags.includes("PHYSICAL_KNOCK_DOWN"))
+        ) {
+          return {
+            name: "Physical Reaction",
+            cancelIncoming: false,
+            removeIds: [],
+            spawnEffects: [
+              cloneEffectWithStacks(
+                Effect.PhysicalVulnerable(),
+                incoming.currentStacks,
+              ),
+            ],
+          };
+        }
+
         return {
           name: "Physical Reaction",
           cancelIncoming: true,

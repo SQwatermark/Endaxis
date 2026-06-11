@@ -1,0 +1,169 @@
+import { compileScenario } from "@/simulation/compiler/compileScenario";
+import { TriggerRegistry } from "@/simulation/engine/TriggerRegistry";
+import type { InitialEffect } from "@/simulation/simulator";
+import { getEnemy } from "@/data";
+
+interface CompileEndaxisScenarioInput {
+  scenarioData: any;
+  tracks: any[];
+  characterRoster: any[];
+  systemConstants: Record<string, any>;
+  prepDuration?: number;
+  activeEnemyId?: string | null;
+  runtimeInitialEffects?: InitialEffect[];
+  simulationEndline?: number | null;
+  lmdiAttributionMode?: "stacks" | "applier";
+}
+
+function buildTriggerRegistryEntries(tracks: any[]) {
+  const entries: any[] = [];
+  const seen = new Set<string>();
+
+  for (const track of tracks || []) {
+    for (const entry of Array.isArray(track?.triggerEffects) ? track.triggerEffects : []) {
+      if (!entry?.triggerEffect || !entry?.sourceTrackId) continue;
+
+      const trigger = entry.triggerEffect.trigger || {};
+      const effectIds = (entry.triggerEffect.effects || [])
+        .map((effect: any) => effect?.id || effect?.kind || "")
+        .join(",");
+      const key = [
+        entry.sourceTrackId,
+        entry.sourceSkillType || "",
+        trigger.kind || "",
+        JSON.stringify(trigger),
+        effectIds,
+      ].join("::");
+
+      if (seen.has(key)) continue;
+      seen.add(key);
+      entries.push(entry);
+    }
+  }
+
+  return entries;
+}
+
+function collectConsumedStacksWriteKeys(timeline: any, triggerEntries: any[]) {
+  const keys = new Set<string>();
+
+  for (const action of timeline?.actions || []) {
+    for (const hit of action?.resolvedHits || []) {
+      for (const effect of hit?.effects || []) {
+        if (effect?.readConsumedStacks?.statusKey) {
+          keys.add(effect.readConsumedStacks.statusKey);
+        }
+      }
+    }
+  }
+
+  for (const entry of triggerEntries || []) {
+    for (const effect of entry?.triggerEffect?.effects || []) {
+      if (effect?.readConsumedStacks?.statusKey) {
+        keys.add(effect.readConsumedStacks.statusKey);
+      }
+      const nestedEffects = effect?.hit?.effects;
+      if (Array.isArray(nestedEffects)) {
+        for (const nested of nestedEffects) {
+          if (nested?.readConsumedStacks?.statusKey) {
+            keys.add(nested.readConsumedStacks.statusKey);
+          }
+        }
+      }
+    }
+  }
+
+  return keys;
+}
+
+function buildCompiledTracks(tracks: any[], characterRoster: any[]) {
+  return (tracks || []).map((track) => {
+    const charInfo = (characterRoster || []).find((character) => character.id === track.id);
+    const characterMaxGauge = Number(charInfo?.maxUltimateGauge ?? charInfo?.ultimate_gaugeMax) || null;
+    const trackGaugeOverride = Number(track.maxGaugeOverride) > 0 ? Number(track.maxGaugeOverride) : null;
+    return {
+      ...track,
+      element: charInfo?.element || track.element || "physical",
+      acceptTeamGauge: charInfo?.accept_team_gauge !== false,
+      acceptTeamUltEnergy: charInfo?.accept_team_gauge !== false,
+      maxGaugeOverride: trackGaugeOverride ?? characterMaxGauge ?? track.maxGaugeOverride ?? null,
+      maxUltimateGauge: characterMaxGauge,
+      ultimate_gaugeMax: Number(charInfo?.ultimate_gaugeMax ?? charInfo?.maxUltimateGauge) || null,
+    };
+  });
+}
+
+export function compileEndaxisScenario(input: CompileEndaxisScenarioInput) {
+  const {
+    scenarioData,
+    tracks,
+    characterRoster,
+    systemConstants,
+    prepDuration,
+    activeEnemyId,
+    runtimeInitialEffects = [],
+    simulationEndline = null,
+    lmdiAttributionMode = "stacks",
+  } = input;
+
+  if (!scenarioData) return null;
+
+  const enemySheet =
+    activeEnemyId && activeEnemyId !== "custom" ? getEnemy(activeEnemyId) : null;
+  const compiledTracks = buildCompiledTracks(tracks, characterRoster);
+  const { timeline, actors, teamConfig, enemyConfig } = compileScenario(
+    {
+      ...scenarioData,
+      tracks: compiledTracks,
+    },
+    {
+      systemConstants: {
+        ...systemConstants,
+        prepDuration: Number(prepDuration) || 0,
+        defense: enemySheet?.def ?? 100,
+        tier: enemySheet?.tier ?? "normal",
+        ...(enemySheet?.maxStagger !== undefined ? { maxStagger: enemySheet.maxStagger } : {}),
+        ...(enemySheet?.staggerNodeCount !== undefined
+          ? { staggerNodeCount: enemySheet.staggerNodeCount }
+          : {}),
+        ...(enemySheet?.staggerNodeDuration !== undefined
+          ? { staggerNodeDuration: enemySheet.staggerNodeDuration }
+          : {}),
+        ...(enemySheet?.staggerBreakDuration !== undefined
+          ? { staggerBreakDuration: enemySheet.staggerBreakDuration }
+          : {}),
+        ...(enemySheet?.finisherRecovery !== undefined
+          ? { executionRecovery: enemySheet.finisherRecovery }
+          : {}),
+      },
+    },
+  );
+
+  const triggerEntries = buildTriggerRegistryEntries(compiledTracks);
+  const triggerRegistry =
+    triggerEntries.length > 0 ? new TriggerRegistry(triggerEntries) : undefined;
+  const consumedStacksWriteKeys = collectConsumedStacksWriteKeys(timeline, triggerEntries);
+
+  const baseStatsByTrack = new Map<string, any>();
+  for (const actor of actors || []) {
+    if (actor?.id && actor?.baseStats) {
+      baseStatsByTrack.set(actor.id, actor.baseStats);
+    }
+  }
+
+  return {
+    timeline,
+    actors,
+    teamConfig,
+    enemyConfig,
+    systemConstants,
+    triggerEntries,
+    triggerRegistry,
+    consumedStacksWriteKeys,
+    initialEffects: runtimeInitialEffects,
+    baseStatsByTrack,
+    enemyDef: enemySheet?.def ?? enemyConfig.defense ?? 100,
+    endlineTime: simulationEndline ?? undefined,
+    lmdiAttributionMode,
+  };
+}

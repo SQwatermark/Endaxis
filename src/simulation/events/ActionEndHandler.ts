@@ -1,48 +1,69 @@
-import type { EventHandler } from "@/simulation/events/EventHandler.ts";
-import type { ActionEndEvent } from "@/simulation/events/event.types.ts";
-import type { SimulationContext } from "@/simulation/engine/SimulationContext.ts";
+import type { EventHandler } from '@/simulation/events/EventHandler.ts';
+import type { ActionEndEvent } from '@/simulation/events/event.types.ts';
+import type { SimulationContext } from '@/simulation/engine/SimulationContext.ts';
 
 export class ActionEndHandler implements EventHandler<ActionEndEvent> {
   handle(e: ActionEndEvent, ctx: SimulationContext) {
+    // Defer if there are still pending hits beyond this time (conditional hits with
+    // durationExtension can have offsets past the base action duration).
     ctx.simLog({
-      type: "ACTION_END",
+      type: 'ACTION_END',
       time: e.time,
       payload: {
         skillId: e.payload.skillId,
         actionId: e.payload.actionId,
         type: e.payload.type,
-        spGain: e.payload.spGain,
-        spGainKind: e.payload.spGainKind,
       },
     });
-    if (e.payload.spGain && e.payload.spGain > 0) {
-      // 技能SP恢复
+    if (e.payload.type === 'finisher') {
+      const finisherRecovery = ctx.state.enemy.config.finisherRecovery ?? 0;
+      if (finisherRecovery <= 0) return;
       ctx.queue.enqueue({
-        type: "SP_CHANGE",
+        type: 'SP_CHANGE',
         time: ctx.state.getCurrentTime(),
         payload: {
           actorId: e.payload.actorId,
-          spChange: e.payload.spGain,
-          sourceKind: e.payload.spGainKind || "recover",
-          reason: "skill",
+          spChange: finisherRecovery,
+          reason: 'finisher',
           sourceId: e.payload.actionId,
           parent: e,
+          spType: 'recovery',
         },
       });
-    } else if (e.payload.type === "execution") {
-      // 处决SP恢复
-      ctx.queue.enqueue({
-        type: "SP_CHANGE",
-        time: ctx.state.getCurrentTime(),
-        payload: {
-          actorId: e.payload.actorId,
-          spChange: ctx.state.enemy.config.executionRecovery,
-          sourceKind: "recover",
-          reason: "execution",
-          sourceId: e.payload.actionId,
-          parent: e,
-        },
-      });
+    }
+
+    const action = ctx.getAction(e.payload.actionId);
+    if (action) {
+      // Scale down UE proportionally to returned SP consumed.
+      // Insufficient SP is ignored — only returned SP reduces UE gain.
+      const actualCost: number = (action as any)._actualSpCost ?? action.node.spCost ?? 0;
+      const returnedConsumed: number = (action as any)._returnedConsumed ?? 0;
+      const ueFraction = actualCost > 0 ? 1 - returnedConsumed / actualCost : 1;
+
+      const ueTime = e.time - 0.01;
+      const selfGain = (action.node.ultimateEnergyGain ?? 0) * ueFraction;
+      if (selfGain > 0) {
+        ctx.queue.enqueue({
+          type: 'ULT_ENERGY_CHANGE',
+          time: ueTime,
+          payload: { actorId: e.payload.actorId, change: selfGain, sourceId: e.payload.actionId },
+        });
+      }
+
+      // Team gains — emit to all other actors that accept team energy
+      const teamGain = (action.node.teamUltimateEnergyGain ?? 0) * ueFraction;
+      if (teamGain > 0) {
+        for (const targetId of ctx.allTrackIds) {
+          if (targetId === e.payload.actorId) continue;
+          const targetMeta = ctx.getActorMeta(targetId);
+          if (!targetMeta.acceptTeamUltEnergy) continue;
+          ctx.queue.enqueue({
+            type: 'ULT_ENERGY_CHANGE',
+            time: ueTime,
+            payload: { actorId: targetId, change: teamGain, sourceId: e.payload.actionId },
+          });
+        }
+      }
     }
   }
 }

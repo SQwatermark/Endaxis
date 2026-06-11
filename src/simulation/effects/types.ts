@@ -56,7 +56,7 @@ export interface EffectSnapshot {
   duration: number;
   startTime: number;
   maxStacks: number;
-  stackStrategy: "REFRESH_DURATION" | "INDEPENDENT" | "ADD_DURATION";
+  stackStrategy: "REFRESH_DURATION" | "INDEPENDENT" | "ADD_DURATION" | "REPLACE";
   currentStacks: number;
   properties: {
     value?: number;
@@ -76,7 +76,7 @@ export class Effect {
   startTime: number = 0;
 
   maxStacks: number = 1;
-  stackStrategy: "REFRESH_DURATION" | "INDEPENDENT" | "ADD_DURATION" =
+  stackStrategy: "REFRESH_DURATION" | "INDEPENDENT" | "ADD_DURATION" | "REPLACE" =
     "REFRESH_DURATION";
   currentStacks: number = 1;
 

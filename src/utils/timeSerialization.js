@@ -31,11 +31,10 @@ const TIME_SUFFIX_PATTERNS = [
 ]
 
 const OFFSET_CONTEXT_KEYS = new Set([
-  'anomalies',
   'customBars',
-  'damageTicks',
-  'damage_ticks',
-  'physicalAnomaly',
+  'effects',
+  'hit',
+  'hits',
 ])
 
 function cloneJson(data) {
@@ -127,10 +126,6 @@ function deserializeFrameUnitData(data) {
 
 export function serializeGameData(data) {
   return serializeFrameUnitData(data)
-}
-
-export function deserializeGameData(data) {
-  return deserializeFrameUnitData(data)
 }
 
 export function serializeProjectData(data) {

@@ -1,12 +1,13 @@
-﻿import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { compileTimeline } from "./compileTimeline";
-import type { Action, ActionNode, Anomaly } from "./types";
+import type { Action, ActionNode, CompiledEffect } from "./types";
 
 function createAction(action: Partial<Action>): Action {
   return {
     instanceId: action.instanceId || "",
     id: action.id || "",
-    type: "skill",
+    skillId: action.skillId || action.id || "mock_skill",
+    type: "battleSkill",
     name: "mock_skill",
     logicalStartTime: 0,
     element: "physical",
@@ -20,22 +21,21 @@ function createAction(action: Partial<Action>): Action {
     duration: 0,
     triggerWindow: 0,
     animationTime: 0,
-    allowedTypes: ["skill"],
-    damageTicks: [],
-    physicalAnomaly: [],
+    hits: [],
     ...action,
   };
 }
 
-function createAnomaly(anomaly: Partial<Anomaly>): Anomaly {
+function createEffect(effect: Partial<CompiledEffect>): CompiledEffect {
   return {
-    _id: anomaly._id || "",
-    type: "buff",
+    _id: effect._id || "",
+    kind: "status",
+    id: effect.id || effect._id || "buff",
+    name: effect.name || effect.id || "buff",
     duration: 0,
-    offset: 0,
     stacks: 1,
-    ...anomaly,
-  };
+    ...effect,
+  } as CompiledEffect;
 }
 
 describe("compileTimeline", () => {
@@ -43,7 +43,7 @@ describe("compileTimeline", () => {
     id: string,
     startTime: number,
     duration: number,
-    options: Partial<Action> = {}
+    options: Partial<Action> = {},
   ): ActionNode => ({
     id,
     type: "action",
@@ -52,7 +52,7 @@ describe("compileTimeline", () => {
     node: createAction({
       startTime,
       duration,
-      type: options.type || "skill",
+      type: options.type || "battleSkill",
       animationTime: options.animationTime,
       triggerWindow: options.triggerWindow,
       ...options,
@@ -74,7 +74,7 @@ describe("compileTimeline", () => {
         type: "ultimate",
         animationTime: 2,
       });
-      const skill = createMockAction("SKILL", 3, 1, { type: "skill" });
+      const skill = createMockAction("SKILL", 3, 1, { type: "battleSkill" });
 
       const result = compileTimeline([ult, skill]);
 
@@ -85,7 +85,6 @@ describe("compileTimeline", () => {
       expect(resolvedUlt.realDuration).toBe(5);
 
       expect(resolvedSkill.realStartTime).toBe(4);
-
       expect(resolvedSkill.realDuration).toBe(1);
     });
 
@@ -94,8 +93,8 @@ describe("compileTimeline", () => {
         type: "ultimate",
         animationTime: 1.5,
       });
-      const skill = createMockAction("SKILL", 0, 2.2, { type: "skill" });
-      const link = createMockAction("LINK", 3.5, 1.2, { type: "link" });
+      const skill = createMockAction("SKILL", 0, 2.2, { type: "battleSkill" });
+      const link = createMockAction("LINK", 3.5, 1.2, { type: "comboSkill" });
 
       const result = compileTimeline([ult, skill, link]);
 
@@ -110,7 +109,6 @@ describe("compileTimeline", () => {
       expect(resolvedLink.realDuration).toBe(1.2);
 
       expect(resolvedSkill.realStartTime).toBe(0);
-
       expect(resolvedSkill.realDuration).toBe(4.2);
     });
 
@@ -120,7 +118,7 @@ describe("compileTimeline", () => {
         animationTime: 2,
         isDisabled: true,
       });
-      const skill = createMockAction("SKILL", 3, 1, { type: "skill" });
+      const skill = createMockAction("SKILL", 3, 1, { type: "battleSkill" });
 
       const result = compileTimeline([ult, skill]);
 
@@ -136,7 +134,7 @@ describe("compileTimeline", () => {
         animationTime: 2,
         triggerWindow: -1,
       });
-      const skill = createMockAction("SKILL", 3, 1, { type: "skill" });
+      const skill = createMockAction("SKILL", 3, 1, { type: "battleSkill" });
 
       const result = compileTimeline([ult, skill]);
 
@@ -148,10 +146,10 @@ describe("compileTimeline", () => {
 
     it("shortens link freeze when the next source starts early", () => {
       const link1 = createMockAction("LINK1", 0, 1.2, {
-        type: "link",
+        type: "comboSkill",
       });
       const link2 = createMockAction("LINK2", 0.1, 1.2, {
-        type: "link",
+        type: "comboSkill",
       });
 
       const result = compileTimeline([link1, link2]);
@@ -192,16 +190,15 @@ describe("compileTimeline", () => {
         animationTime: 2,
       });
       const skill = createMockAction("SKILL", 3, 1, {
-        type: "skill",
-        physicalAnomaly: [
-          [
-            createAnomaly({
-              _id: "eff1",
-              offset: 1,
-              duration: 1,
-              type: "buff",
-            }),
-          ],
+        type: "battleSkill",
+        hits: [
+          {
+            offset: 1,
+            spRecovery: 0,
+            spReturn: 0,
+            stagger: 0,
+            effects: [createEffect({ _id: "eff1", duration: 1 })],
+          },
         ],
       });
 
@@ -221,16 +218,15 @@ describe("compileTimeline", () => {
         animationTime: 2,
       });
       const skill = createMockAction("SKILL", 1, 1, {
-        type: "skill",
-        physicalAnomaly: [
-          [
-            createAnomaly({
-              _id: "eff1",
-              offset: 1,
-              duration: 2,
-              type: "buff",
-            }),
-          ],
+        type: "battleSkill",
+        hits: [
+          {
+            offset: 1,
+            spRecovery: 0,
+            spReturn: 0,
+            stagger: 0,
+            effects: [createEffect({ _id: "eff1", duration: 2 })],
+          },
         ],
       });
 
@@ -244,22 +240,24 @@ describe("compileTimeline", () => {
       expect(resolvedSkill.effects[0]?.extensionAmount).toBe(2);
     });
 
-    it("shifts damage tick timings", () => {
+    it("shifts hit timings", () => {
       const ult = createMockAction("ULT", 2, 5, {
         type: "ultimate",
         animationTime: 2,
       });
       const skill = createMockAction("SKILL", 1, 2, {
-        type: "skill",
-        damageTicks: [
+        type: "battleSkill",
+        hits: [
           {
             offset: 0,
-            sp: 0,
+            spRecovery: 0,
+            spReturn: 0,
             stagger: 0,
           },
           {
             offset: 2,
-            sp: 0,
+            spRecovery: 0,
+            spReturn: 0,
             stagger: 0,
           },
         ],
@@ -269,18 +267,24 @@ describe("compileTimeline", () => {
 
       const resolvedSkill = result.actions.find((a) => a.id === "SKILL")!;
 
-      expect(resolvedSkill.resolvedDamageTicks).toHaveLength(2);
-      expect(resolvedSkill.resolvedDamageTicks[0]?.realOffset).toBe(0);
-      expect(resolvedSkill.resolvedDamageTicks[0]?.realTime).toBe(1);
-      expect(resolvedSkill.resolvedDamageTicks[1]?.realOffset).toBe(4);
-      expect(resolvedSkill.resolvedDamageTicks[1]?.realTime).toBe(5);
+      expect(resolvedSkill.resolvedHits).toHaveLength(2);
+      expect(resolvedSkill.resolvedHits[0]?.realOffset).toBe(0);
+      expect(resolvedSkill.resolvedHits[0]?.realTime).toBe(1);
+      expect(resolvedSkill.resolvedHits[1]?.realOffset).toBe(4);
+      expect(resolvedSkill.resolvedHits[1]?.realTime).toBe(5);
     });
   });
 
   it("resolves consumed effects", () => {
     const producer = createMockAction("PROD", 0, 10, {
-      physicalAnomaly: [
-        [createAnomaly({ _id: "eff1", offset: 0, duration: 10, type: "buff" })],
+      hits: [
+        {
+          offset: 0,
+          spRecovery: 0,
+          spReturn: 0,
+          stagger: 0,
+          effects: [createEffect({ _id: "eff1", duration: 10 })],
+        },
       ],
     });
     const consumer = createMockAction("CONS", 5, 2);

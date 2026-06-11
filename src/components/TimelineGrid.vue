@@ -6,14 +6,23 @@ import ActionItem from './ActionItem.vue'
 import ActionConnector from './ActionConnector.vue'
 import ConnectionPreview from './ConnectionPreview.vue'
 import GaugeOverlay from './GaugeOverlay.vue'
+import TimelineBuffLayer from './TimelineBuffLayer.vue'
 import ContextMenu from './ContextMenu.vue'
+import StatDetailDialog from './StatDetailDialog.vue'
+import HitDamageDetailDialog from './HitDamageDetailDialog.vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useDragConnection } from '@/composables/useDragConnection.js'
 import { useI18n } from 'vue-i18n'
 import { snapMs } from '@/utils/precision.js'
 import { frameToTime, snapTimeToFrame, timeToFrame } from '@/utils/time.js'
-import { getRectPos } from '@/utils/layoutUtils.js'
+import { toLegacyDisplayType } from '@/utils/hitModel.js'
+import {
+  getGameElementName,
+  getGameSlotTypeName,
+  getGameWeaponTypeName,
+  getGearSetGameName,
+} from '@/data/gameText'
 
 const store = useTimelineStore()
 const connectionHandler = useDragConnection()
@@ -36,6 +45,17 @@ const trackLaneRefs = ref([])
 const svgRenderKey = ref(0)
 const scrollbarHeight = ref(0)
 const isCursorVisible = ref(false)
+const hitDetailHit = ref(null)
+const showHitDetail = computed(() => hitDetailHit.value !== null)
+const hitDetailBreakdown = computed(() => hitDetailHit.value?._damageBreakdown ?? null)
+
+function openHitDetail(hitData) {
+  hitDetailHit.value = hitData
+}
+
+function closeHitDetail() {
+  hitDetailHit.value = null
+}
 
 // Drag State
 const isMouseDown = ref(false)
@@ -49,15 +69,11 @@ const wasSelectedOnPress = ref(false)
 const wasCycleSelectedOnPress = ref(false)
 const wasSwitchSelectedOnPress = ref(false)
 const dragStartTimes = new Map()
-const hadAnomalySelection = ref(false)
 const isAltDown = ref(false)
 const isShiftDown = ref(false)
 const hoveredContext = ref(null)
 const draggingCycleBoundaryId = ref(null)
 const draggingSwitchEventId = ref(null)
-const draggingWeaponStatusId = ref(null)
-const wasWeaponStatusSelectedOnPress = ref(false)
-const weaponStatusDragOffset = ref(0)
 const switchEventDragOffsetX = ref(0)
 const cycleBoundaryDragOffsetX = ref(0)
 const dragStartMouseTime = ref(0)
@@ -75,6 +91,9 @@ const TRACK_ROW_BASE_PADDING = 30
 const TRACK_ROW_MIN_PADDING = 8
 const TRACK_ROW_BASE_HEIGHT = TRACK_HEIGHT + TRACK_ROW_BASE_PADDING * 2
 const TRACK_ROW_MIN_HEIGHT = TRACK_HEIGHT + TRACK_ROW_MIN_PADDING * 2
+const OPERATOR_BUFF_ROW_HEIGHT = 24
+const EQUIPMENT_BUFF_LANE_PITCH = 22
+const BUFF_LAYER_MARGIN = 4
 const TRACKS_VERTICAL_PADDING = 20
 const TRACK_LAYOUT_KEY = 'endaxis:timeline-track-row-heights:v1'
 let resizeObserver = []
@@ -224,20 +243,49 @@ const trackDividerOffsets = computed(() => {
 })
 
 function getTrackRowStyle(index) {
-  const rowHeight = displayTrackRowHeights.value[index] ?? TRACK_ROW_BASE_HEIGHT
-  const rowPadding = Math.max(TRACK_ROW_MIN_PADDING, (rowHeight - TRACK_HEIGHT) / 2)
+  const requestedRowHeight = displayTrackRowHeights.value[index] ?? TRACK_ROW_BASE_HEIGHT
+  const basePadding = Math.max(TRACK_ROW_MIN_PADDING, (requestedRowHeight - TRACK_HEIGHT) / 2)
+  const { topPadding, bottomPadding, rowHeight } = getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight)
   return {
     '--track-height': `${TRACK_HEIGHT}px`,
     '--track-row-height': `${rowHeight}px`,
-    '--track-row-padding': `${rowPadding}px`,
+    '--track-row-padding-top': `${topPadding}px`,
+    '--track-row-padding-bottom': `${bottomPadding}px`,
   }
 }
 
 function getTrackInfoStyle(index) {
-  const rowHeight = displayTrackRowHeights.value[index] ?? TRACK_ROW_BASE_HEIGHT
+  const requestedRowHeight = displayTrackRowHeights.value[index] ?? TRACK_ROW_BASE_HEIGHT
+  const basePadding = Math.max(TRACK_ROW_MIN_PADDING, (requestedRowHeight - TRACK_HEIGHT) / 2)
+  const { topPadding, bottomPadding, rowHeight } = getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight)
   return {
     '--track-row-height': `${rowHeight}px`,
+    '--track-row-padding-top': `${topPadding}px`,
+    '--track-row-padding-bottom': `${bottomPadding}px`,
   }
+}
+
+function getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight) {
+  const track = store.tracks[index]
+  if (!track?.id || !store.isOperatorEffectsVisible(index)) {
+    return {
+      topPadding: basePadding,
+      bottomPadding: basePadding,
+      rowHeight: requestedRowHeight,
+    }
+  }
+
+  const operatorLayout = store.operatorEffectLayouts.get(track.id)
+  const operatorRows = (operatorLayout?.positionedSegments || [])
+    .filter((segment) => (Number(segment.group) || 0) === 0)
+    .reduce((max, segment) => Math.max(max, (Number(segment.subRow) || 0) + 1), 0)
+  const equipmentRows = store.trackBuffLayouts.get(track.id)?.lowerLaneCount || 0
+
+  const topPadding = Math.max(basePadding, TRACK_ROW_MIN_PADDING, operatorRows * OPERATOR_BUFF_ROW_HEIGHT + BUFF_LAYER_MARGIN)
+  const bottomPadding = Math.max(basePadding, TRACK_ROW_MIN_PADDING, equipmentRows * EQUIPMENT_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN)
+  const rowHeight = Math.max(requestedRowHeight, TRACK_HEIGHT + topPadding + bottomPadding)
+
+  return { topPadding, bottomPadding, rowHeight }
 }
 
 function beginTrackResize(index, event) {
@@ -310,6 +358,28 @@ const equipmentSlotKey = ref('armor') // 'armor' | 'gloves' | 'accessory1' | 'ac
 const equipmentSearchQuery = ref('')
 const equipmentCategoryFilter = ref('ALL')
 const equipmentLevelFilter = ref('ALL')
+const statDetailTrackIndex = ref(null)
+
+const isStatDetailVisible = computed({
+  get: () => statDetailTrackIndex.value !== null,
+  set: (visible) => {
+    if (!visible) statDetailTrackIndex.value = null
+  },
+})
+
+const statDetailTrack = computed(() => (
+  statDetailTrackIndex.value !== null ? store.tracks[statDetailTrackIndex.value] || null : null
+))
+
+const statDetailTrackInfo = computed(() => (
+  statDetailTrackIndex.value !== null ? store.teamTracksInfo[statDetailTrackIndex.value] || null : null
+))
+
+function openStatDetail(index) {
+  const track = store.tracks[index]
+  if (!track?.id || !track.operatorStatus) return
+  statDetailTrackIndex.value = index
+}
 
 const EQUIPMENT_LEVELS = [70, 50, 36, 20, 10]
 const EQUIPMENT_LEVEL_COLORS = {
@@ -357,6 +427,12 @@ const EQUIPMENT_BONUS_STAT_ICON_MAP = {
   physical_dmg: '/icons/icon_physical_damage_increase.webp',
   originium_arts_power: '/icons/icon_originium_arts.webp',
   ult_charge_eff: '/icons/icon_ultimate_sp_gain_scalar.webp',
+}
+
+function normalizeSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '')
 }
 
 function hasNonZeroValue(values) {
@@ -421,15 +497,16 @@ const ELEMENT_FILTERS = computed(() => {
   locale.value
   return [
     { label: t('timelineGrid.elementFilter.all'), value: 'ALL', color: '#888' },
-    { label: t('timelineGrid.elementFilter.physical'), value: 'physical', color: '#e0e0e0' },
-    { label: t('timelineGrid.elementFilter.blaze'), value: 'blaze', color: '#ff4d4f' },
-    { label: t('timelineGrid.elementFilter.cold'), value: 'cold', color: '#00e5ff' },
-    { label: t('timelineGrid.elementFilter.emag'), value: 'emag', color: '#ffd700' },
-    { label: t('timelineGrid.elementFilter.nature'), value: 'nature', color: '#52c41a' }
+    { label: getGameElementName('physical'), value: 'physical', color: '#e0e0e0' },
+    { label: getGameElementName('heat'), value: 'heat', color: '#ff4d4f' },
+    { label: getGameElementName('cryo'), value: 'cryo', color: '#00e5ff' },
+    { label: getGameElementName('electric'), value: 'electric', color: '#ffd700' },
+    { label: getGameElementName('nature'), value: 'nature', color: '#52c41a' }
   ]
 })
 
 function openCharacterSelector(index) {
+  store.selectTrack(index)
   targetTrackIndex.value = index
   searchQuery.value = ''
   filterElement.value = 'ALL'
@@ -453,6 +530,7 @@ function removeOperator() {
 
 function openWeaponSelector(index) {
   if (!store.tracks[index] || !store.tracks[index].id) return
+  store.selectTrack(index)
   weaponTargetIndex.value = index
   weaponSearchQuery.value = ''
   isWeaponSelectorVisible.value = true
@@ -480,6 +558,7 @@ function removeWeapon() {
 
 function openEquipmentSelector(index, slotKey) {
   if (!store.tracks[index] || !store.tracks[index].id) return
+  store.selectTrack(index)
   equipmentTargetIndex.value = index
   equipmentSlotKey.value = slotKey
   equipmentSearchQuery.value = ''
@@ -508,16 +587,43 @@ function removeEquipment() {
   isEquipmentSelectorVisible.value = false
 }
 
+const operatorSelectorItems = computed(() => {
+  locale.value
+  return (store.characterRoster || []).map((char) => ({
+    id: char.id,
+    canonicalId: char.id,
+    name: char.name,
+    avatar: char.avatar,
+    rarity: Number(char.rarity) || 0,
+    element: char.element || 'physical',
+    elementName: getGameElementName(char.element),
+    weapon: char.weapon || '',
+    weaponName: getGameWeaponTypeName(char.weapon),
+    searchTerms: [
+      char.name,
+      char.id,
+      char.slug,
+      getGameElementName(char.element),
+      getGameWeaponTypeName(char.weapon),
+    ].map(normalizeSearchText).filter(Boolean),
+    raw: char,
+  }))
+})
+
+function getOperatorAvatarById(operatorId) {
+  return operatorSelectorItems.value.find(item => item.id === operatorId)?.avatar || ''
+}
+
 const filteredListFlat = computed(() => {
-  let list = store.characterRoster
+  let list = operatorSelectorItems.value
   if (filterElement.value !== 'ALL') {
     list = list.filter(c => c.element === filterElement.value)
   }
   if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    list = list.filter(c => c.name.toLowerCase().includes(q))
+    const q = normalizeSearchText(searchQuery.value)
+    list = list.filter(c => c.searchTerms.some(term => term.includes(q)))
   }
-  return list.sort((a, b) => (b.rarity || 0) - (a.rarity || 0))
+  return [...list].sort((a, b) => (b.rarity || 0) - (a.rarity || 0))
 })
 
 const rosterByRarity = computed(() => {
@@ -538,17 +644,37 @@ function getRarityBaseColor(rarity) {
   return '#a0a0a0'
 }
 
+const weaponSelectorItems = computed(() => {
+  locale.value
+  return (store.weaponDatabase || []).map((weapon) => ({
+    id: weapon.id,
+    canonicalId: weapon.canonicalSlug || weapon.id,
+    name: weapon.name,
+    icon: weapon.icon || '/weapons/default.webp',
+    rarity: Number(weapon.rarity) || 0,
+    type: weapon.type || '',
+    typeName: getGameWeaponTypeName(weapon.type),
+    searchTerms: [
+      weapon.name,
+      weapon.id,
+      weapon.canonicalSlug,
+      getGameWeaponTypeName(weapon.type),
+    ].map(normalizeSearchText).filter(Boolean),
+    raw: weapon,
+  }))
+})
+
 const weaponCandidates = computed(() => {
   if (weaponTargetIndex.value === null) return []
   const track = store.tracks[weaponTargetIndex.value]
   if (!track || !track.id) return []
-  const char = store.characterRoster.find(c => c.id === track.id)
+  const char = operatorSelectorItems.value.find(c => c.id === track.id)
   const requiredType = char?.weapon
-  let list = store.weaponDatabase || []
+  let list = weaponSelectorItems.value
   if (requiredType) list = list.filter(w => w.type === requiredType)
   if (weaponSearchQuery.value) {
-    const q = weaponSearchQuery.value.toLowerCase()
-    list = list.filter(w => (w.name || '').toLowerCase().includes(q))
+    const q = normalizeSearchText(weaponSearchQuery.value)
+    list = list.filter(w => w.searchTerms.some(term => term.includes(q)))
   }
   return [...list].sort((a, b) => (b.rarity || 0) - (a.rarity || 0))
 })
@@ -571,7 +697,7 @@ const currentWeaponForDialog = computed(() => {
 
 function getWeaponForTrack(track) {
   if (!track || !track.weaponId) return null
-  return store.weaponDatabase.find(w => w.id === track.weaponId) || null
+  return store.getWeaponById(track.weaponId)
 }
 
 function getWeaponRarity(weapon) {
@@ -617,12 +743,37 @@ const equipmentSlotLabel = computed(() => {
   return t('timelineGrid.equipmentSlot.equipment')
 })
 
+const equipmentSelectorItems = computed(() => {
+  locale.value
+  return (store.equipmentDatabase || []).map((eq) => ({
+    id: eq.id,
+    canonicalId: eq.canonicalGearPieceId || eq.id,
+    name: eq.name,
+    icon: eq.icon || '/icons/default_icon.webp',
+    level: Number(eq.level) || 0,
+    slot: eq.slot || '',
+    slotName: getGameSlotTypeName(eq.slot),
+    category: eq.category || '',
+    categoryName: eq.category ? getGearSetGameName(eq.category) : '',
+    affixes: eq.affixes,
+    searchTerms: [
+      eq.name,
+      eq.id,
+      eq.canonicalGearPieceId,
+      eq.category,
+      eq.category ? getGearSetGameName(eq.category) : '',
+      getGameSlotTypeName(eq.slot),
+    ].map(normalizeSearchText).filter(Boolean),
+    raw: eq,
+  }))
+})
+
 const equipmentCandidates = computed(() => {
   if (equipmentTargetIndex.value === null) return []
   const track = store.tracks[equipmentTargetIndex.value]
   if (!track || !track.id) return []
 
-  let list = store.equipmentDatabase || []
+  let list = equipmentSelectorItems.value
   list = list.filter(e => e.slot === equipmentSlotType.value)
 
   if (equipmentCategoryFilter.value !== 'ALL') {
@@ -640,8 +791,8 @@ const equipmentCandidates = computed(() => {
   }
 
   if (equipmentSearchQuery.value) {
-    const q = equipmentSearchQuery.value.toLowerCase()
-    list = list.filter(e => (e.name || '').toLowerCase().includes(q) || (e.id || '').toLowerCase().includes(q))
+    const q = normalizeSearchText(equipmentSearchQuery.value)
+    list = list.filter(e => e.searchTerms.some(term => term.includes(q)))
   }
 
   return [...list].sort((a, b) => {
@@ -690,127 +841,7 @@ function isEquipmentEquipped(equipmentId) {
   if (equipmentTargetIndex.value === null) return false
   const track = store.tracks[equipmentTargetIndex.value]
   const current = getEquipmentForTrack(track, equipmentSlotKey.value)
-  return !!current && current.id === equipmentId
-}
-
-const weaponStatusesByTrack = computed(() => {
-  const map = new Map()
-  store.weaponStatuses.forEach(status => {
-    if (status.type === 'set') return
-    const idx = store.tracks.findIndex(t => t.id === status.trackId)
-    if (idx === -1) return
-    const arr = map.get(status.trackId) || []
-    arr.push(status)
-    map.set(status.trackId, arr)
-  })
-  map.forEach(arr => arr.sort((a, b) => a.startTime - b.startTime))
-  return map
-})
-
-const setStatusesByTrack = computed(() => {
-  const map = new Map()
-  store.weaponStatuses.forEach(status => {
-    if (status.type !== 'set') return
-    const idx = store.tracks.findIndex(t => t.id === status.trackId)
-    if (idx === -1) return
-    const arr = map.get(status.trackId) || []
-    arr.push(status)
-    map.set(status.trackId, arr)
-  })
-  map.forEach(arr => arr.sort((a, b) => a.startTime - b.startTime))
-  return map
-})
-
-function getWeaponStatusLeft(status) {
-  const start = Number(status.startTime) || 0
-  return store.timeToPx(start)
-}
-
-function getWeaponStatusTiming(status) {
-  const start = Number(status.startTime) || 0
-  const rawDuration = Number(status.duration) || 0
-  const shiftedEnd = store.getShiftedEndTime(start, rawDuration, status.id)
-  const baseFinalDuration = Math.max(0, shiftedEnd - start)
-
-  let finalDuration = baseFinalDuration
-  let isConsumed = false
-
-  const cutTime = store.statusConsumptionTimeById.get(status.id)
-  if (Number.isFinite(cutTime)) {
-    const cutDuration = cutTime - start
-    if (cutDuration >= 0 && cutDuration < finalDuration - 0.0001) {
-      finalDuration = Math.max(0, cutDuration)
-      isConsumed = true
-    }
-  }
-
-  return { start, rawDuration, finalDuration, baseFinalDuration, isConsumed }
-}
-
-function getWeaponStatusBarStyle(status) {
-  const { start, rawDuration, finalDuration } = getWeaponStatusTiming(status)
-  let width = finalDuration > 0 ? (store.timeToPx(start + finalDuration) - store.timeToPx(start)) : 0
-  if (width > 0) {
-    const ICON_SIZE = 20
-    const BAR_MARGIN = 2
-    width = Math.max(0, width - ICON_SIZE - BAR_MARGIN)
-  }
-  const color = status.color || '#b37feb'
-  return {
-    width: `${width}px`,
-    backgroundColor: color,
-    display: (finalDuration > 0 || rawDuration > 0) ? 'flex' : 'none'
-  }
-}
-
-function getWeaponStatusDurationLabel(status) {
-  const { rawDuration, finalDuration, isConsumed } = getWeaponStatusTiming(status)
-  const baseDuration = Math.max(0, rawDuration)
-  if (isConsumed) {
-    return store.formatTimeLabel(finalDuration)
-  }
-  const extensionAmount = snapMs(finalDuration - baseDuration)
-  if (extensionAmount > 0.0001) {
-    return `${store.formatTimeLabel(baseDuration)} (+${store.formatTimeLabel(extensionAmount)})`
-  }
-  return store.formatTimeLabel(baseDuration)
-}
-
-function isWeaponStatusConsumed(status) {
-  return getWeaponStatusTiming(status).isConsumed
-}
-
-function handleWeaponStatusIconMouseDown(evt, status) {
-  if (connectionHandler.toolEnabled.value) {
-    evt.stopPropagation()
-    evt.preventDefault()
-    if (connectionHandler.isDragging.value) return
-    if (evt.button !== 0) return
-
-    store.selectWeaponStatus(status.id)
-
-    const rect = store.statusNodeRects.get(status.id)?.rect
-    if (!rect) return
-    const timelinePoint = getRectPos(rect, 'right')
-    connectionHandler.newConnectionFrom(timelinePoint, status.id, 'right')
-    return
-  }
-
-  onWeaponStatusMouseDown(evt, status)
-}
-
-function handleWeaponStatusSnap(statusId) {
-  if (!connectionHandler.isDragging.value) return
-  if (!connectionHandler.isNodeValid(statusId)) return
-  const rect = store.statusNodeRects.get(statusId)?.rect
-  if (!rect) return
-  const timelinePoint = getRectPos(rect, 'left')
-  connectionHandler.snapTo(statusId, 'left', timelinePoint)
-}
-
-function handleWeaponStatusDrop(statusId) {
-  if (!connectionHandler.isDragging.value) return
-  connectionHandler.endDrag(statusId, 'left')
+  return !!current && (current.id === equipmentId || current.canonicalGearPieceId === equipmentId)
 }
 
 // ===================================================================================
@@ -827,12 +858,13 @@ const operationMarkers = computed(() => {
     track.actions.forEach(action => {
       if ((action.triggerWindow || 0) < 0) return
 
+      const displayType = toLegacyDisplayType(action.type)
       let label = '', isHold = false, customClass = ''
-      if (action.type === 'skill') {
+      if (displayType === 'skill') {
         label = `${keyNum}`; customClass = 'op-skill'
-      } else if (action.type === 'link') {
+      } else if (displayType === 'link') {
         label = 'E'; customClass = 'op-link'
-      } else if (action.type === 'ultimate') {
+      } else if (displayType === 'ultimate') {
         label = `${keyNum} (Hold)`; isHold = true; customClass = 'op-ultimate'
       } else return
 
@@ -1599,7 +1631,6 @@ function onActionMouseDown(evt, track, action) {
 
   setTimeout(() => {
     wasSelectedOnPress.value = store.multiSelectedIds.has(action.instanceId)
-    hadAnomalySelection.value = (store.selectedAnomalyId !== null)
 
     if (!store.multiSelectedIds.has(action.instanceId)) {
       store.selectAction(action.instanceId)
@@ -1664,18 +1695,6 @@ function updateSwitchMarkerPosition(clientX, clientY) {
   store.updateSwitchEvent(draggingSwitchEventId.value, newTime)
 }
 
-function updateWeaponStatusPosition(clientX, clientY) {
-  let newTime = calculateTimeFromClient(clientX, clientY, 0, store.snapStep) - weaponStatusDragOffset.value
-  if (newTime > store.viewDuration) newTime = store.viewDuration
-  if (newTime < 0) newTime = 0
-  newTime = snapTimeToFrame(newTime)
-  const status = store.weaponStatuses.find(s => s.id === draggingWeaponStatusId.value)
-  if (status) {
-    status.startTime = newTime
-    status.logicalStartTime = newTime
-  }
-}
-
 function updateCycleBoundaryPosition(clientX, clientY) {
   let newTime = calculateTimeFromClient(clientX, clientY, cycleBoundaryDragOffsetX.value, store.snapStep)
   if (newTime > store.viewDuration) newTime = store.viewDuration
@@ -1712,7 +1731,6 @@ function performAutoScroll() {
   const newShift = store.timelineShift + autoScrollSpeed.value
   store.setTimelineShift(newShift)
   if (draggingSwitchEventId.value) updateSwitchMarkerPosition(lastMouseX, lastMouseY)
-  else if (draggingWeaponStatusId.value) updateWeaponStatusPosition(lastMouseX, lastMouseY)
   else if (draggingCycleBoundaryId.value) updateCycleBoundaryPosition(lastMouseX, lastMouseY)
   else updateDragPosition(lastMouseX)
   autoScrollRaf = requestAnimationFrame(performAutoScroll)
@@ -1744,34 +1762,6 @@ function onSwitchMarkerMouseDown(evt, id) {
   window.addEventListener('blur', onWindowMouseUp)
 }
 
-function onWeaponStatusMouseDown(evt, status) {
-  evt.stopPropagation()
-  evt.preventDefault()
-  if (connectionHandler.isDragging.value) return
-  if (evt.button !== 0) return
-
-  wasWeaponStatusSelectedOnPress.value = (store.selectedWeaponStatusId === status.id)
-
-  if (!wasWeaponStatusSelectedOnPress.value) {
-    store.selectWeaponStatus(status.id)
-  }
-
-  draggingWeaponStatusId.value = status.id
-  const mousePos = store.toTimelineSpace(evt.clientX, evt.clientY)
-  const offset = store.pxToTime(mousePos.x) - (Number(status.startTime) || 0)
-  weaponStatusDragOffset.value = Number.isFinite(offset) ? offset : 0
-  initialMouseX.value = evt.clientX
-  initialMouseY.value = evt.clientY
-  isDragStarted.value = false
-  isMouseDown.value = true
-
-  document.body.classList.add('is-dragging')
-
-  window.addEventListener('mousemove', onWindowMouseMove)
-  window.addEventListener('mouseup', onWindowMouseUp)
-  window.addEventListener('blur', onWindowMouseUp)
-}
-
 function onWindowMouseMove(evt) {
   lastMouseX = evt.clientX
   lastMouseY = evt.clientY
@@ -1784,17 +1774,6 @@ function onWindowMouseMove(evt) {
     updateDragAutoScroll(evt.clientX)
     if (autoScrollSpeed.value === 0) {
       updateSwitchMarkerPosition(evt.clientX, evt.clientY)
-    }
-    return
-  }
-  if (draggingWeaponStatusId.value) {
-    if (!isDragStarted.value) {
-      const dist = Math.sqrt(Math.pow(evt.clientX - initialMouseX.value, 2) + Math.pow(evt.clientY - initialMouseY.value, 2))
-      if (dist > dragThreshold) isDragStarted.value = true; else return
-    }
-    updateDragAutoScroll(evt.clientX)
-    if (autoScrollSpeed.value === 0) {
-      updateWeaponStatusPosition(evt.clientX, evt.clientY)
     }
     return
   }
@@ -1865,25 +1844,6 @@ function onWindowMouseUp(event) {
     return
   }
 
-  if (draggingWeaponStatusId.value) {
-    if (!isDragStarted.value && wasWeaponStatusSelectedOnPress.value) {
-      store.selectWeaponStatus(draggingWeaponStatusId.value)
-    }
-
-    if (isDragStarted.value) {
-      store.commitState()
-    }
-
-    isDragStarted.value = false
-    draggingWeaponStatusId.value = null
-    document.body.classList.remove('is-dragging')
-    window.removeEventListener('mousemove', onWindowMouseMove)
-    window.removeEventListener('mouseup', onWindowMouseUp)
-    window.removeEventListener('blur', onWindowMouseUp)
-    isMouseDown.value = false
-    return
-  }
-
   if (draggingCycleBoundaryId.value) {
 
     if (!isDragStarted.value && wasCycleSelectedOnPress.value) {
@@ -1908,9 +1868,7 @@ function onWindowMouseUp(event) {
   const _wasDragging = isDragStarted.value
   try {
     if (!isDragStarted.value && movingActionId.value) {
-      if (store.selectedAnomalyId) {
-        store.setSelectedAnomalyId(null)
-      } else if (wasSelectedOnPress.value) {
+      if (wasSelectedOnPress.value) {
         store.selectAction(movingActionId.value)
       }
     } else if (_wasDragging) { store.commitState() }
@@ -1939,19 +1897,8 @@ function calculateTimeFromDropEvent(evt, skill, fixedStep = null) {
   return startTime
 }
 
-function onTrackDrop(track, evt) {
-  const skill = store.draggingSkillData; if (!skill || store.activeTrackId !== track.id) return
-  if (skill.librarySource === 'set' || skill.type === 'set') {
-    const startTime = calculateTimeFromDropEvent(evt, skill)
-    store.addSetBonusStatus(track.id, skill.setCategory || skill.name, startTime)
-    return
-  }
-  if (skill.librarySource === 'weapon' || skill.type === 'weapon') {
-    if (!track.weaponId || (skill.weaponId && skill.weaponId !== track.weaponId)) return
-    const startTime = calculateTimeFromDropEvent(evt, skill)
-    store.addWeaponStatus(track.id, skill, startTime)
-    return
-  }
+function onTrackDrop(track, index, evt) {
+  const skill = store.draggingSkillData; if (!skill || store.activeTrackIndex !== index) return
   const startTime = calculateTimeFromDropEvent(evt, skill)
   store.addSkillToTrack(track.id, skill, startTime)
   nextTick(() => forceSvgUpdate())
@@ -1968,8 +1915,8 @@ function handleKeyDown(event) {
   const target = event.target
   if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
 
-  const hasSelection = store.selectedActionId || store.multiSelectedIds.size > 0 || store.selectedConnectionId || store.selectedCycleBoundaryId || store.selectedSwitchEventId || store.selectedWeaponStatusId
-  const hasNudgeTarget = store.selectedActionId || store.multiSelectedIds.size > 0 || store.selectedCycleBoundaryId || store.selectedSwitchEventId || store.selectedWeaponStatusId
+  const hasSelection = store.selectedActionId || store.multiSelectedIds.size > 0 || store.selectedConnectionId || store.selectedCycleBoundaryId || store.selectedSwitchEventId
+  const hasNudgeTarget = store.selectedActionId || store.multiSelectedIds.size > 0 || store.selectedCycleBoundaryId || store.selectedSwitchEventId
   if (!hasSelection) return
 
   if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -2111,11 +2058,15 @@ onUnmounted(() => {
 <template>
   <div class="timeline-grid-layout" :style="{ gridTemplateRows: `${gridRowHeight} 1fr` }">
     <div class="corner-placeholder">
-      <div class="corner-controls">
-        <div class="corner-button-row">
-          <button class="mini-tool-btn" :class="{ 'is-active': store.showCursorGuide }" @click="store.toggleCursorGuide" :title="t('timelineGrid.toolbar.cursorGuide')">
-            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg>
-          </button>
+        <div class="corner-controls">
+          <div class="corner-button-row">
+            <button class="mini-tool-btn" :class="{ 'is-active': store.isFullUltEnergy }" @click="store.toggleFullUltEnergy" :title="t('timelineGrid.toolbar.fullUltimateEnergy')">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none"><path d="M13 2L4 14h7v8l9-12h-7z" /></svg>
+            </button>
+
+            <button class="mini-tool-btn" :class="{ 'is-active': store.showCursorGuide }" @click="store.toggleCursorGuide" :title="t('timelineGrid.toolbar.cursorGuide')">
+              <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg>
+            </button>
           
           <button class="mini-tool-btn" :class="{ 'is-active': store.isBoxSelectMode }" @click="store.toggleBoxSelectMode" :title="t('timelineGrid.toolbar.boxSelect')">
             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 4"/><path d="M8 12h8" stroke-width="1.5"/><path d="M12 8v8" stroke-width="1.5"/></svg>
@@ -2261,9 +2212,9 @@ onUnmounted(() => {
          :style="{ paddingBottom: `${20 + scrollbarHeight}px` }">
       <div v-for="(track, index) in store.teamTracksInfo" :key="index" class="track-info"
            :style="getTrackInfoStyle(index)"
-           @click.stop="store.selectTrack(track.id)"
+           @click.stop="store.selectTrack(index)"
            :class="{ 
-             'is-active': track.id && track.id === store.activeTrackId,
+             'is-active': index === store.activeTrackIndex,
              'is-reorder-target': reorderDropTargetIndex === index && draggingTrackOrderIndex !== index,
              'is-reorder-source': draggingTrackOrderIndex === index
            }"
@@ -2300,6 +2251,16 @@ onUnmounted(() => {
               </div>
             </div>
             <div class="trigger-info" @click="!track.id && openCharacterSelector(index)">
+              <button
+                v-if="store.tracks[index]?.id"
+                type="button"
+                class="track-stat-detail-btn"
+                :disabled="!store.tracks[index]?.operatorStatus"
+                :title="t('statDetail.button')"
+                @click.stop="openStatDetail(index)"
+              >
+                {{ t('statDetail.button') }}
+              </button>
               <span class="trigger-name">{{ track.name || t('timelineGrid.track.selectOperator') }}</span>
             </div>
           </div>
@@ -2344,6 +2305,19 @@ onUnmounted(() => {
 
       </div>
     </div>
+
+    <StatDetailDialog
+      :visible="isStatDetailVisible"
+      :operator-status="statDetailTrack?.operatorStatus"
+      :operator-name="statDetailTrackInfo?.name || ''"
+      @update:visible="isStatDetailVisible = $event"
+    />
+    <HitDamageDetailDialog
+      :visible="showHitDetail"
+      :breakdown="hitDetailBreakdown"
+      :hit-data="hitDetailHit"
+      @update:visible="closeHitDetail"
+    />
 
     <div class="tracks-content-viewport" ref="tracksContentRef" @mousedown="onContentMouseDown" @wheel="handleTrackWheel"
          @mousemove="onGridMouseMove" @mouseleave="onGridMouseLeave" @contextmenu="onBackgroundContextMenu">
@@ -2478,12 +2452,18 @@ onUnmounted(() => {
           </svg>
 
           <div v-for="(track, index) in store.tracks" :key="index" class="track-row" :id="`track-row-${index}`" :style="getTrackRowStyle(index)"
-               :class="{ 'is-active-drop': track.id === store.activeTrackId,'is-last-track': index === store.tracks.length - 1 }" @dragover="onTrackDragOver" @drop="onTrackDrop(track, $event)">
+               :class="{ 'is-active-drop': index === store.activeTrackIndex,'is-last-track': index === store.tracks.length - 1 }" @dragover="onTrackDragOver" @drop="onTrackDrop(track, index, $event)">
+            <TimelineBuffLayer
+              v-if="track.id && store.isOperatorEffectsVisible(index)"
+              :track-id="track.id"
+              placement="upper"
+            />
             <div class="track-lane" :style="getTrackLaneStyle" ref="trackLaneRefs" :data-track-index="index" :data-track-id="track.id">
               <GaugeOverlay v-if="track.id && store.isOperatorEffectsVisible(index)" :track-id="track.id"/>
               <div class="actions-container">
                 <ActionItem v-memo="[action, store.isOperatorEffectsVisible(index)]" v-for="action in track.actions" :key="action.instanceId" :action="action"
                   :show-decorations="store.isOperatorEffectsVisible(index)"
+                  @hit-click="openHitDetail"
                   @mousedown="onActionMouseDown($event, track, action)"
                   @mousemove="updateAlignGuide($event, action, $el.querySelector(`#action-${action.instanceId}`))"
                   @mouseleave="hideAlignGuide"
@@ -2500,71 +2480,18 @@ onUnmounted(() => {
                      @mousedown.stop="onSwitchMarkerMouseDown($event, sw.id)">
 
                   <div class="tag-avatar">
-                    <img :src="store.characterRoster.find(c => c.id === sw.characterId)?.avatar" />
+                    <img :src="getOperatorAvatarById(sw.characterId)" />
                   </div>
                   <div class="tag-time">{{ store.formatAxisTimeLabel(sw.time) }}</div>
                   <div class="tag-pointer"></div>
                 </div>
               </div>
-              <div v-if="store.isOperatorEffectsVisible(index)" class="weapon-status-layer">
-                <div
-                  v-for="status in weaponStatusesByTrack.get(track.id) || []"
-                  :key="status.id"
-                  class="weapon-status-item"
-                  :class="{ 'is-selected': status.id === store.selectedWeaponStatusId, 'is-dragging': status.id === draggingWeaponStatusId }"
-                  :style="{ left: `${getWeaponStatusLeft(status)}px` }"
-                >
-                  <div class="weapon-status-icon-box"
-                       :class="{ 'is-connect-mode': connectionHandler.toolEnabled.value, 'is-linking': connectionHandler.isDragging.value, 'is-link-target-valid': connectionHandler.isNodeValid(status.id) }"
-                       @mousedown.stop="handleWeaponStatusIconMouseDown($event, status)"
-                       @mouseenter="handleWeaponStatusSnap(status.id)"
-                       @mouseup="handleWeaponStatusDrop(status.id)"
-                       @mouseleave="connectionHandler.clearSnap()">
-                    <img v-if="status.icon" :src="status.icon" @error="e=>e.target.style.display='none'" />
-                  </div>
-                  <div class="weapon-status-bar" :style="getWeaponStatusBarStyle(status)" :class="{ 'is-consumed-bar': isWeaponStatusConsumed(status) }">
-                    <div class="striped-bg"></div>
-                    <span class="duration-text">{{ getWeaponStatusDurationLabel(status) }}</span>
-
-                    <div v-if="isWeaponStatusConsumed(status)"
-                         :id="`${status.id}_transfer`"
-                         class="transfer-node-wrapper">
-                      <div class="transfer-node"></div>
-                      <div class="transfer-line"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-if="store.isOperatorEffectsVisible(index)" class="set-status-layer">
-                <div
-                  v-for="status in setStatusesByTrack.get(track.id) || []"
-                  :key="status.id"
-                  class="weapon-status-item"
-                  :class="{ 'is-selected': status.id === store.selectedWeaponStatusId, 'is-dragging': status.id === draggingWeaponStatusId }"
-                  :style="{ left: `${getWeaponStatusLeft(status)}px` }"
-                >
-                  <div class="weapon-status-icon-box"
-                       :class="{ 'is-connect-mode': connectionHandler.toolEnabled.value, 'is-linking': connectionHandler.isDragging.value, 'is-link-target-valid': connectionHandler.isNodeValid(status.id) }"
-                       @mousedown.stop="handleWeaponStatusIconMouseDown($event, status)"
-                       @mouseenter="handleWeaponStatusSnap(status.id)"
-                       @mouseup="handleWeaponStatusDrop(status.id)"
-                       @mouseleave="connectionHandler.clearSnap()">
-                    <img v-if="status.icon" :src="status.icon" @error="e=>e.target.style.display='none'" />
-                  </div>
-                  <div class="weapon-status-bar" :style="getWeaponStatusBarStyle(status)" :class="{ 'is-consumed-bar': isWeaponStatusConsumed(status) }">
-                    <div class="striped-bg"></div>
-                    <span class="duration-text">{{ getWeaponStatusDurationLabel(status) }}</span>
-
-                    <div v-if="isWeaponStatusConsumed(status)"
-                         :id="`${status.id}_transfer`"
-                         class="transfer-node-wrapper">
-                      <div class="transfer-node"></div>
-                      <div class="transfer-line"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
+            <TimelineBuffLayer
+              v-if="track.id && store.isOperatorEffectsVisible(index)"
+              :track-id="track.id"
+              placement="lower"
+            />
           </div>
 
           <div class="global-freeze-layer">
@@ -2676,7 +2603,7 @@ onUnmounted(() => {
         <div class="element-filters">
           <button class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': equipmentCategoryFilter === 'ALL' }" :style="{ '--ea-btn-accent': '#2dd4bf' }" @click="equipmentCategoryFilter = 'ALL'">{{ t('timelineGrid.equipmentDialog.allCategories') }}</button>
           <button class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': equipmentCategoryFilter === '__UNCAT__' }" :style="{ '--ea-btn-accent': '#888' }" @click="equipmentCategoryFilter = '__UNCAT__'">{{ t('timelineGrid.equipmentDialog.uncategorized') }}</button>
-          <button v-for="cat in store.equipmentCategories" :key="`eqcat_${cat}`" class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': equipmentCategoryFilter === cat }" :style="{ '--ea-btn-accent': '#2dd4bf' }" @click="equipmentCategoryFilter = cat">{{ cat }}</button>
+          <button v-for="cat in store.equipmentCategories" :key="`eqcat_${cat}`" class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': equipmentCategoryFilter === cat }" :style="{ '--ea-btn-accent': '#2dd4bf' }" @click="equipmentCategoryFilter = cat">{{ store.getSetBonusDisplayName ? store.getSetBonusDisplayName(cat) : cat }}</button>
         </div>
         <div class="element-filters">
           <button class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': equipmentLevelFilter === 'ALL' }" :style="{ '--ea-btn-accent': '#2dd4bf' }" @click="equipmentLevelFilter = 'ALL'">{{ t('timelineGrid.equipmentDialog.allLevels') }}</button>
@@ -3399,6 +3326,7 @@ body.capture-mode .davinci-range {
   flex: 1 1 auto;
   min-width: 0;
   cursor: default;
+  position: relative;
 }
 
 .track-info:not(.is-active) .trigger-info {
@@ -3410,6 +3338,39 @@ body.capture-mode .davinci-range {
   font-weight: bold;
   font-size: 14px;
   user-select: none;
+}
+
+.track-stat-detail-btn {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 4px);
+  max-width: 100%;
+  height: 18px;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 215, 0, 0.28);
+  border-radius: 3px;
+  background: rgba(255, 215, 0, 0.08);
+  color: #ffd700;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.track-stat-detail-btn:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 215, 0, 0.72);
+  background: rgba(255, 215, 0, 0.16);
+}
+
+.track-stat-detail-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .gear-panel {
@@ -3754,13 +3715,14 @@ body.capture-mode .davinci-range {
 .track-row {
   --track-height: 50px;
   --track-row-height: 110px;
-  --track-row-padding: 30px;
+  --track-row-padding-top: 30px;
+  --track-row-padding-bottom: 30px;
   position: relative;
   flex: 0 0 auto;
   height: var(--track-row-height);
   min-height: var(--track-height);
-  padding-top: var(--track-row-padding);
-  padding-bottom: var(--track-row-padding);
+  padding-top: var(--track-row-padding-top);
+  padding-bottom: var(--track-row-padding-bottom);
   box-sizing: border-box;
   width: fit-content;
   min-width: 100%;
@@ -4376,167 +4338,6 @@ body.capture-mode .davinci-range {
   border-top-color: #fff;
 }
 
-.weapon-status-layer {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 8px);
-  height: 22px;
-  width: 100%;
-  pointer-events: none;
-}
-
-.set-status-layer {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 32px);
-  height: 22px;
-  width: 100%;
-  pointer-events: none;
-}
-
-.weapon-status-item {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  pointer-events: none;
-}
-
-.weapon-status-icon-box {
-  width: 20px;
-  height: 20px;
-  background-color: #333;
-  border: 1px solid #999;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  flex-shrink: 0;
-  overflow: hidden;
-  pointer-events: auto;
-  cursor: grab;
-  z-index: 10;
-}
-
-.weapon-status-icon-box.is-connect-mode {
-  cursor: crosshair;
-}
-
-.weapon-status-icon-box.is-linking {
-  cursor: crosshair;
-}
-
-.weapon-status-icon-box.is-linking.is-link-target-valid {
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.35);
-}
-
-.weapon-status-icon-box:active {
-  cursor: grabbing;
-}
-
-.weapon-status-icon-box.is-connect-mode:active,
-.weapon-status-icon-box.is-linking:active {
-  cursor: crosshair;
-}
-
-.weapon-status-item.is-selected .weapon-status-icon-box {
-  border-color: #ffd700;
-  box-shadow: 0 0 6px rgba(255, 215, 0, 0.45);
-}
-
-.weapon-status-icon-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.weapon-status-bar {
-  height: 16px;
-  border: none;
-  border-radius: 2px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  overflow: visible;
-  box-sizing: border-box;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  z-index: 1;
-  margin-left: 2px;
-}
-
-.weapon-status-bar.is-consumed-bar {
-  opacity: 0.82;
-}
-
-.weapon-status-bar .striped-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.2) 2px,
-    transparent 2px,
-    transparent 6px
-  );
-  pointer-events: none;
-}
-
-.weapon-status-bar .duration-text {
-  position: absolute;
-  left: 4px;
-  font-size: 11px;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  z-index: 2;
-  font-weight: bold;
-  line-height: 1;
-  font-family: sans-serif;
-  white-space: nowrap;
-}
-
-.transfer-node-wrapper {
-  position: absolute;
-  right: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.transfer-node {
-  width: 6px;
-  height: 6px;
-  background-color: #fff;
-  border: 1px solid #ffd700;
-  transform: rotate(45deg);
-  box-shadow: 0 0 4px #ffd700, 0 0 8px rgba(255, 215, 0, 0.6);
-  position: relative;
-  z-index: 2;
-}
-
-.transfer-line {
-  position: absolute;
-  width: 2px;
-  height: 14px;
-  background-color: #fff;
-  border-radius: 1px;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-  z-index: 1;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
 :global(body.is-dragging) {
   user-select: none !important;
   cursor: grabbing !important;

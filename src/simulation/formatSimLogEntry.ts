@@ -24,19 +24,25 @@ export function formatSimLogEntry(entry: SimLogEntry, opts?: FormatSimLogEntryOp
   switch (entry.type) {
     case "ACTION_START": {
       const { skillId, actionId, type, spCost } = entry.payload || ({} as any);
+      const typeLabel = type;
       const extra = spCost != null ? ` cost=${spCost}` : "";
-      return withPrefix(entry, `action start ${skillId} (${type}) id=${actionId}${extra}`, opts);
+      return withPrefix(entry, `action start ${skillId} (${typeLabel}) id=${actionId}${extra}`, opts);
     }
     case "ACTION_END": {
-      const { skillId, actionId, type, spGain, spGainKind } = entry.payload || ({} as any);
+      const payload = entry.payload as any;
+      const { skillId, actionId, type, spGain, spGainKind } = payload || {};
+      const typeLabel = type;
       const gain =
         spGain != null ? ` gain=${spGain}${spGainKind ? `(${spGainKind})` : ""}` : "";
-      return withPrefix(entry, `action end ${skillId} (${type}) id=${actionId}${gain}`, opts);
+      return withPrefix(entry, `action end ${skillId} (${typeLabel}) id=${actionId}${gain}`, opts);
     }
-    case "DAMAGE_TICK": {
-      const { sourceId, targetId, damage, stagger, tickData, actionId } =
+    case "DAMAGE_HIT": {
+      const { sourceId, targetId, stagger, hitData, actionId } =
         entry.payload || ({} as any);
-      const spGain = Number(tickData?.sp) ? ` sp+${tickData.sp}` : "";
+      const damage = hitData?._expectedDamage ?? 0;
+      const spGain = Number(hitData?.spReturn ?? hitData?.spRecovery)
+        ? ` sp+${Number(hitData?.spReturn ?? hitData?.spRecovery)}`
+        : "";
       return withPrefix(
         entry,
         `dmg ${damage} stg ${stagger}${spGain} ${sourceId} -> ${targetId} id=${actionId}`,
@@ -63,42 +69,18 @@ export function formatSimLogEntry(entry: SimLogEntry, opts?: FormatSimLogEntryOp
           : "";
       return withPrefix(entry, `sp ${before} -> ${sp} (${sign}${delta}) ${reason} id=${sourceId}${extra}`, opts);
     }
-    case "ULTIMATE_CHARGE_CHANGE": {
-      const { actorId, gauge, maxGauge, change, reason, sourceId } = entry.payload || ({} as any);
+    case "ULT_ENERGY_CHANGE": {
+      const { actorId, change, sourceId } = entry.payload || ({} as any);
       const sign = Number(change) > 0 ? "+" : "";
       return withPrefix(
         entry,
-        `${actorId} gauge ${Number(gauge) - Number(change)} -> ${gauge}/${maxGauge} (${sign}${change}) ${reason} id=${sourceId}`,
+        `${actorId} gauge ${sign}${change} id=${sourceId}`,
         opts,
       );
     }
     case "SP_REGEN_PAUSE": {
       const { duration, sp, sourceId } = entry.payload || ({} as any);
       return withPrefix(entry, `sp regen pause ${Number(duration).toFixed(3)}s sp=${sp} id=${sourceId}`, opts);
-    }
-    case "EFFECT_START": {
-      const { effectSnapshot, targetId, actorId, actionId } = entry.payload || ({} as any);
-      const id = effectSnapshot?.id;
-      const stacks = effectSnapshot?.currentStacks;
-      const st = stacks != null ? ` x${stacks}` : "";
-      const by = actorId ? ` by=${actorId}` : "";
-      const act = actionId ? ` id=${actionId}` : "";
-      return withPrefix(entry, `effect + ${id}${st} -> ${targetId}${by}${act}`, opts);
-    }
-    case "EFFECT_END": {
-      const { effectId, targetId, type, actorId, actionId } = entry.payload || ({} as any);
-      const by = actorId ? ` by=${actorId}` : "";
-      const act = actionId ? ` id=${actionId}` : "";
-      return withPrefix(entry, `effect - ${effectId} (${type}) -> ${targetId || ""}${by}${act}`, opts);
-    }
-    case "REACTION_OCCURRED": {
-      const { actorId, reactionName, actionId } = entry.payload || ({} as any);
-      const act = actionId ? ` id=${actionId}` : "";
-      return withPrefix(entry, `reaction ${reactionName} by=${actorId}${act}`, opts);
-    }
-    case "EFFECT_APPLIED": {
-      const { name, targetId } = entry.payload || ({} as any);
-      return withPrefix(entry, `effect applied ${name} -> ${targetId}`, opts);
     }
     default: {
       const anyEntry: any = entry;

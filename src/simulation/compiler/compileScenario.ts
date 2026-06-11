@@ -11,6 +11,7 @@ import type {
 } from "./types";
 import { createDefaultStats } from "@/utils/coreStats";
 import type { ActorSnapshot } from "@/simulation/state/types.ts";
+import { isUltimateLikeAction } from "./types";
 
 function normalizeTracks(tracks: ScenarioTrack[]): ScenarioTrack[] {
   return tracks.map((track) => {
@@ -18,7 +19,6 @@ function normalizeTracks(tracks: ScenarioTrack[]): ScenarioTrack[] {
     track.stats = { ...baseStats, ...track.stats };
     track.acceptTeamGauge = track.acceptTeamGauge !== false;
     track.actions = (track.actions || []).map((action) => normalizeAction(action));
-
     return track;
   });
 }
@@ -26,9 +26,11 @@ function normalizeTracks(tracks: ScenarioTrack[]): ScenarioTrack[] {
 function normalizeAction(action: Action): Action {
   return {
     ...action,
-    damageTicks: (action.damageTicks || []).map((tick) => ({
-      ...tick,
-      spKind: tick.spKind || "recover",
+    hits: (action.hits || []).map((hit) => ({
+      ...hit,
+      spRecovery: Number(hit.spRecovery) || 0,
+      spReturn: Number(hit.spReturn) || 0,
+      stagger: Number(hit.stagger) || 0,
     })),
   };
 }
@@ -38,8 +40,15 @@ function resolveTrackMaxGauge(track: ScenarioTrack) {
     return Number(track.maxGaugeOverride);
   }
 
+  const intrinsicMaxGauge = Number(
+    track.maxUltimateGauge ?? track.ultimate_gaugeMax,
+  );
+  if (intrinsicMaxGauge > 0) {
+    return intrinsicMaxGauge;
+  }
+
   const ultimateAction = (track.actions || []).find(
-    (action) => action.type === "ultimate" && Number(action.gaugeCost) > 0,
+    (action) => isUltimateLikeAction(action) && Number(action.gaugeCost) > 0,
   );
 
   return Math.max(1, Number(ultimateAction?.gaugeCost) || 100);
@@ -51,12 +60,18 @@ function processActors(tracks: ScenarioTrack[]): ActorSnapshot[] {
     .map((track) => {
       return {
         id: track.id,
+        element: (track as any).element,
         stats: track.stats,
+        baseStats: track.baseStats ?? null,
+        triggerEffects: track.triggerEffects || [],
         acceptTeamGauge: track.acceptTeamGauge !== false,
+        acceptTeamUltEnergy: track.acceptTeamGauge !== false,
+        ultimateEnergyCostOverride: track.maxGaugeOverride ?? null,
         resources: {
           hp: track.stats.hp,
           gauge: track.initialGauge,
           maxGauge: resolveTrackMaxGauge(track),
+          ultimateEnergy: track.initialGauge,
         },
         cooldowns: new Map(),
         activeBuffs: new Map(),
@@ -99,6 +114,8 @@ const DEFAULT_SYSTEM_CONSTANTS: SystemConstants = {
   staggerNodeDuration: 2,
   staggerBreakDuration: 10,
   executionRecovery: 25,
+  defense: 100,
+  tier: "normal",
 };
 
 export function compileScenario(
@@ -108,10 +125,9 @@ export function compileScenario(
   }: {
     systemConstants?: Partial<SystemConstants>;
     db?: GameDatabase;
-  } = {}
+  } = {},
 ): CompiledScenario {
   const { actions, actors } = normalizeScenario(scenario);
-
   const compiledTimeline = compileTimeline(actions, scenario.connections);
 
   const mergedSystemConstants = {
@@ -137,6 +153,18 @@ export function compileScenario(
       staggerNodeDuration: mergedSystemConstants.staggerNodeDuration,
       staggerBreakDuration: mergedSystemConstants.staggerBreakDuration,
       executionRecovery: mergedSystemConstants.executionRecovery,
+      finisherRecovery: mergedSystemConstants.executionRecovery,
+      finisherMultiplier:
+        (mergedSystemConstants as any).finisherMultiplier ??
+        (mergedSystemConstants.tier === "boss"
+          ? 1.75
+          : mergedSystemConstants.tier === "elite"
+            ? 1.5
+            : mergedSystemConstants.tier === "advanced"
+              ? 1.25
+              : 1),
+      defense: mergedSystemConstants.defense,
+      tier: mergedSystemConstants.tier,
     },
     systemConstants: mergedSystemConstants,
   };

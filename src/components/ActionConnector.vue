@@ -4,6 +4,7 @@ import ConnectionPath from './ConnectionPath.vue'
 import { useTimelineStore } from '../stores/timelineStore.js'
 import { useDragConnection } from '../composables/useDragConnection.js'
 import { PORT_DIRECTIONS } from '@/utils/layoutUtils.js'
+import { toLegacyDisplayType } from '@/utils/hitModel.js'
 
 const props = defineProps({
   connection: { type: Object, required: true },
@@ -49,27 +50,33 @@ const isDimmed = computed(() => {
   return store.hoveredActionId && !isRelatedToHover.value && !isSelected.value && !connectionHandler.isDragging.value
 })
 
-const getTrackIndexByNodeId = (nodeId) => {
+const getTrackInfoByNodeId = (nodeId) => {
   const info = store.resolveNode(nodeId)
-  if (!info) return null
-  if (info.type === 'action' || info.type === 'status') {
-    return Number.isInteger(info.trackIndex) ? info.trackIndex : null
+  if (!info) return { trackIndex: null, type: null }
+  if (info.type === 'action') {
+    return {
+      trackIndex: Number.isInteger(info.trackIndex) ? info.trackIndex : null,
+      type: info.type,
+    }
   }
   if (info.type === 'effect') {
     const actionWrap = store.getActionById(info.actionId)
-    return Number.isInteger(actionWrap?.trackIndex) ? actionWrap.trackIndex : null
+    return {
+      trackIndex: Number.isInteger(actionWrap?.trackIndex) ? actionWrap.trackIndex : null,
+      type: info.type,
+    }
   }
-  return null
+  return { trackIndex: null, type: info.type }
 }
 
 const isConnectionVisible = computed(() => {
   const fromId = getEndpointId(props.connection, 'from')
   const toId = getEndpointId(props.connection, 'to')
-  const fromTrackIndex = fromId ? getTrackIndexByNodeId(fromId) : null
-  const toTrackIndex = toId ? getTrackIndexByNodeId(toId) : null
+  const fromInfo = fromId ? getTrackInfoByNodeId(fromId) : { trackIndex: null, type: null }
+  const toInfo = toId ? getTrackInfoByNodeId(toId) : { trackIndex: null, type: null }
 
-  if (fromTrackIndex !== null && !store.isOperatorEffectsVisible(fromTrackIndex)) return false
-  if (toTrackIndex !== null && !store.isOperatorEffectsVisible(toTrackIndex)) return false
+  if (fromInfo.type === 'effect' && fromInfo.trackIndex !== null && !store.isOperatorEffectsVisible(fromInfo.trackIndex)) return false
+  if (toInfo.type === 'effect' && toInfo.trackIndex !== null && !store.isOperatorEffectsVisible(toInfo.trackIndex)) return false
   return true
 })
 
@@ -81,7 +88,6 @@ const getTrackCenterY = (trackIndex) => {
 
 const resolveColor = (info, effectId) => {
   if (!info) return store.getColor('default')
-  if (info.type === 'status') return info.node?.color || store.getColor('default')
 
   if (info.type === 'effect') {
     const effectType = info.node?.type
@@ -91,15 +97,19 @@ const resolveColor = (info, effectId) => {
   const { node: action, trackIndex } = info
   if (!action) return store.getColor('default')
 
-  if (action.type === 'link') return store.getColor('link')
-  if (action.type === 'execution') return store.getColor('execution')
-  if (action.type === 'attack') return store.getColor('physical')
+  const displayType = toLegacyDisplayType(action.type)
+  if (displayType === 'link') return store.getColor('link')
+  if (displayType === 'execution') return store.getColor('execution')
+  if (displayType === 'attack') return store.getColor('attack')
+  if (displayType === 'dodge') return store.getColor('dodge')
+  if (displayType === 'skill') return store.getColor('skill')
+  if (displayType === 'ultimate') return store.getColor('ultimate')
   if (action.element) return store.getColor(action.element)
   if (trackIndex !== undefined && trackIndex !== null) {
     const track = store.tracks[trackIndex]
     if (track && track.id) return store.getCharacterElementColor(track.id)
   }
-  return store.getColor(action.type)
+  return store.getColor(displayType || action.type)
 }
 
 function onContextMenu(evt) {
@@ -125,16 +135,6 @@ const getRectByNodeId = (nodeId, { connection = null, isSource = false } = {}) =
       if (transferLayout?.rect) return transferLayout.rect
     }
     const layout = store.effectLayouts.get(nodeId)
-    return layout?.rect || null
-  }
-
-  if (info.type === 'status') {
-    if (isSource && connection?.isConsumption) {
-      const transferId = `${nodeId}_transfer`
-      const transferLayout = store.statusNodeRects.get(transferId)
-      if (transferLayout?.rect) return transferLayout.rect
-    }
-    const layout = store.statusNodeRects.get(nodeId)
     return layout?.rect || null
   }
 
@@ -188,17 +188,6 @@ const calculatePoint = (nodeId, isSource, connection = null) => {
     return {
       x: t * store.timeBlockWidth,
       y: getTrackCenterY(actionWrap?.trackIndex ?? 0),
-      dir: isSource ? PORT_DIRECTIONS.right : PORT_DIRECTIONS.left
-    }
-  }
-
-  if (info.type === 'status') {
-    const trackIndex = info.trackIndex
-    const y = getTrackCenterY(trackIndex) + 20
-    const t = Number(info.node?.startTime) || 0
-    return {
-      x: t * store.timeBlockWidth,
-      y,
       dir: isSource ? PORT_DIRECTIONS.right : PORT_DIRECTIONS.left
     }
   }

@@ -4,6 +4,7 @@ import { useTimelineStore } from '../stores/timelineStore.js'
 import ConnectionPath from './ConnectionPath.vue'
 import { useDragConnection } from '@/composables/useDragConnection.js'
 import { PORT_DIRECTIONS } from '@/utils/layoutUtils.js'
+import { toLegacyDisplayType } from '@/utils/hitModel.js'
 
 const props = defineProps({})
 const store = useTimelineStore()
@@ -45,10 +46,13 @@ const mousePoint = computed(() => {
 })
 
 function getActionColor(action) {
-  if (action.type === 'link') return store.getColor('link')
-  if (action.type === 'execution') return store.getColor('execution')
-  if (action.type === 'attack') return store.getColor('physical')
-  if (action.type === 'dodge') return store.getColor('dodge')
+  const displayType = toLegacyDisplayType(action?.type)
+  if (displayType === 'link') return store.getColor('link')
+  if (displayType === 'execution') return store.getColor('execution')
+  if (displayType === 'attack') return store.getColor('attack')
+  if (displayType === 'dodge') return store.getColor('dodge')
+  if (displayType === 'skill') return store.getColor('skill')
+  if (displayType === 'ultimate') return store.getColor('ultimate')
   if (action.element) return store.getColor(action.element)
   return store.getColor('default')
 }

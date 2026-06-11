@@ -1,16 +1,74 @@
 import type { TeamConfig, EnemyConfig, ActorSnapshot } from "./state/types.ts";
 import { createEngine } from "./engine/createEngine.ts";
 import type { ResolvedTimeline } from "./compiler/types.ts";
-import { SCNEARIO_EFFECT_TYPE_MAP } from "./effects/scenarioAdapter.ts";
-import { AfflictionEffectMap } from "./effects/afflictionEffectMap.ts";
+import type { TriggerRegistry } from "./engine/TriggerRegistry";
+import type { OperatorStat } from "@/data/types";
+import type { BaseStatValues } from "@/data/stats/types";
+
+export interface InitialEffect {
+  targetTrackId: string;
+  id: string;
+  stat?: OperatorStat;
+  value: number;
+  sourceId: string;
+  effect?: any;
+  stacks?: number;
+  maxStacks?: number;
+  stackStrategy?: "REFRESH_DURATION" | "INDEPENDENT" | "REPLACE";
+}
+
+interface SimulationOptions {
+  triggerRegistry?: TriggerRegistry;
+  consumedStacksWriteKeys?: Set<string>;
+  initialEffects?: InitialEffect[];
+  baseStatsByTrack?: Map<string, BaseStatValues>;
+  enemyDef?: number;
+  endlineTime?: number;
+  lmdiAttributionMode?: "stacks" | "applier";
+}
 
 export function simulate(
   timeline: ResolvedTimeline,
   teamConfig: TeamConfig,
   enemyConfig: EnemyConfig,
   actors: ActorSnapshot[],
+  triggerRegistry?: TriggerRegistry,
+  consumedStacksWriteKeys?: Set<string>,
+  options: SimulationOptions = {},
 ) {
-  const engine = createEngine(teamConfig, enemyConfig, actors, timeline);
+  const activeTriggerRegistry = triggerRegistry ?? options.triggerRegistry;
+  const initialEffects = options.initialEffects ?? [];
+
+  const engine = createEngine(teamConfig, enemyConfig, actors, timeline, activeTriggerRegistry);
+  if (consumedStacksWriteKeys || options.consumedStacksWriteKeys) {
+    engine.consumedStacksWriteKeys = consumedStacksWriteKeys ?? options.consumedStacksWriteKeys!;
+  }
+  if (options.baseStatsByTrack) engine.baseStatsByTrack = options.baseStatsByTrack;
+  if (options.enemyDef !== undefined) engine.enemyDef = options.enemyDef;
+  if (options.endlineTime !== undefined) engine.endlineTime = options.endlineTime;
+  if (options.lmdiAttributionMode !== undefined) {
+    engine.lmdiAttributionMode = options.lmdiAttributionMode;
+  }
+
+  initialEffects.forEach((effect) => {
+    if (!effect?.targetTrackId || !effect.id) return;
+    engine.enqueue({
+      type: "OPERATOR_EFFECT_APPLY",
+      time: 0,
+      targetTrackId: effect.targetTrackId,
+      id: effect.id,
+      stat: effect.stat,
+      value: Number(effect.value) || 0,
+      stacks: Math.max(1, Number(effect.stacks) || 1),
+      maxStacks: Math.max(1, Number(effect.maxStacks) || 1),
+      expiresAt: Infinity,
+      sourceId: effect.sourceId,
+      effect: effect.effect ?? ({ kind: "status", id: effect.id, hide: true } as any),
+      stackStrategy: effect.stackStrategy,
+      silent: true,
+    });
+  });
+
   const actorIds = actors.map((actor) => actor.id);
 
   timeline.actions.forEach((action) => {
@@ -18,7 +76,7 @@ export function simulate(
       type: "ACTION_START",
       time: action.realStartTime,
       payload: {
-        skillId: action.node.id || "",
+        skillId: action.node.skillId || action.node.id || "",
         actionId: action.id,
         spCost: action.node.spCost,
         actorId: action.trackId,
@@ -27,114 +85,100 @@ export function simulate(
       },
     });
 
-    if (action.node.gaugeCost > 0) {
+    if (Number(action.node.gaugeCost) > 0) {
       engine.enqueue({
-        type: "ULTIMATE_CHARGE_CHANGE",
+        type: "ULT_ENERGY_CHANGE",
         time: action.realStartTime,
         payload: {
           actorId: action.trackId,
-          sourceActorId: action.trackId,
-          actionId: action.id,
-          change: -action.node.gaugeCost,
-          reason: `${action.node.type}_cost`,
+          change: -Number(action.node.gaugeCost),
           sourceId: action.id,
         },
       });
     }
 
+    const optimisticExtension = action.resolvedHits.reduce(
+      (sum, hit) => sum + (Number(hit.durationExtension) || 0),
+      0,
+    );
+    const actionEndTime = action.realStartTime + action.realDuration + optimisticExtension;
+
     engine.enqueue({
       type: "ACTION_END",
-      time: action.realStartTime + action.realDuration,
+      time: actionEndTime,
       payload: {
-        skillId: action.node.id || "",
+        skillId: action.node.skillId || action.node.id || "",
         actionId: action.id,
-        spGain: action.node.spGain,
-        spGainKind: action.node.spGainKind,
         actorId: action.trackId,
         type: action.node.type,
       },
     });
 
-    if (action.node.gaugeGain > 0) {
+    if (Number(action.node.spGain) > 0) {
       engine.enqueue({
-        type: "ULTIMATE_CHARGE_CHANGE",
+        type: "SP_CHANGE",
+        time: actionEndTime,
+        payload: {
+          actorId: action.trackId,
+          spChange: Number(action.node.spGain) || 0,
+          reason: "skill",
+          sourceId: action.id,
+          parent: null as any,
+          spType: action.node.spGainKind === "refund" ? "return" : "recovery",
+          skillType: action.node.type,
+          skillId: action.node.skillId || action.node.id,
+        },
+      });
+    }
+
+    if (Number(action.node.gaugeGain) > 0) {
+      engine.enqueue({
+        type: "ULT_ENERGY_CHANGE",
         time: action.realStartTime + action.realDuration,
         payload: {
           actorId: action.trackId,
-          sourceActorId: action.trackId,
-          actionId: action.id,
-          change: action.node.gaugeGain,
-          reason: `${action.node.type}_gain`,
+          change: Number(action.node.gaugeGain) || 0,
           sourceId: action.id,
         },
       });
     }
 
-    if (action.node.teamGaugeGain > 0) {
+    if (Number(action.node.teamGaugeGain) > 0) {
       actorIds.forEach((actorId) => {
         engine.enqueue({
-          type: "ULTIMATE_CHARGE_CHANGE",
+          type: "ULT_ENERGY_CHANGE",
           time: action.realStartTime + action.realDuration,
           payload: {
             actorId,
-            sourceActorId: action.trackId,
-            actionId: action.id,
-            change: action.node.teamGaugeGain,
-            reason: `${action.node.type}_team_gain`,
+            change: Number(action.node.teamGaugeGain) || 0,
             sourceId: action.id,
-            isTeamGain: true,
           },
         });
       });
     }
 
-    action.resolvedDamageTicks.forEach((tick) => {
+    action.resolvedHits.forEach((hit) => {
       engine.enqueue({
-        type: "DAMAGE_TICK",
-        time: tick.realTime,
+        type: "DAMAGE_HIT",
+        time: hit.realTime,
         payload: {
           sourceId: action.trackId,
           targetId: "boss",
-          damage: 0,
-          stagger: tick.stagger,
-          tickData: tick,
+          stagger: hit.stagger,
+          hitData: hit,
           actionId: action.id,
-        },
-      });
-    });
-
-    action.effects.forEach((resolvedEffect) => {
-      const tag =
-        SCNEARIO_EFFECT_TYPE_MAP[
-          resolvedEffect.node.type as keyof typeof SCNEARIO_EFFECT_TYPE_MAP
-        ];
-
-      if (!tag) {
-        return;
-      }
-
-      const effect = AfflictionEffectMap[tag];
-      effect.startTime = resolvedEffect.realStartTime;
-
-      engine.enqueue({
-        type: "EFFECT_START",
-        time: effect.startTime,
-        payload: {
-          actorId: action.trackId,
-          actionId: action.id,
-          targetId: "boss",
-          effect: effect.snapshot(),
         },
       });
     });
   });
 
-  const state = engine.run();
-
-  const simLog = engine.getSimLog();
+  const { state, actionEndTimes } = engine.run();
 
   return {
     state,
-    simLog,
+    simLog: engine.getSimLog(),
+    enemyLog: engine.getEnemyLog(),
+    operatorLog: engine.getOperatorLog(),
+    actionEndTimes,
   };
 }

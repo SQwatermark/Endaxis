@@ -8,12 +8,14 @@
     "copy": "Копировать",
     "delete": "Удалить",
     "default": "По умолчанию",
+    "edit": "Изменить",
     "export": "Экспорт",
     "all": "все",
     "language": "Язык",
     "load": "Загрузить",
     "moveDown": "Переместить вниз",
     "moveUp": "Переместить вверх",
+    "max": "Макс.",
     "new": "new",
     "noneParen": "(нет)",
     "off": "off",
@@ -22,6 +24,7 @@
     "paste": "Вставить",
     "receive": "Импорт",
     "reset": "Сброс",
+    "replace": "Заменить",
     "type": "Тип",
     "triggerTime": "Активация",
     "stacks": "Стаки",
@@ -49,7 +52,7 @@
     "types": {
       "ACTION_START": "Начало действия",
       "ACTION_END": "Конец действия",
-      "DAMAGE_TICK": "Урон",
+      "DAMAGE_HIT": "Урон",
       "SP_CHANGE": "Изменение SP",
       "SP_REGEN_PAUSE": "Пауза восстановления SP",
       "ULTIMATE_CHARGE_CHANGE": "Заряд ульты",
@@ -57,7 +60,8 @@
       "EFFECT_START": "Начало эффекта",
       "EFFECT_END": "Конец эффекта",
       "REACTION_OCCURRED": "Реакция",
-      "EFFECT_APPLIED": "Применение эффекта"
+      "EFFECT_APPLIED": "Применение эффекта",
+      "ULT_ENERGY_CHANGE": "Заряд ульты"
     },
     "ui": {
       "filtered": "Записей",
@@ -107,12 +111,41 @@
       "PHYSICAL_CRUSH": "Сокрушение",
       "PHYSICAL_BREACH": "Пробой брони"
     }
-  },  "locale": {
+  },
+  "locale": {
     "en": "English",
     "ru": "Русский",
     "zhCN": "简体中文"
   },
   "timeline": {
+    "analysis": {
+      "button": "Анализ",
+      "tooltip": "Показать анализ урона текущей шкалы",
+      "dialogTitle": "Анализ урона",
+      "damageByOperator": "Урон по операторам",
+      "damageByElement": "Урон по типам",
+      "totalDamage": "Общий урон",
+      "rotationTime": "Время ротации",
+      "dps": "DPS",
+      "noData": "Нет данных урона. Сначала добавьте действия на шкалу.",
+      "contributionByOperator": "Вклад операторов",
+      "lmdiModeStacks": "По стакам",
+      "lmdiModeStacksTip": "Вклад пробития, электрификации и коррозии делится между триггером и источниками стаков.",
+      "lmdiModeApplier": "По применившему",
+      "lmdiModeApplierTip": "Вклад пробития, электрификации и коррозии полностью получает оператор, вызвавший реакцию.",
+      "damage": "Урон",
+      "buff": "Бафф",
+      "warning": "Анализ урона предназначен только для оптимизации команды.",
+      "faqTitle": "FAQ",
+      "faq1Q": "Почему урон отличается от игры?",
+      "faq1A": "Симуляция строго следует правилу: сначала удар, затем эффект. Урон не получает выгоду от эффектов, которые он накладывает, но получает выгоду от уже существующих или потребляемых эффектов.\n\nКроме того, игра округляет отображаемые числа, а внутренние данные не всегда целые. Симулятор округляет вниз.\n\nЭто всего лишь симуляция.",
+      "faq2Q": "Какие есть ограничения расчета?",
+      "faq2A": "Эффекты, срабатывающие при критическом ударе, трудно корректно моделировать в статическом анализе. Сейчас они обрабатываются как эффекты при попадании, поэтому расчетный урон может быть немного выше фактического.",
+      "faq3Q": "Как считается вклад?",
+      "faq3A": "Используется LMDI (Logarithmic Mean Divisia Index).\nТак как формула урона мультипликативна, LMDI раскладывает урон каждого удара на вклад операторов без остатка.\nДля физических и arts-реакций урон и эффекты распределяются по источникам наложений и стаков уязвимости.\nДля ошеломления бонус множителя распределяется по вкладу операторов в шкалу ошеломления.",
+      "faq4Q": "Кто самый сложный оператор?",
+      "faq4A": "Pogranichnik."
+    },
     "export": {
       "copyCode": "Копировать дата-код",
       "dialogTitle": "Настройки экспорта",
@@ -293,6 +326,7 @@
       "boxSelect": "Рамка (Ctrl+B)",
       "connectionTool": "Связи (Alt+L)",
       "cursorGuide": "Направляющие (Ctrl+G)",
+      "fullUltimateEnergy": "Полная энергия ульты",
       "snapPrecision": "Точность привязки (Alt+S)"
     },
     "track": {
@@ -311,6 +345,11 @@
     }
   },
   "actionLibrary": {
+    "buttons": {
+      "editInstance": "Изм. экземпляр",
+      "editWeapon": "Изм. оружие",
+      "editItem": "Изм. предмет"
+    },
     "fallback": {
       "noEquip": "Нет снаряжения",
       "noOperator": "Нет ОП",
@@ -324,6 +363,8 @@
     "labels": {
       "initialCharge": "Начальные ОН",
       "maxCharge": "Макс. ОН",
+      "armoryInstance": "Привязка экземпляра",
+      "derivedStatus": "Производные параметры",
       "chargeEfficiency": "Восстановление суперэнергии",
       "linkCdReduction": "Откат комбонавыка",
       "originiumArtsPower": "Сила искусств",
@@ -342,6 +383,9 @@
     },
     "hints": {
       "noRefineNon70": "Без доработки до 70 ур.",
+      "instanceReady": "ГОТОВО",
+      "instancePending": "ОЖИДАНИЕ",
+      "awaitingDerivedStatus": "Ожидание привязки экземпляра и расчета параметров",
       "dragWeaponBuff": "Перетащите бафф оружия на дорожку. Позиция = время начала",
       "dragSetBuff": "Перетащите бафф сета на дорожку. Позиция = время начала",
       "clickOrDrag": "Нажмите для ред. знач. / Перетащите для расп. на таймлайне"
@@ -355,6 +399,37 @@
       "setNeedEquip": "Сначала экипируйте любую броню",
       "weapon": "ОРУЖ",
       "weaponNeedSelect": "Выберите оружие для текущего ОП"
+    }
+  },
+  "armory": {
+    "common": {
+      "level": "Уровень",
+      "potential": "Потенциал",
+      "skills": "Навыки",
+      "talents": "Таланты",
+      "trust": "Доверие",
+      "group": "Группа {index}",
+      "baseAtk": "Баз. ATK",
+      "defense": "Защита",
+      "artificing": "Доработка",
+      "requireLevel70": "Нужен Lv70",
+      "susceptibility": "Уязвимость"
+    },
+    "operator": {
+      "promote": "Повысить",
+      "promoted": "Повышен",
+      "fullyPromoted": "Макс. повышение",
+      "promotionLocked": "Повышение недоступно",
+      "talent": "Талант {index}"
+    },
+    "weapon": {
+      "tune": "Настроить",
+      "tuned": "Настроено",
+      "fullyTuned": "Макс. настройка",
+      "tuningLocked": "Настройка недоступна",
+      "skill1": "Навык 1",
+      "skill2": "Навык 2",
+      "skill3": "Навык 3"
     }
   },
   "skillType": {
@@ -450,7 +525,11 @@
       "frozen": "Застывание",
       "ice_shatter": "Раскол",
       "corrosion": "Коррозия",
-      "default": "По умолчанию"
+      "wolvenBlood": "Волчья кровь",
+      "default": "По умолчанию",
+      "ultEnergyGain": "Получение энергии ульты",
+      "spRecovery": "Восстановление SP",
+      "spReturn": "Возврат SP"
     }
   },
   "propertiesPanel": {
@@ -553,6 +632,30 @@
       "empty": "Враги не найдены"
     }
   },
+  "statDetail": {
+    "button": "Параметры",
+    "title": "{name} - параметры",
+    "attributes": "Атрибуты",
+    "stats": "Параметры",
+    "main": "осн.",
+    "sub": "поб.",
+    "basicTotal": "Базовая сумма",
+    "baseAtk": "Базовая атака",
+    "operatorAtk": "Атака оператора",
+    "weaponAtk": "Атака оружия",
+    "atkBonus": "Бонус атаки",
+    "flatAtk": "Фикс. атака",
+    "percentageAtk": "Проц. атака",
+    "attributeBonus": "Бонус атрибутов",
+    "fromSource": "от {name}",
+    "baseHp": "Базовые ОЗ",
+    "operatorHp": "ОЗ оператора",
+    "hpFromStrength": "ОЗ от силы",
+    "otherHp": "Другое",
+    "hpPercent": "ОЗ%",
+    "flatHp": "Фикс.",
+    "defense": "Защита"
+  },
   "stats": {
     "primary_ability": "Основной показатель",
     "secondary_ability": "Побочный показатель",
@@ -581,8 +684,61 @@
     "ult_charge_eff": "Скорость накопления суперэнергии",
     "link_cd_reduction": "КД комбонавыка"
   },
+  "hitDetail": {
+    "title": "Детали урона",
+    "context": "Контекст",
+    "result": "Результат",
+    "base": "База",
+    "multipliers": "Множители",
+    "reactionType": "Реакция",
+    "skillType": "Тип навыка",
+    "element": "Элемент",
+    "triggeredBy": "Источник",
+    "expectedDamage": "Ожидаемый урон",
+    "forcedDamage": "Урон принуд. крита",
+    "forceCrit": "Принуд. крит",
+    "critDamage": "Крит. урон",
+    "nonCritDamage": "Некрит. урон",
+    "attack": "Атака",
+    "multiplier": "Множитель навыка",
+    "baseDamage": "Базовый урон",
+    "critRateScale": "Масштаб шанса крита",
+    "critRateScaleTooltip": "Этот удар использует дополнительный масштаб шанса крита.",
+    "dmgBonus": "Бонус урона",
+    "critMult": "Крит. ожидание",
+    "ampBonus": "Бонус усиления",
+    "directMult": "Прямой множитель",
+    "susceptibility": "Уязвимость",
+    "dmgTaken": "Получаемый урон",
+    "link": "Бонус комбо",
+    "linkDetail": "{stacks} стаков",
+    "defMult": "Модификатор защиты",
+    "defDetail": "Защита {def}",
+    "resMult": "Модификатор сопр.",
+    "staggerMult": "Модификатор ошеломления",
+    "finisherMult": "Модификатор добивания",
+    "levelCoeff": "Коэф. уровня",
+    "levelCoeffDetail": "Уровень {level}",
+    "artsIntensity": "Сила искусств",
+    "artsIntensityDetail": "{value} ед.",
+    "effectiveness": "Эффективность",
+    "reaction": {
+      "electrification": "Электрификация",
+      "corrosion": "Коррозия",
+      "combustion": "Горение",
+      "combustion_dot": "Периодический урон горения",
+      "solidification": "Заморозка",
+      "shatter": "Разбитие",
+      "artsBurst": "Элементальный взрыв",
+      "knockdown": "Опрокидывание",
+      "lift": "Подброс",
+      "breach": "Пробитие",
+      "crush": "Сокрушение"
+    }
+  },
   "actionItem": {
     "tickTooltip": "Время: {time}\nОшеломление: {stagger}\nОН {spKind}: {sp}",
+    "damageHitTooltip": "Урон: {damage}",
     "lockedTitle": "Заблокировано",
     "disabledTitle": "Отключено"
   }

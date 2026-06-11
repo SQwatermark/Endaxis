@@ -1,0 +1,182 @@
+<script setup>
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { getGearPiece, getQualityTier } from '@/data'
+import {
+  getGameAttributeName,
+  getGameQualityName,
+  getGameSlotTypeName,
+  getGearPieceGameName,
+  getGearSetGameName,
+} from '@/data/gameText'
+import { resolveLeveled } from '@/data/types'
+import { useGearStore } from '@/stores/gearStore'
+import { qualityColors } from '@/utils/theme'
+
+const props = defineProps({
+  instance: { type: Object, default: null },
+  visible: { type: Boolean, default: false },
+})
+
+const emit = defineEmits(['update:visible'])
+
+const gearStore = useGearStore()
+const { t } = useI18n()
+
+const piece = computed(() => (props.instance ? getGearPiece(props.instance.gearPieceId) : null))
+const quality = computed(() => (piece.value ? getQualityTier(piece.value.levelRequirement) : 'green'))
+const isGold = computed(() => quality.value === 'gold')
+const color = computed(() => qualityColors[quality.value] ?? '#888')
+
+const skillSlots = computed(() => {
+  const currentPiece = piece.value
+  if (!currentPiece) return []
+  return [currentPiece.skill1, currentPiece.skill2, currentPiece.skill3]
+    .filter(Boolean)
+    .map(skill => (skill.effects || []).filter(effect => effect.kind === 'status'))
+})
+
+function formatStatLabel(effect) {
+  const stat = effect?.stat
+  if (!stat) return t('common.unknown')
+  if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
+    return stat.attribute ? getGameAttributeName(stat.attribute) : t('common.unknown')
+  }
+  if (stat.modifier === 'atkFlat' || stat.modifier === 'atkPercent') return t('stats.attack')
+  if (stat.modifier === 'hpPercent' || stat.modifier === 'flatHp') return t('stats.hp')
+  if (stat.modifier === 'flatDef') return t('armory.common.defense')
+  if (stat.modifier === 'critRate') return t('stats.crit_rate')
+  if (stat.modifier === 'critDmg') return t('stats.crit_dmg')
+  if (stat.modifier === 'artsIntensity') return t('actionLibrary.labels.originiumArtsPower')
+  if (stat.modifier === 'ultimateGainEfficiency') return t('actionLibrary.labels.chargeEfficiency')
+  if (stat.modifier === 'susceptibility') return t('armory.common.susceptibility')
+  return stat.modifier
+}
+
+function update(updates) {
+  if (props.instance) gearStore.updateGear(props.instance.id, updates)
+}
+
+function maxOut() {
+  if (!props.instance || !piece.value || !isGold.value) return
+  update({ artificingLevels: skillSlots.value.map(() => 3) })
+}
+
+function setArtificingLevel(slotIdx, slotLevel) {
+  if (!props.instance || !isGold.value) return
+  const current = props.instance.artificingLevels[slotIdx] ?? 0
+  const nextLevel = slotLevel === current ? slotLevel - 1 : slotLevel
+  const levels = [...(props.instance.artificingLevels ?? [])]
+  while (levels.length <= slotIdx) levels.push(0)
+  levels[slotIdx] = nextLevel
+  update({ artificingLevels: levels })
+}
+
+function slotClass(slotIdx, slotLevel) {
+  const current = props.instance?.artificingLevels[slotIdx] ?? 0
+  return slotLevel <= current ? 'slot-active' : 'slot-empty'
+}
+
+function formatStatValue(value) {
+  if (typeof value === 'number' && value < 1 && value > 0) return `${(value * 100).toFixed(1)}%`
+  return String(value)
+}
+</script>
+
+<template>
+  <el-dialog
+    :model-value="visible"
+    width="560px"
+    append-to-body
+    class="armory-dialog"
+    @update:model-value="emit('update:visible', $event)"
+  >
+    <template v-if="instance && piece">
+      <div class="layout">
+        <div class="header">
+          <div class="portrait-frame" :style="{ borderColor: color }">
+            <img :src="piece.icon" class="portrait" />
+          </div>
+          <div class="header-info">
+            <div class="name">{{ getGearPieceGameName(instance.gearPieceId) || instance.gearPieceId }}</div>
+            <div class="tags">
+              <span class="tag" :style="{ color, borderColor: color }">{{ getGameQualityName(quality) }}</span>
+              <span class="tag">{{ getGameSlotTypeName(piece.slotType) }}</span>
+              <span v-if="piece.setSlug" class="tag">{{ getGearSetGameName(piece.setSlug) }}</span>
+            </div>
+            <div v-if="piece.defense" class="row">
+              <span class="section-label">{{ t('armory.common.defense') }}</span>
+              <span class="value">{{ piece.defense }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">{{ t('armory.common.artificing') }}</div>
+          <div v-for="(slot, slotIdx) in skillSlots" :key="slotIdx" class="stat-row">
+            <div class="stat-info">
+              <span class="stat-name">
+                {{ formatStatLabel(slot[0]) }}
+                <span v-if="slot[0]" class="stat-value-inline">
+                  +{{ formatStatValue(resolveLeveled(slot[0].value, instance.artificingLevels[slotIdx] ?? 0)) }}
+                </span>
+              </span>
+            </div>
+            <div v-if="isGold" class="stat-bar-area">
+              <div class="stat-slots">
+                <button
+                  v-for="artSlot in 3"
+                  :key="artSlot"
+                  class="art-slot"
+                  :class="slotClass(slotIdx, artSlot)"
+                  @click="setArtificingLevel(slotIdx, artSlot)"
+                >
+                  <template v-if="slotClass(slotIdx, artSlot) === 'slot-empty'">&nbsp;</template>
+                  <template v-else>/</template>
+                </button>
+              </div>
+              <span class="stat-level">{{ instance.artificingLevels[slotIdx] ?? 0 }}/3</span>
+            </div>
+            <div v-else class="stat-locked">{{ t('armory.common.requireLevel70') }}</div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #footer>
+      <div class="footer">
+        <button v-if="isGold" class="ea-btn ea-btn--sm ea-btn--hover-gold-fill" @click="maxOut">{{ t('common.max') }}</button>
+        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">{{ t('common.close') }}</button>
+      </div>
+    </template>
+  </el-dialog>
+</template>
+
+<style scoped>
+.layout { display: flex; flex-direction: column; gap: 20px; }
+.header { display: flex; gap: 20px; align-items: flex-start; }
+.portrait-frame { width: 100px; min-width: 100px; height: 100px; border-radius: 8px; border: 2px solid #555; overflow: hidden; background: #1a1a1e; display: flex; align-items: center; justify-content: center; }
+.portrait { width: 80%; height: 80%; object-fit: contain; }
+.header-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.name { font-size: 20px; font-weight: 700; color: #f0f0f0; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; font-size: 11px; border: 1px solid #555; border-radius: 3px; color: #bbb; background: rgba(255,255,255,0.04); }
+.row { display: flex; align-items: center; gap: 8px; }
+.section-label { font-size: 11px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+.value { font-size: 16px; font-weight: 700; color: #f0f0f0; }
+.section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 16px; }
+.section-title { font-size: 11px; font-weight: 700; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+.stat-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.stat-row:last-child { border-bottom: none; }
+.stat-info { flex: 1; min-width: 0; }
+.stat-name { font-size: 13px; font-weight: 600; color: #e0e0e0; }
+.stat-value-inline { font-weight: 400; color: #aaa; margin-left: 6px; }
+.stat-bar-area { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.stat-slots { display: flex; gap: 3px; }
+.art-slot { width: 22px; height: 22px; border: none; border-radius: 2px; font-size: 14px; font-weight: 700; line-height: 22px; text-align: center; padding: 0; font-family: 'Roboto Mono', monospace; }
+.art-slot.slot-active { background: rgba(234,179,8,0.25); color: #eab308; cursor: pointer; }
+.art-slot.slot-empty { background: rgba(255,255,255,0.04); color: transparent; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+.stat-level { font-size: 13px; font-weight: 700; color: #ccc; min-width: 24px; text-align: right; font-family: 'Roboto Mono', monospace; }
+.stat-locked { color: #777; font-size: 12px; }
+.footer { display: flex; justify-content: flex-end; gap: 8px; width: 100%; }
+</style>

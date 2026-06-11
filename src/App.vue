@@ -9,7 +9,7 @@ const { locale } = useI18n({ useScope: 'global' })
 const elementLocale = computed(() => getElementPlusLocale(locale.value))
 
 onMounted(async () => {
-  // 1. 先加载基础游戏数据 (gamedata.json)
+  // 1. 先初始化基础游戏数据
   await store.fetchGameData()
 
   // 2. 尝试读取浏览器缓存

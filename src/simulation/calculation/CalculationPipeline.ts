@@ -39,9 +39,10 @@ export const OriginiumArtsModifier: ModifierFn<StaggerContext> = (
   ctx,
   result,
 ) => {
+  const effects = (ctx.target as any).effects;
   const hasKnock =
-    ctx.target.effects.hasTag("PHYSICAL_LIFT") ||
-    ctx.target.effects.hasTag("PHYSICAL_KNOCK_DOWN");
+    effects?.hasTag?.("PHYSICAL_LIFT") ||
+    effects?.hasTag?.("PHYSICAL_KNOCK_DOWN");
 
   if (!hasKnock) return;
 

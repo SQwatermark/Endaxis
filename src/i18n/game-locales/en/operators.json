@@ -1,0 +1,1471 @@
+{
+  "zhuang-fangyi": {
+    "name": "Zhuang Fangyi",
+    "talents": [
+      {
+        "name": "Force of Nature",
+        "description": "Battle skill Mantra of Sundering improved: Casting the battle skill grants Zhuang Fangyi 9% Electric Amp for 5s.Scoring hits with the battle skill's Thunder Strike increases this effect by +1%.Every casting of the battle skill Mantra of Sundering again resets this Electric Amp effect."
+      },
+      {
+        "name": "Force of Nature",
+        "description": "Battle skill Mantra of Sundering improved: Casting the battle skill grants Zhuang Fangyi 18% Electric Amp for 5s.Scoring hits with the battle skill's Thunder Strike increases this effect by +2%.Every casting of the battle skill Mantra of Sundering again resets this Electric Amp effect."
+      },
+      {
+        "name": "Ordained by Heaven",
+        "description": "Gains a 9% chance of immunity against DMG taken, with each Sunderblade nearby increasing this chance by +1%.After DMG Immunity is triggered, Zhuang Fangyi is also restored for 9% Max HP. The HP restoration effect only triggers once every 99s."
+      },
+      {
+        "name": "Ordained by Heaven",
+        "description": "Gains a 9% chance of immunity against DMG taken, with each Sunderblade nearby increasing this chance by +1%.After DMG Immunity is triggered, Zhuang Fangyi is also restored for 18% Max HP. The HP restoration effect only triggers once every 99s."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Four Symbols of Harmony",
+        "description": "Battle skill Mantra of Sundering improved: DMG multiplier is increased to 1.15 times the original. After entering battle, Zhuang Fangyi's first battle skill casting also creates 1 more Sunderblade.The additional Sunderblade created by this skill can exceed the Sunderblade creation limit from a single casting of the battle skill."
+      },
+      {
+        "name": "Acuity of Fine Details",
+        "description": "Will +20, Battle Skill DMG Dealt +15%."
+      },
+      {
+        "name": "Sense and Response",
+        "description": "Battle skill Mantra of Sundering improved: After consuming Electrification, the battle skill returns 10 SP. Sunderblade duration +10s."
+      },
+      {
+        "name": "Absolute Composure",
+        "description": "Ultimate Smiting Tempest improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Storm of Transformation",
+        "description": "During the Empyrean of Truth transformation, DMG Dealt by Zhuang Fangyi ignores 15 of the enemy's Electric Resistance."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Jolting Arts"
+      },
+      "battleSkill": {
+        "name": "Mantra of Sundering"
+      },
+      "comboSkill": {
+        "name": "Breath of Transformation"
+      },
+      "ultimate": {
+        "name": "Smiting Tempest"
+      }
+    },
+    "subSkills": {
+      "enhancedBattleSkill": "E. Skill",
+      "enhancedComboSkill": "E. Combo",
+      "enhancedBasicAttack": "E. Basic"
+    }
+  },
+  "rossi": {
+    "name": "Rossi",
+    "talents": [
+      {
+        "name": "Nicks and Scratches",
+        "description": "Battle skill improved: After Wolven Ambrage deals DMG, Rossi applies Razor Clawmark to the target for 15s. This effect cannot stack.For the duration of Razor Clawmark, the target takes 25% ATK (Rossi's) of Physical DMG per second and suffers Physical DMG Taken and Heat DMG Taken +6%."
+      },
+      {
+        "name": "Nicks and Scratches",
+        "description": "Battle skill improved: After Wolven Ambrage deals DMG, Rossi applies Razor Clawmark to the target for 25s. This effect cannot stack.For the duration of Razor Clawmark, the target takes 30% ATK (Rossi's) of Physical DMG per second and suffers Physical DMG Taken and Heat DMG Taken +12%."
+      },
+      {
+        "name": "Seething Blood",
+        "description": "When Rossi's skill deals Critical DMG to a Razor Clawmarked enemy, trigger another hit that deals 12% ATK (Rossi's) of Heat DMG and restores [Intellect × 0.04] HP to Rossi. If the target is also Combusted, then the aforementioned DMG and HP Restoration effects are increased to 1.5 times."
+      },
+      {
+        "name": "Seething Blood",
+        "description": "When Rossi's skill deals Critical DMG to a Razor Clawmarked enemy, trigger another hit that deals 24% ATK (Rossi's) of Heat DMG and restores [Intellect × 0.08] HP to Rossi. If the target is also Combusted, then the aforementioned DMG and HP Restoration effects are increased to 1.5 times."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Origin of Admiration",
+        "description": "Battle skill Crimson Shadow and combo skill Moment of Blazing Shadow improved: The DMG Multipliers of these skills are increased to 1.15 times of the original.Wolven Ambrage of the battle skill also returns 10 SP after hitting the enemy."
+      },
+      {
+        "name": "Gap to Perfection",
+        "description": "Agility +20, Critical Rate +7%."
+      },
+      {
+        "name": "Tangible Duties",
+        "description": "Talent Seething Blood improved: When triggered, it grants Base DMG Multiplier +8% and restores HP +[Intellect × 0.04]."
+      },
+      {
+        "name": "Innocent Wish",
+        "description": "Ultimate \"Razorclaw\" Ambuscade improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Legendary Destination",
+        "description": "Ultimate \"Razorclaw\" Ambuscade improved: DMG Multiplier is increased to 1.1 times of the original; Critical DMG Dealt is increased by +30%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Seething Wolfblood"
+      },
+      "battleSkill": {
+        "name": "Crimson Shadow"
+      },
+      "comboSkill": {
+        "name": "Moment of Blazing Shadow"
+      },
+      "ultimate": {
+        "name": "\"Razorclaw\" Ambuscade"
+      }
+    }
+  },
+  "tangtang": {
+    "name": "Tangtang",
+    "talents": [
+      {
+        "name": "Fam of Honor",
+        "description": "When within a 5-meter radius of a Whirlpool, allied operators gain 10% Haste while enemies suffer 20% Slow. These effects persist for 3s after leaving the area of effect."
+      },
+      {
+        "name": "Fam of Honor",
+        "description": "When within a 5-meter radius of a Whirlpool, allied operators gain 20% Haste while enemies suffer 40% Slow. These effects persist for 3s after leaving the area of effect."
+      },
+      {
+        "name": "Riot Bringer",
+        "description": "During OLDEN STARE, performing a dive attack with the controlled operator ends its evolution early and creates a Waterspout. All nearby Whirlpools are also consumed and converted into additional Waterspouts.Waterspouts created this way have the same effects as those created by the battle skill IMA WAVERIDAAH! and gain DMG Dealt +40%."
+      },
+      {
+        "name": "Riot Bringer",
+        "description": "During OLDEN STARE, performing a dive attack with the controlled operator ends its evolution early and creates a Waterspout. All nearby Whirlpools are also consumed and converted into additional Waterspouts.Waterspouts created this way have the same effects as those created by the battle skill IMA WAVERIDAAH! and gain DMG Dealt +60%."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Reserve Hoard",
+        "description": "Combo skill RIVER, TO ME! improved: DMG Multiplier is increased to 1.2 times of the original, and cooldown is now -2s.Battle skill IMA WAVERIDAAH! improved: For every Whirlpool consumed and converted into a Waterspout, return 5 additional SP."
+      },
+      {
+        "name": "River's Daughter",
+        "description": "Agility +20, Cryo DMG Dealt +10%"
+      },
+      {
+        "name": "Chiefly Vibe",
+        "description": "Battle skill IMA WAVERIDAAH! improved: DMG Multiplier is increased to 1.1 times the original. When forming multiple Waterspouts, the resulting Arts Susceptibility effect is increased by +5%."
+      },
+      {
+        "name": "Qingbo Meditation",
+        "description": "Ultimate DA CHIEF SEES YOU! improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Chief's All-Eldritch Gaze",
+        "description": "Ultimate DA CHIEF SEES YOU! improved: DMG Multiplier is increased to 1.15 times the original. Talent Riot Bringer improved: DMG effects of any Waterspout created by the ultimate DA CHIEF SEES YOU! are increased by +80%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "I'LL BLOW YOUR MIND!"
+      },
+      "battleSkill": {
+        "name": "IMA WAVERIDAAH!"
+      },
+      "comboSkill": {
+        "name": "RIVER, TO ME!"
+      },
+      "ultimate": {
+        "name": "DA CHIEF SEES YOU!"
+      }
+    }
+  },
+  "endministrator": {
+    "name": "Endministrator",
+    "talents": [
+      {
+        "name": "Essence Disintegration",
+        "description": "When the Originium Crystals attached to the enemy are consumed, the Endministrator gains ATK +15% for 15s. This effect cannot stack."
+      },
+      {
+        "name": "Essence Disintegration",
+        "description": "When the Originium Crystals attached to the enemy are consumed, the Endministrator gains ATK +30% for 15s. This effect cannot stack."
+      },
+      {
+        "name": "Realspace Stasis",
+        "description": "Enemies with attached Originium Crystals suffer Physical DMG Taken +10%."
+      },
+      {
+        "name": "Realspace Stasis",
+        "description": "Enemies with attached Originium Crystals suffer Physical DMG Taken +20%."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Final Awakening",
+        "description": "Battle skill Constructive Sequence improved: Consuming Originium Crystals returns 50 SP."
+      },
+      {
+        "name": "Reflection of Authority",
+        "description": "Talent Essence Disintegration improved: When the Endministrator gains the ATK buff, other allied operators gain half of this ATK buff."
+      },
+      {
+        "name": "???",
+        "description": "???"
+      },
+      {
+        "name": "???",
+        "description": "???"
+      },
+      {
+        "name": "???",
+        "description": "???"
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Destructive Sequence"
+      },
+      "battleSkill": {
+        "name": "Constructive Sequence"
+      },
+      "comboSkill": {
+        "name": "Sealing Sequence"
+      },
+      "ultimate": {
+        "name": "Bombardment Sequence"
+      }
+    }
+  },
+  "lifeng": {
+    "name": "Lifeng",
+    "talents": [
+      {
+        "name": "Illumination",
+        "description": "Every point of Intellect and Will further grants ATK +0.10%."
+      },
+      {
+        "name": "Illumination",
+        "description": "Every point of Intellect and Will further grants ATK +0.15%."
+      },
+      {
+        "name": "Subduer of Evil",
+        "description": "Applying Knock Down also deals 50% ATK of Physical DMG."
+      },
+      {
+        "name": "Subduer of Evil",
+        "description": "Applying Knock Down also deals 100% ATK of Physical DMG."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Breaking the Obsession",
+        "description": "Battle skill Turbid Avatar improved: Physical Susceptibility +5%; also triggers this additional effect to enemies with no more than 2 Vulnerability stacks."
+      },
+      {
+        "name": "Self Refinement",
+        "description": "All attributes +15."
+      },
+      {
+        "name": "Spiritual Cultivation",
+        "description": "Talent Illumination improved: Every point in the attributes of Intellect and Will grants Lifeng an additional ATK +0.05%."
+      },
+      {
+        "name": "Brief Instant",
+        "description": "Ultimate Heart of the Unmoving improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Unremitting",
+        "description": "Talent Subduer of Evil improved: Every 15s, the next effect triggered deals another 250% ATK of Physical DMG and 5 Stagger."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Ruination"
+      },
+      "battleSkill": {
+        "name": "Turbid Avatar"
+      },
+      "comboSkill": {
+        "name": "Aspect of Wrath"
+      },
+      "ultimate": {
+        "name": "Heart of the Unmoving"
+      }
+    }
+  },
+  "ember": {
+    "name": "Ember",
+    "talents": [
+      {
+        "name": "Inflamed for the Assault",
+        "description": "When casting the battle skill Forward March and the combo skill Frontline Support, Ember gains 30% Protection and is less likely to be interrupted."
+      },
+      {
+        "name": "Inflamed for the Assault",
+        "description": "When casting the battle skill Forward March and the combo skill Frontline Support, Ember gains 50% Protection and is less likely to be interrupted."
+      },
+      {
+        "name": "Pay the Ferric Price",
+        "description": "When Ember receives DMG from the enemy, she gains ATK +6% for 7s. This effect can reach 3 stacks."
+      },
+      {
+        "name": "Pay the Ferric Price",
+        "description": "When Ember receives DMG from the enemy, she gains ATK +9% for 7s. This effect can reach 3 stacks."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Nomadic Fort",
+        "description": "Talent Inflamed for the Assault improved: Protection effect +20%; hitting an enemy extends the duration by 1.5s."
+      },
+      {
+        "name": "Steel-Hardened Veteran",
+        "description": "Strength +20, Will +20."
+      },
+      {
+        "name": "Indomitable Front",
+        "description": "Combo skill Frontline Support improved: Restores the HP of another teammate with the lowest percentage HP at 50% of the base effect."
+      },
+      {
+        "name": "Undying Embers",
+        "description": "Ultimate Re-Ignited Oath improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "The Steel Oath",
+        "description": "Ultimate Re-Ignited Oath improved: Shield effect is multiplied by 1.2; while this shield is active, the wielder gains ATK +10%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Sword Art of Assault"
+      },
+      "battleSkill": {
+        "name": "Forward March"
+      },
+      "comboSkill": {
+        "name": "Frontline Support"
+      },
+      "ultimate": {
+        "name": "Re-Ignited Oath"
+      }
+    }
+  },
+  "gilberta": {
+    "name": "Gilberta",
+    "talents": [
+      {
+        "name": "Messenger's Song",
+        "description": "When fighting in the battlefield, all allied guards, casters, and supporters gain Ultimate Gain Efficiency +4%."
+      },
+      {
+        "name": "Messenger's Song",
+        "description": "When fighting in the battlefield, all allied guards, casters, and supporters gain Ultimate Gain Efficiency +7%."
+      },
+      {
+        "name": "Late Reply",
+        "description": "Battle skill Arcane Staff: Gravity Mode and combo skill Arcane Staff: Matrix Displacement improved: Hitting at least 2 enemies with either the combo skill or the last sequence of the battle skill restores [72 + Intellect×0.60] HP to the controlled operator. If the controlled operator is already at max HP, then restore the HP of the teammate with lowest percentage HP."
+      },
+      {
+        "name": "Late Reply",
+        "description": "Battle skill Arcane Staff: Gravity Mode and combo skill Arcane Staff: Matrix Displacement improved: Hitting at least 2 enemies with either the combo skill or the last sequence of the battle skill restores [108 + Intellect×0.90] HP to the controlled operator. If the controlled operator is already at max HP, then restore the HP of the teammate with lowest percentage HP."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Above the Clouds",
+        "description": "Battle skill Arcane Staff: Gravity Mode improved: Effect radius +20%."
+      },
+      {
+        "name": "Wind Walker",
+        "description": "Ultimate Arcane Staff: Gravity Field improved: When an enemy is affected by the Anomalous Gravity Field of the ultimate, double the Arts Susceptibility increase per Vulnerability stack. When finalizing this effect, the target is treated as having 1 additional stack of Vulnerability (total stacks max out at 4)."
+      },
+      {
+        "name": "Quick, Gentle Steps",
+        "description": "Talent Messenger's Song improved: Ultimate Gain Efficiency +5%."
+      },
+      {
+        "name": "Dances with Clouds",
+        "description": "Ultimate Arcane Staff: Gravity Field improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Special Mail",
+        "description": "Combo skill Arcane Staff: Matrix Displacement improved: Length of cooldown -2s; DMG multiplier is increased to 1.3 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Arcane Staff: Beam Cohesion Arts"
+      },
+      "battleSkill": {
+        "name": "Arcane Staff: Gravity Mode"
+      },
+      "comboSkill": {
+        "name": "Arcane Staff: Matrix Displacement"
+      },
+      "ultimate": {
+        "name": "Arcane Staff: Gravity Field"
+      }
+    }
+  },
+  "ardelia": {
+    "name": "Ardelia",
+    "talents": [
+      {
+        "name": "Friendly Presence",
+        "description": "The battle skill Dolly Rush creates 3 Shadows of Mr. Dolly after hitting the enemy. The copies of Mr. Dolly scattered by the ultimate Wooly Party also have a 10% chance to create Shadows of Mr. Dolly when they fall to the ground. When the controlled operator touches a Shadow of Mr. Dolly, Ardelia restores the said operator's HP by [45 + Will×0.38].If the controlled operator is already at max HP, then restore the HP of the teammate with lowest percentage HP.Shadows of Mr. Dolly last for 10s and up to 10 can exist in the battlefield."
+      },
+      {
+        "name": "Friendly Presence",
+        "description": "The battle skill Dolly Rush creates 3 Shadows of Mr. Dolly after hitting the enemy. The copies of Mr. Dolly scattered by the ultimate Wooly Party also have a 10% chance to create Shadows of Mr. Dolly when they fall to the ground. When the controlled operator touches a Shadow of Mr. Dolly, Ardelia restores the said operator's HP by [63 + Will×0.53].If the controlled operator is already at max HP, then restore the HP of the teammate with lowest percentage HP.Shadows of Mr. Dolly last for 10s and up to 10 can exist in the battlefield."
+      },
+      {
+        "name": "Friendly Presence",
+        "description": "The battle skill Dolly Rush creates 3 Shadows of Mr. Dolly after hitting the enemy. The copies of Mr. Dolly scattered by the ultimate Wooly Party also have a 10% chance to create Shadows of Mr. Dolly when they fall to the ground. When the controlled operator touches a Shadow of Mr. Dolly, Ardelia restores the said operator's HP by [90 + Will×0.75].If the controlled operator is already at max HP, then restore the HP of the teammate with lowest percentage HP.Shadows of Mr. Dolly last for 10s and up to 10 can exist in the battlefield."
+      },
+      {
+        "name": "Mountainpeak Surfer",
+        "description": "Battle skill Dolly Rush improved: Triggering the additional effect while an enemy with Corrosion is nearby immediately casts the battle skill again. This effect only triggers once per active battle skill casting."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Dolly Paradise",
+        "description": "Battle skill Dolly Rush improved: Consuming Corrosion now applies Physical Susceptibility and Arts Susceptibility with effects +8%."
+      },
+      {
+        "name": "Game Rewards",
+        "description": "Talent Friendly Presence improved: When the controlled operator touches the Shadow of Mr. Dolly, Ardelia also treats another allied operator with the lowest percentage HP with half of the treatment effects."
+      },
+      {
+        "name": "Explosive Eruption",
+        "description": "Ultimate Wooly Party improved: Duration +1s; chance to create Shadow of Mr. Dolly is increased to 1.2 times the original."
+      },
+      {
+        "name": "Rock Blossom",
+        "description": "Ultimate Wooly Party improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Volcanic Steam",
+        "description": "Combo skill Eruption Column improved: Length of cooldown -2s; DMG multiplier is increased to 1.2 times the original; duration of Corrosion applied +4s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Rocky Whispers"
+      },
+      "battleSkill": {
+        "name": "Dolly Rush"
+      },
+      "comboSkill": {
+        "name": "Eruption Column"
+      },
+      "ultimate": {
+        "name": "Wooly Party"
+      }
+    }
+  },
+  "pogranichnik": {
+    "name": "Pogranichnik",
+    "talents": [
+      {
+        "name": "The Living Banner",
+        "description": "During battle, recovering 80 SP with his own skills grants Fervent Morale for 20s. Fervent Morale effects: ATK +4% and Arts Intensity +4. This effect can reach 3 stacks. Duration of each stack is counted separately."
+      },
+      {
+        "name": "The Living Banner",
+        "description": "During battle, recovering 80 SP with his own skills grants Fervent Morale for 20s. Fervent Morale effects: ATK +8% and Arts Intensity +8. This effect can reach 3 stacks. Duration of each stack is counted separately."
+      },
+      {
+        "name": "Tactical Instruction",
+        "description": "Ultimate Shieldguard Banner, Forward improved: Any operator triggering the ultimate's subsequent effects also gains Fervent Morale for 5s. Requires activation of talent: The Living Banner."
+      },
+      {
+        "name": "Tactical Instruction",
+        "description": "Ultimate Shieldguard Banner, Forward improved: Any operator triggering the ultimate's subsequent effects also gains Fervent Morale for 10s. Requires activation of talent: The Living Banner."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Frontline Sweep",
+        "description": "Battle skill The Pulverizing Front improved: When hitting at least 2 enemies, 15 SP is returned."
+      },
+      {
+        "name": "\"Advance\"",
+        "description": "Will +20, Physical DMG Dealt +10%."
+      },
+      {
+        "name": "When the Banner Flutters",
+        "description": "Talent The Living Banner improved: Amount of SP recovery needed to gain Fervent Morale is reduced to 60. Max Fervent Morale stacks on self +2."
+      },
+      {
+        "name": "Shield of Talos-II",
+        "description": "Ultimate Shieldguard Banner, Forward improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Newly Forged Blade",
+        "description": "Combo skill Full Moon Slash improved: Length of cooldown -2s; SP recovery is increased to 1.2 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "All-Out Offensive"
+      },
+      "battleSkill": {
+        "name": "The Pulverizing Front"
+      },
+      "comboSkill": {
+        "name": "Full Moon Slash"
+      },
+      "ultimate": {
+        "name": "Shieldguard Banner, Forward"
+      }
+    }
+  },
+  "laevatain": {
+    "name": "Laevatain",
+    "talents": [
+      {
+        "name": "Scorching Heart",
+        "description": "After the controlled operator's Final Strike or Finisher hits the enemy, Laevatain absorbs Heat Infliction from nearby enemies. Every stack of Heat Infliction absorbed gives Laevatain 1 stack of Melting Flame (max stacks: 4). After reaching 4 stacks, DMG dealt by Laevatain ignores 10 Heat Resistance of the enemy for 20s. Laevatain also absorbs Heat Infliction from enemies defeated nearby."
+      },
+      {
+        "name": "Scorching Heart",
+        "description": "After the controlled operator's Final Strike or Finisher hits the enemy, Laevatain absorbs Heat Infliction from nearby enemies. Every stack of Heat Infliction absorbed gives Laevatain 1 stack of Melting Flame (max stacks: 4). After reaching 4 stacks, DMG dealt by Laevatain ignores 15 Heat Resistance of the enemy for 20s. Laevatain also absorbs Heat Infliction from enemies defeated nearby."
+      },
+      {
+        "name": "Scorching Heart",
+        "description": "After the controlled operator's Final Strike or Finisher hits the enemy, Laevatain absorbs Heat Infliction from nearby enemies. Every stack of Heat Infliction absorbed gives Laevatain 1 stack of Melting Flame (max stacks: 4). After reaching 4 stacks, DMG dealt by Laevatain ignores 20 Heat Resistance of the enemy for 20s. Laevatain also absorbs Heat Infliction from enemies defeated nearby."
+      },
+      {
+        "name": "Re-Ignition",
+        "description": "When HP drops below 40%, gain 90% Protection and restore 5% Max HP per second for 4s. This effect triggers once every 120s."
+      },
+      {
+        "name": "Re-Ignition",
+        "description": "When HP drops below 40%, gain 90% Protection and restore 5% Max HP per second for 8s. This effect triggers once every 120s."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Heart of Melting Flame",
+        "description": "Battle skill Smouldering Fire improved: Additional attack multiplier is increased to 1.2 times the original, and scoring a hit returns 20 SP."
+      },
+      {
+        "name": "Pursuit of Memories",
+        "description": "Intellect +20, Basic Attack DMG Dealt +15%."
+      },
+      {
+        "name": "Fragments from the Past",
+        "description": "Battle skill Smouldering Fire improved: Duration of the Combustion applied by the skill is increased by 50%. DMG of the Combustion applied by the skills is increased to 1.5 times the original."
+      },
+      {
+        "name": "Ice Cream Furnace",
+        "description": "Ultimate Twilight improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Proof of Existence",
+        "description": "Ultimate Twilight improved: Enhanced basic attack DMG multiplier is increased to 1.2 times the original; during the ultimate, every enemy defeated by Laevatain extends ultimate duration by +1s (max: +7s)."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": { "name": "Flaming Cinders" },
+      "battleSkill": { "name": "Smouldering Fire" },
+      "comboSkill": { "name": "Seethe" },
+      "ultimate": { "name": "Twilight" }
+    },
+    "subSkills": {
+      "enhancedBattleSkill": "E. Skill",
+      "enhancedBasicAttack": "E. Basic"
+    }
+  },
+  "yvonne": {
+    "name": "Yvonne",
+    "talents": [
+      {
+        "name": "Barrage of Technology",
+        "description": "Battle skill Brr-Brr-Bomb β improved: After applying Solidification, the next basic attack performed becomes a Final Strike."
+      },
+      {
+        "name": "Barrage of Technology",
+        "description": "Battle skill Brr-Brr-Bomb β improved: After applying Solidification, the next basic attack directly becomes a Final Strike with DMG Dealt +50%."
+      },
+      {
+        "name": "Freezing Point",
+        "description": "Against enemies with active Cryo Infliction, gains Critical DMG Dealt +10%. Effect is doubled against enemies with Solidification."
+      },
+      {
+        "name": "Freezing Point",
+        "description": "Against enemies with active Cryo Infliction, gains Critical DMG Dealt +20%. Effect is doubled against enemies with Solidification."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Flash Freezer",
+        "description": "Combo skill Flashfreezer υ37 improved: Effect radius +20%; releases energy 2 more times; and gains an additional 15 Ultimate Energy after dealing DMG."
+      },
+      {
+        "name": "Flawless Creation",
+        "description": "Intellect +20, Critical Rate +7%."
+      },
+      {
+        "name": "Tink-a-Power",
+        "description": "Talent Freezing Point improved: Against enemies with Cryo Infliction, Critical DMG Dealt +10%; this effect is also doubled against enemies with Solidification."
+      },
+      {
+        "name": "Rebellious Mood",
+        "description": "Battle skill Brr-Brr-Bomb β improved: If the explosion hits only one enemy, return 10 SP."
+      },
+      {
+        "name": "Expert Mechcrafter",
+        "description": "Ultimate Cryoblasting Pistolier improved: During the ultimate, ATK +10% and Critical DMG Dealt +30%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": { "name": "Exuberant Trigger" },
+      "battleSkill": { "name": "Brr-Brr-Bomb β" },
+      "comboSkill": { "name": "Flashfreezer υ37" },
+      "ultimate": { "name": "Cryoblasting Pistolier" }
+    },
+    "subSkills": {
+      "enhancedBasicAttack": "E. Basic"
+    }
+  },
+  "last-rite": {
+    "name": "Last Rite",
+    "talents": [
+      {
+        "name": "Hypothermia",
+        "description": "After Last Rite consumes any Arts Infliction, she applies Cryo Susceptibility to the target with the effect of [Number of Arts Infliction stacks consumed × 2%] for 15s. This effect cannot stack."
+      },
+      {
+        "name": "Hypothermia",
+        "description": "After Last Rite consumes any Arts Infliction, she applies Cryo Susceptibility to the target with the effect of [Number of Arts Infliction stacks consumed × 4%] for 15s. This effect cannot stack."
+      },
+      {
+        "name": "Cryogenic Embrittlement",
+        "description": "Ultimate Vigil Services improved: When the ultimate deals DMG to an enemy with Cryo Susceptibility, the effect of that Cryo Susceptibility is 1.2 times the original."
+      },
+      {
+        "name": "Cryogenic Embrittlement",
+        "description": "Ultimate Vigil Services improved: When the ultimate deals DMG to an enemy with Cryo Susceptibility, the effect of that Cryo Susceptibility is 1.5 times the original."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Undertaker's Gift",
+        "description": "When the controlled operator with Hypothermic Perfusion performs a Final Strike that hits the enemy, it deals another 20% DMG and 5 Stagger."
+      },
+      {
+        "name": "Absolute Zero Armament",
+        "description": "Strength +20, Cryo DMG Dealt +10%."
+      },
+      {
+        "name": "Overlord of Winter",
+        "description": "Combo skill Winter's Devourer and ultimate Vigil Services improved: DMG multiplier increased to 1.15 times the original."
+      },
+      {
+        "name": "Sincere Wake",
+        "description": "Ultimate Vigil Services improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Winter is Returning",
+        "description": "Battle skill Esoteric Legacy of Seš'qa improved: Amount of SP returned is increased by another 5; Mirage Additional ATK Multiplier is increased to 1.2 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Dance of Rime"
+      },
+      "battleSkill": {
+        "name": "Esoteric Legacy of Seš'qa"
+      },
+      "comboSkill": {
+        "name": "Winter's Devourer"
+      },
+      "ultimate": {
+        "name": "Vigil Services"
+      }
+    }
+  },
+  "chen-qianyu": {
+    "name": "Chen Qianyu",
+    "talents": [
+      {
+        "name": "Slashing Edge",
+        "description": "After hitting an enemy with skills, Chen gains ATK +4% for 10s. This effect can reach 5 stacks."
+      },
+      {
+        "name": "Slashing Edge",
+        "description": "After hitting an enemy with skills, Chen gains ATK +8% for 10s. This effect can reach 5 stacks."
+      },
+      {
+        "name": "Momentum Breaker",
+        "description": "Interrupting the enemy's charge up deals another 5 Stagger."
+      },
+      {
+        "name": "Momentum Breaker",
+        "description": "Interrupting the enemy's charge up deals another 10 Stagger."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "\"Shadowless\"",
+        "description": "DMG Dealt +20% to enemies below 50% HP."
+      },
+      {
+        "name": "Heirloom Martial Arts",
+        "description": "Agility +15, Physical DMG Dealt +8%."
+      },
+      {
+        "name": "Dual-Wielding Swordmancer",
+        "description": "Battle skill Ascending Strike, combo skill Soar to the Stars, and ultimate Blade Gale improved: DMG Multiplier is increased to 1.1 times the original."
+      },
+      {
+        "name": "Improvised Chi Xiao",
+        "description": "Ultimate Blade Gale improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Bonded with the World",
+        "description": "Combo skill Soar to the Stars improved: Length of cooldown is now -3s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Soaring Break"
+      },
+      "battleSkill": {
+        "name": "Ascending Strike"
+      },
+      "comboSkill": {
+        "name": "Soar to the Stars"
+      },
+      "ultimate": {
+        "name": "Blade Gale"
+      }
+    }
+  },
+  "snowshine": {
+    "name": "Snowshine",
+    "talents": [
+      {
+        "name": "Polar Survival",
+        "description": "Treatment Effect +15% for targets of 45% HP or below."
+      },
+      {
+        "name": "Polar Survival",
+        "description": "Treatment Effect +25% for targets of 55% HP or below."
+      },
+      {
+        "name": "SAR Professional",
+        "description": "Battle skill Saturated Defense improved: After successfully retaliating an enemy attack, Snowshine gains another 6 Ultimate Energy."
+      },
+      {
+        "name": "SAR Professional",
+        "description": "Battle skill Saturated Defense improved: After successfully retaliating an enemy attack, Snowshine gains another 10 Ultimate Energy."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Cold Shelter",
+        "description": "Battle skill Saturated Defense improved: During the blocking effect, Arts Inflictions cannot be applied to allied operators with Protection."
+      },
+      {
+        "name": "Storm Region",
+        "description": "Ultimate Frigid Snowfield improved: Effect radius +20%."
+      },
+      {
+        "name": "Polar Survival Guide",
+        "description": "Ultimate Frigid Snowfield improved: Duration of the Solidification applied by the skill is increased by 2s."
+      },
+      {
+        "name": "Tundra Aegis",
+        "description": "DEF +20, Will +20."
+      },
+      {
+        "name": "Cold Disaster Specialist",
+        "description": "Battle skill Saturated Defense improved: Successfully retaliating an enemy attack returns 10 SP."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Hypothermic Assault"
+      },
+      "battleSkill": {
+        "name": "Saturated Defense"
+      },
+      "comboSkill": {
+        "name": "Polar Rescue"
+      },
+      "ultimate": {
+        "name": "Frigid Snowfield"
+      }
+    }
+  },
+  "xaihi": {
+    "name": "Xaihi",
+    "talents": [
+      {
+        "name": "Execute Process",
+        "description": "Combo skill Stress Testing improved: Hitting an enemy with Cryo Infliction or Solidification also causes the enemy to suffer Cryo DMG Taken +7% for 5s. This effect cannot stack."
+      },
+      {
+        "name": "Execute Process",
+        "description": "Combo skill Stress Testing improved: Hitting an enemy with Cryo Infliction or Solidification also causes the enemy to suffer Cryo DMG Taken +10% for 5s. This effect cannot stack."
+      },
+      {
+        "name": "Freeze Protocol",
+        "description": "Ultimate Stack Overflow improved: The ultimate also dispels Cryo Infliction and Solidification from the entire team."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Agile Execution",
+        "description": "Arts Amp granted by the Auxiliary Crystal is increased by another 5%."
+      },
+      {
+        "name": "Link Aggregation",
+        "description": "Ultimate Stack Overflow improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Mapping Node",
+        "description": "Combo skill Stress Testing improved: When hitting the target, the hit chains 1 time to 1 additional target nearby."
+      },
+      {
+        "name": "Grayscale Release",
+        "description": "Intellect +15, Treatment Efficiency +10%."
+      },
+      {
+        "name": "Controlled Recursion",
+        "description": "Ultimate Stack Overflow improved: Amp effect is increased to 1.1 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Cooldown"
+      },
+      "battleSkill": {
+        "name": "Distributed DoS"
+      },
+      "comboSkill": {
+        "name": "Stress Testing"
+      },
+      "ultimate": {
+        "name": "Stack Overflow"
+      }
+    }
+  },
+  "perlica": {
+    "name": "Perlica",
+    "talents": [
+      {
+        "name": "Obliteration Protocol",
+        "description": "DMG Dealt +20% to Staggered enemies."
+      },
+      {
+        "name": "Obliteration Protocol",
+        "description": "DMG Dealt +30% to Staggered enemies."
+      },
+      {
+        "name": "Cycle Protocol",
+        "description": "Combo skill Instant Protocol: Chain improved: When hitting a Vulnerable enemy, the hit chains 1 more time."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Crisis Handling",
+        "description": "Combo skill Instant Protocol: Chain improved: Electrification duration +75%."
+      },
+      {
+        "name": "Negotiation Tactics",
+        "description": "Ultimate Protocol ε: 70.41K improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Supervisory Duties",
+        "description": "After Perlica applies Electrification to the enemy, she gains ATK +20% for 5s. This effect can reach 2 stacks."
+      },
+      {
+        "name": "Constant Guidance",
+        "description": "Combo skill Instant Protocol: Chain improved: The Arts DMG Taken debuff effects on the enemy applied by the skill's Electrification are increased to 1.33 times the original."
+      },
+      {
+        "name": "Reentry Control",
+        "description": "Ultimate Protocol ε: 70.41K improved: Critical Rate +30%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Protocol α: Breach"
+      },
+      "battleSkill": {
+        "name": "Protocol ω: Strike"
+      },
+      "comboSkill": {
+        "name": "Instant Protocol: Chain"
+      },
+      "ultimate": {
+        "name": "Protocol ε: 70.41K"
+      }
+    }
+  },
+  "wulfgard": {
+    "name": "Wulfgard",
+    "talents": [
+      {
+        "name": "Scorching Fangs",
+        "description": "Whenever Wulfgard applies Combustion, he gains Scorching Fangs for 10s. This effect cannot stack. Scorching Fangs: While active, Wulfgard gains Heat DMG Dealt +20%."
+      },
+      {
+        "name": "Scorching Fangs",
+        "description": "Whenever Wulfgard applies Combustion, he gains Scorching Fangs for 10s. This effect cannot stack. Scorching Fangs: While active, Wulfgard gains Heat DMG Dealt +30%."
+      },
+      {
+        "name": "Code of Restraint",
+        "description": "Whenever the battle skill Thermite Tracers successfully consumes an Arts Reaction, return 5 SP."
+      },
+      {
+        "name": "Code of Restraint",
+        "description": "Whenever the battle skill Thermite Tracers successfully consumes an Arts Reaction, return 10 SP."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Lone Wolf",
+        "description": "Strength +15, Agility +15."
+      },
+      {
+        "name": "Firearm Mods",
+        "description": "Talent Code of Restraint improved: Returns 10 additional SP."
+      },
+      {
+        "name": "Hunting Hour",
+        "description": "While Scorching Fangs is active, triggering the battle skill's additional effects immediately resets the Scorching Fangs duration and grants other teammates Scorching Fangs with 50% of the base effects."
+      },
+      {
+        "name": "Will of the Pack",
+        "description": "Ultimate Wolven Fury improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Natural Predator",
+        "description": "Casting the ultimate Wolven Fury immediately resets the cooldown of the combo skill Frag Grenade·β."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Rapid Fire Akimbo"
+      },
+      "battleSkill": {
+        "name": "Thermite Tracers"
+      },
+      "comboSkill": {
+        "name": "Frag Grenade·β"
+      },
+      "ultimate": {
+        "name": "Wolven Fury"
+      }
+    }
+  },
+  "arclight": {
+    "name": "Arclight",
+    "talents": [
+      {
+        "name": "Wildland Trekker",
+        "description": "Battle skill Tempestuous Arc improved: Triggering the additional effect 3 time(s) grants the team Electric DMG Dealt +0.05% for every point of Arclight's Intellect. This effect has a 15s duration and cannot stack."
+      },
+      {
+        "name": "Wildland Trekker",
+        "description": "Battle skill Tempestuous Arc improved: Triggering the additional effect 3 time(s) grants the team Electric DMG Dealt +0.08% for every point of Arclight's Intellect. This effect has a 15s duration and cannot stack."
+      },
+      {
+        "name": "Hannabit Wisdom",
+        "description": "30% chance to ignore an Arts Infliction applied on her."
+      },
+      {
+        "name": "Hannabit Wisdom",
+        "description": "50% chance to ignore an Arts Infliction applied on her."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Child of the Storm",
+        "description": "Battle skill Tempestuous Arc improved: After triggering additional effects, the skill recovers another 10 SP."
+      },
+      {
+        "name": "Speed Battler",
+        "description": "Agility +15, Intellect +15."
+      },
+      {
+        "name": "\"Hanna\"",
+        "description": "Talent Wildland Trekker improved: DMG Boost effect increased to 1.3 times the original."
+      },
+      {
+        "name": "Aldertone's Teachings",
+        "description": "Ultimate Exploding Blitz improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Servant of the Wildlands",
+        "description": "Talent Wildland Trekker improved: Trigger requirement is reduced to 2 time(s)."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Seek and Hunt"
+      },
+      "battleSkill": {
+        "name": "Tempestuous Arc"
+      },
+      "comboSkill": {
+        "name": "Peal of Thunder"
+      },
+      "ultimate": {
+        "name": "Exploding Blitz"
+      }
+    }
+  },
+  "alesh": {
+    "name": "Alesh",
+    "talents": [
+      {
+        "name": "Flash-frozen for Freshness",
+        "description": "After Solidification or Originium Crystals are applied to a nearby enemy, Alesh gains 3 Ultimate Energy. If the said Solidification is applied by Alesh, he gains an additional 6 Ultimate Energy. This effect can only trigger once every 3s."
+      },
+      {
+        "name": "Flash-frozen for Freshness",
+        "description": "After Solidification or Originium Crystals are applied to a nearby enemy, Alesh gains 4 Ultimate Energy. If the said Solidification is applied by Alesh, he gains an additional 8 Ultimate Energy. This effect can only trigger once every 3s."
+      },
+      {
+        "name": "Veteran Angler",
+        "description": "Combo skill Auger Angling improved: Every 10 Intellect grants Rare Fin catching chance +0.2% (max: +30%)."
+      },
+      {
+        "name": "Veteran Angler",
+        "description": "Combo skill Auger Angling improved: Every 10 Intellect grants Rare Fin catching chance +0.5% (max: +30%)."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Super Salty Comeback",
+        "description": "Battle skill Unconventional Lure improved: SP Recovery grants an additional 10 SP."
+      },
+      {
+        "name": "Calm and Tranquil",
+        "description": "Strength +15, Intellect +15."
+      },
+      {
+        "name": "May the Willing Bite",
+        "description": "Combo skill Auger Angling improved: After catching a Rare Fin, the entire team gains ATK +15% for 10s. This effect cannot stack."
+      },
+      {
+        "name": "Insane Angling Set",
+        "description": "Ultimate One Monster Catch! improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Mega Lunker Rumors",
+        "description": "Ultimate One Monster Catch! improved: Hitting a target below 50% HP increases the DMG Multiplier to 1.5 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Basic Rod Casting"
+      },
+      "battleSkill": {
+        "name": "Unconventional Lure"
+      },
+      "comboSkill": { "name": "Auger Angling" },
+      "ultimate": { "name": "One Monster Catch!" }
+    },
+    "subSkills": {
+      "enhancedComboSkill": "E. Combo"
+    }
+  },
+  "avywenna": {
+    "name": "Avywenna",
+    "talents": [
+      {
+        "name": "Expedited Delivery",
+        "description": "After a thrown or returning Thunderlance or Thunderlance EX hits the enemy, Avywenna gains 3 Ultimate Energy."
+      },
+      {
+        "name": "Expedited Delivery",
+        "description": "After a thrown or returning Thunderlance or Thunderlance EX hits the enemy, Avywenna gains 4 Ultimate Energy."
+      },
+      {
+        "name": "Tactful Approach",
+        "description": "Ultimate Thunderlance: Final Shock improved: Also applies 6% Electric Susceptibility for 10s to enemies it hits."
+      },
+      {
+        "name": "Tactful Approach",
+        "description": "Ultimate Thunderlance: Final Shock improved: Also applies 10% Electric Susceptibility for 10s to enemies it hits."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Doubling Down",
+        "description": "Talent Expedited Delivery improved: Ultimate Energy gain +2."
+      },
+      {
+        "name": "Pole of Menace",
+        "description": "Thunderlance and Thunderlance EX duration +20s."
+      },
+      {
+        "name": "Hard Negotiator",
+        "description": "Will +15, Electric DMG Dealt +8%."
+      },
+      {
+        "name": "Very Experienced",
+        "description": "Ultimate Thunderlance: Final Shock improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Carrot and Sharp Stick",
+        "description": "When returning Thunderlances or Thunderlances EX hit an Electric Susceptible enemy, the DMG multipliers are increased to 1.15 times the original."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Thunderlance: Blitz"
+      },
+      "battleSkill": {
+        "name": "Thunderlance: Interdiction"
+      },
+      "comboSkill": {
+        "name": "Thunderlance: Strike"
+      },
+      "ultimate": {
+        "name": "Thunderlance: Final Shock"
+      }
+    }
+  },
+  "da-pan": {
+    "name": "Da Pan",
+    "talents": [
+      {
+        "name": "Reduce and Thicken",
+        "description": "After consuming 1 Vulnerability stack, Da Pan gains Physical DMG Dealt +4% for 10s. This effect can reach 4 stacks."
+      },
+      {
+        "name": "Reduce and Thicken",
+        "description": "After consuming 1 Vulnerability stack, Da Pan gains Physical DMG Dealt +6% for 10s. This effect can reach 4 stacks."
+      },
+      {
+        "name": "Salty or Mild",
+        "description": "Ultimate CHOP 'N DUNK! improved: For every enemy hit by the final sequence of the ultimate, gains 1 stack of Prep Ingredients for 20s (max stacks: 1). When Prep Ingredients is active, hitting an enemy with combo skills immediately shortens cooldown by 40% and consumes 1 stack of Prep Ingredients."
+      },
+      {
+        "name": "Salty or Mild",
+        "description": "Ultimate CHOP 'N DUNK! improved: For every enemy hit by the final sequence of the ultimate, gains 1 stack of Prep Ingredients for 20s (max stacks: 2). When Prep Ingredients is active, hitting an enemy with combo skills immediately shortens cooldown by 40% and consumes 1 stack of Prep Ingredients."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Fine Cooking",
+        "description": "Ultimate CHOP 'N DUNK! improved: If the ultimate defeats at least one enemy, Da Pan deals +30% Physical DMG for 15s. This effect cannot stack."
+      },
+      {
+        "name": "Harmonized Flavors",
+        "description": "Talent Salty or Mild improved: Prep Ingredients buff duration +10s, max stacks +1."
+      },
+      {
+        "name": "Model Employee",
+        "description": "Strength +15, Physical DMG Dealt +8%."
+      },
+      {
+        "name": "Special Blend",
+        "description": "Ultimate CHOP 'N DUNK! improved: Ultimate Energy cost -15%."
+      },
+      {
+        "name": "Fire it Up",
+        "description": "Battle skill FLIP DA WOK! improved: If the skill hits only one enemy, apply 1 more stack of Vulnerability on the target. Effect only triggers once every 45s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "ROLLING CUT!"
+      },
+      "battleSkill": {
+        "name": "FLIP DA WOK!"
+      },
+      "comboSkill": {
+        "name": "MORE SPICE!"
+      },
+      "ultimate": {
+        "name": "CHOP 'N DUNK!"
+      }
+    }
+  },
+  "estella": {
+    "name": "Estella",
+    "talents": [
+      {
+        "name": "Commiseration",
+        "description": "When triggering Shatter, the next battle skill Onomatopoeia cast returns 7.5 SP. This effect cannot stack."
+      },
+      {
+        "name": "Commiseration",
+        "description": "When triggering Shatter, the next battle skill Onomatopoeia cast returns 15 SP. This effect cannot stack."
+      },
+      {
+        "name": "Laziness Pays Off Now",
+        "description": "Ignores Cryo Infliction and takes -10% Cryo DMG."
+      },
+      {
+        "name": "Laziness Pays Off Now",
+        "description": "Ignores Cryo Infliction and takes -20% Cryo DMG."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Habitual Delay",
+        "description": "Combo skill Distortion improved: Physical Susceptibility duration +3s."
+      },
+      {
+        "name": "Lowered Expectations",
+        "description": "Ultimate Tremolo improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Delayed Work",
+        "description": "Battle skill Onomatopoeia improved: Freezing sound wave range +50% and DMG Dealt +40% to the first enemy hit."
+      },
+      {
+        "name": "Life Over Mission",
+        "description": "Will +10, Strength +10."
+      },
+      {
+        "name": "Survival is a Win",
+        "description": "After applying Solidification to an enemy, Estella gains 5 Ultimate Energy. Effect can only trigger once every 1s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Audio Noise"
+      },
+      "battleSkill": {
+        "name": "Onomatopoeia"
+      },
+      "comboSkill": {
+        "name": "Distortion"
+      },
+      "ultimate": {
+        "name": "Tremolo"
+      }
+    }
+  },
+  "catcher": {
+    "name": "Catcher",
+    "talents": [
+      {
+        "name": "Resilient Defense",
+        "description": "For every 10 Will, DEF +1.0."
+      },
+      {
+        "name": "Resilient Defense",
+        "description": "For every 10 Will, DEF +1.2."
+      },
+      {
+        "name": "Comprehensive Mindset",
+        "description": "Ultimate Textbook Assault improved: Final hit creates 2 shockwave(s), each dealing 30% ATK of Physical DMG."
+      },
+      {
+        "name": "Comprehensive Mindset",
+        "description": "Ultimate Textbook Assault improved: Final hit creates 3 shockwave(s), each dealing 45% ATK of Physical DMG."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Multi-layered Readiness",
+        "description": "Battle skill Rigid Interdiction and ultimate Textbook Assault improved: After hitting the enemy, deals another strike that deals [300 + DEF×5.0] of Physical DMG."
+      },
+      {
+        "name": "Bonus Spec Training",
+        "description": "DEF +20, Will +10."
+      },
+      {
+        "name": "Unwavering Post",
+        "description": "Combo skill Timely Suppression improved: Shield duration +5s."
+      },
+      {
+        "name": "Compensated Suffering",
+        "description": "Ultimate Textbook Assault improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Choice Without Regrets",
+        "description": "Battle skill Rigid Interdiction improved: Hitting an enemy while the shield is active returns 10 SP."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Basic Tactics"
+      },
+      "battleSkill": {
+        "name": "Rigid Interdiction"
+      },
+      "comboSkill": {
+        "name": "Timely Suppression"
+      },
+      "ultimate": {
+        "name": "Textbook Assault"
+      }
+    }
+  },
+  "antal": {
+    "name": "Antal",
+    "talents": [
+      {
+        "name": "Improviser",
+        "description": "After an Amped teammate's skill deals DMG, Antal restores the said teammate's HP by [72 + Strength×0.6]. This HP restoring effect triggers 1 time every 30s for each operator."
+      },
+      {
+        "name": "Improviser",
+        "description": "After an Amped teammate's skill deals DMG, Antal restores the said teammate's HP by [108 + Strength×0.9]. This HP restoring effect triggers 1 time every 30s for each operator."
+      },
+      {
+        "name": "Subconscious Act",
+        "description": "Gains 30% chance of Physical DMG immunity and restores HP of self by [27 + Strength×0.23]."
+      },
+      {
+        "name": "Subconscious Act",
+        "description": "Gains 30% chance of Physical DMG immunity and restores HP of self by [45 + Strength×0.38]."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Arts Talent",
+        "description": "Ultimate Overclocked Moment improved: Electric Amp and Heat Amp effects are increased to 1.1 times the original."
+      },
+      {
+        "name": "Improved Automation",
+        "description": "Ultimate Overclocked Moment improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Applied Originium Theory",
+        "description": "When an enemy with an active Focus debuff is defeated, return 15 SP."
+      },
+      {
+        "name": "Granny's Reminder",
+        "description": "Intellect +10, Max HP +10%."
+      },
+      {
+        "name": "High Specs Tech Tester",
+        "description": "Applying Focus on the same target for 20s increases Electric Susceptibility and Heat Susceptibility effects by 4%."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Exchange Current"
+      },
+      "battleSkill": {
+        "name": "Specified Research Subject"
+      },
+      "comboSkill": {
+        "name": "EMP Test Site"
+      },
+      "ultimate": {
+        "name": "Overclocked Moment"
+      }
+    }
+  },
+  "fluorite": {
+    "name": "Fluorite",
+    "talents": [
+      {
+        "name": "Love the Stab and Twist",
+        "description": "Fluorite gains DMG Dealt +10% against Slowed targets."
+      },
+      {
+        "name": "Love the Stab and Twist",
+        "description": "Fluorite gains DMG Dealt +20% against Slowed targets."
+      },
+      {
+        "name": "Unpredictable",
+        "description": "Grants 20% chance of Arts DMG immunity and grants Fluorite ATK +10% for 10s. This effect cannot stack."
+      },
+      {
+        "name": "Unpredictable",
+        "description": "Grants 20% chance of Arts DMG immunity and grants Fluorite ATK +20% for 10s. This effect cannot stack."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Ten-Finger Smith",
+        "description": "Agility +10, Intellect +10."
+      },
+      {
+        "name": "Mind Reading Technique",
+        "description": "Talent Unpredictable improved: Chance to ignore Arts DMG +10%."
+      },
+      {
+        "name": "Triple Surprise",
+        "description": "Battle skill Tiny Surprise improved: After Improvised Explosive explodes, the slow effect is applied to all enemies hit and lasts 6s."
+      },
+      {
+        "name": "Prank Master",
+        "description": "Ultimate Apex Prankster improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Craver of Chaos",
+        "description": "Combo skill Free Giveaway improved: Whenever Cryo Infliction or Nature Infliction is applied to the enemy, cooldown is shortened by 1s. Effect can only trigger once every 1s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Signature Gun Kata"
+      },
+      "battleSkill": {
+        "name": "Tiny Surprise"
+      },
+      "comboSkill": {
+        "name": "Free Giveaway"
+      },
+      "ultimate": {
+        "name": "Apex Prankster"
+      }
+    }
+  },
+  "akekuri": {
+    "name": "Akekuri",
+    "talents": [
+      {
+        "name": "Cheer of Victory",
+        "description": "Combo skill Flash and Dash improved: For every 10 points of Intellect, SP Recovery +1.0% (max: 50%)."
+      },
+      {
+        "name": "Cheer of Victory",
+        "description": "Combo skill Flash and Dash improved: For every 10 points of Intellect, SP Recovery +1.5% (max: 75%)."
+      },
+      {
+        "name": "Staying in the Zone",
+        "description": "Ultimate SQUAD! ON ME! improved: When ultimate is active, gains Link."
+      }
+    ],
+    "potentials": [
+      {
+        "name": "Positive Feedback",
+        "description": "After recovering SP with skills, Akekuri gains ATK +10% for 10s. This effect can reach 5 stacks."
+      },
+      {
+        "name": "Passionate Idealist",
+        "description": "Agility +10, Intellect +10."
+      },
+      {
+        "name": "Committed Team Player",
+        "description": "Ultimate SQUAD! ON ME! improved: While ultimate is active, entire team gains ATK +10%."
+      },
+      {
+        "name": "Super Perfect Status",
+        "description": "Ultimate SQUAD! ON ME! improved: Ultimate Energy cost -10%."
+      },
+      {
+        "name": "Tempo of Awareness",
+        "description": "Talent Staying in the Zone improved: Even when the ultimate SQUAD! ON ME! ends, the Link buff persists for 5s."
+      }
+    ],
+    "combatSkills": {
+      "basicAttack": {
+        "name": "Sword of Aspiration"
+      },
+      "battleSkill": {
+        "name": "Burst of Passion"
+      },
+      "comboSkill": {
+        "name": "Flash and Dash"
+      },
+      "ultimate": {
+        "name": "SQUAD! ON ME!"
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import ActionLibrary from '../components/ActionLibrary.vue'
 import PropertiesPanel from '../components/PropertiesPanel.vue'
 import ResourceMonitor from '../components/ResourceMonitor.vue'
 import SimLogPanel from '../components/SimLogPanel.vue'
+import DamageAnalysisDialog from '../components/DamageAnalysisDialog.vue'
 
 import { addMetadataToPng, readMetadataFromPng } from '../utils/pngUtils.js'
 
@@ -31,6 +32,7 @@ const TIMELINE_MAIN_MIN_HEIGHT = 600
 const DEFAULT_LEFT_PANEL_WIDTH = 200
 const DEFAULT_RIGHT_PANEL_WIDTH = 260
 const DEFAULT_BOTTOM_PANEL_HEIGHT = 220
+const RIGHT_TOOLS_VISIBLE = false
 const watermarkEl = ref(null)
 const watermarkSubText = ref('Created by Endaxis')
 const appLayoutRef = ref(null)
@@ -43,6 +45,8 @@ const isRightPanelCollapsed = ref(false)
 const isBottomPanelCollapsed = ref(false)
 const activeWorkbenchDrag = ref(null)
 const rightPanelTool = ref('inspector') // 'inspector' | 'battleLog'
+const analysisDialogVisible = ref(false)
+const resourceMonitorExpandAllToken = ref(0)
 
 let workbenchDragState = null
 
@@ -120,7 +124,12 @@ function toggleWorkbenchPanel(target) {
   } else if (target === 'right') {
     isRightPanelCollapsed.value = !isRightPanelCollapsed.value
   } else if (target === 'bottom') {
-    isBottomPanelCollapsed.value = !isBottomPanelCollapsed.value
+    if (isBottomPanelCollapsed.value) {
+      resourceMonitorExpandAllToken.value += 1
+      isBottomPanelCollapsed.value = false
+    } else {
+      isBottomPanelCollapsed.value = true
+    }
   }
   persistWorkbenchLayout()
 }
@@ -206,7 +215,7 @@ function endWorkbenchResize() {
 }
 
 const appLayoutStyle = computed(() => ({
-  gridTemplateColumns: `${ACTIVITY_BAR_WIDTH}px ${isLeftPanelCollapsed.value ? 0 : leftPanelWidth.value}px ${isLeftPanelCollapsed.value ? 0 : 1}px minmax(${TIMELINE_MAIN_MIN_WIDTH}px, 1fr) ${isRightPanelCollapsed.value ? 0 : 1}px ${isRightPanelCollapsed.value ? 0 : rightPanelWidth.value}px ${ACTIVITY_BAR_WIDTH}px`,
+  gridTemplateColumns: `${ACTIVITY_BAR_WIDTH}px ${isLeftPanelCollapsed.value ? 0 : leftPanelWidth.value}px ${isLeftPanelCollapsed.value ? 0 : 1}px minmax(${TIMELINE_MAIN_MIN_WIDTH}px, 1fr) ${(!RIGHT_TOOLS_VISIBLE || isRightPanelCollapsed.value) ? 0 : 1}px ${(!RIGHT_TOOLS_VISIBLE || isRightPanelCollapsed.value) ? 0 : rightPanelWidth.value}px ${RIGHT_TOOLS_VISIBLE ? ACTIVITY_BAR_WIDTH : 0}px`,
 }))
 
 const timelineWorkspaceStyle = computed(() => ({
@@ -217,8 +226,18 @@ function toggleActivityPanel(target) {
   if (target === 'library') {
     isLeftPanelCollapsed.value = !isLeftPanelCollapsed.value
   } else if (target === 'bottom') {
-    isBottomPanelCollapsed.value = !isBottomPanelCollapsed.value
+    if (isBottomPanelCollapsed.value) {
+      resourceMonitorExpandAllToken.value += 1
+      isBottomPanelCollapsed.value = false
+    } else {
+      isBottomPanelCollapsed.value = true
+    }
   }
+  persistWorkbenchLayout()
+}
+
+function closeBottomPanelFromResourceMonitor() {
+  isBottomPanelCollapsed.value = true
   persistWorkbenchLayout()
 }
 
@@ -878,6 +897,19 @@ onUnmounted(() => {
             </div>
           </div>
 
+          <button
+            class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-green"
+            type="button"
+            :title="t('timeline.analysis.tooltip')"
+            @click="analysisDialogVisible = true"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 1 1-9-9v9z"></path>
+              <path d="M12 3a9 9 0 0 1 9 9h-9z"></path>
+            </svg>
+            {{ t('timeline.analysis.button') }}
+          </button>
+
           <el-dropdown @command="changeLocale" trigger="click" placement="bottom-end">
             <button class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-info" type="button" :title="t('timeline.header.languageTooltip')">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -951,7 +983,10 @@ onUnmounted(() => {
 
         <div v-if="!isBottomPanelCollapsed" class="workbench-panel resource-monitor-panel">
           <div class="workbench-panel__body resource-monitor-panel__body">
-            <ResourceMonitor />
+            <ResourceMonitor
+              :expand-all-token="resourceMonitorExpandAllToken"
+              @collapse-panel="closeBottomPanelFromResourceMonitor"
+            />
           </div>
         </div>
 
@@ -963,14 +998,14 @@ onUnmounted(() => {
     </main>
 
     <div
-      v-if="!isRightPanelCollapsed"
+      v-if="RIGHT_TOOLS_VISIBLE && !isRightPanelCollapsed"
       class="workbench-resizer workbench-resizer--vertical workbench-resizer--right"
       :class="{ 'is-active': activeWorkbenchDrag === 'right' }"
       @pointerdown="beginWorkbenchResize('right', $event)"
       @dblclick="resetWorkbenchLayout('right')"
     ></div>
 
-    <aside class="workbench-panel properties-sidebar" :class="{ 'is-collapsed-rail': isRightPanelCollapsed }">
+    <aside v-if="RIGHT_TOOLS_VISIBLE" class="workbench-panel properties-sidebar" :class="{ 'is-collapsed-rail': isRightPanelCollapsed }">
       <template v-if="!isRightPanelCollapsed">
         <div class="workbench-panel__body properties-sidebar__body">
           <PropertiesPanel
@@ -986,7 +1021,7 @@ onUnmounted(() => {
       </template>
     </aside>
 
-    <aside class="activity-bar activity-bar--right">
+    <aside v-if="RIGHT_TOOLS_VISIBLE" class="activity-bar activity-bar--right">
       <div class="activity-bar__group activity-bar__group--top">
         <button
           type="button"
@@ -1017,6 +1052,11 @@ onUnmounted(() => {
         </button>
       </div>
     </aside>
+
+    <DamageAnalysisDialog
+      :visible="analysisDialogVisible"
+      @update:visible="analysisDialogVisible = $event"
+    />
 
     <el-dialog v-model="exportDialogVisible" :title="t('timeline.export.dialogTitle')" width="460px" align-center class="custom-dialog">
       <div class="export-form">

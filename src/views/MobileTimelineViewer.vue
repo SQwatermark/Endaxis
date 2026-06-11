@@ -4,6 +4,7 @@ import { ElAlert, ElDialog, ElInput, ElMessage, ElButton, ElDropdown, ElDropdown
 import { useTimelineStore } from '@/stores/timelineStore.js'
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
+import { toLegacyDisplayType } from '@/utils/hitModel.js'
 
 const store = useTimelineStore()
 const { t, locale } = useI18n({ useScope: 'global' })
@@ -239,7 +240,7 @@ const equipmentSlots = computed(() => {
 })
 
 function getTypeLabel(action) {
-  const type = action?.type || 'unknown'
+  const type = toLegacyDisplayType(action?.type || 'unknown')
   const key = `skillType.${type}`
   const out = t(key)
   return out === key ? String(type) : out
@@ -259,8 +260,14 @@ function formatAxisLabel(viewTime) {
 }
 
 function getActionColor(action) {
-  const type = action?.type
-  if (typeof store.getColor === 'function') return store.getColor(type || 'default')
+  const displayType = toLegacyDisplayType(action?.type)
+  if (displayType === 'attack') return store.getColor('attack')
+  if (displayType === 'skill') return store.getColor('skill')
+  if (displayType === 'link') return store.getColor('link')
+  if (displayType === 'execution') return store.getColor('execution')
+  if (displayType === 'dodge') return store.getColor('dodge')
+  if (displayType === 'ultimate') return store.getColor('ultimate')
+  if (typeof store.getColor === 'function') return store.getColor(action?.element || displayType || 'default')
   return '#8c8c8c'
 }
 
@@ -279,7 +286,7 @@ function getActionStyle(action) {
 
   const color = getActionColor(action)
   const isDisabled = !!action?.isDisabled
-  const isAttack = action?.type === 'attack'
+  const isAttack = toLegacyDisplayType(action?.type) === 'attack'
 
   return {
     top: `${top}px`,
@@ -396,17 +403,18 @@ const operationHintsRaw = computed(() => {
       if (!action) continue
       if ((action.triggerWindow || 0) < 0) continue
 
+      const displayType = toLegacyDisplayType(action.type)
       let label = ''
       let isHold = false
       let customClass = ''
 
-      if (action.type === 'skill') {
+      if (displayType === 'skill') {
         label = `${keyNum}`
         customClass = 'op-skill'
-      } else if (action.type === 'link') {
+      } else if (displayType === 'link') {
         label = 'E'
         customClass = 'op-link'
-      } else if (action.type === 'ultimate') {
+      } else if (displayType === 'ultimate') {
         label = `${keyNum}H`
         isHold = true
         customClass = 'op-ultimate'

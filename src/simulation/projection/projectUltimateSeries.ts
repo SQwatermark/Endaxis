@@ -15,7 +15,7 @@ export function projectUltimateSeries(
   const maxGauge = Math.max(1, Number(actor.resources?.maxGauge) || 100);
   let currentGauge = Math.max(
     0,
-    Math.min(Number(actor.resources?.gauge) || 0, maxGauge),
+    Math.min(Number(actor.resources?.gauge ?? actor.resources?.ultimateEnergy) || 0, maxGauge),
   );
 
   const points = [
@@ -24,7 +24,7 @@ export function projectUltimateSeries(
 
   simLog.forEach((entry) => {
     if (
-      entry.type !== "ULTIMATE_CHARGE_CHANGE" ||
+      entry.type !== "ULT_ENERGY_CHANGE" ||
       entry.payload.actorId !== actorId
     ) {
       return;
@@ -36,10 +36,7 @@ export function projectUltimateSeries(
       ratio: currentGauge / maxGauge,
     });
 
-    currentGauge = Math.max(
-      0,
-      Math.min(Number(entry.payload.gauge) || 0, maxGauge),
-    );
+    currentGauge = Math.max(0, Math.min(currentGauge + (Number(entry.payload.change) || 0), maxGauge));
 
     points.push({
       time: entry.time,

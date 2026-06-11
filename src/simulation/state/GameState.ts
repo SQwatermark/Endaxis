@@ -9,11 +9,13 @@ import { TeamState } from "@/simulation/state/TeamState.ts";
 import { EnemyState } from "@/simulation/state/EnemyState.ts";
 import type { SimulationEngine } from "../engine/SimulationEngine";
 import { ActorState } from "./ActorState";
+import { OperatorEffectState } from "./OperatorEffectState";
 
 export class GameState implements BaseGameState<GameSnapshot> {
   team: TeamState;
   enemy: EnemyState;
   private actors: Map<string, ActorState> = new Map();
+  private operatorEffects: Map<string, OperatorEffectState> = new Map();
   private currentTime: number = 0;
   private initialSnapshot: GameSnapshot;
 
@@ -35,6 +37,9 @@ export class GameState implements BaseGameState<GameSnapshot> {
 
   setActor(actorSnapshot: ActorSnapshot) {
     this.actors.set(actorSnapshot.id, new ActorState(actorSnapshot));
+    if (!this.operatorEffects.has(actorSnapshot.id)) {
+      this.operatorEffects.set(actorSnapshot.id, new OperatorEffectState(actorSnapshot.id));
+    }
     this.initialSnapshot = this.snapshot();
   }
 
@@ -48,6 +53,15 @@ export class GameState implements BaseGameState<GameSnapshot> {
 
   getActors(): ActorState[] {
     return Array.from(this.actors.values());
+  }
+
+  getOperatorEffects(trackId: string): OperatorEffectState {
+    let state = this.operatorEffects.get(trackId);
+    if (!state) {
+      state = new OperatorEffectState(trackId);
+      this.operatorEffects.set(trackId, state);
+    }
+    return state;
   }
 
   getCurrentTime() {
