@@ -18,7 +18,7 @@ const sheet: GearSetSheet = {
         status: 'mi-security-stack',
         stacks: { compare: 'exact', count: 5 },
       },
-      icon: '/equipment/item_equip_t4_suit_criti01_edc_03.webp',
+      icon: '/equipment/criti01/item_equip_t4_suit_criti01_edc_03.webp',
     },
   ],
   triggers: [
@@ -33,7 +33,7 @@ const sheet: GearSetSheet = {
           value: 5,
           maxStacks: 5,
           duration: 5,
-          icon: '/equipment/item_equip_t4_suit_criti01_edc_03.webp',
+          icon: '/equipment/criti01/item_equip_t4_suit_criti01_edc_03.webp',
         },
       ],
     },

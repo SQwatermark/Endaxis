@@ -275,7 +275,7 @@ const sheet: OperatorSheet = {
                         kind: 'not',
                         condition: { kind: 'enemyStatus', status: 'vulnerability' },
                       },
-                      icon: '/icons/icon_skill_lifeng_debuff.png',
+                      icon: '/operators/lifeng/icon_skill_lifeng_debuff.png',
                     },
                     { kind: 'physicalStatus', physicalType: 'knockdown' },
                   ],

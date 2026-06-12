@@ -24,7 +24,7 @@ const sheet: GearSetSheet = {
           maxStacks: 2,
           value: 20,
           duration: 15,
-          icon: '/equipment/item_equip_t4_suit_combo_cd01_body_01.webp',
+          icon: '/equipment/combo_cd01/item_equip_t4_suit_combo_cd01_body_01.webp',
         },
       ],
     },

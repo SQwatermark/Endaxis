@@ -19,7 +19,7 @@ const sheet: GearSetSheet = {
           target: 'team',
           value: 16,
           duration: 15,
-          icon: '/equipment/item_equip_t4_suit_atb01_edc_04.webp',
+          icon: '/equipment/atb01/item_equip_t4_suit_atb01_edc_04.webp',
         },
       ],
     },

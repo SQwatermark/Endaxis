@@ -14,7 +14,7 @@ const sheet: GearSetSheet = {
       target: 'self',
       value: 20,
       condition: { kind: 'operatorHp', compare: 'above', percent: 80 },
-      icon: '/equipment/item_equip_t2_suit_wisd01_edc_03.webp',
+      icon: '/equipment/wisd01/item_equip_t2_suit_wisd01_edc_03.webp',
     },
   ],
 };

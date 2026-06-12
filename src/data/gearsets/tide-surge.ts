@@ -28,7 +28,7 @@ const sheet: GearSetSheet = {
             status: ['cryoInfliction', 'electricInfliction', 'natureInfliction', 'heatInfliction'],
             stacks: { compare: 'atLeast', count: 2 },
           },
-          icon: '/equipment/item_equip_t4_suit_burst01_edc_01.webp',
+          icon: '/equipment/burst01/item_equip_t4_suit_burst01_edc_01.webp',
         },
       ],
     },
