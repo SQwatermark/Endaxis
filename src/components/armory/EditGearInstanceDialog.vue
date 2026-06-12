@@ -22,7 +22,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible'])
 
 const gearStore = useGearStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const piece = computed(() => (props.instance ? getGearPiece(props.instance.gearPieceId) : null))
 const quality = computed(() => (piece.value ? getQualityTier(piece.value.levelRequirement) : 'green'))
@@ -41,7 +41,7 @@ function formatStatLabel(effect) {
   const stat = effect?.stat
   if (!stat) return t('common.unknown')
   if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
-    return stat.attribute ? getGameAttributeName(stat.attribute) : t('common.unknown')
+    return stat.attribute ? getGameAttributeName(stat.attribute, locale.value) : t('common.unknown')
   }
   if (stat.modifier === 'atkFlat' || stat.modifier === 'atkPercent') return t('stats.attack')
   if (stat.modifier === 'hpPercent' || stat.modifier === 'flatHp') return t('stats.hp')
@@ -99,11 +99,11 @@ function formatStatValue(value) {
             <img :src="piece.icon" class="portrait" />
           </div>
           <div class="header-info">
-            <div class="name">{{ getGearPieceGameName(instance.gearPieceId) || instance.gearPieceId }}</div>
+            <div class="name">{{ getGearPieceGameName(instance.gearPieceId, locale) || instance.gearPieceId }}</div>
             <div class="tags">
-              <span class="tag" :style="{ color, borderColor: color }">{{ getGameQualityName(quality) }}</span>
-              <span class="tag">{{ getGameSlotTypeName(piece.slotType) }}</span>
-              <span v-if="piece.setSlug" class="tag">{{ getGearSetGameName(piece.setSlug) }}</span>
+              <span class="tag" :style="{ color, borderColor: color }">{{ getGameQualityName(quality, locale) }}</span>
+              <span class="tag">{{ getGameSlotTypeName(piece.slotType, locale) }}</span>
+              <span v-if="piece.setSlug" class="tag">{{ getGearSetGameName(piece.setSlug, locale) }}</span>
             </div>
             <div v-if="piece.defense" class="row">
               <span class="section-label">{{ t('armory.common.defense') }}</span>

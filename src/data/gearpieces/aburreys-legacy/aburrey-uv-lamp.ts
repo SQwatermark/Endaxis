@@ -2,7 +2,7 @@ import type { GearPieceSheet } from '../../types';
 
 const sheet: GearPieceSheet = {
   name: 'Aburrey UV Lamp',
-  icon: '/equipment/item_equip_t3_suit_atk01_edc_01.webp',
+  icon: '/equipment/atk01/item_equip_t3_suit_atk01_edc_01.webp',
   slotType: 'kit',
   levelRequirement: 50,
   defense: 15,

@@ -49,6 +49,7 @@ const operatorChartOption = computed<ChartOption>(() => ({
     orient: 'vertical',
     right: 10,
     top: 'center',
+    inactiveColor: '#565d66',
     textStyle: { color: '#ccc', fontSize: 12 },
   },
   series: [
@@ -140,6 +141,7 @@ const elementChartOption = computed<ChartOption>(() => ({
     orient: 'vertical',
     right: 10,
     top: 'center',
+    inactiveColor: '#565d66',
     textStyle: { color: '#ccc', fontSize: 12 },
   },
   series: [

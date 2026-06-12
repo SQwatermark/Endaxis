@@ -32,11 +32,13 @@ const TIMELINE_MAIN_MIN_HEIGHT = 600
 const DEFAULT_LEFT_PANEL_WIDTH = 200
 const DEFAULT_RIGHT_PANEL_WIDTH = 260
 const DEFAULT_BOTTOM_PANEL_HEIGHT = 220
+const BOTTOM_RESIZER_HEIGHT = 1
 const RIGHT_TOOLS_VISIBLE = false
 const watermarkEl = ref(null)
 const watermarkSubText = ref('Created by Endaxis')
 const appLayoutRef = ref(null)
 const timelineWorkspaceRef = ref(null)
+const timelineWorkspaceHeight = ref(0)
 const leftPanelWidth = ref(DEFAULT_LEFT_PANEL_WIDTH)
 const rightPanelWidth = ref(DEFAULT_RIGHT_PANEL_WIDTH)
 const bottomPanelHeight = ref(DEFAULT_BOTTOM_PANEL_HEIGHT)
@@ -47,12 +49,31 @@ const activeWorkbenchDrag = ref(null)
 const rightPanelTool = ref('inspector') // 'inspector' | 'battleLog'
 const analysisDialogVisible = ref(false)
 const resourceMonitorExpandAllToken = ref(0)
+const resourceMonitorCollapsedCount = ref(0)
 
 let workbenchDragState = null
+let timelineWorkspaceResizeObserver = null
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
+
+function updateTimelineWorkspaceMetrics() {
+  timelineWorkspaceHeight.value = timelineWorkspaceRef.value?.clientHeight || 0
+}
+
+function getMaxBottomPanelHeight(workspaceHeight = timelineWorkspaceHeight.value) {
+  const availableHeight = Math.max(0, Number(workspaceHeight) || 0)
+  if (availableHeight <= 0) return bottomPanelHeight.value
+  return Math.max(0, availableHeight - TIMELINE_MAIN_MIN_HEIGHT - BOTTOM_RESIZER_HEIGHT)
+}
+
+const bottomPanelMinHeight = computed(() => {
+  const collapsedCount = Math.min(Math.max(Number(resourceMonitorCollapsedCount.value) || 0, 0), 2)
+  if (collapsedCount === 1) return Math.round(BOTTOM_PANEL_MIN_HEIGHT * 0.75)
+  if (collapsedCount >= 2) return Math.round(BOTTOM_PANEL_MIN_HEIGHT * 0.5)
+  return BOTTOM_PANEL_MIN_HEIGHT
+})
 
 function getSafeLocalStorage() {
   if (typeof window === 'undefined') return null
@@ -90,7 +111,7 @@ function restoreWorkbenchLayout() {
       rightPanelWidth.value = clamp(parsed.rightPanelWidth, RIGHT_PANEL_MIN_WIDTH, PANEL_MAX_WIDTH)
     }
     if (Number.isFinite(parsed.bottomPanelHeight)) {
-      bottomPanelHeight.value = Math.max(BOTTOM_PANEL_MIN_HEIGHT, parsed.bottomPanelHeight)
+      bottomPanelHeight.value = Math.max(0, parsed.bottomPanelHeight)
     }
     isLeftPanelCollapsed.value = parsed.isLeftPanelCollapsed === true
     isRightPanelCollapsed.value = parsed.isRightPanelCollapsed === true
@@ -195,9 +216,10 @@ function applyWorkbenchResize(event) {
   const rect = timelineWorkspaceRef.value?.getBoundingClientRect()
   if (!rect) return
 
-  const maxBottomHeight = Math.max(BOTTOM_PANEL_MIN_HEIGHT, rect.height - TIMELINE_MAIN_MIN_HEIGHT)
+  const maxBottomHeight = getMaxBottomPanelHeight(rect.height)
+  const minBottomHeight = Math.min(bottomPanelMinHeight.value, maxBottomHeight)
   const nextHeight = workbenchDragState.bottomPanelHeight - (event.clientY - workbenchDragState.startY)
-  bottomPanelHeight.value = clamp(nextHeight, BOTTOM_PANEL_MIN_HEIGHT, maxBottomHeight)
+  bottomPanelHeight.value = clamp(nextHeight, minBottomHeight, maxBottomHeight)
 }
 
 function onWorkbenchResizeMove(event) {
@@ -218,8 +240,19 @@ const appLayoutStyle = computed(() => ({
   gridTemplateColumns: `${ACTIVITY_BAR_WIDTH}px ${isLeftPanelCollapsed.value ? 0 : leftPanelWidth.value}px ${isLeftPanelCollapsed.value ? 0 : 1}px minmax(${TIMELINE_MAIN_MIN_WIDTH}px, 1fr) ${(!RIGHT_TOOLS_VISIBLE || isRightPanelCollapsed.value) ? 0 : 1}px ${(!RIGHT_TOOLS_VISIBLE || isRightPanelCollapsed.value) ? 0 : rightPanelWidth.value}px ${RIGHT_TOOLS_VISIBLE ? ACTIVITY_BAR_WIDTH : 0}px`,
 }))
 
+const effectiveBottomPanelHeight = computed(() => {
+  if (isBottomPanelCollapsed.value) return 0
+  const maxBottomHeight = getMaxBottomPanelHeight()
+  const minBottomHeight = Math.min(bottomPanelMinHeight.value, maxBottomHeight)
+  return Math.round(clamp(bottomPanelHeight.value, minBottomHeight, maxBottomHeight))
+})
+
+function handleResourceMonitorSectionCollapseChange(count) {
+  resourceMonitorCollapsedCount.value = Math.min(Math.max(Number(count) || 0, 0), 2)
+}
+
 const timelineWorkspaceStyle = computed(() => ({
-  gridTemplateRows: `minmax(${TIMELINE_MAIN_MIN_HEIGHT}px, 1fr) ${isBottomPanelCollapsed.value ? 0 : 1}px ${isBottomPanelCollapsed.value ? 0 : bottomPanelHeight.value}px`,
+  gridTemplateRows: `minmax(${TIMELINE_MAIN_MIN_HEIGHT}px, 1fr) ${isBottomPanelCollapsed.value ? 0 : BOTTOM_RESIZER_HEIGHT}px ${effectiveBottomPanelHeight.value}px`,
 }))
 
 function toggleActivityPanel(target) {
@@ -657,6 +690,15 @@ function handleGlobalKeydown(e) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalKeydown)
+  nextTick(() => {
+    updateTimelineWorkspaceMetrics()
+    if (typeof ResizeObserver !== 'undefined' && timelineWorkspaceRef.value) {
+      timelineWorkspaceResizeObserver = new ResizeObserver(() => {
+        updateTimelineWorkspaceMetrics()
+      })
+      timelineWorkspaceResizeObserver.observe(timelineWorkspaceRef.value)
+    }
+  })
   
   window.addEventListener('dragstart', onGlobalDragStart, true)
   window.addEventListener('dragend', onGlobalDragEnd, true)
@@ -669,6 +711,10 @@ onMounted(() => {
 
 onUnmounted(() => { 
   window.removeEventListener('keydown', handleGlobalKeydown)
+  if (timelineWorkspaceResizeObserver) {
+    timelineWorkspaceResizeObserver.disconnect()
+    timelineWorkspaceResizeObserver = null
+  }
   
   window.removeEventListener('dragstart', onGlobalDragStart, true)
   window.removeEventListener('dragend', onGlobalDragEnd, true)
@@ -986,6 +1032,7 @@ onUnmounted(() => {
             <ResourceMonitor
               :expand-all-token="resourceMonitorExpandAllToken"
               @collapse-panel="closeBottomPanelFromResourceMonitor"
+              @section-collapse-change="handleResourceMonitorSectionCollapseChange"
             />
           </div>
         </div>
@@ -1187,6 +1234,7 @@ onUnmounted(() => {
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .divider-vertical { width: 1px; height: 20px; background-color: #555; margin: 0 5px; }
 .hide-effects-group { position: relative; }
+.hide-effects-group::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 6px; z-index: 39; }
 .hide-effects-btn { white-space: nowrap; display: flex; align-items: center; gap: 5px; }
 .hide-effects-dropdown { position: absolute; top: 100%; left: 0; min-width: 160px; margin-top: 4px; padding: 4px 0; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; z-index: 40; }
 .hide-effects-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; white-space: nowrap; user-select: none; color: #ccc; font-size: 12px; }

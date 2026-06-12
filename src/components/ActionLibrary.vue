@@ -7,11 +7,12 @@ import EditOperatorInstanceDialog from './armory/EditOperatorInstanceDialog.vue'
 import EditWeaponInstanceDialog from './armory/EditWeaponInstanceDialog.vue'
 import EditTrackGearLoadoutDialog from './armory/EditTrackGearLoadoutDialog.vue'
 import { useI18n } from 'vue-i18n'
+import { getOperatorGameName, getWeaponGameName } from '@/data/gameText'
 
 const store = useTimelineStore()
 const operatorStore = useOperatorStore()
 const weaponStore = useWeaponStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const props = defineProps({
   onResetPanel: {
     type: Function,
@@ -65,8 +66,14 @@ const hasAnyEquipmentEquipped = computed(() => {
   )
 })
 
-const activeCharacterName = computed(() => activeCharacter.value ? activeCharacter.value.name : t('actionLibrary.fallback.noOperator'))
-const activeWeaponName = computed(() => activeWeapon.value ? activeWeapon.value.name : t('actionLibrary.fallback.noWeapon'))
+const activeCharacterName = computed(() => {
+  if (!activeCharacter.value) return t('actionLibrary.fallback.noOperator')
+  return getOperatorGameName(activeCharacter.value.id || activeCharacter.value.slug, locale.value)
+})
+const activeWeaponName = computed(() => {
+  if (!activeWeapon.value) return t('actionLibrary.fallback.noWeapon')
+  return getWeaponGameName(activeWeapon.value.canonicalSlug || activeWeapon.value.id, locale.value)
+})
 const activeLibraryTitle = computed(() => {
   return activeCharacterName.value
 })
@@ -144,10 +151,11 @@ function onSkillClick(skillId) {
 }
 
 watch(
-    () => store.activeSkillLibrary,
+    () => [store.activeSkillLibrary, locale.value],
     (newVal) => {
-      if (newVal && newVal.length > 0) {
-        localSkills.value = JSON.parse(JSON.stringify(newVal.filter(s => !s.hiddenInLibraryGrid)))
+      const skills = newVal?.[0]
+      if (skills && skills.length > 0) {
+        localSkills.value = JSON.parse(JSON.stringify(skills.filter(s => !s.hiddenInLibraryGrid)))
       } else {
         localSkills.value = []
       }

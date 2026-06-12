@@ -21,7 +21,10 @@ import {
   getGameElementName,
   getGameSlotTypeName,
   getGameWeaponTypeName,
+  getGearPieceGameName,
   getGearSetGameName,
+  getOperatorGameName,
+  getWeaponGameName,
 } from '@/data/gameText'
 
 const store = useTimelineStore()
@@ -266,26 +269,11 @@ function getTrackInfoStyle(index) {
 }
 
 function getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight) {
-  const track = store.tracks[index]
-  if (!track?.id || !store.isOperatorEffectsVisible(index)) {
-    return {
-      topPadding: basePadding,
-      bottomPadding: basePadding,
-      rowHeight: requestedRowHeight,
-    }
+  return {
+    topPadding: basePadding,
+    bottomPadding: basePadding,
+    rowHeight: requestedRowHeight,
   }
-
-  const operatorLayout = store.operatorEffectLayouts.get(track.id)
-  const operatorRows = (operatorLayout?.positionedSegments || [])
-    .filter((segment) => (Number(segment.group) || 0) === 0)
-    .reduce((max, segment) => Math.max(max, (Number(segment.subRow) || 0) + 1), 0)
-  const equipmentRows = store.trackBuffLayouts.get(track.id)?.lowerLaneCount || 0
-
-  const topPadding = Math.max(basePadding, TRACK_ROW_MIN_PADDING, operatorRows * OPERATOR_BUFF_ROW_HEIGHT + BUFF_LAYER_MARGIN)
-  const bottomPadding = Math.max(basePadding, TRACK_ROW_MIN_PADDING, equipmentRows * EQUIPMENT_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN)
-  const rowHeight = Math.max(requestedRowHeight, TRACK_HEIGHT + topPadding + bottomPadding)
-
-  return { topPadding, bottomPadding, rowHeight }
 }
 
 function beginTrackResize(index, event) {
@@ -497,13 +485,49 @@ const ELEMENT_FILTERS = computed(() => {
   locale.value
   return [
     { label: t('timelineGrid.elementFilter.all'), value: 'ALL', color: '#888' },
-    { label: getGameElementName('physical'), value: 'physical', color: '#e0e0e0' },
-    { label: getGameElementName('heat'), value: 'heat', color: '#ff4d4f' },
-    { label: getGameElementName('cryo'), value: 'cryo', color: '#00e5ff' },
-    { label: getGameElementName('electric'), value: 'electric', color: '#ffd700' },
-    { label: getGameElementName('nature'), value: 'nature', color: '#52c41a' }
+    { label: getGameElementName('physical', locale.value), value: 'physical', color: '#e0e0e0' },
+    { label: getGameElementName('heat', locale.value), value: 'heat', color: '#ff4d4f' },
+    { label: getGameElementName('cryo', locale.value), value: 'cryo', color: '#00e5ff' },
+    { label: getGameElementName('electric', locale.value), value: 'electric', color: '#ffd700' },
+    { label: getGameElementName('nature', locale.value), value: 'nature', color: '#52c41a' }
   ]
 })
+
+const OPERATOR_ELEMENT_ICON_MAP = {
+  physical: '/icons/icon_element_physical.png',
+  heat: '/icons/icon_element_heat.png',
+  cryo: '/icons/icon_element_cryo.png',
+  electric: '/icons/icon_element_electric.png',
+  nature: '/icons/icon_element_nature.png',
+}
+
+function getOperatorElementIcon(element) {
+  return OPERATOR_ELEMENT_ICON_MAP[element] || OPERATOR_ELEMENT_ICON_MAP.physical
+}
+
+function mixHexColor(baseColor, mixColor = '#111111', mixRatio = 0.28) {
+  const parse = (value) => {
+    const match = String(value || '').trim().match(/^#?([0-9a-f]{6})$/i)
+    if (!match) return null
+    const hex = match[1]
+    return [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16),
+    ]
+  }
+  const base = parse(baseColor)
+  const mix = parse(mixColor)
+  if (!base || !mix) return baseColor || '#777777'
+  const ratio = Math.min(Math.max(Number(mixRatio) || 0, 0), 1)
+  const rgb = base.map((channel, index) => Math.round(channel * (1 - ratio) + mix[index] * ratio))
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+}
+
+function getOperatorElementBadgeColor(element) {
+  const color = store.getColor(element)
+  return mixHexColor(color, '#111111', element === 'physical' ? 0.42 : 0.22)
+}
 
 function openCharacterSelector(index) {
   store.selectTrack(index)
@@ -592,19 +616,19 @@ const operatorSelectorItems = computed(() => {
   return (store.characterRoster || []).map((char) => ({
     id: char.id,
     canonicalId: char.id,
-    name: char.name,
+    name: getOperatorGameName(char.id || char.slug, locale.value),
     avatar: char.avatar,
     rarity: Number(char.rarity) || 0,
     element: char.element || 'physical',
-    elementName: getGameElementName(char.element),
+    elementName: getGameElementName(char.element, locale.value),
     weapon: char.weapon || '',
-    weaponName: getGameWeaponTypeName(char.weapon),
+    weaponName: getGameWeaponTypeName(char.weapon, locale.value),
     searchTerms: [
-      char.name,
+      getOperatorGameName(char.id || char.slug, locale.value),
       char.id,
       char.slug,
-      getGameElementName(char.element),
-      getGameWeaponTypeName(char.weapon),
+      getGameElementName(char.element, locale.value),
+      getGameWeaponTypeName(char.weapon, locale.value),
     ].map(normalizeSearchText).filter(Boolean),
     raw: char,
   }))
@@ -649,16 +673,16 @@ const weaponSelectorItems = computed(() => {
   return (store.weaponDatabase || []).map((weapon) => ({
     id: weapon.id,
     canonicalId: weapon.canonicalSlug || weapon.id,
-    name: weapon.name,
+    name: getWeaponGameName(weapon.canonicalSlug || weapon.id, locale.value),
     icon: weapon.icon || '/weapons/default.webp',
     rarity: Number(weapon.rarity) || 0,
     type: weapon.type || '',
-    typeName: getGameWeaponTypeName(weapon.type),
+    typeName: getGameWeaponTypeName(weapon.type, locale.value),
     searchTerms: [
-      weapon.name,
+      getWeaponGameName(weapon.canonicalSlug || weapon.id, locale.value),
       weapon.id,
       weapon.canonicalSlug,
-      getGameWeaponTypeName(weapon.type),
+      getGameWeaponTypeName(weapon.type, locale.value),
     ].map(normalizeSearchText).filter(Boolean),
     raw: weapon,
   }))
@@ -748,21 +772,21 @@ const equipmentSelectorItems = computed(() => {
   return (store.equipmentDatabase || []).map((eq) => ({
     id: eq.id,
     canonicalId: eq.canonicalGearPieceId || eq.id,
-    name: eq.name,
+    name: getGearPieceGameName(eq.canonicalGearPieceId || eq.id, locale.value),
     icon: eq.icon || '/icons/default_icon.webp',
     level: Number(eq.level) || 0,
     slot: eq.slot || '',
-    slotName: getGameSlotTypeName(eq.slot),
+    slotName: getGameSlotTypeName(eq.slot, locale.value),
     category: eq.category || '',
-    categoryName: eq.category ? getGearSetGameName(eq.category) : '',
+    categoryName: eq.category ? getGearSetGameName(eq.category, locale.value) : '',
     affixes: eq.affixes,
     searchTerms: [
-      eq.name,
+      getGearPieceGameName(eq.canonicalGearPieceId || eq.id, locale.value),
       eq.id,
       eq.canonicalGearPieceId,
       eq.category,
-      eq.category ? getGearSetGameName(eq.category) : '',
-      getGameSlotTypeName(eq.slot),
+      eq.category ? getGearSetGameName(eq.category, locale.value) : '',
+      getGameSlotTypeName(eq.slot, locale.value),
     ].map(normalizeSearchText).filter(Boolean),
     raw: eq,
   }))
@@ -2540,7 +2564,10 @@ onUnmounted(() => {
           <div class="roster-grid">
             <div v-for="char in group.list" :key="char.id" class="roster-card" :class="[{ 'is-selected': store.tracks.some(t => t.id === char.id) }, `rarity-${char.rarity}-style`]" @click="confirmCharacterSelection(char.id)">
               <div class="card-avatar-wrapper" :style="char.rarity === 6 ? {} : { borderColor: getRarityBaseColor(char.rarity) }">
-                <img :src="char.avatar" loading="lazy" /><div class="element-badge" :style="{ background: store.getColor(char.element) }"></div>
+                <img :src="char.avatar" loading="lazy" />
+                <div class="element-badge" :style="{ backgroundColor: getOperatorElementBadgeColor(char.element) }" :title="char.elementName">
+                  <img :src="getOperatorElementIcon(char.element)" alt="" loading="lazy" />
+                </div>
               </div>
               <div class="card-name">{{ char.name }}</div>
               <div v-if="store.tracks.some(t => t.id === char.id)" class="in-team-tag">{{ t('timelineGrid.operatorDialog.inTeam') }}</div>
@@ -4067,12 +4094,26 @@ body.capture-mode .davinci-range {
 
 .element-badge {
   position: absolute;
-  bottom: 0;
   right: 0;
-  width: 18px;
-  height: 18px;
-  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 14, 0.82);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.16);
   z-index: 2;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.element-badge img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.72));
 }
 
 .card-name {

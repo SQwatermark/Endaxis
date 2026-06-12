@@ -2418,8 +2418,14 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
 
     const teamTracksInfo = computed(() => tracks.value.map(track => {
+        i18n.global.locale.value
         const charInfo = characterRoster.value.find(c => c.id === track.id)
-        return { ...track, ...(charInfo || { name: tr('timelineGrid.track.selectOperator'), avatar: '', rarity: 0 }) }
+        if (!charInfo) return { ...track, name: tr('timelineGrid.track.selectOperator'), avatar: '', rarity: 0 }
+        return {
+            ...track,
+            ...charInfo,
+            name: getOperatorGameName(charInfo.id || charInfo.slug || track.id),
+        }
     }))
 
     const activeWeapon = computed(() => {

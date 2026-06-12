@@ -44,7 +44,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible'])
 
 const operatorStore = useOperatorStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const op = computed(() => (props.instance ? getOperator(props.instance.operatorSlug) : null))
 const color = computed(() => (op.value ? getRarityBaseColor(Number(op.value.rarity) || 0) : '#888'))
@@ -123,21 +123,21 @@ function talentFlatIndex(groupIdx) {
 function getTalentName(groupIdx) {
   const slug = props.instance?.operatorSlug
   if (!slug) return t('armory.operator.talent', { index: groupIdx + 1 })
-  return getOperatorTalentName(slug, talentFlatIndex(groupIdx), 0)
+  return getOperatorTalentName(slug, talentFlatIndex(groupIdx), 0, locale.value)
 }
 
 function getTalentDescription(groupIdx, level) {
   const slug = props.instance?.operatorSlug
   if (!slug) return ''
-  return getOperatorTalentDescription(slug, talentFlatIndex(groupIdx), level - 1) || ''
+  return getOperatorTalentDescription(slug, talentFlatIndex(groupIdx), level - 1, locale.value) || ''
 }
 
 function getPotentialTooltip(level) {
   const slug = props.instance?.operatorSlug
   if (!slug) return ''
   const idx = level - 1
-  const name = getOperatorPotentialName(slug, idx)
-  const description = getOperatorPotentialDescription(slug, idx)
+  const name = getOperatorPotentialName(slug, idx, locale.value)
+  const description = getOperatorPotentialDescription(slug, idx, locale.value)
   return description ? `${name} - ${description}` : name
 }
 
@@ -171,9 +171,9 @@ function trustLevelBonus(level) {
 
 function promotedLabel() {
   if (!props.instance) return ''
-  if (canPromote.value) return getOperatorUiLabel(props.instance.promoted ? 'promoted' : 'promote')
-  if (props.instance.level === 90) return getOperatorUiLabel('fullyPromoted')
-  return getOperatorUiLabel('promotionUnavailable')
+  if (canPromote.value) return getOperatorUiLabel(props.instance.promoted ? 'promoted' : 'promote', locale.value)
+  if (props.instance.level === 90) return getOperatorUiLabel('fullyPromoted', locale.value)
+  return getOperatorUiLabel('promotionUnavailable', locale.value)
 }
 </script>
 
@@ -201,9 +201,9 @@ function promotedLabel() {
               <span class="stars" :class="`header-rarity-${op.rarity}`" :style="{ color }">{{ '★'.repeat(op.rarity) }}</span>
             </div>
             <div class="tags">
-              <span class="tag" :style="{ color: elColor, borderColor: elColor }">{{ getGameElementName(op.element) }}</span>
-              <span class="tag">{{ getGameClassName(op.class) }}</span>
-              <span class="tag">{{ getGameWeaponTypeName(op.weapon) }}</span>
+              <span class="tag" :style="{ color: elColor, borderColor: elColor }">{{ getGameElementName(op.element, locale) }}</span>
+              <span class="tag">{{ getGameClassName(op.class, locale) }}</span>
+              <span class="tag">{{ getGameWeaponTypeName(op.weapon, locale) }}</span>
             </div>
             <div class="level-display">
               <span class="level-num">{{ instance.level }}</span>
@@ -270,7 +270,7 @@ function promotedLabel() {
           <div class="talent-row">
             <div class="talent-info">
               <span class="talent-name">{{ t('armory.common.trust') }}</span>
-              <span class="talent-sub">{{ getGameAttributeName(op.mainAttribute) }}</span>
+              <span class="talent-sub">{{ getGameAttributeName(op.mainAttribute, locale) }}</span>
             </div>
             <div class="talent-nodes">
               <template v-for="lvl in 4" :key="lvl">
@@ -280,7 +280,7 @@ function promotedLabel() {
                   :class="{ active: (instance.trustLevel ?? 0) >= lvl, disabled: lvl > maxTrust }"
                   :style="(instance.trustLevel ?? 0) >= lvl ? { borderColor: elColor } : {}"
                   :disabled="lvl > maxTrust"
-                  :title="`+${trustLevelBonus(lvl)} ${getGameAttributeName(op.mainAttribute)}`"
+                  :title="`+${trustLevelBonus(lvl)} ${getGameAttributeName(op.mainAttribute, locale)}`"
                   @click="setTrustLevel(lvl)"
                 >
                   <img :src="ATTR_ICON[op.mainAttribute] ?? '/icons/default_icon.webp'" class="talent-icon" />

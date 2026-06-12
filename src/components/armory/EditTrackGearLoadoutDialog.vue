@@ -25,7 +25,7 @@ const emit = defineEmits(['update:visible'])
 
 const store = useTimelineStore()
 const gearStore = useGearStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const editingGearInstance = ref(null)
 
 const SLOT_CONFIGS = [
@@ -89,7 +89,7 @@ function formatStatLabel(effect) {
   const stat = effect?.stat
   if (!stat) return tr('common.unknown', 'Unknown')
   if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
-    return stat.attribute ? getGameAttributeName(stat.attribute) : tr('common.unknown', 'Unknown')
+    return stat.attribute ? getGameAttributeName(stat.attribute, locale.value) : tr('common.unknown', 'Unknown')
   }
   if (stat.modifier === 'atkFlat' || stat.modifier === 'atkPercent') return t('stats.attack')
   if (stat.modifier === 'hpPercent' || stat.modifier === 'flatHp') return t('stats.hp')
@@ -144,10 +144,10 @@ const slots = computed(() => {
       refine,
       isGold: level >= 70,
       name: instance
-        ? getGearPieceGameName(instance.gearPieceId) || instance.gearPieceId
+        ? getGearPieceGameName(instance.gearPieceId, locale.value) || instance.gearPieceId
         : equipment?.name || '',
       icon: piece?.icon || equipment?.icon || '/icons/default_icon.webp',
-      setName: getGearSetGameName(piece?.setSlug || equipment?.category || '') || equipment?.categoryName || '',
+      setName: getGearSetGameName(piece?.setSlug || equipment?.category || '', locale.value) || equipment?.categoryName || '',
       slotType: piece?.slotType || equipment?.slot || '',
       stats: getSlotStatRows(piece, instance),
     }
@@ -190,8 +190,8 @@ function openItemEditor(slot) {
         <div class="slot-head">
           <div class="slot-title">{{ slot.label }}</div>
           <div v-if="slot.instance" class="slot-tags">
-            <span class="slot-tag" :style="{ color: slot.color, borderColor: slot.color }">{{ getGameQualityName(slot.quality) }}</span>
-            <span class="slot-tag">{{ getGameSlotTypeName(slot.slotType) }}</span>
+            <span class="slot-tag" :style="{ color: slot.color, borderColor: slot.color }">{{ getGameQualityName(slot.quality, locale) }}</span>
+            <span class="slot-tag">{{ getGameSlotTypeName(slot.slotType, locale) }}</span>
           </div>
         </div>
 

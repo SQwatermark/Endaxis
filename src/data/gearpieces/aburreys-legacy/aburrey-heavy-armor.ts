@@ -2,7 +2,7 @@ import type { GearPieceSheet } from '../../types';
 
 const sheet: GearPieceSheet = {
   name: 'Aburrey Heavy Armor',
-  icon: '/equipment/item_equip_t3_suit_atk01_body_01.webp',
+  icon: '/equipment/atk01/item_equip_t3_suit_atk01_body_01.webp',
   slotType: 'armor',
   levelRequirement: 50,
   defense: 40,

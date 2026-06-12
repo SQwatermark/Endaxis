@@ -24,7 +24,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible'])
 
 const weaponStore = useWeaponStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const weapon = computed(() => (props.instance ? getWeapon(props.instance.weaponSlug) : null))
 const color = computed(() => (weapon.value ? getRarityBaseColor(Number(weapon.value.rarity) || 0) : '#888'))
@@ -87,9 +87,9 @@ function maxOut() {
 
 function tunedLabel() {
   if (!props.instance) return ''
-  if (canTune.value) return getWeaponUiLabel('tuned')
-  if (props.instance.level === 90) return getWeaponUiLabel('fullyTuned')
-  return getWeaponUiLabel('tuningUnavailable')
+  if (canTune.value) return getWeaponUiLabel('tuned', locale.value)
+  if (props.instance.level === 90) return getWeaponUiLabel('fullyTuned', locale.value)
+  return getWeaponUiLabel('tuningUnavailable', locale.value)
 }
 
 function getSkillLevel(skillKey) {
@@ -141,7 +141,7 @@ function getSkillValueSuffix(skillKey) {
 function getSkillName(skillKey) {
   const slug = props.instance?.weaponSlug
   if (!slug) return t(`armory.weapon.${skillKey}`)
-  return getWeaponSkillName(slug, skillKey, undefined, t(`armory.weapon.${skillKey}`))
+  return getWeaponSkillName(slug, skillKey, locale.value, t(`armory.weapon.${skillKey}`))
 }
 </script>
 
@@ -165,11 +165,11 @@ function getSkillName(skillKey) {
           </div>
           <div class="header-info">
             <div class="name-row">
-              <span class="name">{{ displayName || getWeaponGameName(instance.weaponSlug) || instance.weaponSlug }}</span>
+              <span class="name">{{ displayName || getWeaponGameName(instance.weaponSlug, locale) || instance.weaponSlug }}</span>
               <span class="stars" :class="`header-rarity-${weapon.rarity}`" :style="{ color }">{{ '★'.repeat(weapon.rarity) }}</span>
             </div>
             <div class="tags">
-              <span class="tag">{{ getGameWeaponTypeName(weapon.type) }}</span>
+              <span class="tag">{{ getGameWeaponTypeName(weapon.type, locale) }}</span>
             </div>
             <div class="level-display">
               <span class="level-num">{{ instance.level }}</span>

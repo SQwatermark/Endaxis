@@ -2,7 +2,7 @@ import type { GearPieceSheet } from '../../types';
 
 const sheet: GearPieceSheet = {
   name: 'Aburrey Gauntlets',
-  icon: '/equipment/item_equip_t3_suit_atk01_hand_01.webp',
+  icon: '/equipment/atk01/item_equip_t3_suit_atk01_hand_01.webp',
   slotType: 'gloves',
   levelRequirement: 50,
   defense: 30,

@@ -8,13 +8,14 @@ import HitDamageDetailDialog from './HitDamageDetailDialog.vue'
 import { Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { getDisplayKeyCandidates } from '@/utils/effectDisplay.js'
+import { getEnemyGameName } from '@/data/gameText'
 
 const store = useTimelineStore()
-const { t } = useI18n({ useScope: 'global' })
+const { t, locale } = useI18n({ useScope: 'global' })
 const props = defineProps({
   expandAllToken: { type: Number, default: 0 },
 })
-const emit = defineEmits(['collapse-panel'])
+const emit = defineEmits(['collapse-panel', 'section-collapse-change'])
 const reactionHitDetailHit = ref(null)
 const showReactionHitDetail = computed(() => reactionHitDetailHit.value !== null)
 const reactionHitDetailBreakdown = computed(() => reactionHitDetailHit.value?._damageBreakdown ?? null)
@@ -215,6 +216,15 @@ function areAllSectionsCollapsed(state) {
   return SECTION_KEYS.every(key => state?.[key] === true)
 }
 
+function getCollapsedSectionCount(state = sectionCollapsed.value) {
+  const normalized = getNormalizedCollapsedState(state)
+  return SECTION_KEYS.reduce((count, key) => count + (normalized[key] ? 1 : 0), 0)
+}
+
+function emitSectionCollapseChange() {
+  emit('section-collapse-change', getCollapsedSectionCount())
+}
+
 function persistSectionCollapsed() {
   try {
     localStorage.setItem(SECTION_COLLAPSE_KEY, JSON.stringify(sectionCollapsed.value))
@@ -243,6 +253,7 @@ function getNormalizedCollapsedState(source = sectionCollapsed.value) {
 function expandAllSections() {
   sectionCollapsed.value = { affliction: false, stagger: false, sp: false }
   persistSectionCollapsed()
+  emitSectionCollapseChange()
 }
 
 function toggleSectionCollapsed(which) {
@@ -258,6 +269,7 @@ function toggleSectionCollapsed(which) {
   }
   sectionCollapsed.value = next
   persistSectionCollapsed()
+  emitSectionCollapseChange()
 }
 
 watch(() => props.expandAllToken, () => {
@@ -267,6 +279,7 @@ watch(() => props.expandAllToken, () => {
 onMounted(() => {
   restoreSectionWeights()
   restoreSectionCollapsed()
+  emitSectionCollapseChange()
 })
 
 const activeSectionCollapsed = computed(() => getNormalizedCollapsedState())
@@ -752,11 +765,18 @@ const activeEnemyInfo = computed(() => {
   if (store.activeEnemyId === 'custom') {
     return { name: t('resourceMonitor.enemy.custom'), avatar: '', isCustom: true }
   }
-  return store.enemyDatabase.find(e => e.id === store.activeEnemyId) || { name: t('resourceMonitor.enemy.unknown'), avatar: '' }
+  const enemy = store.enemyDatabase.find(e => e.id === store.activeEnemyId)
+  return enemy
+    ? { ...enemy, name: getEnemyGameName(enemy.id, locale.value) }
+    : { name: t('resourceMonitor.enemy.unknown'), avatar: '' }
 })
 
 const groupedEnemyList = computed(() => {
-  let list = enemyDatabase.value || []
+  locale.value
+  let list = (enemyDatabase.value || []).map(enemy => ({
+    ...enemy,
+    name: getEnemyGameName(enemy.id, locale.value),
+  }))
 
   if (enemySearchQuery.value) {
     const q = enemySearchQuery.value.toLowerCase()

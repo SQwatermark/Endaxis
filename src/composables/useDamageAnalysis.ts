@@ -12,6 +12,11 @@ interface ContributionEntry {
   color: string
 }
 
+const ANALYSIS_ELEMENT_COLORS: Record<string, string> = {
+  ...ELEMENT_COLORS,
+  physical: '#c9c9c9',
+}
+
 export function useDamageAnalysis() {
   const store = useTimelineStore()
   const { locale } = useI18n()
@@ -79,7 +84,7 @@ export function useDamageAnalysis() {
       return {
         name,
         value: Math.round(damage),
-        itemStyle: { color: info?.element ? ELEMENT_COLORS[info.element] : '#888' },
+        itemStyle: { color: info?.element ? ANALYSIS_ELEMENT_COLORS[info.element] : '#888' },
       }
     })
     operatorChartData.sort((a, b) => b.value - a.value)
@@ -87,7 +92,7 @@ export function useDamageAnalysis() {
     const elementChartData = Array.from(elementDamage.entries()).map(([element, damage]) => ({
       name: getGameElementName(element, locale.value),
       value: Math.round(damage),
-      itemStyle: { color: ELEMENT_COLORS[element] ?? '#888' },
+      itemStyle: { color: ANALYSIS_ELEMENT_COLORS[element] ?? '#888' },
     }))
     elementChartData.sort((a, b) => b.value - a.value)
 
@@ -102,7 +107,7 @@ export function useDamageAnalysis() {
         damage,
         buff,
         total: damage + buff,
-        color: info?.element ? (ELEMENT_COLORS[info.element] ?? '#888') : '#888',
+        color: info?.element ? (ANALYSIS_ELEMENT_COLORS[info.element] ?? '#888') : '#888',
       }
     })
     contributionData.sort((a, b) => b.total - a.total)
