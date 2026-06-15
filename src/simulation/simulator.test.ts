@@ -1163,6 +1163,29 @@ describe("optimizer-native runtime parity", () => {
     });
   });
 
+  it("applies ultimate gain efficiency to ultimate energy gains", () => {
+    const simulation = runScenario([
+      createTrack(
+        "alpha",
+        [
+          createAction("gain", "battleSkill", {
+            startTime: 0,
+            duration: 1,
+            gaugeGain: 10,
+          }),
+        ],
+        {
+          maxGaugeOverride: 100,
+          stats: { ult_charge_eff: 150 },
+        },
+      ),
+    ]);
+
+    const gaugeEntry = simulation.simLog.find((entry) => entry.type === "ULT_ENERGY_CHANGE");
+    expect(gaugeEntry?.payload.change).toBe(15);
+    expect(gaugeEntry?.payload.gauge).toBe(15);
+  });
+
   it("maps optimizer enemy effect layout into ResourceMonitor affliction groups", () => {
     const viz = projectEnemyAfflictionViz({
       positionedSegments: [

@@ -326,11 +326,12 @@
       "boxSelect": "Рамка (Ctrl+B)",
       "connectionTool": "Связи (Alt+L)",
       "cursorGuide": "Направляющие (Ctrl+G)",
-      "fullUltimateEnergy": "Полная энергия ульты",
       "snapPrecision": "Точность привязки (Alt+S)"
     },
     "track": {
       "changeOperatorTooltip": "Сменить оперативника",
+      "initialGauge": "Initial Ultimate Energy",
+      "initialGaugeShort": "Init",
       "operatorAlreadyInUse": "Этот оперативник уже на другой дорожке!",
       "selectOperator": "Выбрать ОП",
       "selectWeaponTooltip": "Выбрать оружие",

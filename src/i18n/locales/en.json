@@ -326,11 +326,12 @@
       "boxSelect": "Box select (Ctrl+B)",
       "connectionTool": "Connection tool (Alt+L)",
       "cursorGuide": "Guide line (Ctrl+G)",
-      "fullUltimateEnergy": "Full Ultimate Energy",
       "snapPrecision": "Snap precision (Alt+S)"
     },
     "track": {
       "changeOperatorTooltip": "Click to change operator",
+      "initialGauge": "Initial Ultimate Energy",
+      "initialGaugeShort": "Init",
       "operatorAlreadyInUse": "This operator is already on another track!",
       "selectOperator": "Select OP",
       "selectWeaponTooltip": "Select weapon",

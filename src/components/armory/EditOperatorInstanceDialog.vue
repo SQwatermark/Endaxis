@@ -48,7 +48,14 @@ const { t, locale } = useI18n()
 
 const op = computed(() => (props.instance ? getOperator(props.instance.operatorSlug) : null))
 const color = computed(() => (op.value ? getRarityBaseColor(Number(op.value.rarity) || 0) : '#888'))
-const potentialColor = '#FF4500'
+
+const potentialColor = computed(() => {
+  const rarity = Number(op.value?.rarity) || 0
+  if (rarity === 5) return '#ffc400'
+  if (rarity === 4) return '#d8b4fe'
+  if (rarity === 6) return '#FF4500'
+  return '#888'
+})
 const elColor = computed(() => (op.value ? elementColors[op.value.element] : '#888') ?? '#888')
 const skillMax = computed(() =>
   props.instance ? getOperatorSkillMax(props.instance.level, props.instance.promoted) : 1,
@@ -132,13 +139,37 @@ function getTalentDescription(groupIdx, level) {
   return getOperatorTalentDescription(slug, talentFlatIndex(groupIdx), level - 1, locale.value) || ''
 }
 
-function getPotentialTooltip(level) {
+function getPotentialInfo(level) {
   const slug = props.instance?.operatorSlug
-  if (!slug) return ''
+  if (!slug) {
+    return {
+      name: `${t('armory.common.potential')} ${level}`,
+      description: '',
+    }
+  }
+
   const idx = level - 1
-  const name = getOperatorPotentialName(slug, idx, locale.value)
-  const description = getOperatorPotentialDescription(slug, idx, locale.value)
-  return description ? `${name} - ${description}` : name
+  const name = getOperatorPotentialName(slug, idx, locale.value) || `${t('armory.common.potential')} ${level}`
+  const description = getOperatorPotentialDescription(slug, idx, locale.value) || ''
+
+  return {
+    name,
+    description,
+  }
+}
+
+function getTrustTooltipInfo(level) {
+  const attrName = getGameAttributeName(op.value?.mainAttribute, locale.value)
+
+  return {
+    description: `+${trustLevelBonus(level)} ${attrName}`,
+  }
+}
+
+function getTalentTooltipInfo(groupIdx, level) {
+  return {
+    description: getTalentDescription(groupIdx, level) || '',
+  }
 }
 
 function incrementSkill(key) {
@@ -222,15 +253,35 @@ function promotedLabel() {
             <div class="row">
               <span class="section-label">{{ t('armory.common.potential') }}</span>
               <div class="diamonds">
-                <button
-                  v-for="p in 5"
-                  :key="p"
-                  class="diamond"
-                  :class="{ active: instance.potential >= p }"
-                  :style="instance.potential >= p ? { background: potentialColor } : {}"
-                  :title="getPotentialTooltip(p)"
-                  @click="update({ potential: instance.potential === p ? p - 1 : p })"
-                />
+                <el-tooltip
+                    v-for="p in 5"
+                    :key="p"
+                    placement="top"
+                    effect="dark"
+                    :show-after="120"
+                    popper-class="operator-edit-tooltip-popper"
+                >
+                  <template #content>
+                    <div class="operator-edit-tooltip">
+                      <div class="operator-edit-tooltip-title">
+                        {{ getPotentialInfo(p).name }}
+                      </div>
+                      <div
+                          v-if="getPotentialInfo(p).description"
+                          class="operator-edit-tooltip-desc"
+                      >
+                        {{ getPotentialInfo(p).description }}
+                      </div>
+                    </div>
+                  </template>
+
+                  <button
+                      class="diamond"
+                      :class="{ active: instance.potential >= p }"
+                      :style="instance.potential >= p ? { background: potentialColor } : {}"
+                      @click="update({ potential: instance.potential === p ? p - 1 : p })"
+                  />
+                </el-tooltip>
               </div>
             </div>
           </div>
@@ -275,35 +326,87 @@ function promotedLabel() {
             <div class="talent-nodes">
               <template v-for="lvl in 4" :key="lvl">
                 <div v-if="lvl > 1" class="talent-chain" :class="{ active: (instance.trustLevel ?? 0) >= lvl }" />
-                <button
-                  class="talent-node"
-                  :class="{ active: (instance.trustLevel ?? 0) >= lvl, disabled: lvl > maxTrust }"
-                  :style="(instance.trustLevel ?? 0) >= lvl ? { borderColor: elColor } : {}"
-                  :disabled="lvl > maxTrust"
-                  :title="`+${trustLevelBonus(lvl)} ${getGameAttributeName(op.mainAttribute, locale)}`"
-                  @click="setTrustLevel(lvl)"
+                <el-tooltip
+                    placement="top"
+                    effect="dark"
+                    :show-after="120"
+                    popper-class="operator-edit-tooltip-popper"
                 >
-                  <img :src="ATTR_ICON[op.mainAttribute] ?? '/icons/default_icon.webp'" class="talent-icon" />
-                </button>
+                  <template #content>
+                    <div class="operator-edit-tooltip">
+                      <div class="operator-edit-tooltip-desc">
+                        {{ getTrustTooltipInfo(lvl).description }}
+                      </div>
+                    </div>
+                  </template>
+
+                  <span class="talent-node-tooltip-anchor">
+                    <button
+                        class="talent-node"
+                        :class="{ active: (instance.trustLevel ?? 0) >= lvl, disabled: lvl > maxTrust }"
+                        :style="(instance.trustLevel ?? 0) >= lvl ? { borderColor: elColor } : {}"
+                        :disabled="lvl > maxTrust"
+                        @click="setTrustLevel(lvl)"
+                    >
+                      <img :src="ATTR_ICON[op.mainAttribute] ?? '/icons/default_icon.webp'" class="talent-icon" />
+                    </button>
+                  </span>
+                </el-tooltip>
               </template>
             </div>
           </div>
           <div v-for="(group, groupIdx) in talentGroups" :key="groupIdx" class="talent-row">
             <div class="talent-info">
-              <span class="talent-name" :title="getTalentDescription(groupIdx, 1)">{{ getTalentName(groupIdx) }}</span>
+              <el-tooltip
+                  placement="top"
+                  effect="dark"
+                  :show-after="120"
+                  :disabled="!getTalentTooltipInfo(groupIdx, 1).description"
+                  popper-class="operator-edit-tooltip-popper"
+              >
+                <template #content>
+                  <div class="operator-edit-tooltip">
+                    <div class="operator-edit-tooltip-desc">
+                      {{ getTalentTooltipInfo(groupIdx, 1).description }}
+                    </div>
+                  </div>
+                </template>
+
+                <span class="talent-name">{{ getTalentName(groupIdx) }}</span>
+              </el-tooltip>
             </div>
             <div class="talent-nodes">
               <template v-for="lvl in group.levels" :key="lvl">
                 <div v-if="lvl > 1" class="talent-chain" :class="{ active: (instance.talentStates[String(groupIdx)] ?? 0) >= lvl }" />
-                <button
-                  class="talent-node"
-                  :class="{ active: (instance.talentStates[String(groupIdx)] ?? 0) >= lvl }"
-                  :style="(instance.talentStates[String(groupIdx)] ?? 0) >= lvl ? { borderColor: elColor } : {}"
-                  :title="getTalentDescription(groupIdx, lvl)"
-                  @click="setTalentState(groupIdx, lvl)"
+                <el-tooltip
+                    placement="top"
+                    effect="dark"
+                    :show-after="120"
+                    :disabled="!getTalentTooltipInfo(groupIdx, lvl).description"
+                    popper-class="operator-edit-tooltip-popper"
                 >
-                  <img :src="getTalentIcon(groupIdx)" class="talent-icon" />
-                </button>
+                  <template #content>
+                    <div class="operator-edit-tooltip">
+                      <div class="operator-edit-tooltip-title">
+                        {{ getTalentTooltipInfo(groupIdx, lvl).name }}
+                      </div>
+                      <div class="operator-edit-tooltip-desc">
+                        {{ getTalentTooltipInfo(groupIdx, lvl).description }}
+                      </div>
+                    </div>
+                  </template>
+
+                  <span class="talent-node-tooltip-anchor">
+                    <button
+                        class="talent-node"
+                        :class="{ active: (instance.talentStates[String(groupIdx)] ?? 0) >= lvl }"
+                        :style="(instance.talentStates[String(groupIdx)] ?? 0) >= lvl ? { borderColor: elColor } : {}"
+                        @click="setTalentState(groupIdx, lvl)"
+                    >
+                      <img :src="getTalentIcon(groupIdx)" class="talent-icon" />
+                    </button>
+                  </span>
+                </el-tooltip>
               </template>
             </div>
           </div>
@@ -376,4 +479,48 @@ function promotedLabel() {
 .talent-node.disabled { opacity: 0.2; cursor: not-allowed; }
 .talent-icon { width: 28px; height: 28px; object-fit: contain; }
 .footer { display: flex; justify-content: flex-end; gap: 8px; width: 100%; }
+.talent-node-tooltip-anchor {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+:global(.operator-edit-tooltip-popper) {
+  max-width: 340px;
+}
+
+:global(.operator-edit-tooltip-popper.el-popper.is-dark) {
+  background: #d8d8d8;
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+}
+
+:global(.operator-edit-tooltip-popper.el-popper.is-dark .el-popper__arrow::before) {
+  background: #d8d8d8;
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+:global(.operator-edit-tooltip) {
+  min-width: 200px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #111;
+}
+
+:global(.operator-edit-tooltip-title) {
+  color: #050505;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+:global(.operator-edit-tooltip-desc) {
+  color: rgba(0, 0, 0, 0.78);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
 </style>

@@ -326,11 +326,12 @@
       "boxSelect": "框选 (Ctrl+B)",
       "connectionTool": "连线工具 (Alt+L)",
       "cursorGuide": "辅助线 (Ctrl+G)",
-      "fullUltimateEnergy": "终结技充能满能量",
       "snapPrecision": "吸附精度 (Alt+S)"
     },
     "track": {
       "changeOperatorTooltip": "点击更换干员",
+      "initialGauge": "初始终结技充能",
+      "initialGaugeShort": "初始",
       "operatorAlreadyInUse": "该干员已在另一条轨道上！",
       "selectOperator": "请选择干员",
       "selectWeaponTooltip": "选择武器",

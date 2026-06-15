@@ -10,6 +10,7 @@ import TimelineBuffLayer from './TimelineBuffLayer.vue'
 import ContextMenu from './ContextMenu.vue'
 import StatDetailDialog from './StatDetailDialog.vue'
 import HitDamageDetailDialog from './HitDamageDetailDialog.vue'
+import CustomNumberInput from './CustomNumberInput.vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useDragConnection } from '@/composables/useDragConnection.js'
@@ -264,6 +265,7 @@ function getTrackInfoStyle(index) {
   const basePadding = Math.max(TRACK_ROW_MIN_PADDING, (requestedRowHeight - TRACK_HEIGHT) / 2)
   const { topPadding, bottomPadding, rowHeight } = getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight)
   return {
+    '--track-height': `${TRACK_HEIGHT}px`,
     '--track-row-height': `${rowHeight}px`,
     '--track-row-padding-top': `${topPadding}px`,
     '--track-row-padding-bottom': `${bottomPadding}px`,
@@ -462,6 +464,17 @@ function getEquipmentElementPairId(elements) {
   return ''
 }
 
+function isEquipmentArtsDmgElements(elements) {
+  const set = new Set(normalizeEquipmentStatArray(elements))
+  return (
+      set.size === 4
+      && set.has('heat')
+      && set.has('cryo')
+      && set.has('electric')
+      && set.has('nature')
+  )
+}
+
 function isEquipmentPairModifierId(modifierId) {
   return modifierId === 'heat_nature_dmg_bonus' || modifierId === 'cryo_electric_dmg_bonus'
 }
@@ -509,6 +522,9 @@ function mergeEquipmentElementPairEffects(effects) {
 function getEquipmentDmgBonusModifierIds(stat) {
   const elements = normalizeEquipmentStatArray(stat?.elements)
   if (elements.length > 0) {
+    if (isEquipmentArtsDmgElements(elements)) {
+      return ['arts_dmg']
+    }
     const pairId = getEquipmentElementPairId(elements)
     if (pairId) return [pairId]
     const mapped = elements.map((element) => ({
@@ -590,6 +606,9 @@ function getEquipmentEffectLabel(stat, modifierId) {
   if (stat.modifier === 'dmgBonus') {
     const elements = normalizeEquipmentStatArray(stat.elements)
     const skillTypes = normalizeEquipmentStatArray(stat.skillTypes)
+    if (isEquipmentArtsDmgElements(elements)) {
+      return trOrFallback('game.stat.dmgBonus:arts', getEquipmentModifierLabel('arts_dmg'))
+    }
     const pairId = getEquipmentElementPairId(elements)
     if (pairId) {
       const names = elements.map(element => getGameElementName(element, locale.value)).filter(Boolean)
@@ -929,6 +948,22 @@ function getEquipmentTierForTrack(track, slotKey) {
   if (slotKey === 'accessory1') return Number(track.equipAccessory1RefineTier) || 0
   if (slotKey === 'accessory2') return Number(track.equipAccessory2RefineTier) || 0
   return 0
+}
+
+function getInitialGaugeMax(track) {
+  if (!track?.id) return 0
+  return Math.max(0, Number(store.getTrackGaugeMax(track.id)) || 0)
+}
+
+function getInitialGaugeValue(track) {
+  const max = getInitialGaugeMax(track)
+  const value = Math.max(0, Number(track?.initialGauge) || 0)
+  return max > 0 ? Math.min(value, max) : value
+}
+
+function updateInitialGauge(track, value) {
+  if (!track?.id) return
+  store.updateTrackInitialGauge(track.id, value)
 }
 
 const equipmentSlotType = computed(() => {
@@ -2278,10 +2313,6 @@ onUnmounted(() => {
     <div class="corner-placeholder">
         <div class="corner-controls">
           <div class="corner-button-row">
-            <button class="mini-tool-btn" :class="{ 'is-active': store.isFullUltEnergy }" @click="store.toggleFullUltEnergy" :title="t('timelineGrid.toolbar.fullUltimateEnergy')">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none"><path d="M13 2L4 14h7v8l9-12h-7z" /></svg>
-            </button>
-
             <button class="mini-tool-btn" :class="{ 'is-active': store.showCursorGuide }" @click="store.toggleCursorGuide" :title="t('timelineGrid.toolbar.cursorGuide')">
               <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg>
             </button>
@@ -2455,6 +2486,27 @@ onUnmounted(() => {
         </div>
 
         <div class="char-select-trigger">
+          <div
+            v-if="track.id"
+            class="initial-gauge-control"
+            :title="t('timelineGrid.track.initialGauge')"
+            @click.stop
+          >
+            <span class="initial-gauge-label">{{ t('timelineGrid.track.initialGaugeShort') }}</span>
+            <div class="initial-gauge-input-wrap">
+              <CustomNumberInput
+                :model-value="getInitialGaugeValue(track)"
+                :min="0"
+                :max="getInitialGaugeMax(track)"
+                :step="1"
+                active-color="#7dd3fc"
+                border-color="#7dd3fc"
+                text-align="center"
+                @update:model-value="val => updateInitialGauge(track, val)"
+              />
+            </div>
+            <span class="initial-gauge-max">/{{ getInitialGaugeMax(track) }}</span>
+          </div>
           <div class="operator-row">
             <div class="trigger-avatar-box" @click.stop="openCharacterSelector(index)" :title="t('timelineGrid.track.changeOperatorTooltip')">
               <img v-if="track.id" :src="track.avatar" class="avatar-image" :alt="track.name"/>
@@ -3499,6 +3551,8 @@ body.capture-mode .davinci-range {
   display: flex;
   align-items: center;
   min-width: 0;
+  height: var(--track-height, 50px);
+  flex: 0 0 var(--track-height, 50px);
 }
 
 .trigger-avatar-box {
@@ -3597,6 +3651,7 @@ body.capture-mode .davinci-range {
   justify-content: center;
   flex: 1 1 auto;
   min-width: 0;
+  height: 100%;
   cursor: default;
   position: relative;
 }
@@ -3606,18 +3661,96 @@ body.capture-mode .davinci-range {
 }
 
 .trigger-name {
+  display: block;
   color: #f0f0f0;
   font-weight: bold;
   font-size: 14px;
+  line-height: 18px;
+  user-select: none;
+}
+
+.initial-gauge-control {
+  --initial-gauge-accent: #7dd3fc;
+  --initial-gauge-input-width: 54px;
+  position: absolute;
+  top: clamp(8px, calc(50% - 42px), 30px);
+  left: 6px;
+  right: 6px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  width: auto;
+  height: 20px;
+  margin-bottom: 0;
+  padding-left: 1px;
+  color: var(--initial-gauge-accent);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.initial-gauge-label {
+  flex: 0 0 auto;
+  color: rgba(125, 211, 252, 0.92);
+  user-select: none;
+}
+
+.initial-gauge-input-wrap {
+  flex: 0 0 var(--initial-gauge-input-width);
+  width: var(--initial-gauge-input-width);
+  height: 20px;
+}
+
+.initial-gauge-input-wrap :deep(.custom-number-input) {
+  height: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.38) inset;
+}
+
+.initial-gauge-input-wrap :deep(.custom-number-input:focus-within) {
+  background: rgba(125, 211, 252, 0.1);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.9) inset;
+}
+
+.initial-gauge-input-wrap :deep(.value-display) {
+  color: #e0f2fe;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 20px;
+  padding: 0 2px;
+}
+
+.initial-gauge-input-wrap :deep(.controls-stack) {
+  width: 14px;
+}
+
+.initial-gauge-input-wrap :deep(.control-btn) {
+  width: 14px;
+  color: rgba(125, 211, 252, 0.62);
+  font-size: 9px;
+}
+
+.initial-gauge-input-wrap :deep(.control-btn:hover:not(:disabled)) {
+  color: #e0f2fe;
+}
+
+.initial-gauge-max {
+  flex: 0 0 auto;
+  color: rgba(186, 230, 253, 0.62);
   user-select: none;
 }
 
 .track-stat-detail-btn {
   position: absolute;
   left: 0;
-  bottom: calc(100% + 4px);
+  top: -5px;
+  z-index: 4;
+  align-self: flex-start;
   max-width: 100%;
   height: 18px;
+  margin-bottom: 0;
   padding: 0 7px;
   border: 1px solid rgba(255, 215, 0, 0.28);
   background: rgba(255, 215, 0, 0.08);
@@ -4386,14 +4519,14 @@ body.capture-mode .davinci-range {
 }
 
 :global(.equipment-affix-tooltip-popper.el-popper.is-dark) {
-  background: #080b10;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.58);
+  background: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.72);
 }
 
 :global(.equipment-affix-tooltip-popper.el-popper.is-dark .el-popper__arrow::before) {
-  background: #080b10;
-  border-color: rgba(148, 163, 184, 0.22);
+  background: #050505;
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 :global(.equipment-affix-tooltip) {

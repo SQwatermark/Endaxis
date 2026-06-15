@@ -28,8 +28,14 @@ const { t, locale } = useI18n()
 
 const weapon = computed(() => (props.instance ? getWeapon(props.instance.weaponSlug) : null))
 const color = computed(() => (weapon.value ? getRarityBaseColor(Number(weapon.value.rarity) || 0) : '#888'))
-const potentialColor = '#FF4500'
 
+const potentialColor = computed(() => {
+  const rarity = Number(weapon.value?.rarity) || 0
+  if (rarity === 5) return '#ffc400'
+  if (rarity === 4) return '#d8b4fe'
+  if (rarity === 6) return '#FF4500'
+  return '#888'
+})
 const activeSkillKeys = computed(() => {
   if (!weapon.value) return ALL_SKILL_KEYS
   return ALL_SKILL_KEYS.filter(key => weapon.value[key])

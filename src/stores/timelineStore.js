@@ -770,7 +770,6 @@ export const useTimelineStore = defineStore('timeline', () => {
     const trackLaneRects = ref({})
 
     const showCursorGuide = ref(false)
-    const isFullUltEnergy = ref(false)
     const OPERATOR_EFFECTS_VISIBLE_KEY = 'endaxis:operator-effects-visible:v1'
     const operatorEffectsVisible = ref(loadOperatorEffectsVisible())
     const cursorPosition = ref({ x: 0, y: 0 })
@@ -957,7 +956,6 @@ export const useTimelineStore = defineStore('timeline', () => {
             customEnemyParams: customEnemyParams.value,
             cycleBoundaries: cycleBoundaries.value,
             switchEvents: switchEvents.value,
-            isFullUltEnergy: isFullUltEnergy.value,
             operators: operatorStore.operators,
             weapons: weaponStore.weapons,
             gears: gearStore.gears,
@@ -991,7 +989,6 @@ export const useTimelineStore = defineStore('timeline', () => {
         }
         cycleBoundaries.value = incoming.cycleBoundaries ? JSON.parse(JSON.stringify(incoming.cycleBoundaries)) : []
         switchEvents.value = incoming.switchEvents ? JSON.parse(JSON.stringify(incoming.switchEvents)) : []
-        isFullUltEnergy.value = incoming.isFullUltEnergy === true
         recomputeAllTrackOperatorStatuses()
         clearSelection()
     }
@@ -2635,7 +2632,9 @@ export const useTimelineStore = defineStore('timeline', () => {
                         : (idx === 0 ? baseDefaults.spCost : 0)
                     const segmentGaugeGain = skill.type === 'battleSkill'
                         ? ((Number(segmentSpCost) || 0) * (DEFAULT_BATTLE_SKILL_UE / systemConstants.value.skillSpCostDefault))
-                        : (idx === list.length - 1 ? baseDefaults.gaugeGain : 0)
+                        : (skill.type === 'comboSkill'
+                            ? baseDefaults.gaugeGain
+                            : (idx === list.length - 1 ? baseDefaults.gaugeGain : 0))
                     return buildBaseAction({
                         id: segmentInfo.id,
                         type: actionType,
@@ -2779,20 +2778,6 @@ export const useTimelineStore = defineStore('timeline', () => {
     function setNodeRect(nodeId, rect) { nodeRects.value[nodeId] = rect }
     function setCursorPosition(x, y) { cursorPosition.value = { x, y } }
     function toggleCursorGuide() { showCursorGuide.value = !showCursorGuide.value }
-    function getFullGaugeForTrack(track) {
-        if (!track?.id) return 0
-        const charInfo = characterRoster.value.find(c => c.id === track.id)
-        if (!charInfo) return 0
-        return resolveGaugeMax(track.id, track, charInfo)
-    }
-    function toggleFullUltEnergy() {
-        isFullUltEnergy.value = !isFullUltEnergy.value
-        for (const track of tracks.value) {
-            if (!track.id) continue
-            track.initialGauge = isFullUltEnergy.value ? getFullGaugeForTrack(track) : 0
-        }
-        commitState()
-    }
     function toggleOperatorEffectsVisible(index) {
         const normalized = normalizeOperatorEffectsVisible(operatorEffectsVisible.value)
         if (index < 0 || index >= normalized.length) return
@@ -3501,13 +3486,6 @@ export const useTimelineStore = defineStore('timeline', () => {
             if (!track.actions) return;
             track.actions.forEach(action => { if (action.id === skillId) { Object.assign(action, props) } })
         })
-        if (isFullUltEnergy.value && String(skillId).endsWith('_ultimate')) {
-            tracks.value.forEach(track => {
-                if (track.id && `${track.id}_ultimate` === skillId) {
-                    track.initialGauge = getFullGaugeForTrack(track)
-                }
-            })
-        }
         commitState()
     }
 
@@ -3554,7 +3532,7 @@ export const useTimelineStore = defineStore('timeline', () => {
             track.weaponBuffTier = 1
             track.stats = createDefaultStats()
             track.operatorStatus = null
-            track.initialGauge = isFullUltEnergy.value ? getFullGaugeForTrack(track) : 0
+            track.initialGauge = 0
             track.actions = [];
             activeTrackIndex.value = trackIndex
             activeTrackId.value = normalizedNewOperatorId
@@ -3614,11 +3592,23 @@ export const useTimelineStore = defineStore('timeline', () => {
         const track = tracks.value.find(t => t.id === trackId);
         if (track) {
             track.maxGaugeOverride = value;
-            if (isFullUltEnergy.value) track.initialGauge = getFullGaugeForTrack(track)
+            track.initialGauge = clampTrackInitialGauge(track, track.initialGauge)
             commitState();
         }
     }
-    function updateTrackInitialGauge(trackId, value) { const track = tracks.value.find(t => t.id === trackId); if (track) { track.initialGauge = value; commitState(); } }
+    function clampTrackInitialGauge(track, value) {
+        const max = track?.id ? getTrackGaugeMax(track.id) : 0
+        const num = Number(value)
+        if (!Number.isFinite(num)) return 0
+        return Math.max(0, Math.min(num, max > 0 ? max : num))
+    }
+    function updateTrackInitialGauge(trackId, value) {
+        const track = tracks.value.find(t => t.id === trackId)
+        if (track) {
+            track.initialGauge = clampTrackInitialGauge(track, value)
+            commitState()
+        }
+    }
 
     function removeAnomaly(instanceId, rowIndex, colIndex) {
         let action = null;
@@ -4420,13 +4410,25 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
 
     function resolveGaugeMax(trackId, track, charInfo) {
-        const libId = `${trackId}_ultimate`;
-        const override = characterOverrides.value[libId];
-        const max = (track.maxGaugeOverride && track.maxGaugeOverride > 0)
-            ? track.maxGaugeOverride
-            : ((override && override.gaugeCost) ? override.gaugeCost : (charInfo.ultimate_gaugeMax || 100));
-        const num = Number(max);
-        return Number.isFinite(num) && num > 0 ? num : 100;
+        const libId = `${trackId}_ultimate`
+        const override = characterOverrides.value[libId]
+
+        const manualOverride = Number(track.maxGaugeOverride)
+        if (Number.isFinite(manualOverride) && manualOverride > 0) {
+            return manualOverride
+        }
+
+        const rawBaseMax = (override && override.gaugeCost)
+            ? override.gaugeCost
+            : (charInfo.ultimate_gaugeMax || 100)
+
+        const baseMax = Number(rawBaseMax)
+        const safeBaseMax = Number.isFinite(baseMax) && baseMax > 0 ? baseMax : 100
+
+        const costReduction = Number(track.operatorStatus?.ultimateEnergyCostReduction) || 0
+        const reducedMax = safeBaseMax * (1 - Math.max(0, Math.min(costReduction, 0.99)))
+
+        return Math.max(1, Math.ceil(reducedMax))
     }
 
     function getTrackGaugeMax(trackId) {
@@ -4757,8 +4759,7 @@ export const useTimelineStore = defineStore('timeline', () => {
                 activeEnemyId: activeEnemyId.value,
                 customEnemyParams: customEnemyParams.value,
                 cycleBoundaries: cycleBoundaries.value,
-                switchEvents: switchEvents.value,
-                isFullUltEnergy: isFullUltEnergy.value
+                switchEvents: switchEvents.value
             }
         }
 
@@ -4839,7 +4840,6 @@ export const useTimelineStore = defineStore('timeline', () => {
                     weaponOverrides.value = {};
                     cycleBoundaries.value = [];
                     switchEvents.value = [];
-                    isFullUltEnergy.value = false
                     equipmentCategoryOverrides.value = {};
                     prepDuration.value = 5
                     prepExpanded.value = true
@@ -4876,13 +4876,13 @@ export const useTimelineStore = defineStore('timeline', () => {
         MAX_SCENARIOS, toTimelineSpace, toViewportSpace, toGameTime, toRealTime,
         systemConstants, isLoading, characterRoster, iconDatabase, tracks, connections, activeTrackId, activeTrackIndex, timelineScrollTop, timelineShift, timelineRect, trackLaneRects, nodeRects, draggingSkillData,
         lmdiAttributionMode,
-        selectedActionId, selectedLibrarySkillId, multiSelectedIds, clipboard, isCapturing, setIsCapturing, showCursorGuide, isFullUltEnergy, operatorEffectsVisible, isBoxSelectMode, cursorPosTimeline, cursorCurrentTime, cursorPosition, snapStep,
+        selectedActionId, selectedLibrarySkillId, multiSelectedIds, clipboard, isCapturing, setIsCapturing, showCursorGuide, operatorEffectsVisible, isBoxSelectMode, cursorPosTimeline, cursorCurrentTime, cursorPosition, snapStep,
         selectedAnomalyId, setSelectedAnomalyId, updateTrackGaugeEfficiency,
         teamTracksInfo, activeSkillLibrary, BASE_BLOCK_WIDTH, setBaseBlockWidth, formatTimeLabel, ZOOM_LIMITS, timeBlockWidth, ELEMENT_COLORS, getCharacterElementColor, isActionSelected, hoveredActionId, setHoveredAction,
         fetchGameData, exportProject, importProject, exportShareString, importShareString, TOTAL_DURATION, selectTrack, changeTrackOperator, clearTrack, selectLibrarySkill, updateLibrarySkill, selectAction, updateAction,
         addSkillToTrack, setDraggingSkill, setTimelineShift, setScrollTop, resetTimelineViewport, setTimelineRect, setTrackLaneRect, setNodeRect, calculateGaugeData, getTrackGaugeMax, updateTrackInitialGauge, updateTrackMaxGauge, updateTrackOriginiumArtsPower, updateTrackLinkCdReduction, updateTrackWeapon,
         updateTrackWeaponTier, syncAllWeaponModifiers, getModifierLabel,
-        removeConnection, updateConnection, updateConnectionPort, getColor, toggleCursorGuide, toggleFullUltEnergy, toggleOperatorEffectsVisible, isOperatorEffectsVisible, toggleBoxSelectMode, setCursorPosition, toggleSnapStep, nudgeSelection,
+        removeConnection, updateConnection, updateConnectionPort, getColor, toggleCursorGuide, toggleOperatorEffectsVisible, isOperatorEffectsVisible, toggleBoxSelectMode, setCursorPosition, toggleSnapStep, nudgeSelection,
         setMultiSelection, clearSelection, copySelection, pasteSelection, removeCurrentSelection, undo, redo, commitState,
         removeAnomaly, initAutoSave, loadFromBrowser, resetProject, selectedConnectionId, selectConnection, selectAnomaly,
         alignActionToTarget, moveTrack,

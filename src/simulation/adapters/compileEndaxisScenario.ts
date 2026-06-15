@@ -76,21 +76,32 @@ function collectConsumedStacksWriteKeys(timeline: any, triggerEntries: any[]) {
   return keys;
 }
 
+function resolveDynamicMaxGauge(track: any, charInfo: any) {
+  const manualOverride = Number(track?.maxGaugeOverride)
+  if (Number.isFinite(manualOverride) && manualOverride > 0) {
+    return manualOverride
+  }
+
+  const base = Number(charInfo?.maxUltimateGauge ?? charInfo?.ultimate_gaugeMax) || 100
+  const reduction = Number(track?.operatorStatus?.ultimateEnergyCostReduction) || 0
+  return Math.max(1, Math.ceil(base * (1 - Math.max(0, Math.min(reduction, 0.99)))))
+}
+
 function buildCompiledTracks(tracks: any[], characterRoster: any[]) {
   return (tracks || []).map((track) => {
-    const charInfo = (characterRoster || []).find((character) => character.id === track.id);
-    const characterMaxGauge = Number(charInfo?.maxUltimateGauge ?? charInfo?.ultimate_gaugeMax) || null;
-    const trackGaugeOverride = Number(track.maxGaugeOverride) > 0 ? Number(track.maxGaugeOverride) : null;
+    const charInfo = (characterRoster || []).find((character) => character.id === track.id)
+    const dynamicMaxGauge = resolveDynamicMaxGauge(track, charInfo)
+    const trackGaugeOverride = Number(track.maxGaugeOverride) > 0 ? Number(track.maxGaugeOverride) : null
     return {
       ...track,
       element: charInfo?.element || track.element || "physical",
       acceptTeamGauge: charInfo?.accept_team_gauge !== false,
       acceptTeamUltEnergy: charInfo?.accept_team_gauge !== false,
-      maxGaugeOverride: trackGaugeOverride ?? characterMaxGauge ?? track.maxGaugeOverride ?? null,
-      maxUltimateGauge: characterMaxGauge,
-      ultimate_gaugeMax: Number(charInfo?.ultimate_gaugeMax ?? charInfo?.maxUltimateGauge) || null,
-    };
-  });
+      maxGaugeOverride: trackGaugeOverride,
+      maxUltimateGauge: dynamicMaxGauge,
+      ultimate_gaugeMax: dynamicMaxGauge,
+    }
+  })
 }
 
 export function compileEndaxisScenario(input: CompileEndaxisScenarioInput) {

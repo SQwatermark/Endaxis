@@ -216,6 +216,7 @@ export type SimLogEntry =
       {
         actorId: string;
         change: number;
+        gauge?: number;
         sourceId: string;
       }
     >
