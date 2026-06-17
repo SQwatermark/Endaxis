@@ -7,10 +7,14 @@ import { useI18n } from 'vue-i18n'
 const store = useTimelineStore()
 const { t } = useI18n({ useScope: 'global' })
 
-const menuStyle = computed(() => ({
-  left: `${store.contextMenu.x}px`,
-  top: `${store.contextMenu.y}px`
-}))
+const menuStyle = computed(() => {
+  const { x, y } = store.toViewportSpace(store.contextMenu.x, store.contextMenu.y)
+  return {
+    position: 'fixed',
+    left: `${x}px`,
+    top: `${y}px`
+  }
+})
 
 const targetAction = computed(() => {
   if (!store.contextMenu.targetId) return null
@@ -145,12 +149,19 @@ function handleAddCycleBoundary() {
 </script>
 
 <template>
+  <Teleport to="body">
   <div v-if="store.contextMenu.visible"
        class="custom-context-menu"
        :style="menuStyle"
        @click.stop
-       @contextmenu.prevent
-       @mousedown.stop>
+       @contextmenu.prevent.stop
+       @pointerdown.stop
+       @pointermove.stop
+       @pointerover.stop
+       @mousedown.stop
+       @mousemove.stop
+       @mouseover.stop
+       @wheel.stop>
 
     <template v-if="targetAction">
       <div class="menu-header">{{ targetAction.name }}</div>
@@ -354,6 +365,7 @@ function handleAddCycleBoundary() {
     </template>
 
   </div>
+  </Teleport>
 </template>
 
 <style scoped>
