@@ -72,6 +72,10 @@ export type ActorStats = {
   originium_arts_power: number;
   ult_charge_eff: number;
   link_cd_reduction: number;
+  combo_cd_reduction: number;
+  combo_cd_reduction_flat: number;
+  ult_cd_reduction: number;
+  ult_cd_reduction_flat: number;
 };
 
 export type ActorStatKeys = keyof ActorStats;
@@ -229,7 +233,12 @@ export interface Action {
   name: string;
   startTime: number;
   logicalStartTime: number;
+  /** Effective cooldown after passive flat/percent CD reductions. */
   cooldown: number;
+  /** Raw skill-sheet cooldown before passive CD reductions. */
+  baseCooldown?: number;
+  cooldownReductionPercent?: number;
+  cooldownReductionFlat?: number;
   spCost: number;
   spGain?: number;
   spGainKind?: SpGainKind;

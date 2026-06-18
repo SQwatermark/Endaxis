@@ -20,6 +20,10 @@ export const DEFAULT_ACTOR_STATS: ActorStats = {
   originium_arts_power: 0,
   ult_charge_eff: 100,
   link_cd_reduction: 0,
+  combo_cd_reduction: 0,
+  combo_cd_reduction_flat: 0,
+  ult_cd_reduction: 0,
+  ult_cd_reduction_flat: 0,
 };
 
 export function createDefaultStats(): ActorStats {

@@ -199,21 +199,39 @@ export function computeStats(
     return true;
   };
 
+  const isCooldownReductionModifier = (modifier: string): boolean =>
+      modifier === 'cooldownReductionFlat' || modifier === 'cooldownReductionPercent';
+
   // Accumulate sheet effects
   for (const effect of sheetEffects) {
     if (effect.id && attrCoeffEffects.has(effect.id)) continue;
-    if (!passesSkillScope(effect.stat as Record<string, unknown>)) continue;
+
+    const modifier = effect.stat.modifier;
+
+    if (
+        !isCooldownReductionModifier(modifier) &&
+        !passesSkillScope(effect.stat as Record<string, unknown>)
+    ) {
+      continue;
+    }
 
     const val = (effect.id ? resolvedValues.get(effect.id) : undefined) ?? getEffectValue(effect);
-    accumulateStat(effect.stat.modifier, val, effect.stat, effect.id);
+    accumulateStat(modifier, val, effect.stat, effect.id);
   }
 
   // Accumulate dynamic modifiers
   for (const mod of dynamicModifiers) {
     const { modifier } = mod.stat;
+
     // Attributes already handled in Phase 1
     if (modifier === 'attributeFlat' || modifier === 'attributePercent') continue;
-    if (!passesSkillScope(mod.stat as Record<string, unknown>)) continue;
+
+    if (
+        !isCooldownReductionModifier(modifier) &&
+        !passesSkillScope(mod.stat as Record<string, unknown>)
+    ) {
+      continue;
+    }
 
     accumulateStat(modifier, mod.value, mod.stat, mod.effectId);
   }

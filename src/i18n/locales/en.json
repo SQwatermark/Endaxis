@@ -373,14 +373,16 @@
       "equipmentRefine": "Equipment Artificing"
     },
     "section": {
+      "operatorStatusAdjust": "Operator Status Adjustment",
       "operatorSkillLibrary": "Operator Skill Library"
     },
     "hints": {
       "noRefineNon70": "No Artificing below Lv70",
-      "clickOrDrag": "Click to edit base values / Drag to arrange timeline"
+      "adjustOperatorStatus": "Tune attributes, weapons, and gear sets; changes affect timeline simulation",
+      "clickOrDrag": "Click to select a skill / Drag to arrange timeline"
     },
     "tabs": {
-      "operator": "OP",
+      "operator": "Attributes",
       "set": "SET",
       "setNeedEquip": "Equip any gear first",
       "weapon": "WPN",

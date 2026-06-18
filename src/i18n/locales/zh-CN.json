@@ -373,14 +373,16 @@
       "equipmentRefine": "装备精锻"
     },
     "section": {
+      "operatorStatusAdjust": "干员状态调整",
       "operatorSkillLibrary": "干员技能库"
     },
     "hints": {
       "noRefineNon70": "非 Lv70 无精锻",
-      "clickOrDrag": "点击编辑基础数值 / 拖拽排轴"
+      "adjustOperatorStatus": "调整属性、武器与装备套装；影响时间轴模拟结果",
+      "clickOrDrag": "点击选中技能 / 拖拽排轴"
     },
     "tabs": {
-      "operator": "干员",
+      "operator": "属性",
       "set": "装备",
       "setNeedEquip": "需要先装备任意装备",
       "weapon": "武器",
