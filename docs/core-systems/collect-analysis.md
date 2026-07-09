@@ -234,11 +234,9 @@ effects: h.effects.map(e =>
 |---|---|---|---|
 | 语义命名 | `laevatain-melting-flame` | ✓ | sheet 定义 |
 | 结构化 | `laevatain-talent0-effect0` | ✓ | makeEffectId 兜底 |
-| 随机字符串 | `k3x8m2p` | ✗ | uid() 兜底（嵌套 hit effects） |
+| 随机字符串 | `k3x8m2p` | ~~✗~~ ✓ 已修复 | ~~uid() 兜底~~ → ensurePatchEffectIds |
 
-`uid()` 是非确定性的 — `Math.random()` 每次返回不同值。意味着**同一份干员配置两次 collect 会生成不同的 id**。如果后续有代码依赖 id 的稳定性（如缓存 key、导出对比、测试 snapshot），嵌套 hit effects 会导致不一致。
-
-**实际影响范围**：19 个 `patchHit` 中有 16 个的嵌套效果没有 id，覆盖 16 名干员。这些效果在 `resolvePatches` 的 Pass 1 / Pass 1b 中通过 `resolveEffect(e, idx)` 处理时触发 `uid()`，每次 `collectEffects` 调用都生成不同的随机 id。例如洛茜的 `razorClawmark`、赛希的连携命中附着的寒冷增伤效果、萤石的减速效果等。
+**已修复**：通过 `ensurePatchEffectIds` 在 patch 推入队列前为所有嵌套效果生成确定性 id（格式 `${baseId}-effect${i}`）。19 个 `patchHit` 中 16 个受影响的效果现在都有确定性 id。修复覆盖 `collectEffects`（L192, L220）和 `patchCombatSkills` 两处。
 
 ---
 
