@@ -16,7 +16,7 @@ import { Search } from '@element-plus/icons-vue'
 import { useDragConnection } from '@/composables/useDragConnection.js'
 import { useI18n } from 'vue-i18n'
 import { snapMs } from '@/utils/precision.js'
-import { frameToTime, snapTimeToFrame, timeToFrame } from '@/utils/time.js'
+import { formatFrameCount, frameToTime, snapTimeToFrame, timeToFrame } from '@/utils/time.js'
 import { toLegacyDisplayType } from '@/utils/hitModel.js'
 import { getGearPiece, getEnemy, getOperator } from '@/data'
 import {
@@ -34,6 +34,12 @@ import {
 const store = useTimelineStore()
 const connectionHandler = useDragConnection()
 const { t, locale } = useI18n()
+
+/** Combo window duration: >=1s shows "XsYf", <1s shows frames only. */
+function formatComboWindowDuration(time) {
+  if (time >= 1) return store.formatTimeLabel(time)
+  return formatFrameCount(time)
+}
 
 // ===================================================================================
 // 初始化与常量
@@ -3070,6 +3076,27 @@ onUnmounted(() => {
                   :class="{ 'is-moving': isDragStarted && store.isActionSelected(action.instanceId) }"
                 />
               </div>
+              <!-- Combo window bars — same row as cooldown bars -->
+              <div
+                v-if="track.id && store.isOperatorEffectsVisible(index) && store.comboWindowLayouts?.get(track.id)?.length"
+                class="combo-window-bar-layer"
+              >
+                <div
+                  v-for="(cw, cwIdx) in store.comboWindowLayouts.get(track.id)"
+                  :key="`cw-${track.id}-${cwIdx}`"
+                  class="combo-window-bar"
+                  :style="{
+                    left: `${store.timeToPx(cw.start)}px`,
+                    width: `${store.timeToPx(cw.end) - store.timeToPx(cw.start)}px`,
+                    '--cw-color': cw.color,
+                  }"
+                >
+                  <div class="cw-start-mark"></div>
+                  <div class="cw-line"></div>
+                  <div class="cw-end-mark"></div>
+                  <span class="cw-duration">{{ formatComboWindowDuration(cw.duration) }}</span>
+                </div>
+              </div>
               <div v-if="store.isOperatorEffectsVisible(index)" class="switch-marker-layer">
                 <div v-for="sw in store.switchEvents.filter(s => s.characterId === track.id)"
                      :key="sw.id"
@@ -4344,7 +4371,7 @@ body.capture-mode .davinci-range {
 .track-divider-handle {
   position: absolute;
   right: 0;
-  height: 6px;
+  height: 12px;
   transform: translateY(-50%);
   cursor: ns-resize;
   pointer-events: auto;
@@ -4566,6 +4593,65 @@ body.capture-mode .davinci-range {
   border-top: 2px dashed #c0c0c0;
   border-bottom: 2px dashed #c0c0c0;
   z-index: 1;
+}
+
+/* ─── Combo Window Bar (inside track-lane, same row as cooldown bars) ──── */
+.combo-window-bar-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.combo-window-bar {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  display: flex;
+  align-items: center;
+  transform: translateY(7px);
+  pointer-events: none;
+}
+
+.cw-line {
+  flex-grow: 1;
+  height: 0;
+  border-bottom: 2px dashed var(--cw-color);
+}
+
+.cw-end-mark {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background-color: var(--cw-color);
+}
+
+.cw-start-mark {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background-color: var(--cw-color);
+}
+
+.cw-duration {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--cw-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
 }
 
 .actions-container {

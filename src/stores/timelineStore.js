@@ -2320,7 +2320,7 @@ export const useTimelineStore = defineStore('timeline', () => {
                 undefined, undefined, undefined, cc.effects,
             )
             const effectById = buildEffectById(collected)
-            const collectedTriggers = collectTriggerEffects(team, operatorInstances, weaponInstances, gearInstances, effectById)
+            const collectedTriggers = collectTriggerEffects(team, operatorInstances, weaponInstances, gearInstances, effectById, result.operatorStatuses)
             const conditionalPassiveTriggers = buildConditionalPassiveTriggerEffectsFromCollected(collected, armoryContext)
             const serializedTriggers = cloneJsonData([...collectedTriggers, ...conditionalPassiveTriggers]).map((cte) => ({
                 ...cte,
@@ -4959,6 +4959,10 @@ export const useTimelineStore = defineStore('timeline', () => {
         return optimizerProjection.value.operatorEffectLayouts
     })
 
+    const comboWindowLayouts = computed(() => {
+        return optimizerProjection.value.comboWindowLayouts
+    })
+
     const timeContext = computed(() => compiledTimeline.value?.timeContext || null);
 
     const globalExtensions = computed(() => {
@@ -5691,6 +5695,7 @@ export const useTimelineStore = defineStore('timeline', () => {
         enemyEffectLayout,
         enemyAfflictionViz,
         operatorEffectLayouts,
+        comboWindowLayouts,
         gaugeSeriesByTrackId,
         simLog,
         operatorLog,

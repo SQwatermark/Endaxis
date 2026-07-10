@@ -31,7 +31,7 @@ import type {
 } from '@/simulation/engine/types';
 import type { SimulationContext } from '@/simulation/engine/SimulationContext';
 import { resolveEffectDefaults, resolveEffectLifecycle } from '@/data/effectPresets';
-import type { ActorStats } from '@/simulation/compiler/types';
+import type { ResolvedAction, ActorStats } from '@/simulation/compiler/types';
 import { computeScalingBasis } from '@/data/stats';
 import { computeStats } from '@/data/stats/computeStats';
 import { resolveStatAttributes } from '@/data/collect';
@@ -247,6 +247,24 @@ export function evaluateEffectCondition(
   if (cond.kind === 'actionLinkConsumed') {
     if (!actionId) return false;
     return (ctx.getAction(actionId)?.consumedStacks?.link ?? 0) > 0;
+  }
+  if (cond.kind === 'comboNotOnCooldown') {
+    const actions = ctx.getAllActions();
+    // Find the last combo action on this track (descending by start time)
+    let lastCombo: ResolvedAction | undefined;
+    for (let i = actions.length - 1; i >= 0; i--) {
+      const a = actions[i]!;
+      if (a.trackId === sourceTrackId && a.node.type === 'comboSkill' && !a.node.isDisabled && a.realStartTime < time) {
+        if (!lastCombo || a.realStartTime > lastCombo.realStartTime) lastCombo = a;
+      }
+    }
+    if (!lastCombo) return true;
+    const startTime = lastCombo.realStartTime;
+    const cd = lastCombo.node.cooldown ?? 0;
+    // TODO 不能只算这一个技能的衰减
+    const cdReduction = ctx.getCdReduction(lastCombo.id);
+    const cooldownEnd = startTime + cd - cdReduction;
+    return time >= cooldownEnd;
   }
   if (cond.kind === 'enemyStaggered') {
     return ctx.state.enemy.isBroken(time);
@@ -562,11 +580,14 @@ export function resolveTargetTrackIds(
   ownerTrackId?: string,
   elementByTrackId?: ReadonlyMap<string, string | undefined>,
   controlledTrackId?: string | null,
+  triggerOwnerTrackId?: string,
 ): string[] {
   const scope = getEffectTargetScope(effect) ?? 'self';
   switch (scope) {
     case 'self':
       return [selfTrackId];
+    case 'triggerOwner':
+      return triggerOwnerTrackId ? [triggerOwnerTrackId] : [selfTrackId];
     case 'owner':
       return [ownerTrackId ?? selfTrackId];
     case 'controlled':
@@ -1014,6 +1035,8 @@ export interface EffectDispatchContext {
   /** Track that owns the trigger; for target resolution 'owner' scope.
    *  Defaults to sourceTrackId. Not needed by hit callers. */
   ownerTrackId?: string;
+  /** Track that registered the trigger; for target resolution 'triggerOwner' scope. */
+  triggerOwnerTrackId?: string;
   /** Passthrough string for SP_CHANGE reason field. Defaults to 'hit'. */
   spReason?: string;
   /** For 'fromConsume' stacks: pre-resolved count. Falls back to live read when absent. */
@@ -1061,6 +1084,7 @@ export function dispatchSingleActorEffect(
   const enemySnap = dc.enemySnap ?? ctx.state.enemy.statusSnapshot();
   const selfTrackId = dc.selfTrackId ?? sourceTrackId;
   const ownerTrackId = dc.ownerTrackId ?? sourceTrackId;
+  const triggerOwnerTrackId = dc.triggerOwnerTrackId ?? sourceTrackId;
   const controlledTrackId = ctx.getControlledOperatorAt?.(time) ?? null;
 
   // ── cooldownReduction ──────────────────────────────────────────────────
@@ -1072,6 +1096,7 @@ export function dispatchSingleActorEffect(
       ownerTrackId,
       ctx.elementByTrackId,
       controlledTrackId,
+      triggerOwnerTrackId,
     );
     for (const targetId of targets) {
       dc.applyCooldownReduction?.(resolved as any, time, targetId, ctx);
@@ -1102,6 +1127,7 @@ export function dispatchSingleActorEffect(
       ownerTrackId,
       ctx.elementByTrackId,
       controlledTrackId,
+      triggerOwnerTrackId,
     );
     const oneTimeDuration = resolveEffectLifecycle(resolved).duration;
     const expiresAt =
@@ -1249,6 +1275,7 @@ export function dispatchSingleActorEffect(
       ownerTrackId,
       ctx.elementByTrackId,
       controlledTrackId,
+      triggerOwnerTrackId,
     );
     const spEff = resolved as ResolvedSpGainEffect | ResolvedSpReturnEffect;
     const gain = spEff.scaling
@@ -1293,6 +1320,7 @@ export function dispatchSingleActorEffect(
       ownerTrackId,
       ctx.elementByTrackId,
       controlledTrackId,
+      triggerOwnerTrackId,
     );
     const ue = resolved as ResolvedUltimateEnergyGainEffect;
     const gain = ue.scaling
@@ -1331,6 +1359,7 @@ export function dispatchSingleActorEffect(
       ownerTrackId,
       ctx.elementByTrackId,
       controlledTrackId,
+      triggerOwnerTrackId,
     );
     const lifecycle = resolveEffectLifecycle(resolved);
     const duration =

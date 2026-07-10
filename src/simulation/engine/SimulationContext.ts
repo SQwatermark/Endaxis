@@ -18,6 +18,8 @@ export interface SimulationContext {
   /** Current scheduled end time per action ID. Updated by HitHandler when a hit extends the action. */
   actionEndTimes: Map<string, number>;
   simLog: (entry: SimLogEntry) => void;
+  /** Read back CD_REDUCTION amounts per actionId for cooldown condition evaluation. */
+  getCdReduction: (actionId: string) => number;
   getAction: (id: string) => ResolvedAction | undefined;
   enemyLog: (event: EnemyStateEvent) => void;
   operatorLog: (event: OperatorStateEvent) => void;

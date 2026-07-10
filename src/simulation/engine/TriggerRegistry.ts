@@ -435,7 +435,6 @@ export class TriggerRegistry {
      *  Used for scope:'self' / 'teamExcludeSelf' target resolution and spGain.
      *  Defaults to sourceTrackId when absent (self-scope triggers). */
     triggeringTrackId?: string,
-    /** Set only for duringAction triggers; forwarded to effect apply/expire events for runtime extension. */
     actionId?: string,
     /** Pre-mutation enemy snapshot for consume/expire triggers (enemy state already mutated before dispatch).
      *  When absent, a live snapshot is taken. */
@@ -522,6 +521,7 @@ export class TriggerRegistry {
         actionId,
         selfTrackId,
         ownerTrackId: sourceTrackId,
+        triggerOwnerTrackId: sourceTrackId,
         spReason: 'trigger',
         consumedStacks,
         preConsumeOpStacks,

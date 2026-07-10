@@ -44,6 +44,8 @@ export class SimulationEngine {
   /** Controlled-operator timeline (time-ascending segments). Empty = nobody controlled. */
   controlledOperatorSegments: ControlSegment[] = [];
   private enemyDamageCapWindows = new Map<number, number>();
+  /** Accumulated CD_REDUCTION per actionId (runtime cooldown reduction). */
+  private cdReductionByAction = new Map<string, number>();
 
   /** Resolve the controlled operator (track id) at `time`: the last segment starting at or before it. */
   private getControlledOperatorAt(time: number): string | null {
@@ -294,7 +296,14 @@ export class SimulationEngine {
       actionEndTimes,
       simLog: (entry: SimLogEntry) => {
         this.simLog.enqueue(entry);
+        if (entry.type === 'CD_REDUCTION') {
+          const actionId = entry.payload?.actionId;
+          if (actionId) {
+            this.cdReductionByAction.set(actionId, (this.cdReductionByAction.get(actionId) ?? 0) + (Number(entry.payload?.reduction) || 0));
+          }
+        }
       },
+      getCdReduction: (actionId: string) => this.cdReductionByAction.get(actionId) ?? 0,
       getAction: this.getAction.bind(this),
       enemyLog: (event: EnemyStateEvent) => {
         this.enemyLogEntries.push(event);

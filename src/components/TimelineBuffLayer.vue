@@ -27,7 +27,9 @@ const items = computed(() => {
 
   if (props.placement === 'upper') {
     const layout = store.operatorEffectLayouts.get(props.trackId)
-    const segments = (layout?.positionedSegments || []).filter((segment) => (Number(segment.group) || 0) === 0)
+    const segments = (layout?.positionedSegments || [])
+      .filter((segment) => (Number(segment.group) || 0) === 0)
+      .filter((segment) => segment.effect?.name !== 'comboWindow')
 
     return segments.map((segment, index) => {
       const startPx = store.timeToPx(segment.start)
@@ -58,7 +60,8 @@ const items = computed(() => {
   }
 
   const layout = store.trackBuffLayouts.get(props.trackId)
-  const segments = layout?.lower || []
+  const segments = (layout?.lower || [])
+    .filter((segment) => segment.effect?.name !== 'comboWindow')
 
   return segments.map((segment) => {
     const leftPx = store.timeToPx(segment.start)

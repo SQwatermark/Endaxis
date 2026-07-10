@@ -206,10 +206,15 @@ export interface EnemyStaggeredCondition {
   kind: 'enemyStaggered';
 }
 
+export interface ComboCooldownCondition {
+  kind: 'comboNotOnCooldown';
+}
+
 export type EffectCondition =
   | EnemyCondition
   | EnemyHpCondition
   | EnemyStaggeredCondition
+  | ComboCooldownCondition
   | OperatorCondition
   | OperatorHpCondition
   | ActionLinkConsumedCondition
@@ -277,7 +282,10 @@ export type EffectTargetScope =
   | 'enemy'
   | 'owner'
   /** The operator the player is controlling at the effect's time. Resolved via the control timeline. */
-  | 'controlled';
+  | 'controlled'
+  /** The operator that registered the trigger (sourceTrackId). Use for global triggers
+   *  where the effect should apply to the trigger's owner, not the event's actor. */
+  | 'triggerOwner';
 
 export type EffectTarget =
   | { scope: EffectTargetScope; classes?: operatorClass[] }
@@ -815,6 +823,16 @@ export interface CombatSkillEntry {
   ultimateEnergyGain?: number;
   animationTime?: number;
   enhancementTime?: number;
+  /** Combo skill activation window. When the trigger fires, a window of `duration` seconds opens
+   *  during which this combo skill can be used. */
+  comboWindow?: {
+    trigger?: TriggerEvent;
+    /** Multiple triggers — all produce the same window effect. Use instead of `trigger`. */
+    triggers?: TriggerEvent[];
+    condition?: EffectCondition;
+    duration: number;
+    icon?: string;
+  };
 }
 
 /**
