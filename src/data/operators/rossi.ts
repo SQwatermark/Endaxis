@@ -4,7 +4,7 @@ const sheet: OperatorSheet = {
   gameId: 'ROSSI',
   rarity: 6,
   weapon: 'sword',
-  element: 'heat',
+  element: 'physical',
   finisherElement: 'physical',
   diveElement: 'physical',
   class: 'guard',
@@ -28,6 +28,7 @@ const sheet: OperatorSheet = {
           hit: {
             effects: [
               {
+                id: 'razorClawmark',
                 name: 'razorClawmark',
                 kind: 'damageOverTime',
                 element: 'physical',

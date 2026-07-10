@@ -20,6 +20,7 @@ import { frameToTime, snapTimeToFrame, timeToFrame } from '@/utils/time.js'
 import { toLegacyDisplayType } from '@/utils/hitModel.js'
 import { getGearPiece, getEnemy, getOperator } from '@/data'
 import {
+  getGameClassName,
   getGameElementName,
   getGameAttributeName,
   getGameSlotTypeName,
@@ -342,6 +343,7 @@ const isSelectorVisible = ref(false)
 const targetTrackIndex = ref(null)
 const searchQuery = ref('')
 const filterElement = ref('ALL')
+const filterClass = ref('ALL')
 const isWeaponSelectorVisible = ref(false)
 const weaponTargetIndex = ref(null)
 const weaponSearchQuery = ref('')
@@ -871,6 +873,19 @@ const ELEMENT_FILTERS = computed(() => {
   ]
 })
 
+const CLASS_FILTERS = computed(() => {
+  locale.value
+  return [
+    { label: t('timelineGrid.classFilter.all'), value: 'ALL' },
+    { label: getGameClassName('guard', locale.value), value: 'guard' },
+    { label: getGameClassName('caster', locale.value), value: 'caster' },
+    { label: getGameClassName('defender', locale.value), value: 'defender' },
+    { label: getGameClassName('vanguard', locale.value), value: 'vanguard' },
+    { label: getGameClassName('striker', locale.value), value: 'striker' },
+    { label: getGameClassName('supporter', locale.value), value: 'supporter' },
+  ]
+})
+
 const OPERATOR_ELEMENT_ICON_MAP = {
   physical: '/icons/icon_element_physical.webp',
   heat: '/icons/icon_element_heat.webp',
@@ -893,6 +908,7 @@ function openCharacterSelector(index) {
   targetTrackIndex.value = index
   searchQuery.value = ''
   filterElement.value = 'ALL'
+  filterClass.value = 'ALL'
   isSelectorVisible.value = true
 }
 
@@ -990,6 +1006,8 @@ const operatorSelectorItems = computed(() => {
     rarity: Number(char.rarity) || 0,
     element: char.element || 'physical',
     elementName: getGameElementName(char.element, locale.value),
+    class: char.class || '',
+    className: getGameClassName(char.class, locale.value),
     weapon: char.weapon || '',
     weaponName: getGameWeaponTypeName(char.weapon, locale.value),
     searchTerms: [
@@ -997,6 +1015,7 @@ const operatorSelectorItems = computed(() => {
       char.id,
       char.slug,
       getGameElementName(char.element, locale.value),
+      getGameClassName(char.class, locale.value),
       getGameWeaponTypeName(char.weapon, locale.value),
     ].map(normalizeSearchText).filter(Boolean),
     raw: char,
@@ -1011,6 +1030,9 @@ const filteredListFlat = computed(() => {
   let list = operatorSelectorItems.value
   if (filterElement.value !== 'ALL') {
     list = list.filter(c => c.element === filterElement.value)
+  }
+  if (filterClass.value !== 'ALL') {
+    list = list.filter(c => c.class === filterClass.value)
   }
   if (searchQuery.value) {
     const q = normalizeSearchText(searchQuery.value)
@@ -1697,6 +1719,23 @@ const currentSpValue = computed(() => {
     }
   }
   return Math.floor(points[points.length - 1].sp)
+})
+
+const currentReturnedSpValue = computed(() => {
+  const time = store.cursorCurrentTime
+  let value = 0
+  for (const entry of store.simLog || []) {
+    if (entry?.type !== 'SP_CHANGE') continue
+    if (Number(entry.time) <= time && entry.payload?.refundSp != null) {
+      value = Number(entry.payload.refundSp) || 0
+    }
+  }
+  return Math.floor(value)
+})
+
+const currentSpReturnText = computed(() => {
+  const value = currentReturnedSpValue.value
+  return value > 0 ? ` (${t('timelineGrid.cursor.spReturn')}: ${value})` : ''
 })
 
 const cachedStaggerData = computed(() => store.staggerSeries?.points || [])
@@ -2900,7 +2939,7 @@ onUnmounted(() => {
             {{ store.formatAxisTimeLabel(store.cursorCurrentTime) }}
           </div>
 
-          <div class="guide-sp-label">{{ t('timelineGrid.cursor.sp') }}: {{ currentSpValue }}</div>
+          <div class="guide-sp-label">{{ t('timelineGrid.cursor.sp') }}: {{ currentSpValue }}{{ currentSpReturnText }}</div>
           <div class="guide-stagger-label">{{ t('timelineGrid.cursor.stagger') }}: {{ currentStaggerValue }}</div>
 
           <div v-if="cursorGaugeRows.length" class="guide-gauge-panel">
@@ -3088,6 +3127,11 @@ onUnmounted(() => {
         <div class="element-filters">
           <button v-for="elm in ELEMENT_FILTERS" :key="elm.value" class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': filterElement === elm.value }" :style="{ '--ea-btn-accent': elm.color }" @click="filterElement = elm.value">
             {{ elm.label }}
+          </button>
+        </div>
+        <div class="class-filters">
+          <button v-for="cls in CLASS_FILTERS" :key="cls.value" class="ea-btn ea-btn--glass-cut" :class="{ 'is-active': filterClass === cls.value }" @click="filterClass = cls.value">
+            {{ cls.label }}
           </button>
         </div>
       </div>
@@ -4707,6 +4751,13 @@ body.capture-mode .davinci-range {
 }
 
 .element-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.class-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
