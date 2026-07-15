@@ -18,6 +18,15 @@ import {
 import { getOperatorSkillMax, skillLevelLabel } from '@/utils/operatorBounds'
 import { getPromotionCount } from '@/data/stats/baseValues'
 import { useOperatorStore } from '@/stores/operatorStore'
+import { parseGameText } from '@/utils/richGameText'
+
+function richText(text) {
+  const result = parseGameText(text)
+  if (text && text.includes('<@') && result === text) {
+    console.warn('parseGameText failed to transform:', text.slice(0, 80))
+  }
+  return result
+}
 import { elementColors } from '@/utils/theme'
 
 const LEVELS = [1, 20, 40, 60, 80, 90]
@@ -284,7 +293,7 @@ function promotedLabel() {
                           v-if="getPotentialInfo(p).description"
                           class="operator-edit-tooltip-desc"
                       >
-                        {{ getPotentialInfo(p).description }}
+                        <span v-html="richText(getPotentialInfo(p).description)"></span>
                       </div>
                     </div>
                   </template>
@@ -321,7 +330,7 @@ function promotedLabel() {
                 <template #content>
                   <div class="operator-edit-tooltip">
                     <div class="operator-edit-tooltip-title">{{ getSkillName(key) }}</div>
-                    <div v-if="getSkillDescription(key)" class="operator-edit-tooltip-desc">{{ getSkillDescription(key) }}</div>
+                    <div v-if="getSkillDescription(key)" class="operator-edit-tooltip-desc"><span v-html="richText(getSkillDescription(key))"></span></div>
                   </div>
                 </template>
                 <div class="skill-icon-frame" :style="{ borderColor: elColor }">
@@ -357,7 +366,7 @@ function promotedLabel() {
                   <template #content>
                     <div class="operator-edit-tooltip">
                       <div class="operator-edit-tooltip-desc">
-                        {{ getTrustTooltipInfo(lvl).description }}
+                        <span v-html="richText(getTrustTooltipInfo(lvl).description)"></span>
                       </div>
                     </div>
                   </template>
@@ -397,7 +406,7 @@ function promotedLabel() {
                         {{ getTalentTooltipInfo(groupIdx, lvl).name }}
                       </div>
                       <div class="operator-edit-tooltip-desc">
-                        {{ getTalentTooltipInfo(groupIdx, lvl).description }}
+                        <span v-html="richText(getTalentTooltipInfo(groupIdx, lvl).description)"></span>
                       </div>
                     </div>
                   </template>
@@ -531,4 +540,15 @@ function promotedLabel() {
   line-height: 1.45;
   white-space: pre-wrap;
 }
+
+/* Game text rich formatting */
+:global(.game-text-keyword)   { color: #d4a017; font-weight: 500; }
+:global(.game-text-value-up)  { color: #2e8b57; }
+:global(.game-text-physical)  { color: #c87d30; }
+:global(.game-text-pulse)     { color: #8b5cf6; }
+:global(.game-text-fire)      { color: #ef4444; }
+:global(.game-text-cryst)     { color: #4dc9f6; }
+:global(.game-text-nature)    { color: #34d399; }
+:global(.game-text-poise)     { color: #14b8a6; }
+:global(.game-text-status)    { color: #a78bfa; }
 </style>
