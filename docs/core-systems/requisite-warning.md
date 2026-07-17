@@ -2,15 +2,16 @@
 
 ## 概述
 
-在时间轴技能块上显示红色三角警告标记，提示该技能在当前时间点无法释放。覆盖三种技能类型，与禁用标记位置重叠互斥。
+在时间轴技能块上显示红色三角警告标记，提示该技能在当前时间点无法释放。覆盖三类技能，当前包含四项检查，与禁用标记位置重叠互斥。
 
-## 三种检查
+## 四项检查
 
-| 类型        | 条件             | 判断逻辑                                                                           |
-| ----------- | ---------------- | ---------------------------------------------------------------------------------- |
-| comboSkill  | 是否在连携窗口内 | `snapTimeToFrame(start)` 是否落入任一 `comboWindowLayout` segment                  |
-| battleSkill | SP 是否足够      | 二分查找 `spSeries`，取扣除前值（`actionId` 匹配避过同帧扣除点），与 `spCost` 比较 |
-| ultimate    | gauge 是否足够   | 同上逻辑，gaugeCost 乘以 `(1 - reduction)` 得到 effectiveCost                      |
+| 类型        | 条件             | 判断逻辑                                                                                |
+| ----------- | ---------------- | --------------------------------------------------------------------------------------- |
+| comboSkill  | 是否在连携窗口内 | `snapTimeToFrame(start)` 是否落入自身任一 `comboWindowLayout` segment                   |
+| comboSkill  | 连携释放顺序     | 全队当前已打开的连携窗口按“开窗时间 → track 序号”排队；只能释放队首窗口对应干员的连携技 |
+| battleSkill | SP 是否足够      | 二分查找 `spSeries`，取扣除前值（`actionId` 匹配避过同帧扣除点），与 `spCost` 比较      |
+| ultimate    | gauge 是否足够   | 同上逻辑，gaugeCost 乘以 `(1 - reduction)` 得到 effectiveCost                           |
 
 ## 像素对齐
 
@@ -42,4 +43,4 @@ ActionItem.vue → 红色三角 + tooltip
 
 ## i18n
 
-`actionItem.warningTitle.comboWindow` / `spInsufficient` / `gaugeInsufficient`
+`actionItem.requisiteTitle.comboWindow` / `comboOrder` / `spInsufficient` / `gaugeInsufficient`

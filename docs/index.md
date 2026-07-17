@@ -20,7 +20,7 @@
 | [效果与反应系统](core-systems/effect-system.md)                     | 四元素附着/爆发/反应、五类物理异常、效果生命周期                                 |
 | [Effect 四分类](core-systems/effect-classification.md)              | 段命中固定、条件触发、属性加成、patchHit 注入 — 四类效果的管道与运行时行为       |
 | [连携窗口架构](core-systems/combo-window.md)                        | comboWindow 数据模型、收集、冷却判断、投影、渲染、精准衔接内嵌                   |
-| [前置条件警告](core-systems/requisite-warning.md)                   | 技能不满足条件时的红色三角标记，三种技能类型检查                                 |
+| [前置条件警告](core-systems/requisite-warning.md)                   | 技能不满足条件时的红色三角标记，三类技能四项检查                                 |
 | [触发器系统](core-systems/trigger-registry.md)                      | 事件总线架构、10 种事件类型、patchHit vs trigger 对比、与 patchCombatSkills 分工 |
 | [国际化系统](core-systems/i18n-system.md)                           | 双层 i18n 架构、语言检测、gameText 查询层、设计缺陷分析                          |
 | [collect.ts 深度解析](core-systems/collect-analysis.md)             | 整体流程、8 个不一致点 + 1 个机制确认（name 语义分裂、id 三级来源等）            |
