@@ -328,7 +328,7 @@ function getActionColor(action) {
   if (displayType === 'skill') return store.getColor('skill');
   if (displayType === 'link') return store.getColor('link');
   if (displayType === 'execution') return store.getColor('execution');
-  if (displayType === 'dive') return store.getColor('dodge');
+  if (displayType === 'dive') return store.getColor('dive');
   if (displayType === 'ultimate') return store.getColor('ultimate');
   if (typeof store.getColor === 'function')
     return store.getColor(action?.element || displayType || 'default');

@@ -86,7 +86,7 @@ function getActionColor(actionId) {
   if (node?.type === 'comboSkill') return store.getColor('link');
   if (node?.type === 'finisher') return store.getColor('execution');
   if (node?.type === 'basicAttack') return store.getColor('attack');
-  if (node?.type === 'dive') return store.getColor('dodge');
+  if (node?.type === 'dive') return store.getColor('dive');
   if (node?.element) return store.getColor(node.element);
   if (info?.trackId)
     return store.getCharacterElementColor?.(info.trackId) || store.getColor('default');

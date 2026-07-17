@@ -187,7 +187,7 @@ function getSkillThemeColor(skill) {
   if (skill.type === 'comboSkill') return store.getColor('link');
   if (skill.type === 'finisher') return store.getColor('execution');
   if (skill.type === 'basicAttack') return store.getColor('attack');
-  if (skill.type === 'dive') return store.getColor('dodge');
+  if (skill.type === 'dive') return store.getColor('dive');
   if (skill.type === 'battleSkill')
     return skill.element ? store.getColor(skill.element) : store.getColor('skill');
   if (skill.type === 'ultimate')

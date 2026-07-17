@@ -116,7 +116,7 @@ const resolveColor = (info, effectId) => {
   if (displayType === 'link') return store.getColor('link');
   if (displayType === 'execution') return store.getColor('execution');
   if (displayType === 'attack') return store.getColor('attack');
-  if (displayType === 'dive') return store.getColor('dodge');
+  if (displayType === 'dive') return store.getColor('dive');
   if (displayType === 'skill') return store.getColor('skill');
   if (displayType === 'ultimate') return store.getColor('ultimate');
   if (action.element) return store.getColor(action.element);

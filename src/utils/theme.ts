@@ -25,7 +25,6 @@ export const ELEMENT_COLORS: Record<string, string> = {
   skill: '#ffffff',
   link: '#fdd900',
   execution: '#a61d24',
-  dodge: '#5ec5e5',
   default: '#8c8c8c',
 
   // Heat reactions

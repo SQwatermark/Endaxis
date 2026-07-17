@@ -21,7 +21,7 @@ describe('SimLogPanel square container styling', () => {
     expect(source).toContain("store.getColor('link')");
     expect(source).toContain("store.getColor('execution')");
     expect(source).toContain("store.getColor('attack')");
-    expect(source).toContain("store.getColor('dodge')");
+    expect(source).toContain("store.getColor('dive')");
     expect(source).toContain('node?.element');
     expect(source).toContain('store.getCharacterElementColor');
     expect(source).toContain(':style="{ \'--group-accent\': getActionColor(group.actionId) }"');

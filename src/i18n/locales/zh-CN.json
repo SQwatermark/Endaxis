@@ -425,7 +425,6 @@
   },
   "skillType": {
     "attack": "普攻",
-    "dodge": "闪避",
     "dive": "下落攻击",
     "execution": "处决",
     "skill": "战技",

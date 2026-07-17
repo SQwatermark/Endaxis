@@ -73,7 +73,7 @@ const themeColor = computed(() => {
   if (props.action.type === 'comboSkill') return store.getColor('link');
   if (props.action.type === 'finisher') return store.getColor('execution');
   if (props.action.type === 'basicAttack') return store.getColor('attack');
-  if (props.action.type === 'dive') return store.getColor('dodge');
+  if (props.action.type === 'dive') return store.getColor('dive');
   if (props.action.element) return store.getColor(props.action.element);
 
   let charId = null;

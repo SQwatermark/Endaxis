@@ -475,7 +475,6 @@ export const useTimelineStore = defineStore('timeline', () => {
     skill: '#ffffff',
     link: '#fdd900',
     execution: '#a61d24',
-    dodge: '#69c0ff',
     heat_infliction: '#ff4d4f',
     heat_burst: '#ff7875',
     combustion: '#f5222d',
