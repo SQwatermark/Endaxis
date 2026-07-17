@@ -111,6 +111,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn';
 src/i18n/game-locales/
 ├── zh/                        # 中文游戏内容
 │   ├── operators.json         # 干员名、天赋名/描述、潜能名/描述、技能名
+│   ├── battleTerms.json          # AKEDB 战斗术语名称、解释、styleId、内部图标路径
 │   ├── weapons.json           # 武器名、武器技名/描述/前缀
 │   ├── gearpieces.json        # 装备件名、槽位类型、套装名、属性名
 │   ├── gearsets.json          # 套装名、被动/条件描述
@@ -178,6 +179,20 @@ locale.startsWith('zh') → 'zh'
 
 意味着：俄语 UI 界面下，游戏内容显示为英文（因为俄文游戏内容翻译文件虽存在，但文本量远少于中英文）。
 
+### 游戏富文本：`src/data/gameRichText.ts`
+
+AKEDB 导出的干员技能、天赋、潜能说明会保留三类富文本标签：
+
+| 标签 | 用途 |
+| ---- | ---- |
+| `<@styleId>...</>` | 按 Endaxis 固定样式表渲染文本，样式包含颜色和可选前置图标 |
+| `<#termId>...</>` | 战斗术语链接；可显示下划线、前置图标和 tooltip |
+| `<image="/icons/...">` | 行内图标；路径必须已在导出阶段转成 Endaxis 内部路径 |
+
+`battleTerms.json` 只保存 `terms`，不保存样式表。术语里的 `styleId` 用于查固定样式表，得到颜色和可选样式图标；`iconPath` 是术语自己的图标，优先用于术语前置图标和 tooltip 标题。样式方案固定在 `gameRichText.ts` 的 `RICH_TEXT_STYLES` 中，运行时的图片解析只接受 `/icons/...` 或 `icons/...`。
+
+完整导出与维护流程见 [AKEDB 干员富文本与战斗术语转换](../development/ake-rich-text-export.md)。
+
 ---
 
 ## 效果显示系统
@@ -244,6 +259,7 @@ resolveEffectDisplayKey(effect):
 2. **枚举硬编码**：元素、职业、属性等高频小集合不放在 JSON 中，直接在 `gameText.ts` 硬编码
 3. **回退链**：游戏内容 → 英文翻译 → `humanizeIdentifier(slug)`；UI → `zh-CN`（fallbackLocale）
 4. **简化 zh/en 二值**：游戏内容翻译仅维护中英双语，俄语界面下游戏内容显示英文
+5. **富文本样式固定在代码中**：`battleTerms.json` 只保存战斗术语，颜色、样式前置图标和 AKEDB 图标路径映射不进入运行时配置
 
 ## 维护风险：`gameEnumTerms` 与 JSON 翻译可能漂移
 
