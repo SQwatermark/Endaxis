@@ -2,7 +2,12 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getGearPiece } from '@/data';
-import { getGameSlotTypeName, getGearPieceGameName, getGearSetGameName } from '@/data/gameText';
+import {
+  getGameSlotTypeName,
+  getGearPieceGameName,
+  getGearSetGameBonuses,
+  getGearSetGameName,
+} from '@/data/gameText';
 import {
   formatEquipmentEffectLabel,
   formatEquipmentEffectStatValue,
@@ -12,6 +17,7 @@ import { getEquipmentLevelColor, isEquipmentArtificable } from '@/utils/equipmen
 import { resolveLeveled } from '@/data/types';
 import { useGearStore } from '@/stores/gearStore';
 import { useTimelineStore } from '@/stores/timelineStore';
+import GameRichTextRenderer from '@/components/GameRichTextRenderer.vue';
 import EditGearInstanceDialog from './EditGearInstanceDialog.vue';
 
 const props = defineProps({
@@ -156,6 +162,7 @@ const slots = computed(() => {
         ? getGearPieceGameName(instance.gearPieceId, locale.value) || instance.gearPieceId
         : equipment?.name || '',
       icon: piece?.icon || equipment?.icon || '/icons/default_icon.webp',
+      setSlug: piece?.setSlug || equipment?.category || '',
       setName:
         getGearSetGameName(piece?.setSlug || equipment?.category || '', locale.value) ||
         equipment?.categoryName ||
@@ -164,6 +171,25 @@ const slots = computed(() => {
       stats: getSlotStatRows(piece, instance),
     };
   });
+});
+
+const activeSetBonuses = computed(() => {
+  const counts = new Map();
+  for (const slot of slots.value) {
+    if (!slot.instance || !slot.setSlug || slot.setSlug === 'no-set-bonuses') continue;
+    counts.set(slot.setSlug, (counts.get(slot.setSlug) || 0) + 1);
+  }
+
+  return Array.from(counts.entries()).flatMap(([setSlug, equippedCount]) =>
+    getGearSetGameBonuses(setSlug, locale.value)
+      .filter(bonus => equippedCount >= bonus.requiredCount)
+      .map(bonus => ({
+        ...bonus,
+        setSlug,
+        equippedCount,
+        setName: getGearSetGameName(setSlug, locale.value),
+      })),
+  );
 });
 
 function setRefine(slot, level) {
@@ -265,6 +291,35 @@ function openItemEditor(slot) {
           {{ tr('actionLibrary.fallback.noEquip', 'No gear equipped') }}
         </div>
       </div>
+
+      <div v-if="activeSetBonuses.length > 0" class="gear-set-bonus-panel">
+        <div class="gear-set-bonus-title">
+          {{ t('timelineGrid.equipmentDialog.setBonusTitle') }}
+        </div>
+        <div
+          v-for="bonus in activeSetBonuses"
+          :key="`${bonus.setSlug}-${bonus.requiredCount}`"
+          class="gear-set-bonus-entry"
+        >
+          <div class="gear-set-bonus-head">
+            <span class="gear-set-bonus-dot"></span>
+            <span class="gear-set-bonus-name">{{ bonus.setName }}</span>
+            <span class="gear-set-bonus-count">
+              {{
+                t('timelineGrid.equipmentDialog.setBonusEquipped', {
+                  count: bonus.equippedCount,
+                  required: bonus.requiredCount,
+                })
+              }}
+            </span>
+          </div>
+          <GameRichTextRenderer
+            class="gear-set-bonus-desc"
+            :text="bonus.description"
+            :locale="locale"
+          />
+        </div>
+      </div>
     </div>
 
     <EditGearInstanceDialog
@@ -316,6 +371,67 @@ function openItemEditor(slot) {
 .gear-slot-card.is-empty {
   justify-content: space-between;
   opacity: 0.65;
+}
+
+.gear-set-bonus-panel {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 14px;
+  border: 1px solid rgba(234, 179, 8, 0.24);
+  background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), rgba(255, 255, 255, 0.035));
+}
+
+.gear-set-bonus-title {
+  color: #eab308;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.gear-set-bonus-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #d6d6d6;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.gear-set-bonus-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.gear-set-bonus-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: #eab308;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.75);
+}
+
+.gear-set-bonus-name {
+  min-width: 0;
+  color: #f0f0f0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.gear-set-bonus-count {
+  margin-left: auto;
+  color: #eab308;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.gear-set-bonus-desc {
+  color: #d0d0d0;
 }
 
 .slot-head {

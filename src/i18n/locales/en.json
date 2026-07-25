@@ -434,6 +434,8 @@
       "empty": "No matching equipment found",
       "refine": "Artificing",
       "refineBase": "No Artificing",
+      "setBonusTitle": "Set Bonus",
+      "setBonusEquipped": "Equipped: {count}/{required}",
       "searchPlaceholder": "Search equipment name/ID...",
       "title": "Select Equipment - {slot}",
       "uncategorized": "Uncategorized",

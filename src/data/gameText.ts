@@ -12,6 +12,10 @@ import enemiesZh from '../i18n/game-locales/zh/enemies.json';
 
 type GameLocale = 'en' | 'zh';
 type LocaleTable = Record<string, any>;
+export type GearSetGameBonus = {
+  requiredCount: number;
+  description: string;
+};
 
 const operatorsEnTable = operatorsEn as LocaleTable;
 const operatorsZhTable = operatorsZh as LocaleTable;
@@ -185,6 +189,24 @@ function getEnemyEntry(slug: string, locale?: string | null) {
 
 function readTrimmedText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function readGearSetGameBonuses(entry: any): GearSetGameBonus[] {
+  if (!entry || typeof entry !== 'object') return [];
+  if (Array.isArray(entry.bonuses)) {
+    return entry.bonuses
+      .map((bonus: any) => ({
+        requiredCount: Math.max(1, Number(bonus?.requiredCount) || 3),
+        description: readTrimmedText(bonus?.description) || '',
+      }))
+      .filter((bonus: GearSetGameBonus) => bonus.description);
+  }
+
+  const legacyDescription = [entry.passive, entry.conditional]
+    .map(readTrimmedText)
+    .filter(Boolean)
+    .join('\n');
+  return legacyDescription ? [{ requiredCount: 3, description: legacyDescription }] : [];
 }
 
 function getOperatorEntry(slug: string, locale?: string | null) {
@@ -405,6 +427,10 @@ export function getGearPieceGameName(slug: string, locale?: string | null) {
 export function getGearSetGameName(slug: string, locale?: string | null) {
   const entry = getGearSetEntry(slug, locale);
   return readTrimmedText(entry?.setName ?? entry?.name) || humanizeIdentifier(slug);
+}
+
+export function getGearSetGameBonuses(slug: string, locale?: string | null): GearSetGameBonus[] {
+  return readGearSetGameBonuses(getGearSetEntry(slug, locale));
 }
 
 export function getGearSetPassiveText(slug: string, locale?: string | null) {

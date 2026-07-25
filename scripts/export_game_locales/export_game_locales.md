@@ -1,6 +1,6 @@
 # 游戏文本导出脚本
 
-本文档说明如何使用 `export_game_locales.py` 从 AKEDB CDN 导出 Endaxis 使用的游戏内容文本。脚本用于更新干员名称、技能说明、天赋说明、潜能说明和战斗术语富文本。
+本文档说明如何使用 `export_game_locales.py` 从 AKEDB CDN 导出 Endaxis 使用的游戏内容文本。脚本用于更新干员名称、技能说明、天赋说明、潜能说明、装备套组效果说明和战斗术语富文本。
 
 ## 快速使用
 
@@ -15,8 +15,10 @@ python3 scripts/export_game_locales/export_game_locales.py
 ```text
 src/i18n/game-locales/zh/operators.json
 src/i18n/game-locales/zh/terms.json
+src/i18n/game-locales/zh/gearsets.json
 src/i18n/game-locales/en/operators.json
 src/i18n/game-locales/en/terms.json
+src/i18n/game-locales/en/gearsets.json
 ```
 
 常用参数：
@@ -59,6 +61,7 @@ https://data.akedata.wiki/manifest.json
 | `PotentialTalentEffectTable.json`                 | 天赋/潜能效果说明和 blackboard           |
 | `SkillPatchTable.json`                            | 技能 blackboard 和补丁 blackboard        |
 | `HyperlinkTextTable.json`                         | `<#ba.*>` 战斗术语名称、说明、样式和图标 |
+| `EquipSuitTable.json`                             | 装备套组名称、套组件数门槛、套组技能入口 |
 
 下载缓存位于：
 
@@ -110,6 +113,26 @@ https://data.akedata.wiki/manifest.json
 }
 ```
 
+`gearsets.json` 的主要结构：
+
+```json
+{
+  "hot-work": {
+    "setName": "动火用",
+    "bonuses": [
+      {
+        "requiredCount": 3,
+        "description": "装备者源石技艺强度+30。\n..."
+      }
+    ]
+  }
+}
+```
+
+装备套组效果来自 `EquipSuitTable.list[].skillID` 指向的 `SkillPatchTable`。脚本会按 `skillLv` 选择对应 `SkillPatchDataBundle`，用该 bundle 的 `blackboard` 替换描述中的 `{变量:格式}` 占位符，并保留富文本标签供前端渲染。
+
+AKEDB 的套组 ID（例如 `suit_fire_natr01`）和 Endaxis 内部 slug（例如 `hot-work`）不是同一种命名。脚本默认从现有 `src/data/gearpieces/**/*.ts` 中读取装备图标路径和 `setSlug` 推导映射；新增套装如果还没有进入 Endaxis 装备数据，会临时回退为由 AKEDB suit ID 生成的 slug。
+
 ## 保留旧文件字段
 
 导出时会读取正式输出目录中已有的 `operators.json`：
@@ -119,6 +142,11 @@ https://data.akedata.wiki/manifest.json
 - 保留旧文件中的 `forms` 作为兜底；如果 AKEDB 本次导出了新的 form 标签，以新导出内容为准。
 
 注意：即便使用 `--output /tmp/...` 指定临时目录，旧文件也始终从仓库默认目录 `src/i18n/game-locales` 读取。这可以保证临时导出和正式导出使用同一份排序及手工字段基线。
+
+导出 `gearsets.json` 时也会读取旧文件：
+
+- 保留旧文件的套装顺序，减少无意义 diff。
+- 保留 `no-set-bonuses` 这类并非 AKEDB 套组的本地占位项。
 
 ## 富文本规则
 
