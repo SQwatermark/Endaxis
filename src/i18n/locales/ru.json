@@ -434,6 +434,8 @@
       "empty": "Подходящего снаряжения не найдено",
       "refine": "Доработка",
       "refineBase": "Без доработки",
+      "setBonusTitle": "Бонус комплекта",
+      "setBonusEquipped": "Надето: {count}/{required}",
       "searchPlaceholder": "Поиск по названию/ID...",
       "title": "Выбор снаряжения - {slot}",
       "uncategorized": "Без категории",

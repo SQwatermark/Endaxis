@@ -187,6 +187,11 @@ function readTrimmedText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
+function readGearSetBonuses(entry: any): string | null {
+  if (!entry || typeof entry !== 'object') return null;
+  return readTrimmedText(entry.description);
+}
+
 function getOperatorEntry(slug: string, locale?: string | null) {
   return getEntry(operatorsZhTable, operatorsEnTable, slug, locale);
 }
@@ -405,6 +410,10 @@ export function getGearPieceGameName(slug: string, locale?: string | null) {
 export function getGearSetGameName(slug: string, locale?: string | null) {
   const entry = getGearSetEntry(slug, locale);
   return readTrimmedText(entry?.setName ?? entry?.name) || humanizeIdentifier(slug);
+}
+
+export function getGearSetGameBonuses(slug: string, locale?: string | null): string | null {
+  return readGearSetBonuses(getGearSetEntry(slug, locale));
 }
 
 export function getGearSetPassiveText(slug: string, locale?: string | null) {

@@ -35,6 +35,8 @@ LOCALE_EXPORTS = [('CN', 'zh'), ('EN', 'en')]
 RICH_TEXT_TAG_RE = re.compile(r'<[^>]*>')
 RICH_TEXT_OPEN_TAG_RE = re.compile(r'<([@#])([A-Za-z0-9_.-]+)>')
 RICH_TEXT_IMAGE_TAG_RE = re.compile(r'<image="([^"]+)"(?:\s+scale=[0-9.]+)?>')
+GEAR_ICON_SUIT_RE = re.compile(r'icon:\s*[\'"]/equipment/([^/]+)/')
+GEAR_SET_SLUG_RE = re.compile(r'setSlug:\s*[\'"]([^\'"]+)[\'"]')
 SKILL_CONDITION_FIELD_RE = re.compile(
     r'^condition(Desc|DescInactive|Icon|Id|Name|PostDesc)([1-9][0-9]*)$'
 )
@@ -919,6 +921,183 @@ def export_battle_terms(table_dir, locale='CN'):
     return terms
 
 
+def build_existing_gear_set_slug_map(repo_root):
+    """Map AKEDB suit IDs to Endaxis gear set slugs from existing gear piece sheets."""
+    gearpieces_dir = os.path.join(repo_root, 'src', 'data', 'gearpieces')
+    suit_slug_map = {}
+    if not os.path.isdir(gearpieces_dir):
+        return suit_slug_map
+
+    for root, _, files in os.walk(gearpieces_dir):
+        for filename in files:
+            if not filename.endswith('.ts'):
+                continue
+            path = os.path.join(root, filename)
+            with open(path, 'r', encoding='utf-8') as f:
+                source = f.read()
+            icon_match = GEAR_ICON_SUIT_RE.search(source)
+            slug_match = GEAR_SET_SLUG_RE.search(source)
+            if not icon_match or not slug_match:
+                continue
+            suit_id = f'suit_{icon_match.group(1)}'
+            slug = slug_match.group(1)
+            existing = suit_slug_map.get(suit_id)
+            if existing and existing != slug:
+                data_error(
+                    f'gear piece slug map {path}',
+                    f'conflicting setSlug for {suit_id}: {existing!r} vs {slug!r}',
+                )
+            suit_slug_map[suit_id] = slug
+
+    return suit_slug_map
+
+
+def slugify_gear_set_id(suit_id):
+    value = str(suit_id or '').removeprefix('suit_')
+    value = re.sub(r'[^a-zA-Z0-9]+', '-', value).strip('-').lower()
+    return value or str(suit_id or '').strip() or 'unknown-gear-set'
+
+
+def read_gear_set_name(entry):
+    if not isinstance(entry, dict):
+        return ''
+    for key in ('setName', 'name'):
+        value = entry.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ''
+
+
+def build_old_gear_set_name_map(old_data):
+    result = {}
+    if not isinstance(old_data, dict):
+        return result
+    for slug, entry in old_data.items():
+        name = read_gear_set_name(entry)
+        if name:
+            result[name] = slug
+    return result
+
+
+def resolve_gear_set_slug(suit_id, suit_name, suit_slug_map, old_name_map):
+    return (
+        suit_slug_map.get(suit_id)
+        or old_name_map.get(suit_name)
+        or slugify_gear_set_id(suit_id)
+    )
+
+
+def resolve_skill_patch_description(skill_patch, skill_id, skill_level, context):
+    skill_data = skill_patch.get(skill_id)
+    if not isinstance(skill_data, dict):
+        data_error(context, f'missing SkillPatchTable entry: {skill_id!r}')
+    bundles = skill_data.get('SkillPatchDataBundle')
+    if not isinstance(bundles, list):
+        data_error(context, f'unexpected SkillPatchDataBundle type: {type(bundles).__name__}')
+
+    selected = [bundle for bundle in bundles if bundle.get('level') == skill_level] if skill_level else bundles
+    if not selected:
+        data_error(context, f'missing skill level {skill_level} for {skill_id}')
+
+    descriptions = []
+    for bundle_index, bundle in enumerate(selected):
+        bundle_context = f'{context} bundle[{bundle_index}]'
+        if not isinstance(bundle, dict):
+            data_error(bundle_context, f'unexpected bundle type: {type(bundle).__name__}')
+
+        desc_ref = bundle.get('description')
+        desc = resolve_text(desc_ref)
+        if has_text_reference(desc_ref) and not desc:
+            data_error(bundle_context, 'unresolved description')
+        if not desc:
+            continue
+
+        values = {}
+        add_blackboard_entries(values, bundle.get('blackboard', []), f'{bundle_context} blackboard')
+        descriptions.append(
+            normalize_rich_text(
+                replace_placeholders(desc, values, f'{bundle_context} description'),
+                f'{bundle_context} description',
+            )
+        )
+
+    return combine_description_parts(descriptions)
+
+
+def export_gearsets(table_dir, locale='CN', suit_slug_map=None, old_data=None):
+    """Export localized gear set names and active set bonus descriptions."""
+    load_text_table(table_dir, locale)
+
+    suit_slug_map = suit_slug_map or {}
+    old_name_map = build_old_gear_set_name_map(old_data)
+    suit_table = load_json(os.path.join(table_dir, 'EquipSuitTable.json'))
+    skill_patch = load_json(os.path.join(table_dir, 'SkillPatchTable.json'))
+
+    gearsets = {}
+    for suit_id, suit_data in sorted(suit_table.items()):
+        context = f'{locale} gear set {suit_id}'
+        if not isinstance(suit_data, dict):
+            data_error(context, f'unexpected EquipSuitTable row type: {type(suit_data).__name__}')
+        entries = suit_data.get('list', [])
+        if not isinstance(entries, list):
+            data_error(context, f'unexpected list type: {type(entries).__name__}')
+        if not entries:
+            continue
+
+        first_entry = entries[0]
+        if not isinstance(first_entry, dict):
+            data_error(context, f'unexpected list[0] type: {type(first_entry).__name__}')
+        suit_name = resolve_text(first_entry.get('suitName')) or suit_id
+        slug = resolve_gear_set_slug(suit_id, suit_name, suit_slug_map, old_name_map)
+
+        bonuses = {}
+        for entry_index, entry in enumerate(entries):
+            entry_context = f'{context} list[{entry_index}]'
+            if not isinstance(entry, dict):
+                data_error(entry_context, f'unexpected entry type: {type(entry).__name__}')
+            equip_count = entry.get('equipCnt')
+            if isinstance(equip_count, bool) or not isinstance(equip_count, int) or equip_count <= 0:
+                data_error(entry_context, f'unexpected equipCnt: {equip_count!r}')
+            skill_id = entry.get('skillID')
+            if not isinstance(skill_id, str) or not skill_id:
+                data_error(entry_context, f'unexpected skillID: {skill_id!r}')
+            skill_level = entry.get('skillLv')
+            if isinstance(skill_level, bool) or not isinstance(skill_level, int):
+                data_error(entry_context, f'unexpected skillLv: {skill_level!r}')
+
+            description = resolve_skill_patch_description(
+                skill_patch,
+                skill_id,
+                skill_level,
+                f'{entry_context} {skill_id}',
+            )
+            if description and not bonuses:
+                bonuses['description'] = description  # all sets have only one bonus, triggers at 3 pieces
+
+        if slug in gearsets:
+            data_error(context, f'duplicate Endaxis gear set slug: {slug}')
+        gearsets[slug] = {
+            'setName': strip_rich_text_tags(suit_name, f'{context} name'),
+        }
+        desc = bonuses.get('description')
+        if desc:
+            gearsets[slug]['description'] = desc
+
+    ordered = {}
+    if isinstance(old_data, dict):
+        for slug in old_data:
+            if slug in gearsets:
+                ordered[slug] = gearsets[slug]
+            elif slug == 'no-set-bonuses':
+                ordered[slug] = old_data[slug]
+
+    for slug, data in gearsets.items():
+        if slug not in ordered:
+            ordered[slug] = data
+
+    return ordered
+
+
 def merge_old_order_and_subskills(operators, old_data):
     """Keep existing operator order and manually maintained fields.
 
@@ -1051,6 +1230,8 @@ def main():
     print(f'TableCfg: {remote_url(table_dir)}')
     print(f'Output: {output_base}')
     print(f'Previous locale files: {default_output_base}')
+    gear_set_slug_map = build_existing_gear_set_slug_map(repo_root)
+    print(f'Gear set slug map: {len(gear_set_slug_map)} suit IDs from local gear pieces')
 
     for locale, out_locale in LOCALE_EXPORTS:
         print(f'\nExporting {locale} -> {out_locale}')
@@ -1061,11 +1242,20 @@ def main():
         old_operators_file = os.path.join(default_output_base, out_locale, 'operators.json')
         old_data = load_json(old_operators_file)
         old_slugs = set(old_data.keys()) if old_data else None
+        gearsets_file = os.path.join(locale_dir, 'gearsets.json')
+        old_gearsets_file = os.path.join(default_output_base, out_locale, 'gearsets.json')
+        old_gearsets = load_json(old_gearsets_file)
 
         operators = export_operators(table_dir, locale=locale, old_slugs=old_slugs)
         operators = merge_old_order_and_subskills(operators, old_data)
         order_combat_skills(operators)
         battle_terms = export_battle_terms(table_dir, locale=locale)
+        gearsets = export_gearsets(
+            table_dir,
+            locale=locale,
+            suit_slug_map=gear_set_slug_map,
+            old_data=old_gearsets,
+        )
 
         with open(operators_file, 'w', encoding='utf-8') as f:
             json.dump(operators, f, ensure_ascii=False, indent=2)
@@ -1077,6 +1267,11 @@ def main():
             json.dump(battle_terms, f, ensure_ascii=False, indent=2)
             f.write('\n')
         print(f'  [write] {battle_terms_file} ({len(battle_terms)} terms)')
+
+        with open(gearsets_file, 'w', encoding='utf-8') as f:
+            json.dump(gearsets, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(f'  [write] {gearsets_file} ({len(gearsets)} gear sets)')
 
 
 if __name__ == '__main__':

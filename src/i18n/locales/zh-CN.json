@@ -434,6 +434,8 @@
       "empty": "没有找到匹配的装备",
       "refine": "精锻",
       "refineBase": "初始",
+      "setBonusTitle": "套组效果",
+      "setBonusEquipped": "已装备：{count}/{required}",
       "searchPlaceholder": "搜索装备名称/ID...",
       "title": "选择装备 - {slot}",
       "uncategorized": "未分类",
