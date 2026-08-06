@@ -78,6 +78,8 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 附着 Buff 的 `OnBuffAfterTryEnhanced -> OnSpellInflictionStart` 已投影为类型化生命周期构造器。它仅在既有实例尝试增强后发布元素类型与当前层数，首次分配不额外发布；达到增强上限时，因原生 AfterEnhance 仍执行，事件也照常发布。
 
+`CombatBuffCatalogDocument` 建立了解包数据与可执行 Buff 定义之间的版本化语义边界。目录只包含 ID、叠层、时长、周期、Blackboard、语义角色和已恢复的生命周期动作，不允许原生表结构或函数回调进入；`compileCombatBuffCatalog` 负责将其编译为 `CombatBuffDefinition`，并为元素附着运行时建立附着、同类爆发和异类状态索引。重复 ID、重复语义角色、缺失运行时角色，以及动作与角色不匹配都会显式失败。目前只开放已有反编译证据的 `AfterEnhance -> ElementalInflictionStarted`，未知动作不作推测。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
@@ -95,7 +97,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 下一阶段按以下顺序推进：
 
-1. 从解包目录编译元素附着、同类爆发与异类状态的 Buff 定义，接通其具体动作；
+1. 让 `combat-spec` 从解包 BuffData 产出 `CombatBuffCatalogDocument`，补齐四系附着、同类爆发与异类状态目录；
 2. 实现处决 `BreakingAttack`、生命汲取和特殊失衡计算分支；
 3. 用真实面板快照和游戏内战斗样本校验整条数值链；
 4. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
