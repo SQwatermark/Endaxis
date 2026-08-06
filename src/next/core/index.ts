@@ -8,6 +8,8 @@ export * from './combat/runtime/combatResources';
 export * from './combat/runtime/combatSimulation';
 export * from './combat/runtime/skillResourceOperationExecutor';
 export * from './combat/damage/playerActiveDamage';
+export * from './combat/damage/playerActiveDamageInput';
+export * from './combat/damage/damageScale';
 export * from './combat/runtime/skillRuntime';
 export * from './combat/timeline/timelineActionProcessor';
 export * from './compiler/combatProgram';

@@ -38,6 +38,10 @@ DamageAction
 
 公式保持原生乘算顺序，不在中间步骤舍入。显示层所需的小数位处理只能发生在 projection 或 UI。
 
+`DamageScaleAccumulator` 复刻原生七个乘区。每个乘区分别累计攻击方和防御方来源，再按该区定义合并；最终七区相乘。乘法区在同侧连续乘入 `1 + addition`，其他区在同侧累加 addition。乘区结果为负或 `NaN` 时按原生逻辑钳制为 0。
+
+`resolvePlayerActiveDamageInput` 当前接通标准 `AtkScale` 路径：它将编译后的每击倍率、攻击属性和 DamageScale 最终值合成为 `finalAttackValue`，并按伤害类型选择对应抗性。处决和按状态层数增加倍率仍显式拒绝，直到其运行时输入闭环。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
@@ -55,8 +59,8 @@ DamageAction
 
 下一阶段按以下顺序推进：
 
-1. 定义攻击方、承伤方和随机源的只读运行时快照；
-2. 实现普通 `AtkScale` 与处决 `BreakingAttack` 的输入解析；
+1. 将属性 modifier 和原生 decorate mask 映射接入 DamageScale 七区；
+2. 实现处决 `BreakingAttack` 的输入解析；
 3. 在事件分发器中接入计算前和承伤前后的 modifier 边界；
 4. 写入生命值并生成结构化 receipt；
 5. 在生命伤害之后执行失衡计算、免疫检查、钳制和破防事件；
