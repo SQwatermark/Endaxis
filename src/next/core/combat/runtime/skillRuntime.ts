@@ -76,6 +76,7 @@ export class SkillRuntime {
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
   #appliedCost = false;
+  #nonReturnedSpCost = 0;
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
@@ -92,6 +93,10 @@ export class SkillRuntime {
 
   get appliedCost(): boolean {
     return this.#appliedCost;
+  }
+
+  get nonReturnedSpCost(): number {
+    return this.#nonReturnedSpCost;
   }
 
   get operations(): CombatOperationExecutor {
@@ -127,6 +132,7 @@ export class SkillRuntime {
     this.#timeline.reset(this.#context);
     this.#passedFrames = 0;
     this.#appliedCost = false;
+    this.#nonReturnedSpCost = 0;
     this.#state = 'casting';
     this.record('SkillStarted');
     // Native TryCastSkill performs one immediate OnTick(0, 0).
@@ -173,9 +179,15 @@ export class SkillRuntime {
       this.#program.costFrame !== undefined &&
       this.#passedFrames >= this.#program.costFrame
     ) {
-      if (this.#dependencies.resources.pay(this.#program.operatorId, this.#program.costs)) {
+      const payment = this.#dependencies.resources.pay(
+        this.#program.operatorId,
+        this.#program.costs,
+      );
+      if (payment.paid) {
         this.#appliedCost = true;
+        this.#nonReturnedSpCost = payment.nonReturnedSpCost;
         this.record('SkillCostApplied', {
+          nonReturnedSpCost: payment.nonReturnedSpCost,
           remainingSp: this.#dependencies.resources.sp,
           remainingUltimateEnergy: this.#dependencies.resources.getUltimateEnergy(
             this.#program.operatorId,

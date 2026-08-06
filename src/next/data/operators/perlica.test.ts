@@ -11,7 +11,7 @@ describe('next Perlica definition', () => {
     expect(steps.map(step => step.kind)).toEqual([
       'applyElementalInfliction',
       'dealDamage',
-      'gainUltimateEnergyFromSkillCost',
+      'gainSquadUltimateEnergyFromSkillCost',
     ]);
   });
 

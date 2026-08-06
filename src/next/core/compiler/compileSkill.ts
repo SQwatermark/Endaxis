@@ -172,11 +172,22 @@ function resolveStep(
           ? {}
           : { whenFalse: resolveSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
       };
+    case 'gainSquadUltimateEnergyFromSkillCost':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          coefficient: resolveLevelValue(
+            step.parameters.coefficient,
+            skillLevel,
+            `${path}.parameters.coefficient`,
+          ),
+        },
+      };
     case 'applyElementalInfliction':
     case 'applyElementalReaction':
     case 'consumeElementalReaction':
     case 'applyBuff':
-    case 'gainUltimateEnergyFromSkillCost':
     case 'gainFinisherSp':
     case 'consumeStatus':
     case 'setContextFlag':

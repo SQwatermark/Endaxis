@@ -201,7 +201,7 @@ export interface CombatStepParameters {
     amount: LevelValues;
     recipient: ResourceRecipient;
   };
-  gainUltimateEnergyFromSkillCost: { recipient: 'caster' };
+  gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
   gainFinisherSp: { factor: number; recipient: 'team' };
   applyStatus: {
     statusKey: string;
@@ -231,7 +231,7 @@ export const COMBAT_STEP_KINDS = [
   'dealDamage',
   'applyBuff',
   'changeResource',
-  'gainUltimateEnergyFromSkillCost',
+  'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
   'applyStatus',
   'consumeStatus',

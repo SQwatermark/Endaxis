@@ -48,7 +48,7 @@ export interface ResolvedCombatStepParameters {
     amount: number;
     recipient: ResourceRecipient;
   };
-  gainUltimateEnergyFromSkillCost: CombatStepParameters['gainUltimateEnergyFromSkillCost'];
+  gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];
   applyStatus: {
     statusKey: string;

@@ -1,0 +1,118 @@
+import { describe, expect, it } from 'vitest';
+import { CombatResources } from './combatResources';
+
+function createResources() {
+  return new CombatResources({
+    sp: 100,
+    returnedSp: 10,
+    ultimateEnergySystemUnlocked: true,
+    normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+    squad: [
+      {
+        operatorId: 'source',
+        ultimateEnergy: 0,
+        maxUltimateEnergy: 100,
+        ultimateEnergyGainMultiplier: 1.5,
+        canGainUntaggedUltimateEnergy: true,
+      },
+      {
+        operatorId: 'other',
+        ultimateEnergy: 0,
+        maxUltimateEnergy: 100,
+        ultimateEnergyGainMultiplier: 0.5,
+        canGainUntaggedUltimateEnergy: true,
+      },
+    ],
+  });
+}
+
+describe('CombatResources', () => {
+  it('tracks the native non-returned SP portion while paying the full cost', () => {
+    const resources = createResources();
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 40 }])).toEqual({
+      paid: true,
+      nonReturnedSpCost: 30,
+    });
+    expect(resources.sp).toBe(60);
+    expect(resources.returnedSp).toBe(0);
+  });
+
+  it('uses squad order, self/other settings, and each target gain multiplier', () => {
+    const resources = createResources();
+    const payment = resources.pay('source', [{ resource: 'sp', value: 40 }]);
+
+    const changes = resources.gainSquadUltimateEnergyFromSkillCost(
+      'source',
+      payment.nonReturnedSpCost,
+      1,
+    );
+
+    expect(changes.map(change => change.currentValue)).toEqual([4.5, 3]);
+    expect(resources.getUltimateEnergy('source')).toBe(4.5);
+    expect(resources.getUltimateEnergy('other')).toBe(3);
+  });
+
+  it('passes non-positive gains through without applying the gain multiplier', () => {
+    const resources = createResources();
+
+    const changes = resources.gainSquadUltimateEnergyFromSkillCost('source', 10, -0.5);
+
+    expect(changes.map(change => change.requestedValue)).toEqual([-0.5, -1]);
+    expect(changes.map(change => change.currentValue)).toEqual([0, 0]);
+  });
+
+  it('applies the unlock, gain-permission, maximum, and epsilon gates', () => {
+    const resources = new CombatResources({
+      sp: 100,
+      returnedSp: 0,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 1, otherGainPerSp: 1 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 99,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: true,
+        },
+        {
+          operatorId: 'blocked',
+          ultimateEnergy: 20,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: false,
+        },
+      ],
+    });
+
+    const changes = resources.gainSquadUltimateEnergyFromSkillCost('source', 10, 1);
+
+    expect(changes[0]).toMatchObject({ applied: true, actualValue: 1, currentValue: 100 });
+    expect(changes[1]).toMatchObject({ applied: false, actualValue: 0, currentValue: 20 });
+  });
+
+  it('marks ultimate-energy cost as paid when the locked setter rejects the write', () => {
+    const resources = new CombatResources({
+      sp: 0,
+      returnedSp: 0,
+      ultimateEnergySystemUnlocked: false,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 80,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: true,
+        },
+      ],
+    });
+
+    expect(resources.pay('source', [{ resource: 'ultimateEnergy', value: 80 }])).toEqual({
+      paid: true,
+      nonReturnedSpCost: 0,
+    });
+    expect(resources.getUltimateEnergy('source')).toBe(80);
+  });
+});

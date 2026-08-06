@@ -47,8 +47,8 @@ describe('compileSkill', () => {
         },
       },
       {
-        kind: 'gainUltimateEnergyFromSkillCost',
-        parameters: { recipient: 'caster' },
+        kind: 'gainSquadUltimateEnergyFromSkillCost',
+        parameters: { coefficient: 1 },
       },
     ]);
   });

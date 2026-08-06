@@ -288,10 +288,8 @@ function validateCombatStepParameters(
       validateLevelValues(parameters.amount, `${path}.amount`, issues);
       requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
       break;
-    case 'gainUltimateEnergyFromSkillCost':
-      if (parameters.recipient !== 'caster') {
-        issues.push({ path: `${path}.recipient`, message: "expected 'caster'" });
-      }
+    case 'gainSquadUltimateEnergyFromSkillCost':
+      validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
       break;
     case 'gainFinisherSp':
       requireFiniteNumber(parameters.factor, `${path}.factor`, issues);

@@ -6,6 +6,7 @@ export * from './combat/receipt/combatReceipt';
 export * from './combat/runtime/combatClock';
 export * from './combat/runtime/combatResources';
 export * from './combat/runtime/combatSimulation';
+export * from './combat/runtime/skillResourceOperationExecutor';
 export * from './combat/runtime/skillRuntime';
 export * from './combat/timeline/timelineActionProcessor';
 export * from './compiler/combatProgram';

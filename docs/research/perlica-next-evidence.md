@@ -55,13 +55,29 @@
 
 ## 战技
 
-| 配置路径                     | 可信度  | 来源与说明                                                                       |
-| ---------------------------- | ------- | -------------------------------------------------------------------------------- |
-| `durationFrames = 28`        | derived | `AllowNextSkillAction` 从第 28 帧开始                                            |
-| `costs.sp = 100`             | exact   | 最终 SkillPatch 的 `costValue`，不是基础 SkillData 中的旧值                      |
-| 第 13 帧命中序列             | exact   | 本地 `chr_0004_pelica_normal_skill` 时间轴                                       |
-| 附着 → 伤害 → 按技力消耗回能 | exact   | 同一命中序列中的原始数组顺序；原始 Buff 经反编译语义还原后不再作为通用 Buff 执行 |
-| 倍率与失衡 `10`              | exact   | 等级 Patch 的 `atk_scale` 与 `poise`                                             |
+| 配置路径                         | 可信度  | 来源与说明                                                                       |
+| -------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| `durationFrames = 28`            | derived | `AllowNextSkillAction` 从第 28 帧开始                                            |
+| `costs.sp = 100`                 | exact   | 最终 SkillPatch 的 `costValue`，不是基础 SkillData 中的旧值                      |
+| 第 13 帧命中序列                 | exact   | 本地 `chr_0004_pelica_normal_skill` 时间轴                                       |
+| 附着 → 伤害 → 按技力消耗全队回能 | exact   | 同一命中序列中的原始数组顺序；原始 Buff 经反编译语义还原后不再作为通用 Buff 执行 |
+| 倍率与失衡 `10`                  | exact   | 等级 Patch 的 `atk_scale` 与 `poise`                                             |
+
+战技费用在 `startCdFrame = 0` 扣除。`BattleManager.CostAtb` 同时从返还技力池扣除可抵消部分，得到
+`nonReturnedAtbCost`；命中后的 `buff_common_obtain_ultimate_sp` 再按以下顺序处理队伍：
+
+```text
+baseGain = coefficient × nonReturnedAtbCost
+         × (本人 ? selfGainPerAtb : otherGainPerAtb)
+requestedGain = baseGain × 目标自身的 UltimateSpGainScalar
+```
+
+当前真实公共 Buff 的 `coefficient` 为 `1`，因此正式配置显式写入 `coefficient: 1`。本人/队友系数属于
+全局 `SkillSetting`，终结技能量上限和回能倍率属于各成员解析后的属性，均不写入佩丽卡配置。正回能还要经过
+当前恢复标签限制，最后由终结技能量 setter 检查系统解锁、钳制到上限并应用 `1e-5` 变化容差。
+
+Next 资源账本已按上述输入建立可执行闭环并生成逐成员 receipt；全局系数、队伍顺序、上限、回能倍率、
+系统解锁和当前无标签回能许可缺失时不会从旧版 Endaxis 猜默认值。
 
 ## 处决与下落攻击
 

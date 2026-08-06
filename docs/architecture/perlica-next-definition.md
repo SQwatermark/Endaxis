@@ -9,7 +9,7 @@ Endaxis names describe stable domain meaning: `SkillCast`, `ScheduledSequence`, 
 ## Execution structure
 
 - Basic attacks currently schedule direct damage at the recovered timeline frames. Those frames are known projectile-launch points, so their use as hit offsets is an explicit approximation until projectile travel is modeled.
-- The battle skill applies infliction to the single simulated enemy before damage, then gains ultimate energy according to the actual skill-cost conversion rule.
+- The battle skill applies infliction to the single simulated enemy before damage, then uses the recovered non-returned skill-cost value to grant ultimate energy to the ordered squad. Self/other global coefficients, each member's gain multiplier, cap, unlock state, and current untagged-recovery permission are runtime inputs rather than Perlica constants.
 - The combo skill currently applies electrification, damage, and resource gain at frame 24 in recovered source order. Projectile travel remains unresolved and is not represented by a raw resource ID.
 - The talent that bounces this projectile to another enemy is documented as source behavior but omitted from the executable model because Endaxis simulates exactly one enemy.
 - The ultimate damages the single simulated enemy at frame 58. Its target-selection, interruption, and separate visual/audio behavior are outside Endaxis's simulation scope.

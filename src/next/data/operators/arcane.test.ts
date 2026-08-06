@@ -54,7 +54,7 @@ describe('next Arcane definition', () => {
     expect(steps.map(step => step.kind)).toEqual([
       'applyElementalInfliction',
       'conditional',
-      'gainUltimateEnergyFromSkillCost',
+      'gainSquadUltimateEnergyFromSkillCost',
     ]);
     expect(steps[1]).toMatchObject({
       kind: 'conditional',

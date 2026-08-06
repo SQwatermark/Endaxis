@@ -19,7 +19,21 @@ function findPerlicaSkill(key: string): SkillDefinition {
 
 function createBattleSkillRuntime(initialSp: number) {
   const clock = new CombatClock();
-  const resources = new CombatResources({ sp: initialSp, ultimateEnergy: { perlica: 0 } });
+  const resources = new CombatResources({
+    sp: initialSp,
+    returnedSp: 0,
+    ultimateEnergySystemUnlocked: true,
+    normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+    squad: [
+      {
+        operatorId: 'perlica',
+        ultimateEnergy: 0,
+        maxUltimateEnergy: 100,
+        ultimateEnergyGainMultiplier: 1,
+        canGainUntaggedUltimateEnergy: true,
+      },
+    ],
+  });
   const receipt = new CombatReceiptCollector();
   const operations: CombatOperationExecutor = {
     execute: vi.fn(() => true),
@@ -64,13 +78,13 @@ describe('SkillRuntime', () => {
     expect(vi.mocked(fixture.operations.execute).mock.calls.map(([step]) => step.kind)).toEqual([
       'applyElementalInfliction',
       'dealDamage',
-      'gainUltimateEnergyFromSkillCost',
+      'gainSquadUltimateEnergyFromSkillCost',
     ]);
     expect(
       fixture.receipt.entries
         .filter(entry => entry.event === 'CombatStepReached')
         .map(entry => entry.data?.kind),
-    ).toEqual(['applyElementalInfliction', 'dealDamage', 'gainUltimateEnergyFromSkillCost']);
+    ).toEqual(['applyElementalInfliction', 'dealDamage', 'gainSquadUltimateEnergyFromSkillCost']);
     expect(fixture.receipt.entries.at(-1)).toMatchObject({
       frame: 13,
       time: 13 / 30,
@@ -98,7 +112,13 @@ describe('SkillRuntime', () => {
       skill: { ...findPerlicaSkill('battleSkill'), costFrame: 3 },
     });
     const clock = new CombatClock();
-    const resources = new CombatResources({ sp: 100, ultimateEnergy: {} });
+    const resources = new CombatResources({
+      sp: 100,
+      returnedSp: 0,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+      squad: [],
+    });
     const receipt = new CombatReceiptCollector();
     const runtime = new SkillRuntime(program, {
       clock,
@@ -109,7 +129,7 @@ describe('SkillRuntime', () => {
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);
     expect(runtime.tryStart()).toBe(true);
-    expect(resources.pay('other', [{ resource: 'sp', value: 100 }])).toBe(true);
+    expect(resources.pay('other', [{ resource: 'sp', value: 100 }]).paid).toBe(true);
 
     simulation.advanceFrames(3);
 

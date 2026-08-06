@@ -102,7 +102,7 @@ const battleSkill = {
             { stagger: 10 },
           ),
         ),
-        step('gainUltimateEnergyFromSkillCost', { recipient: 'caster' }),
+        step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
       ),
     ),
   ],
