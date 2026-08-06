@@ -8,6 +8,7 @@ export * from './combat/runtime/combatResources';
 export * from './combat/runtime/combatSimulation';
 export * from './combat/runtime/skillResourceOperationExecutor';
 export * from './combat/runtime/combatVitals';
+export * from './combat/runtime/combatVitalsRuntime';
 export * from './combat/runtime/periodicTimer';
 export * from './combat/runtime/playerDamageOperationExecutor';
 export * from './combat/runtime/elementalInflictionOperationExecutor';

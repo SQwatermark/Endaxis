@@ -112,7 +112,10 @@ export class CombatVitals {
     return true;
   }
 
-  tick(deltaTime: number): readonly PoiseTimerTransition[] {
+  tick(
+    deltaTime: number,
+    onTransition?: (transition: PoiseTimerTransition) => void,
+  ): readonly PoiseTimerTransition[] {
     const transitions: PoiseTimerTransition[] = [];
     if (
       this.#poiseRecoveryTimer.isValid &&
@@ -127,11 +130,13 @@ export class CombatVitals {
         this.#hasPoiseBrokenTag = false;
       }
       transitions.push('poiseRecovered');
+      onTransition?.('poiseRecovered');
     }
     if (this.#poiseBrokenEndTimer.isValid && this.#poiseBrokenEndTimer.update(deltaTime)) {
       this.#poiseBrokenEndTimer.markInvalid();
       this.#hasPoiseBrokenTag = false;
       transitions.push('poiseBrokenTagEnded');
+      onTransition?.('poiseBrokenTagEnded');
     }
     return transitions;
   }

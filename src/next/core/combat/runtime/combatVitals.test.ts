@@ -54,7 +54,16 @@ describe('CombatVitals', () => {
     });
     vitals.applyPoiseDelta(-100);
     vitals.beginPoiseBreakIfZero();
-    expect(vitals.tick(COMBAT_FRAME_INTERVAL)).toEqual(['poiseRecovered', 'poiseBrokenTagEnded']);
+    const observed: [string, boolean][] = [];
+    expect(
+      vitals.tick(COMBAT_FRAME_INTERVAL, transition => {
+        observed.push([transition, vitals.hasPoiseBrokenTag]);
+      }),
+    ).toEqual(['poiseRecovered', 'poiseBrokenTagEnded']);
+    expect(observed).toEqual([
+      ['poiseRecovered', true],
+      ['poiseBrokenTagEnded', false],
+    ]);
     expect(vitals.hasPoiseBrokenTag).toBe(false);
   });
 });

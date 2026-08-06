@@ -48,6 +48,8 @@ DamageAction
 
 失衡恢复由两个 `PeriodicTimer` 顺序驱动，而不是保存额外的“失衡中”布尔值。第一个计时器按 `PoiseRecTime * PoiseRecTimeScalar` 恢复失衡；第二个计时器控制恢复后的破防标签延长时间。恢复完成的同一 Tick 会继续推进第二个计时器，与原生执行顺序一致。状态对象只返回 `poiseRecovered` 和 `poiseBrokenTagEnded` 变化事实，事件层负责将其转换为 AbilityEvent 和 receipt。
 
+`CombatVitalsRuntime` 在变化发生的现场发布这些事实，而不是等整个 Tick 完成后再遍历最终结果。因此即使恢复与破防标签结束发生在同一帧，`OnPoiseRecover` 监听器仍会先观察到尚未结束的破防标签，随后 receipt 才记录标签结束。
+
 `executeHealthDamage` 承载公式完成后的生命伤害写入边界，顺序固定为 `OnBeforeTakeDamage -> OnBeforeOutputDamage -> 扣血 -> receipt -> OnTakeDamage -> OnOutputDamage`。这些事件仍由攻击方的事件环境触发，与原生 `DamageActionExecutor` 一致。
 
 `executePoiseDamage` 先计算 `calculationValue * PoiseDamageOutputScalar * PoiseDamageTakenScalar`，再按 `OnBeforeOutputPoiseDamage -> OnBeforeTakePoiseDamage -> 失衡免疫 -> 失衡写入 -> OnTakePoiseDamage -> OnPoiseZero -> receipt` 执行。两个 Before 事件可修改 `finalDelta`；原生只在它们之前执行一次近零过滤，因此修改后的值不会被重复过滤。
@@ -76,8 +78,8 @@ DamageAction
 1. 建立 DamagePack，接入 `OnBeforeDamageAction`、`OnBeforeCalculateDamage` 与计算前后 modifier；
 2. 实现处决 `BreakingAttack` 的输入解析；
 3. 让通用 Buff 容器实现附着查询与操作写入端口，接通层数、持续时间和附着触发动作；
-4. 将失衡恢复产生的状态变化接入 AbilityEvent 与 receipt；
-5. 用真实面板快照和游戏内战斗样本校验整条数值链。
+4. 用真实面板快照和游戏内战斗样本校验整条数值链；
+5. 补齐尚未恢复的处决、生命汲取和特殊失衡计算分支。
 
 ## 5. 证据来源
 
