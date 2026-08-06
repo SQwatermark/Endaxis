@@ -3,6 +3,10 @@ import { perlica } from '../../../data/operators/perlica';
 import { compileSkill } from '../../compiler/compileSkill';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import type { ExistingElementalAttachment } from '../infliction/elementalInfliction';
+import {
+  DAMAGE_SCALE_ATTRIBUTE_KEYS,
+  type DamageScaleAttributeSnapshot,
+} from '../damage/damageScaleAttributes';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
@@ -62,8 +66,11 @@ describe('Perlica standard damage slice', () => {
       targetVitals,
       clock,
       receipt,
-      resolveSnapshots: () => ({
+      captureAttributeSnapshots: () => ({
         attacker: {
+          ...(Object.fromEntries(
+            DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+          ) as unknown as DamageScaleAttributeSnapshot),
           attack: 100,
           criticalRate: 0,
           criticalDamageIncrease: 0.5,
@@ -72,6 +79,9 @@ describe('Perlica standard damage slice', () => {
           physicalInflictionDamageMultiplier: 1,
         },
         defender: {
+          ...(Object.fromEntries(
+            DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+          ) as unknown as DamageScaleAttributeSnapshot),
           defense: 0,
           shelterDamageMultiplier: 0,
           resistances: {
@@ -83,14 +93,16 @@ describe('Perlica standard damage slice', () => {
             ether: { percent: 0, damageTakenMultiplier: 1 },
           },
         },
-        runtime: {
-          damageScaleMultiplier: 1,
-          criticalSample: 1,
-          runtimeExtensionMultiplier: 1,
-          appliesIgniteDamageMultiplier: false,
-          appliesPhysicalInflictionDamageMultiplier: false,
-        },
       }),
+      resolveRuntimeSnapshot: () => ({
+        criticalSample: 1,
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
       emitHealthSourceEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,

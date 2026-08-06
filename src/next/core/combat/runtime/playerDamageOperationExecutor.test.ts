@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import {
+  DAMAGE_SCALE_ATTRIBUTE_KEYS,
+  type DamageScaleAttributeSnapshot,
+} from '../damage/damageScaleAttributes';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
@@ -14,6 +18,37 @@ const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
     stagger: 20,
   },
 };
+
+const scaleAttributes = Object.fromEntries(
+  DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+) as unknown as DamageScaleAttributeSnapshot;
+
+function createAttributeSnapshots(attack = 100, defense = 0) {
+  return {
+    attacker: {
+      ...scaleAttributes,
+      attack,
+      criticalRate: 0,
+      criticalDamageIncrease: 0.5,
+      weaknessDamageMultiplier: 1,
+      igniteDamageMultiplier: 1,
+      physicalInflictionDamageMultiplier: 1,
+    },
+    defender: {
+      ...scaleAttributes,
+      defense,
+      shelterDamageMultiplier: 0,
+      resistances: {
+        physical: { percent: 0, damageTakenMultiplier: 1 },
+        heat: { percent: 0, damageTakenMultiplier: 1 },
+        electric: { percent: 0, damageTakenMultiplier: 1 },
+        cryo: { percent: 0, damageTakenMultiplier: 1 },
+        nature: { percent: 0, damageTakenMultiplier: 1 },
+        ether: { percent: 0, damageTakenMultiplier: 1 },
+      },
+    },
+  } as const;
+}
 
 describe('PlayerDamageOperationExecutor', () => {
   it('applies standard health damage before the hit poise unit', () => {
@@ -33,35 +68,16 @@ describe('PlayerDamageOperationExecutor', () => {
       targetVitals,
       clock: new CombatClock(),
       receipt,
-      resolveSnapshots: () => ({
-        attacker: {
-          attack: 100,
-          criticalRate: 0,
-          criticalDamageIncrease: 0.5,
-          weaknessDamageMultiplier: 1,
-          igniteDamageMultiplier: 1,
-          physicalInflictionDamageMultiplier: 1,
-        },
-        defender: {
-          defense: 0,
-          shelterDamageMultiplier: 0,
-          resistances: {
-            physical: { percent: 0, damageTakenMultiplier: 1 },
-            heat: { percent: 0, damageTakenMultiplier: 1 },
-            electric: { percent: 0, damageTakenMultiplier: 1 },
-            cryo: { percent: 0, damageTakenMultiplier: 1 },
-            nature: { percent: 0, damageTakenMultiplier: 1 },
-            ether: { percent: 0, damageTakenMultiplier: 1 },
-          },
-        },
-        runtime: {
-          damageScaleMultiplier: 1,
-          criticalSample: 1,
-          runtimeExtensionMultiplier: 1,
-          appliesIgniteDamageMultiplier: false,
-          appliesPhysicalInflictionDamageMultiplier: false,
-        },
+      captureAttributeSnapshots: () => createAttributeSnapshots(),
+      resolveRuntimeSnapshot: () => ({
+        criticalSample: 1,
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
       }),
+      applyDamageModifiers: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1.5, taken: 2 }),
       emitHealthSourceEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,
@@ -73,6 +89,80 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(targetVitals.health).toBe(600);
     expect(targetVitals.poise).toBe(40);
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
+  });
+
+  it('drives preparation events and both modifier stages before the formula', () => {
+    const order: string[] = [];
+    let attack = 100;
+    let defense = 0;
+    const targetVitals = new CombatVitals({
+      health: 2000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'perlica',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => {
+        order.push('capture');
+        return createAttributeSnapshots(attack, defense);
+      },
+      resolveRuntimeSnapshot: () => ({
+        criticalSample: 1,
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: (timing, side, context) => {
+        order.push(`${timing}:${side}`);
+        if (timing === 'beforeCalculation' && side === 'attacker') {
+          attack = 120;
+          context.multiplyCalculationValue(1.5);
+        }
+        if (timing === 'afterCalculation' && side === 'attacker') {
+          context.multiplyCalculationValue(2);
+          context.damageScales.modify('attacker', 'product', 0.25);
+        }
+        if (timing === 'afterCalculation' && side === 'defender') defense = 100;
+      },
+      clearInstantAttributeModifiers: side => order.push(`clear:${side}`),
+      emitPreparationEvent: event => order.push(event),
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      ...DAMAGE_STEP,
+      parameters: { ...DAMAGE_STEP.parameters, stagger: undefined },
+    });
+
+    // 120 * 4 * 1.5 * 2 * 1.25, then 100 defense halves the result.
+    expect(targetVitals.health).toBe(1100);
+    expect(order).toEqual([
+      'capture',
+      'beforeDamageAction',
+      'beforeCalculateDamage',
+      'beforeCalculation:attacker',
+      'beforeCalculation:defender',
+      'capture',
+      'clear:attacker',
+      'clear:defender',
+      'afterCalculation:attacker',
+      'afterCalculation:defender',
+      'capture',
+      'clear:attacker',
+      'clear:defender',
+    ]);
   });
 
   it('delegates operations outside the damage path', () => {
@@ -91,7 +181,11 @@ describe('PlayerDamageOperationExecutor', () => {
       }),
       clock: new CombatClock(),
       receipt: new CombatReceiptCollector(),
-      resolveSnapshots: vi.fn(),
+      captureAttributeSnapshots: vi.fn(),
+      resolveRuntimeSnapshot: vi.fn(),
+      applyDamageModifiers: vi.fn(),
+      clearInstantAttributeModifiers: vi.fn(),
+      emitPreparationEvent: vi.fn(),
       resolvePoiseMultipliers: vi.fn(),
       emitHealthSourceEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,

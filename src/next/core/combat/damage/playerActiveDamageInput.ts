@@ -25,8 +25,6 @@ export interface PlayerDamageDefenderSnapshot {
 }
 
 export interface PlayerDamageRuntimeSnapshot {
-  /** Product of all recovered DamageScale zones after modifier processing. */
-  readonly damageScaleMultiplier: number;
   readonly criticalSample: number;
   readonly runtimeExtensionMultiplier: number;
   /** Resolved from the native decorate-mask set by the catalog adapter. */
@@ -37,6 +35,7 @@ export interface PlayerDamageRuntimeSnapshot {
 
 export interface ResolvePlayerActiveDamageInput {
   readonly step: Extract<ResolvedCombatStep, { kind: 'dealDamage' }>;
+  readonly finalAttackValue: number;
   readonly attacker: PlayerDamageAttackerSnapshot;
   readonly defender: PlayerDamageDefenderSnapshot;
   readonly runtime: PlayerDamageRuntimeSnapshot;
@@ -45,6 +44,7 @@ export interface ResolvePlayerActiveDamageInput {
 /** Resolves the recovered standard AtkScale path after all modifier stages have run. */
 export function resolvePlayerActiveDamageInput({
   step,
+  finalAttackValue,
   attacker,
   defender,
   runtime,
@@ -65,8 +65,7 @@ export function resolvePlayerActiveDamageInput({
       : defender.resistances[step.parameters.damageType];
 
   return {
-    finalAttackValue:
-      attacker.attack * step.parameters.attackScale * runtime.damageScaleMultiplier,
+    finalAttackValue,
     damageType: step.parameters.damageType,
     criticalRate: attacker.criticalRate,
     criticalDamageIncrease: attacker.criticalDamageIncrease,
@@ -80,7 +79,6 @@ export function resolvePlayerActiveDamageInput({
     igniteDamageMultiplier: attacker.igniteDamageMultiplier,
     appliesIgniteDamageMultiplier: runtime.appliesIgniteDamageMultiplier,
     physicalInflictionDamageMultiplier: attacker.physicalInflictionDamageMultiplier,
-    appliesPhysicalInflictionDamageMultiplier:
-      runtime.appliesPhysicalInflictionDamageMultiplier,
+    appliesPhysicalInflictionDamageMultiplier: runtime.appliesPhysicalInflictionDamageMultiplier,
   };
 }

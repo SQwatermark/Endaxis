@@ -49,6 +49,7 @@ describe('resolvePlayerActiveDamageInput', () => {
   it('carries a compiled Perlica hit into the recovered standard formula', () => {
     const input = resolvePlayerActiveDamageInput({
       step: findDamageStep(),
+      finalAttackValue: 4800,
       attacker: {
         attack: 1000,
         criticalRate: 0,
@@ -59,7 +60,6 @@ describe('resolvePlayerActiveDamageInput', () => {
       },
       defender,
       runtime: {
-        damageScaleMultiplier: 1.2,
         criticalSample: 0,
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
@@ -76,6 +76,7 @@ describe('resolvePlayerActiveDamageInput', () => {
   it('rejects unresolved status-stack and breaking-attack calculations', () => {
     const step = findDamageStep();
     const common = {
+      finalAttackValue: 1,
       attacker: {
         attack: 1,
         criticalRate: 0,
@@ -86,7 +87,6 @@ describe('resolvePlayerActiveDamageInput', () => {
       },
       defender,
       runtime: {
-        damageScaleMultiplier: 1,
         criticalSample: 0,
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,

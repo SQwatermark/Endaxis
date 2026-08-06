@@ -2,11 +2,16 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
 import {
+  PlayerDamageContext,
+  type DamageModifierSide,
+  type DamageProcessTiming,
+  type PlayerDamageAttributeSnapshots,
+} from '../damage/playerDamageContext';
+import {
   resolvePlayerActiveDamageInput,
-  type PlayerDamageAttackerSnapshot,
-  type PlayerDamageDefenderSnapshot,
   type PlayerDamageRuntimeSnapshot,
 } from '../damage/playerActiveDamageInput';
+import { classifyDamageTags, injectDamageScaleAttributes } from '../damage/damageScaleAttributes';
 import {
   executePoiseDamage,
   type PoiseDamageEvent,
@@ -20,11 +25,11 @@ import type { CombatOperationExecutor } from './skillRuntime';
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' }>;
 
-export interface PlayerDamageSnapshots {
-  readonly attacker: PlayerDamageAttackerSnapshot;
-  readonly defender: PlayerDamageDefenderSnapshot;
-  readonly runtime: PlayerDamageRuntimeSnapshot;
-}
+export const PLAYER_DAMAGE_PREPARATION_EVENTS = [
+  'beforeDamageAction',
+  'beforeCalculateDamage',
+] as const;
+export type PlayerDamagePreparationEvent = (typeof PLAYER_DAMAGE_PREPARATION_EVENTS)[number];
 
 export interface PoiseDamageMultipliers {
   readonly output: number;
@@ -38,8 +43,18 @@ export interface PlayerDamageOperationDependencies {
   readonly targetVitals: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  /** Supplies snapshots after the recovered event and modifier stages have run. */
-  readonly resolveSnapshots: (step: DamageStep) => PlayerDamageSnapshots;
+  readonly captureAttributeSnapshots: (step: DamageStep) => PlayerDamageAttributeSnapshots;
+  readonly resolveRuntimeSnapshot: (step: DamageStep) => PlayerDamageRuntimeSnapshot;
+  readonly applyDamageModifiers: (
+    timing: DamageProcessTiming,
+    side: DamageModifierSide,
+    context: PlayerDamageContext,
+  ) => void;
+  readonly clearInstantAttributeModifiers: (side: DamageModifierSide) => void;
+  readonly emitPreparationEvent: (
+    event: PlayerDamagePreparationEvent,
+    context: PlayerDamageContext,
+  ) => void;
   readonly resolvePoiseMultipliers: (step: DamageStep) => PoiseDamageMultipliers;
   readonly emitHealthSourceEvent: Parameters<typeof executeHealthDamage>[0]['emitSourceEvent'];
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
@@ -47,15 +62,51 @@ export interface PlayerDamageOperationDependencies {
   readonly delegate: CombatOperationExecutor;
 }
 
-/** Executes the confirmed standard player-damage path from resolved snapshots onward. */
+/** Executes the confirmed standard player-damage path, including both modifier stages. */
 export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: PlayerDamageOperationDependencies) {}
 
   execute(step: RuntimeOperation): boolean {
     if (step.kind !== 'dealDamage') return this.dependencies.delegate.execute(step);
 
-    const snapshots = this.dependencies.resolveSnapshots(step);
-    const formulaInput = resolvePlayerActiveDamageInput({ step, ...snapshots });
+    if (step.parameters.calculation === 'breakingAttack') {
+      throw new Error('breaking-attack input requires the separate recovered calculation branch');
+    }
+    if (step.parameters.attackScalePerStatusStack !== undefined) {
+      throw new Error('status-stack attack scale must be resolved by its recovered branch');
+    }
+    if (step.parameters.damageType === 'lifeDrain') {
+      throw new Error('life-drain damage uses a separate native calculation branch');
+    }
+
+    const context = new PlayerDamageContext({
+      damageType: step.parameters.damageType,
+      ports: {
+        captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
+        applyModifiers: (timing, side, damageContext) =>
+          this.dependencies.applyDamageModifiers(timing, side, damageContext),
+        clearInstantAttributeModifiers: this.dependencies.clearInstantAttributeModifiers,
+      },
+    });
+    this.dependencies.emitPreparationEvent('beforeDamageAction', context);
+    this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
+    context.applyModifiers('beforeCalculation');
+    context.setCalculationResult(context.attackerAttributes.attack * step.parameters.attackScale);
+    injectDamageScaleAttributes(context.damageScales, {
+      damageType: step.parameters.damageType,
+      classifications: classifyDamageTags(step.parameters.tags),
+      attacker: context.attackerAttributes,
+      defender: context.defenderAttributes,
+      defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
+    });
+    const finalAttackValue = context.resolveFinalAttackValue();
+    const formulaInput = resolvePlayerActiveDamageInput({
+      step,
+      finalAttackValue,
+      attacker: context.attackerAttributes,
+      defender: context.defenderAttributes,
+      runtime: this.dependencies.resolveRuntimeSnapshot(step),
+    });
     const damageResult = calculatePlayerActiveDamage(formulaInput);
     executeHealthDamage({
       sourceId: this.dependencies.sourceOperatorId,

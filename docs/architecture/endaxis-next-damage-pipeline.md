@@ -54,7 +54,9 @@ DamageAction
 
 `executePoiseDamage` 先计算 `calculationValue * PoiseDamageOutputScalar * PoiseDamageTakenScalar`，再按 `OnBeforeOutputPoiseDamage -> OnBeforeTakePoiseDamage -> 失衡免疫 -> 失衡写入 -> OnTakePoiseDamage -> OnPoiseZero -> receipt` 执行。两个 Before 事件可修改 `finalDelta`；原生只在它们之前执行一次近零过滤，因此修改后的值不会被重复过滤。
 
-`PlayerDamageOperationExecutor` 将标准 `dealDamage` 步骤接入上述两个写入边界：先根据已完成事件与 modifier 处理的快照解析公式输入，再写入生命值，最后执行同一命中的失衡单元。当前快照由显式依赖提供，表示原生 DamagePack 前置阶段尚未被悄悄省略或替换成默认值。
+`PlayerDamageContext` 承载每次生命伤害命中的可变 DamagePack 状态。它在创建时捕获初始属性，并严格按“攻击方 modifier -> 防御方 modifier -> 刷新属性快照 -> 清理双方临时属性”的顺序分别执行计算前、计算后两个阶段。计算前对伤害值的乘算先累积，基础攻击计算完成时才应用；计算后乘算直接作用于计算结果。即使 modifier 抛错，双方临时属性也会进入清理流程。
+
+`PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。
 
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID；查询和写入端口后续由通用 Buff 容器实现。
 
@@ -75,11 +77,11 @@ DamageAction
 
 下一阶段按以下顺序推进：
 
-1. 建立 DamagePack，接入 `OnBeforeDamageAction`、`OnBeforeCalculateDamage` 与计算前后 modifier；
-2. 实现处决 `BreakingAttack` 的输入解析；
-3. 让通用 Buff 容器实现附着查询与操作写入端口，接通层数、持续时间和附着触发动作；
+1. 建立通用 Buff 容器，让 Buff 持有条件和 DamageModifier，并实现伤害上下文现有端口；
+2. 让 Buff 容器实现元素附着查询与操作写入，接通层数、持续时间和附着触发动作；
+3. 实现处决 `BreakingAttack`、生命汲取和特殊失衡计算分支；
 4. 用真实面板快照和游戏内战斗样本校验整条数值链；
-5. 补齐尚未恢复的处决、生命汲取和特殊失衡计算分支。
+5. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
 
 ## 5. 证据来源
 
