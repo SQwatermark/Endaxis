@@ -423,6 +423,7 @@ Project JSON
 - 可取消、可迁移至 Worker 的分阶段模拟流水线；
 - 基于显式 revision 的有界 LRU 和独立 projection 缓存；
 - 支持任意完整配色方案的语义主题 token 与注册表。
+- 保持 combat-spec 同帧顺序的 TimelineAction 生命周期处理器，并避免每帧全轴扫描；
 
 ### 阻断下一阶段的缺口
 
