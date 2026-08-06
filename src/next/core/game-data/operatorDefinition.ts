@@ -299,6 +299,8 @@ export interface SkillDefinition {
   availability?: CombatCondition;
   cooldownFrames?: LevelValues;
   costs?: readonly SkillCostDefinition[];
+  /** Native CastData.startCdFrame; required by the compiler when costs are present. */
+  costFrame?: number;
   scheduledSequences: readonly ScheduledSequenceDefinition[];
   activationWindow?: {
     durationFrames: number;

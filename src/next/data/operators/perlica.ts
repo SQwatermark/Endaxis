@@ -88,6 +88,7 @@ const battleSkill = {
   key: 'battleSkill',
   durationFrames: 28,
   costs: [{ resource: 'sp', value: 100 }],
+  costFrame: 0,
   scheduledSequences: [
     scheduled(
       13,
@@ -158,6 +159,7 @@ const ultimate = {
   durationFrames: 63,
   cooldownFrames: 300,
   costs: [{ resource: 'ultimateEnergy', value: 80 }],
+  costFrame: 0,
   scheduledSequences: [
     scheduled(
       58,
