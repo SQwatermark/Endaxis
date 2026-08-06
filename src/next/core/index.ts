@@ -1,5 +1,7 @@
 export * from './combat/actions/actionSequence';
 export * from './combat/actions/combatStep';
+export * from './combat/events/abilityEventDispatcher';
+export * from './combat/events/gameLevelEventDispatcher';
 export * from './combat/receipt/combatReceipt';
 export * from './combat/runtime/combatClock';
 export * from './combat/runtime/combatResources';
