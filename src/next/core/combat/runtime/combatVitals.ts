@@ -19,15 +19,6 @@ export interface HealthDamageResult {
   readonly currentHealth: number;
 }
 
-export interface PoiseDeltaResult {
-  readonly requestedDelta: number;
-  readonly actualDelta: number;
-  readonly cancelled: boolean;
-  readonly brokePoise: boolean;
-  readonly previousPoise: number;
-  readonly currentPoise: number;
-}
-
 export type PoiseTimerTransition = 'poiseRecovered' | 'poiseBrokenTagEnded';
 
 /** Health and poise state without skill, event-dispatch, or presentation concerns. */
@@ -71,6 +62,9 @@ export class CombatVitals {
   get hasPoise(): boolean {
     return this.#maxPoise > POISE_EPSILON;
   }
+  get poiseImmune(): boolean {
+    return this.#poiseImmune;
+  }
   get inPoiseRecovery(): boolean {
     return this.#poiseRecoveryTimer.isValid && !this.#poiseRecoveryTimer.isReady;
   }
@@ -99,33 +93,23 @@ export class CombatVitals {
     };
   }
 
-  applyPoiseDelta(delta: number, ignorePoiseImmune = false): PoiseDeltaResult {
+  applyPoiseDelta(delta: number): number {
+    if (!this.hasPoise) return 0;
     const previousPoise = this.#poise;
-    if (Math.abs(delta) <= POISE_EPSILON) {
-      return {
-        requestedDelta: delta,
-        actualDelta: 0,
-        cancelled: false,
-        brokePoise: false,
-        previousPoise,
-        currentPoise: this.#poise,
-      };
+    const next = Math.min(this.#maxPoise, Math.max(0, this.#poise + delta));
+    if (Math.abs(next - this.#poise) > POISE_EPSILON) this.#poise = next;
+    return this.#poise - previousPoise;
+  }
+
+  beginPoiseBreakIfZero(): boolean {
+    if (!this.hasPoise || this.inPoiseRecovery || Math.abs(this.#poise) > POISE_EPSILON) {
+      return false;
     }
-    const isPoiseDamage = delta < 0;
-    const cancelled = isPoiseDamage && this.#poiseImmune && !ignorePoiseImmune;
-    if (!cancelled && this.hasPoise) {
-      const next = Math.min(this.#maxPoise, Math.max(0, this.#poise + delta));
-      if (Math.abs(next - this.#poise) > POISE_EPSILON) this.#poise = next;
-    }
-    const brokePoise = !cancelled && this.#beginPoiseBreakIfZero();
-    return {
-      requestedDelta: delta,
-      actualDelta: this.#poise - previousPoise,
-      cancelled,
-      brokePoise,
-      previousPoise,
-      currentPoise: this.#poise,
-    };
+    const recoveryTime = this.#poiseRecoveryTime * this.#poiseRecoveryTimeMultiplier;
+    if (recoveryTime > 0) this.#poiseRecoveryTimer.reset(recoveryTime, true);
+    this.#poiseBrokenEndTimer.markInvalid();
+    this.#hasPoiseBrokenTag = true;
+    return true;
   }
 
   tick(deltaTime: number): readonly PoiseTimerTransition[] {
@@ -150,16 +134,5 @@ export class CombatVitals {
       transitions.push('poiseBrokenTagEnded');
     }
     return transitions;
-  }
-
-  #beginPoiseBreakIfZero(): boolean {
-    if (!this.hasPoise || this.inPoiseRecovery || Math.abs(this.#poise) > POISE_EPSILON) {
-      return false;
-    }
-    const recoveryTime = this.#poiseRecoveryTime * this.#poiseRecoveryTimeMultiplier;
-    if (recoveryTime > 0) this.#poiseRecoveryTimer.reset(recoveryTime, true);
-    this.#poiseBrokenEndTimer.markInvalid();
-    this.#hasPoiseBrokenTag = true;
-    return true;
   }
 }

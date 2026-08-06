@@ -11,6 +11,8 @@ export * from './combat/runtime/combatVitals';
 export * from './combat/runtime/periodicTimer';
 export * from './combat/damage/playerActiveDamage';
 export * from './combat/damage/playerActiveDamageInput';
+export * from './combat/damage/poiseDamage';
+export * from './combat/damage/healthDamage';
 export * from './combat/damage/damageScale';
 export * from './combat/damage/damageScaleAttributes';
 export * from './combat/runtime/skillRuntime';

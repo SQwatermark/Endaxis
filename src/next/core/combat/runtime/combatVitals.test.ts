@@ -28,11 +28,8 @@ describe('CombatVitals', () => {
 
   it('clamps poise damage, starts recovery, and supports pausing', () => {
     const vitals = createVitals({ poise: 80, poiseRecoveryTimeMultiplier: 0.5 });
-    expect(vitals.applyPoiseDelta(-120)).toMatchObject({
-      actualDelta: -80,
-      brokePoise: true,
-      currentPoise: 0,
-    });
+    expect(vitals.applyPoiseDelta(-120)).toBe(-80);
+    expect(vitals.beginPoiseBreakIfZero()).toBe(true);
     vitals.tick(COMBAT_FRAME_INTERVAL);
     const progress = vitals.poiseRecoveryProgress;
     vitals.stopPoiseRecovery = true;
@@ -44,10 +41,10 @@ describe('CombatVitals', () => {
     expect(vitals.hasPoiseBrokenTag).toBe(false);
   });
 
-  it('checks poise immunity after the caller has had a chance to run before-events', () => {
+  it('exposes immunity while leaving its event-sensitive check to the executor', () => {
     const vitals = createVitals({ poiseImmune: true });
-    expect(vitals.applyPoiseDelta(-25)).toMatchObject({ cancelled: true, actualDelta: 0 });
-    expect(vitals.applyPoiseDelta(-25, true)).toMatchObject({ cancelled: false, actualDelta: -25 });
+    expect(vitals.poiseImmune).toBe(true);
+    expect(vitals.applyPoiseDelta(-25)).toBe(-25);
   });
 
   it('advances the broken-tag timer in the same tick that recovers poise', () => {
@@ -56,6 +53,7 @@ describe('CombatVitals', () => {
       poiseBrokenEndTime: COMBAT_FRAME_INTERVAL,
     });
     vitals.applyPoiseDelta(-100);
+    vitals.beginPoiseBreakIfZero();
     expect(vitals.tick(COMBAT_FRAME_INTERVAL)).toEqual(['poiseRecovered', 'poiseBrokenTagEnded']);
     expect(vitals.hasPoiseBrokenTag).toBe(false);
   });

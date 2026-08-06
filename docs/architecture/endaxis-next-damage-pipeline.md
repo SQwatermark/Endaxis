@@ -48,6 +48,10 @@ DamageAction
 
 失衡恢复由两个 `PeriodicTimer` 顺序驱动，而不是保存额外的“失衡中”布尔值。第一个计时器按 `PoiseRecTime * PoiseRecTimeScalar` 恢复失衡；第二个计时器控制恢复后的破防标签延长时间。恢复完成的同一 Tick 会继续推进第二个计时器，与原生执行顺序一致。状态对象只返回 `poiseRecovered` 和 `poiseBrokenTagEnded` 变化事实，事件层负责将其转换为 AbilityEvent 和 receipt。
 
+`executeHealthDamage` 承载公式完成后的生命伤害写入边界，顺序固定为 `OnBeforeTakeDamage -> OnBeforeOutputDamage -> 扣血 -> receipt -> OnTakeDamage -> OnOutputDamage`。这些事件仍由攻击方的事件环境触发，与原生 `DamageActionExecutor` 一致。
+
+`executePoiseDamage` 先计算 `calculationValue * PoiseDamageOutputScalar * PoiseDamageTakenScalar`，再按 `OnBeforeOutputPoiseDamage -> OnBeforeTakePoiseDamage -> 失衡免疫 -> 失衡写入 -> OnTakePoiseDamage -> OnPoiseZero -> receipt` 执行。两个 Before 事件可修改 `finalDelta`；原生只在它们之前执行一次近零过滤，因此修改后的值不会被重复过滤。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
