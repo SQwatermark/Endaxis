@@ -58,6 +58,10 @@ DamageAction
 
 `CombatAttributeSet` 提供 DamagePack 快照之前的统一属性聚合边界。它按原生 `base -> armed -> final` 三阶段应用八个修正槽，保留装备、武器、天赋、卡牌技能、Buff、瞬时修正、转换属性和潜能的来源位掩码，并按修正器对象身份挂载和卸载。属性必须显式提供原生上下限后才能接受 modifier；尚未恢复的主副属性派生规则不会藏进通用容器。DamagePack 阶段结束时只清理 `Instant` 来源，长期 Buff 与配装修正继续保留。
 
+`CombatBuffContainer` 已建立每个实体独立的 Buff 存储和 DamageModifier 注册表。每次施加都会创建带稳定实例编号的独立 Buff、DamageModifier 和属性 Modifier；启用阶段按“首次 Start -> 注册伤害修正 -> 挂载属性修正 -> Enable”执行，属性注册失败会回滚本次伤害与属性修正。Disable 在注销前执行动作，Finish 直接结束并卸载，不额外执行 Disable。有限时长使用 `1e-5` 容差结束，禁用实例仍会推进时长。当前仅开放原生 `Unlimited` 分组；其余十一种已登记叠层策略明确拒绝，直到各自的 stacking group 规则接入。
+
+`DamageModifier` 已实现侧别、所属实体和条件门控，处理器严格保持配置顺序。当前可执行处理器为计算前后伤害值乘算与计算后的七区增伤；两者都会拒绝生命汲取，且按目标生命类型过滤。瞬时属性、独立生命和伤害文本处理器尚未接线。
+
 `PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。
 
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID；查询和写入端口后续由通用 Buff 容器实现。

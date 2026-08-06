@@ -12,6 +12,9 @@ export type DamageProcessTiming = (typeof DAMAGE_PROCESS_TIMINGS)[number];
 export const DAMAGE_MODIFIER_SIDES = ['attacker', 'defender'] as const;
 export type DamageModifierSide = (typeof DAMAGE_MODIFIER_SIDES)[number];
 
+export const DAMAGE_TARGET_HEALTH_TYPES = ['none', 'normal', 'independent'] as const;
+export type DamageTargetHealthType = (typeof DAMAGE_TARGET_HEALTH_TYPES)[number];
+
 export interface PlayerDamageAttributeSnapshots {
   readonly attacker: PlayerDamageAttackerSnapshot & DamageScaleAttributeSnapshot;
   readonly defender: PlayerDamageDefenderSnapshot & DamageScaleAttributeSnapshot;
@@ -28,13 +31,19 @@ export interface PlayerDamageContextPorts {
 }
 
 interface PlayerDamageContextInput {
+  readonly sourceId: string;
+  readonly targetId: string;
   readonly damageType: DamageType;
+  readonly targetHealthType: DamageTargetHealthType;
   readonly ports: PlayerDamageContextPorts;
 }
 
 /** Mutable per-hit state following the recovered native damage-pack lifecycle. */
 export class PlayerDamageContext {
+  readonly sourceId: string;
+  readonly targetId: string;
   readonly damageType: DamageType;
+  readonly targetHealthType: DamageTargetHealthType;
   readonly damageScales = new DamageScaleAccumulator();
   readonly #ports: PlayerDamageContextPorts;
   #baseValue = 0;
@@ -44,7 +53,10 @@ export class PlayerDamageContext {
   #snapshots: PlayerDamageAttributeSnapshots;
 
   constructor(input: PlayerDamageContextInput) {
+    this.sourceId = input.sourceId;
+    this.targetId = input.targetId;
     this.damageType = input.damageType;
+    this.targetHealthType = input.targetHealthType;
     this.#ports = input.ports;
     this.#snapshots = input.ports.captureAttributeSnapshots();
   }
@@ -67,6 +79,10 @@ export class PlayerDamageContext {
 
   get defenderAttributes(): PlayerDamageAttributeSnapshots['defender'] {
     return this.#snapshots.defender;
+  }
+
+  getEntityId(side: DamageModifierSide): string {
+    return side === 'attacker' ? this.sourceId : this.targetId;
   }
 
   applyModifiers(timing: DamageProcessTiming): void {

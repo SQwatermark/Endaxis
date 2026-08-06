@@ -40,7 +40,10 @@ describe('PlayerDamageContext', () => {
     let attack = 100;
     const order: string[] = [];
     const context = new PlayerDamageContext({
+      sourceId: 'operator',
+      targetId: 'enemy',
       damageType: 'electric',
+      targetHealthType: 'normal',
       ports: {
         captureAttributeSnapshots: () => createSnapshots(attack),
         applyModifiers: (timing, side, damageContext) => {
@@ -78,7 +81,10 @@ describe('PlayerDamageContext', () => {
   it('clears both sides when modifier processing throws', () => {
     const clear = vi.fn();
     const context = new PlayerDamageContext({
+      sourceId: 'operator',
+      targetId: 'enemy',
       damageType: 'physical',
+      targetHealthType: 'normal',
       ports: {
         captureAttributeSnapshots: () => createSnapshots(1),
         applyModifiers: () => {

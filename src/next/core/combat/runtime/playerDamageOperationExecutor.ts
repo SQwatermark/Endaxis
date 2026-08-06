@@ -80,7 +80,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     }
 
     const context = new PlayerDamageContext({
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: this.dependencies.targetId,
       damageType: step.parameters.damageType,
+      targetHealthType: 'normal',
       ports: {
         captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
         applyModifiers: (timing, side, damageContext) =>

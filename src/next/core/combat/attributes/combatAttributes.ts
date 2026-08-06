@@ -66,7 +66,11 @@ export class CombatAttributeModifier<Key extends string> {
     readonly values: AttributeModifierValues,
     readonly source: AttributeModifierSource,
     readonly timing: AttributeModifierTiming,
-  ) {}
+  ) {
+    for (const [name, value] of Object.entries(values)) {
+      assertFinite(value, `attribute modifier ${name}`);
+    }
+  }
 }
 
 export function attributeModifierValues(
