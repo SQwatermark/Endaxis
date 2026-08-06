@@ -302,9 +302,21 @@ export interface GlobalOperatorStatModifierDocument {
 }
 
 export interface GlobalConfigDocument {
-  /** Catalog-owned preset identity; null means no preset. */
-  presetId: string | null;
   modifiers: GlobalOperatorStatModifierDocument[];
+}
+
+export type MechanicParameterValue = boolean | number | string;
+
+/** One user-owned selection of a catalog mechanic and its explicit parameters. */
+export interface MechanicSelectionDocument {
+  id: string;
+  mechanicId: string;
+  enabled: boolean;
+  parameters: Record<string, MechanicParameterValue>;
+}
+
+export interface ScenarioMechanicsDocument {
+  selections: MechanicSelectionDocument[];
 }
 
 export interface ScenarioEditorDocument {
@@ -321,6 +333,7 @@ export interface ScenarioDocument {
   connections: ConnectionDocument[];
   enemy: EnemyDocument;
   battle: BattleDocument;
+  mechanics: ScenarioMechanicsDocument;
   globalConfig: GlobalConfigDocument;
   editor: ScenarioEditorDocument;
 }

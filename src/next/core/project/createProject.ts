@@ -50,7 +50,8 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
       cycleBoundaries: [],
       controlSwitches: [],
     },
-    globalConfig: { presetId: null, modifiers: [] },
+    mechanics: { selections: [] },
+    globalConfig: { modifiers: [] },
     editor: {
       trackHeightWeights: [1, 1, 1, 1],
       prepExpanded: true,

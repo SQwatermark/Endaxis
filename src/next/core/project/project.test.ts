@@ -50,6 +50,62 @@ describe('V2 project document', () => {
     expect(parsed).toEqual({ ok: true, value: project });
   });
 
+  it('persists mechanic selections separately from global stat overrides', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    project.scenarios[0]!.mechanics.selections.push({
+      id: 'mechanic-selection:1',
+      mechanicId: 'season-tower:dungeon:indie_battletower001',
+      enabled: true,
+      parameters: { dmg_cnt: 20, damage_up: 0.5 },
+    });
+
+    const parsed = parseProjectDocument(serializeProjectDocument(project));
+
+    expect(parsed).toEqual({ ok: true, value: project });
+    expect(project.scenarios[0]!.globalConfig).toEqual({ modifiers: [] });
+  });
+
+  it('rejects malformed and duplicate mechanic selections', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const scenario = project.scenarios[0]!;
+    scenario.mechanics.selections.push(
+      { id: 'selection:1', mechanicId: 'mechanic:1', enabled: true, parameters: {} },
+      { id: 'selection:1', mechanicId: 'mechanic:2', enabled: true, parameters: {} },
+    );
+    const malformed = structuredClone(project) as unknown as {
+      scenarios: Array<{
+        mechanics: {
+          selections: Array<{ parameters: Record<string, unknown> }>;
+        };
+      }>;
+    };
+    malformed.scenarios[0]!.mechanics.selections[0]!.parameters.invalid = null;
+
+    const result = validateProjectDocument(malformed);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          {
+            path: '$.scenarios[0].mechanics.selections[1].id',
+            message: 'duplicate mechanic selection id',
+          },
+          {
+            path: '$.scenarios[0].mechanics.selections[0].parameters.invalid',
+            message: 'expected a boolean, finite number, or string',
+          },
+        ]),
+      );
+    }
+  });
+
   it('persists scenario inheritance as a boundary reference instead of a runtime snapshot', () => {
     const project = createEmptyProject({
       createdWith: 'test',

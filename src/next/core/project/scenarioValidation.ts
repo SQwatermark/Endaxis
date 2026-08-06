@@ -209,9 +209,6 @@ export function validateGlobalConfig(
     issues.push({ path, message: 'expected an object' });
     return;
   }
-  if (value.presetId !== null && typeof value.presetId !== 'string') {
-    issues.push({ path: `${path}.presetId`, message: 'expected a string or null' });
-  }
   if (!Array.isArray(value.modifiers)) {
     issues.push({ path: `${path}.modifiers`, message: 'expected an array' });
     return;
@@ -244,6 +241,55 @@ export function validateGlobalConfig(
         path: `${modifierPath}.skillType`,
         message: 'skill cooldown reduction requires a skill type',
       });
+    }
+  });
+}
+
+export function validateMechanics(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isObject(value)) {
+    issues.push({ path, message: 'expected an object' });
+    return;
+  }
+  if (!Array.isArray(value.selections)) {
+    issues.push({ path: `${path}.selections`, message: 'expected an array' });
+    return;
+  }
+
+  const ids = new Set<string>();
+  value.selections.forEach((selection, index) => {
+    const selectionPath = `${path}.selections[${index}]`;
+    if (!isObject(selection)) {
+      issues.push({ path: selectionPath, message: 'expected an object' });
+      return;
+    }
+    const id = requireString(selection, 'id', selectionPath, issues);
+    if (id !== null && ids.has(id)) {
+      issues.push({ path: `${selectionPath}.id`, message: 'duplicate mechanic selection id' });
+    }
+    if (id !== null) ids.add(id);
+    requireString(selection, 'mechanicId', selectionPath, issues);
+    requireBoolean(selection.enabled, `${selectionPath}.enabled`, issues);
+
+    if (!isObject(selection.parameters)) {
+      issues.push({ path: `${selectionPath}.parameters`, message: 'expected an object' });
+      return;
+    }
+    for (const [key, parameter] of Object.entries(selection.parameters)) {
+      if (
+        typeof parameter !== 'boolean' &&
+        typeof parameter !== 'number' &&
+        typeof parameter !== 'string'
+      ) {
+        issues.push({
+          path: `${selectionPath}.parameters.${key}`,
+          message: 'expected a boolean, finite number, or string',
+        });
+      } else if (typeof parameter === 'number' && !Number.isFinite(parameter)) {
+        issues.push({
+          path: `${selectionPath}.parameters.${key}`,
+          message: 'expected a boolean, finite number, or string',
+        });
+      }
     }
   });
 }

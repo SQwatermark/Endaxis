@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "convert:images": "node scripts/convert-png-to-webp.js",
     "type-check": "vue-tsc --noEmit --project tsconfig.app.json",
+    "type-check:next": "vue-tsc --noEmit --project tsconfig.next.json",
     "test": "vitest",
+    "test:next": "vitest run src/next",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"

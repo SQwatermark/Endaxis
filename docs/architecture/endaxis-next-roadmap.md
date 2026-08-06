@@ -419,18 +419,22 @@ Project JSON
 - 公共定义 DSL；
 - 佩丽卡、诀和庄方宜的首批定义与证据文档；
 - 旧格式迁移端口，但尚无实际迁移实现。
+- 独立的活动机制选择文档与机制目录端口；
+- 可取消、可迁移至 Worker 的分阶段模拟流水线；
+- 基于显式 revision 的有界 LRU 和独立 projection 缓存；
+- 支持任意完整配色方案的语义主题 token 与注册表。
 
 ### 阻断下一阶段的缺口
 
-- `GameDataRepository` 中武器和装备仍只有 slug 占位，尚无敌人及系统规则接口；
+- `GameDataRepository` 中武器和装备仍只有 slug 占位，机制目录也尚无真实 adapter；
 - project schema 已完成周期边界、切人、跨方案继承和全局配置建模，但尚无继承状态投影器；
 - 没有 build resolver 和面板计算器；
 - 没有 editor command、transaction history 和 autosave 服务；
-- 没有 compiler、simulator、receipt 和 projection；
+- 已有 compiler/simulator/projection 的流水线边界，但尚无真实战斗程序、内核、receipt 和业务 projection；
 - 没有 adapter、真实迁移 fixture 和并行 UI；
 - 尚未定义目录 revision 更新时如何刷新未编辑默认值。
 
-因此下一项开发任务应是“阶段 0 回归契约 + 阶段 1 模型补全”，而不是直接重写时间轴组件或继续批量录入干员。
+因此下一项开发任务应是“机制语义校验 + 真实 resolved scenario/combat program 最小闭环”，而不是直接重写时间轴组件或继续批量录入干员。
 
 ## 8. 决策记录原则
 

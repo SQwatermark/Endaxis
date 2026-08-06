@@ -2,6 +2,9 @@
 
 > 当前系统审计、功能迁移优先级和各阶段验收标准见
 > [Endaxis Next 现状审计与迁移路线图](./endaxis-next-roadmap.md)。本文继续记录核心模型的设计约束。
+>
+> 模拟分层、活动机制扩展、主题边界和性能约束见
+> [Endaxis Next 模拟流水线、活动机制与性能设计](./endaxis-next-simulation-pipeline.md)。
 
 ## Goal
 
@@ -36,6 +39,7 @@ The V2 project document is an authoring document, not a runtime snapshot. It sto
 - complete values exposed by the editor;
 - an `edited` marker for values explicitly changed by the user;
 - connections and scenario-level layout choices.
+- catalog mechanic selections and their user-owned parameters.
 
 It does not store:
 
@@ -46,6 +50,7 @@ It does not store:
 - expected damage and damage breakdowns;
 - simulation logs;
 - transient selection, hover, or undo state.
+- theme, language, and other device preferences.
 
 ## Ordered action model
 

@@ -27,6 +27,7 @@ import {
   validateEnemy,
   validateGearBuild,
   validateGlobalConfig,
+  validateMechanics,
   validateOperatorBuild,
   validateWeaponBuild,
 } from './scenarioValidation';
@@ -889,6 +890,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           : [];
         boundaryIdsByScenario.set(scenarioId, new Set(boundaries));
       }
+      validateMechanics(scenario.mechanics, `${path}.mechanics`, issues);
       validateGlobalConfig(scenario.globalConfig, `${path}.globalConfig`, issues);
       validateEditor(scenario.editor, `${path}.editor`, issues);
     });
