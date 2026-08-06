@@ -47,6 +47,8 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly timing: AttributeModifierTiming;
 }
 
+export type BuffDuration = number | { readonly blackboardKey: string };
+
 export interface BuffLifecycleActions<Key extends string> {
   readonly start?: (buff: CombatBuff<Key>) => void;
   readonly enable?: (buff: CombatBuff<Key>) => void;
@@ -63,7 +65,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly stackingKey?: string;
   readonly maxStackCount?: number;
   /** Missing duration is the recovered infinite-lifetime representation. */
-  readonly durationSeconds?: number;
+  readonly durationSeconds?: BuffDuration;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
@@ -95,15 +97,9 @@ export class CombatBuff<Key extends string> {
     readonly instanceId: number,
     options?: CombatBuffAddOptions,
   ) {
-    if (
-      definition.durationSeconds !== undefined &&
-      (!Number.isFinite(definition.durationSeconds) || definition.durationSeconds < 0)
-    ) {
-      throw new RangeError('buff duration must be a non-negative finite number');
-    }
-    this.#remainingDuration = definition.durationSeconds ?? null;
     this.blackboard = new ActionBlackboard(definition.blackboard);
     this.blackboard.assign(options?.blackboardValues);
+    this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
@@ -377,8 +373,43 @@ class BuffStackingGroup<Key extends string> {
       this.#currentStackCount += 1;
       existing.enhance(sourceId);
     }
-    existing.refreshDuration(definition.durationSeconds ?? null);
+    existing.refreshDuration(resolveIncomingDuration(definition, options));
     existing.executeAfterEnhance(sourceId);
     return existing;
+  }
+}
+
+function resolveIncomingDuration<Key extends string>(
+  definition: CombatBuffDefinition<Key>,
+  options?: CombatBuffAddOptions,
+): number | null {
+  const blackboard = new ActionBlackboard(definition.blackboard);
+  blackboard.assign(options?.blackboardValues);
+  return resolveBuffDuration(definition, blackboard);
+}
+
+function resolveBuffDuration<Key extends string>(
+  definition: CombatBuffDefinition<Key>,
+  blackboard: ActionBlackboard,
+): number | null {
+  const configured = definition.durationSeconds;
+  if (configured === undefined) return null;
+  if (typeof configured === 'number') {
+    validateBuffDuration(configured);
+    return configured;
+  }
+  const value = blackboard.getNumber(configured.blackboardKey);
+  if (value === undefined) {
+    throw new Error(
+      `buff '${definition.id}' duration blackboard key '${configured.blackboardKey}' is missing or not numeric`,
+    );
+  }
+  validateBuffDuration(value);
+  return value;
+}
+
+function validateBuffDuration(value: number): void {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new RangeError('buff duration must resolve to a non-negative finite number');
   }
 }

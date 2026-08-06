@@ -324,4 +324,42 @@ describe('CombatBuffContainer', () => {
     expect(buff.blackboard.getNumber('count')).toBe(3);
     expect(buff.blackboard.getString('label')).toBe('default');
   });
+
+  it('resolves dynamic duration after add options and refreshes from the incoming values', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.dynamic-duration',
+      stackingType: 'enhanceAndRefresh',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 8 },
+    };
+
+    const buff = container.add(definition, 'operator', {
+      blackboardValues: { duration: 10 },
+    });
+    expect(buff.remainingDuration).toBe(10);
+    container.tick(4);
+    container.add(definition, 'operator', {
+      blackboardValues: { duration: 12 },
+    });
+
+    expect(buff.remainingDuration).toBe(12);
+    expect(buff.blackboard.getNumber('duration')).toBe(10);
+  });
+
+  it('rejects missing or invalid dynamic duration values', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    expect(() =>
+      container.add(
+        {
+          id: 'buff.missing-duration',
+          stackingType: 'unlimited',
+          durationSeconds: { blackboardKey: 'duration' },
+        },
+        'operator',
+      ),
+    ).toThrow("duration blackboard key 'duration' is missing or not numeric");
+  });
 });
