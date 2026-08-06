@@ -424,6 +424,9 @@ Project JSON
 - 基于显式 revision 的有界 LRU 和独立 projection 缓存；
 - 支持任意完整配色方案的语义主题 token 与注册表。
 - 保持 combat-spec 同帧顺序的 TimelineAction 生命周期处理器，并避免每帧全轴扫描；
+- 单技能等级解析、费用点、技力/终结技能量扣费和结构化 receipt 最小运行时；
+- AbilityEvent 与 GameLevelEvent 分发边界，以及受控的活动机制 adapter、贡献编译和安装协议；
+- 可重复运行的 Next 技能编译与 60 秒稀疏长轴基准入口；
 
 ### 阻断下一阶段的缺口
 
@@ -431,7 +434,7 @@ Project JSON
 - project schema 已完成周期边界、切人、跨方案继承和全局配置建模，但尚无继承状态投影器；
 - 没有 build resolver 和面板计算器；
 - 没有 editor command、transaction history 和 autosave 服务；
-- 已有 compiler/simulator/projection 的流水线边界，但尚无真实战斗程序、内核、receipt 和业务 projection；
+- 已有首个真实单技能程序、固定帧运行时与 receipt，但尚缺完整场景编译、战斗状态和业务 projection；
 - 没有 adapter、真实迁移 fixture 和并行 UI；
 - 尚未定义目录 revision 更新时如何刷新未编辑默认值。
 

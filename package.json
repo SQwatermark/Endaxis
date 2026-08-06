@@ -15,6 +15,7 @@
     "type-check:next": "vue-tsc --noEmit --project tsconfig.next.json",
     "test": "vitest",
     "test:next": "vitest run src/next",
+    "bench:next": "vitest bench --run src/next/benchmarks",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"

@@ -42,14 +42,17 @@ Resolver 把目录默认值、build、用户编辑值、继承来源和机制选
 
 Compiler 把完整场景转换成离散帧、确定顺序的战斗程序。程序使用 Endaxis 自己的领域名称，但执行层级和行为必须有 `combat-spec` 或反编译证据。
 
-活动机制不能注入任意 JavaScript 回调。adapter 只能把已知游戏数据编译成内核支持的通用原语，例如：
+活动机制不能注入任意 JavaScript 回调。adapter 只能把已知游戏数据编译成内核支持的通用原语。
+当前第一版可执行协议只开放证据和执行上下文均已明确的两类贡献：
 
-- 初始或全局 Buff；
-- 事件触发的有序 action sequence；
-- 有证据的数据补丁；
-- 关卡信号。
+- 语义战斗事件触发的有优先级 action sequence；
+- 已恢复 GameLevelEvent 触发的同步 action sequence。
 
-这些原语会逐项随证据加入。当前 `MechanicDefinitionRef` 只建立目录身份和参数边界，不假装已经实现具体活动效果。
+初始化 Buff、全局 Buff 和场景数据覆盖尚未开放。它们需要先恢复执行主体、来源、目标和跨机制合并顺序，不能用任意对象 patch 代替。原语会逐项随证据加入。
+
+`MechanicAdapterRegistry` 按机制 family 注册数据源 adapter；编译器先验证目录身份和参数，再补齐目录默认参数并生成带 selection provenance 的贡献。每个启用 selection 同时记录机制定义 revision 与 adapter revision，供 CombatProgram revision 覆盖完整事实来源。运行时还会拒绝函数、非有限数、循环对象和其他非数据输出。
+
+AbilityEvent 数据动作按已确认规则使用优先级降序；机制协议使用无筛选的语义事件身份，标签、来源等筛选必须编译为 sequence 条件，不能把干员 DSL 的 `CombatEventTrigger` 当作事件总线键。同事件同优先级的原生仲裁尚未恢复，因此编译器直接拒绝冲突，要求 adapter 按原始数据顺序合并成一个 sequence。GameLevelEvent 的跨机制注册顺序同样尚未恢复，同一事件暂时只允许一个贡献。
 
 ### 2.5 Combat kernel
 
@@ -135,6 +138,8 @@ revision 是内容契约。stage 输出 revision 必须覆盖所有会影响输�
 - 主线程长任务可被取消，编辑交互不等待后台旧任务完成。
 
 在获得基线数据前不写虚假的毫秒承诺；基准脚本和输入 fixture 本身必须进入版本管理。
+
+当前可执行 `npm run bench:next` 批量测量技能编译和 60 秒、1800 个稀疏动作的 TimelineAction 处理。短操作使用批量循环且显式消费输出，以降低计时器开销和 JavaScript 引擎消除无用工作的影响；结果用于同机回归，不作为跨设备性能承诺。旧版对比 fixture 尚未建立，因此目前只能说明 Next 自身趋势，不能宣称相对旧版的倍数。
 
 ## 6. 主题边界
 
