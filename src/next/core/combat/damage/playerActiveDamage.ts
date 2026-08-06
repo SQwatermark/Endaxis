@@ -1,0 +1,108 @@
+import type { DamageType } from '../../game-data/operatorDefinition';
+
+const DEFAULT_DEFENSE_EFFICIENCY = 0.01;
+const CRITICAL_PROBABILITY_TOLERANCE = 0.00001;
+
+/** Fully resolved inputs consumed by the recovered player-active damage formula. */
+export interface PlayerActiveDamageInput {
+  readonly finalAttackValue: number;
+  readonly damageType: DamageType;
+  readonly criticalRate: number;
+  readonly criticalDamageIncrease: number;
+  readonly criticalSample: number;
+  readonly defense: number;
+  readonly resistancePercent: number;
+  readonly damageTakenMultiplier: number;
+  readonly weaknessDamageMultiplier: number;
+  readonly shelterDamageMultiplier: number;
+  readonly runtimeExtensionMultiplier: number;
+  readonly igniteDamageMultiplier: number;
+  readonly appliesIgniteDamageMultiplier: boolean;
+  readonly physicalInflictionDamageMultiplier: number;
+  readonly appliesPhysicalInflictionDamageMultiplier: boolean;
+}
+
+export interface PlayerActiveDamageResult {
+  readonly value: number;
+  readonly isCritical: boolean;
+  readonly criticalMultiplier: number;
+  readonly defenseMultiplier: number;
+  readonly resistanceMultiplier: number;
+  readonly weaknessShelterMultiplier: number;
+  readonly runtimeExtensionMultiplier: number;
+  readonly igniteMultiplier: number;
+  readonly physicalInflictionMultiplier: number;
+}
+
+export function calculatePlayerActiveDamage(
+  input: PlayerActiveDamageInput,
+): PlayerActiveDamageResult {
+  if (input.damageType === 'lifeDrain') {
+    throw new Error('life-drain damage uses a separate native calculation branch');
+  }
+
+  const isCritical = isCriticalHit(input.criticalRate, input.criticalSample);
+  const criticalMultiplier = isCritical ? 1 + input.criticalDamageIncrease : 1;
+  const defenseMultiplier = getDefenseMultiplier(input.damageType, input.defense);
+  const resistanceMultiplier = getResistanceMultiplier(
+    input.damageType,
+    input.resistancePercent,
+    input.damageTakenMultiplier,
+  );
+  const weaknessShelterMultiplier =
+    input.weaknessDamageMultiplier * (1 - input.shelterDamageMultiplier);
+  const igniteMultiplier = input.appliesIgniteDamageMultiplier
+    ? input.igniteDamageMultiplier
+    : 1;
+  const physicalInflictionMultiplier = input.appliesPhysicalInflictionDamageMultiplier
+    ? input.physicalInflictionDamageMultiplier
+    : 1;
+
+  // Keep the native multiplication order for later floating-point trace comparison.
+  let value = input.weaknessDamageMultiplier * input.finalAttackValue;
+  value *= criticalMultiplier;
+  value *= defenseMultiplier;
+  value *= 1 - input.shelterDamageMultiplier;
+  value *= resistanceMultiplier;
+  value *= input.runtimeExtensionMultiplier;
+  value *= igniteMultiplier;
+  value *= physicalInflictionMultiplier;
+
+  return {
+    value,
+    isCritical,
+    criticalMultiplier,
+    defenseMultiplier,
+    resistanceMultiplier,
+    weaknessShelterMultiplier,
+    runtimeExtensionMultiplier: input.runtimeExtensionMultiplier,
+    igniteMultiplier,
+    physicalInflictionMultiplier,
+  };
+}
+
+export function isCriticalHit(criticalRate: number, sample: number): boolean {
+  if (sample < 0 || sample > 1 || Number.isNaN(sample)) {
+    throw new RangeError('critical sample must be between 0 and 1');
+  }
+  return (
+    criticalRate > CRITICAL_PROBABILITY_TOLERANCE &&
+    criticalRate + CRITICAL_PROBABILITY_TOLERANCE >= sample
+  );
+}
+
+export function getDefenseMultiplier(damageType: DamageType, defense: number): number {
+  if (damageType === 'true') return 1;
+  return defense >= -0.00001
+    ? 1 / (1 + DEFAULT_DEFENSE_EFFICIENCY * defense)
+    : 2 - Math.pow(1 - DEFAULT_DEFENSE_EFFICIENCY, -defense);
+}
+
+export function getResistanceMultiplier(
+  damageType: DamageType,
+  resistancePercent: number,
+  damageTakenMultiplier: number,
+): number {
+  if (damageType === 'true' || damageType === 'lifeDrain') return 1;
+  return Math.max(0, (1 - resistancePercent / 100) * damageTakenMultiplier);
+}

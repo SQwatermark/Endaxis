@@ -62,6 +62,8 @@ AbilityEvent 数据动作按已确认规则使用优先级降序；机制协议�
 
 资源操作按职责组合 executor。当前 `SkillResourceOperationExecutor` 只处理已闭环的普通战技全队回能：费用点记录非返还技力消耗，命中序列再读取显式队伍、全局本人/队友系数、目标回能倍率、上限、解锁和恢复许可。伤害、附着和条件必须交给其他显式 executor，未知 step 不会被当作成功的空操作。
 
+玩家主动伤害公式使用独立纯函数。其输入是属性快照、伤害 modifier 和运行时扩展都已解析后的显式数值，输出保留暴击、防御、抗性、弱点/庇护及特殊伤害因子，并严格维持原生浮点乘算顺序。该函数不读取项目、目录、Buff 容器或随机数；这些状态的解析和随机样本生成属于上游 runtime adapter。生命值写入、承伤前后事件和失衡结算尚未接入时，不得把纯公式包装成“完整伤害执行器”。
+
 ### 2.6 Trace、receipt 与 projection
 
 内核输出结构化事实记录。曲线、警告、战斗日志、伤害分析和时间轴状态条分别从同一事实记录投影，不维护第二套技力、冷却或状态账本。
@@ -162,7 +164,8 @@ Next 主题由语义 token 构成，例如 canvas、surface、text、border、ac
 
 ## 8. 下一步
 
-1. 根据 `combat-spec` 定义 resolved scenario、combat program 和 receipt 的首个真实类型；
-2. 先贯通佩丽卡的一条主动攻击闭环；
-3. 建立旧版与 Next 的性能基准 fixture；
-4. 再实现 Season Tower 的第一个有证据机制 adapter。
+1. 建立后置 modifier 完成后的伤害属性快照解析器；
+2. 接入承伤事件、生命写入和生命伤害后的失衡结算；
+3. 在正式 Buff 容器上实现元素附着三分支状态机；
+4. 建立旧版与 Next 的性能基准 fixture；
+5. 再实现 Season Tower 的第一个有证据机制 adapter。
