@@ -10,6 +10,8 @@ export * from './combat/runtime/skillResourceOperationExecutor';
 export * from './combat/runtime/combatVitals';
 export * from './combat/runtime/periodicTimer';
 export * from './combat/runtime/playerDamageOperationExecutor';
+export * from './combat/runtime/elementalInflictionOperationExecutor';
+export * from './combat/infliction/elementalInfliction';
 export * from './combat/damage/playerActiveDamage';
 export * from './combat/damage/playerActiveDamageInput';
 export * from './combat/damage/poiseDamage';

@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { perlica } from '../../../data/operators/perlica';
 import { compileSkill } from '../../compiler/compileSkill';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
+import type { ExistingElementalAttachment } from '../infliction/elementalInfliction';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { CombatVitals } from './combatVitals';
+import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
@@ -50,18 +52,7 @@ describe('Perlica standard damage slice', () => {
     });
     const unresolvedOperations: CombatOperationExecutor = {
       execute: step => {
-        if (step.kind !== 'applyElementalInfliction') {
-          throw new Error(`unexpected unresolved operation '${step.kind}'`);
-        }
-        receipt.record({
-          frame: clock.frame,
-          time: clock.time,
-          event: 'ElementalInflictionRequested',
-          sourceId: 'perlica',
-          targetId: 'enemy',
-          data: { element: step.parameters.element },
-        });
-        return true;
+        throw new Error(`unexpected unresolved operation '${step.kind}'`);
       },
       evaluate: () => false,
     };
@@ -106,6 +97,24 @@ describe('Perlica standard damage slice', () => {
       emitPoiseTargetEvent: () => undefined,
       delegate: unresolvedOperations,
     });
+    let attachment: ExistingElementalAttachment | null = null;
+    const inflictionOperations = new ElementalInflictionOperationExecutor({
+      sourceOperatorId: 'perlica',
+      targetId: 'enemy',
+      skillId: 'battleSkill',
+      clock,
+      receipt,
+      getExistingAttachment: () => attachment,
+      applyOperation: operation => {
+        if (operation.kind !== 'addAttachment') {
+          throw new Error(`unexpected first-infliction operation '${operation.kind}'`);
+        }
+        attachment = { element: operation.element, layers: 1 };
+      },
+      emitSourceEvent: () => undefined,
+      emitTargetEvent: () => undefined,
+      delegate: damageOperations,
+    });
     let runtime: SkillRuntime;
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
@@ -114,7 +123,7 @@ describe('Perlica standard damage slice', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
-      delegate: damageOperations,
+      delegate: inflictionOperations,
     });
     runtime = new SkillRuntime(
       compileSkill({
@@ -134,6 +143,7 @@ describe('Perlica standard damage slice', () => {
 
     expect(targetVitals.health).toBe(600);
     expect(targetVitals.poise).toBe(90);
+    expect(attachment).toEqual({ element: 'electric', layers: 1 });
     expect(resources.sp).toBe(0);
     expect(resources.getUltimateEnergy('perlica')).toBe(10);
     expect(
@@ -141,7 +151,7 @@ describe('Perlica standard damage slice', () => {
         .filter(entry =>
           [
             'SkillCostApplied',
-            'ElementalInflictionRequested',
+            'ElementalInflictionApplied',
             'DamageApplied',
             'PoiseApplied',
             'UltimateEnergyChanged',
@@ -150,7 +160,7 @@ describe('Perlica standard damage slice', () => {
         .map(entry => entry.event),
     ).toEqual([
       'SkillCostApplied',
-      'ElementalInflictionRequested',
+      'ElementalInflictionApplied',
       'DamageApplied',
       'PoiseApplied',
       'UltimateEnergyChanged',

@@ -93,7 +93,7 @@ const battleSkill = {
     scheduled(
       13,
       sequence(
-        step('applyElementalInfliction', { element: 'electric' }),
+        step('applyElementalInfliction', { element: 'electric', isExtra: false }),
         step(
           'dealDamage',
           electricDamage(

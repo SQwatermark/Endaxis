@@ -54,6 +54,8 @@ DamageAction
 
 `PlayerDamageOperationExecutor` 将标准 `dealDamage` 步骤接入上述两个写入边界：先根据已完成事件与 modifier 处理的快照解析公式输入，再写入生命值，最后执行同一命中的失衡单元。当前快照由显式依赖提供，表示原生 DamagePack 前置阶段尚未被悄悄省略或替换成默认值。
 
+元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID；查询和写入端口后续由通用 Buff 容器实现。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
@@ -73,7 +75,7 @@ DamageAction
 
 1. 建立 DamagePack，接入 `OnBeforeDamageAction`、`OnBeforeCalculateDamage` 与计算前后 modifier；
 2. 实现处决 `BreakingAttack` 的输入解析；
-3. 建模元素附着状态与事件，使佩丽卡测试中的附着端口从请求记录升级为真实状态变化；
+3. 让通用 Buff 容器实现附着查询与操作写入端口，接通层数、持续时间和附着触发动作；
 4. 将失衡恢复产生的状态变化接入 AbilityEvent 与 receipt；
 5. 用真实面板快照和游戏内战斗样本校验整条数值链。
 

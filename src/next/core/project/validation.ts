@@ -17,6 +17,7 @@ import {
   DAMAGE_ELEMENTS,
   DAMAGE_TYPES,
   ELEMENTAL_REACTIONS,
+  INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
   RESOURCE_RECIPIENTS,
   STATUS_MODIFIER_KINDS,
@@ -53,6 +54,7 @@ const combatTargets = new Set<string>(COMBAT_TARGETS);
 const comparisonOperators = new Set<string>(COMPARISON_OPERATORS);
 const damageCalculations = new Set<string>(DAMAGE_CALCULATIONS);
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
+const inflictionElements = new Set<string>(INFLICTION_ELEMENTS);
 const damageTypes = new Set<string>(DAMAGE_TYPES);
 const damageTags = new Set<string>(DAMAGE_TAGS);
 const elementalReactions = new Set<string>(ELEMENTAL_REACTIONS);
@@ -218,7 +220,8 @@ function validateCombatStepParameters(
 
   switch (kind) {
     case 'applyElementalInfliction':
-      requireEnum(parameters.element, damageElements, `${path}.element`, issues);
+      requireEnum(parameters.element, inflictionElements, `${path}.element`, issues);
+      requireBoolean(parameters.isExtra, `${path}.isExtra`, issues);
       break;
     case 'applyElementalReaction':
       requireEnum(parameters.reaction, elementalReactions, `${path}.reaction`, issues);

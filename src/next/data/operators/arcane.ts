@@ -167,7 +167,7 @@ const battleSkill = {
     scheduled(
       19,
       sequence(
-        step('applyElementalInfliction', { element: 'nature' }),
+        step('applyElementalInfliction', { element: 'nature', isExtra: false }),
         branch(
           formIsIntellect,
           sequence(
@@ -440,7 +440,7 @@ const ultimate = {
                 ...(['heat', 'cryo', 'electric', 'nature'] as const).map(element =>
                   branch(
                     { kind: 'elementalInflictionPresent', elements: element },
-                    sequence(step('applyElementalInfliction', { element })),
+                    sequence(step('applyElementalInfliction', { element, isExtra: false })),
                   ),
                 ),
               ),

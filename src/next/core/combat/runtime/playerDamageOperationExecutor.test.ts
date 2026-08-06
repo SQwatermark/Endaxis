@@ -100,7 +100,7 @@ describe('PlayerDamageOperationExecutor', () => {
     });
     const step: Exclude<ResolvedCombatStep, { kind: 'conditional' }> = {
       kind: 'applyElementalInfliction',
-      parameters: { element: 'electric' },
+      parameters: { element: 'electric', isExtra: false },
     };
 
     expect(executor.execute(step)).toBe(true);

@@ -35,7 +35,7 @@ describe('compileSkill', () => {
     expect(program.timelineActions[0]?.sequence.steps).toEqual([
       {
         kind: 'applyElementalInfliction',
-        parameters: { element: 'electric' },
+        parameters: { element: 'electric', isExtra: false },
       },
       {
         kind: 'dealDamage',

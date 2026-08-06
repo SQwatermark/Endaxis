@@ -144,7 +144,9 @@ function swordStrikeSequences(enhanced: boolean): ScheduledSequenceDefinition[] 
 
   for (let count = 1; count <= 9; count += 1) {
     const finalSteps = [];
-    if (enhanced) finalSteps.push(step('applyElementalInfliction', { element: 'electric' }));
+    if (enhanced) {
+      finalSteps.push(step('applyElementalInfliction', { element: 'electric', isExtra: false }));
+    }
     finalSteps.push(
       step('dealDamage', {
         ...thunderDamage(scale, bonus, 6),

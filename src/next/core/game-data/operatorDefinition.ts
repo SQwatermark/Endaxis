@@ -25,6 +25,8 @@ export type OperatorRole = (typeof OPERATOR_ROLES)[number];
 
 export const DAMAGE_ELEMENTS = ['physical', 'heat', 'cryo', 'electric', 'nature'] as const;
 export type DamageElement = (typeof DAMAGE_ELEMENTS)[number];
+export const INFLICTION_ELEMENTS = ['heat', 'electric', 'cryo', 'nature'] as const;
+export type InflictionElement = (typeof INFLICTION_ELEMENTS)[number];
 
 /** Damage channels used by health-damage calculation. */
 export const DAMAGE_TYPES = [
@@ -178,7 +180,7 @@ export const STATUS_MODIFIER_KINDS = [
 ] as const satisfies readonly StatusModifierDefinition['kind'][];
 
 export interface CombatStepParameters {
-  applyElementalInfliction: { element: DamageElement };
+  applyElementalInfliction: { element: InflictionElement; isExtra: boolean };
   applyElementalReaction: {
     reaction: ElementalReaction;
     target: CombatTarget;
