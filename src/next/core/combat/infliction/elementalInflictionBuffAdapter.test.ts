@@ -4,6 +4,7 @@ import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatB
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 import { resolveElementalInfliction } from './elementalInfliction';
 import {
+  createElementalAttachmentLifecycleActions,
   ElementalInflictionBuffAdapter,
   type ElementalInflictionBuffCatalog,
 } from './elementalInflictionBuffAdapter';
@@ -75,5 +76,22 @@ describe('ElementalInflictionBuffAdapter', () => {
       consumed_layer: 3,
       count: 3,
     });
+  });
+
+  it('publishes attachment-start data only after an existing attachment is enhanced', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const target = new CombatBuffContainer('enemy', attributes);
+    const events: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      ...attachment('electric'),
+      actions: createElementalAttachmentLifecycleActions('electric', (payload, buff) => {
+        events.push(`${payload.element}:${payload.layers}:${buff.owner.ownerId}`);
+      }),
+    };
+
+    target.add(definition, 'operator');
+    expect(events).toEqual([]);
+    target.add(definition, 'operator');
+    expect(events).toEqual(['electric:2:enemy']);
   });
 });

@@ -3,6 +3,7 @@ import type {
   CombatBuffAddOptions,
   CombatBuffContainer,
   CombatBuffDefinition,
+  BuffLifecycleActions,
 } from '../buffs/combatBuffs';
 import type {
   ElementalInflictionOperation,
@@ -26,6 +27,22 @@ const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> = {
   cryo: 2,
   nature: 3,
 };
+
+export interface ElementalInflictionStartedPayload {
+  readonly element: InflictionElement;
+  readonly layers: number;
+}
+
+export function createElementalAttachmentLifecycleActions<Key extends string>(
+  element: InflictionElement,
+  emitStarted: (payload: ElementalInflictionStartedPayload, buff: CombatBuff<Key>) => void,
+): BuffLifecycleActions<Key> {
+  return {
+    afterEnhance: buff => {
+      emitStarted({ element, layers: buff.enhanceCount }, buff);
+    },
+  };
+}
 
 /** Applies resolved elemental operations to the target's native-style Buff container. */
 export class ElementalInflictionBuffAdapter<Key extends string> {

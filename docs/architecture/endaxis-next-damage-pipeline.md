@@ -74,6 +74,8 @@ DamageAction
 
 `ElementalInflictionBuffAdapter` 已把查询与写入端口接到通用 Buff 容器：它按容器顺序找到首个未结束的附着实例，同类分支先创建爆发 Buff 再增强附着，异类分支核对投影实例后以 `ignite` 结束旧附着，并将原生元素枚举值与消耗层数写入状态 Buff 黑板。具体 Buff ID 和定义解析留在可替换目录接口中，不泄漏到战斗核心。
 
+附着 Buff 的 `OnBuffAfterTryEnhanced -> OnSpellInflictionStart` 已投影为类型化生命周期构造器。它仅在既有实例尝试增强后发布元素类型与当前层数，首次分配不额外发布；达到增强上限时，因原生 AfterEnhance 仍执行，事件也照常发布。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
