@@ -1,0 +1,873 @@
+{
+  "schemaVersion": 1,
+  "revision": "combat-1.4.4",
+  "factories": [
+    {
+      "id": "buff_common_try_cryst_fire_triggered",
+      "consumedElement": "heat",
+      "incomingElement": "cryo",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "shatter_dmg": 0,
+        "frozen_duration": 0,
+        "consumed_type": 0
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u788E\u51B0\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "shatter_dmg"
+        },
+        {
+          "dataKey": "\u51B0\u51BB\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "frozen_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_cryst_fire_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "shatter_dmg",
+            "inputKey": "shatter_dmg"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "frozen_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_cryst_natural_triggered",
+      "consumedElement": "nature",
+      "incomingElement": "cryo",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "shatter_dmg": 0,
+        "frozen_duration": 0,
+        "consumed_type": 3
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u788E\u51B0\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "shatter_dmg"
+        },
+        {
+          "dataKey": "\u51B0\u51BB\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "frozen_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_cryst_natural_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "shatter_dmg",
+            "inputKey": "shatter_dmg"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "frozen_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_cryst_pulse_triggered",
+      "consumedElement": "electric",
+      "incomingElement": "cryo",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "shatter_dmg": 0,
+        "frozen_duration": 0,
+        "consumed_type": 1
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u788E\u51B0\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "shatter_dmg"
+        },
+        {
+          "dataKey": "\u51B0\u51BB\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "frozen_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_cryst_pulse_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "shatter_dmg",
+            "inputKey": "shatter_dmg"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "frozen_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_fire_cryst_triggered",
+      "consumedElement": "cryo",
+      "incomingElement": "heat",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "consumed_type": 2
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u71C3\u70E7\u6BCF\u8DF3\u4F24\u5BB3",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "burning_atk_scale"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_fire_cryst_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "burning_atk_scale",
+            "inputKey": "burning_atk_scale"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_fire_natural_triggered",
+      "consumedElement": "nature",
+      "incomingElement": "heat",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "consumed_type": 3
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u71C3\u70E7\u6BCF\u8DF3\u4F24\u5BB3",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "burning_atk_scale"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_fire_natural_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "burning_atk_scale",
+            "inputKey": "burning_atk_scale"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_fire_pulse_triggered",
+      "consumedElement": "electric",
+      "incomingElement": "heat",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "consumed_type": 1
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u71C3\u70E7\u6BCF\u8DF3\u4F24\u5BB3",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "burning_atk_scale"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_fire_pulse_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "burning_atk_scale",
+            "inputKey": "burning_atk_scale"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_natural_cryst_triggered",
+      "consumedElement": "cryo",
+      "incomingElement": "nature",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0,
+        "consumed_type": 2
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6BCF\u8DF3\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "def_decrease_tick"
+        },
+        {
+          "dataKey": "\u8150\u8680\u51CF\u6297\u4E0A\u9650",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "max_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u521D\u59CB\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "start_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "corrupt_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_natural_cryst_triggered_wrapper",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "def_decrease_tick",
+            "inputKey": "def_decrease_tick"
+          },
+          {
+            "targetKey": "max_def_decrease",
+            "inputKey": "max_def_decrease"
+          },
+          {
+            "targetKey": "start_def_decrease",
+            "inputKey": "start_def_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "corrupt_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_natural_fire_triggered",
+      "consumedElement": "heat",
+      "incomingElement": "nature",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0,
+        "consumed_type": 0
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6BCF\u8DF3\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "def_decrease_tick"
+        },
+        {
+          "dataKey": "\u8150\u8680\u51CF\u6297\u4E0A\u9650",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "max_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u521D\u59CB\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "start_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "corrupt_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_natural_fire_triggered_wrapper",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "def_decrease_tick",
+            "inputKey": "def_decrease_tick"
+          },
+          {
+            "targetKey": "max_def_decrease",
+            "inputKey": "max_def_decrease"
+          },
+          {
+            "targetKey": "start_def_decrease",
+            "inputKey": "start_def_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "corrupt_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_natural_pulse_triggered",
+      "consumedElement": "electric",
+      "incomingElement": "nature",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0,
+        "consumed_type": 1
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6BCF\u8DF3\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "def_decrease_tick"
+        },
+        {
+          "dataKey": "\u8150\u8680\u51CF\u6297\u4E0A\u9650",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "max_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u521D\u59CB\u51CF\u6297",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "start_def_decrease"
+        },
+        {
+          "dataKey": "\u8150\u8680\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "corrupt_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_natural_pulse_triggered_wrapper",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "def_decrease_tick",
+            "inputKey": "def_decrease_tick"
+          },
+          {
+            "targetKey": "max_def_decrease",
+            "inputKey": "max_def_decrease"
+          },
+          {
+            "targetKey": "start_def_decrease",
+            "inputKey": "start_def_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "corrupt_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_pulse_cryst_triggered",
+      "consumedElement": "cryo",
+      "incomingElement": "electric",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "spell_resistance_decrease": 0,
+        "conduct_duration": 0,
+        "consumed_type": 2
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6CD5\u672F\u4F24\u5BB3\u63D0\u9AD8",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "spell_resistance_decrease"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "conduct_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_pulse_cryst_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "spell_resistance_decrease",
+            "inputKey": "spell_resistance_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "conduct_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_pulse_fire_triggered",
+      "consumedElement": "heat",
+      "incomingElement": "electric",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "spell_resistance_decrease": 0,
+        "conduct_duration": 0,
+        "consumed_type": 0
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6CD5\u672F\u4F24\u5BB3\u63D0\u9AD8",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "spell_resistance_decrease"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "conduct_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_pulse_fire_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "spell_resistance_decrease",
+            "inputKey": "spell_resistance_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "conduct_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buff_common_try_pulse_natural_triggered",
+      "consumedElement": "nature",
+      "incomingElement": "electric",
+      "durationSeconds": 0.1,
+      "blackboard": {
+        "count": 0,
+        "consumed_layer": 0,
+        "atk_scale": 0,
+        "spell_resistance_decrease": 0,
+        "conduct_duration": 0,
+        "consumed_type": 3
+      },
+      "skillSettingLookups": [
+        {
+          "dataKey": "\u5F02\u5E38\u521D\u59CB\u4F24\u5BB3\u500D\u7387",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "atk_scale"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6CD5\u672F\u4F24\u5BB3\u63D0\u9AD8",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "spell_resistance_decrease"
+        },
+        {
+          "dataKey": "\u5BFC\u7535\u6301\u7EED\u65F6\u95F4",
+          "column": {
+            "blackboardKey": "count"
+          },
+          "enhanceAttributeSource": "source",
+          "storeKey": "conduct_duration"
+        }
+      ],
+      "createdBuff": {
+        "buffId": "buff_common_pulse_natural_triggered",
+        "blackboardAssignments": [
+          {
+            "targetKey": "atk_scale",
+            "inputKey": "atk_scale"
+          },
+          {
+            "targetKey": "spell_resistance_decrease",
+            "inputKey": "spell_resistance_decrease"
+          },
+          {
+            "targetKey": "duration",
+            "inputKey": "conduct_duration"
+          },
+          {
+            "targetKey": "consumed_layer",
+            "inputKey": "consumed_layer"
+          },
+          {
+            "targetKey": "count",
+            "inputKey": "count"
+          },
+          {
+            "targetKey": "consumed_type",
+            "inputKey": "consumed_type"
+          }
+        ]
+      }
+    }
+  ]
+}

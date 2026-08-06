@@ -12,3 +12,5 @@ dotnet run --project CombatSpec.Cli -- export-elemental-attachment-catalog `
 ```
 
 源 BuffData 必须与目标游戏版本一致。当前 CDN 文件已与本地 1.4.4 快照按字节哈希核对；重新生成其他版本时需要重新完成该核对，不能只依赖文件名。
+
+`compound-status-factories.combat-1.4.4.json` 由 `export-compound-status-factory-catalog` 生成，保存 12 种异类附着的参数查表与下一 Buff 创建配方。它只描述工厂层，不包含最终复合状态的动作；其中三种以自然元素为新附着的配方会先创建额外 wrapper。
