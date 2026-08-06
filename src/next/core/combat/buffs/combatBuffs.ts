@@ -283,6 +283,10 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  findFirst(predicate: (buff: CombatBuff<Key>) => boolean): CombatBuff<Key> | undefined {
+    return this.#buffs.find(buff => !buff.isFinished && predicate(buff));
+  }
+
   applyDamageModifiers(
     timing: DamageProcessTiming,
     side: DamageModifierSide,

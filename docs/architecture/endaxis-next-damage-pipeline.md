@@ -68,7 +68,9 @@ DamageAction
 
 `PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。
 
-元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID；查询和写入端口后续由通用 Buff 容器实现。
+元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID。
+
+`ElementalInflictionBuffAdapter` 已把查询与写入端口接到通用 Buff 容器：它按容器顺序找到首个未结束的附着实例，同类分支先创建爆发 Buff 再增强附着，异类分支核对投影实例后以 `ignite` 结束旧附着，并将原生元素枚举值与消耗层数写入状态 Buff 黑板。具体 Buff ID 和定义解析留在可替换目录接口中，不泄漏到战斗核心。
 
 ## 3. 输入所有权
 
@@ -87,7 +89,7 @@ DamageAction
 
 下一阶段按以下顺序推进：
 
-1. 让 Buff 容器实现元素附着查询与操作写入，接通层数、持续时间和附着触发动作；
+1. 从解包目录编译元素附着、同类爆发与异类状态的 Buff 定义，接通其具体动作；
 2. 实现处决 `BreakingAttack`、生命汲取和特殊失衡计算分支；
 3. 用真实面板快照和游戏内战斗样本校验整条数值链；
 4. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
