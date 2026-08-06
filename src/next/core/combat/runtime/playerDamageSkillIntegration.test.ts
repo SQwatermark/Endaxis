@@ -1,0 +1,159 @@
+import { describe, expect, it } from 'vitest';
+import { perlica } from '../../../data/operators/perlica';
+import { compileSkill } from '../../compiler/compileSkill';
+import type { SkillDefinition } from '../../game-data/operatorDefinition';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatClock } from './combatClock';
+import { CombatResources } from './combatResources';
+import { CombatSimulation } from './combatSimulation';
+import { CombatVitals } from './combatVitals';
+import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
+import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+
+function findPerlicaBattleSkill(): SkillDefinition {
+  const group = perlica.skillGroups.find(candidate => candidate.key === 'battleSkill');
+  if (group === undefined) throw new Error('missing Perlica battle-skill group');
+  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const skill = skills.find(candidate => candidate.key === 'battleSkill');
+  if (skill === undefined) throw new Error('missing Perlica battle skill');
+  return skill;
+}
+
+describe('Perlica standard damage slice', () => {
+  it('orders cost, infliction, health damage, poise damage, and energy gain', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 100,
+      returnedSp: 0,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+      squad: [
+        {
+          operatorId: 'perlica',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: true,
+        },
+      ],
+    });
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxPoise: 100,
+      poise: 100,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const unresolvedOperations: CombatOperationExecutor = {
+      execute: step => {
+        if (step.kind !== 'applyElementalInfliction') {
+          throw new Error(`unexpected unresolved operation '${step.kind}'`);
+        }
+        receipt.record({
+          frame: clock.frame,
+          time: clock.time,
+          event: 'ElementalInflictionRequested',
+          sourceId: 'perlica',
+          targetId: 'enemy',
+          data: { element: step.parameters.element },
+        });
+        return true;
+      },
+      evaluate: () => false,
+    };
+    const damageOperations = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'perlica',
+      targetId: 'enemy',
+      targetVitals,
+      clock,
+      receipt,
+      resolveSnapshots: () => ({
+        attacker: {
+          attack: 100,
+          criticalRate: 0,
+          criticalDamageIncrease: 0.5,
+          weaknessDamageMultiplier: 1,
+          igniteDamageMultiplier: 1,
+          physicalInflictionDamageMultiplier: 1,
+        },
+        defender: {
+          defense: 0,
+          shelterDamageMultiplier: 0,
+          resistances: {
+            physical: { percent: 0, damageTakenMultiplier: 1 },
+            heat: { percent: 0, damageTakenMultiplier: 1 },
+            electric: { percent: 0, damageTakenMultiplier: 1 },
+            cryo: { percent: 0, damageTakenMultiplier: 1 },
+            nature: { percent: 0, damageTakenMultiplier: 1 },
+            ether: { percent: 0, damageTakenMultiplier: 1 },
+          },
+        },
+        runtime: {
+          damageScaleMultiplier: 1,
+          criticalSample: 1,
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        },
+      }),
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: unresolvedOperations,
+    });
+    let runtime: SkillRuntime;
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'perlica',
+      skillId: 'battleSkill',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+      delegate: damageOperations,
+    });
+    runtime = new SkillRuntime(
+      compileSkill({
+        operatorId: 'perlica',
+        skillGroupKey: 'battleSkill',
+        skillType: 'battleSkill',
+        skillLevel: 12,
+        skill: findPerlicaBattleSkill(),
+      }),
+      { clock, resources, receipt, operations },
+    );
+    const simulation = new CombatSimulation(clock);
+    simulation.add(runtime);
+
+    expect(runtime.tryStart()).toBe(true);
+    simulation.advanceFrames(13);
+
+    expect(targetVitals.health).toBe(600);
+    expect(targetVitals.poise).toBe(90);
+    expect(resources.sp).toBe(0);
+    expect(resources.getUltimateEnergy('perlica')).toBe(10);
+    expect(
+      receipt.entries
+        .filter(entry =>
+          [
+            'SkillCostApplied',
+            'ElementalInflictionRequested',
+            'DamageApplied',
+            'PoiseApplied',
+            'UltimateEnergyChanged',
+          ].includes(entry.event),
+        )
+        .map(entry => entry.event),
+    ).toEqual([
+      'SkillCostApplied',
+      'ElementalInflictionRequested',
+      'DamageApplied',
+      'PoiseApplied',
+      'UltimateEnergyChanged',
+    ]);
+  });
+});

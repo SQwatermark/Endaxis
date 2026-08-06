@@ -52,6 +52,8 @@ DamageAction
 
 `executePoiseDamage` 先计算 `calculationValue * PoiseDamageOutputScalar * PoiseDamageTakenScalar`，再按 `OnBeforeOutputPoiseDamage -> OnBeforeTakePoiseDamage -> 失衡免疫 -> 失衡写入 -> OnTakePoiseDamage -> OnPoiseZero -> receipt` 执行。两个 Before 事件可修改 `finalDelta`；原生只在它们之前执行一次近零过滤，因此修改后的值不会被重复过滤。
 
+`PlayerDamageOperationExecutor` 将标准 `dealDamage` 步骤接入上述两个写入边界：先根据已完成事件与 modifier 处理的快照解析公式输入，再写入生命值，最后执行同一命中的失衡单元。当前快照由显式依赖提供，表示原生 DamagePack 前置阶段尚未被悄悄省略或替换成默认值。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
@@ -69,11 +71,11 @@ DamageAction
 
 下一阶段按以下顺序推进：
 
-1. 实现处决 `BreakingAttack` 的输入解析；
-2. 在事件分发器中接入计算前和承伤前后的 modifier 边界；
-3. 写入生命值并生成结构化 receipt；
-4. 在生命伤害之后执行失衡计算、免疫检查、钳制和破防事件；
-5. 用佩丽卡战技 fixture 验证“附着 -> 生命伤害 -> 失衡 -> 全队回能”的完整顺序。
+1. 建立 DamagePack，接入 `OnBeforeDamageAction`、`OnBeforeCalculateDamage` 与计算前后 modifier；
+2. 实现处决 `BreakingAttack` 的输入解析；
+3. 建模元素附着状态与事件，使佩丽卡测试中的附着端口从请求记录升级为真实状态变化；
+4. 将失衡恢复产生的状态变化接入 AbilityEvent 与 receipt；
+5. 用真实面板快照和游戏内战斗样本校验整条数值链。
 
 ## 5. 证据来源
 
