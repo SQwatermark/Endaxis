@@ -11,6 +11,7 @@ import type {
   DamageProcessTiming,
   PlayerDamageContext,
 } from '../damage/playerDamageContext';
+import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
 
 const BUFF_LIFETIME_EPSILON = 0.00001;
 
@@ -63,14 +64,20 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly maxStackCount?: number;
   /** Missing duration is the recovered infinite-lifetime representation. */
   readonly durationSeconds?: number;
+  readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
   readonly actions?: BuffLifecycleActions<Key>;
 }
 
+export interface CombatBuffAddOptions {
+  readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
+}
+
 export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly attributeModifiers: readonly CombatAttributeModifier<Key>[];
+  readonly blackboard: ActionBlackboard;
   #passedTime = 0;
   #remainingDuration: number | null;
   #started = false;
@@ -86,6 +93,7 @@ export class CombatBuff<Key extends string> {
     readonly owner: CombatBuffContainer<Key>,
     readonly sourceId: string,
     readonly instanceId: number,
+    options?: CombatBuffAddOptions,
   ) {
     if (
       definition.durationSeconds !== undefined &&
@@ -94,6 +102,8 @@ export class CombatBuff<Key extends string> {
       throw new RangeError('buff duration must be a non-negative finite number');
     }
     this.#remainingDuration = definition.durationSeconds ?? null;
+    this.blackboard = new ActionBlackboard(definition.blackboard);
+    this.blackboard.assign(options?.blackboardValues);
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
@@ -243,18 +253,26 @@ export class CombatBuffContainer<Key extends string> {
     return this.#buffs;
   }
 
-  add(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
+  add(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
     const stackingKey = definition.stackingKey ?? definition.id;
     let group = this.#stackingGroups.get(stackingKey);
     if (group === undefined) {
       group = new BuffStackingGroup(this, stackingKey, definition.stackingType);
       this.#stackingGroups.set(stackingKey, group);
     }
-    return group.stack(definition, sourceId);
+    return group.stack(definition, sourceId, options);
   }
 
-  allocateBuff(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
-    const buff = new CombatBuff(definition, this, sourceId, this.#nextInstanceId++);
+  allocateBuff(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    const buff = new CombatBuff(definition, this, sourceId, this.#nextInstanceId++, options);
     this.#buffs.push(buff);
     return buff;
   }
@@ -300,7 +318,11 @@ class BuffStackingGroup<Key extends string> {
     readonly stackingType: BuffStackingType,
   ) {}
 
-  stack(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
+  stack(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
     if (definition.stackingType !== this.stackingType) {
       throw new Error(
         `buff stacking key '${this.key}' changed type from '${this.stackingType}' to '${definition.stackingType}'`,
@@ -309,9 +331,9 @@ class BuffStackingGroup<Key extends string> {
     const existing = this.#buffs.find(buff => !buff.isFinished);
     switch (this.stackingType) {
       case 'unlimited':
-        return this.allocate(definition, sourceId);
+        return this.allocate(definition, sourceId, options);
       case 'enhanceAndRefresh':
-        return this.enhanceAndRefresh(existing, definition, sourceId);
+        return this.enhanceAndRefresh(existing, definition, sourceId, options);
       default:
         throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
     }
@@ -321,8 +343,12 @@ class BuffStackingGroup<Key extends string> {
     this.#currentStackCount = this.#buffs.filter(buff => !buff.isFinished).length;
   }
 
-  private allocate(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
-    const buff = this.owner.allocateBuff(definition, sourceId);
+  private allocate(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
     this.#buffs.push(buff);
     buff.enable();
@@ -333,9 +359,10 @@ class BuffStackingGroup<Key extends string> {
     existing: CombatBuff<Key> | undefined,
     definition: CombatBuffDefinition<Key>,
     sourceId: string,
+    options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
     if (existing === undefined) {
-      const buff = this.allocate(definition, sourceId);
+      const buff = this.allocate(definition, sourceId, options);
       this.#currentStackCount = 1;
       this.#maxStackCount = definition.maxStackCount ?? 0;
       return buff;

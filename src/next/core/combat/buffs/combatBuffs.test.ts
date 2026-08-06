@@ -307,4 +307,21 @@ describe('CombatBuffContainer', () => {
     expect(replacement).not.toBe(first);
     expect(replacement.enhanceCount).toBe(1);
   });
+
+  it('builds each buff blackboard from defaults and add options', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const buff = container.add(
+      {
+        id: 'buff.status',
+        stackingType: 'unlimited',
+        blackboard: { count: 0, label: 'default' },
+      },
+      'operator',
+      { blackboardValues: { count: 3 } },
+    );
+
+    expect(buff.blackboard.getNumber('count')).toBe(3);
+    expect(buff.blackboard.getString('label')).toBe('default');
+  });
 });
