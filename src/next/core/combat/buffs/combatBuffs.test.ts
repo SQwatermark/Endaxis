@@ -215,4 +215,96 @@ describe('CombatBuffContainer', () => {
       container.add({ id: 'buff.refresh', stackingType: 'refresh' }, 'operator'),
     ).toThrow("stacking type 'refresh' is not implemented");
   });
+
+  it('enhances one instance, refreshes its lifetime, and still runs callbacks at the cap', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.attachment',
+      stackingType: 'enhanceAndRefresh',
+      durationSeconds: 8,
+      maxStackCount: 2,
+      actions: {
+        beforeEnhance: buff => order.push(`before:${buff.enhanceCount}`),
+        enhanceChanged: buff => order.push(`changed:${buff.enhanceCount}`),
+        afterEnhance: buff => order.push(`after:${buff.enhanceCount}`),
+      },
+    };
+
+    const first = container.add(definition, 'operator');
+    const second = container.add(definition, 'operator');
+    expect(second).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(order).toEqual(['before:1', 'changed:2', 'after:2']);
+
+    container.tick(3);
+    const capped = container.add({ ...definition, durationSeconds: 12 }, 'operator');
+    expect(capped).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBe(12);
+    expect(order).toEqual(['before:1', 'changed:2', 'after:2', 'before:2', 'after:2']);
+  });
+
+  it('uses native duration refresh and infinite-lifetime semantics', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const finite = container.add(
+      {
+        id: 'buff.finite',
+        stackingType: 'enhanceAndRefresh',
+        durationSeconds: 8,
+      },
+      'operator',
+    );
+
+    container.add(
+      {
+        id: 'buff.finite',
+        stackingType: 'enhanceAndRefresh',
+        durationSeconds: 8.000005,
+      },
+      'operator',
+    );
+    expect(finite.remainingDuration).toBe(8);
+
+    container.add(
+      {
+        id: 'buff.finite',
+        stackingType: 'enhanceAndRefresh',
+      },
+      'operator',
+    );
+    expect(finite.remainingDuration).toBeNull();
+  });
+
+  it('keeps a stacking key type stable and starts a new instance after finish', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.first-id',
+      stackingKey: 'shared-key',
+      stackingType: 'enhanceAndRefresh',
+      maxStackCount: 3,
+    };
+    const first = container.add(definition, 'operator');
+    container.add(definition, 'operator');
+    expect(first.enhanceCount).toBe(2);
+
+    expect(() =>
+      container.add(
+        {
+          id: 'buff.second-id',
+          stackingKey: 'shared-key',
+          stackingType: 'unlimited',
+        },
+        'operator',
+      ),
+    ).toThrow("stacking key 'shared-key' changed type");
+
+    first.finish('other');
+    const replacement = container.add(definition, 'operator');
+    expect(replacement).not.toBe(first);
+    expect(replacement.enhanceCount).toBe(1);
+  });
 });

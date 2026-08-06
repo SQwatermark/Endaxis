@@ -58,7 +58,9 @@ DamageAction
 
 `CombatAttributeSet` 提供 DamagePack 快照之前的统一属性聚合边界。它按原生 `base -> armed -> final` 三阶段应用八个修正槽，保留装备、武器、天赋、卡牌技能、Buff、瞬时修正、转换属性和潜能的来源位掩码，并按修正器对象身份挂载和卸载。属性必须显式提供原生上下限后才能接受 modifier；尚未恢复的主副属性派生规则不会藏进通用容器。DamagePack 阶段结束时只清理 `Instant` 来源，长期 Buff 与配装修正继续保留。
 
-`CombatBuffContainer` 已建立每个实体独立的 Buff 存储和 DamageModifier 注册表。每次施加都会创建带稳定实例编号的独立 Buff、DamageModifier 和属性 Modifier；启用阶段按“首次 Start -> 注册伤害修正 -> 挂载属性修正 -> Enable”执行，属性注册失败会回滚本次伤害与属性修正。Disable 在注销前执行动作，Finish 直接结束并卸载，不额外执行 Disable。有限时长使用 `1e-5` 容差结束，禁用实例仍会推进时长。当前仅开放原生 `Unlimited` 分组；其余十一种已登记叠层策略明确拒绝，直到各自的 stacking group 规则接入。
+`CombatBuffContainer` 已建立每个实体独立的 Buff 存储、StackingGroup 和 DamageModifier 注册表。每次施加都会创建带稳定实例编号的独立 Buff、DamageModifier 和属性 Modifier；启用阶段按“首次 Start -> 注册伤害修正 -> 挂载属性修正 -> Enable”执行，属性注册失败会回滚本次伤害与属性修正。Disable 在注销前执行动作，Finish 直接结束并卸载，不额外执行 Disable。有限时长使用 `1e-5` 容差结束，禁用实例仍会推进时长。
+
+当前已按原生规则开放 `Unlimited` 和 `EnhanceAndRefresh`。后者在同一 stacking key 下复用尚未结束的实例，依次执行 BeforeEnhance、受上限约束的层数增长与 EnhanceChanged、持续时间刷新、AfterEnhance；达到层数上限时仍会执行前后动作并刷新持续时间。任一侧为无限时长时刷新结果为无限，仅当新时长比剩余时长至少多 `1e-5` 才覆盖。其余十种已登记叠层策略继续明确拒绝，直到各自的 StackingGroup 规则接入。
 
 `DamageModifier` 已实现侧别、所属实体和条件门控，处理器严格保持配置顺序。当前可执行处理器为计算前后伤害值乘算、计算后的七区增伤与计算前瞬时属性修正；它们都会拒绝生命汲取，且按目标生命类型过滤。瞬时属性处理器通过 DamagePack 端口向指定侧挂载标准 `Instant` 属性修正器，刷新快照后由同一阶段的 `finally` 清理，因此它只影响该阶段捕获的属性，不会泄漏到下一次命中。独立生命和伤害文本处理器尚未接线。
 
@@ -83,11 +85,10 @@ DamageAction
 
 下一阶段按以下顺序推进：
 
-1. 建立通用 Buff 容器，让 Buff 持有条件和 DamageModifier，并实现伤害上下文现有端口；
-2. 让 Buff 容器实现元素附着查询与操作写入，接通层数、持续时间和附着触发动作；
-3. 实现处决 `BreakingAttack`、生命汲取和特殊失衡计算分支；
-4. 用真实面板快照和游戏内战斗样本校验整条数值链；
-5. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
+1. 让 Buff 容器实现元素附着查询与操作写入，接通层数、持续时间和附着触发动作；
+2. 实现处决 `BreakingAttack`、生命汲取和特殊失衡计算分支；
+3. 用真实面板快照和游戏内战斗样本校验整条数值链；
+4. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
 
 ## 5. 证据来源
 

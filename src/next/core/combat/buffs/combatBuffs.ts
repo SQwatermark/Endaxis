@@ -51,11 +51,16 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly enable?: (buff: CombatBuff<Key>) => void;
   readonly disable?: (buff: CombatBuff<Key>) => void;
   readonly finish?: (buff: CombatBuff<Key>) => void;
+  readonly beforeEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
+  readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
+  readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
 }
 
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   readonly stackingType: BuffStackingType;
+  readonly stackingKey?: string;
+  readonly maxStackCount?: number;
   /** Missing duration is the recovered infinite-lifetime representation. */
   readonly durationSeconds?: number;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
@@ -73,6 +78,8 @@ export class CombatBuff<Key extends string> {
   #finished = false;
   #finishing = false;
   #finishReason: BuffFinishReason | null = null;
+  #enhanceCount = 1;
+  #stackingGroup: BuffStackingGroup<Key> | null = null;
 
   constructor(
     readonly definition: CombatBuffDefinition<Key>,
@@ -126,7 +133,7 @@ export class CombatBuff<Key extends string> {
   }
 
   get enhanceCount(): number {
-    return 1;
+    return this.#enhanceCount;
   }
 
   enable(): void {
@@ -167,6 +174,7 @@ export class CombatBuff<Key extends string> {
     const hadRegisteredModifiers = this.#enabled;
     this.#enabled = false;
     this.#finished = true;
+    this.#stackingGroup?.refreshAfterFinish();
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.removeAttributeModifiers();
@@ -185,6 +193,33 @@ export class CombatBuff<Key extends string> {
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
   }
 
+  attachStackingGroup(group: BuffStackingGroup<Key>): void {
+    this.#stackingGroup = group;
+  }
+
+  refreshDuration(incomingDuration: number | null): void {
+    if (this.#remainingDuration === null || incomingDuration === null) {
+      this.#remainingDuration = null;
+      return;
+    }
+    if (incomingDuration > this.#remainingDuration + BUFF_LIFETIME_EPSILON) {
+      this.#remainingDuration = incomingDuration;
+    }
+  }
+
+  executeBeforeEnhance(sourceId: string): void {
+    this.definition.actions?.beforeEnhance?.(this, sourceId);
+  }
+
+  enhance(sourceId: string): void {
+    this.#enhanceCount += 1;
+    this.definition.actions?.enhanceChanged?.(this, sourceId);
+  }
+
+  executeAfterEnhance(sourceId: string): void {
+    this.definition.actions?.afterEnhance?.(this, sourceId);
+  }
+
   private removeAttributeModifiers(): void {
     for (const modifier of this.attributeModifiers) {
       this.owner.attributes.removeModifier(modifier);
@@ -196,6 +231,7 @@ export class CombatBuff<Key extends string> {
 export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];
+  readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
   #nextInstanceId = 1;
 
   constructor(
@@ -208,12 +244,18 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   add(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
-    if (definition.stackingType !== 'unlimited') {
-      throw new Error(`buff stacking type '${definition.stackingType}' is not implemented`);
+    const stackingKey = definition.stackingKey ?? definition.id;
+    let group = this.#stackingGroups.get(stackingKey);
+    if (group === undefined) {
+      group = new BuffStackingGroup(this, stackingKey, definition.stackingType);
+      this.#stackingGroups.set(stackingKey, group);
     }
+    return group.stack(definition, sourceId);
+  }
+
+  allocateBuff(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
     const buff = new CombatBuff(definition, this, sourceId, this.#nextInstanceId++);
     this.#buffs.push(buff);
-    buff.enable();
     return buff;
   }
 
@@ -244,5 +286,68 @@ export class CombatBuffContainer<Key extends string> {
       const index = this.#damageModifiers.indexOf(modifier);
       if (index >= 0) this.#damageModifiers.splice(index, 1);
     }
+  }
+}
+
+class BuffStackingGroup<Key extends string> {
+  readonly #buffs: CombatBuff<Key>[] = [];
+  #currentStackCount = 0;
+  #maxStackCount = 0;
+
+  constructor(
+    readonly owner: CombatBuffContainer<Key>,
+    readonly key: string,
+    readonly stackingType: BuffStackingType,
+  ) {}
+
+  stack(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
+    if (definition.stackingType !== this.stackingType) {
+      throw new Error(
+        `buff stacking key '${this.key}' changed type from '${this.stackingType}' to '${definition.stackingType}'`,
+      );
+    }
+    const existing = this.#buffs.find(buff => !buff.isFinished);
+    switch (this.stackingType) {
+      case 'unlimited':
+        return this.allocate(definition, sourceId);
+      case 'enhanceAndRefresh':
+        return this.enhanceAndRefresh(existing, definition, sourceId);
+      default:
+        throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
+    }
+  }
+
+  refreshAfterFinish(): void {
+    this.#currentStackCount = this.#buffs.filter(buff => !buff.isFinished).length;
+  }
+
+  private allocate(definition: CombatBuffDefinition<Key>, sourceId: string): CombatBuff<Key> {
+    const buff = this.owner.allocateBuff(definition, sourceId);
+    buff.attachStackingGroup(this);
+    this.#buffs.push(buff);
+    buff.enable();
+    return buff;
+  }
+
+  private enhanceAndRefresh(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+  ): CombatBuff<Key> {
+    if (existing === undefined) {
+      const buff = this.allocate(definition, sourceId);
+      this.#currentStackCount = 1;
+      this.#maxStackCount = definition.maxStackCount ?? 0;
+      return buff;
+    }
+
+    existing.executeBeforeEnhance(sourceId);
+    if (this.#maxStackCount <= 0 || this.#currentStackCount < this.#maxStackCount) {
+      this.#currentStackCount += 1;
+      existing.enhance(sourceId);
+    }
+    existing.refreshDuration(definition.durationSeconds ?? null);
+    existing.executeAfterEnhance(sourceId);
+    return existing;
   }
 }
