@@ -1,4 +1,5 @@
 import {
+  EDITABLE_SKILL_CAST_FIELDS,
   PROJECT_FPS,
   PROJECT_KIND,
   PROJECT_SCHEMA_VERSION,
@@ -20,6 +21,28 @@ import {
   RESOURCE_RECIPIENTS,
   STATUS_MODIFIER_KINDS,
 } from '../game-data/operatorDefinition';
+import {
+  validateBattle,
+  validateEditor,
+  validateEnemy,
+  validateGearBuild,
+  validateOperatorBuild,
+  validateWeaponBuild,
+} from './scenarioValidation';
+import {
+  isObject,
+  requireBoolean,
+  requireEnum,
+  requireFiniteNumber,
+  requireInteger,
+  requireNonNegativeInteger,
+  requirePositiveInteger,
+  requireString,
+  validateEditedFields,
+  type ValidationIssue,
+} from './validationHelpers';
+
+export type { ValidationIssue } from './validationHelpers';
 
 const combatStepKinds = new Set<string>(COMBAT_STEP_KINDS);
 const combatResources = new Set<string>(COMBAT_RESOURCES);
@@ -34,40 +57,10 @@ const elementalReactions = new Set<string>(ELEMENTAL_REACTIONS);
 const operatorAttributes = new Set<string>(OPERATOR_ATTRIBUTES);
 const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
-
-export interface ValidationIssue {
-  path: string;
-  message: string;
-}
+const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
 export type ValidationResult =
   { ok: true; value: EndaxisProjectDocument } | { ok: false; issues: ValidationIssue[] };
-
-function isObject(value: unknown): value is JsonObject {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-function requireString(
-  object: JsonObject,
-  key: string,
-  path: string,
-  issues: ValidationIssue[],
-): string | null {
-  const value = object[key];
-  if (typeof value === 'string' && value.length > 0) return value;
-  issues.push({ path: `${path}.${key}`, message: 'expected a non-empty string' });
-  return null;
-}
-
-function requireNonNegativeInteger(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return;
-  issues.push({ path, message: 'expected a non-negative integer' });
-}
-
-function requireFiniteNumber(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (typeof value === 'number' && Number.isFinite(value)) return;
-  issues.push({ path, message: 'expected a finite number' });
-}
 
 function validateLevelValues(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (typeof value === 'number') {
@@ -79,16 +72,6 @@ function validateLevelValues(value: unknown, path: string, issues: ValidationIss
     return;
   }
   value.forEach((entry, index) => requireFiniteNumber(entry, `${path}[${index}]`, issues));
-}
-
-function requireEnum(
-  value: unknown,
-  allowed: Set<string>,
-  path: string,
-  issues: ValidationIssue[],
-): void {
-  if (typeof value === 'string' && allowed.has(value)) return;
-  issues.push({ path, message: 'unexpected enum value' });
 }
 
 function validateCombatCondition(value: unknown, path: string, issues: ValidationIssue[]): void {
@@ -388,6 +371,10 @@ function collectBuildIds(
       });
     }
     if (id !== null) ids.add(id);
+
+    if (key === 'operators') validateOperatorBuild(value, `${path}.${key}.${recordKey}`, issues);
+    if (key === 'weapons') validateWeaponBuild(value, `${path}.${key}.${recordKey}`, issues);
+    if (key === 'gears') validateGearBuild(value, `${path}.${key}.${recordKey}`, issues);
   }
   return ids;
 }
@@ -492,13 +479,50 @@ function validateSkillCast(
   if (!isObject(value.source)) {
     issues.push({ path: `${path}.source`, message: 'expected an object' });
   } else {
-    requireString(value.source, 'kind', `${path}.source`, issues);
+    const sourcePath = `${path}.source`;
+    const sourceKind = requireString(value.source, 'kind', sourcePath, issues);
+    if (sourceKind === 'operatorSkill') {
+      requireString(value.source, 'skillGroupKey', sourcePath, issues);
+      requireString(value.source, 'skillKey', sourcePath, issues);
+    } else if (sourceKind === 'weaponSkill') {
+      requireString(value.source, 'skillKey', sourcePath, issues);
+    } else if (sourceKind === 'custom') {
+      requireString(value.source, 'actionType', sourcePath, issues);
+      requireString(value.source, 'name', sourcePath, issues);
+      if (value.source.element !== undefined) {
+        requireEnum(value.source.element, damageElements, `${sourcePath}.element`, issues);
+      }
+      if (value.source.iconKey !== undefined) {
+        requireString(value.source, 'iconKey', sourcePath, issues);
+      }
+    } else if (sourceKind !== null) {
+      issues.push({ path: `${sourcePath}.kind`, message: 'unknown skill cast source kind' });
+    }
   }
 
   if (!isObject(value.placement)) {
     issues.push({ path: `${path}.placement`, message: 'expected an object' });
   } else {
     requireNonNegativeInteger(value.placement.startFrame, `${path}.placement.startFrame`, issues);
+  }
+
+  if (value.placementGroup !== undefined) {
+    const groupPath = `${path}.placementGroup`;
+    if (!isObject(value.placementGroup)) {
+      issues.push({ path: groupPath, message: 'expected an object' });
+    } else {
+      requireString(value.placementGroup, 'id', groupPath, issues);
+      requireString(value.placementGroup, 'skillGroupKey', groupPath, issues);
+      requireNonNegativeInteger(value.placementGroup.index, `${groupPath}.index`, issues);
+      requirePositiveInteger(value.placementGroup.total, `${groupPath}.total`, issues);
+      if (
+        typeof value.placementGroup.index === 'number' &&
+        typeof value.placementGroup.total === 'number' &&
+        value.placementGroup.index >= value.placementGroup.total
+      ) {
+        issues.push({ path: `${groupPath}.index`, message: 'must be less than total' });
+      }
+    }
   }
 
   if (!isObject(value.editable)) {
@@ -511,6 +535,45 @@ function validateSkillCast(
     `${path}.editable.durationFrames`,
     issues,
   );
+  for (const field of [
+    'cooldownFrames',
+    'comboFollowupDelayFrames',
+    'triggerWindowFrames',
+    'spCost',
+    'ultimateEnergyCost',
+  ]) {
+    if (value.editable[field] !== undefined) {
+      requireNonNegativeInteger(value.editable[field], `${path}.editable.${field}`, issues);
+    }
+  }
+  requireBoolean(value.editable.locked, `${path}.editable.locked`, issues);
+  requireBoolean(value.editable.disabled, `${path}.editable.disabled`, issues);
+  if (value.editable.linked !== undefined) {
+    requireBoolean(value.editable.linked, `${path}.editable.linked`, issues);
+  }
+  if (
+    value.editable.color !== undefined &&
+    value.editable.color !== null &&
+    typeof value.editable.color !== 'string'
+  ) {
+    issues.push({ path: `${path}.editable.color`, message: 'expected a string or null' });
+  }
+  if (value.editable.enhancement !== undefined) {
+    const enhancementPath = `${path}.editable.enhancement`;
+    if (!isObject(value.editable.enhancement)) {
+      issues.push({ path: enhancementPath, message: 'expected an object' });
+    } else if (value.editable.enhancement.kind === 'duration') {
+      requireNonNegativeInteger(
+        value.editable.enhancement.frames,
+        `${enhancementPath}.frames`,
+        issues,
+      );
+    } else if (value.editable.enhancement.kind === 'status') {
+      requireString(value.editable.enhancement, 'statusId', enhancementPath, issues);
+    } else {
+      issues.push({ path: `${enhancementPath}.kind`, message: 'unknown enhancement kind' });
+    }
+  }
   if (!Array.isArray(value.editable.scheduledSequences)) {
     issues.push({ path: `${path}.editable.scheduledSequences`, message: 'expected an array' });
     return;
@@ -554,7 +617,42 @@ function validateSkillCast(
       damageHitIds,
       issues,
     );
+    const allowedSequenceEdits = new Set(['startFrame', 'endFrame', 'sequence']);
+    validateEditedFields(
+      scheduledSequence.edited,
+      allowedSequenceEdits,
+      `${sequencePath}.edited`,
+      issues,
+    );
   });
+
+  if (!Array.isArray(value.editable.customBars)) {
+    issues.push({ path: `${path}.editable.customBars`, message: 'expected an array' });
+  } else {
+    const customBarIds = new Set<string>();
+    value.editable.customBars.forEach((bar, index) => {
+      const barPath = `${path}.editable.customBars[${index}]`;
+      if (!isObject(bar)) {
+        issues.push({ path: barPath, message: 'expected an object' });
+        return;
+      }
+      const barId = requireString(bar, 'id', barPath, issues);
+      if (barId !== null && customBarIds.has(barId)) {
+        issues.push({ path: `${barPath}.id`, message: 'duplicate custom bar id' });
+      }
+      if (barId !== null) customBarIds.add(barId);
+      if (typeof bar.text !== 'string') {
+        issues.push({ path: `${barPath}.text`, message: 'expected a string' });
+      }
+      requireInteger(bar.offsetFrames, `${barPath}.offsetFrames`, issues);
+      requireNonNegativeInteger(bar.durationFrames, `${barPath}.durationFrames`, issues);
+      if (bar.color !== undefined && typeof bar.color !== 'string') {
+        issues.push({ path: `${barPath}.color`, message: 'expected a string' });
+      }
+    });
+  }
+
+  validateEditedFields(value.edited, editableSkillCastFields, `${path}.edited`, issues);
 }
 
 function validateEndpoint(
@@ -672,6 +770,34 @@ export function validateProjectDocument(value: unknown): ValidationResult {
               });
             }
           }
+        } else {
+          issues.push({ path: `${trackPath}.gearBuildIds`, message: 'expected an object' });
+        }
+        if (isObject(track.gearBuildIds)) {
+          for (const slot of ['armor', 'gloves', 'accessory1', 'accessory2']) {
+            if (!(slot in track.gearBuildIds)) {
+              issues.push({
+                path: `${trackPath}.gearBuildIds.${slot}`,
+                message: 'missing gear slot',
+              });
+            }
+          }
+        }
+        if (!isObject(track.initialState)) {
+          issues.push({ path: `${trackPath}.initialState`, message: 'expected an object' });
+        } else {
+          requireFiniteNumber(
+            track.initialState.ultimateEnergy,
+            `${trackPath}.initialState.ultimateEnergy`,
+            issues,
+          );
+          if (track.initialState.maxUltimateEnergyOverride !== undefined) {
+            requireFiniteNumber(
+              track.initialState.maxUltimateEnergyOverride,
+              `${trackPath}.initialState.maxUltimateEnergyOverride`,
+              issues,
+            );
+          }
         }
         if (!Array.isArray(track.skillCasts)) {
           issues.push({ path: `${trackPath}.skillCasts`, message: 'expected an array' });
@@ -691,12 +817,19 @@ export function validateProjectDocument(value: unknown): ValidationResult {
       if (!Array.isArray(scenario.connections)) {
         issues.push({ path: `${path}.connections`, message: 'expected an array' });
       } else {
+        const connectionIds = new Set<string>();
         scenario.connections.forEach((connection, connectionIndex) => {
           const connectionPath = `${path}.connections[${connectionIndex}]`;
           if (!isObject(connection)) {
             issues.push({ path: connectionPath, message: 'expected an object' });
             return;
           }
+          const connectionId = requireString(connection, 'id', connectionPath, issues);
+          if (connectionId !== null && connectionIds.has(connectionId)) {
+            issues.push({ path: `${connectionPath}.id`, message: 'duplicate connection id' });
+          }
+          if (connectionId !== null) connectionIds.add(connectionId);
+          requireBoolean(connection.consumption, `${connectionPath}.consumption`, issues);
           validateEndpoint(
             connection.from,
             `${connectionPath}.from`,
@@ -713,6 +846,13 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           );
         });
       }
+
+      validateEnemy(scenario.enemy, `${path}.enemy`, issues);
+      validateBattle(scenario.battle, `${path}.battle`, issues);
+      if (!isObject(scenario.globalConfig)) {
+        issues.push({ path: `${path}.globalConfig`, message: 'expected an object' });
+      }
+      validateEditor(scenario.editor, `${path}.editor`, issues);
     });
 
     if (activeScenarioId !== null && !scenarioIds.has(activeScenarioId)) {

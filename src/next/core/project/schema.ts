@@ -69,20 +69,22 @@ export interface CustomActionDefinition {
 
 export type SkillCastSource = CatalogActionSource | CustomActionDefinition;
 
-export type EditableSkillCastField =
-  | 'durationFrames'
-  | 'cooldownFrames'
-  | 'comboFollowupDelayFrames'
-  | 'triggerWindowFrames'
-  | 'enhancement'
-  | 'spCost'
-  | 'ultimateEnergyCost'
-  | 'linked'
-  | 'locked'
-  | 'disabled'
-  | 'color'
-  | 'scheduledSequences'
-  | 'customBars';
+export const EDITABLE_SKILL_CAST_FIELDS = [
+  'durationFrames',
+  'cooldownFrames',
+  'comboFollowupDelayFrames',
+  'triggerWindowFrames',
+  'enhancement',
+  'spCost',
+  'ultimateEnergyCost',
+  'linked',
+  'locked',
+  'disabled',
+  'color',
+  'scheduledSequences',
+  'customBars',
+] as const;
+export type EditableSkillCastField = (typeof EDITABLE_SKILL_CAST_FIELDS)[number];
 
 type CombatStepDocumentForKind<K extends CombatStepKind> = {
   kind: K;
@@ -186,6 +188,7 @@ export interface TrackDocument {
 }
 
 export type TrackSlotDocument = TrackDocument | null;
+export type TrackIndex = 0 | 1 | 2 | 3;
 export type TrackListDocument = [
   TrackSlotDocument,
   TrackSlotDocument,
@@ -217,11 +220,32 @@ export interface EnemyEditableValues {
   resistances: Record<string, number>;
 }
 
+export const ENEMY_EDITABLE_FIELDS = [
+  'hp',
+  'defense',
+  'superArmor',
+  'finisherMultiplier',
+  'resistances',
+] as const satisfies readonly (keyof EnemyEditableValues)[];
+
 export interface EnemyDocument {
   source: { kind: 'catalog'; enemyId: string; level: number } | { kind: 'custom'; level: number };
   editable: EnemyEditableValues;
   /** Keys in `editable` that the user changed from the captured defaults. */
   edited: (keyof EnemyEditableValues)[];
+}
+
+/** A user-authored split point from which a follow-up scenario may be created. */
+export interface CycleBoundaryDocument {
+  id: string;
+  frame: number;
+}
+
+/** The track controlled by the player from `frame` onward. */
+export interface ControlSwitchDocument {
+  id: string;
+  frame: number;
+  trackIndex: TrackIndex;
 }
 
 export interface BattleDocument {
@@ -244,8 +268,8 @@ export interface BattleDocument {
     brokenDurationFrames: number;
     finisherRecovery: number;
   };
-  cycleBoundaries: JsonObject[];
-  switchEvents: JsonObject[];
+  cycleBoundaries: CycleBoundaryDocument[];
+  controlSwitches: ControlSwitchDocument[];
   initialEffects: JsonObject[];
   initialEnemyState?: JsonObject;
 }

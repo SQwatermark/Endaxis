@@ -34,6 +34,74 @@ describe('V2 project document', () => {
     expect(json).not.toContain('_expectedDamage');
   });
 
+  it('round-trips frame-based cycle boundaries and control switches', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const battle = project.scenarios[0]!.battle;
+    battle.cycleBoundaries.push({ id: 'boundary:1', frame: 900 });
+    battle.controlSwitches.push({ id: 'switch:1', frame: 180, trackIndex: 2 });
+
+    const parsed = parseProjectDocument(serializeProjectDocument(project));
+
+    expect(parsed).toEqual({ ok: true, value: project });
+  });
+
+  it('rejects malformed values across builds, battle, enemy, and editor state', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const scenario = project.scenarios[0]!;
+    scenario.builds.operators['operator:1'] = {
+      id: 'operator:1',
+      operatorSlug: 'perlica',
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: {},
+      talentStates: {},
+    };
+
+    const malformed = JSON.parse(serializeProjectDocument(project));
+    malformed.scenarios[0].builds.operators['operator:1'].promoted = 'yes';
+    malformed.scenarios[0].enemy.editable.finisherMultiplier = 'one';
+    malformed.scenarios[0].battle.controlSwitches.push({
+      id: 'switch:invalid',
+      frame: 30,
+      trackIndex: 4,
+    });
+    malformed.scenarios[0].editor.trackHeightWeights = [1, 1, 1];
+
+    const result = validateProjectDocument(malformed);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          {
+            path: '$.scenarios[0].builds.operators.operator:1.promoted',
+            message: 'expected a boolean',
+          },
+          {
+            path: '$.scenarios[0].enemy.editable.finisherMultiplier',
+            message: 'expected a finite number',
+          },
+          {
+            path: '$.scenarios[0].battle.controlSwitches[0].trackIndex',
+            message: 'expected a track index from 0 to 3',
+          },
+          {
+            path: '$.scenarios[0].editor.trackHeightWeights',
+            message: 'expected exactly four weights',
+          },
+        ]),
+      );
+    }
+  });
+
   it('rejects dangling build references', () => {
     const project = createEmptyProject({
       createdWith: 'test',

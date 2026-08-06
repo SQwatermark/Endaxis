@@ -1,5 +1,8 @@
 # Endaxis Next architecture
 
+> 当前系统审计、功能迁移优先级和各阶段验收标准见
+> [Endaxis Next 现状审计与迁移路线图](./endaxis-next-roadmap.md)。本文继续记录核心模型的设计约束。
+
 ## Goal
 
 `src/next` is a parallel implementation of the editor and combat simulator. It is built without changing the current `/timeline` entry and will replace that entry only after compatibility and behavior checks pass.

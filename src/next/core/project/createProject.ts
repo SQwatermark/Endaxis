@@ -48,7 +48,7 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
         finisherRecovery: 100,
       },
       cycleBoundaries: [],
-      switchEvents: [],
+      controlSwitches: [],
       initialEffects: [],
     },
     globalConfig: {},
