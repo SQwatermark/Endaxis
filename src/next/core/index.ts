@@ -7,6 +7,8 @@ export * from './combat/runtime/combatClock';
 export * from './combat/runtime/combatResources';
 export * from './combat/runtime/combatSimulation';
 export * from './combat/runtime/skillResourceOperationExecutor';
+export * from './combat/runtime/combatVitals';
+export * from './combat/runtime/periodicTimer';
 export * from './combat/damage/playerActiveDamage';
 export * from './combat/damage/playerActiveDamageInput';
 export * from './combat/damage/damageScale';

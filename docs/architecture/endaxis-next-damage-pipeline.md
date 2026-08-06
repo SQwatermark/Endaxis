@@ -44,6 +44,10 @@ DamageAction
 
 `resolvePlayerActiveDamageInput` 当前接通标准 `AtkScale` 路径：它将编译后的每击倍率、攻击属性和 DamageScale 最终值合成为 `finalAttackValue`，并按伤害类型选择对应抗性。处决和按状态层数增加倍率仍显式拒绝，直到其运行时输入闭环。
 
+`CombatVitals` 承载一次模拟中的生命值和失衡状态。生命伤害按原生规则先将负伤害钳制为 0，再将生命值钳制到 0；失衡变化使用 `1e-5` 容差、失衡免疫和 `[0, MaxPoise]` 钳制，并返回请求变化量与实际变化量。
+
+失衡恢复由两个 `PeriodicTimer` 顺序驱动，而不是保存额外的“失衡中”布尔值。第一个计时器按 `PoiseRecTime * PoiseRecTimeScalar` 恢复失衡；第二个计时器控制恢复后的破防标签延长时间。恢复完成的同一 Tick 会继续推进第二个计时器，与原生执行顺序一致。状态对象只返回 `poiseRecovered` 和 `poiseBrokenTagEnded` 变化事实，事件层负责将其转换为 AbilityEvent 和 receipt。
+
 ## 3. 输入所有权
 
 纯公式不负责产生以下输入：
