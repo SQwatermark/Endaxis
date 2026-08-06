@@ -56,6 +56,8 @@ DamageAction
 
 `PlayerDamageContext` 承载每次生命伤害命中的可变 DamagePack 状态。它在创建时捕获初始属性，并严格按“攻击方 modifier -> 防御方 modifier -> 刷新属性快照 -> 清理双方临时属性”的顺序分别执行计算前、计算后两个阶段。计算前对伤害值的乘算先累积，基础攻击计算完成时才应用；计算后乘算直接作用于计算结果。即使 modifier 抛错，双方临时属性也会进入清理流程。
 
+`CombatAttributeSet` 提供 DamagePack 快照之前的统一属性聚合边界。它按原生 `base -> armed -> final` 三阶段应用八个修正槽，保留装备、武器、天赋、卡牌技能、Buff、瞬时修正、转换属性和潜能的来源位掩码，并按修正器对象身份挂载和卸载。属性必须显式提供原生上下限后才能接受 modifier；尚未恢复的主副属性派生规则不会藏进通用容器。DamagePack 阶段结束时只清理 `Instant` 来源，长期 Buff 与配装修正继续保留。
+
 `PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。
 
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID；查询和写入端口后续由通用 Buff 容器实现。
