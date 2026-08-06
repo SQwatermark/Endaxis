@@ -2,6 +2,7 @@ import type {
   CombatStepKind,
   CombatStepParameters,
   DamageElement,
+  SkillType,
 } from '../game-data/operatorDefinition';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
@@ -270,8 +271,40 @@ export interface BattleDocument {
   };
   cycleBoundaries: CycleBoundaryDocument[];
   controlSwitches: ControlSwitchDocument[];
-  initialEffects: JsonObject[];
-  initialEnemyState?: JsonObject;
+}
+
+/**
+ * A scenario derives its opening runtime state from a source boundary. The
+ * resulting resources and effects are intentionally not persisted.
+ */
+export interface ScenarioInheritanceDocument {
+  sourceScenarioId: string;
+  boundaryId: string;
+}
+
+export const GLOBAL_OPERATOR_STAT_MODIFIERS = [
+  'attackPercent',
+  'criticalRate',
+  'criticalDamage',
+  'artsIntensity',
+  'ultimateEnergyGainEfficiency',
+  'skillCooldownReduction',
+] as const;
+export type GlobalOperatorStatModifier = (typeof GLOBAL_OPERATOR_STAT_MODIFIERS)[number];
+
+export interface GlobalOperatorStatModifierDocument {
+  id: string;
+  kind: 'operatorStat';
+  modifier: GlobalOperatorStatModifier;
+  value: number;
+  /** Required only when the modifier is limited to one skill type. */
+  skillType?: SkillType;
+}
+
+export interface GlobalConfigDocument {
+  /** Catalog-owned preset identity; null means no preset. */
+  presetId: string | null;
+  modifiers: GlobalOperatorStatModifierDocument[];
 }
 
 export interface ScenarioEditorDocument {
@@ -282,12 +315,13 @@ export interface ScenarioEditorDocument {
 export interface ScenarioDocument {
   id: string;
   name: string;
+  inheritance?: ScenarioInheritanceDocument;
   builds: ScenarioBuildsDocument;
   tracks: TrackListDocument;
   connections: ConnectionDocument[];
   enemy: EnemyDocument;
   battle: BattleDocument;
-  globalConfig: JsonObject;
+  globalConfig: GlobalConfigDocument;
   editor: ScenarioEditorDocument;
 }
 

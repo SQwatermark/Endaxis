@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createEmptyProject } from './createProject';
+import { createEmptyProject, createEmptyScenario } from './createProject';
 import {
   inspectProjectInput,
   parseProjectDocument,
@@ -32,6 +32,8 @@ describe('V2 project document', () => {
     expect(json).not.toContain('operatorStatus');
     expect(json).not.toContain('triggerEffects');
     expect(json).not.toContain('_expectedDamage');
+    expect(json).not.toContain('initialEffects');
+    expect(json).not.toContain('initialEnemyState');
   });
 
   it('round-trips frame-based cycle boundaries and control switches', () => {
@@ -46,6 +48,57 @@ describe('V2 project document', () => {
     const parsed = parseProjectDocument(serializeProjectDocument(project));
 
     expect(parsed).toEqual({ ok: true, value: project });
+  });
+
+  it('persists scenario inheritance as a boundary reference instead of a runtime snapshot', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const source = project.scenarios[0]!;
+    source.battle.cycleBoundaries.push({ id: 'boundary:1', frame: 900 });
+    const inherited = createEmptyScenario('scenario:2', 'Inherited');
+    inherited.inheritance = {
+      sourceScenarioId: source.id,
+      boundaryId: 'boundary:1',
+    };
+    project.scenarios.push(inherited);
+
+    const parsed = parseProjectDocument(serializeProjectDocument(project));
+
+    expect(parsed).toEqual({ ok: true, value: project });
+  });
+
+  it('rejects dangling and cyclic scenario inheritance', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const first = project.scenarios[0]!;
+    first.battle.cycleBoundaries.push({ id: 'boundary:1', frame: 300 });
+    const second = createEmptyScenario('scenario:2', 'Second');
+    second.battle.cycleBoundaries.push({ id: 'boundary:2', frame: 600 });
+    first.inheritance = { sourceScenarioId: second.id, boundaryId: 'boundary:2' };
+    second.inheritance = { sourceScenarioId: first.id, boundaryId: 'boundary:missing' };
+    project.scenarios.push(second);
+
+    const result = validateProjectDocument(project);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          {
+            path: '$.scenarios[1].inheritance.boundaryId',
+            message: 'unknown cycle boundary',
+          },
+          {
+            path: '$.scenarios[0].inheritance',
+            message: 'scenario inheritance must be acyclic',
+          },
+        ]),
+      );
+    }
   });
 
   it('rejects malformed values across builds, battle, enemy, and editor state', () => {
@@ -74,6 +127,12 @@ describe('V2 project document', () => {
       trackIndex: 4,
     });
     malformed.scenarios[0].editor.trackHeightWeights = [1, 1, 1];
+    malformed.scenarios[0].globalConfig.modifiers.push({
+      id: 'modifier:1',
+      kind: 'operatorStat',
+      modifier: 'skillCooldownReduction',
+      value: 50,
+    });
 
     const result = validateProjectDocument(malformed);
 
@@ -96,6 +155,10 @@ describe('V2 project document', () => {
           {
             path: '$.scenarios[0].editor.trackHeightWeights',
             message: 'expected exactly four weights',
+          },
+          {
+            path: '$.scenarios[0].globalConfig.modifiers[0].skillType',
+            message: 'skill cooldown reduction requires a skill type',
           },
         ]),
       );

@@ -275,7 +275,7 @@ Project JSON
 
 任务：
 
-- 为周期边界、切人、初始效果、全局修正和编辑器设置替换 `JsonObject` 占位；
+- 为周期边界、切人、跨方案继承、全局修正和编辑器设置建立明确模型；
 - 完成武器、装备、套装、敌人和系统规则定义；
 - 明确自定义 action/hit/effect 的可编辑范围；
 - 统一稳定 ID、目录 key、用户实体 ID 和派生地址；
@@ -423,7 +423,7 @@ Project JSON
 ### 阻断下一阶段的缺口
 
 - `GameDataRepository` 中武器和装备仍只有 slug 占位，尚无敌人及系统规则接口；
-- project schema 的周期边界、切人、初始效果和全局配置仍为 `JsonObject`；
+- project schema 已完成周期边界、切人、跨方案继承和全局配置建模，但尚无继承状态投影器；
 - 没有 build resolver 和面板计算器；
 - 没有 editor command、transaction history 和 autosave 服务；
 - 没有 compiler、simulator、receipt 和 projection；

@@ -1,4 +1,5 @@
-import { ENEMY_EDITABLE_FIELDS, type JsonObject } from './schema';
+import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
+import { SKILL_TYPES } from '../game-data/operatorDefinition';
 import {
   isObject,
   requireBoolean,
@@ -12,6 +13,8 @@ import {
 } from './validationHelpers';
 
 const enemyEditableFields = new Set<string>(ENEMY_EDITABLE_FIELDS);
+const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIERS);
+const skillTypes = new Set<string>(SKILL_TYPES);
 
 export function validateOperatorBuild(
   value: JsonObject,
@@ -195,19 +198,54 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
       });
     }
   });
+}
 
-  if (!Array.isArray(value.initialEffects)) {
-    issues.push({ path: `${path}.initialEffects`, message: 'expected an array' });
-  } else {
-    value.initialEffects.forEach((effect, index) => {
-      if (!isObject(effect)) {
-        issues.push({ path: `${path}.initialEffects[${index}]`, message: 'expected an object' });
-      }
-    });
+export function validateGlobalConfig(
+  value: unknown,
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  if (!isObject(value)) {
+    issues.push({ path, message: 'expected an object' });
+    return;
   }
-  if (value.initialEnemyState !== undefined && !isObject(value.initialEnemyState)) {
-    issues.push({ path: `${path}.initialEnemyState`, message: 'expected an object' });
+  if (value.presetId !== null && typeof value.presetId !== 'string') {
+    issues.push({ path: `${path}.presetId`, message: 'expected a string or null' });
   }
+  if (!Array.isArray(value.modifiers)) {
+    issues.push({ path: `${path}.modifiers`, message: 'expected an array' });
+    return;
+  }
+
+  const ids = new Set<string>();
+  value.modifiers.forEach((modifier, index) => {
+    const modifierPath = `${path}.modifiers[${index}]`;
+    if (!isObject(modifier)) {
+      issues.push({ path: modifierPath, message: 'expected an object' });
+      return;
+    }
+    const id = requireString(modifier, 'id', modifierPath, issues);
+    if (id !== null && ids.has(id)) {
+      issues.push({ path: `${modifierPath}.id`, message: 'duplicate global modifier id' });
+    }
+    if (id !== null) ids.add(id);
+    if (modifier.kind !== 'operatorStat') {
+      issues.push({ path: `${modifierPath}.kind`, message: "expected 'operatorStat'" });
+    }
+    if (!globalOperatorStatModifiers.has(modifier.modifier as string)) {
+      issues.push({ path: `${modifierPath}.modifier`, message: 'unknown operator stat modifier' });
+    }
+    requireFiniteNumber(modifier.value, `${modifierPath}.value`, issues);
+    if (modifier.skillType !== undefined && !skillTypes.has(modifier.skillType as string)) {
+      issues.push({ path: `${modifierPath}.skillType`, message: 'unknown skill type' });
+    }
+    if (modifier.modifier === 'skillCooldownReduction' && modifier.skillType === undefined) {
+      issues.push({
+        path: `${modifierPath}.skillType`,
+        message: 'skill cooldown reduction requires a skill type',
+      });
+    }
+  });
 }
 
 export function validateEditor(value: unknown, path: string, issues: ValidationIssue[]): void {
