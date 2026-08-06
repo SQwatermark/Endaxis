@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "revision": "combat-1.4.4",
+  "buffs": [
+    {
+      "id": "buff_common_energy_shard_attached_fire",
+      "stackingType": "enhanceAndRefresh",
+      "maxStackCount": 4,
+      "blackboard": {
+        "duration": 20,
+        "atk_scale": 0,
+        "count": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "shatter_dmg": 0,
+        "spell_resistance_decrease": 0,
+        "frozen_duration": 0,
+        "conduct_duration": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0
+      },
+      "role": {
+        "kind": "elementalAttachment",
+        "element": "heat"
+      },
+      "actions": {
+        "afterEnhance": [
+          {
+            "kind": "emitElementalInflictionStarted"
+          }
+        ]
+      },
+      "durationSeconds": {
+        "blackboardKey": "duration"
+      }
+    },
+    {
+      "id": "buff_common_energy_shard_attached_pulse",
+      "stackingType": "enhanceAndRefresh",
+      "maxStackCount": 4,
+      "blackboard": {
+        "duration": 20,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "count": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "shatter_dmg": 0,
+        "frozen_duration": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0
+      },
+      "role": {
+        "kind": "elementalAttachment",
+        "element": "electric"
+      },
+      "actions": {
+        "afterEnhance": [
+          {
+            "kind": "emitElementalInflictionStarted"
+          }
+        ]
+      },
+      "durationSeconds": {
+        "blackboardKey": "duration"
+      }
+    },
+    {
+      "id": "buff_common_energy_shard_attached_cryst",
+      "stackingType": "enhanceAndRefresh",
+      "maxStackCount": 4,
+      "blackboard": {
+        "duration": 20,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "count": 0,
+        "def_decrease_tick": 0,
+        "max_def_decrease": 0,
+        "spell_resistance_decrease": 0,
+        "conduct_duration": 0,
+        "start_def_decrease": 0,
+        "corrupt_duration": 0
+      },
+      "role": {
+        "kind": "elementalAttachment",
+        "element": "cryo"
+      },
+      "actions": {
+        "afterEnhance": [
+          {
+            "kind": "emitElementalInflictionStarted"
+          }
+        ]
+      },
+      "durationSeconds": {
+        "blackboardKey": "duration"
+      }
+    },
+    {
+      "id": "buff_common_energy_shard_attached_natural",
+      "stackingType": "enhanceAndRefresh",
+      "maxStackCount": 4,
+      "blackboard": {
+        "duration": 20,
+        "atk_scale": 0,
+        "burning_atk_scale": 0,
+        "count": 0,
+        "shatter_dmg": 0,
+        "spell_resistance_decrease": 0,
+        "frozen_duration": 0,
+        "conduct_duration": 0
+      },
+      "role": {
+        "kind": "elementalAttachment",
+        "element": "nature"
+      },
+      "actions": {
+        "afterEnhance": [
+          {
+            "kind": "emitElementalInflictionStarted"
+          }
+        ]
+      },
+      "durationSeconds": {
+        "blackboardKey": "duration"
+      }
+    }
+  ]
+}

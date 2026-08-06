@@ -4,6 +4,7 @@ import { CombatBuffContainer } from './combatBuffs';
 import {
   COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
   compileCombatBuffCatalog,
+  parseCombatBuffCatalogDocument,
   type CombatBuffCatalogDocument,
 } from './combatBuffCatalog';
 
@@ -110,5 +111,21 @@ describe('compileCombatBuffCatalog', () => {
       emitElementalInflictionStarted: vi.fn(),
     });
     expect(() => catalog.getBurst('nature')).toThrow("missing elemental burst 'nature'");
+  });
+
+  it('rejects unknown fields at the stored JSON boundary', () => {
+    expect(() =>
+      parseCombatBuffCatalogDocument({
+        schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+        revision: 'test-1',
+        buffs: [
+          {
+            id: 'attachment.heat',
+            stackingType: 'enhanceAndRefresh',
+            unexpectedNativeField: true,
+          },
+        ],
+      }),
+    ).toThrow("unknown property 'unexpectedNativeField'");
   });
 });

@@ -80,6 +80,8 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `CombatBuffCatalogDocument` 建立了解包数据与可执行 Buff 定义之间的版本化语义边界。目录只包含 ID、叠层、时长、周期、Blackboard、语义角色和已恢复的生命周期动作，不允许原生表结构或函数回调进入；`compileCombatBuffCatalog` 负责将其编译为 `CombatBuffDefinition`，并为元素附着运行时建立附着、同类爆发和异类状态索引。重复 ID、重复语义角色、缺失运行时角色，以及动作与角色不匹配都会显式失败。目前只开放已有反编译证据的 `AfterEnhance -> ElementalInflictionStarted`，未知动作不作推测。
 
+四系元素附着目录已经由 `combat-spec` 从 1.4.4 BuffData 生成并接入。Endaxis 在加载 JSON 时执行严格结构校验，再将火热、电磁、寒冷和自然四种附着编译为运行时定义；集成测试覆盖四种语义索引、四层上限、20 秒持续时间和第二层附着事件。生成器或数据格式发生未约定变化时会在加载边界直接失败，不会静默丢字段。当前尚未导入同类爆发和异类复合状态目录。
+
 `calculateBreakingAttackValue` 已独立复刻处决基础计算：先将 `Atk * BreakingAttackDamageTakenScalar` 转为 float32，再按原生顺序乘每个 hit 的 `multiplier` 与技能 `atkScale`，每次 float 乘法均保留舍入。当前尚未接入技能执行器，因为现有 `dealDamage` 只保存了技能总倍率，没有保存原生每个 hit 独立的 `multiplier`；执行器继续显式拒绝该分支，直到处决动作树完整导入，避免把多段处决错误归并为单次伤害。
 
 ## 3. 输入所有权
@@ -99,7 +101,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 下一阶段按以下顺序推进：
 
-1. 让 `combat-spec` 从解包 BuffData 产出 `CombatBuffCatalogDocument`，补齐四系附着、同类爆发与异类状态目录；
+1. 继续从 BuffData 投影同类爆发与异类复合状态，严格补齐它们的生命周期动作和 Blackboard 语义；
 2. 将处决逐 hit 的 `multiplier` 导入技能 DSL 后接通 `BreakingAttack`，再实现生命汲取和特殊失衡计算分支；
 3. 用真实面板快照和游戏内战斗样本校验整条数值链；
 4. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
