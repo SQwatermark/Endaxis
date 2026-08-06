@@ -101,6 +101,7 @@ describe('Perlica standard damage slice', () => {
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
       applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
       clearInstantAttributeModifiers: () => undefined,
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),

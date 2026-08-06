@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  CombatAttributeModifier,
+  CombatAttributeSet,
+  attributeModifierValues,
+} from '../attributes/combatAttributes';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
@@ -52,6 +57,19 @@ function createDamageContext(
     ports: {
       captureAttributeSnapshots: snapshots,
       applyModifiers: (timing, side, context) => buffs.applyDamageModifiers(timing, side, context),
+      addInstantAttributeModifier: (side, request) => {
+        if (side !== 'attacker' || request.attribute !== 'attack') {
+          throw new Error('unexpected instant-attribute target');
+        }
+        attributes.addModifier(
+          new CombatAttributeModifier(
+            request.attribute,
+            request.values,
+            ATTRIBUTE_MODIFIER_SOURCES.instant,
+            request.timing,
+          ),
+        );
+      },
       clearInstantAttributeModifiers: () => attributes.clearInstantModifiers(),
     },
   });
@@ -139,6 +157,41 @@ describe('CombatBuffContainer', () => {
     expect(first.finishReason).toBe('lifetime');
     expect(infinite.isFinished).toBe(false);
     expect(container.getCountById('buff.attack')).toBe(0);
+  });
+
+  it('captures instant attribute modifiers for one stage and clears them afterward', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    container.add(
+      {
+        id: 'buff.instant-attack',
+        stackingType: 'unlimited',
+        damageModifiers: [
+          {
+            enabledSide: 'attacker',
+            processors: [
+              {
+                kind: 'instantAttribute',
+                targetSide: 'attacker',
+                attribute: 'attack',
+                values: attributeModifierValues('addition', 50),
+                attributeTiming: 'runtime',
+              },
+            ],
+          },
+        ],
+      },
+      'operator',
+    );
+
+    const context = createDamageContext(attributes, container);
+    context.applyModifiers('beforeCalculation');
+    expect(context.attackerAttributes.attack).toBe(150);
+    expect(attributes.get('attack')).toBe(100);
+
+    const nextHit = createDamageContext(attributes, container);
+    expect(nextHit.attackerAttributes.attack).toBe(100);
   });
 
   it('rolls back damage modifiers when attribute registration fails', () => {

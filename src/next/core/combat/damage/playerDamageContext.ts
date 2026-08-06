@@ -1,4 +1,8 @@
 import type { DamageType } from '../../game-data/operatorDefinition';
+import type {
+  AttributeModifierTiming,
+  AttributeModifierValues,
+} from '../attributes/combatAttributes';
 import { DamageScaleAccumulator } from './damageScale';
 import type { DamageScaleAttributeSnapshot } from './damageScaleAttributes';
 import type {
@@ -20,12 +24,22 @@ export interface PlayerDamageAttributeSnapshots {
   readonly defender: PlayerDamageDefenderSnapshot & DamageScaleAttributeSnapshot;
 }
 
+export interface InstantAttributeModifierRequest {
+  readonly attribute: string;
+  readonly values: AttributeModifierValues;
+  readonly timing: AttributeModifierTiming;
+}
+
 export interface PlayerDamageContextPorts {
   readonly captureAttributeSnapshots: () => PlayerDamageAttributeSnapshots;
   readonly applyModifiers: (
     timing: DamageProcessTiming,
     side: DamageModifierSide,
     context: PlayerDamageContext,
+  ) => void;
+  readonly addInstantAttributeModifier: (
+    side: DamageModifierSide,
+    request: InstantAttributeModifierRequest,
   ) => void;
   readonly clearInstantAttributeModifiers: (side: DamageModifierSide) => void;
 }
@@ -83,6 +97,13 @@ export class PlayerDamageContext {
 
   getEntityId(side: DamageModifierSide): string {
     return side === 'attacker' ? this.sourceId : this.targetId;
+  }
+
+  addInstantAttributeModifier(
+    side: DamageModifierSide,
+    request: InstantAttributeModifierRequest,
+  ): void {
+    this.#ports.addInstantAttributeModifier(side, request);
   }
 
   applyModifiers(timing: DamageProcessTiming): void {

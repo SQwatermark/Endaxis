@@ -5,6 +5,7 @@ import {
   PlayerDamageContext,
   type DamageModifierSide,
   type DamageProcessTiming,
+  type InstantAttributeModifierRequest,
   type PlayerDamageAttributeSnapshots,
 } from '../damage/playerDamageContext';
 import {
@@ -51,6 +52,10 @@ export interface PlayerDamageOperationDependencies {
     context: PlayerDamageContext,
   ) => void;
   readonly clearInstantAttributeModifiers: (side: DamageModifierSide) => void;
+  readonly addInstantAttributeModifier: (
+    side: DamageModifierSide,
+    request: InstantAttributeModifierRequest,
+  ) => void;
   readonly emitPreparationEvent: (
     event: PlayerDamagePreparationEvent,
     context: PlayerDamageContext,
@@ -88,6 +93,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
         applyModifiers: (timing, side, damageContext) =>
           this.dependencies.applyDamageModifiers(timing, side, damageContext),
+        addInstantAttributeModifier: this.dependencies.addInstantAttributeModifier,
         clearInstantAttributeModifiers: this.dependencies.clearInstantAttributeModifiers,
       },
     });

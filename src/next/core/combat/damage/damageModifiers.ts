@@ -1,5 +1,9 @@
 import type { DamageScaleSide, DamageScaleZone } from './damageScale';
 import type {
+  AttributeModifierTiming,
+  AttributeModifierValues,
+} from '../attributes/combatAttributes';
+import type {
   DamageModifierSide,
   DamageProcessTiming,
   DamageTargetHealthType,
@@ -23,6 +27,13 @@ export type DamageProcessorDefinition =
       readonly side: DamageScaleSide;
       readonly zone: DamageScaleZone;
       readonly addition: number;
+    }
+  | {
+      readonly kind: 'instantAttribute';
+      readonly targetSide: DamageModifierSide;
+      readonly attribute: string;
+      readonly values: AttributeModifierValues;
+      readonly attributeTiming: AttributeModifierTiming;
     };
 
 export interface DamageModifierDefinition {
@@ -73,6 +84,15 @@ function applyProcessor(
     case 'damageScale':
       if (timing === 'afterCalculation' && context.targetHealthType === 'normal') {
         context.damageScales.modify(processor.side, processor.zone, processor.addition);
+      }
+      return;
+    case 'instantAttribute':
+      if (timing === 'beforeCalculation' && context.targetHealthType === 'normal') {
+        context.addInstantAttributeModifier(processor.targetSide, {
+          attribute: processor.attribute,
+          values: processor.values,
+          timing: processor.attributeTiming,
+        });
       }
   }
 }

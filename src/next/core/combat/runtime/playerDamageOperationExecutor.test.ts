@@ -76,6 +76,7 @@ describe('PlayerDamageOperationExecutor', () => {
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
       applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
       clearInstantAttributeModifiers: () => undefined,
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1.5, taken: 2 }),
@@ -132,6 +133,7 @@ describe('PlayerDamageOperationExecutor', () => {
         }
         if (timing === 'afterCalculation' && side === 'defender') defense = 100;
       },
+      addInstantAttributeModifier: () => undefined,
       clearInstantAttributeModifiers: side => order.push(`clear:${side}`),
       emitPreparationEvent: event => order.push(event),
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
@@ -184,6 +186,7 @@ describe('PlayerDamageOperationExecutor', () => {
       captureAttributeSnapshots: vi.fn(),
       resolveRuntimeSnapshot: vi.fn(),
       applyDamageModifiers: vi.fn(),
+      addInstantAttributeModifier: vi.fn(),
       clearInstantAttributeModifiers: vi.fn(),
       emitPreparationEvent: vi.fn(),
       resolvePoiseMultipliers: vi.fn(),

@@ -56,6 +56,7 @@ describe('PlayerDamageContext', () => {
             damageContext.multiplyCalculationValue(2);
           }
         },
+        addInstantAttributeModifier: () => undefined,
         clearInstantAttributeModifiers: side => order.push(`clear:${side}`),
       },
     });
@@ -90,6 +91,7 @@ describe('PlayerDamageContext', () => {
         applyModifiers: () => {
           throw new Error('modifier failed');
         },
+        addInstantAttributeModifier: () => undefined,
         clearInstantAttributeModifiers: clear,
       },
     });

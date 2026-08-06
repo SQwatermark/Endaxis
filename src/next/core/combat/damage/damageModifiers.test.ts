@@ -43,6 +43,7 @@ function createContext(damageType: 'physical' | 'lifeDrain' = 'physical') {
     ports: {
       captureAttributeSnapshots: () => snapshots,
       applyModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
       clearInstantAttributeModifiers: () => undefined,
     },
   });
