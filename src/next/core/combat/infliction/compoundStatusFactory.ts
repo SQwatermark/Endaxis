@@ -3,21 +3,10 @@ import type {
   CompoundStatusFactoryEntry,
   CompoundStatusFactoryScalar,
 } from './compoundStatusFactoryCatalog';
-
-export type InflictionEnhanceFormula =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'linear'; readonly paramA: number }
-  | { readonly kind: 'saturating'; readonly paramA: number; readonly paramB: number };
-
-export interface CompoundStatusSkillSetting {
-  readonly values: readonly number[];
-  readonly enhanceFormulaKey: string;
-}
-
-export interface CompoundStatusSkillSettingSource {
-  getSetting(dataKey: string): CompoundStatusSkillSetting | undefined;
-  getEnhanceFormula(formulaKey: string): InflictionEnhanceFormula | undefined;
-}
+import type {
+  CompoundStatusSkillSettingSource,
+  InflictionEnhanceFormula,
+} from './skillSettingCatalog';
 
 export interface CompoundStatusFactoryResult {
   readonly buffId: string;

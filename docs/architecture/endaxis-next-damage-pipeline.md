@@ -84,7 +84,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 异类附着的 12 个 `try_*` 包装 Buff 已投影为独立的复合状态工厂目录。每条配方保存元素顺序、按消耗层数执行的 SkillSetting 查表、Blackboard 传递和紧接着创建的 Buff ID，不把工厂误写成最终状态。九条配方直接创建最终状态；新附着为自然元素的三条配方先创建额外 wrapper，再按自然异常层数继续分派。
 
-`executeCompoundStatusFactory` 已复刻工厂内部的 `ReadSkillSettingData -> CreateBuffAction` 求值：以一基列号、中点取偶和 float32 边界读取参数，按来源的物理与法术附着增强应用线性或饱和公式，再依据配置复制下一 Buff 的 Blackboard。设置项或列不存在时保留原 Blackboard 值，与原生 `continue` 行为一致。求值器只返回下一 Buff 创建请求；真实 SkillSetting 数据目录和自然 wrapper 尚未接入，因此运行时仍不能把异类反应宣称为完整闭环。
+`executeCompoundStatusFactory` 已复刻工厂内部的 `ReadSkillSettingData -> CreateBuffAction` 求值：以一基列号、中点取偶和 float32 边界读取参数，按来源的物理与法术附着增强应用线性或饱和公式，再依据配置复制下一 Buff 的 Blackboard。设置项或列不存在时保留原 Blackboard 值，与原生 `continue` 行为一致。`parseSkillSettingCatalog` 已提供生成目录的严格 schema、唯一性、四列数值和公式引用校验，并建立可复用查找索引。求值器只返回下一 Buff 创建请求；与 1.4.4 运行时配对的真实 SkillSetting 资源和自然 wrapper 尚未接入，因此运行时仍不能把异类反应宣称为完整闭环。
 
 `calculateBreakingAttackValue` 已独立复刻处决基础计算：先将 `Atk * BreakingAttackDamageTakenScalar` 转为 float32，再按原生顺序乘每个 hit 的 `multiplier` 与技能 `atkScale`，每次 float 乘法均保留舍入。当前尚未接入技能执行器，因为现有 `dealDamage` 只保存了技能总倍率，没有保存原生每个 hit 独立的 `multiplier`；执行器继续显式拒绝该分支，直到处决动作树完整导入，避免把多段处决错误归并为单次伤害。
 
