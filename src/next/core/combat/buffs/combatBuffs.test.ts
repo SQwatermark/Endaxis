@@ -362,4 +362,74 @@ describe('CombatBuffContainer', () => {
       ),
     ).toThrow("duration blackboard key 'duration' is missing or not numeric");
   });
+
+  it('triggers immediately and catches up every elapsed interval', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const triggerTimes: number[] = [];
+    container.add(
+      {
+        id: 'buff.periodic',
+        stackingType: 'unlimited',
+        triggerIntervalSeconds: 2,
+        waitFirstTriggerInterval: false,
+        maxTriggerCount: 3,
+        actions: { trigger: buff => triggerTimes.push(buff.passedTime) },
+      },
+      'operator',
+    );
+
+    expect(triggerTimes).toEqual([0]);
+    container.tick(5);
+    expect(triggerTimes).toEqual([0, 5, 5]);
+  });
+
+  it('waits for the first interval and treats negative trigger count as unlimited', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    let triggerCount = 0;
+    container.add(
+      {
+        id: 'buff.periodic-wait',
+        stackingType: 'unlimited',
+        triggerIntervalSeconds: 2,
+        waitFirstTriggerInterval: true,
+        maxTriggerCount: -1,
+        actions: { trigger: () => (triggerCount += 1) },
+      },
+      'operator',
+    );
+
+    expect(triggerCount).toBe(0);
+    container.tick(5);
+    expect(triggerCount).toBe(2);
+    container.tick(2);
+    expect(triggerCount).toBe(3);
+  });
+
+  it('pauses periodic time while disabled but keeps advancing lifetime', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    let triggerCount = 0;
+    const buff = container.add(
+      {
+        id: 'buff.periodic-disabled',
+        stackingType: 'unlimited',
+        durationSeconds: 10,
+        triggerIntervalSeconds: 2,
+        waitFirstTriggerInterval: true,
+        maxTriggerCount: 1,
+        actions: { trigger: () => (triggerCount += 1) },
+      },
+      'operator',
+    );
+
+    buff.disable();
+    container.tick(3);
+    expect(triggerCount).toBe(0);
+    expect(buff.remainingDuration).toBe(7);
+    buff.enable();
+    container.tick(2);
+    expect(triggerCount).toBe(1);
+  });
 });

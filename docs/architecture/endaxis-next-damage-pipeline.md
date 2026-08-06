@@ -66,6 +66,8 @@ DamageAction
 
 有限持续时间既可配置固定数值，也可引用 Buff Blackboard。首次施加在默认值与 AddOptions 合并后解析；`EnhanceAndRefresh` 重复施加时用本次输入单独解析新时长并刷新旧实例，但不覆盖旧实例持有的 Blackboard。引用缺失、类型错误、负值和非有限数都会显式失败。
 
+Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数。`waitFirstTriggerInterval=false` 时首次 Start 会立即触发，单次 Tick 跨过多个周期会按原生公式逐次补发；次数为零时禁用，负数则作为无限次数继续递减。禁用期间暂停周期计时，但 Buff 生命周期仍正常推进。
+
 `DamageModifier` 已实现侧别、所属实体和条件门控，处理器严格保持配置顺序。当前可执行处理器为计算前后伤害值乘算、计算后的七区增伤与计算前瞬时属性修正；它们都会拒绝生命汲取，且按目标生命类型过滤。瞬时属性处理器通过 DamagePack 端口向指定侧挂载标准 `Instant` 属性修正器，刷新快照后由同一阶段的 `finally` 清理，因此它只影响该阶段捕获的属性，不会泄漏到下一次命中。独立生命和伤害文本处理器尚未接线。
 
 `PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。

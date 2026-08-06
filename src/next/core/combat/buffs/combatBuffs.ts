@@ -48,6 +48,7 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
 }
 
 export type BuffDuration = number | { readonly blackboardKey: string };
+export type BuffTriggerCount = number | { readonly blackboardKey: string };
 
 export interface BuffLifecycleActions<Key extends string> {
   readonly start?: (buff: CombatBuff<Key>) => void;
@@ -57,6 +58,7 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly beforeEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
+  readonly trigger?: (buff: CombatBuff<Key>) => void;
 }
 
 export interface CombatBuffDefinition<Key extends string> {
@@ -66,6 +68,9 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly maxStackCount?: number;
   /** Missing duration is the recovered infinite-lifetime representation. */
   readonly durationSeconds?: BuffDuration;
+  readonly triggerIntervalSeconds?: BuffDuration;
+  readonly waitFirstTriggerInterval?: boolean;
+  readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
@@ -89,6 +94,9 @@ export class CombatBuff<Key extends string> {
   #finishReason: BuffFinishReason | null = null;
   #enhanceCount = 1;
   #stackingGroup: BuffStackingGroup<Key> | null = null;
+  #triggerInterval: number | null = null;
+  #triggerRemainingTime = 0;
+  #remainingTriggerCount = 0;
 
   constructor(
     readonly definition: CombatBuffDefinition<Key>,
@@ -100,6 +108,20 @@ export class CombatBuff<Key extends string> {
     this.blackboard = new ActionBlackboard(definition.blackboard);
     this.blackboard.assign(options?.blackboardValues);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
+    this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);
+    const triggerInterval = resolveOptionalBuffNumber(
+      definition.id,
+      'trigger interval',
+      definition.triggerIntervalSeconds,
+      this.blackboard,
+    );
+    if (triggerInterval !== null && !Number.isFinite(triggerInterval)) {
+      throw new RangeError('buff trigger interval must resolve to a finite number');
+    }
+    if (triggerInterval !== null && triggerInterval > BUFF_LIFETIME_EPSILON) {
+      this.#triggerInterval = triggerInterval;
+      this.#triggerRemainingTime = definition.waitFirstTriggerInterval ? triggerInterval : 0;
+    }
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
@@ -148,6 +170,7 @@ export class CombatBuff<Key extends string> {
     if (!this.#started) {
       this.#started = true;
       this.definition.actions?.start?.(this);
+      this.triggerInternal(0);
     }
 
     this.owner.registerDamageModifiers(this.damageModifiers);
@@ -194,6 +217,7 @@ export class CombatBuff<Key extends string> {
     if (!Number.isFinite(deltaTime)) throw new TypeError('buff delta time must be finite');
     const elapsed = Math.max(0, deltaTime);
     this.#passedTime += elapsed;
+    if (this.#enabled) this.triggerInternal(elapsed);
     if (this.#remainingDuration === null) return;
     this.#remainingDuration = Math.max(0, this.#remainingDuration - elapsed);
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
@@ -224,6 +248,21 @@ export class CombatBuff<Key extends string> {
 
   executeAfterEnhance(sourceId: string): void {
     this.definition.actions?.afterEnhance?.(this, sourceId);
+  }
+
+  private triggerInternal(deltaTime: number): void {
+    if (this.#remainingTriggerCount === 0 || this.#triggerInterval === null) return;
+    this.#triggerRemainingTime -= deltaTime;
+    if (this.#triggerRemainingTime > BUFF_LIFETIME_EPSILON) return;
+
+    const triggerCount =
+      Math.max(0, Math.trunc(-this.#triggerRemainingTime / this.#triggerInterval)) + 1;
+    this.#triggerRemainingTime += triggerCount * this.#triggerInterval;
+    for (let index = 0; index < triggerCount; index += 1) {
+      if (this.#remainingTriggerCount === 0 || !this.#enabled) break;
+      this.#remainingTriggerCount -= 1;
+      this.definition.actions?.trigger?.(this);
+    }
   }
 
   private removeAttributeModifiers(): void {
@@ -392,24 +431,62 @@ function resolveBuffDuration<Key extends string>(
   definition: CombatBuffDefinition<Key>,
   blackboard: ActionBlackboard,
 ): number | null {
-  const configured = definition.durationSeconds;
-  if (configured === undefined) return null;
+  const value = resolveOptionalBuffNumber(
+    definition.id,
+    'duration',
+    definition.durationSeconds,
+    blackboard,
+  );
+  if (value === null) return null;
+  validateNonNegativeBuffNumber(value, 'buff duration');
+  return value;
+}
+
+function resolveBuffTriggerCount<Key extends string>(
+  definition: CombatBuffDefinition<Key>,
+  blackboard: ActionBlackboard,
+): number {
+  const configured = definition.maxTriggerCount;
+  if (configured === undefined) return 0;
   if (typeof configured === 'number') {
-    validateBuffDuration(configured);
+    validateBuffTriggerCount(configured);
     return configured;
   }
   const value = blackboard.getNumber(configured.blackboardKey);
   if (value === undefined) {
     throw new Error(
-      `buff '${definition.id}' duration blackboard key '${configured.blackboardKey}' is missing or not numeric`,
+      `buff '${definition.id}' trigger count blackboard key '${configured.blackboardKey}' is missing or not numeric`,
     );
   }
-  validateBuffDuration(value);
+  validateBuffTriggerCount(value);
   return value;
 }
 
-function validateBuffDuration(value: number): void {
+function validateBuffTriggerCount(value: number): void {
+  if (!Number.isSafeInteger(value)) {
+    throw new RangeError('buff trigger count must resolve to a safe integer');
+  }
+}
+
+function resolveOptionalBuffNumber(
+  buffId: string,
+  field: string,
+  configured: BuffDuration | undefined,
+  blackboard: ActionBlackboard,
+): number | null {
+  if (configured === undefined) return null;
+  if (typeof configured === 'number') return configured;
+  const value = blackboard.getNumber(configured.blackboardKey);
+  if (value === undefined) {
+    throw new Error(
+      `buff '${buffId}' ${field} blackboard key '${configured.blackboardKey}' is missing or not numeric`,
+    );
+  }
+  return value;
+}
+
+function validateNonNegativeBuffNumber(value: number, field: string): void {
   if (!Number.isFinite(value) || value < 0) {
-    throw new RangeError('buff duration must resolve to a non-negative finite number');
+    throw new RangeError(`${field} must resolve to a non-negative finite number`);
   }
 }
