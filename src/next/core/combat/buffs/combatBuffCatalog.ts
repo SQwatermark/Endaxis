@@ -20,6 +20,11 @@ import type {
 } from '../infliction/elementalInflictionBuffAdapter';
 import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
 import { gameplayTagId } from '../tags/gameplayTags';
+import {
+  ATTRIBUTE_MODIFIER_SLOTS,
+  attributeModifierValues,
+  type AttributeModifierSlot,
+} from '../attributes/combatAttributes';
 
 export const COMBAT_BUFF_CATALOG_SCHEMA_VERSION = 1 as const;
 
@@ -41,6 +46,13 @@ export interface CombatBuffCatalogLifecycleActions {
   readonly afterEnhance?: readonly CombatBuffCatalogAction[];
 }
 
+/** 外部目录中一项可序列化的原生八槽属性修正。 */
+export interface CombatBuffCatalogAttributeModifier {
+  readonly attribute: string;
+  readonly slot: AttributeModifierSlot;
+  readonly value: number | { readonly blackboardKey: string };
+}
+
 /**
  * 游戏数据提取边界输出的稳定纯数据表示。
  * 原生表结构和可执行回调不得跨越此边界。
@@ -59,6 +71,7 @@ export interface CombatBuffCatalogEntry {
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
+  readonly attributeModifiers?: readonly CombatBuffCatalogAttributeModifier[];
   readonly role?: CombatBuffSemanticRole;
   readonly actions?: CombatBuffCatalogLifecycleActions;
 }
@@ -144,6 +157,14 @@ export class CompiledCombatBuffCatalog<
       waitFirstTriggerInterval: entry.waitFirstTriggerInterval,
       maxTriggerCount: entry.maxTriggerCount,
       blackboard: entry.blackboard,
+      attributeModifiers: entry.attributeModifiers?.map(modifier => ({
+        attribute: modifier.attribute as Key,
+        values:
+          typeof modifier.value === 'number'
+            ? attributeModifierValues(modifier.slot, modifier.value)
+            : { slot: modifier.slot, blackboardKey: modifier.value.blackboardKey },
+        timing: 'runtime',
+      })),
       actions: compileLifecycleActions(entry, ports),
     };
     this.#definitions.set(entry.id, definition);
@@ -213,6 +234,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     'waitFirstTriggerInterval',
     'maxTriggerCount',
     'blackboard',
+    'attributeModifiers',
     'role',
     'actions',
   ]);
@@ -229,8 +251,36 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     ...parseOptionalBoolean(entry, 'waitFirstTriggerInterval', path),
     ...parseOptionalTriggerCount(entry, path),
     ...parseOptionalBlackboard(entry, path),
+    ...parseOptionalAttributeModifiers(entry, path),
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
+  };
+}
+
+function parseOptionalAttributeModifiers(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { attributeModifiers?: readonly CombatBuffCatalogAttributeModifier[] } {
+  if (entry.attributeModifiers === undefined) return {};
+  if (!Array.isArray(entry.attributeModifiers)) {
+    throw new Error(`${path}.attributeModifiers: expected array`);
+  }
+  return {
+    attributeModifiers: entry.attributeModifiers.map((input, index) => {
+      const modifierPath = `${path}.attributeModifiers[${index}]`;
+      const modifier = requireObject(input, modifierPath);
+      requireOnlyKeys(modifier, modifierPath, ['attribute', 'slot', 'value']);
+      const rawValue = modifier.value;
+      const value =
+        typeof rawValue === 'number' && Number.isFinite(rawValue)
+          ? rawValue
+          : parseBlackboardReference(rawValue, `${modifierPath}.value`);
+      return {
+        attribute: requireNonEmptyString(modifier.attribute, `${modifierPath}.attribute`),
+        slot: requireEnum(modifier.slot, ATTRIBUTE_MODIFIER_SLOTS, `${modifierPath}.slot`),
+        value,
+      };
+    }),
   };
 }
 

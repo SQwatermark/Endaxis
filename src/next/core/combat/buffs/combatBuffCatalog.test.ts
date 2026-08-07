@@ -183,4 +183,38 @@ describe('compileCombatBuffCatalog', () => {
 
     expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(1);
   });
+
+  it('parses and registers fixed and blackboard-backed attribute modifiers', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-attributes',
+      buffs: [
+        {
+          id: 'buff.attack',
+          stackingType: 'unique',
+          blackboard: { rate: 0.25 },
+          attributeModifiers: [
+            { attribute: 'attack', slot: 'baseAddition', value: 20 },
+            {
+              attribute: 'attack',
+              slot: 'baseMultiplier',
+              value: { blackboardKey: 'rate' },
+            },
+          ],
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('buff.attack');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+
+    container.add(definition, 'operator');
+
+    expect(attributes.get('attack')).toBe(150);
+  });
 });
