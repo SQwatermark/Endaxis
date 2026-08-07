@@ -1,3 +1,7 @@
+/**
+ * combat-spec 生成物进入元素附着运行时的唯一数据边界。
+ * 导入时必须严格校验，不能用默认值掩盖生成器与核心契约的结构漂移。
+ */
 import { parseCombatBuffCatalogDocument } from '../../core/combat/buffs/combatBuffCatalog';
 import rawCatalog from './elemental-attachments.combat-1.4.4.json';
 

@@ -1,3 +1,7 @@
+/**
+ * 项目机制选择与战斗程序之间的编译边界。调用方需同时提供版本化目录和对应 Adapter，
+ * 编译失败表示规则证据或数据契约尚未闭环，不应静默跳过。
+ */
 import type {
   GameDataRepository,
   MechanicDefinitionRef,
@@ -16,6 +20,7 @@ import type {
   MechanicGameLevelEvent,
 } from './mechanicContribution';
 
+/** Adapter 编译一次用户机制选择时获得的完整只读输入。 */
 export interface MechanicAdapterInput {
   readonly definition: MechanicDefinitionRef;
   readonly selectionId: string;
@@ -29,6 +34,7 @@ export interface MechanicAdapter {
   compile(input: MechanicAdapterInput): readonly MechanicContribution[];
 }
 
+/** 一组机制选择编译后的来源版本和可执行贡献。 */
 export interface CompiledMechanics {
   readonly sources: readonly {
     readonly selectionId: string;
@@ -41,6 +47,7 @@ export interface CompiledMechanics {
 
 type MechanicRepository = Pick<GameDataRepository, 'getMechanic'>;
 
+/** 携带项目路径的机制编译错误，供 UI 精确定位非法选择。 */
 export class MechanicCompilationError extends Error {
   constructor(
     message: string,
@@ -134,6 +141,7 @@ function validateContribution(
   occupiedLevelEvents.add(key);
 }
 
+/** 按机制 family 装配唯一 Adapter；应用启动时注册，模拟期间保持稳定。 */
 export class MechanicAdapterRegistry {
   readonly #adapters = new Map<MechanicFamily, MechanicAdapter>();
 

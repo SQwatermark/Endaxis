@@ -1,8 +1,14 @@
+/**
+ * 战斗实体之外的关卡级同步事件边界。
+ * 只有执行身份与时机已确认的事件才能进入；跨机制注册顺序未知时应在编译阶段拒绝冲突。
+ */
+/** 一次关卡事件的稳定身份和只读负载。 */
 export interface GameLevelEventContext<Event, Payload = unknown> {
   readonly event: Event;
   readonly payload: Payload;
 }
 
+/** 关卡事件的同步处理函数；不得跨 Tick 延迟修改当前上下文。 */
 export type GameLevelEventHandler<Event, Payload = unknown> = (
   context: GameLevelEventContext<Event, Payload>,
 ) => void;

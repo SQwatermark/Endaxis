@@ -1,3 +1,7 @@
+/**
+ * 破防攻击专用输入转换与通用生命伤害公式之间的边界。
+ * 只在命中明确使用破防攻击计算路径时调用，并保持原生数值转换顺序。
+ */
 export interface BreakingAttackCalculationInput {
   readonly attack: number;
   readonly targetDamageTakenMultiplier: number;

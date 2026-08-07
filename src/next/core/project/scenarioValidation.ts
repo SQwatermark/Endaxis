@@ -1,3 +1,7 @@
+/**
+ * 顶层项目校验器使用的场景内部一致性规则。
+ * 这里只检查持久化结构和引用关系，不应调用游戏目录或执行战斗规则。
+ */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
 import { SKILL_TYPES } from '../game-data/operatorDefinition';
 import {

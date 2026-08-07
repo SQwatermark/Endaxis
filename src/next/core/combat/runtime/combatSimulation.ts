@@ -1,5 +1,10 @@
+/**
+ * 一次战斗实例的最小逐帧驱动器。
+ * 系统按注册顺序更新；装配层必须依据已确认的原生顺序注册，不能依赖对象遍历偶然排序。
+ */
 import { CombatClock } from './combatClock';
 
+/** 由 `CombatSimulation` 按帧驱动的运行时子系统。 */
 export interface FrameRuntime {
   advanceFrame(): void;
 }

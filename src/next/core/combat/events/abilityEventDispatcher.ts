@@ -1,12 +1,19 @@
+/**
+ * 技能与 Buff 等 Ability 监听者共享的同步事件边界。
+ * 注册动作必须使用已确认的整数优先级；同优先级仲裁未知时应拒绝配置，不能依赖插入顺序。
+ */
+/** 一次 Ability 事件的稳定身份和只读负载。 */
 export interface AbilityEventContext<Event, Payload = unknown> {
   readonly event: Event;
   readonly payload: Payload;
 }
 
+/** 技能或 Buff 等有身份对象通过此接口接收 Ability 事件。 */
 export interface AbilityEventListener<Event, Payload = unknown> {
   onAbilityEvent(context: AbilityEventContext<Event, Payload>): void;
 }
 
+/** 不持有监听者身份的轻量 Ability 事件处理函数。 */
 export type AbilityEventHandler<Event, Payload = unknown> = (
   context: AbilityEventContext<Event, Payload>,
 ) => void;

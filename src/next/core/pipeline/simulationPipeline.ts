@@ -1,8 +1,14 @@
+/**
+ * 应用装配层运行解析、编译、模拟和投影的统一编排边界。
+ * 每个阶段只能依赖前一阶段产物；缓存调用方必须提供能反映全部事实来源的 revision。
+ */
+/** 带事实版本的阶段产物；缓存正确性依赖 revision 覆盖全部输入。 */
 export interface VersionedArtifact<T> {
   readonly revision: string;
   readonly data: T;
 }
 
+/** 流水线阶段共享的取消信号，长任务应主动响应。 */
 export interface PipelineExecutionContext {
   readonly signal?: AbortSignal;
 }
@@ -17,6 +23,7 @@ export interface PipelineStage<Input, Output> {
   ): Promise<VersionedArtifact<Output>>;
 }
 
+/** 一次模拟所需的三个确定性核心阶段。 */
 export interface SimulationPipelineStages<
   ProjectInput,
   ResolvedScenario,
@@ -28,12 +35,14 @@ export interface SimulationPipelineStages<
   readonly runCombat: PipelineStage<CombatProgram, CombatRun>;
 }
 
+/** 一次流水线运行保留的各阶段版本化产物。 */
 export interface SimulationPipelineResult<ResolvedScenario, CombatProgram, CombatRun> {
   readonly resolvedScenario: VersionedArtifact<ResolvedScenario>;
   readonly combatProgram: VersionedArtifact<CombatProgram>;
   readonly combatRun: VersionedArtifact<CombatRun>;
 }
 
+/** 阶段结果缓存配置；容量只统计已完成结果。 */
 export interface PipelineCacheOptions {
   /** 模拟与投影阶段累计保留的已完成阶段结果数。 */
   readonly maxEntries: number;

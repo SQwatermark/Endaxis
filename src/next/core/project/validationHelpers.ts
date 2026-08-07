@@ -1,5 +1,10 @@
+/**
+ * 项目校验器共享的严格 JSON 检查原语。新增 schema 字段时应复用这些路径工具，
+ * 保证错误能定位到用户文档，而不是返回脱离上下文的类型异常。
+ */
 import type { JsonObject } from './schema';
 
+/** 带 JSON 路径的结构问题，供加载 UI 定位具体非法字段。 */
 export interface ValidationIssue {
   path: string;
   message: string;

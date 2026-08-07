@@ -1,3 +1,7 @@
+/**
+ * 不可信 JSON 进入新版项目模型的顶层校验边界。
+ * 加载、导入和迁移结果都必须先通过这里，业务代码不能直接断言外部对象是项目文档。
+ */
 import {
   EDITABLE_SKILL_CAST_FIELDS,
   PROJECT_FPS,
@@ -63,6 +67,7 @@ const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
+/** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
 export type ValidationResult =
   { ok: true; value: EndaxisProjectDocument } | { ok: false; issues: ValidationIssue[] };
 

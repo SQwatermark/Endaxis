@@ -1,3 +1,7 @@
+/**
+ * 新项目进入持久化模型的构造入口。调用方应提供环境相关的版本身份，
+ * 不要在 UI 中复制默认文档结构，否则 schema 演进时容易产生多份默认值。
+ */
 import {
   PROJECT_FPS,
   PROJECT_KIND,
@@ -6,6 +10,7 @@ import {
   type ScenarioDocument,
 } from './schema';
 
+/** 创建项目时必须由应用环境提供、不能从 UI 默认值猜测的信息。 */
 export interface CreateProjectOptions {
   projectId?: string;
   scenarioName?: string;

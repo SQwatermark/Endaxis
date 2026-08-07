@@ -1,3 +1,7 @@
+/**
+ * 一次模拟中每个实体的 Buff 状态所有者。
+ * 调用方通过稳定定义添加 Buff，并按战斗时钟推进；不得把实例写回目录或项目存档。
+ */
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
   CombatAttributeModifier,
@@ -29,6 +33,7 @@ export const BUFF_STACKING_TYPES = [
   'enhanceAndOverwriteDuration',
   'highPriorityWithMaxStack',
 ] as const;
+/** 同身份 Buff 再次添加时采用的原生叠加策略。 */
 export type BuffStackingType = (typeof BUFF_STACKING_TYPES)[number];
 
 export const BUFF_FINISH_REASONS = [
@@ -39,17 +44,22 @@ export const BUFF_FINISH_REASONS = [
   'absorbed',
   'other',
 ] as const;
+/** Buff 结束时记录并传给生命周期行为的原因。 */
 export type BuffFinishReason = (typeof BUFF_FINISH_REASONS)[number];
 
+/** Buff 激活期间向实体属性系统注册的一项修正。 */
 export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly attribute: Key;
   readonly values: AttributeModifierValues;
   readonly timing: AttributeModifierTiming;
 }
 
+/** 固定秒数或由实例黑板提供的 Buff 持续时间。 */
 export type BuffDuration = number | { readonly blackboardKey: string };
+/** 固定值或由实例黑板提供的 Buff 可触发次数。 */
 export type BuffTriggerCount = number | { readonly blackboardKey: string };
 
+/** Buff 在启用、结束和移除边界执行的有序生命周期行为。 */
 export interface BuffLifecycleActions<Key extends string> {
   readonly start?: (buff: CombatBuff<Key>) => void;
   readonly enable?: (buff: CombatBuff<Key>) => void;
@@ -61,6 +71,7 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly trigger?: (buff: CombatBuff<Key>) => void;
 }
 
+/** 可复用、不可变的 Buff 目录定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   readonly stackingType: BuffStackingType;
@@ -77,10 +88,12 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly actions?: BuffLifecycleActions<Key>;
 }
 
+/** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
 export interface CombatBuffAddOptions {
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
 }
 
+/** 一个实体上某项 Buff 的独立运行时实例。 */
 export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly attributeModifiers: readonly CombatAttributeModifier<Key>[];

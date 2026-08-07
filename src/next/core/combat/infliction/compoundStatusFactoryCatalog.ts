@@ -1,10 +1,16 @@
+/**
+ * 外部生成的复合状态配方进入核心的严格 schema 边界。
+ * 解析完成的目录才可交给工厂；未知字段和不完整映射不能被忽略。
+ */
 import { INFLICTION_ELEMENTS, type InflictionElement } from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 
 export const COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION = 1;
 
+/** 复合状态目录能够直接保存或从黑板读取的标量。 */
 export type CompoundStatusFactoryScalar = number | { readonly blackboardKey: string };
 
+/** 从 SkillSetting 目录读取一个已确认数值的引用。 */
 export interface CompoundStatusSkillSettingLookup {
   readonly dataKey: string;
   readonly column: CompoundStatusFactoryScalar;
@@ -12,11 +18,13 @@ export interface CompoundStatusSkillSettingLookup {
   readonly storeKey: string;
 }
 
+/** 创建复合状态时写入动作黑板的一项赋值。 */
 export interface CompoundStatusBlackboardAssignment {
   readonly targetKey: string;
   readonly inputKey: string;
 }
 
+/** 一种复合反应及其方向对应的 Buff 构造配方。 */
 export interface CompoundStatusFactoryEntry {
   readonly id: string;
   readonly consumedElement: InflictionElement;
@@ -30,6 +38,7 @@ export interface CompoundStatusFactoryEntry {
   };
 }
 
+/** 生成的复合状态工厂目录顶层版本化文档。 */
 export interface CompoundStatusFactoryCatalogDocument {
   readonly schemaVersion: typeof COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION;
   readonly revision: string;

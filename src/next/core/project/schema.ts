@@ -1,3 +1,7 @@
+/**
+ * 新版持久化模型的唯一事实来源。这里定义的是用户拥有的稳定输入，
+ * 调用方不得把面板、编译产物、运行时状态、诊断或翻译文本写入这些结构。
+ */
 import type {
   CombatStepKind,
   CombatStepParameters,
@@ -9,12 +13,16 @@ export const PROJECT_KIND = 'EndaxisProject' as const;
 export const PROJECT_SCHEMA_VERSION = 2 as const;
 export const PROJECT_FPS = 30 as const;
 
+/** 项目 JSON 允许直接保存的原始值。 */
 export type JsonPrimitive = boolean | number | string | null;
+/** 项目 JSON 中递归允许的全部值。 */
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+/** 使用字符串键组织的项目 JSON 对象。 */
 export interface JsonObject {
   [key: string]: JsonValue;
 }
 
+/** 一个干员养成方案中由用户决定的稳定输入。 */
 export interface OperatorBuildDocument {
   id: string;
   operatorSlug: string;
@@ -27,6 +35,7 @@ export interface OperatorBuildDocument {
   baseStatOverrides?: Record<string, number>;
 }
 
+/** 一把武器的等级、突破、潜能与词条等级配置。 */
 export interface WeaponBuildDocument {
   id: string;
   weaponSlug: string;
@@ -36,18 +45,21 @@ export interface WeaponBuildDocument {
   skillLevels: [number, number, number];
 }
 
+/** 一件装备的目录身份与精锻等级配置。 */
 export interface GearBuildDocument {
   id: string;
   gearSlug: string;
   artificingLevels: number[];
 }
 
+/** 场景引用的全部干员、武器与装备方案。 */
 export interface ScenarioBuildsDocument {
   operators: Record<string, OperatorBuildDocument>;
   weapons: Record<string, WeaponBuildDocument>;
   gears: Record<string, GearBuildDocument>;
 }
 
+/** 可从版本化游戏目录恢复身份和默认行为的技能来源。 */
 export type CatalogActionSource =
   | {
       kind: 'operatorSkill';
@@ -59,6 +71,7 @@ export type CatalogActionSource =
       skillKey: string;
     };
 
+/** 完全由用户定义、无法从游戏目录恢复的时间轴行为。 */
 export interface CustomActionDefinition {
   kind: 'custom';
   /** 用户定义的身份标识，刻意保持开放而不限制为枚举。 */
@@ -68,6 +81,7 @@ export interface CustomActionDefinition {
   iconKey?: string;
 }
 
+/** 时间轴技能释放所引用的目录或自定义行为来源。 */
 export type SkillCastSource = CatalogActionSource | CustomActionDefinition;
 
 export const EDITABLE_SKILL_CAST_FIELDS = [
@@ -85,6 +99,7 @@ export const EDITABLE_SKILL_CAST_FIELDS = [
   'scheduledSequences',
   'customBars',
 ] as const;
+/** 技能释放中允许由用户接管默认值的字段。 */
 export type EditableSkillCastField = (typeof EDITABLE_SKILL_CAST_FIELDS)[number];
 
 type CombatStepDocumentForKind<K extends CombatStepKind> = {
@@ -122,6 +137,7 @@ export interface ScheduledSequenceDocument {
   edited: ('startFrame' | 'endFrame' | 'sequence')[];
 }
 
+/** 用户添加在技能块上的辅助展示条。 */
 export interface EditableBarDocument {
   id: string;
   text: string;
@@ -130,6 +146,7 @@ export interface EditableBarDocument {
   color?: string;
 }
 
+/** 技能强化状态的持续时间或语义状态来源。 */
 export type EnhancementDocument =
   { kind: 'duration'; frames: number } | { kind: 'status'; statusId: string };
 
@@ -172,6 +189,7 @@ export interface SkillCastDocument {
   edited: EditableSkillCastField[];
 }
 
+/** 一条干员轨道的养成引用、初始资源和技能释放。 */
 export interface TrackDocument {
   operatorBuildId: string | null;
   weaponBuildId: string | null;
@@ -188,8 +206,11 @@ export interface TrackDocument {
   skillCasts: SkillCastDocument[];
 }
 
+/** 四人队伍中一个允许为空的轨道槽位。 */
 export type TrackSlotDocument = TrackDocument | null;
+/** 四条时间轴轨道使用的稳定零基序号。 */
 export type TrackIndex = 0 | 1 | 2 | 3;
+/** 固定包含四个槽位的队伍轨道列表。 */
 export type TrackListDocument = [
   TrackSlotDocument,
   TrackSlotDocument,
@@ -197,6 +218,7 @@ export type TrackListDocument = [
   TrackSlotDocument,
 ];
 
+/** 用户连线可以指向的技能块或具体伤害命中端点。 */
 export type ConnectionEndpoint =
   | { kind: 'skillCast'; skillCastId: string; port?: string }
   | {
@@ -206,6 +228,7 @@ export type ConnectionEndpoint =
       port?: string;
     };
 
+/** 用户在两个时间轴端点之间建立的一条逻辑连接。 */
 export interface ConnectionDocument {
   id: string;
   consumption: boolean;
@@ -213,6 +236,7 @@ export interface ConnectionDocument {
   to: ConnectionEndpoint;
 }
 
+/** 编辑器完整暴露、并允许用户覆盖的敌人数值。 */
 export interface EnemyEditableValues {
   hp: number;
   defense: number;
@@ -229,6 +253,7 @@ export const ENEMY_EDITABLE_FIELDS = [
   'resistances',
 ] as const satisfies readonly (keyof EnemyEditableValues)[];
 
+/** 场景中的目录敌人或自定义敌人配置。 */
 export interface EnemyDocument {
   source: { kind: 'catalog'; enemyId: string; level: number } | { kind: 'custom'; level: number };
   editable: EnemyEditableValues;
@@ -249,6 +274,7 @@ export interface ControlSwitchDocument {
   trackIndex: TrackIndex;
 }
 
+/** 一次模拟的时间范围、资源规则、失衡规则与控制事件。 */
 export interface BattleDocument {
   prepFrames: number;
   durationFrames: number;
@@ -290,8 +316,10 @@ export const GLOBAL_OPERATOR_STAT_MODIFIERS = [
   'ultimateEnergyGainEfficiency',
   'skillCooldownReduction',
 ] as const;
+/** 可以作用于全部干员或指定技能类型的全局属性修正。 */
 export type GlobalOperatorStatModifier = (typeof GLOBAL_OPERATOR_STAT_MODIFIERS)[number];
 
+/** 用户配置的一条全局干员属性修正。 */
 export interface GlobalOperatorStatModifierDocument {
   id: string;
   kind: 'operatorStat';
@@ -301,10 +329,12 @@ export interface GlobalOperatorStatModifierDocument {
   skillType?: SkillType;
 }
 
+/** 场景级全局修正配置。 */
 export interface GlobalConfigDocument {
   modifiers: GlobalOperatorStatModifierDocument[];
 }
 
+/** 场景机制参数允许持久化的标量类型。 */
 export type MechanicParameterValue = boolean | number | string;
 
 /** 用户选择的一项目录机制及其显式参数。 */
@@ -315,15 +345,18 @@ export interface MechanicSelectionDocument {
   parameters: Record<string, MechanicParameterValue>;
 }
 
+/** 当前场景启用或禁用的全部机制选择。 */
 export interface ScenarioMechanicsDocument {
   selections: MechanicSelectionDocument[];
 }
 
+/** 只影响场景编辑体验、不参与战斗计算的布局设置。 */
 export interface ScenarioEditorDocument {
   trackHeightWeights: [number, number, number, number];
   prepExpanded: boolean;
 }
 
+/** 一个可独立编辑、模拟或从其他场景边界继承的完整场景。 */
 export interface ScenarioDocument {
   id: string;
   name: string;
@@ -338,6 +371,7 @@ export interface ScenarioDocument {
   editor: ScenarioEditorDocument;
 }
 
+/** 新版项目文件的顶层、带版本持久化结构。 */
 export interface EndaxisProjectDocument {
   kind: typeof PROJECT_KIND;
   schemaVersion: typeof PROJECT_SCHEMA_VERSION;

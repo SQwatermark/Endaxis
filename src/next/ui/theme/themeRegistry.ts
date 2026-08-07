@@ -1,3 +1,7 @@
+/**
+ * 主题系统与具体 UI 根节点之间的边界。调用方只能注册完整主题并应用到自己的根节点，
+ * 战斗领域颜色和用户项目数据不得进入这里。
+ */
 export const THEME_TOKENS = [
   'canvas',
   'surface',
@@ -17,15 +21,19 @@ export const THEME_TOKENS = [
   'shadow',
 ] as const;
 
+/** 组件可依赖的稳定语义主题令牌。 */
 export type ThemeToken = (typeof THEME_TOKENS)[number];
+/** 供浏览器和原生控件选择明暗表现的主题类别。 */
 export type ThemeColorScheme = 'dark' | 'light';
 
+/** 一个完整主题；必须覆盖全部令牌，不能依赖回退颜色。 */
 export interface ThemeDefinition {
   readonly id: string;
   readonly colorScheme: ThemeColorScheme;
   readonly tokens: Readonly<Record<ThemeToken, string>>;
 }
 
+/** 主题变量写入目标，通常是新版应用的根元素。 */
 export interface ThemeTarget {
   readonly style: {
     setProperty(name: string, value: string): void;

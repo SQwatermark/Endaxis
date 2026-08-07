@@ -1,3 +1,7 @@
+/**
+ * 干员目录和核心定义之间的声明式辅助层。这里只消除机械重复，
+ * 调用方仍须显式表达伤害类型、倍率、标签和时序，不能在辅助函数中隐藏角色特例。
+ */
 import type {
   ActionSequenceDefinition,
   CombatCondition,

@@ -1,3 +1,7 @@
+/**
+ * 项目机制选择与版本化机制目录之间的引用校验层。
+ * 必须在调用 Adapter 前执行，使未知参数和类型漂移无法进入机制编译结果。
+ */
 import type { GameDataRepository, MechanicParameterDefinition } from './gameDataRepository';
 import type { MechanicParameterValue, ScenarioMechanicsDocument } from '../project/schema';
 import type { ValidationIssue } from '../project/validation';

@@ -1,3 +1,7 @@
+/**
+ * 已编译场景机制与一次战斗实例之间的装配边界。
+ * 只能安装编译器产物；Adapter 不会获得序列执行器或运行时可变对象。
+ */
 import type {
   AbilityEventContext,
   AbilityEventDispatcher,
@@ -10,11 +14,13 @@ import type { ResolvedActionSequence } from '../compiler/combatProgram';
 import type { CompiledMechanics } from './mechanicCompiler';
 import type { MechanicAbilityEvent, MechanicGameLevelEvent } from './mechanicContribution';
 
+/** 执行机制序列时保留的项目选择和目录机制身份。 */
 export interface MechanicExecutionSource {
   readonly selectionId: string;
   readonly mechanicId: string;
 }
 
+/** 机制序列收到的 Ability 或关卡事件上下文。 */
 export type MechanicEventContext<AbilityPayload, LevelPayload> =
   | {
       readonly domain: 'ability';
@@ -34,6 +40,7 @@ export interface MechanicSequenceExecutor<AbilityPayload = unknown, LevelPayload
   ): void;
 }
 
+/** 安装机制贡献所需的事件总线和核心序列执行端口。 */
 export interface MechanicRuntimeDependencies<AbilityPayload = unknown, LevelPayload = unknown> {
   readonly abilityEvents: AbilityEventDispatcher<MechanicAbilityEvent, AbilityPayload>;
   readonly gameLevelEvents: GameLevelEventDispatcher<MechanicGameLevelEvent['kind'], LevelPayload>;

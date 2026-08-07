@@ -1,7 +1,12 @@
+/**
+ * 单个战斗实体生命和失衡状态的唯一所有者。
+ * 这里只维护数值与计时，不发布 UI 状态；事件和事实记录由上层运行时适配器负责。
+ */
 import { PeriodicTimer } from './periodicTimer';
 
 const POISE_EPSILON = 0.00001;
 
+/** 创建一个实体生命与失衡账本所需的完整初始状态。 */
 export interface CombatVitalsSnapshot {
   readonly health: number;
   readonly maxPoise: number;
@@ -12,6 +17,7 @@ export interface CombatVitalsSnapshot {
   readonly poiseImmune: boolean;
 }
 
+/** 一次生命伤害写入的请求值、实际值和前后状态。 */
 export interface HealthDamageResult {
   readonly requestedDamage: number;
   readonly actualDamage: number;
@@ -19,6 +25,7 @@ export interface HealthDamageResult {
   readonly currentHealth: number;
 }
 
+/** 失衡计时器跨越边界时可能发布的状态转换。 */
 export type PoiseTimerTransition = 'poiseRecovered' | 'poiseBrokenTagEnded';
 
 /** 不掺杂技能、事件分发或展示职责的生命与失衡状态。 */

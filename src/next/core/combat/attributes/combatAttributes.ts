@@ -1,3 +1,7 @@
+/**
+ * 面板解析和战斗运行时共享的属性修正聚合核心。
+ * 调用方必须按已确认的原生槽位注册修正，并显式管理启停，不能预先合并而丢失来源身份。
+ */
 export const ATTRIBUTE_MODIFIER_SOURCES = {
   none: 0,
   buff: 1,
@@ -12,10 +16,12 @@ export const ATTRIBUTE_MODIFIER_SOURCES = {
   nonConverted: -65,
   deck: 158,
 } as const;
+/** 属性修正的稳定来源身份，用于追踪和移除对应修正。 */
 export type AttributeModifierSource =
   (typeof ATTRIBUTE_MODIFIER_SOURCES)[keyof typeof ATTRIBUTE_MODIFIER_SOURCES];
 
 export const ATTRIBUTE_MODIFIER_TIMINGS = ['deck', 'runtime'] as const;
+/** 属性修正写入原生八槽公式的处理时机。 */
 export type AttributeModifierTiming = (typeof ATTRIBUTE_MODIFIER_TIMINGS)[number];
 
 export const ATTRIBUTE_MODIFIER_SLOTS = [
@@ -28,8 +34,10 @@ export const ATTRIBUTE_MODIFIER_SLOTS = [
   'baseFinalAddition',
   'baseFinalMultiplier',
 ] as const;
+/** 原生属性聚合公式中的固定槽位。 */
 export type AttributeModifierSlot = (typeof ATTRIBUTE_MODIFIER_SLOTS)[number];
 
+/** 一个修正在各槽位提供的稀疏数值集合。 */
 export interface AttributeModifierValues {
   readonly addition: number;
   readonly multiplier: number;
@@ -41,6 +49,7 @@ export interface AttributeModifierValues {
   readonly baseFinalMultiplier: number;
 }
 
+/** 一组战斗属性的基础值和按槽位计算方式。 */
 export interface CombatAttributeDefinition {
   readonly minimum: number;
   readonly maximum: number;
@@ -60,6 +69,7 @@ const IDENTITY_VALUES: AttributeModifierValues = {
   baseFinalMultiplier: 1,
 };
 
+/** 可独立启停并保留来源身份的一项运行时属性修正。 */
 export class CombatAttributeModifier<Key extends string> {
   constructor(
     readonly attribute: Key,

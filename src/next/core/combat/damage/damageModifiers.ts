@@ -1,3 +1,7 @@
+/**
+ * Buff 定义与伤害包各处理阶段之间的声明式协议。
+ * 修正必须明确所属阶段、作用方和条件，不能直接回调或任意修改完整伤害上下文。
+ */
 import type { DamageScaleSide, DamageScaleZone } from './damageScale';
 import type {
   AttributeModifierTiming,
@@ -10,11 +14,13 @@ import type {
   PlayerDamageContext,
 } from './playerDamageContext';
 
+/** 判断一个伤害处理器是否适用于当前伤害包的声明式条件。 */
 export type DamageModifierCondition = (
   context: PlayerDamageContext,
   oppositeEntityId: string,
 ) => boolean;
 
+/** 在指定阶段向倍率区间或即时属性写入修正的处理器定义。 */
 export type DamageProcessorDefinition =
   | {
       readonly kind: 'multiplyValue';
@@ -36,6 +42,7 @@ export type DamageProcessorDefinition =
       readonly attributeTiming: AttributeModifierTiming;
     };
 
+/** 一个 Buff 在伤害生命周期中注册的全部处理器。 */
 export interface DamageModifierDefinition {
   readonly enabledSide: DamageModifierSide;
   readonly processors: readonly DamageProcessorDefinition[];

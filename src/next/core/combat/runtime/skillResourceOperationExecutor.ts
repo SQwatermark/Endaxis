@@ -1,3 +1,7 @@
+/**
+ * 技能操作执行链中的资源职责节点。
+ * 只消费已闭环的资源步骤，其他步骤必须显式委托；未知步骤不能被吞掉或视作成功。
+ */
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
@@ -6,6 +10,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 
+/** 资源执行节点所需的来源身份、账本、回执和后继执行器。 */
 export interface SkillResourceOperationDependencies {
   readonly sourceOperatorId: string;
   readonly skillId: string;

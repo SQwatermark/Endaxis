@@ -1,12 +1,18 @@
+/**
+ * 编译后时间轴行为与固定帧战斗时钟之间的调度层。
+ * 输入必须预先按起始帧编译完成；同帧原生排序未知时仅使用有记录的确定性回退。
+ */
 import type { ActionSequence } from '../actions/actionSequence';
 import type { CombatExecutionContext } from '../actions/combatStep';
 
+/** 固定帧调度器消费的不可变行为区间。 */
 export interface TimelineAction {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly sequence: ActionSequence;
 }
 
+/** 调度行为开始和结束时调用的同步生命周期端口。 */
 export interface TimelineActionLifecycleSink {
   started?(action: TimelineAction, sourceIndex: number, currentFrame: number): void;
   ended?(action: TimelineAction, sourceIndex: number, currentFrame: number): void;

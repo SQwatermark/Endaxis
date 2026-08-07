@@ -1,3 +1,7 @@
+/**
+ * 复合状态目录配方与通用 Buff 行为之间的转换层。
+ * 调用方必须提供经过严格校验的目录项和所需黑板值，缺失参数应明确失败。
+ */
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
   CompoundStatusFactoryEntry,
@@ -8,6 +12,7 @@ import type {
   InflictionEnhanceFormula,
 } from './skillSettingCatalog';
 
+/** 复合状态工厂生成的 Buff 身份及其初始黑板赋值。 */
 export interface CompoundStatusFactoryResult {
   readonly buffId: string;
   readonly blackboardValues: Readonly<Record<string, ActionBlackboardValue>>;

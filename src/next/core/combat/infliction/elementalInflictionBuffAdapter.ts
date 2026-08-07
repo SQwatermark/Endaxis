@@ -1,3 +1,7 @@
+/**
+ * 元素附着纯决策结果与目标 Buff 容器之间的执行适配层。
+ * 调用前必须使用同一时刻的附着快照完成解析，避免决策与写入之间状态漂移。
+ */
 import type {
   CombatBuff,
   CombatBuffAddOptions,
@@ -11,6 +15,7 @@ import type {
 } from './elementalInfliction';
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
+/** 附着适配器读取 Buff 定义和复合状态工厂的目录端口。 */
 export interface ElementalInflictionBuffCatalog<Key extends string> {
   getAttachmentElement(definition: CombatBuffDefinition<Key>): InflictionElement | null;
   getAttachment(element: InflictionElement): CombatBuffDefinition<Key>;
@@ -28,6 +33,7 @@ const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> = {
   nature: 3,
 };
 
+/** 附着实际写入后发布给关卡事件系统的稳定负载。 */
 export interface ElementalInflictionStartedPayload {
   readonly element: InflictionElement;
   readonly layers: number;

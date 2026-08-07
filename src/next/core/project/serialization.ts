@@ -1,15 +1,22 @@
+/**
+ * 项目文档与文本/对象输入之间的稳定 I/O 边界。
+ * 解析前先识别版本并校验，序列化只接受合法项目，不能在这里补算派生数据。
+ */
 import type { EndaxisProjectDocument, JsonObject } from './schema';
 import { PROJECT_SCHEMA_VERSION } from './schema';
 import type { LegacyProjectImporter } from './migration';
 import { validateProjectDocument, type ValidationIssue } from './validation';
 
+/** 只做结构识别的输入类别，不代表文档已经通过完整校验。 */
 export type ProjectInputKind = 'current' | 'legacy' | 'unsupported';
 
+/** 项目输入的轻量检查结果，供加载流程选择校验或迁移路径。 */
 export interface ProjectInspection {
   kind: ProjectInputKind;
   schemaVersion?: number;
 }
 
+/** 项目解析的完整可辨识结果；调用方必须处理每一种失败类型。 */
 export type ParseProjectResult =
   | { ok: true; value: EndaxisProjectDocument }
   | { ok: false; kind: 'invalid-json'; message: string }
@@ -18,6 +25,7 @@ export type ParseProjectResult =
   | { ok: false; kind: 'unsupported-version'; schemaVersion: number }
   | { ok: false; kind: 'invalid-document'; issues: ValidationIssue[] };
 
+/** 解析项目时可选注入的旧格式迁移器。 */
 export interface ParseProjectOptions {
   legacyImporter?: LegacyProjectImporter;
 }

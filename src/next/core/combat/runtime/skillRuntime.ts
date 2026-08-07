@@ -1,3 +1,7 @@
+/**
+ * 编译后技能程序在一次战斗中的有状态执行实例。
+ * 每个技能实例独立持有调度游标和黑板；调用方不能跨实例复用或直接修改其内部状态。
+ */
 import { ActionSequence } from '../actions/actionSequence';
 import { CombatStep, type CombatExecutionContext } from '../actions/combatStep';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
@@ -10,8 +14,10 @@ import type {
 import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 
+/** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
 
+/** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationExecutor {
   execute(step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>): boolean;
   evaluate(
@@ -68,6 +74,7 @@ class RuntimeConditionalStep extends CombatStep {
   }
 }
 
+/** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
 export class SkillRuntime {
   readonly #program: CompiledSkillProgram;
   readonly #dependencies: SkillRuntimeDependencies;

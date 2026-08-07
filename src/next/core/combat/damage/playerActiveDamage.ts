@@ -1,3 +1,7 @@
+/**
+ * 标准玩家主动生命伤害的无状态纯公式。
+ * 调用方必须传入已完全解析的数据；为便于与运行时轨迹比对，不得改写乘法顺序或精度边界。
+ */
 import type { DamageType } from '../../game-data/operatorDefinition';
 
 const DEFAULT_DEFENSE_EFFICIENCY = 0.01;
@@ -22,6 +26,7 @@ export interface PlayerActiveDamageInput {
   readonly appliesPhysicalInflictionDamageMultiplier: boolean;
 }
 
+/** 纯生命伤害公式的最终数值及关键中间倍率。 */
 export interface PlayerActiveDamageResult {
   readonly value: number;
   readonly isCritical: boolean;

@@ -1,3 +1,7 @@
+/**
+ * 新版战斗核心的回归基准入口。只在行为测试通过后用它比较性能，
+ * 不得为了基准数字改变已确认的执行顺序或精度边界。
+ */
 import { bench, describe } from 'vitest';
 import { ActionSequence } from '../core/combat/actions/actionSequence';
 import { CombatStep, type CombatExecutionContext } from '../core/combat/actions/combatStep';

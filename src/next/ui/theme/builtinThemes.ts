@@ -1,3 +1,7 @@
+/**
+ * 提供遵守全部语义令牌契约的默认主题。它们只是 UI 默认配置，
+ * 不能被核心逻辑用来判断语言、伤害类型或任何战斗状态。
+ */
 import type { ThemeDefinition } from './themeRegistry';
 
 export const BUILTIN_THEMES = [

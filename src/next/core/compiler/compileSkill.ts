@@ -1,3 +1,7 @@
+/**
+ * 单个技能从等级化目录定义进入运行时程序的编译边界。
+ * 调用前必须给出有效等级；调用后所有数值均已解析，运行时不得再访问养成配置。
+ */
 import type {
   ActionSequenceDefinition,
   CombatStepDefinition,
@@ -13,6 +17,7 @@ import type {
   ResolvedStatusModifier,
 } from './combatProgram';
 
+/** 编译一个技能所需的目录定义、等级和稳定来源身份。 */
 export interface CompileSkillInput {
   readonly operatorId: string;
   readonly skillGroupKey: string;

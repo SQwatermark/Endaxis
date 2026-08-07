@@ -1,10 +1,16 @@
+/**
+ * `CombatVitals` 与事件/回执系统之间的运行时适配层。
+ * 调用方每帧只更新一次，避免重复发布失衡恢复等边界事件。
+ */
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatVitals, PoiseTimerTransition } from './combatVitals';
 import type { FrameRuntime } from './combatSimulation';
 
+/** `CombatVitalsRuntime` 当前对实体所有者发布的事件。 */
 export type CombatVitalsEvent = 'poiseRecovered';
 
+/** 将一个生命账本接入时钟、回执和实体事件所需的端口。 */
 export interface CombatVitalsRuntimeDependencies {
   readonly ownerId: string;
   readonly clock: CombatClock;

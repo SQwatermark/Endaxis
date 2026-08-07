@@ -1,3 +1,7 @@
+/**
+ * 已计算生命伤害与目标生命状态之间的写入边界。
+ * 只能在承伤事件完成后的正确阶段调用，避免提前改变后续监听器看到的生命值。
+ */
 import type { DamageType } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from '../runtime/combatClock';
@@ -10,8 +14,10 @@ export const HEALTH_DAMAGE_EVENTS = [
   'takeDamage',
   'outputDamage',
 ] as const;
+/** 生命伤害写入前后向来源方和目标方发布的事件。 */
 export type HealthDamageEvent = (typeof HEALTH_DAMAGE_EVENTS)[number];
 
+/** 生命伤害事件共享的伤害包、请求值和实际值。 */
 export interface HealthDamageEventPayload {
   readonly sourceId: string;
   readonly targetId: string;
@@ -19,6 +25,7 @@ export interface HealthDamageEventPayload {
   readonly result: PlayerActiveDamageResult;
 }
 
+/** 在正确事件边界写入一次生命伤害所需的状态和端口。 */
 export interface ExecuteHealthDamageInput {
   readonly sourceId: string;
   readonly targetId: string;

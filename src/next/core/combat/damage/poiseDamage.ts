@@ -1,3 +1,7 @@
+/**
+ * 同一次命中的失衡计算、事件修正和状态写入边界。
+ * 调用方应在生命伤害之后按证据调用，并提供同一伤害包对应的来源和目标修正器。
+ */
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from '../runtime/combatClock';
 import type { CombatVitals } from '../runtime/combatVitals';
@@ -8,8 +12,10 @@ export const POISE_DAMAGE_EVENTS = [
   'takePoiseDamage',
   'poiseZero',
 ] as const;
+/** 失衡伤害计算中向来源方和目标方发布的事件。 */
 export type PoiseDamageEvent = (typeof POISE_DAMAGE_EVENTS)[number];
 
+/** 事件监听者可以共同修改的失衡倍率和免疫规则。 */
 export interface PoiseDamageModifier {
   readonly sourceId: string;
   readonly targetId: string;
@@ -19,12 +25,14 @@ export interface PoiseDamageModifier {
   cancelled: boolean;
 }
 
+/** 纯失衡公式所需的基础值、倍率和目标状态。 */
 export interface CalculatePoiseDamageInput {
   readonly calculationValue: number;
   readonly outputMultiplier: number;
   readonly takenMultiplier: number;
 }
 
+/** 计算并写入一次失衡伤害所需的完整运行时端口。 */
 export interface ExecutePoiseDamageInput extends CalculatePoiseDamageInput {
   readonly sourceId: string;
   readonly targetId: string;
@@ -36,6 +44,7 @@ export interface ExecutePoiseDamageInput extends CalculatePoiseDamageInput {
   readonly emitTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
 }
 
+/** 一次失衡执行得到的最终变化量和目标状态。 */
 export interface PoiseDamageExecutionResult {
   readonly calculatedDamage: number;
   readonly requestedDelta: number;

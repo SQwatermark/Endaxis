@@ -1,3 +1,7 @@
+/**
+ * `dealDamage` 步骤进入完整玩家主动伤害生命周期的装配点。
+ * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
+ */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
@@ -30,14 +34,17 @@ export const PLAYER_DAMAGE_PREPARATION_EVENTS = [
   'beforeDamageAction',
   'beforeCalculateDamage',
 ] as const;
+/** 完整伤害公式前用于冻结属性和完成即时修正的准备事件。 */
 export type PlayerDamagePreparationEvent = (typeof PLAYER_DAMAGE_PREPARATION_EVENTS)[number];
 
+/** 同一次命中的来源方与目标方失衡倍率。 */
 export interface PoiseDamageMultipliers {
   readonly output: number;
   readonly taken: number;
   readonly ignorePoiseImmune?: boolean;
 }
 
+/** 玩家伤害执行节点需要由战斗装配层提供的全部状态与事件端口。 */
 export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
   readonly targetId: string;

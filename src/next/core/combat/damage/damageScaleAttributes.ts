@@ -1,3 +1,7 @@
+/**
+ * 属性快照与七区间伤害倍率之间的原生映射层。
+ * 只接受同一伤害包已经冻结的快照；调用过程中修改属性会破坏阶段语义。
+ */
 import type { DamageTag, DamageType } from '../../game-data/operatorDefinition';
 import { DamageScaleAccumulator } from './damageScale';
 
@@ -15,6 +19,7 @@ export const DAMAGE_SCALE_CLASSIFICATIONS = [
   'cryoAbnormal',
   'natureAbnormal',
 ] as const;
+/** 一次伤害用于选择属性倍率的语义分类。 */
 export type DamageScaleClassification = (typeof DAMAGE_SCALE_CLASSIFICATIONS)[number];
 
 export const DAMAGE_SCALE_ATTRIBUTE_KEYS = [
@@ -50,9 +55,12 @@ export const DAMAGE_SCALE_ATTRIBUTE_KEYS = [
   'natureVulnerabilityIncrease',
   'etherVulnerabilityIncrease',
 ] as const;
+/** 能够被映射进七区间累加器的属性键。 */
 export type DamageScaleAttributeKey = (typeof DAMAGE_SCALE_ATTRIBUTE_KEYS)[number];
+/** 单次命中冻结的完整伤害相关属性快照。 */
 export type DamageScaleAttributeSnapshot = Readonly<Record<DamageScaleAttributeKey, number>>;
 
+/** 将双方属性和命中分类注入倍率累加器的完整输入。 */
 export interface InjectDamageScaleAttributesInput {
   readonly damageType: DamageType;
   readonly classifications: readonly DamageScaleClassification[];

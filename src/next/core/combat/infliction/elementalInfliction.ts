@@ -1,10 +1,16 @@
+/**
+ * 元素附着状态机的纯决策层。调用方提供目标当前附着快照，
+ * 再把返回操作交给 Buff 适配器执行；这里本身不修改目标状态。
+ */
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
+/** 目标当前活动附着的元素、层数和对应 Buff 身份。 */
 export interface ExistingElementalAttachment {
   readonly element: InflictionElement;
   readonly layers: number;
 }
 
+/** 附着状态机返回、等待 Buff 适配器执行的语义操作。 */
 export type ElementalInflictionOperation =
   | { readonly kind: 'addAttachment'; readonly element: InflictionElement }
   | { readonly kind: 'triggerBurst'; readonly element: InflictionElement }

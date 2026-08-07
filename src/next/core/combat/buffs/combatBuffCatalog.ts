@@ -1,3 +1,7 @@
+/**
+ * 外部 Buff 数据进入通用 Buff 运行时前的语义化目录边界。
+ * 数据源必须先转换为这里支持的原语；未知原生行为不能以回调或静默缺省方式穿透。
+ */
 import { INFLICTION_ELEMENTS, type InflictionElement } from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
@@ -17,6 +21,7 @@ import { createElementalAttachmentLifecycleActions } from '../infliction/element
 
 export const COMBAT_BUFF_CATALOG_SCHEMA_VERSION = 1 as const;
 
+/** 核心能够理解并交给专用适配器处理的 Buff 语义角色。 */
 export type CombatBuffSemanticRole =
   | { readonly kind: 'elementalAttachment'; readonly element: InflictionElement }
   | { readonly kind: 'elementalBurst'; readonly element: InflictionElement }
@@ -26,8 +31,10 @@ export type CombatBuffSemanticRole =
       readonly incomingElement: InflictionElement;
     };
 
+/** 外部 Buff 目录当前允许表达的生命周期动作。 */
 export type CombatBuffCatalogAction = { readonly kind: 'emitElementalInflictionStarted' };
 
+/** 目录 Buff 在各生命周期边界执行的动作集合。 */
 export interface CombatBuffCatalogLifecycleActions {
   readonly afterEnhance?: readonly CombatBuffCatalogAction[];
 }
@@ -36,6 +43,7 @@ export interface CombatBuffCatalogLifecycleActions {
  * 游戏数据提取边界输出的稳定纯数据表示。
  * 原生表结构和可执行回调不得跨越此边界。
  */
+/** 外部目录中的一项稳定 Buff 定义。 */
 export interface CombatBuffCatalogEntry {
   readonly id: string;
   readonly stackingType: BuffStackingType;
@@ -50,12 +58,14 @@ export interface CombatBuffCatalogEntry {
   readonly actions?: CombatBuffCatalogLifecycleActions;
 }
 
+/** 带 schema 版本的外部 Buff 目录文档。 */
 export interface CombatBuffCatalogDocument {
   readonly schemaVersion: typeof COMBAT_BUFF_CATALOG_SCHEMA_VERSION;
   readonly revision: string;
   readonly buffs: readonly CombatBuffCatalogEntry[];
 }
 
+/** 把目录语义角色和动作编译为核心定义时使用的受控端口。 */
 export interface CombatBuffCatalogCompilerPorts<Key extends string> {
   readonly emitElementalInflictionStarted: (
     payload: ElementalInflictionStartedPayload,

@@ -1,3 +1,7 @@
+/**
+ * 复现同一行为序列内同步顺序的通用执行器。
+ * 调用方应按真实先后提供步骤；此层不会替调用方重排伤害、附着或 Buff。
+ */
 import { CombatStep, STEP_RESULT_MODE, type CombatExecutionContext } from './combatStep';
 
 export const COMBAT_STEP_STATE = {
@@ -7,6 +11,7 @@ export const COMBAT_STEP_STATE = {
   ended: 'ended',
 } as const;
 
+/** 序列内部用于区分尚未开始、持续执行和已经结束的步骤状态。 */
 export type CombatStepState = (typeof COMBAT_STEP_STATE)[keyof typeof COMBAT_STEP_STATE];
 
 interface StepEntry {

@@ -1,20 +1,28 @@
+/**
+ * 原生 SkillSetting 中已确认子集进入复合状态计算的严格边界。
+ * 这里只暴露工厂实际消费的字段，调用方不能据此假定完整原生资源已经被支持。
+ */
 export const SKILL_SETTING_CATALOG_SCHEMA_VERSION = 1;
 
+/** 复合状态强度计算当前支持的原生公式。 */
 export type InflictionEnhanceFormula =
   | { readonly kind: 'none' }
   | { readonly kind: 'linear'; readonly paramA: number }
   | { readonly kind: 'saturating'; readonly paramA: number; readonly paramB: number };
 
+/** 一个复合状态方向的原生技能设置数值。 */
 export interface CompoundStatusSkillSetting {
   readonly values: readonly number[];
   readonly enhanceFormulaKey: string;
 }
 
+/** 两种元素方向对应的技能设置身份。 */
 export interface CompoundStatusSkillSettingSource {
   getSetting(dataKey: string): CompoundStatusSkillSetting | undefined;
   getEnhanceFormula(formulaKey: string): InflictionEnhanceFormula | undefined;
 }
 
+/** 从原生资源生成的 SkillSetting 子集目录文档。 */
 export interface SkillSettingCatalogDocument {
   readonly schemaVersion: typeof SKILL_SETTING_CATALOG_SCHEMA_VERSION;
   readonly revision: string;

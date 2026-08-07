@@ -1,3 +1,7 @@
+/**
+ * 元素附着步骤与目标 Buff 容器、关卡事件之间的装配点。
+ * 必须在操作序列给定的位置同步执行，不能由投影层根据伤害结果事后补算。
+ */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import {
   resolveElementalInfliction,
@@ -17,8 +21,10 @@ export const ELEMENTAL_INFLICTION_EVENTS = [
   'afterOutputInfliction',
   'afterTakeInfliction',
 ] as const;
+/** 元素附着执行阶段向来源方和目标方发布的事件。 */
 export type ElementalInflictionEvent = (typeof ELEMENTAL_INFLICTION_EVENTS)[number];
 
+/** 同一次元素附着事件中保持不变的来源、目标和技能信息。 */
 export interface ElementalInflictionEventPayload {
   readonly sourceId: string;
   readonly targetId: string;
@@ -27,6 +33,7 @@ export interface ElementalInflictionEventPayload {
   readonly isExtra: boolean;
 }
 
+/** 元素附着执行节点所需的状态读写、事件、回执和后继执行端口。 */
 export interface ElementalInflictionOperationDependencies {
   readonly sourceOperatorId: string;
   readonly targetId: string;

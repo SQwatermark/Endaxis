@@ -1,8 +1,13 @@
+/**
+ * 一次战斗中技力与队伍终结技能量的唯一状态账本。
+ * 技能费用和回复都应通过这里结算，投影层不得另算一份资源曲线作为合法性依据。
+ */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 
 const RESOURCE_EPSILON = 0.0001;
 const ULTIMATE_ENERGY_EPSILON = 0.00001;
 
+/** 单个队员终结技能量及其回复限制的可重建快照。 */
 export interface OperatorResourceSnapshot {
   readonly operatorId: string;
   readonly ultimateEnergy: number;
@@ -12,11 +17,13 @@ export interface OperatorResourceSnapshot {
   readonly canGainUntaggedUltimateEnergy: boolean;
 }
 
+/** 普通战技消耗技力时队内终结技能量的换算参数。 */
 export interface NormalSkillUltimateEnergySettings {
   readonly selfGainPerSp: number;
   readonly otherGainPerSp: number;
 }
 
+/** 创建一次战斗资源账本所需的完整初始状态。 */
 export interface CombatResourceSnapshot {
   readonly sp: number;
   readonly returnedSp: number;
@@ -25,11 +32,13 @@ export interface CombatResourceSnapshot {
   readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
 }
 
+/** 技能费用尝试的结果；失败时不得继续执行技能。 */
 export interface SkillPaymentResult {
   readonly paid: boolean;
   readonly nonReturnedSpCost: number;
 }
 
+/** 一次终结技能量变化的请求值、实际值和前后状态。 */
 export interface UltimateEnergyChange {
   readonly operatorId: string;
   readonly baseValue: number;

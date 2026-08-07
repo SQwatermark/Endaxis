@@ -1,3 +1,7 @@
+/**
+ * 活动、关卡和自定义规则进入通用战斗核心的受控协议。
+ * 只允许可校验的纯数据序列，禁止 Adapter 注入回调或任意对象补丁。
+ */
 import type { ResolvedActionSequence } from '../compiler/combatProgram';
 
 /** 当前向机制适配器开放的、已确认的原生 `AbilityEvent` 身份。 */
@@ -9,6 +13,7 @@ export const MECHANIC_ABILITY_EVENTS = [
   'beforeDamageCalculation',
   'skillCostApplied',
 ] as const;
+/** 场景机制当前允许监听的 Ability 事件集合。 */
 export type MechanicAbilityEvent = (typeof MECHANIC_ABILITY_EVENTS)[number];
 
 /** 已还原身份和同步分发边界的关卡事件。 */
@@ -31,6 +36,7 @@ export type MechanicContribution =
       readonly sequence: ResolvedActionSequence;
     };
 
+/** 带完整来源位置的编译结果，用于安装、诊断和版本追踪。 */
 export interface CompiledMechanicContribution {
   readonly selectionId: string;
   readonly mechanicId: string;

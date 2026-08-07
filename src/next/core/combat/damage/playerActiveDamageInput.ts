@@ -1,14 +1,21 @@
+/**
+ * 有状态伤害上下文进入纯伤害公式前的解析边界。
+ * 调用方需先完成事件与 Buff 修正；返回值应视为该命中公式阶段的冻结输入。
+ */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { DamageType } from '../../game-data/operatorDefinition';
 import type { PlayerActiveDamageInput } from './playerActiveDamage';
 
+/** 会读取目标元素抗性的伤害类型。 */
 export type ResistibleDamageType = Exclude<DamageType, 'true' | 'lifeDrain'>;
 
+/** 目标在一次命中开始时冻结的各类伤害抗性。 */
 export interface DamageResistanceSnapshot {
   readonly percent: number;
   readonly damageTakenMultiplier: number;
 }
 
+/** 来源方对标准主动伤害公式有影响的属性快照。 */
 export interface PlayerDamageAttackerSnapshot {
   readonly attack: number;
   readonly criticalRate: number;
@@ -18,12 +25,14 @@ export interface PlayerDamageAttackerSnapshot {
   readonly physicalInflictionDamageMultiplier: number;
 }
 
+/** 目标方对标准主动伤害公式有影响的属性与状态快照。 */
 export interface PlayerDamageDefenderSnapshot {
   readonly defense: number;
   readonly shelterDamageMultiplier: number;
   readonly resistances: Readonly<Record<ResistibleDamageType, DamageResistanceSnapshot>>;
 }
 
+/** 不属于静态属性、但参与一次伤害公式的运行时数值。 */
 export interface PlayerDamageRuntimeSnapshot {
   readonly criticalSample: number;
   readonly runtimeExtensionMultiplier: number;
@@ -33,6 +42,7 @@ export interface PlayerDamageRuntimeSnapshot {
   readonly appliesPhysicalInflictionDamageMultiplier: boolean;
 }
 
+/** 从伤害步骤、双方快照和运行时状态解析公式输入的完整参数。 */
 export interface ResolvePlayerActiveDamageInput {
   readonly step: Extract<ResolvedCombatStep, { kind: 'dealDamage' }>;
   readonly finalAttackValue: number;

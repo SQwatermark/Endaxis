@@ -1,3 +1,7 @@
+/**
+ * 单次玩家伤害包跨原生处理阶段传递的唯一上下文。
+ * 每次命中都应新建实例；处理器只能在自己的阶段修改允许的字段。
+ */
 import type { DamageType } from '../../game-data/operatorDefinition';
 import type {
   AttributeModifierTiming,
@@ -11,25 +15,31 @@ import type {
 } from './playerActiveDamageInput';
 
 export const DAMAGE_PROCESS_TIMINGS = ['beforeCalculation', 'afterCalculation'] as const;
+/** 伤害修正器可以挂载的原生处理阶段。 */
 export type DamageProcessTiming = (typeof DAMAGE_PROCESS_TIMINGS)[number];
 
 export const DAMAGE_MODIFIER_SIDES = ['attacker', 'defender'] as const;
+/** 指明修正来自伤害来源方还是目标方。 */
 export type DamageModifierSide = (typeof DAMAGE_MODIFIER_SIDES)[number];
 
 export const DAMAGE_TARGET_HEALTH_TYPES = ['none', 'normal', 'independent'] as const;
+/** 目标的生命形态分类，供特定伤害规则筛选。 */
 export type DamageTargetHealthType = (typeof DAMAGE_TARGET_HEALTH_TYPES)[number];
 
+/** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {
   readonly attacker: PlayerDamageAttackerSnapshot & DamageScaleAttributeSnapshot;
   readonly defender: PlayerDamageDefenderSnapshot & DamageScaleAttributeSnapshot;
 }
 
+/** 伤害处理阶段临时加入、结束后必须清理的属性修正请求。 */
 export interface InstantAttributeModifierRequest {
   readonly attribute: string;
   readonly values: AttributeModifierValues;
   readonly timing: AttributeModifierTiming;
 }
 
+/** 伤害上下文访问属性修正注册表所需的受控端口。 */
 export interface PlayerDamageContextPorts {
   readonly captureAttributeSnapshots: () => PlayerDamageAttributeSnapshots;
   readonly applyModifiers: (
