@@ -124,7 +124,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly cycleTruncated: boolean;
 }
 
-/** BuffData 自身的计时与叠加事实；事件动作仍由 GeneratedBuffBehaviorSource 单独保存。 */
+/** BuffData 自身的计时与叠加事实。 */
 export interface GeneratedBuffLifecycleSource {
   readonly lifeType: 'Limited' | 'Infinity';
   readonly duration: GeneratedScalarSource;
@@ -170,32 +170,6 @@ export interface GeneratedBuffDefinitionSource {
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly combatActions: readonly string[];
-}
-
-/** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
-export interface GeneratedBuffBehaviorSource {
-  readonly applicationFrame: number | null;
-  /** 非 null 表示该 Buff 由父 Buff 的事件槽位施加，具体帧只能在运行时确定。 */
-  readonly applicationEvent: string | null;
-  readonly buffId: string;
-  readonly sourceFile: string;
-  /** false 表示当前 BuffData 导出缺少该引用，审计层不得把它视为已解析。 */
-  readonly sourceAvailable: boolean;
-  /** null 表示数据源缺失，不能据此构造运行时 Buff。 */
-  readonly lifecycle: GeneratedBuffLifecycleSource | null;
-  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
-  /** 会影响战斗动作集合的原生条件分支；unsupported 条件不得直接编译。 */
-  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
-  /** 按时间顺序写回 Buff 黑板、供后续动作读取的原生简单计算。 */
-  readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
-  readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
-  readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
-  readonly buffFinishes: readonly GeneratedBuffFinishSource[];
-  readonly eventActions: readonly GeneratedBuffEventActionSource[];
-  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
-  readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
-  readonly combatActions: readonly string[];
-  readonly cycleTruncated: boolean;
 }
 
 /** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */
@@ -441,7 +415,6 @@ export interface GeneratedSkillSource {
   readonly referencedBuffIds: readonly string[];
   /** 直接 Buff 依赖及其传递创建依赖组成的去重定义目录。 */
   readonly buffDefinitions: readonly GeneratedBuffDefinitionSource[];
-  readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
   /** SkillData 声明的黑板默认值；同名 SkillPatch 值在编译时覆盖它。 */

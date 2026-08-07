@@ -40,7 +40,6 @@ from generate_next_operators import (
     parse_resource_gains,
     resolve_projectile_hits,
     resolve_ability_entity_hits,
-    resolve_buff_behaviors,
     resolve_buff_definitions,
     parse_skill_patch,
     compile_buff_blackboard_read,
@@ -1131,7 +1130,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         skill = SimpleNamespace(
             key="attack",
             timelineBlockFrames=20,
-            buffBehaviors=(SimpleNamespace(buffId="input_lock"),),
             auxiliaryActions=(
                 SimpleNamespace(
                     actionType="CreateBuffAction",
@@ -1220,7 +1218,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         skill = SimpleNamespace(
             key="attack",
             timelineBlockFrames=20,
-            buffBehaviors=(),
             auxiliaryActions=(),
             resourceGains=(),
             inflictions=(),
@@ -1264,7 +1261,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         skill = SimpleNamespace(
             key="attack",
             timelineBlockFrames=20,
-            buffBehaviors=(),
             auxiliaryActions=(),
             resourceGains=(
                 SimpleNamespace(
@@ -1413,53 +1409,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must consume conditional actions"):
             compile_skill_entries(operator, [skill])
 
-    def test_missing_buff_source_is_explicit_in_the_audit_layer(self) -> None:
-        root = {
-            "actionGroupData": {
-                "timelineActions": [
-                    {
-                        "_startFrame": 6,
-                        "_endFrame": 6,
-                        "_sequenceActionData": {
-                            "$type": "Example.CreateBuffAction+Data, Example",
-                            "serverActionIndex": 0,
-                            "isEnable": True,
-                            "buffs": [
-                                {
-                                    "buffId": "missing_buff",
-                                    "assignItems": [],
-                                }
-                            ],
-                        },
-                    }
-                ]
-            }
-        }
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory)
-            behaviors = resolve_buff_behaviors(root, "skill.json", path, path, {})
-
-        self.assertEqual(len(behaviors), 1)
-        self.assertEqual(behaviors[0].buffId, "missing_buff")
-        self.assertFalse(behaviors[0].sourceAvailable)
-
     def test_buff_event_slots_keep_their_trigger_and_created_buff_references(self) -> None:
-        root = {
-            "actionGroupData": {
-                "timelineActions": [
-                    {
-                        "_startFrame": 6,
-                        "_endFrame": 6,
-                        "_sequenceActionData": {
-                            "$type": "Example.CreateBuffAction+Data, Example",
-                            "serverActionIndex": 0,
-                            "isEnable": True,
-                            "buffs": [{"buffId": "parent_buff", "assignItems": []}],
-                        },
-                    }
-                ]
-            }
-        }
         buff = {
             "lifeType": "Limited",
             "duration": {
@@ -1505,6 +1455,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isDynamic": False,
                 },
             ],
+            "applyTags": [],
             "timelineActions": [],
             "buffEventAction": [
                 {
@@ -1527,10 +1478,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
             (path / "parent_buff.json").write_text(json.dumps(buff), encoding="utf-8")
-            behaviors = resolve_buff_behaviors(root, "skill.json", path, path, {})
+            definitions = resolve_buff_definitions(("parent_buff",), path)
 
-        event = behaviors[0].eventActions[0]
-        lifecycle = behaviors[0].lifecycle
+        parent = next(
+            definition for definition in definitions if definition.buffId == "parent_buff"
+        )
+        event = parent.eventActions[0]
+        lifecycle = parent.lifecycle
         self.assertIsNotNone(lifecycle)
         assert lifecycle is not None
         self.assertEqual(lifecycle.lifeType, "Limited")

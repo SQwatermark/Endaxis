@@ -245,27 +245,6 @@ class BuffDefinitionSource:
 
 
 @dataclass(frozen=True)
-class BuffBehaviorSource:
-    applicationFrame: int | None
-    applicationEvent: str | None
-    buffId: str
-    sourceFile: str
-    sourceAvailable: bool
-    lifecycle: BuffLifecycleSource | None
-    directDamageHits: tuple[TimedDamageSource, ...]
-    conditionalActions: tuple["ConditionalActionSource", ...]
-    blackboardCalculations: tuple["BlackboardCalculationSource", ...]
-    blackboardMutations: tuple["BlackboardMutationSource", ...]
-    buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
-    buffFinishes: tuple["BuffFinishSource", ...]
-    eventActions: tuple["BuffEventActionSource", ...]
-    resourceGains: tuple[TimedResourceGainSource, ...]
-    nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
-    combatActions: tuple[str, ...]
-    cycleTruncated: bool
-
-
-@dataclass(frozen=True)
 class BuffEventActionSource:
     event: str
     combatActions: tuple[str, ...]
@@ -533,7 +512,6 @@ class SkillSource:
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     referencedBuffIds: tuple[str, ...]
     buffDefinitions: tuple[BuffDefinitionSource, ...]
-    buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
     declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...]
     blackboardKeys: tuple[str, ...]
@@ -2439,119 +2417,6 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
-def resolve_buff_behaviors(
-    root: dict[str, Any],
-    source_name: str,
-    skill_source_dir: Path,
-    buff_source_dir: Path,
-    inherited_blackboard: dict[str, tuple[float, ...]],
-    base_frame: int = 0,
-    stack: tuple[str, ...] = (),
-) -> tuple[BuffBehaviorSource, ...]:
-    """递归读取 CreateBuffAction 引用的 BuffData，但不推断其触发事件时机。"""
-    def resolve_one(
-        buff_id: str,
-        assignments: dict[str, ScalarSource],
-        application_frame: int | None,
-        application_event: str | None,
-        current_stack: tuple[str, ...],
-    ) -> BuffBehaviorSource:
-        buff_name = f"{buff_id}.json"
-        buff_path = buff_source_dir / buff_name
-        if not buff_path.is_file():
-            return BuffBehaviorSource(
-                applicationFrame=application_frame,
-                applicationEvent=application_event,
-                buffId=buff_id,
-                sourceFile=buff_name,
-                sourceAvailable=False,
-                lifecycle=None,
-                directDamageHits=(),
-                conditionalActions=(),
-                blackboardCalculations=(),
-                blackboardMutations=(),
-                buffBlackboardReads=(),
-                buffFinishes=(),
-                eventActions=(),
-                resourceGains=(),
-                nestedBuffBehaviors=(),
-                combatActions=(),
-                cycleTruncated=False,
-            )
-        buff = require_dict(json.loads(buff_path.read_text(encoding="utf-8")), buff_name)
-        timeline_actions = require_list(buff.get("timelineActions"), f"{buff_name}.timelineActions")
-        adapted_root = {"actionGroupData": {"timelineActions": timeline_actions}}
-        child_blackboard = dict(inherited_blackboard)
-        for key, scalar in assignments.items():
-            child_blackboard[key] = scalar.levelValues or (scalar.value,)
-        for entry in parse_declared_blackboard(buff, buff_name):
-            child_blackboard.setdefault(entry.key, (entry.value,))
-        lifecycle = parse_buff_lifecycle(buff, buff_name, child_blackboard)
-        cycle_truncated = buff_id in current_stack
-        nested = (
-            ()
-            if cycle_truncated
-            else resolve_buff_behaviors(
-                adapted_root,
-                buff_name,
-                skill_source_dir,
-                buff_source_dir,
-                child_blackboard,
-                application_frame or 0,
-                (*current_stack, buff_id),
-            )
-        )
-        combat_actions = tuple(
-            sorted(
-                {
-                    action_name(item["$type"])
-                    for item in walk_actions(adapted_root.get("actionGroupData"))
-                    if action_name(item["$type"]) in COMBAT_ACTION_NAMES
-                }
-            )
-        )
-        event_actions = parse_buff_event_actions(buff, buff_name, child_blackboard)
-        blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
-            adapted_root, buff_name, child_blackboard
-        )
-        return BuffBehaviorSource(
-            applicationFrame=application_frame,
-            applicationEvent=application_event,
-            buffId=buff_id,
-            sourceFile=buff_name,
-            sourceAvailable=True,
-            lifecycle=lifecycle,
-            directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
-            conditionalActions=parse_conditional_actions(adapted_root, buff_name, child_blackboard),
-            blackboardCalculations=parse_blackboard_calculations(
-                adapted_root, buff_name, child_blackboard
-            ),
-            blackboardMutations=blackboard_mutations,
-            buffBlackboardReads=buff_blackboard_reads,
-            buffFinishes=buff_finishes,
-            eventActions=event_actions,
-            resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
-            nestedBuffBehaviors=nested,
-            combatActions=combat_actions,
-            cycleTruncated=cycle_truncated,
-        )
-
-    result: list[BuffBehaviorSource] = []
-    for action in parse_auxiliary_actions(root, source_name, skill_source_dir, inherited_blackboard):
-        if action.actionType != "CreateBuffAction":
-            continue
-        result.append(
-            resolve_one(
-                action.sourceId,
-                action.blackboardAssignments,
-                base_frame + action.startFrame,
-                None,
-                stack,
-            )
-        )
-    return tuple(result)
-
-
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -2712,14 +2577,6 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         buffDefinitions=resolve_buff_definitions(
             referenced_buff_ids,
             source_dir.parent / "BuffData",
-        ),
-        buffBehaviors=resolve_buff_behaviors(
-            root,
-            source_name,
-            source_dir,
-            source_dir.parent / "BuffData",
-            patch.blackboard,
-            stack=(skill_id,),
         ),
         patch=patch,
         declaredBlackboard=parse_declared_blackboard(root, source_name),
@@ -3613,20 +3470,12 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         for action in getattr(skill, "auxiliaryActions", [])
         if action.actionType == "CreateBuffAction"
     ]
-    ignored_buff_ids = {
-        action.sourceId
-        for action in combat_auxiliary_actions
-        if action.classification in ignored_auxiliary_classifications
-    }
     unignored_auxiliary_actions = [
         action
         for action in combat_auxiliary_actions
         if action.classification not in ignored_auxiliary_classifications
     ]
-    unignored_buff_behaviors = [
-        behavior for behavior in skill.buffBehaviors if behavior.buffId not in ignored_buff_ids
-    ]
-    if unignored_auxiliary_actions or unignored_buff_behaviors:
+    if unignored_auxiliary_actions:
         raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
@@ -4342,7 +4191,6 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
-                "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
                 "referencedBuffIds": skill.referencedBuffIds,
                 "buffDefinitions": [
                     asdict(definition) for definition in skill.buffDefinitions

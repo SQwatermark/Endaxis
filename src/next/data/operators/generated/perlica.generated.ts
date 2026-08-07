@@ -343,7 +343,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -977,7 +976,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -1864,7 +1862,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -2467,7 +2464,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -3000,46 +2996,6 @@ export const perlicaGeneratedSource = {
           "eventActions": [],
           "resourceGains": [],
           "combatActions": []
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_medium",
-          "sourceFile": "buff_common_damage_immune_medium.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        },
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_power_attack_disable_cast_skill",
-          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
         }
       ],
       "patch": {
@@ -3676,7 +3632,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -4186,27 +4141,6 @@ export const perlicaGeneratedSource = {
           "eventActions": [],
           "resourceGains": [],
           "combatActions": []
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 13,
-          "applicationEvent": null,
-          "buffId": "buff_common_obtain_ultimate_sp",
-          "sourceFile": "buff_common_obtain_ultimate_sp.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
         }
       ],
       "patch": {
@@ -4984,7 +4918,6 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -5750,27 +5683,6 @@ export const perlicaGeneratedSource = {
           "eventActions": [],
           "resourceGains": [],
           "combatActions": []
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_ult_skill",
-          "sourceFile": "buff_common_damage_immune_ult_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
         }
       ],
       "patch": {

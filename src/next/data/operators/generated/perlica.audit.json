@@ -199,7 +199,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -621,7 +620,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -1317,7 +1315,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -1766,7 +1763,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -1962,46 +1958,6 @@
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_medium",
-          "sourceFile": "buff_common_damage_immune_medium.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        },
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_power_attack_disable_cast_skill",
-          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        }
-      ],
       "referencedBuffIds": [
         "buff_common_damage_immune_medium",
         "buff_common_power_attack_disable_cast_skill"
@@ -2359,7 +2315,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -2546,27 +2501,6 @@
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 13,
-          "applicationEvent": null,
-          "buffId": "buff_common_obtain_ultimate_sp",
-          "sourceFile": "buff_common_obtain_ultimate_sp.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        }
-      ],
       "referencedBuffIds": [
         "buff_common_obtain_ultimate_sp"
       ],
@@ -3138,7 +3072,6 @@
         }
       ],
       "abilityEntityHits": [],
-      "buffBehaviors": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
       "resolvedDamageHits": [
@@ -3491,27 +3424,6 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_ult_skill",
-          "sourceFile": "buff_common_damage_immune_ult_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
           "combatActions": [],
           "cycleTruncated": false
         }

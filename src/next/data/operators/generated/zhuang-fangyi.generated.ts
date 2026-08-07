@@ -335,7 +335,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -965,7 +964,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -1748,7 +1746,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -2112,7 +2109,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -2577,7 +2573,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -3533,7 +3528,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -4478,7 +4472,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -5001,67 +4994,6 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "resourceGains": [],
           "combatActions": []
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 3,
-          "applicationEvent": null,
-          "buffId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
-          "sourceFile": "buff_chr_0030_zhuangfy_attack3_ult_cancel.json",
-          "sourceAvailable": true,
-          "lifecycle": {
-            "lifeType": "Infinity",
-            "duration": {
-              "value": 1.0,
-              "blackboardKey": "duration",
-              "levelValues": null
-            },
-            "triggerInterval": {
-              "value": -1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "waitFirstTriggerInterval": false,
-            "maxTriggerCount": {
-              "value": 1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "stackingIdentifierType": "Id",
-            "stackingType": "Unique",
-            "stackingKey": "NormalSkillCtrl",
-            "priority": {
-              "value": 1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "negatePriority": false,
-            "maxStackCount": {
-              "value": 1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "hasStackEffects": false
-          },
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [
-            {
-              "event": "OnBuffFinish",
-              "combatActions": [],
-              "damageUnits": [],
-              "createdBuffIds": []
-            }
-          ],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
         }
       ],
       "patch": {
@@ -5599,46 +5531,6 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": []
         }
       ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_medium",
-          "sourceFile": "buff_common_damage_immune_medium.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        },
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_power_attack_disable_cast_skill",
-          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        }
-      ],
       "patch": {
         "levels": [
           1,
@@ -5939,7 +5831,6 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "buffDefinitions": [],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -8117,7 +8008,6 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": []
         }
       ],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -10144,7 +10034,6 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": []
         }
       ],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -11319,7 +11208,6 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": []
         }
       ],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -12216,7 +12104,6 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": []
         }
       ],
-      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -13442,144 +13329,6 @@ export const zhuangFangyiGeneratedSource = {
           "eventActions": [],
           "resourceGains": [],
           "combatActions": []
-        }
-      ],
-      "buffBehaviors": [
-        {
-          "applicationFrame": 78,
-          "applicationEvent": null,
-          "buffId": "buff_chr_0030_zhuangfy_ult_base",
-          "sourceFile": "buff_chr_0030_zhuangfy_ult_base.json",
-          "sourceAvailable": true,
-          "lifecycle": {
-            "lifeType": "Limited",
-            "duration": {
-              "value": 1.5,
-              "blackboardKey": "duration",
-              "levelValues": [
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0,
-                25.0
-              ]
-            },
-            "triggerInterval": {
-              "value": -1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "waitFirstTriggerInterval": false,
-            "maxTriggerCount": {
-              "value": 99.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "stackingIdentifierType": "Id",
-            "stackingType": "Stack",
-            "stackingKey": "NormalSkillCtrl",
-            "priority": {
-              "value": 1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "negatePriority": false,
-            "maxStackCount": {
-              "value": 1.0,
-              "blackboardKey": null,
-              "levelValues": null
-            },
-            "hasStackEffects": false
-          },
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [
-            {
-              "event": "DuringBuffEnable",
-              "combatActions": [],
-              "damageUnits": [],
-              "createdBuffIds": []
-            },
-            {
-              "event": "DuringBuffEnable",
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "damageUnits": [],
-              "createdBuffIds": [
-                "buff_chr_0030_zhuangfy_ult_hide_model_holder"
-              ]
-            },
-            {
-              "event": "DuringBuffEnable",
-              "combatActions": [],
-              "damageUnits": [],
-              "createdBuffIds": []
-            },
-            {
-              "event": "DuringBuffEnable",
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "damageUnits": [],
-              "createdBuffIds": [
-                "buff_chr_0030_zhuangfy_ult_body_vfx",
-                "buff_chr_0030_zhuangfy_ult_env_vfx"
-              ]
-            },
-            {
-              "event": "OnBuffFinish",
-              "combatActions": [
-                "IfElseAction"
-              ],
-              "damageUnits": [],
-              "createdBuffIds": []
-            },
-            {
-              "event": "OnBuffStart",
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "damageUnits": [],
-              "createdBuffIds": [
-                "buff_chr_0030_zhuangfy_ult_skill_free"
-              ]
-            }
-          ],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
-        },
-        {
-          "applicationFrame": 0,
-          "applicationEvent": null,
-          "buffId": "buff_common_damage_immune_ult_skill",
-          "sourceFile": "buff_common_damage_immune_ult_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "nestedBuffBehaviors": [],
-          "combatActions": [],
-          "cycleTruncated": false
         }
       ],
       "patch": {
