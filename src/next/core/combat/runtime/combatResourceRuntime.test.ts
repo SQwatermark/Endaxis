@@ -10,6 +10,7 @@ describe('CombatResourceRuntime', () => {
       sp: 99,
       maxSp: 300,
       returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
       spRecovery: { valuePerSecond: 30, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },

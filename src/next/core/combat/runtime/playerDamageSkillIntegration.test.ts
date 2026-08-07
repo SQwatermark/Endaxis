@@ -34,6 +34,7 @@ describe('Perlica standard damage slice', () => {
       sp: 100,
       maxSp: 300,
       returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
       spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },

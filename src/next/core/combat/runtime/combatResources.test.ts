@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { CombatResources } from './combatResources';
+import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
 
 function createResources() {
   return new CombatResources({
     sp: 100,
     maxSp: 300,
     returnedSp: 10,
+    sharedSpGain: { baseGainEfficiency: 1 },
     spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
     ultimateEnergySystemUnlocked: true,
     normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
@@ -29,6 +31,18 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('持有一次战斗唯一的共享 SP 效率注册表', () => {
+    const resources = createResources();
+    const modifier = new SharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false);
+
+    resources.sharedSpGainModifiers.add(modifier);
+
+    expect(resources.sharedSpGainModifiers.resolve('powerAttack', 'gain').totalEfficiency).toBe(
+      1.5,
+    );
+    expect(resources.sharedSpGainModifiers.remove(modifier)).toBe(true);
+  });
+
   it('tracks only the applied part of a capped refund as returned SP', () => {
     const resources = createResources();
 
@@ -125,6 +139,7 @@ describe('CombatResources', () => {
       sp: 100,
       maxSp: 300,
       returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
       spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 1, otherGainPerSp: 1 },
@@ -157,6 +172,7 @@ describe('CombatResources', () => {
       sp: 0,
       maxSp: 300,
       returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
       spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: false,
       normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },

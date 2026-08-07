@@ -4,6 +4,10 @@
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
+import {
+  SharedSpGainModifierSet,
+  type SharedSpGainSettings,
+} from '../resources/sharedSpGainModifiers';
 
 const RESOURCE_EPSILON = 0.0001;
 const ULTIMATE_ENERGY_EPSILON = 0.00001;
@@ -36,6 +40,8 @@ export interface CombatResourceSnapshot {
   readonly sp: number;
   readonly maxSp: number;
   readonly returnedSp: number;
+  /** 原生 SkillSetting 提供的共享 SP 获取基础效率。 */
+  readonly sharedSpGain: SharedSpGainSettings;
   readonly spRecovery: SpRecoverySnapshot;
   readonly ultimateEnergySystemUnlocked: boolean;
   readonly squad: readonly OperatorResourceSnapshot[];
@@ -96,6 +102,8 @@ export class CombatResources {
   readonly #squad: readonly OperatorResources[];
   readonly #operators = new Map<string, OperatorResources>();
   readonly #normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
+  /** 一次战斗唯一的共享 SP 获取效率注册表，供 Buff 与资源动作共同使用。 */
+  readonly sharedSpGainModifiers: SharedSpGainModifierSet;
 
   constructor(snapshot: CombatResourceSnapshot) {
     requireNonNegativeFinite(snapshot.sp, 'sp');
@@ -121,6 +129,7 @@ export class CombatResources {
     this.#sp = snapshot.sp;
     this.#maxSp = snapshot.maxSp;
     this.#returnedSp = snapshot.returnedSp;
+    this.sharedSpGainModifiers = new SharedSpGainModifierSet(snapshot.sharedSpGain);
     this.#spRecoveryPerSecond = snapshot.spRecovery.valuePerSecond;
     this.#spRecoveryPauseDuration = snapshot.spRecovery.pauseDuration;
     this.#spRecoveryPauseRemaining = snapshot.spRecovery.pauseRemaining;
