@@ -1053,7 +1053,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             timelineBlockFrames=20,
             buffBehaviors=(),
             auxiliaryActions=(),
-            resourceGains=(),
+            resourceGains=(
+                SimpleNamespace(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=1,
+                    resource="sp",
+                    amount=ScalarSource(5, None, (5,)),
+                    coefficient=ScalarSource(1, None, None),
+                ),
+            ),
             inflictions=(),
             projectileLaunches=(),
             conditionalActions=(),
@@ -1113,6 +1122,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "FinishBuffAdvanced",
                 "GetTargetBuffBBAdvanced",
                 "ModifyDynamicBlackboard",
+                "ObtainCostAction",
                 "SimpleCalcBBAction",
                 "SpawnAbilityEntity",
             ),
@@ -1136,6 +1146,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
         ordered_markers = [
+            "changeResource",
             "modifyActionValue",
             "readBuffBlackboard",
             "finishBuffsByTag",

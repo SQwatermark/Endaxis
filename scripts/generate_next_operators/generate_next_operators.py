@@ -161,6 +161,7 @@ ResolvedScheduleItemType = Literal[
     "blackboardMutation",
     "buffBlackboardRead",
     "buffFinish",
+    "resourceGain",
 ]
 
 
@@ -179,6 +180,7 @@ class ResolvedScheduleItemSource:
         " | BlackboardMutationSource"
         " | BuffBlackboardReadSource"
         " | BuffFinishSource"
+        " | TimedResourceGainSource"
     )
 
 
@@ -2063,6 +2065,19 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             )
             for action in actions
         )
+    for index, gain in enumerate(skill.resourceGains):
+        values = require_level_values(gain.amount, f"{skill.key}.resourceGains[{index}].amount")
+        if all(value == 0 for value in values):
+            continue
+        result.append(
+            ResolvedScheduleItemSource(
+                frame=gain.startFrame,
+                actionOrder=(gain.actionIndex,),
+                itemType="resourceGain",
+                sourcePath=(skill.skillId,),
+                payload=gain,
+            )
+        )
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
@@ -2696,6 +2711,23 @@ def compile_blackboard_mutation(
     )
 
 
+def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
+    """编译原生固定数值资源获得；动态系数尚未闭环时必须拒绝。"""
+    amount = compact_level_values(require_level_values(gain.amount, f"{path}.amount"))
+    coefficient = compact_level_values(
+        gain.coefficient.levelValues
+        if gain.coefficient.levelValues is not None
+        else (gain.coefficient.value,)
+    )
+    if coefficient != 1:
+        raise ValueError(f"{path}: resource gain coefficient other than 1 is not supported")
+    return (
+        "step('changeResource', "
+        f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
+        "recipient: 'caster' })"
+    )
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource, path: str
 ) -> str:
@@ -3220,11 +3252,6 @@ def compile_resolved_damage_steps(
 
 def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
     """将已闭环载体命中和条件根统一编译为按原生顺序调度的序列。"""
-    effective_resource_gains = [
-        gain
-        for gain in skill.resourceGains
-        if any(value != 0 for value in require_level_values(gain.amount, f"{skill.key}.resourceGain.amount"))
-    ]
     ignored_auxiliary_classifications = set(
         require_list(
             config.get("ignoreAuxiliaryClassifications", []),
@@ -3249,8 +3276,8 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     unignored_buff_behaviors = [
         behavior for behavior in skill.buffBehaviors if behavior.buffId not in ignored_buff_ids
     ]
-    if unignored_auxiliary_actions or unignored_buff_behaviors or effective_resource_gains or skill.inflictions:
-        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or resources")
+    if unignored_auxiliary_actions or unignored_buff_behaviors or skill.inflictions:
+        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or inflictions")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
@@ -3266,7 +3293,7 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         allowed_actions.add("FinishBuffAdvanced")
     if ignored_auxiliary_classifications:
         allowed_actions.add("CreateBuffAction")
-    if skill.resourceGains and not effective_resource_gains:
+    if skill.resourceGains:
         allowed_actions.add("ObtainCostAction")
     if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
         raise ValueError(f"{skill.key}: unresolved combat actions are not covered by resolved damage compiler")
@@ -3316,6 +3343,12 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
             step_lines = compile_buff_finish(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffFinish",
+            ).splitlines()
+        elif item.itemType == "resourceGain":
+            payload = cast(TimedResourceGainSource, item.payload)
+            step_lines = compile_resource_gain(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].resourceGain",
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
