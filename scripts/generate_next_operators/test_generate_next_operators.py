@@ -60,6 +60,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(behaviors[0].buffId, "missing_buff")
         self.assertFalse(behaviors[0].sourceAvailable)
 
+    def test_buff_event_slots_keep_their_trigger_and_created_buff_references(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 6,
+                        "_sequenceActionData": {
+                            "$type": "Example.CreateBuffAction+Data, Example",
+                            "isEnable": True,
+                            "buffs": [{"buffId": "parent_buff", "assignItems": []}],
+                        },
+                    }
+                ]
+            }
+        }
+        buff = {
+            "lifeType": "Limited",
+            "timelineActions": [],
+            "buffEventAction": [
+                {
+                    "buffEvent": "OnBuffTrigger",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CreateBuffAction+Data, Example",
+                                    "isEnable": True,
+                                    "buffs": [{"buffId": "child_buff", "assignItems": []}],
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            (path / "parent_buff.json").write_text(json.dumps(buff), encoding="utf-8")
+            behaviors = resolve_buff_behaviors(root, "skill.json", path, path, {})
+
+        event = behaviors[0].eventActions[0]
+        self.assertEqual(event.event, "OnBuffTrigger")
+        self.assertEqual(event.combatActions, ("CreateBuffAction",))
+        self.assertEqual(event.createdBuffIds, ("child_buff",))
+
     def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
         root = {
             "actionGroupData": {

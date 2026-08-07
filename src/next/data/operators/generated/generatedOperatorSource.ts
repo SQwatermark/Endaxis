@@ -129,10 +129,18 @@ export interface GeneratedBuffBehaviorSource {
   readonly sourceAvailable: boolean;
   readonly lifeType: string;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
   readonly combatActions: readonly string[];
   readonly cycleTruncated: boolean;
+}
+
+export interface GeneratedBuffEventActionSource {
+  readonly event: string;
+  readonly combatActions: readonly string[];
+  readonly damageUnits: readonly GeneratedDamageUnitSource[];
+  readonly createdBuffIds: readonly string[];
 }
 
 export interface GeneratedSkillSource {

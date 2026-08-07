@@ -152,10 +152,19 @@ class BuffBehaviorSource:
     sourceAvailable: bool
     lifeType: str
     directDamageHits: tuple[TimedDamageSource, ...]
+    eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
+
+
+@dataclass(frozen=True)
+class BuffEventActionSource:
+    event: str
+    combatActions: tuple[str, ...]
+    damageUnits: tuple[DamageUnitSource, ...]
+    createdBuffIds: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -955,6 +964,7 @@ def resolve_buff_behaviors(
                     sourceAvailable=False,
                     lifeType="",
                     directDamageHits=(),
+                    eventActions=(),
                     resourceGains=(),
                     nestedBuffBehaviors=(),
                     combatActions=(),
@@ -991,6 +1001,44 @@ def resolve_buff_behaviors(
                 }
             )
         )
+        event_actions: list[BuffEventActionSource] = []
+        for event_index, raw_event in enumerate(
+            require_list(buff.get("buffEventAction"), f"{buff_name}.buffEventAction")
+        ):
+            event = require_dict(raw_event, f"{buff_name}.buffEventAction[{event_index}]")
+            event_name = event.get("buffEvent")
+            if not isinstance(event_name, str) or not event_name:
+                raise ValueError(f"{buff_name}.buffEventAction[{event_index}].buffEvent: expected string")
+            event_root = {"actionGroupData": {"actions": event.get("actions")}}
+            actions = list(walk_actions(event.get("actions")))
+            created_buff_ids: list[str] = []
+            for event_action in actions:
+                if action_name(event_action["$type"]) != "CreateBuffAction":
+                    continue
+                for raw_created in require_list(
+                    event_action.get("buffs"), f"{buff_name}.{event_name}.CreateBuffAction.buffs"
+                ):
+                    created = require_dict(raw_created, f"{buff_name}.{event_name}.CreateBuffAction.buffs[]")
+                    created_id = created.get("buffId")
+                    if not isinstance(created_id, str) or not created_id:
+                        raise ValueError(f"{buff_name}.{event_name}: expected created buffId")
+                    created_buff_ids.append(created_id)
+            event_actions.append(
+                BuffEventActionSource(
+                    event=event_name,
+                    combatActions=tuple(
+                        sorted(
+                            {
+                                action_name(item["$type"])
+                                for item in actions
+                                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                            }
+                        )
+                    ),
+                    damageUnits=parse_damage_units(event_root, f"{buff_name}.{event_name}", child_blackboard),
+                    createdBuffIds=tuple(created_buff_ids),
+                )
+            )
         result.append(
             BuffBehaviorSource(
                 applicationFrame=base_frame + action.startFrame,
@@ -999,6 +1047,7 @@ def resolve_buff_behaviors(
                 sourceAvailable=True,
                 lifeType=str(buff.get("lifeType", "")),
                 directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
+                eventActions=tuple(event_actions),
                 resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
                 nestedBuffBehaviors=nested,
                 combatActions=combat_actions,
