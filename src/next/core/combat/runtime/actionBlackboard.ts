@@ -4,6 +4,8 @@
  */
 export type ActionBlackboardValue = string | number | null;
 
+const FLOAT_ASSIGNMENT_EPSILON = 0.00001;
+
 /** 数据驱动战斗行为使用的、按运行时实例隔离的可变值。 */
 export class ActionBlackboard {
   readonly #values = new Map<string, ActionBlackboardValue>();
@@ -28,6 +30,10 @@ export class ActionBlackboard {
   }
 
   assignDynamic(key: string, value: number): boolean {
+    const current = this.getNumber(key);
+    if (current !== undefined && Math.abs(current - value) <= FLOAT_ASSIGNMENT_EPSILON) {
+      return false;
+    }
     this.#values.set(key, value);
     return true;
   }

@@ -20,4 +20,14 @@ describe('ActionBlackboard', () => {
 
     expect(blackboard.snapshot()).toEqual({ count: 1 });
   });
+
+  it('only reports a dynamic numeric assignment when it exceeds the native epsilon', () => {
+    const blackboard = new ActionBlackboard({ count: 4 });
+
+    expect(blackboard.assignDynamic('count', 4.000001)).toBe(false);
+    expect(blackboard.getNumber('count')).toBe(4);
+    expect(blackboard.assignDynamic('count', 4.00002)).toBe(true);
+    expect(blackboard.getNumber('count')).toBe(4.00002);
+    expect(blackboard.assignDynamic('missing', 0)).toBe(true);
+  });
 });
