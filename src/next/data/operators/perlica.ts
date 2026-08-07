@@ -18,21 +18,18 @@ const basicAttacks = [
     16,
     8,
     percentages([25, 28, 31, 33, 36, 38, 41, 43, 46, 49, 53, 57]),
-    { naturalEndFrame: 166, interruptibleAfterFrame: 15 },
   ),
   electricBasicAttack(
     'basicAttack2',
-    19,
+    18,
     [9, 12],
     percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
-    { naturalEndFrame: 168, interruptibleAfterFrame: 22 },
   ),
   electricBasicAttack(
     'basicAttack3',
-    27,
+    26,
     [16, 19, 22],
     percentages([12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 26, 28]),
-    { naturalEndFrame: 173, interruptibleAfterFrame: 29 },
   ),
   electricBasicAttack(
     'basicAttack4',
@@ -40,8 +37,6 @@ const basicAttacks = [
     27,
     percentages([57, 62, 68, 73, 79, 85, 90, 96, 102, 109, 117, 127]),
     {
-      naturalEndFrame: 269,
-      interruptibleAfterFrame: 43,
       final: true,
       stagger: 15,
       spRecovery: 15,
@@ -51,9 +46,7 @@ const basicAttacks = [
 
 const finisher = {
   key: 'finisher',
-  durationFrames: 59,
-  naturalEndFrame: 135,
-  interruptibleAfterFrame: 50,
+  timelineBlockFrames: 59,
   availability: { kind: 'targetStaggered', target: 'enemy' },
   scheduledSequences: [
     scheduled(
@@ -77,9 +70,7 @@ const finisher = {
 const plungingAttack = {
   key: 'plungingAttack',
   // 此定义从落地时刻开始；滞空时长属于移动状态，不在战斗技能中重复建模。
-  durationFrames: 20,
-  naturalEndFrame: 168,
-  interruptibleAfterFrame: 20,
+  timelineBlockFrames: 20,
   scheduledSequences: [
     scheduled(
       3,
@@ -99,9 +90,7 @@ const plungingAttack = {
 
 const battleSkill = {
   key: 'battleSkill',
-  durationFrames: 28,
-  naturalEndFrame: 155,
-  interruptibleAfterFrame: 30,
+  timelineBlockFrames: 28,
   costs: [{ resource: 'sp', value: 100 }],
   costFrame: 0,
   scheduledSequences: [
@@ -125,9 +114,7 @@ const battleSkill = {
 
 const comboSkill = {
   key: 'comboSkill',
-  durationFrames: 25,
-  naturalEndFrame: 115,
-  interruptibleAfterFrame: 45,
+  timelineBlockFrames: 25,
   cooldownFrames: secondsToFrames([20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 19]),
   activationWindow: {
     durationFrames: 150,
@@ -173,9 +160,7 @@ const comboSkill = {
 
 const ultimate = {
   key: 'ultimate',
-  durationFrames: 63,
-  naturalEndFrame: 114,
-  interruptibleAfterFrame: 85,
+  timelineBlockFrames: 63,
   cooldownFrames: 300,
   costs: [{ resource: 'ultimateEnergy', value: 80 }],
   costFrame: 0,

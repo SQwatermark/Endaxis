@@ -11,7 +11,6 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly skillId: string;
   readonly skillType: SkillType;
   readonly state: RuntimeSkillState;
-  readonly canInterrupt: boolean;
   canStart(): boolean;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
@@ -58,7 +57,6 @@ export class AbilitySystemRuntime implements FrameRuntime {
     const skill = this.#requireSkill(skillId);
     if (!skill.canStart()) return false;
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
-    if (previousSkill !== null && !canInterruptWith(previousSkill, skill)) return false;
 
     this.#currentSkill = skill;
     previousSkill?.interrupt('castNextSkill');
@@ -98,22 +96,4 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (skill === undefined) throw new Error(`unknown ability skill '${skillId}'`);
     return skill;
   }
-}
-
-const skillInterruptPriority: Readonly<Record<SkillType, number>> = {
-  basicAttack: 1,
-  battleSkill: 2,
-  finisher: 2,
-  plungingAttack: 2,
-  comboSkill: 5,
-  ultimate: 7,
-};
-
-function canInterruptWith(current: AbilitySkillRuntime, next: AbilitySkillRuntime): boolean {
-  // 对应原生 CheckCanInterruptCurSkill 的已闭环分支；允许接续包尚无运行时数据入口。
-  return (
-    next.skillType === 'plungingAttack' ||
-    skillInterruptPriority[next.skillType] > skillInterruptPriority[current.skillType] ||
-    current.canInterrupt
-  );
 }

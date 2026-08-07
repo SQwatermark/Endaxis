@@ -17,11 +17,7 @@ function findPerlicaSkill(key: string): SkillDefinition {
   throw new Error(`missing Perlica skill '${key}'`);
 }
 
-function createBattleSkillRuntime(
-  initialSp: number,
-  terminalFrame?: number,
-  interruptibleAfterFrame?: number,
-) {
+function createBattleSkillRuntime(initialSp: number) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
@@ -52,62 +48,13 @@ function createBattleSkillRuntime(
     skillLevel: 12,
     skill: findPerlicaSkill('battleSkill'),
   });
-  const program = {
-    ...compiledProgram,
-    ...(interruptibleAfterFrame === undefined ? {} : { interruptibleAfterFrame }),
-    ...(terminalFrame === undefined
-      ? {}
-      : {
-          ...compiledProgram,
-          durationFrames: terminalFrame,
-          naturalEndFrame: terminalFrame,
-          timelineActions: compiledProgram.timelineActions.map(action => ({
-            ...action,
-            startFrame: terminalFrame,
-            endFrame: terminalFrame,
-          })),
-        }),
-  };
-  const runtime = new SkillRuntime(program, { clock, resources, receipt, operations });
+  const runtime = new SkillRuntime(compiledProgram, { clock, resources, receipt, operations });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
   return { clock, resources, receipt, operations, runtime, simulation };
 }
 
 describe('SkillRuntime', () => {
-  it('uses a strict greater-than comparison for the interrupt protection frame', () => {
-    const fixture = createBattleSkillRuntime(300, undefined, 1);
-    expect(fixture.runtime.tryStart()).toBe(true);
-
-    fixture.runtime.advanceFrame();
-    expect(fixture.runtime.canInterrupt).toBe(false);
-
-    fixture.runtime.advanceFrame();
-    expect(fixture.runtime.canInterrupt).toBe(true);
-  });
-
-  it('在持续时间末帧执行动作后自然结束', () => {
-    const fixture = createBattleSkillRuntime(300, 2);
-    expect(fixture.runtime.tryStart()).toBe(true);
-
-    fixture.runtime.advanceFrame();
-    expect(fixture.runtime.state).toBe('casting');
-
-    fixture.runtime.advanceFrame();
-
-    expect(fixture.runtime.state).toBe('ended');
-    expect(fixture.receipt.entries.map(entry => entry.event)).toEqual([
-      'SkillStarted',
-      'SkillCostApplied',
-      'TimelineActionStarted',
-      'CombatStepReached',
-      'CombatStepReached',
-      'CombatStepReached',
-      'TimelineActionEnded',
-      'SkillEnded',
-    ]);
-  });
-
   it('applies frame-zero cost during the native initial tick', () => {
     const fixture = createBattleSkillRuntime(300);
 

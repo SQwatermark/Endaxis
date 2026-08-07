@@ -112,9 +112,8 @@ export interface CompiledSkillProgram {
   readonly skillId: string;
   readonly skillType: SkillType;
   readonly skillLevel: number;
-  readonly durationFrames: number;
-  readonly naturalEndFrame?: number;
-  readonly interruptibleAfterFrame?: number;
+  /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
+  readonly timelineBlockFrames: number;
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];

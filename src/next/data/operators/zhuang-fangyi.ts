@@ -182,12 +182,12 @@ function swordStrikeSequences(enhanced: boolean): ScheduledSequenceDefinition[] 
 
 function normalBasicAttack(
   key: string,
-  durationFrames: number,
+  timelineBlockFrames: number,
   hitFrames: number | readonly number[],
   attackScale: LevelValues,
   options: { final?: boolean; stagger?: number; spRecovery?: number } = {},
 ): SkillDefinition {
-  return electricBasicAttack(key, durationFrames, hitFrames, attackScale, {
+  return electricBasicAttack(key, timelineBlockFrames, hitFrames, attackScale, {
     availability: enhancementInactive,
     ...options,
   });
@@ -195,12 +195,12 @@ function normalBasicAttack(
 
 function enhancedBasicAttack(
   key: string,
-  durationFrames: number,
+  timelineBlockFrames: number,
   hitFrames: number | readonly number[],
   attackScale: LevelValues,
   options: { final?: boolean; stagger?: number; spRecovery?: number } = {},
 ): SkillDefinition {
-  return electricBasicAttack(key, durationFrames, hitFrames, attackScale, {
+  return electricBasicAttack(key, timelineBlockFrames, hitFrames, attackScale, {
     availability: enhancementActive,
     ...options,
   });
@@ -265,7 +265,7 @@ const enhancedBasicAttacks = [
 function battleSkill(key: string, enhanced: boolean): SkillDefinition {
   return {
     key,
-    durationFrames: 21,
+    timelineBlockFrames: 21,
     availability: enhanced ? enhancementActive : enhancementInactive,
     costs: [{ resource: 'sp', value: 100 }],
     scheduledSequences: [scheduled(6, battleSetup(enhanced)), ...swordStrikeSequences(enhanced)],
@@ -280,7 +280,7 @@ function comboSkill(key: string, enhanced: boolean): SkillDefinition {
 
   return {
     key,
-    durationFrames: enhanced ? 36 : 42,
+    timelineBlockFrames: enhanced ? 36 : 42,
     availability: enhanced ? enhancementActive : enhancementInactive,
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
     activationWindow: {
@@ -328,7 +328,7 @@ function comboSkill(key: string, enhanced: boolean): SkillDefinition {
 
 const finisher = {
   key: 'finisher',
-  durationFrames: 51,
+  timelineBlockFrames: 51,
   availability: { kind: 'targetStaggered', target: 'enemy' },
   scheduledSequences: [
     scheduled(
@@ -353,7 +353,7 @@ const finisher = {
 
 const plungingAttack = {
   key: 'plungingAttack',
-  durationFrames: 12,
+  timelineBlockFrames: 12,
   scheduledSequences: damageHits(
     [1],
     electricDamage(
@@ -365,7 +365,7 @@ const plungingAttack = {
 
 const ultimate = {
   key: 'ultimate',
-  durationFrames: 84,
+  timelineBlockFrames: 84,
   cooldownFrames: 450,
   costs: [{ resource: 'ultimateEnergy', value: 240 }],
   scheduledSequences: [

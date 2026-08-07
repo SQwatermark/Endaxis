@@ -13,12 +13,10 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
-  it('keeps the recovered natural end separate from the editor duration', () => {
+  it('keeps the derived timeline block width in the compiled catalog', () => {
     const skill = {
-      key: 'separate-duration-boundaries',
-      durationFrames: 18,
-      naturalEndFrame: 30,
-      interruptibleAfterFrame: 12,
+      key: 'timeline-block',
+      timelineBlockFrames: 18,
       scheduledSequences: [],
     } satisfies SkillDefinition;
 
@@ -30,9 +28,7 @@ describe('compileSkill', () => {
       skill,
     });
 
-    expect(program.durationFrames).toBe(18);
-    expect(program.naturalEndFrame).toBe(30);
-    expect(program.interruptibleAfterFrame).toBe(12);
+    expect(program.timelineBlockFrames).toBe(18);
   });
 
   it('compiles Perlica battle skill into a single-level runtime program', () => {
@@ -49,7 +45,7 @@ describe('compileSkill', () => {
     expect(program).toMatchObject({
       operatorId: 'perlica',
       skillId: 'battleSkill',
-      durationFrames: 28,
+      timelineBlockFrames: 28,
       costFrame: 0,
       costs: [{ resource: 'sp', value: 100 }],
     });
@@ -93,7 +89,7 @@ describe('compileSkill', () => {
   it('preserves the SP refund category while resolving its level value', () => {
     const skill = {
       key: 'refund',
-      durationFrames: 1,
+      timelineBlockFrames: 1,
       scheduledSequences: [
         {
           startFrame: 0,
@@ -137,7 +133,7 @@ describe('compileSkill', () => {
   it('rejects paid skills whose native cost frame has not been recovered', () => {
     const incomplete = {
       key: 'incomplete',
-      durationFrames: 30,
+      timelineBlockFrames: 30,
       costs: [{ resource: 'sp', value: 100 }],
       scheduledSequences: [],
     } satisfies SkillDefinition;
@@ -170,7 +166,7 @@ describe('compileSkill', () => {
   it('rejects multiple costs because native CastData has one cost slot', () => {
     const incomplete = {
       key: 'multiple-costs',
-      durationFrames: 30,
+      timelineBlockFrames: 30,
       costFrame: 0,
       costs: [
         { resource: 'sp', value: 100 },

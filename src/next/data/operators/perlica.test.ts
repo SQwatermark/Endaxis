@@ -25,20 +25,14 @@ describe('next Perlica definition', () => {
     ]);
   });
 
-  it('keeps the currently curated basic attack durations as plain runtime data', () => {
+  it('uses the earliest operable boundary as each basic attack timeline width', () => {
     const basicAttackGroup = perlica.skillGroups.find(group => group.key === 'basicAttack');
 
     expect(Array.isArray(basicAttackGroup?.skills)).toBe(true);
     if (!basicAttackGroup || !Array.isArray(basicAttackGroup.skills)) {
       throw new Error('expected basic attack sequence');
     }
-    expect(basicAttackGroup.skills.map(skill => skill.durationFrames)).toEqual([16, 19, 27, 44]);
-    expect(basicAttackGroup.skills.map(skill => skill.naturalEndFrame)).toEqual([
-      166, 168, 173, 269,
-    ]);
-    expect(basicAttackGroup.skills.map(skill => skill.interruptibleAfterFrame)).toEqual([
-      15, 22, 29, 43,
-    ]);
+    expect(basicAttackGroup.skills.map(skill => skill.timelineBlockFrames)).toEqual([16, 18, 26, 44]);
   });
 
   it('marks only the final normal-attack hit as the last combo hit', () => {

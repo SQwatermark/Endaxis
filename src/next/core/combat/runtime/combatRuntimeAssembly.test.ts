@@ -15,7 +15,7 @@ function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProg
     skillId: 'skill',
     skillType: 'battleSkill',
     skillLevel: 1,
-    durationFrames: 2,
+    timelineBlockFrames: 2,
     costFrame: 1,
     costs: [{ resource: 'sp', value: 100 }],
     timelineActions: [],

@@ -42,7 +42,7 @@ describe('Next combat core', () => {
         skillLevel: 12,
         skill: battleSkill,
       });
-      benchmarkSink += program.durationFrames + program.timelineActions.length;
+      benchmarkSink += program.timelineBlockFrames + program.timelineActions.length;
     }
   });
 

@@ -104,13 +104,6 @@ export class SkillRuntime {
     return this.#program.skillType;
   }
 
-  get canInterrupt(): boolean {
-    return (
-      this.#program.interruptibleAfterFrame !== undefined &&
-      this.#passedFrames > this.#program.interruptibleAfterFrame
-    );
-  }
-
   get passedFrames(): number {
     return this.#passedFrames;
   }
@@ -236,13 +229,5 @@ export class SkillRuntime {
       }
     }
     this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
-
-    // 原生持续时间计时器在到期帧返回 true 后，仍先完成该帧 Ability/Action，再自然结束技能。
-    if (
-      this.#program.naturalEndFrame !== undefined &&
-      this.#passedFrames >= this.#program.naturalEndFrame
-    ) {
-      this.end();
-    }
   }
 }

@@ -60,14 +60,10 @@ AbilityEvent 数据动作按已确认规则使用优先级降序；机制协议�
 
 运行时可变状态只存在于一次模拟任务内部。不得反向修改项目文档、目录定义或编译产物。
 
-技能运行时只在数据已可靠恢复时，以编译后的 `naturalEndFrame` 驱动自然结束；编辑器使用的
-`durationFrames` 可能来自输入衔接边界或人工校准，不能混用。自然结束末帧必须先完成该帧的
-成本检查和 TimelineAction，再写入技能结束事实；可打断边界同样属于另一项技能配置。
-该顺序对应原生 `m_durationTimer -> Ability.OnTick -> CastEnd` 主干。
-
-玩家输入替换当前技能时，运行时先检查新技能自身资源，再按下落攻击旁路、技能优先级和
-`interruptibleAfterFrame` 短路。允许后先登记新技能，再以 `castNextSkill` 中断旧技能，最后
-开始新技能。原生允许接续技能包尚无 Next 数据入口，不得用技能块相邻关系静默代替。
+`timelineBlockFrames` 只表示编辑器中技能块的显示宽度，由最早通用中断帧和对排轴有效的
+`AllowNextSkillAction.startFrame` 取较小值推导；它不对应原生 `SkillData.durationFrame`，也不驱动
+技能运行时自然结束。当前排轴输入只要放置了后续技能块，就视为用户确认该动作能够打断前一
+技能；运行时检查新技能自身条件和资源后直接替换，不额外复刻 `exclusiveFrame` 门禁。
 
 资源操作按职责组合 executor。当前 `SkillResourceOperationExecutor` 只处理已闭环的普通战技全队回能：费用点记录非返还技力消耗，命中序列再读取显式队伍、全局本人/队友系数、目标回能倍率、上限、解锁和恢复许可。伤害、附着和条件必须交给其他显式 executor，未知 step 不会被当作成功的空操作。
 

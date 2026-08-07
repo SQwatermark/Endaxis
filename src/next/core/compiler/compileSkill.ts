@@ -219,24 +219,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
   if (!Number.isInteger(input.skillLevel) || input.skillLevel <= 0) {
     throw new RangeError('skillLevel must be a positive integer');
   }
-  if (!Number.isInteger(input.skill.durationFrames) || input.skill.durationFrames < 0) {
-    throw new RangeError(`skill '${input.skill.key}' must use a non-negative integer duration`);
-  }
-  if (
-    input.skill.naturalEndFrame !== undefined &&
-    (!Number.isInteger(input.skill.naturalEndFrame) || input.skill.naturalEndFrame < 0)
-  ) {
+  if (!Number.isInteger(input.skill.timelineBlockFrames) || input.skill.timelineBlockFrames < 0) {
     throw new RangeError(
-      `skill '${input.skill.key}' must use a non-negative integer naturalEndFrame`,
-    );
-  }
-  if (
-    input.skill.interruptibleAfterFrame !== undefined &&
-    (!Number.isInteger(input.skill.interruptibleAfterFrame) ||
-      input.skill.interruptibleAfterFrame < 0)
-  ) {
-    throw new RangeError(
-      `skill '${input.skill.key}' must use a non-negative integer interruptibleAfterFrame`,
+      `skill '${input.skill.key}' must use non-negative integer timelineBlockFrames`,
     );
   }
   const costs = (input.skill.costs ?? []).map((cost, index) => ({
@@ -267,13 +252,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     skillId: input.skill.key,
     skillType: input.skillType,
     skillLevel: input.skillLevel,
-    durationFrames: input.skill.durationFrames,
-    ...(input.skill.naturalEndFrame === undefined
-      ? {}
-      : { naturalEndFrame: input.skill.naturalEndFrame }),
-    ...(input.skill.interruptibleAfterFrame === undefined
-      ? {}
-      : { interruptibleAfterFrame: input.skill.interruptibleAfterFrame }),
+    timelineBlockFrames: input.skill.timelineBlockFrames,
     ...(input.skill.cooldownFrames === undefined
       ? {}
       : {

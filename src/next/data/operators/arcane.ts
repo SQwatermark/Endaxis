@@ -119,7 +119,7 @@ const basicAttack5 = natureBasicAttack(
 
 const finisher = {
   key: 'finisher',
-  durationFrames: 51,
+  timelineBlockFrames: 51,
   availability: { kind: 'targetStaggered', target: 'enemy' },
   scheduledSequences: [
     scheduled(
@@ -141,7 +141,7 @@ const finisher = {
 
 const plungingAttack = {
   key: 'plungingAttack',
-  durationFrames: 12,
+  timelineBlockFrames: 12,
   scheduledSequences: [
     scheduled(
       1,
@@ -161,7 +161,7 @@ const plungingAttack = {
 
 const battleSkill = {
   key: 'battleSkill',
-  durationFrames: 32,
+  timelineBlockFrames: 32,
   costs: [{ resource: 'sp', value: 100 }],
   scheduledSequences: [
     scheduled(
@@ -206,7 +206,7 @@ const comboSpReturn = [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30];
 
 const comboSkill = {
   key: 'comboSkill',
-  durationFrames: 23,
+  timelineBlockFrames: 23,
   cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
   activationWindow: {
     durationFrames: 150,
@@ -407,7 +407,7 @@ const clusterStrikeSequences = [
 
 const ultimate = {
   key: 'ultimate',
-  durationFrames: 75,
+  timelineBlockFrames: 75,
   availability: { kind: 'any', conditions: [{ kind: 'not', condition: arrayActive }, arcanaReady] },
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 100 }],
