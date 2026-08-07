@@ -5,16 +5,16 @@ import { perlicaGeneratedSkills } from './perlica.skills.generated';
 
 describe('佩丽卡生成 DSL', () => {
   it('保留四段普攻的命中帧和末段语义', () => {
-    expect(perlicaGeneratedSkills.map(skill => skill.key)).toEqual([
+    expect(perlicaGeneratedSkills.slice(0, 4).map(skill => skill.key)).toEqual([
       'basicAttack1',
       'basicAttack2',
       'basicAttack3',
       'basicAttack4',
     ]);
     expect(
-      perlicaGeneratedSkills.map(skill =>
-        skill.scheduledSequences.map(sequence => sequence.startFrame),
-      ),
+      perlicaGeneratedSkills
+        .slice(0, 4)
+        .map(skill => skill.scheduledSequences.map(sequence => sequence.startFrame)),
     ).toEqual([[8], [9, 12], [16, 19, 22], [27]]);
 
     const finalSteps = perlicaGeneratedSkills[3]!.scheduledSequences[0]!.sequence.steps;
@@ -36,6 +36,14 @@ describe('佩丽卡生成 DSL', () => {
   it('与当前人工配置的普攻战斗语义一致', () => {
     const basicAttackGroup = perlica.skillGroups.find(group => group.key === 'basicAttack');
 
-    expect(basicAttackGroup?.skills).toEqual(perlicaGeneratedSkills);
+    expect(basicAttackGroup?.skills).toEqual(perlicaGeneratedSkills.slice(0, 4));
+  });
+
+  it('与当前人工配置的处决和终结技战斗语义一致', () => {
+    const finisher = perlica.skillGroups.find(group => group.key === 'finisher');
+    const ultimate = perlica.skillGroups.find(group => group.key === 'ultimate');
+
+    expect(perlicaGeneratedSkills[4]).toEqual(finisher?.skills);
+    expect(perlicaGeneratedSkills[5]).toEqual(ultimate?.skills);
   });
 });

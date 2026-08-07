@@ -4,6 +4,7 @@ import unittest
 
 from generate_next_operators import (
     collect_blackboard_keys,
+    classify_buff,
     derive_timeline_block,
     parse_scalar,
     parse_direct_damage_hits,
@@ -70,6 +71,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_percentage_values_restore_readable_percentages(self) -> None:
         self.assertEqual(percentage_values((0.25, 1.02, 0.125)), (25, 102, 12.5))
+
+    def test_only_known_non_output_buffs_are_classified(self) -> None:
+        self.assertEqual(classify_buff("buff_common_damage_immune_ult_skill"), "incomingDamageProtection")
+        self.assertEqual(classify_buff("buff_common_power_attack_disable_cast_skill"), "inputLock")
+        self.assertIsNone(classify_buff("buff_operator_damage_bonus"))
 
     def test_direct_damage_keeps_timeline_and_action_order(self) -> None:
         root = {

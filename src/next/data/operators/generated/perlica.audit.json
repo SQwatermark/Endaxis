@@ -8,6 +8,7 @@
       "timelineBlockFrames": 16,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -56,6 +57,7 @@
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -139,6 +141,7 @@
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -257,6 +260,7 @@
       "timelineBlockFrames": 44,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -365,6 +369,26 @@
           ]
         }
       ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 50,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_medium",
+          "classification": "incomingDamageProtection",
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 35,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_power_attack_disable_cast_skill",
+          "classification": "inputLock",
+          "nestedCombatActions": []
+        }
+      ],
       "projectileHits": [],
       "blackboardKeys": [
         "addition_vertical",
@@ -416,6 +440,7 @@
           ]
         }
       ],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 1,
@@ -546,6 +571,17 @@
           ]
         }
       ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 12,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": null,
+          "nestedCombatActions": []
+        }
+      ],
       "projectileHits": [],
       "blackboardKeys": [
         "atk_scale",
@@ -564,6 +600,7 @@
       "timelineBlockFrames": 25,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -779,6 +816,26 @@
               }
             }
           ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 85,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_ult_skill",
+          "classification": "incomingDamageProtection",
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 55,
+          "endFrame": 58,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0004_pelica_ultimate_skill:chr_0004_pelica_ultimate_skill_abilityrange",
+          "classification": "nonCombatAbilityEntity",
+          "nestedCombatActions": []
         }
       ],
       "projectileHits": [],

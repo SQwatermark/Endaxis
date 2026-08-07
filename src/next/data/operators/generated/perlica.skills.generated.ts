@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { electricBasicAttack, percentages } from '../definitionHelpers';
+import { electricBasicAttack, percentages, scheduled, sequence, step } from '../definitionHelpers';
 
 // prettier-ignore
 export const perlicaGeneratedSkills = [
@@ -29,4 +29,35 @@ export const perlicaGeneratedSkills = [
     percentages([57, 62, 68, 73, 79, 85, 90, 96, 102, 109, 117, 127]),
     { final: true, spRecovery: 15, stagger: 15 },
   ),
+  {
+    key: 'finisher',
+    timelineBlockFrames: 35,
+    availability: { kind: 'targetStaggered', target: 'enemy' },
+    scheduledSequences: [
+      scheduled(
+        35,
+        sequence(
+          step('dealDamage', { damageType: 'electric', attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]), tags: ['normalAttack', 'powerAttack'], calculation: 'breakingAttack' }),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+        ),
+        44,
+      ),
+    ],
+  },
+  {
+    key: 'ultimate',
+    timelineBlockFrames: 63,
+    cooldownFrames: 300,
+    costs: [{ resource: 'ultimateEnergy', value: 80 }],
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        58,
+        sequence(
+          step('dealDamage', { damageType: 'electric', attackScale: percentages([445, 489, 534, 578, 622, 667, 711, 756, 800, 856, 923, 1000]), tags: ['ultimateSkill'], stagger: 20 }),
+        ),
+        63,
+      ),
+    ],
+  },
 ] as const satisfies readonly SkillDefinition[];

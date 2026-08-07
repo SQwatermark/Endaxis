@@ -31,7 +31,13 @@
         {
           "key": "finisher",
           "skillType": "finisher",
-          "source": "chr_0004_pelica_power_attack.json"
+          "source": "chr_0004_pelica_power_attack.json",
+          "compile": {
+            "kind": "directDamage",
+            "tags": ["normalAttack", "powerAttack"],
+            "availability": "targetStaggered",
+            "afterDamage": "gainFinisherSp"
+          }
         },
         {
           "key": "plungingAttack",
@@ -51,7 +57,13 @@
         {
           "key": "ultimate",
           "skillType": "ultimate",
-          "source": "chr_0004_pelica_ultimate_skill.json"
+          "source": "chr_0004_pelica_ultimate_skill.json",
+          "compile": {
+            "kind": "directDamage",
+            "tags": ["ultimateSkill"],
+            "costResource": "ultimateEnergy",
+            "usePatchCooldown": true
+          }
         }
       ]
     }

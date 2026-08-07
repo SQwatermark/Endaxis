@@ -41,6 +41,18 @@ export interface GeneratedTimedDamageSource {
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
 }
 
+export interface GeneratedAuxiliaryActionSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly actionType: 'CreateBuffAction' | 'SpawnAbilityEntity';
+  readonly sourceId: string;
+  /** 非空表示该行为已确认不影响当前主动输出模拟，但仍保留在审计数据中。 */
+  readonly classification:
+    'incomingDamageProtection' | 'inputLock' | 'nonCombatAbilityEntity' | null;
+  readonly nestedCombatActions: readonly string[];
+}
+
 export interface GeneratedProjectileHitSource {
   readonly launchFrame: number;
   /** 暂定为0；后续接入 ProjectileData 飞行时间后替换。 */
@@ -77,6 +89,7 @@ export interface GeneratedSkillSource {
   }[];
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;

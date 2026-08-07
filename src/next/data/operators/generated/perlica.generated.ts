@@ -161,6 +161,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -485,6 +486,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -888,6 +890,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -1316,6 +1319,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -1811,6 +1815,26 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 50,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_medium",
+          "classification": "incomingDamageProtection",
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 35,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_power_attack_disable_cast_skill",
+          "classification": "inputLock",
+          "nestedCombatActions": []
+        }
+      ],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -2196,6 +2220,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 1,
@@ -2702,6 +2727,17 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 12,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": null,
+          "nestedCombatActions": []
+        }
+      ],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -3059,6 +3095,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "auxiliaryActions": [],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -3711,6 +3748,26 @@ export const perlicaGeneratedSource = {
               }
             }
           ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 85,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_ult_skill",
+          "classification": "incomingDamageProtection",
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 55,
+          "endFrame": 58,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0004_pelica_ultimate_skill:chr_0004_pelica_ultimate_skill_abilityrange",
+          "classification": "nonCombatAbilityEntity",
+          "nestedCombatActions": []
         }
       ],
       "projectileHits": [],

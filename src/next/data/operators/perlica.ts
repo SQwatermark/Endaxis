@@ -44,7 +44,7 @@ const basicAttacks = [
 
 const finisher = {
   key: 'finisher',
-  timelineBlockFrames: 59,
+  timelineBlockFrames: 35,
   availability: { kind: 'targetStaggered', target: 'enemy' },
   scheduledSequences: [
     scheduled(
@@ -175,6 +175,7 @@ const ultimate = {
           ),
         ),
       ),
+      63,
     ),
   ],
 } satisfies SkillDefinition;

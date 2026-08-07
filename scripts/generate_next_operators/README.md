@@ -13,6 +13,7 @@
 - 非空 Blackboard 依赖键；原始模板中启用标记为真但键为空的占位配置不视为依赖；
 - `LaunchProjectile.projectileSkillId` 指向的命中 SkillData、DamageUnit 和二级投射物；
 - 技能本体中 `DamageAction` 的时间段、动作序号与 DamageUnit；
+- `CreateBuffAction` 的 Buff ID，以及 `SpawnAbilityEntity` 指向的子技能战斗行为；
 - 技能逐等级 Blackboard、费用与冷却，以及 DamageUnit 对 Blackboard 等级值的解析结果；
 - 阻止技能被误认为完整的未解析战斗行为清单。
 
@@ -51,3 +52,7 @@ python scripts/generate_next_operators/generate_next_operators.py --check
 它将逐枚投射物命中编译为调度伤害，并支持同次命中的失衡。`final` 和
 `spRecoveryBlackboardKey` 是无法仅凭通用 DamageUnit 唯一确定的业务语义，必须在清单中显式声明；
 实际回复数值仍从 SkillPatch 读取。
+
+直接伤害编译器只接受一条已闭环的本体伤害，并要求附带 Buff/AbilityEntity 全部完成分类。当前主动
+输出模拟会保留但不执行受击免伤、施法输入锁定和不含战斗行为的表现实体；未知 Buff 或包含战斗行为
+的子实体会阻止生成。

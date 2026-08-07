@@ -65,6 +65,17 @@ class TimedDamageSource:
 
 
 @dataclass(frozen=True)
+class AuxiliaryActionSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    actionType: str
+    sourceId: str
+    classification: str | None
+    nestedCombatActions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
     assumedTravelFrames: int
@@ -92,6 +103,7 @@ class SkillSource:
     inputCacheWindows: tuple[dict[str, Any], ...]
     timelineActions: tuple[TimelineActionSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
@@ -290,6 +302,87 @@ def parse_direct_damage_hits(
     return tuple(result)
 
 
+def classify_buff(buff_id: str) -> str | None:
+    if buff_id.startswith("buff_common_damage_immune_"):
+        return "incomingDamageProtection"
+    if buff_id == "buff_common_power_attack_disable_cast_skill":
+        return "inputLock"
+    return None
+
+
+def parse_auxiliary_actions(
+    root: dict[str, Any],
+    source_name: str,
+    source_dir: Path,
+) -> tuple[AuxiliaryActionSource, ...]:
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[AuxiliaryActionSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        actions = list(walk_actions(timeline.get("_sequenceActionData")))
+        for action_index, action in enumerate(actions):
+            name = action_name(action["$type"])
+            if name == "CreateBuffAction":
+                buffs = require_list(action.get("buffs"), f"{source_name}.CreateBuffAction.buffs")
+                for raw_buff in buffs:
+                    buff = require_dict(raw_buff, f"{source_name}.CreateBuffAction.buffs[]")
+                    buff_id = buff.get("buffId")
+                    if not isinstance(buff_id, str) or not buff_id:
+                        raise ValueError(f"{source_name}.CreateBuffAction: expected non-empty buffId")
+                    result.append(
+                        AuxiliaryActionSource(
+                            startFrame=start_frame,
+                            endFrame=end_frame,
+                            actionIndex=action_index,
+                            actionType=name,
+                            sourceId=buff_id,
+                            classification=classify_buff(buff_id),
+                            nestedCombatActions=(),
+                        )
+                    )
+            elif name == "SpawnAbilityEntity":
+                ability_id = action.get("abilityEntityId")
+                skill_id = action.get("abilityEntitySkillId")
+                if not isinstance(ability_id, str) or not ability_id:
+                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
+                if not isinstance(skill_id, str) or not skill_id:
+                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntitySkillId")
+                child_name = f"{skill_id}.json"
+                child_path = source_dir / child_name
+                if not child_path.is_file():
+                    raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
+                child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+                nested = tuple(
+                    sorted(
+                        {
+                            action_name(item["$type"])
+                            for item in walk_actions(child.get("actionGroupData"))
+                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                        }
+                    )
+                )
+                result.append(
+                    AuxiliaryActionSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=action_index,
+                        actionType=name,
+                        sourceId=f"{ability_id}:{skill_id}",
+                        classification="nonCombatAbilityEntity" if not nested else None,
+                        nestedCombatActions=nested,
+                    )
+                )
+    return tuple(result)
+
+
 def resolve_projectile_hits(
     root: dict[str, Any],
     source_name: str,
@@ -482,6 +575,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inputCacheWindows=caches,
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
+        auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir),
         projectileHits=resolve_projectile_hits(
             root,
             source_name,
@@ -620,6 +714,76 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
     )
 
 
+def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
+    if skill.projectileHits or len(skill.directDamageHits) != 1:
+        raise ValueError(f"{skill.key}: direct damage compiler requires exactly one non-projectile hit")
+    unclassified = [action.sourceId for action in skill.auxiliaryActions if action.classification is None]
+    if unclassified:
+        raise ValueError(f"{skill.key}: unclassified auxiliary actions: {unclassified}")
+    expected_actions = {"DamageAction", *(action.actionType for action in skill.auxiliaryActions)}
+    if set(skill.unresolvedCombatActions) != expected_actions:
+        raise ValueError(f"{skill.key}: unresolved combat actions are not fully accounted for")
+    hit = skill.directDamageHits[0]
+    hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
+    poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
+    if len(hp_units) != 1 or len(poise_units) > 1 or len(hp_units) + len(poise_units) != len(hit.damageUnits):
+        raise ValueError(f"{skill.key}: unsupported direct DamageUnit layout")
+    hp = hp_units[0]
+    damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
+    if damage_type is None:
+        raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
+    scale = percentage_values(require_level_values(hp.attackScale, f"{skill.key}.attackScale"))
+    damage_fields = [
+        f"damageType: {ts_inline_literal(damage_type)}",
+        f"attackScale: percentages({ts_inline_literal(scale)})",
+        f"tags: {ts_inline_literal(require_list(config.get('tags'), f'{skill.key}.compile.tags'))}",
+    ]
+    if hp.calculation != "standard":
+        damage_fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+    if poise_units:
+        poise = poise_units[0].poiseValue
+        if poise is None:
+            raise ValueError(f"{skill.key}: Poise unit has no value")
+        stagger = compact_level_values(require_level_values(poise, f"{skill.key}.stagger"))
+        damage_fields.append(f"stagger: {ts_inline_literal(stagger)}")
+    steps = [f"step('dealDamage', {{ {', '.join(damage_fields)} }})"]
+    after_damage = config.get("afterDamage")
+    if after_damage == "gainFinisherSp":
+        steps.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
+    elif after_damage is not None:
+        raise ValueError(f"{skill.key}.compile.afterDamage: unsupported value")
+    fields = [f"key: {ts_inline_literal(skill.key)},", f"timelineBlockFrames: {skill.timelineBlockFrames},"]
+    availability = config.get("availability")
+    if availability == "targetStaggered":
+        fields.append("availability: { kind: 'targetStaggered', target: 'enemy' },")
+    elif availability is not None:
+        raise ValueError(f"{skill.key}.compile.availability: unsupported value")
+    if config.get("usePatchCooldown") is True:
+        frames = tuple(round(value * 30, 8) for value in skill.patch.cooldownSeconds)
+        fields.append(f"cooldownFrames: {ts_inline_literal(compact_level_values(frames))},")
+    cost_resource = config.get("costResource")
+    if cost_resource is not None:
+        cost = compact_level_values(skill.patch.costValues)
+        fields.append(f"costs: [{{ resource: {ts_inline_literal(cost_resource)}, value: {ts_inline_literal(cost)} }}],")
+        fields.append(f"costFrame: {skill.costFrame},")
+    return "\n".join(
+        [
+            "  {",
+            *(f"    {field}" for field in fields),
+            "    scheduledSequences: [",
+            "      scheduled(",
+            f"        {hit.startFrame},",
+            "        sequence(",
+            *(f"          {item}," for item in steps),
+            "        ),",
+            f"        {hit.endFrame},",
+            "      ),",
+            "    ],",
+            "  },",
+        ]
+    )
+
+
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
@@ -643,10 +807,14 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
             factory_name = f"{damage_type}BasicAttack"
             damage_type_factories.add(factory_name)
             lines.append(compile_basic_attack(skill, config, factory_name))
+        elif kind == "directDamage":
+            lines.append(compile_direct_damage(skill, config))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     export_name = f"{operator['slug']}GeneratedSkills"
-    helper_imports = ", ".join((*sorted(damage_type_factories), "percentages"))
+    helper_imports = ", ".join(
+        (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
+    )
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
@@ -669,6 +837,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
+                "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
