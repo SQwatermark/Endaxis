@@ -65,7 +65,12 @@ describe('operator definition helpers', () => {
       },
       {
         kind: 'changeResource',
-        parameters: { resource: 'sp', amount: 17, recipient: 'team' },
+        parameters: {
+          resource: 'sp',
+          amount: 17,
+          recipient: 'team',
+          spGainSource: 'normalAttack',
+        },
       },
     ]);
   });

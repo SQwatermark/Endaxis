@@ -173,6 +173,7 @@ export function basicAttackOfType(damageType: DamageType) {
                     resource: 'sp',
                     amount: spRecovery,
                     recipient: 'team',
+                    spGainSource: 'normalAttack',
                   }),
                 ]
               : []),

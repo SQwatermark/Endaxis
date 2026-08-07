@@ -46,7 +46,12 @@ describe('佩丽卡生成 DSL', () => {
     });
     expect(finalSteps[1]).toMatchObject({
       kind: 'changeResource',
-      parameters: { resource: 'sp', amount: 15, recipient: 'team' },
+      parameters: {
+        resource: 'sp',
+        amount: 15,
+        recipient: 'team',
+        spGainSource: 'normalAttack',
+      },
     });
   });
 
