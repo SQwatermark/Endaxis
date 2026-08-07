@@ -119,6 +119,42 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 8,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack1",
+            "chr_0004_pelica_attack1_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.9,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.25,
+                  0.28,
+                  0.31,
+                  0.33,
+                  0.36,
+                  0.38,
+                  0.41,
+                  0.43,
+                  0.46,
+                  0.49,
+                  0.53,
+                  0.57
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -346,6 +382,76 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 9,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 12,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -678,6 +784,110 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 16,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 19,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 22,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -856,6 +1066,70 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 27,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_attack4",
+            "chr_0004_pelica_attack4_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.57,
+                  0.62,
+                  0.68,
+                  0.73,
+                  0.79,
+                  0.85,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.17,
+                  1.27
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -925,6 +1199,41 @@
       "resourceGains": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 35,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0004_pelica_power_attack"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 5.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [
         "addition_vertical",
         "atk_scale",
@@ -1067,6 +1376,41 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 3,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0004_pelica_plunging_attack_end"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -1172,6 +1516,82 @@
       "resourceGains": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 13,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0004_pelica_normal_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
+                ]
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "cam_angle",
@@ -1613,6 +2033,133 @@
         }
       ],
       "abilityEntityHits": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 24,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 2.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "frame": 24,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit",
+            "chr_0004_pelica_combo_skill_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 2.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
@@ -1740,6 +2287,82 @@
           "nestedAbilityEntityHits": [],
           "combatActions": [],
           "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 58,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0004_pelica_ultimate_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 6.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
+                ]
+              }
+            }
+          ]
         }
       ],
       "blackboardKeys": [

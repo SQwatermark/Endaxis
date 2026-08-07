@@ -128,6 +128,14 @@ class AbilityEntityHitSource:
 
 
 @dataclass(frozen=True)
+class ResolvedDamageHitSource:
+    frame: int
+    sourceKind: str
+    sourcePath: tuple[str, ...]
+    damageUnits: tuple[DamageUnitSource, ...]
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -795,6 +803,53 @@ def resolve_ability_entity_hits(
                 )
             )
     return tuple(result)
+
+
+def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitSource, ...]:
+    """将根技能及其引用子技能中的伤害动作投影到根技能的绝对帧。"""
+    result: list[ResolvedDamageHitSource] = []
+    for hit in skill.directDamageHits:
+        if hit.damageUnits:
+            result.append(ResolvedDamageHitSource(hit.startFrame, "direct", (skill.skillId,), hit.damageUnits))
+
+    def collect_projectile(hit: ProjectileHitSource, path: tuple[str, ...]) -> None:
+        current_path = (*path, hit.hitSkillId)
+        for damage in hit.directDamageHits:
+            if damage.damageUnits:
+                result.append(
+                    ResolvedDamageHitSource(
+                        hit.launchFrame + hit.assumedTravelFrames + damage.startFrame,
+                        "projectile",
+                        current_path,
+                        damage.damageUnits,
+                    )
+                )
+        for nested in hit.nestedProjectileHits:
+            collect_projectile(nested, current_path)
+
+    def collect_entity(hit: AbilityEntityHitSource, path: tuple[str, ...]) -> None:
+        current_path = (*path, hit.skillId)
+        for damage in hit.directDamageHits:
+            if damage.damageUnits:
+                result.append(
+                    ResolvedDamageHitSource(
+                        hit.spawnFrame + damage.startFrame,
+                        "abilityEntity",
+                        current_path,
+                        damage.damageUnits,
+                    )
+                )
+        for projectile in hit.projectileHits:
+            collect_projectile(projectile, current_path)
+        for nested in hit.nestedAbilityEntityHits:
+            collect_entity(nested, current_path)
+
+    root_path = (skill.skillId,)
+    for projectile in skill.projectileHits:
+        collect_projectile(projectile, root_path)
+    for entity in skill.abilityEntityHits:
+        collect_entity(entity, root_path)
+    return tuple(sorted(result, key=lambda hit: hit.frame))
 
 
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
@@ -1742,6 +1797,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
+                "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }

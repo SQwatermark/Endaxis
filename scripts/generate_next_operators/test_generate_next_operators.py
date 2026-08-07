@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 from generate_next_operators import (
     collect_blackboard_keys,
+    collect_resolved_damage_hits,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
@@ -70,6 +71,37 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(hits[0].skillId, "child_skill")
         self.assertEqual(hits[0].combatActions, ("ObtainCostAction",))
         self.assertEqual(hits[0].resourceGains[0].startFrame, 3)
+
+    def test_damage_projection_uses_absolute_frames_across_child_skills(self) -> None:
+        damage_units = (SimpleNamespace(attributeType="Hp"),)
+        skill = SimpleNamespace(
+            skillId="root",
+            directDamageHits=(SimpleNamespace(startFrame=2, damageUnits=damage_units),),
+            projectileHits=(
+                SimpleNamespace(
+                    launchFrame=5,
+                    assumedTravelFrames=0,
+                    hitSkillId="projectile_hit",
+                    directDamageHits=(SimpleNamespace(startFrame=3, damageUnits=damage_units),),
+                    nestedProjectileHits=(),
+                ),
+            ),
+            abilityEntityHits=(
+                SimpleNamespace(
+                    spawnFrame=10,
+                    skillId="entity_hit",
+                    directDamageHits=(SimpleNamespace(startFrame=4, damageUnits=damage_units),),
+                    projectileHits=(),
+                    nestedAbilityEntityHits=(),
+                ),
+            ),
+        )
+
+        hits = collect_resolved_damage_hits(skill)
+
+        self.assertEqual([hit.frame for hit in hits], [2, 8, 14])
+        self.assertEqual([hit.sourceKind for hit in hits], ["direct", "projectile", "abilityEntity"])
+        self.assertEqual(hits[-1].sourcePath, ("root", "entity_hit"))
 
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")
