@@ -1300,27 +1300,29 @@ def typescript_identifier(slug: str) -> str:
     return parts[0] + "".join(part[0].upper() + part[1:] for part in parts[1:])
 
 
-def render_skill_groups(skills: list[SkillSource], skills_export_name: str) -> list[str]:
-    groups: list[tuple[str, str, list[int]]] = []
-    for index, skill in enumerate(skills):
-        group_key = "basicAttack" if skill.skillType == "basicAttack" else skill.key
-        if groups and groups[-1][0] == group_key:
-            groups[-1][2].append(index)
-        else:
-            groups.append((group_key, skill.skillType, [index]))
-    level_sources = {
-        "basicAttack": "basicAttack",
-        "finisher": "basicAttack",
-        "plungingAttack": "basicAttack",
-        "battleSkill": "battleSkill",
-        "comboSkill": "comboSkill",
-        "ultimate": "ultimate",
-    }
+def render_skill_groups(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    skills_export_name: str,
+) -> list[str]:
+    index_by_key = {skill.key: index for index, skill in enumerate(skills)}
+    if len(index_by_key) != len(skills):
+        raise ValueError(f"{operator['slug']}.skills: duplicate stable skill key")
     result: list[str] = []
-    for key, skill_type, indexes in groups:
-        level_source = level_sources.get(skill_type)
-        if level_source is None:
-            raise ValueError(f"skill group {key}: unsupported skill type {skill_type}")
+    for raw_group in require_list(operator.get("skillGroups"), f"{operator['slug']}.skillGroups"):
+        group = require_dict(raw_group, f"{operator['slug']}.skillGroups[]")
+        key = str(group["key"])
+        skill_type = str(group["skillType"])
+        level_source = str(group["levelSource"])
+        skill_keys = [str(item) for item in require_list(group.get("skillKeys"), f"skillGroups.{key}.skillKeys")]
+        if not skill_keys:
+            raise ValueError(f"skillGroups.{key}: expected at least one skill")
+        try:
+            indexes = [index_by_key[skill_key] for skill_key in skill_keys]
+        except KeyError as error:
+            raise ValueError(f"skillGroups.{key}: unknown skill key {error.args[0]!r}") from error
+        if any(skills[index].skillType != skill_type for index in indexes):
+            raise ValueError(f"skillGroups.{key}: skill type does not match referenced skills")
         references = [f"{skills_export_name}[{index}]!" for index in indexes]
         skills_source = references[0] if len(references) == 1 else f"[{', '.join(references)}]"
         result.append(
@@ -1332,13 +1334,29 @@ def render_skill_groups(skills: list[SkillSource], skills_export_name: str) -> l
     return result
 
 
-def validate_skill_groups(skills: list[SkillSource], growth: dict[str, Any], path: str) -> None:
-    expected_by_type = {
-        0: [skill.skillId for skill in skills if skill.skillType in {"basicAttack", "finisher", "plungingAttack"}],
-        1: [skill.skillId for skill in skills if skill.skillType == "battleSkill"],
-        2: [skill.skillId for skill in skills if skill.skillType == "ultimate"],
-        3: [skill.skillId for skill in skills if skill.skillType == "comboSkill"],
-    }
+def validate_skill_groups(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    growth: dict[str, Any],
+    path: str,
+) -> None:
+    skill_by_key = {skill.key: skill for skill in skills}
+    expected_by_type: dict[int, list[str]] = {}
+    referenced_keys: list[str] = []
+    for raw_group in require_list(operator.get("skillGroups"), f"{operator['slug']}.skillGroups"):
+        group = require_dict(raw_group, f"{operator['slug']}.skillGroups[]")
+        group_type = require_non_negative_int(group.get("nativeGroupType"), "nativeGroupType")
+        skill_keys = [str(item) for item in require_list(group.get("skillKeys"), "skillKeys")]
+        for key in skill_keys:
+            if key not in skill_by_key:
+                raise ValueError(f"{operator['slug']}.skillGroups: unknown skill key {key!r}")
+            expected_by_type.setdefault(group_type, []).append(skill_by_key[key].skillId)
+            referenced_keys.append(key)
+    if len(referenced_keys) != len(set(referenced_keys)):
+        raise ValueError(f"{operator['slug']}.skillGroups: a skill is assigned more than once")
+    if set(referenced_keys) != set(skill_by_key):
+        missing = sorted(set(skill_by_key).difference(referenced_keys))
+        raise ValueError(f"{operator['slug']}.skillGroups: unassigned skills {missing}")
     actual_by_type: dict[int, list[str]] = {}
     for raw_group in require_dict(growth.get("skillGroupMap"), f"{path}.skillGroupMap").values():
         group = require_dict(raw_group, f"{path}.skillGroupMap[]")
@@ -1516,8 +1534,8 @@ def render_operator_definition(
     identifier = typescript_identifier(str(operator["slug"]))
     skills_export_name = f"{identifier}GeneratedSkills"
     operator_export_name = f"{identifier}GeneratedOperator"
-    validate_skill_groups(skills, growth, f"CharGrowthTable.{char_id}")
-    groups = render_skill_groups(skills, skills_export_name)
+    validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
+    groups = render_skill_groups(operator, skills, skills_export_name)
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]

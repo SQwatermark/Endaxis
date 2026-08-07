@@ -1,6 +1,7 @@
 """验证干员生成器最关键的派生规则和严格校验。"""
 
 import unittest
+from types import SimpleNamespace
 
 from generate_next_operators import (
     collect_blackboard_keys,
@@ -16,6 +17,7 @@ from generate_next_operators import (
     percentage_values,
     ts_inline_literal,
     typescript_identifier,
+    validate_skill_groups,
 )
 
 
@@ -44,6 +46,30 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(result["strength"], (1, 20, 40, 60, 80, 90))
         self.assertEqual(result["baseHealth"], (1, 20, 40, 60, 80, 90))
+
+    def test_multiple_ui_groups_can_reconstruct_one_native_skill_group(self) -> None:
+        operator = {
+            "slug": "operator",
+            "skillGroups": [
+                {"nativeGroupType": 2, "skillKeys": ["ultimate"]},
+                {"nativeGroupType": 2, "skillKeys": ["enhancedAttack1", "enhancedAttack2"]},
+            ],
+        }
+        skills = [
+            SimpleNamespace(key="ultimate", skillId="skill_ultimate"),
+            SimpleNamespace(key="enhancedAttack1", skillId="skill_attack_1"),
+            SimpleNamespace(key="enhancedAttack2", skillId="skill_attack_2"),
+        ]
+        growth = {
+            "skillGroupMap": {
+                "ultimate": {
+                    "skillGroupType": 2,
+                    "skillIdList": ["skill_ultimate", "skill_attack_1", "skill_attack_2"],
+                }
+            }
+        }
+
+        validate_skill_groups(operator, skills, growth, "growth")
 
     def test_allow_next_can_open_before_generic_interrupt_boundary(self) -> None:
         frame, source = derive_timeline_block(
