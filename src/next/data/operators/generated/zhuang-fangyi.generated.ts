@@ -3889,6 +3889,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Infinity",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "OnBuffFinish",
@@ -4343,6 +4344,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4357,6 +4359,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5314,6 +5317,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5345,6 +5349,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5359,6 +5364,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5373,6 +5379,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5512,6 +5519,193 @@ export const zhuangFangyiGeneratedSource = {
                       ]
                     }
                   ],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[5]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "Equals",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "swordIndex",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedCombatActions": [
+                        "DamageAction",
+                        "ObtainCostAction"
+                      ],
+                      "failCombatActions": [
+                        "DamageAction",
+                        "ObtainCostAction"
+                      ]
+                    },
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[5]",
+                        "succeedActions",
+                        "actionData",
+                        "[2]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "LT",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "swordIndex",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "remain_sword_limit",
+                            "levelValues": [
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
+                            ]
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
+                      "failCombatActions": []
+                    },
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[5]",
+                        "failActions",
+                        "actionData",
+                        "[2]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "LT",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "swordIndex",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "remain_sword_limit",
+                            "levelValues": [
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
+                            ]
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
+                      "failCombatActions": []
+                    },
+                    {
+                      "startFrame": 6,
+                      "endFrame": 9,
+                      "actionPath": [
+                        "timelineActions[6]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[8]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "LT",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "swordIndex",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "remain_sword_limit",
+                            "levelValues": [
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
+                            ]
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
+                      "failCombatActions": []
+                    }
+                  ],
                   "eventActions": [],
                   "resourceGains": [
                     {
@@ -5611,6 +5805,7 @@ export const zhuangFangyiGeneratedSource = {
                       "sourceAvailable": true,
                       "lifeType": "Limited",
                       "directDamageHits": [],
+                      "conditionalActions": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5625,6 +5820,7 @@ export const zhuangFangyiGeneratedSource = {
                       "sourceAvailable": true,
                       "lifeType": "Limited",
                       "directDamageHits": [],
+                      "conditionalActions": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5663,6 +5859,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6443,6 +6640,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -6474,6 +6672,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6488,6 +6687,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6502,6 +6702,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -7142,6 +7343,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -7734,6 +7936,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -8280,6 +8483,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Infinity",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8302,6 +8506,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": true,
           "lifeType": "Limited",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8328,6 +8533,7 @@ export const zhuangFangyiGeneratedSource = {
                   "sourceAvailable": true,
                   "lifeType": "Infinity",
                   "directDamageHits": [],
+                  "conditionalActions": [],
                   "eventActions": [
                     {
                       "event": "OnBuffFinish",
@@ -8347,6 +8553,7 @@ export const zhuangFangyiGeneratedSource = {
                           "sourceAvailable": true,
                           "lifeType": "Limited",
                           "directDamageHits": [],
+                          "conditionalActions": [],
                           "eventActions": [
                             {
                               "event": "DuringBuffEnable",
@@ -8397,6 +8604,7 @@ export const zhuangFangyiGeneratedSource = {
                   "sourceAvailable": true,
                   "lifeType": "Infinity",
                   "directDamageHits": [],
+                  "conditionalActions": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8419,6 +8627,7 @@ export const zhuangFangyiGeneratedSource = {
                   "sourceAvailable": true,
                   "lifeType": "Infinity",
                   "directDamageHits": [],
+                  "conditionalActions": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8460,6 +8669,7 @@ export const zhuangFangyiGeneratedSource = {
                   "sourceAvailable": true,
                   "lifeType": "Infinity",
                   "directDamageHits": [],
+                  "conditionalActions": [],
                   "eventActions": [],
                   "resourceGains": [],
                   "nestedBuffBehaviors": [],
@@ -8482,6 +8692,7 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifeType": "",
           "directDamageHits": [],
+          "conditionalActions": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],

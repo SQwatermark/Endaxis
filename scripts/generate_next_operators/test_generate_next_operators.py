@@ -20,6 +20,7 @@ from generate_next_operators import (
     parse_inflictions,
     parse_panel_attributes,
     parse_auxiliary_actions,
+    parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
     resolve_ability_entity_hits,
@@ -34,6 +35,62 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_conditional_audit_preserves_blackboard_comparison_and_branches(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 6,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CompareFloat+Data, Example",
+                                                "valueA": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "swordIndex",
+                                                },
+                                                "compare": "Equals",
+                                                "valueB": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 0,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {
+                                        "actionData": [
+                                            {"$type": "Example.ObtainCostAction+Data, Example"}
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "buff.json", {"swordIndex": (0,)})
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(actions[0].startFrame, 3)
+        self.assertEqual(actions[0].conditions[0].sourceType, "CompareFloat")
+        self.assertEqual(actions[0].conditions[0].left.blackboardKey, "swordIndex")
+        self.assertEqual(actions[0].succeedCombatActions, ("DamageAction",))
+        self.assertEqual(actions[0].failCombatActions, ("ObtainCostAction",))
+
     def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:
         unit = DamageUnitSource(
             damageType="Pulse",

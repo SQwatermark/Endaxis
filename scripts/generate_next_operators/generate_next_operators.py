@@ -154,6 +154,7 @@ class BuffBehaviorSource:
     sourceAvailable: bool
     lifeType: str
     directDamageHits: tuple[TimedDamageSource, ...]
+    conditionalActions: tuple["ConditionalActionSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
@@ -168,6 +169,26 @@ class BuffEventActionSource:
     damageUnits: tuple[DamageUnitSource, ...]
     createdBuffIds: tuple[str, ...]
     createdBuffBehaviors: tuple[BuffBehaviorSource, ...]
+
+
+@dataclass(frozen=True)
+class ConditionSource:
+    sourceType: str
+    supported: bool
+    comparison: str | None
+    left: ScalarSource | None
+    right: ScalarSource | None
+    skillTypes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ConditionalActionSource:
+    startFrame: int
+    endFrame: int
+    actionPath: tuple[str, ...]
+    conditions: tuple[ConditionSource, ...]
+    succeedCombatActions: tuple[str, ...]
+    failCombatActions: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -350,6 +371,122 @@ def parse_scalar(
         blackboardKey=blackboard_key,
         levelValues=level_values,
     )
+
+
+def parse_conditional_actions(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[ConditionalActionSource, ...]:
+    """保留会改变战斗行为的 IfElse 条件；暂不把展示分支带入审计层。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[ConditionalActionSource] = []
+
+    def combat_actions(value: Any) -> tuple[str, ...]:
+        return tuple(
+            sorted(
+                {
+                    action_name(action["$type"])
+                    for action in walk_actions(value)
+                    if action_name(action["$type"]) in COMBAT_ACTION_NAMES
+                    and action_name(action["$type"]) != "IfElseAction"
+                }
+            )
+        )
+
+    def visit(value: Any, start_frame: int, end_frame: int, path: tuple[str, ...]) -> None:
+        if isinstance(value, list):
+            for index, child in enumerate(value):
+                visit(child, start_frame, end_frame, (*path, f"[{index}]"))
+            return
+        if not isinstance(value, dict):
+            return
+        if action_name(str(value.get("$type", ""))) == "IfElseAction":
+            succeed = combat_actions(value.get("succeedActions"))
+            fail = combat_actions(value.get("failActions"))
+            if succeed or fail:
+                conditions: list[ConditionSource] = []
+                condition_group = require_dict(
+                    value.get("conditionAction"), f"{source_name}.IfElseAction.conditionAction"
+                )
+                for index, raw_condition in enumerate(
+                    require_list(
+                        condition_group.get("actionData"),
+                        f"{source_name}.IfElseAction.conditionAction.actionData",
+                    )
+                ):
+                    condition = require_dict(raw_condition, f"{source_name}.condition[{index}]")
+                    condition_type = action_name(str(condition.get("$type", "")))
+                    if condition_type == "CompareFloat":
+                        conditions.append(
+                            ConditionSource(
+                                sourceType=condition_type,
+                                supported=True,
+                                comparison=str(condition.get("compare", "")),
+                                left=parse_scalar(
+                                    condition.get("valueA"),
+                                    f"{source_name}.condition[{index}].valueA",
+                                    inherited_blackboard,
+                                ),
+                                right=parse_scalar(
+                                    condition.get("valueB"),
+                                    f"{source_name}.condition[{index}].valueB",
+                                    inherited_blackboard,
+                                ),
+                                skillTypes=(),
+                            )
+                        )
+                    elif condition_type == "CheckSkillType":
+                        conditions.append(
+                            ConditionSource(
+                                sourceType=condition_type,
+                                supported=True,
+                                comparison=None,
+                                left=None,
+                                right=None,
+                                skillTypes=tuple(
+                                    str(item)
+                                    for item in require_list(
+                                        condition.get("skillTypeList"),
+                                        f"{source_name}.condition[{index}].skillTypeList",
+                                    )
+                                ),
+                            )
+                        )
+                    else:
+                        conditions.append(
+                            ConditionSource(condition_type, False, None, None, None, ())
+                        )
+                result.append(
+                    ConditionalActionSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionPath=path,
+                        conditions=tuple(conditions),
+                        succeedCombatActions=succeed,
+                        failCombatActions=fail,
+                    )
+                )
+        for key, child in value.items():
+            visit(child, start_frame, end_frame, (*path, key))
+
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        visit(
+            timeline.get("_sequenceActionData"),
+            start_frame,
+            end_frame,
+            (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
+        )
+    return tuple(result)
 
 
 def parse_damage_units(
@@ -977,6 +1114,7 @@ def resolve_buff_behaviors(
                 sourceAvailable=False,
                 lifeType="",
                 directDamageHits=(),
+                conditionalActions=(),
                 eventActions=(),
                 resourceGains=(),
                 nestedBuffBehaviors=(),
@@ -1075,6 +1213,7 @@ def resolve_buff_behaviors(
             sourceAvailable=True,
             lifeType=str(buff.get("lifeType", "")),
             directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
+            conditionalActions=parse_conditional_actions(adapted_root, buff_name, child_blackboard),
             eventActions=tuple(event_actions),
             resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
             nestedBuffBehaviors=nested,

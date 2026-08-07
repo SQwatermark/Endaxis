@@ -132,11 +132,32 @@ export interface GeneratedBuffBehaviorSource {
   readonly sourceAvailable: boolean;
   readonly lifeType: string;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  /** 会影响战斗动作集合的原生条件分支；unsupported 条件不得直接编译。 */
+  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
   readonly combatActions: readonly string[];
   readonly cycleTruncated: boolean;
+}
+
+export interface GeneratedConditionSource {
+  readonly sourceType: string;
+  readonly supported: boolean;
+  readonly comparison: string | null;
+  readonly left: GeneratedScalarSource | null;
+  readonly right: GeneratedScalarSource | null;
+  readonly skillTypes: readonly string[];
+}
+
+export interface GeneratedConditionalActionSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  /** 从 timeline 下标开始的原始对象路径，用于回查嵌套分支。 */
+  readonly actionPath: readonly string[];
+  readonly conditions: readonly GeneratedConditionSource[];
+  readonly succeedCombatActions: readonly string[];
+  readonly failCombatActions: readonly string[];
 }
 
 export interface GeneratedBuffEventActionSource {
