@@ -2107,8 +2107,8 @@
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -2137,8 +2137,8 @@
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -2170,8 +2170,8 @@
             "SpawnAbilityEntity"
           ],
           "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -2983,8 +2983,8 @@
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -3013,8 +3013,8 @@
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -3046,8 +3046,8 @@
             "SpawnAbilityEntity"
           ],
           "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -4665,11 +4665,18 @@
           ],
           "succeedCombatActions": [
             "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -4716,17 +4723,20 @@
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
             "LaunchProjectile",
-            "ModifyDynamicBlackboard"
+            "CreateBuffAction"
           ]
         },
         {
@@ -4955,8 +4965,8 @@
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },
@@ -6337,11 +6347,20 @@
           ],
           "succeedCombatActions": [
             "CreateBuffAction",
+            "LaunchProjectile",
             "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -6388,16 +6407,22 @@
             }
           ],
           "succeedCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ]
         },
         {
@@ -6444,12 +6469,12 @@
             }
           ],
           "succeedCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ],
           "failCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ]
         },
         {
@@ -6496,17 +6521,20 @@
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
             "LaunchProjectile",
-            "ModifyDynamicBlackboard"
+            "CreateBuffAction"
           ]
         },
         {
@@ -7677,8 +7705,10 @@
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },
@@ -7791,6 +7821,7 @@
             }
           ],
           "succeedCombatActions": [
+            "ObtainCostAction",
             "ObtainCostAction"
           ],
           "failCombatActions": []
@@ -8261,8 +8292,10 @@
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },

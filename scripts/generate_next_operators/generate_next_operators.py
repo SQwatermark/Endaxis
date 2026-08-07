@@ -566,15 +566,12 @@ def parse_conditional_actions(
     result: list[ConditionalActionSource] = []
 
     def combat_actions(value: Any) -> tuple[str, ...]:
+        """按原始遍历顺序保留分支动作；重复动作同样具有执行语义。"""
         return tuple(
-            sorted(
-                {
-                    action_name(action["$type"])
-                    for action in walk_actions(value)
-                    if action_name(action["$type"]) in CONDITIONAL_AUDIT_ACTION_NAMES
-                    and action_name(action["$type"]) != "IfElseAction"
-                }
-            )
+            action_name(action["$type"])
+            for action in walk_actions(value)
+            if action_name(action["$type"]) in CONDITIONAL_AUDIT_ACTION_NAMES
+            and action_name(action["$type"]) != "IfElseAction"
         )
 
     def visit(value: Any, start_frame: int, end_frame: int, path: tuple[str, ...]) -> None:

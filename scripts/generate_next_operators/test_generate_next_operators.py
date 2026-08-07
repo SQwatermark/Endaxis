@@ -283,6 +283,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
+                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
                                             {"$type": "Example.DamageAction+Data, Example"},
                                             {"$type": "Example.FinishBuffAdvanced+Data, Example"},
                                         ]
@@ -308,7 +309,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(actions[0].conditions[0].left.blackboardKey, "swordIndex")
         self.assertEqual(
             actions[0].succeedCombatActions,
-            ("DamageAction", "FinishBuffAdvanced"),
+            ("FinishBuffAdvanced", "DamageAction", "FinishBuffAdvanced"),
         )
         self.assertEqual(actions[0].failCombatActions, ("ObtainCostAction",))
 

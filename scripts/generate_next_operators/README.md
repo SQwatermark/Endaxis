@@ -57,4 +57,5 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - 没有战斗效果的表现投射物、教程标记和全等级为零的资源动作会保留在审计层，但不生成无效果 DSL 步骤。
 - `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 已有反编译闭环，`CheckEntityNum` 仍只保存原始目标集合参数，不会在固定单敌人模型中擅自改写成战斗状态。
 - 条件分支中的 Buff 读取、结束和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
+- 条件分支的动作摘要保持原始遍历顺序并保留重复项；它是后续恢复 ordered sequence 的证据，不能按名称排序或去重。
 - 佩丽卡已经完整生成并作为正式数据入口；新增干员前应优先把所需通用语义编译器补齐，避免在清单中复制手写 TS。

@@ -3141,8 +3141,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -3171,8 +3171,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -3204,8 +3204,8 @@ export const zhuangFangyiGeneratedSource = {
             "SpawnAbilityEntity"
           ],
           "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -4154,8 +4154,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -4184,8 +4184,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -4217,8 +4217,8 @@ export const zhuangFangyiGeneratedSource = {
             "SpawnAbilityEntity"
           ],
           "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "SpawnAbilityEntity"
+            "SpawnAbilityEntity",
+            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -6701,11 +6701,18 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "succeedCombatActions": [
             "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -6752,17 +6759,20 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
             "LaunchProjectile",
-            "ModifyDynamicBlackboard"
+            "CreateBuffAction"
           ]
         },
         {
@@ -6991,8 +7001,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },
@@ -8844,11 +8854,20 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "succeedCombatActions": [
             "CreateBuffAction",
+            "LaunchProjectile",
             "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
             "SpawnAbilityEntity"
@@ -8895,16 +8914,22 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ]
         },
         {
@@ -8951,12 +8976,12 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ],
           "failCombatActions": [
-            "FinishBuffAdvanced",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "FinishBuffAdvanced"
           ]
         },
         {
@@ -9003,17 +9028,20 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "FinishBuffAdvanced",
             "GetTargetBuffBBAdvanced",
-            "LaunchProjectile",
+            "FinishBuffAdvanced",
             "ModifyDynamicBlackboard",
-            "ObtainCostAction"
+            "ModifyDynamicBlackboard",
+            "ObtainCostAction",
+            "ModifyDynamicBlackboard",
+            "LaunchProjectile",
+            "CreateBuffAction"
           ],
           "failCombatActions": [
-            "CreateBuffAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
             "LaunchProjectile",
-            "ModifyDynamicBlackboard"
+            "CreateBuffAction"
           ]
         },
         {
@@ -10542,8 +10570,10 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },
@@ -10656,6 +10686,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
+            "ObtainCostAction",
             "ObtainCostAction"
           ],
           "failCombatActions": []
@@ -11457,8 +11488,10 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "succeedCombatActions": [
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard"
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
           ],
           "failCombatActions": []
         },
