@@ -31,6 +31,7 @@ from generate_next_operators import (
     parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
+    resolve_projectile_hits,
     resolve_ability_entity_hits,
     resolve_buff_behaviors,
     parse_skill_patch,
@@ -115,6 +116,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.GetTargetBuffBBAdvanced+Data, Example",
+                                    "serverActionIndex": 0,
                                     "blackboardKey": "conductCnt",
                                     "desiredKey": "count",
                                     "targetSettings": {
@@ -132,6 +134,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 },
                                 {
                                     "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                    "serverActionIndex": 1,
                                     "key": "conductCnt",
                                     "operation": "Add",
                                     "directValue": True,
@@ -143,6 +146,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 },
                                 {
                                     "$type": "Example.FinishBuffAdvanced+Data, Example",
+                                    "serverActionIndex": 2,
                                     "buffOwner": {
                                         "targetSource": "Context",
                                         "targetGroupKey": "smart_target",
@@ -225,6 +229,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "_endFrame": 9,
                         "_sequenceActionData": {
                             "$type": "Example.SimpleCalcBBAction+Data, Example",
+                            "serverActionIndex": 4,
                             "key": "atk_scale_final",
                             "operation": "Multiply",
                             "value1": {
@@ -266,6 +271,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 6,
                                     "conditionAction": {
                                         "actionData": [
                                             {
@@ -352,6 +358,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         nested = {
             "$type": "Example.IfElseAction+Data, Example",
+            "serverActionIndex": 1,
             "conditionAction": {"actionData": [compare]},
             "succeedActions": {
                 "actionData": [{"$type": "Example.DamageAction+Data, Example"}]
@@ -370,6 +377,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 4,
                                     "conditionAction": {"actionData": [compare]},
                                     "succeedActions": {
                                         "actionData": [
@@ -423,6 +431,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 3,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
                                         "actionData": [
@@ -483,6 +492,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 8,
                                     "conditionAction": {
                                         "actionData": [
                                             {
@@ -805,6 +815,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=10,
+                    rootActionIndex=0,
                     skillId="entity_hit",
                     directDamageHits=(SimpleNamespace(startFrame=2, damageUnits=(unit,)),),
                     projectileHits=(),
@@ -862,6 +873,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "_endFrame": 6,
                         "_sequenceActionData": {
                             "$type": "Example.CreateBuffAction+Data, Example",
+                            "serverActionIndex": 0,
                             "isEnable": True,
                             "buffs": [
                                 {
@@ -891,6 +903,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "_endFrame": 6,
                         "_sequenceActionData": {
                             "$type": "Example.CreateBuffAction+Data, Example",
+                            "serverActionIndex": 0,
                             "isEnable": True,
                             "buffs": [{"buffId": "parent_buff", "assignItems": []}],
                         },
@@ -909,6 +922,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.CreateBuffAction+Data, Example",
+                                    "serverActionIndex": 0,
                                     "isEnable": True,
                                     "buffs": [{"buffId": "child_buff", "assignItems": []}],
                                 }
@@ -967,6 +981,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "_endFrame": 5,
                         "_sequenceActionData": {
                             "$type": "Example.SpawnAbilityEntity+Data, Example",
+                            "serverActionIndex": 0,
                             "isEnable": True,
                             "abilityEntityId": "fake_target",
                             "abilityEntitySkillId": "",
@@ -985,6 +1000,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
     def test_ability_entity_child_skill_keeps_spawn_offset_and_combat_details(self) -> None:
         spawn = {
             "$type": "Example.SpawnAbilityEntity+Data, Example",
+            "serverActionIndex": 5,
             "isEnable": True,
             "abilityEntityId": "ability_entity",
             "abilityEntitySkillId": "child_skill",
@@ -1004,6 +1020,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "_endFrame": 3,
                         "_sequenceActionData": {
                             "$type": "Example.ObtainCostAction+Data, Example",
+                            "serverActionIndex": 0,
                             "isEnable": True,
                             "costType": "Atb",
                             "isPercentValue": False,
@@ -1022,6 +1039,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0].spawnFrame, 19)
+        self.assertEqual(hits[0].rootActionIndex, 5)
         self.assertEqual(hits[0].skillId, "child_skill")
         self.assertEqual(hits[0].combatActions, ("ObtainCostAction",))
         self.assertEqual(hits[0].resourceGains[0].startFrame, 3)
@@ -1030,10 +1048,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         damage_units = (SimpleNamespace(attributeType="Hp"),)
         skill = SimpleNamespace(
             skillId="root",
-            directDamageHits=(SimpleNamespace(startFrame=2, damageUnits=damage_units),),
+            directDamageHits=(
+                SimpleNamespace(startFrame=2, actionIndex=3, damageUnits=damage_units),
+            ),
             projectileHits=(
                 SimpleNamespace(
                     launchFrame=5,
+                    rootActionIndex=1,
                     assumedTravelFrames=0,
                     hitSkillId="projectile_hit",
                     directDamageHits=(SimpleNamespace(startFrame=3, damageUnits=damage_units),),
@@ -1043,6 +1064,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=10,
+                    rootActionIndex=2,
                     skillId="entity_hit",
                     directDamageHits=(SimpleNamespace(startFrame=4, damageUnits=damage_units),),
                     projectileHits=(),
@@ -1056,6 +1078,92 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual([hit.frame for hit in hits], [2, 8, 14])
         self.assertEqual([hit.sourceKind for hit in hits], ["direct", "projectile", "abilityEntity"])
         self.assertEqual(hits[-1].sourcePath, ("root", "entity_hit"))
+
+    def test_damage_projection_orders_same_frame_hits_by_root_server_action_index(self) -> None:
+        damage_units = (SimpleNamespace(attributeType="Hp"),)
+        skill = SimpleNamespace(
+            skillId="root",
+            directDamageHits=(
+                SimpleNamespace(startFrame=5, actionIndex=8, damageUnits=damage_units),
+            ),
+            projectileHits=(
+                SimpleNamespace(
+                    launchFrame=5,
+                    rootActionIndex=2,
+                    assumedTravelFrames=0,
+                    hitSkillId="projectile_hit",
+                    directDamageHits=(SimpleNamespace(startFrame=0, damageUnits=damage_units),),
+                    nestedProjectileHits=(),
+                ),
+            ),
+            abilityEntityHits=(
+                SimpleNamespace(
+                    spawnFrame=5,
+                    rootActionIndex=5,
+                    skillId="entity_hit",
+                    directDamageHits=(SimpleNamespace(startFrame=0, damageUnits=damage_units),),
+                    projectileHits=(),
+                    nestedAbilityEntityHits=(),
+                ),
+            ),
+        )
+
+        hits = collect_resolved_damage_hits(skill)
+
+        self.assertEqual([hit.frame for hit in hits], [5, 5, 5])
+        self.assertEqual([hit.actionIndex for hit in hits], [2, 5, 8])
+        self.assertEqual(
+            [hit.sourceKind for hit in hits],
+            ["projectile", "abilityEntity", "direct"],
+        )
+
+    def test_nested_projectile_keeps_the_root_launch_action_index(self) -> None:
+        parent = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 4,
+                        "_endFrame": 4,
+                        "_sequenceActionData": {
+                            "$type": "Example.LaunchProjectile+Data, Example",
+                            "serverActionIndex": 7,
+                            "isEnable": True,
+                            "projectileId": "parent_projectile",
+                            "castSkillOnHit": True,
+                            "projectileSkillId": "child_hit",
+                        },
+                    }
+                ]
+            }
+        }
+        child = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 1,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "$type": "Example.LaunchProjectile+Data, Example",
+                            "serverActionIndex": 2,
+                            "isEnable": True,
+                            "projectileId": "nested_projectile",
+                            "castSkillOnHit": True,
+                            "projectileSkillId": "nested_hit",
+                        },
+                    }
+                ]
+            }
+        }
+        nested = {"actionGroupData": {"timelineActions": []}}
+        with tempfile.TemporaryDirectory() as directory:
+            source_dir = Path(directory)
+            (source_dir / "child_hit.json").write_text(json.dumps(child), encoding="utf-8")
+            (source_dir / "nested_hit.json").write_text(json.dumps(nested), encoding="utf-8")
+
+            hits = resolve_projectile_hits(parent, "parent.json", source_dir)
+
+        self.assertEqual(hits[0].rootActionIndex, 7)
+        self.assertEqual(hits[0].nestedProjectileHits[0].rootActionIndex, 7)
 
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")
@@ -1242,6 +1350,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 {
                                     "$type": "Example.ObtainCostAction+Data, Example",
                                     "isEnable": True,
+                                    "serverActionIndex": 1,
                                     "costType": "UltimateSp",
                                     "isPercentValue": False,
                                     "costValue": {
@@ -1265,7 +1374,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         gains = parse_resource_gains(root, "skill.json", {"usp": (8.0, 10.0)})
 
         self.assertEqual(len(gains), 1)
-        self.assertEqual((gains[0].startFrame, gains[0].actionIndex), (24, 0))
+        self.assertEqual((gains[0].startFrame, gains[0].actionIndex), (24, 1))
         self.assertEqual(gains[0].resource, "ultimateEnergy")
         self.assertEqual(gains[0].amount.levelValues, (8.0, 10.0))
 
@@ -1281,6 +1390,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 {"$type": "Example.FindTarget, Example"},
                                 {
                                     "$type": "Example.SpellInfliction+Data, Example",
+                                    "serverActionIndex": 1,
                                     "inflictionType": "Pulse",
                                     "isExtra": False,
                                 },
@@ -1318,6 +1428,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 {"$type": "Example.CreateBuffAction, Example"},
                                 {
                                     "$type": "Example.DamageAction, Example",
+                                    "serverActionIndex": 1,
                                     "damageUnits": [
                                         {
                                             "damageType": "Pulse",

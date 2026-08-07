@@ -103,6 +103,7 @@ class TimedResourceGainSource:
 @dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
+    rootActionIndex: int
     assumedTravelFrames: int
     projectileId: str
     hitSkillId: str
@@ -127,6 +128,7 @@ class ProjectileLaunchSource:
 @dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
+    rootActionIndex: int
     abilityEntityId: str
     skillId: str
     sourceFile: str
@@ -144,6 +146,7 @@ class AbilityEntityHitSource:
 @dataclass(frozen=True)
 class ResolvedDamageHitSource:
     frame: int
+    actionIndex: int
     sourceKind: str
     sourcePath: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
@@ -322,6 +325,7 @@ class ConditionalBranchActionSource:
 class ConditionalActionSource:
     startFrame: int
     endFrame: int
+    actionIndex: int
     actionPath: tuple[str, ...]
     conditions: tuple[ConditionSource, ...]
     succeedActions: tuple[ConditionalBranchActionSource, ...]
@@ -532,6 +536,11 @@ def require_non_negative_int(value: Any, path: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool) or value < 0:
         raise ValueError(f"{path}: expected non-negative integer")
     return value
+
+
+def require_server_action_index(action: dict[str, Any], path: str) -> int:
+    """读取原生动作顺序；该值用于归并同帧动作，不能用遍历序号代替。"""
+    return require_non_negative_int(action.get("serverActionIndex"), f"{path}.serverActionIndex")
 
 
 def action_name(type_name: str) -> str:
@@ -1027,6 +1036,9 @@ def parse_conditional_actions(
         return ConditionalActionSource(
             startFrame=start_frame,
             endFrame=end_frame,
+            actionIndex=require_non_negative_int(
+                value.get("serverActionIndex"), f"{source_path}.serverActionIndex"
+            ),
             actionPath=path,
             conditions=conditions,
             succeedActions=succeed,
@@ -1168,7 +1180,7 @@ def parse_blackboard_calculations(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+        for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SimpleCalcBBAction":
                 continue
             payload = parse_blackboard_calculation_payload(
@@ -1180,7 +1192,9 @@ def parse_blackboard_calculations(
                 BlackboardCalculationSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
-                    actionIndex=action_index,
+                    actionIndex=require_server_action_index(
+                        action, f"{source_name}.SimpleCalcBBAction"
+                    ),
                     key=payload.key,
                     operation=payload.operation,
                     left=payload.left,
@@ -1244,7 +1258,7 @@ def parse_blackboard_runtime_actions(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+        for action in walk_actions(timeline.get("_sequenceActionData")):
             kind = action_name(action["$type"])
             if kind == "ModifyDynamicBlackboard":
                 payload = parse_blackboard_mutation_payload(
@@ -1256,7 +1270,9 @@ def parse_blackboard_runtime_actions(
                     BlackboardMutationSource(
                         startFrame=start_frame,
                         endFrame=end_frame,
-                        actionIndex=action_index,
+                        actionIndex=require_server_action_index(
+                            action, f"{source_name}.ModifyDynamicBlackboard"
+                        ),
                         key=payload.key,
                         operation=payload.operation,
                         value=payload.value,
@@ -1271,7 +1287,9 @@ def parse_blackboard_runtime_actions(
                     BuffFinishSource(
                         startFrame=start_frame,
                         endFrame=end_frame,
-                        actionIndex=action_index,
+                        actionIndex=require_server_action_index(
+                            action, f"{source_name}.FinishBuffAdvanced"
+                        ),
                         targetSource=payload.targetSource,
                         targetGroupKey=payload.targetGroupKey,
                         buffCheckType=payload.buffCheckType,
@@ -1294,7 +1312,9 @@ def parse_blackboard_runtime_actions(
                 BuffBlackboardReadSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
-                    actionIndex=action_index,
+                    actionIndex=require_server_action_index(
+                        action, f"{source_name}.GetTargetBuffBBAdvanced"
+                    ),
                     outputKey=payload.outputKey,
                     desiredKey=payload.desiredKey,
                     targetSource=payload.targetSource,
@@ -1394,7 +1414,7 @@ def parse_direct_damage_hits(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
         actions = list(walk_actions(timeline.get("_sequenceActionData")))
-        for action_index, action in enumerate(actions):
+        for action in actions:
             if action_name(action["$type"]) != "DamageAction":
                 continue
             action_root = {"actionGroupData": {"action": action}}
@@ -1402,7 +1422,9 @@ def parse_direct_damage_hits(
                 TimedDamageSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
-                    actionIndex=action_index,
+                    actionIndex=require_server_action_index(
+                        action, f"{source_name}.DamageAction"
+                    ),
                     damageUnits=parse_damage_units(action_root, source_name, inherited_blackboard),
                 )
             )
@@ -1444,7 +1466,7 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+        for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SpellInfliction":
                 continue
             raw_type = action.get("inflictionType")
@@ -1458,7 +1480,9 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
                 TimedInflictionSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
-                    actionIndex=action_index,
+                    actionIndex=require_server_action_index(
+                        action, f"{source_name}.SpellInfliction"
+                    ),
                     element=element,
                     isExtra=is_extra,
                 )
@@ -1520,7 +1544,7 @@ def parse_auxiliary_actions(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
         actions = list(walk_actions(timeline.get("_sequenceActionData")))
-        for action_index, action in enumerate(actions):
+        for action in actions:
             if action.get("isEnable") is False:
                 continue
             name = action_name(action["$type"])
@@ -1535,7 +1559,9 @@ def parse_auxiliary_actions(
                         AuxiliaryActionSource(
                             startFrame=start_frame,
                             endFrame=end_frame,
-                            actionIndex=action_index,
+                            actionIndex=require_server_action_index(
+                                action, f"{source_name}.CreateBuffAction"
+                            ),
                             actionType=name,
                             sourceId=buff.buffId,
                             classification=buff.classification,
@@ -1552,7 +1578,9 @@ def parse_auxiliary_actions(
                         AuxiliaryActionSource(
                             startFrame=start_frame,
                             endFrame=end_frame,
-                            actionIndex=action_index,
+                            actionIndex=require_server_action_index(
+                                action, f"{source_name}.SpawnAbilityEntity"
+                            ),
                             actionType=name,
                             sourceId=payload.abilityEntityId,
                             classification="nonCombatAbilityEntity",
@@ -1580,7 +1608,9 @@ def parse_auxiliary_actions(
                     AuxiliaryActionSource(
                         startFrame=start_frame,
                         endFrame=end_frame,
-                        actionIndex=action_index,
+                        actionIndex=require_server_action_index(
+                            action, f"{source_name}.SpawnAbilityEntity"
+                        ),
                         actionType=name,
                         sourceId=f"{payload.abilityEntityId}:{skill_id}",
                         classification="nonCombatAbilityEntity" if not nested else None,
@@ -1614,7 +1644,7 @@ def parse_resource_gains(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+        for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "ObtainCostAction" or action.get("isEnable") is False:
                 continue
             payload = parse_resource_gain_payload(
@@ -1626,7 +1656,9 @@ def parse_resource_gains(
                 TimedResourceGainSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
-                    actionIndex=action_index,
+                    actionIndex=require_server_action_index(
+                        action, f"{source_name}.ObtainCostAction"
+                    ),
                     resource=payload.resource,
                     amount=payload.amount,
                     coefficient=payload.coefficient,
@@ -1642,6 +1674,7 @@ def resolve_projectile_hits(
     base_frame: int = 0,
     stack: tuple[str, ...] = (),
     inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
+    root_action_index: int | None = None,
 ) -> tuple[ProjectileHitSource, ...]:
     result: list[ProjectileHitSource] = []
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -1670,6 +1703,13 @@ def resolve_projectile_hits(
             if not hit_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing projectile hit skill {hit_path}")
             hit_root = require_dict(json.loads(hit_path.read_text(encoding="utf-8")), hit_source_name)
+            current_root_action_index = (
+                root_action_index
+                if root_action_index is not None
+                else require_server_action_index(
+                    action, f"{source_name}.LaunchProjectile"
+                )
+            )
             cycle_truncated = hit_skill_id in stack
             nested = (
                 ()
@@ -1681,11 +1721,13 @@ def resolve_projectile_hits(
                     launch_frame,
                     (*stack, hit_skill_id),
                     inherited_blackboard=inherited_blackboard,
+                    root_action_index=current_root_action_index,
                 )
             )
             result.append(
                 ProjectileHitSource(
                     launchFrame=launch_frame,
+                    rootActionIndex=current_root_action_index,
                     assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
                     projectileId=payload.projectileId,
                     hitSkillId=hit_skill_id,
@@ -1765,6 +1807,7 @@ def resolve_ability_entity_hits(
     base_frame: int = 0,
     stack: tuple[str, ...] = (),
     inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
+    root_action_index: int | None = None,
 ) -> tuple[AbilityEntityHitSource, ...]:
     """解析 SpawnAbilityEntity 引用的子技能，并保留父技能中的生成时刻。"""
     result: list[AbilityEntityHitSource] = []
@@ -1791,6 +1834,13 @@ def resolve_ability_entity_hits(
             if not child_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
             child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+            current_root_action_index = (
+                root_action_index
+                if root_action_index is not None
+                else require_server_action_index(
+                    action, f"{source_name}.SpawnAbilityEntity"
+                )
+            )
             cycle_truncated = skill_id in stack
             nested = (
                 ()
@@ -1802,6 +1852,7 @@ def resolve_ability_entity_hits(
                     spawn_frame,
                     (*stack, skill_id),
                     blackboard,
+                    root_action_index=current_root_action_index,
                 )
             )
             combat_actions = tuple(
@@ -1816,6 +1867,7 @@ def resolve_ability_entity_hits(
             result.append(
                 AbilityEntityHitSource(
                     spawnFrame=spawn_frame,
+                    rootActionIndex=current_root_action_index,
                     abilityEntityId=payload.abilityEntityId,
                     skillId=skill_id,
                     sourceFile=child_name,
@@ -1830,6 +1882,7 @@ def resolve_ability_entity_hits(
                         source_dir,
                         spawn_frame,
                         inherited_blackboard=blackboard,
+                        root_action_index=current_root_action_index,
                     ),
                     nestedAbilityEntityHits=nested,
                     combatActions=combat_actions,
@@ -1844,7 +1897,15 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
     result: list[ResolvedDamageHitSource] = []
     for hit in skill.directDamageHits:
         if hit.damageUnits:
-            result.append(ResolvedDamageHitSource(hit.startFrame, "direct", (skill.skillId,), hit.damageUnits))
+            result.append(
+                ResolvedDamageHitSource(
+                    hit.startFrame,
+                    hit.actionIndex,
+                    "direct",
+                    (skill.skillId,),
+                    hit.damageUnits,
+                )
+            )
 
     def collect_projectile(hit: ProjectileHitSource, path: tuple[str, ...]) -> None:
         current_path = (*path, hit.hitSkillId)
@@ -1853,6 +1914,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 result.append(
                     ResolvedDamageHitSource(
                         hit.launchFrame + hit.assumedTravelFrames + damage.startFrame,
+                        hit.rootActionIndex,
                         "projectile",
                         current_path,
                         damage.damageUnits,
@@ -1868,6 +1930,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 result.append(
                     ResolvedDamageHitSource(
                         hit.spawnFrame + damage.startFrame,
+                        hit.rootActionIndex,
                         "abilityEntity",
                         current_path,
                         damage.damageUnits,
@@ -1883,7 +1946,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
         collect_projectile(projectile, root_path)
     for entity in skill.abilityEntityHits:
         collect_entity(entity, root_path)
-    return tuple(sorted(result, key=lambda hit: hit.frame))
+    return tuple(sorted(result, key=lambda hit: (hit.frame, hit.actionIndex)))
 
 
 def resolve_buff_behaviors(

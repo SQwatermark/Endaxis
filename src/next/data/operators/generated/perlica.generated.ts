@@ -181,6 +181,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 8,
+          "rootActionIndex": 3,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack1",
           "hitSkillId": "chr_0004_pelica_attack1_projhit",
@@ -622,6 +623,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 9,
+          "rootActionIndex": 1,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -692,7 +694,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
+              "actionIndex": 4,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -729,6 +731,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 12,
+          "rootActionIndex": 2,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -799,7 +802,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
+              "actionIndex": 4,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1229,6 +1232,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 16,
+          "rootActionIndex": 3,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1299,7 +1303,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
+              "actionIndex": 7,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1336,6 +1340,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 19,
+          "rootActionIndex": 4,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1406,7 +1411,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
+              "actionIndex": 7,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1443,6 +1448,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 22,
+          "rootActionIndex": 5,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1513,7 +1519,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
+              "actionIndex": 7,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1921,6 +1927,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 27,
+          "rootActionIndex": 3,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack4",
           "hitSkillId": "chr_0004_pelica_attack4_projhit",
@@ -2049,7 +2056,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 8,
+              "actionIndex": 6,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -2498,7 +2505,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 35,
           "endFrame": 44,
-          "actionIndex": 0,
+          "actionIndex": 2,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -2538,7 +2545,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 50,
-          "actionIndex": 0,
+          "actionIndex": 39,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
@@ -2548,7 +2555,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 35,
-          "actionIndex": 0,
+          "actionIndex": 46,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
@@ -3023,7 +3030,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 8,
-          "actionIndex": 0,
+          "actionIndex": 3,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -3064,7 +3071,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 8,
-          "actionIndex": 4,
+          "actionIndex": 5,
           "resource": "sp",
           "amount": {
             "value": 0.0,
@@ -3120,6 +3127,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 1,
+          "rootActionIndex": 14,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3134,6 +3142,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
+          "rootActionIndex": 15,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3148,6 +3157,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
+          "rootActionIndex": 16,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3162,6 +3172,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
+          "rootActionIndex": 17,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3552,7 +3563,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 13,
-          "actionIndex": 4,
+          "actionIndex": 12,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -3629,7 +3640,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 13,
-          "actionIndex": 3,
+          "actionIndex": 11,
           "element": "electric",
           "isExtra": false
         }
@@ -3638,7 +3649,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 13,
-          "actionIndex": 12,
+          "actionIndex": 15,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
@@ -4099,6 +4110,7 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 24,
+          "rootActionIndex": 7,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_combo_skill",
           "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -4163,7 +4175,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 12,
+              "actionIndex": 11,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -4226,7 +4238,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 10,
+              "actionIndex": 9,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
               "classification": "tutorialMarker",
@@ -4236,7 +4248,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 11,
+              "actionIndex": 10,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_common_pulse_pulse_conduct_triggered",
               "classification": "electrificationReaction",
@@ -4272,7 +4284,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 20,
+              "actionIndex": 15,
               "resource": "ultimateEnergy",
               "amount": {
                 "value": 0.2,
@@ -4310,6 +4322,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": [
             {
               "launchFrame": 24,
+              "rootActionIndex": 7,
               "assumedTravelFrames": 0,
               "projectileId": "projectile_chr_0004_pelica_combo_skill",
               "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -4374,7 +4387,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 12,
+                  "actionIndex": 11,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4437,7 +4450,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 10,
+                  "actionIndex": 9,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
                   "classification": "tutorialMarker",
@@ -4447,7 +4460,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 11,
+                  "actionIndex": 10,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_common_pulse_pulse_conduct_triggered",
                   "classification": "electrificationReaction",
@@ -4483,7 +4496,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 20,
+                  "actionIndex": 15,
                   "resource": "ultimateEnergy",
                   "amount": {
                     "value": 0.2,
@@ -5074,7 +5087,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 58,
           "endFrame": 63,
-          "actionIndex": 3,
+          "actionIndex": 18,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -5152,7 +5165,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 85,
-          "actionIndex": 0,
+          "actionIndex": 21,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
@@ -5162,7 +5175,7 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 55,
           "endFrame": 58,
-          "actionIndex": 0,
+          "actionIndex": 22,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0004_pelica_ultimate_skill:chr_0004_pelica_ultimate_skill_abilityrange",
           "classification": "nonCombatAbilityEntity",
@@ -5180,6 +5193,7 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 55,
+          "rootActionIndex": 22,
           "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",

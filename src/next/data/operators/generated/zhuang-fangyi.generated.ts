@@ -175,6 +175,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 6,
+          "rootActionIndex": 3,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
@@ -250,6 +251,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 8,
+          "rootActionIndex": 4,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
@@ -651,6 +653,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 2,
           "endFrame": 3,
+          "actionIndex": 4,
           "actionPath": [
             "timelineActions[3]",
             "_sequenceActionData",
@@ -709,6 +712,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 18,
+          "actionIndex": 13,
           "actionPath": [
             "timelineActions[6]",
             "_sequenceActionData",
@@ -752,7 +756,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 18,
-          "actionIndex": 4,
+          "actionIndex": 17,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
           "classification": null,
@@ -767,7 +771,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 2,
           "endFrame": 3,
-          "actionIndex": 1,
+          "actionIndex": 6,
           "key": "sword_dist",
           "operation": "Add",
           "value": {
@@ -797,6 +801,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 2,
+          "rootActionIndex": 10,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
@@ -872,6 +877,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 2,
+          "rootActionIndex": 11,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
@@ -949,6 +955,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 15,
+          "rootActionIndex": 17,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
@@ -956,7 +963,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 1,
-              "actionIndex": 0,
+              "actionIndex": 2,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -988,7 +995,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 9,
               "endFrame": 16,
-              "actionIndex": 5,
+              "actionIndex": 14,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1385,6 +1392,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 14,
           "endFrame": 15,
+          "actionIndex": 4,
           "actionPath": [
             "timelineActions[3]",
             "_sequenceActionData",
@@ -1448,7 +1456,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 14,
           "endFrame": 15,
-          "actionIndex": 1,
+          "actionIndex": 6,
           "key": "sword_dist",
           "operation": "Add",
           "value": {
@@ -1490,6 +1498,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 14,
+          "rootActionIndex": 10,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1565,6 +1574,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 14,
+          "rootActionIndex": 11,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1640,6 +1650,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 16,
+          "rootActionIndex": 12,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1715,6 +1726,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 16,
+          "rootActionIndex": 13,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -2086,6 +2098,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 11,
           "endFrame": 14,
+          "actionIndex": 6,
           "actionPath": [
             "timelineActions[4]",
             "_sequenceActionData",
@@ -2129,7 +2142,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 11,
           "endFrame": 14,
-          "actionIndex": 4,
+          "actionIndex": 10,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
           "classification": null,
@@ -2149,6 +2162,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 11,
+          "rootActionIndex": 10,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
@@ -2156,7 +2170,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 1,
-              "actionIndex": 0,
+              "actionIndex": 2,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -2188,7 +2202,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 9,
               "endFrame": 16,
-              "actionIndex": 5,
+              "actionIndex": 14,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -2545,6 +2559,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 20,
           "endFrame": 23,
+          "actionIndex": 6,
           "actionPath": [
             "timelineActions[4]",
             "_sequenceActionData",
@@ -2577,6 +2592,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 20,
                 "endFrame": 23,
+                "actionIndex": 8,
                 "actionPath": [
                   "timelineActions[4]",
                   "_sequenceActionData",
@@ -2603,6 +2619,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 20,
                       "endFrame": 23,
+                      "actionIndex": 10,
                       "actionPath": [
                         "timelineActions[4]",
                         "_sequenceActionData",
@@ -2678,7 +2695,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 20,
           "endFrame": 23,
-          "actionIndex": 4,
+          "actionIndex": 14,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack5:chr_0030_zhuangfy_attack5_abilityrange",
           "classification": null,
@@ -2699,6 +2716,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 20,
+          "rootActionIndex": 14,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
@@ -2706,7 +2724,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 12,
-              "actionIndex": 1,
+              "actionIndex": 11,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -2771,7 +2789,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 2,
-              "actionIndex": 2,
+              "actionIndex": 17,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -2800,7 +2818,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 4,
               "endFrame": 6,
-              "actionIndex": 2,
+              "actionIndex": 21,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -2829,7 +2847,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 8,
               "endFrame": 10,
-              "actionIndex": 2,
+              "actionIndex": 25,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -3217,7 +3235,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 16,
-          "actionIndex": 5,
+          "actionIndex": 55,
           "damageUnits": []
         }
       ],
@@ -3225,6 +3243,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 13,
+          "actionIndex": 11,
           "actionPath": [
             "timelineActions[6]",
             "_sequenceActionData",
@@ -3257,6 +3276,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
+                "actionIndex": 13,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -3319,6 +3339,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
+                "actionIndex": 18,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -3378,6 +3399,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 14,
+          "actionIndex": 23,
           "actionPath": [
             "timelineActions[7]",
             "_sequenceActionData",
@@ -3410,6 +3432,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
+                "actionIndex": 25,
                 "actionPath": [
                   "timelineActions[7]",
                   "_sequenceActionData",
@@ -3467,6 +3490,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
+                "actionIndex": 29,
                 "actionPath": [
                   "timelineActions[7]",
                   "_sequenceActionData",
@@ -3513,6 +3537,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 14,
           "endFrame": 15,
+          "actionIndex": 33,
           "actionPath": [
             "timelineActions[8]",
             "_sequenceActionData",
@@ -3545,6 +3570,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 14,
                 "endFrame": 15,
+                "actionIndex": 35,
                 "actionPath": [
                   "timelineActions[8]",
                   "_sequenceActionData",
@@ -3602,6 +3628,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 14,
                 "endFrame": 15,
+                "actionIndex": 39,
                 "actionPath": [
                   "timelineActions[8]",
                   "_sequenceActionData",
@@ -3648,6 +3675,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 16,
+          "actionIndex": 43,
           "actionPath": [
             "timelineActions[9]",
             "_sequenceActionData",
@@ -3680,6 +3708,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 15,
                 "endFrame": 16,
+                "actionIndex": 45,
                 "actionPath": [
                   "timelineActions[9]",
                   "_sequenceActionData",
@@ -3737,6 +3766,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 15,
                 "endFrame": 16,
+                "actionIndex": 49,
                 "actionPath": [
                   "timelineActions[9]",
                   "_sequenceActionData",
@@ -3786,7 +3816,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 13,
-          "actionIndex": 0,
+          "actionIndex": 15,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "classification": null,
@@ -3798,7 +3828,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 14,
-          "actionIndex": 0,
+          "actionIndex": 27,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "classification": null,
@@ -3810,7 +3840,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 14,
           "endFrame": 15,
-          "actionIndex": 0,
+          "actionIndex": 37,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "classification": null,
@@ -3822,7 +3852,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 16,
-          "actionIndex": 0,
+          "actionIndex": 47,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "classification": null,
@@ -3837,7 +3867,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 13,
-          "actionIndex": 2,
+          "actionIndex": 16,
           "key": "target_in_range",
           "operation": "Assign",
           "value": {
@@ -3855,6 +3885,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 12,
+          "rootActionIndex": 15,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
@@ -3862,7 +3893,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -3905,6 +3936,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 13,
+          "rootActionIndex": 27,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
@@ -3912,7 +3944,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -3955,6 +3987,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 14,
+          "rootActionIndex": 37,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
@@ -3962,7 +3995,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -4005,6 +4038,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 15,
+          "rootActionIndex": 47,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
@@ -4012,7 +4046,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -4389,7 +4423,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 10,
           "endFrame": 14,
-          "actionIndex": 5,
+          "actionIndex": 54,
           "damageUnits": []
         }
       ],
@@ -4397,6 +4431,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 10,
           "endFrame": 11,
+          "actionIndex": 10,
           "actionPath": [
             "timelineActions[5]",
             "_sequenceActionData",
@@ -4429,6 +4464,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 10,
                 "endFrame": 11,
+                "actionIndex": 12,
                 "actionPath": [
                   "timelineActions[5]",
                   "_sequenceActionData",
@@ -4491,6 +4527,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 10,
                 "endFrame": 11,
+                "actionIndex": 17,
                 "actionPath": [
                   "timelineActions[5]",
                   "_sequenceActionData",
@@ -4550,6 +4587,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 11,
           "endFrame": 12,
+          "actionIndex": 22,
           "actionPath": [
             "timelineActions[6]",
             "_sequenceActionData",
@@ -4582,6 +4620,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 11,
                 "endFrame": 12,
+                "actionIndex": 24,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -4639,6 +4678,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 11,
                 "endFrame": 12,
+                "actionIndex": 28,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -4685,6 +4725,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 13,
+          "actionIndex": 32,
           "actionPath": [
             "timelineActions[7]",
             "_sequenceActionData",
@@ -4717,6 +4758,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
+                "actionIndex": 34,
                 "actionPath": [
                   "timelineActions[7]",
                   "_sequenceActionData",
@@ -4774,6 +4816,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
+                "actionIndex": 38,
                 "actionPath": [
                   "timelineActions[7]",
                   "_sequenceActionData",
@@ -4820,6 +4863,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 14,
+          "actionIndex": 42,
           "actionPath": [
             "timelineActions[8]",
             "_sequenceActionData",
@@ -4852,6 +4896,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
+                "actionIndex": 44,
                 "actionPath": [
                   "timelineActions[8]",
                   "_sequenceActionData",
@@ -4909,6 +4954,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
+                "actionIndex": 48,
                 "actionPath": [
                   "timelineActions[8]",
                   "_sequenceActionData",
@@ -4958,7 +5004,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 10,
           "endFrame": 11,
-          "actionIndex": 0,
+          "actionIndex": 14,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "classification": null,
@@ -4970,7 +5016,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 11,
           "endFrame": 12,
-          "actionIndex": 0,
+          "actionIndex": 26,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "classification": null,
@@ -4982,7 +5028,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 12,
           "endFrame": 13,
-          "actionIndex": 0,
+          "actionIndex": 36,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "classification": null,
@@ -4994,7 +5040,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 14,
-          "actionIndex": 0,
+          "actionIndex": 46,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "classification": null,
@@ -5009,7 +5055,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 10,
           "endFrame": 11,
-          "actionIndex": 2,
+          "actionIndex": 15,
           "key": "target_in_range",
           "operation": "Assign",
           "value": {
@@ -5027,6 +5073,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 10,
+          "rootActionIndex": 14,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
@@ -5034,7 +5081,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -5077,6 +5124,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 11,
+          "rootActionIndex": 26,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
@@ -5084,7 +5132,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -5127,6 +5175,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 12,
+          "rootActionIndex": 36,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
@@ -5134,7 +5183,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -5177,6 +5226,7 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 13,
+          "rootActionIndex": 46,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
@@ -5184,7 +5234,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 3,
               "endFrame": 4,
-              "actionIndex": 2,
+              "actionIndex": 4,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -5517,6 +5567,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 6,
+          "actionIndex": 11,
           "actionPath": [
             "timelineActions[6]",
             "_sequenceActionData",
@@ -5549,6 +5600,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
+                "actionIndex": 13,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -5598,6 +5650,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
+                "actionIndex": 17,
                 "actionPath": [
                   "timelineActions[6]",
                   "_sequenceActionData",
@@ -5647,7 +5700,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 6,
-          "actionIndex": 0,
+          "actionIndex": 15,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack3_ult:chr_0030_zhuangfy_attack3_ult_abilityrange",
           "classification": null,
@@ -5660,7 +5713,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 179,
-          "actionIndex": 0,
+          "actionIndex": 21,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
           "classification": null,
@@ -5678,6 +5731,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 3,
+          "rootActionIndex": 15,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
           "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
@@ -5685,7 +5739,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 30,
               "endFrame": 33,
-              "actionIndex": 1,
+              "actionIndex": 2,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -5750,7 +5804,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 30,
               "endFrame": 33,
-              "actionIndex": 7,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -6187,7 +6241,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 11,
           "endFrame": 14,
-          "actionIndex": 0,
+          "actionIndex": 10,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -6223,7 +6277,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 40,
           "endFrame": 43,
-          "actionIndex": 0,
+          "actionIndex": 13,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -6263,7 +6317,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 45,
-          "actionIndex": 0,
+          "actionIndex": 24,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
@@ -6273,7 +6327,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 41,
-          "actionIndex": 0,
+          "actionIndex": 25,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
@@ -6542,7 +6596,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 1,
           "endFrame": 6,
-          "actionIndex": 0,
+          "actionIndex": 16,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -6583,7 +6637,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 1,
           "endFrame": 6,
-          "actionIndex": 4,
+          "actionIndex": 18,
           "resource": "sp",
           "amount": {
             "value": 0.0,
@@ -7094,6 +7148,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
+          "actionIndex": 39,
           "actionPath": [
             "timelineActions[13]",
             "_sequenceActionData",
@@ -7153,6 +7208,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
+          "actionIndex": 42,
           "actionPath": [
             "timelineActions[13]",
             "_sequenceActionData",
@@ -7198,6 +7254,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 6,
                 "endFrame": 7,
+                "actionIndex": 45,
                 "actionPath": [
                   "timelineActions[13]",
                   "_sequenceActionData",
@@ -7302,6 +7359,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
+                      "actionIndex": 51,
                       "actionPath": [
                         "timelineActions[13]",
                         "_sequenceActionData",
@@ -7399,6 +7457,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
+                      "actionIndex": 55,
                       "actionPath": [
                         "timelineActions[13]",
                         "_sequenceActionData",
@@ -7487,6 +7546,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
+                      "actionIndex": 62,
                       "actionPath": [
                         "timelineActions[13]",
                         "_sequenceActionData",
@@ -7554,6 +7614,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
+                      "actionIndex": 65,
                       "actionPath": [
                         "timelineActions[13]",
                         "_sequenceActionData",
@@ -7652,6 +7713,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
+          "actionIndex": 73,
           "actionPath": [
             "timelineActions[14]",
             "_sequenceActionData",
@@ -7895,6 +7957,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
+          "actionIndex": 83,
           "actionPath": [
             "timelineActions[16]",
             "_sequenceActionData",
@@ -7933,6 +7996,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 6,
                 "endFrame": 7,
+                "actionIndex": 86,
                 "actionPath": [
                   "timelineActions[16]",
                   "_sequenceActionData",
@@ -7987,7 +8051,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 2,
+          "actionIndex": 44,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
           "classification": null,
@@ -7997,7 +8061,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 14,
+          "actionIndex": 61,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
@@ -8007,7 +8071,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 21,
+          "actionIndex": 71,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
@@ -8017,7 +8081,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 22,
+          "actionIndex": 72,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
           "classification": "nonCombatAbilityEntity",
@@ -8027,7 +8091,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
-          "actionIndex": 5,
+          "actionIndex": 79,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
           "classification": null,
@@ -8156,7 +8220,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 0,
+          "actionIndex": 85,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_talent1",
           "classification": null,
@@ -8168,7 +8232,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
-          "actionIndex": 1,
+          "actionIndex": 75,
           "key": "swordTriggerInterval",
           "operation": "Divide",
           "left": {
@@ -8185,7 +8249,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
-          "actionIndex": 3,
+          "actionIndex": 77,
           "key": "swordTriggerInterval",
           "operation": "Add",
           "left": {
@@ -8202,7 +8266,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
-          "actionIndex": 4,
+          "actionIndex": 78,
           "key": "atk_up_final",
           "operation": "Multiply",
           "left": {
@@ -8234,7 +8298,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 6,
+          "actionIndex": 49,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -8246,7 +8310,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 7,
+          "actionIndex": 50,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -8258,7 +8322,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 9,
+          "actionIndex": 57,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -8270,7 +8334,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 15,
+          "actionIndex": 64,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -8282,7 +8346,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 16,
+          "actionIndex": 67,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -8294,7 +8358,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 13,
           "endFrame": 16,
-          "actionIndex": 2,
+          "actionIndex": 76,
           "key": "swordTriggerInterval",
           "operation": "Multiply",
           "value": {
@@ -8308,7 +8372,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 4,
+          "actionIndex": 47,
           "outputKey": "conductCnt",
           "desiredKey": "count",
           "targetSource": "Context",
@@ -8325,7 +8389,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 0,
+          "actionIndex": 41,
           "targetSource": "Source",
           "targetGroupKey": "",
           "buffCheckType": "Id",
@@ -8342,7 +8406,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 5,
+          "actionIndex": 48,
           "targetSource": "Context",
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
@@ -8361,7 +8425,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 6,
           "endFrame": 7,
-          "actionIndex": 8,
+          "actionIndex": 54,
           "resource": "sp",
           "amount": {
             "value": 0.0,
@@ -8508,7 +8572,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 3,
                       "endFrame": 6,
-                      "actionIndex": 7,
+                      "actionIndex": 20,
                       "damageUnits": [
                         {
                           "damageType": "Pulse",
@@ -8540,7 +8604,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 3,
                       "endFrame": 6,
-                      "actionIndex": 13,
+                      "actionIndex": 25,
                       "damageUnits": [
                         {
                           "damageType": "Pulse",
@@ -8572,7 +8636,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 6,
                       "endFrame": 9,
-                      "actionIndex": 7,
+                      "actionIndex": 37,
                       "damageUnits": [
                         {
                           "damageType": "Pulse",
@@ -8622,6 +8686,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 3,
                       "endFrame": 6,
+                      "actionIndex": 18,
                       "actionPath": [
                         "timelineActions[4]",
                         "_sequenceActionData",
@@ -8659,6 +8724,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 3,
                             "endFrame": 6,
+                            "actionIndex": 22,
                             "actionPath": [
                               "timelineActions[4]",
                               "_sequenceActionData",
@@ -8748,6 +8814,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 3,
                             "endFrame": 6,
+                            "actionIndex": 27,
                             "actionPath": [
                               "timelineActions[4]",
                               "_sequenceActionData",
@@ -8830,6 +8897,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 6,
                       "endFrame": 9,
+                      "actionIndex": 39,
                       "actionPath": [
                         "timelineActions[6]",
                         "_sequenceActionData",
@@ -8908,7 +8976,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 6,
                       "endFrame": 9,
-                      "actionIndex": 6,
+                      "actionIndex": 36,
                       "key": "atk_scale_final",
                       "operation": "Multiply",
                       "left": {
@@ -8953,7 +9021,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 0,
                       "endFrame": 3,
-                      "actionIndex": 8,
+                      "actionIndex": 7,
                       "key": "swordCnt",
                       "operation": "Add",
                       "value": {
@@ -8968,7 +9036,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 9,
                       "endFrame": 12,
-                      "actionIndex": 1,
+                      "actionIndex": 11,
                       "targetSource": "Source",
                       "targetGroupKey": "",
                       "buffCheckType": "Id",
@@ -8988,7 +9056,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 3,
                       "endFrame": 6,
-                      "actionIndex": 12,
+                      "actionIndex": 24,
                       "resource": "ultimateEnergy",
                       "amount": {
                         "value": 10.0,
@@ -9017,7 +9085,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 3,
                       "endFrame": 6,
-                      "actionIndex": 18,
+                      "actionIndex": 29,
                       "resource": "ultimateEnergy",
                       "amount": {
                         "value": 10.0,
@@ -9046,7 +9114,7 @@ export const zhuangFangyiGeneratedSource = {
                     {
                       "startFrame": 6,
                       "endFrame": 9,
-                      "actionIndex": 14,
+                      "actionIndex": 41,
                       "resource": "ultimateEnergy",
                       "amount": {
                         "value": 10.0,
@@ -9839,6 +9907,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
+          "actionIndex": 30,
           "actionPath": [
             "timelineActions[9]",
             "_sequenceActionData",
@@ -9884,6 +9953,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 5,
                 "endFrame": 6,
+                "actionIndex": 33,
                 "actionPath": [
                   "timelineActions[9]",
                   "_sequenceActionData",
@@ -9928,6 +9998,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 5,
                       "endFrame": 6,
+                      "actionIndex": 35,
                       "actionPath": [
                         "timelineActions[9]",
                         "_sequenceActionData",
@@ -10036,6 +10107,7 @@ export const zhuangFangyiGeneratedSource = {
                     "nestedCondition": {
                       "startFrame": 5,
                       "endFrame": 6,
+                      "actionIndex": 45,
                       "actionPath": [
                         "timelineActions[9]",
                         "_sequenceActionData",
@@ -10143,6 +10215,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
+                            "actionIndex": 51,
                             "actionPath": [
                               "timelineActions[9]",
                               "_sequenceActionData",
@@ -10256,6 +10329,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
+                            "actionIndex": 55,
                             "actionPath": [
                               "timelineActions[9]",
                               "_sequenceActionData",
@@ -10347,6 +10421,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
+                            "actionIndex": 62,
                             "actionPath": [
                               "timelineActions[9]",
                               "_sequenceActionData",
@@ -10417,6 +10492,7 @@ export const zhuangFangyiGeneratedSource = {
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
+                            "actionIndex": 65,
                             "actionPath": [
                               "timelineActions[9]",
                               "_sequenceActionData",
@@ -10521,6 +10597,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
+          "actionIndex": 73,
           "actionPath": [
             "timelineActions[10]",
             "_sequenceActionData",
@@ -10559,6 +10636,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 5,
                 "endFrame": 6,
+                "actionIndex": 76,
                 "actionPath": [
                   "timelineActions[10]",
                   "_sequenceActionData",
@@ -10613,7 +10691,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 1,
+          "actionIndex": 32,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
           "classification": null,
@@ -10623,7 +10701,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 19,
+          "actionIndex": 61,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
@@ -10633,7 +10711,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 26,
+          "actionIndex": 71,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
@@ -10643,7 +10721,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 27,
+          "actionIndex": 72,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
           "classification": "nonCombatAbilityEntity",
@@ -10653,7 +10731,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 0,
+          "actionIndex": 75,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_talent1",
           "classification": null,
@@ -10663,7 +10741,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 18,
-          "actionIndex": 3,
+          "actionIndex": 81,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "classification": null,
@@ -10680,7 +10758,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 15,
           "endFrame": 18,
-          "actionIndex": 0,
+          "actionIndex": 79,
           "key": "atk_up_final",
           "operation": "Multiply",
           "left": {
@@ -10712,7 +10790,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 11,
+          "actionIndex": 49,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -10724,7 +10802,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 12,
+          "actionIndex": 50,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -10736,7 +10814,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 14,
+          "actionIndex": 57,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -10748,7 +10826,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 20,
+          "actionIndex": 64,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -10760,7 +10838,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 21,
+          "actionIndex": 67,
           "key": "sword_gene_num",
           "operation": "Add",
           "value": {
@@ -10774,7 +10852,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 9,
+          "actionIndex": 47,
           "outputKey": "conductCnt",
           "desiredKey": "count",
           "targetSource": "Context",
@@ -10791,7 +10869,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 7,
+          "actionIndex": 40,
           "targetSource": "Source",
           "targetGroupKey": "",
           "buffCheckType": "Id",
@@ -10808,7 +10886,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 10,
+          "actionIndex": 48,
           "targetSource": "Context",
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
@@ -10825,7 +10903,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 100,
           "endFrame": 103,
-          "actionIndex": 1,
+          "actionIndex": 83,
           "targetSource": "Source",
           "targetGroupKey": "",
           "buffCheckType": "Id",
@@ -10844,7 +10922,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 5,
           "endFrame": 6,
-          "actionIndex": 13,
+          "actionIndex": 54,
           "resource": "sp",
           "amount": {
             "value": 0.0,
@@ -10895,6 +10973,7 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 15,
+          "rootActionIndex": 81,
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
           "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_normal_skill_ult_abilityrange.json",
@@ -10902,7 +10981,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 12,
               "endFrame": 64,
-              "actionIndex": 5,
+              "actionIndex": 17,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -10921,7 +11000,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 12,
               "endFrame": 64,
-              "actionIndex": 8,
+              "actionIndex": 19,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -10940,7 +11019,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 69,
               "endFrame": 70,
-              "actionIndex": 5,
+              "actionIndex": 28,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -10990,7 +11069,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 69,
               "endFrame": 70,
-              "actionIndex": 3,
+              "actionIndex": 26,
               "element": "electric",
               "isExtra": false
             }
@@ -10999,7 +11078,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 12,
               "endFrame": 64,
-              "actionIndex": 2,
+              "actionIndex": 13,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
               "classification": null,
@@ -11009,7 +11088,7 @@ export const zhuangFangyiGeneratedSource = {
             {
               "startFrame": 69,
               "endFrame": 70,
-              "actionIndex": 1,
+              "actionIndex": 24,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
               "classification": null,
@@ -11763,7 +11842,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 1,
+          "actionIndex": 49,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -11826,6 +11905,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
+          "actionIndex": 37,
           "actionPath": [
             "timelineActions[11]",
             "_sequenceActionData",
@@ -11897,6 +11977,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
+                "actionIndex": 41,
                 "actionPath": [
                   "timelineActions[11]",
                   "_sequenceActionData",
@@ -11958,6 +12039,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
+                "actionIndex": 44,
                 "actionPath": [
                   "timelineActions[11]",
                   "_sequenceActionData",
@@ -12028,6 +12110,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
+          "actionIndex": 54,
           "actionPath": [
             "timelineActions[12]",
             "_sequenceActionData",
@@ -12154,7 +12237,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 5,
+          "actionIndex": 47,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_pulse_pulse_conduct_triggered",
           "classification": "electrificationReaction",
@@ -12172,7 +12255,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 14,
+          "actionIndex": 57,
           "key": "usp_extra",
           "operation": "Multiply",
           "left": {
@@ -12204,7 +12287,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 2,
+          "actionIndex": 40,
           "key": "conductCnt",
           "operation": "Assign",
           "value": {
@@ -12216,7 +12299,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 3,
+          "actionIndex": 43,
           "key": "conductCnt",
           "operation": "Add",
           "value": {
@@ -12228,7 +12311,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 4,
+          "actionIndex": 46,
           "key": "conductCnt",
           "operation": "Assign",
           "value": {
@@ -12243,7 +12326,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 5,
+          "actionIndex": 50,
           "targetSource": "Context",
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
@@ -12262,7 +12345,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 13,
+          "actionIndex": 56,
           "resource": "ultimateEnergy",
           "amount": {
             "value": 0.2,
@@ -12291,7 +12374,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 15,
+          "actionIndex": 58,
           "resource": "ultimateEnergy",
           "amount": {
             "value": 0.2,
@@ -12847,7 +12930,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 1,
+          "actionIndex": 51,
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -12910,6 +12993,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
+          "actionIndex": 39,
           "actionPath": [
             "timelineActions[13]",
             "_sequenceActionData",
@@ -12981,6 +13065,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
+                "actionIndex": 43,
                 "actionPath": [
                   "timelineActions[13]",
                   "_sequenceActionData",
@@ -13042,6 +13127,7 @@ export const zhuangFangyiGeneratedSource = {
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
+                "actionIndex": 46,
                 "actionPath": [
                   "timelineActions[13]",
                   "_sequenceActionData",
@@ -13115,7 +13201,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 5,
+          "actionIndex": 49,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_pulse_pulse_conduct_triggered",
           "classification": "electrificationReaction",
@@ -13134,7 +13220,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 2,
+          "actionIndex": 42,
           "key": "conductCnt",
           "operation": "Assign",
           "value": {
@@ -13146,7 +13232,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 3,
+          "actionIndex": 45,
           "key": "conductCnt",
           "operation": "Add",
           "value": {
@@ -13158,7 +13244,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 4,
+          "actionIndex": 48,
           "key": "conductCnt",
           "operation": "Assign",
           "value": {
@@ -13173,7 +13259,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 24,
           "endFrame": 27,
-          "actionIndex": 5,
+          "actionIndex": 52,
           "targetSource": "Context",
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
@@ -13200,6 +13286,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 24,
+          "rootActionIndex": 57,
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
           "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",
@@ -13790,6 +13877,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 17,
+          "actionIndex": 6,
           "actionPath": [
             "timelineActions[3]",
             "_sequenceActionData",
@@ -13847,7 +13935,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 17,
-          "actionIndex": 2,
+          "actionIndex": 4,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult_mirror",
           "classification": "nonCombatAbilityEntity",
@@ -13857,7 +13945,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 17,
-          "actionIndex": 5,
+          "actionIndex": 8,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_potential5_vfx",
           "classification": null,
@@ -13867,7 +13955,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 78,
-          "actionIndex": 2,
+          "actionIndex": 10,
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult",
           "classification": "nonCombatAbilityEntity",
@@ -13877,7 +13965,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 78,
           "endFrame": 81,
-          "actionIndex": 0,
+          "actionIndex": 14,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_ult_base",
           "classification": null,
@@ -13924,7 +14012,7 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 90,
-          "actionIndex": 0,
+          "actionIndex": 26,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
