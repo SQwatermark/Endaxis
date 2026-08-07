@@ -53,17 +53,6 @@ export interface ResolvedCombatStepParameters {
   };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
-  calculateBlackboard: {
-    outputKey: string;
-    operation: CombatStepParameters['calculateBlackboard']['operation'];
-    left: { value: number } | { blackboardKey: string };
-    right: { value: number } | { blackboardKey: string };
-  };
-  modifyBlackboard: {
-    key: string;
-    operation: CombatStepParameters['modifyBlackboard']['operation'];
-    value: { value: number } | { blackboardKey: string };
-  };
   changeResource: {
     resource: CombatResource;
     amount: number;

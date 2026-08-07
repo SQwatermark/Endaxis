@@ -202,39 +202,6 @@ function resolveStep(
           buffTagIds: step.parameters.buffTagIds.map(gameplayTagId),
         },
       };
-    case 'calculateBlackboard':
-      return {
-        ...keyed,
-        kind: step.kind,
-        parameters: {
-          outputKey: step.parameters.outputKey,
-          operation: step.parameters.operation,
-          left: resolveBlackboardOperand(
-            step.parameters.left,
-            skillLevel,
-            `${path}.parameters.left`,
-          ),
-          right: resolveBlackboardOperand(
-            step.parameters.right,
-            skillLevel,
-            `${path}.parameters.right`,
-          ),
-        },
-      };
-    case 'modifyBlackboard':
-      return {
-        ...keyed,
-        kind: step.kind,
-        parameters: {
-          key: step.parameters.key,
-          operation: step.parameters.operation,
-          value: resolveBlackboardOperand(
-            step.parameters.value,
-            skillLevel,
-            `${path}.parameters.value`,
-          ),
-        },
-      };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,
@@ -256,16 +223,6 @@ function resolveStep(
     case 'setContextFlag':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
   }
-}
-
-function resolveBlackboardOperand(
-  operand: { value: LevelValues } | { blackboardKey: string },
-  skillLevel: number,
-  path: string,
-): { value: number } | { blackboardKey: string } {
-  return 'blackboardKey' in operand
-    ? operand
-    : { value: resolveLevelValue(operand.value, skillLevel, `${path}.value`) };
 }
 
 function resolveSequence(
