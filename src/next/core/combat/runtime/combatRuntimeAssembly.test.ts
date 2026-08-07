@@ -8,6 +8,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 
 const emptyEnemyBuffs = {
   findFirstByTags: () => undefined,
+  finishByTags: () => 0,
 };
 
 const rejectingExecutor: CombatOperationExecutor = {

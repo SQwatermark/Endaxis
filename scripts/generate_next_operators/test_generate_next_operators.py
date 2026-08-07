@@ -12,6 +12,7 @@ from generate_next_operators import (
     build_blackboard_provenance,
     compile_resolved_damage_sequence,
     BuffBlackboardReadSource,
+    BuffFinishSource,
     DamageUnitSource,
     ScalarSource,
     classify_buff,
@@ -31,6 +32,7 @@ from generate_next_operators import (
     resolve_buff_behaviors,
     parse_skill_patch,
     compile_buff_blackboard_read,
+    compile_buff_finish,
     percentage_values,
     ts_inline_literal,
     typescript_identifier,
@@ -136,6 +138,25 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         "blackboardKey": "",
                                     },
                                 },
+                                {
+                                    "$type": "Example.FinishBuffAdvanced+Data, Example",
+                                    "buffOwner": {
+                                        "targetSource": "Context",
+                                        "targetGroupKey": "smart_target",
+                                    },
+                                    "buffSettings": {
+                                        "checkType": "Tag",
+                                        "buffIdList": [],
+                                        "tagQuery": {
+                                            "queryType": "HasAny",
+                                            "tags": [{"tagId": 1466867135}],
+                                        },
+                                    },
+                                    "finishAll": True,
+                                    "limitSource": False,
+                                    "isFinishedEarly": True,
+                                    "isAbsorbed": False,
+                                },
                             ]
                         },
                     }
@@ -143,7 +164,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
 
-        mutations, reads = parse_blackboard_runtime_actions(root, "skill.json", {})
+        mutations, reads, finishes = parse_blackboard_runtime_actions(root, "skill.json", {})
 
         self.assertEqual(len(mutations), 1)
         self.assertEqual(mutations[0].key, "conductCnt")
@@ -155,6 +176,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(reads[0].targetGroupKey, "smart_target")
         self.assertEqual(reads[0].tagQueryType, "hasAny")
         self.assertEqual(reads[0].buffTagIds, (1466867135,))
+        self.assertEqual(len(finishes), 1)
+        self.assertEqual(finishes[0].actionIndex, 2)
+        self.assertEqual(finishes[0].buffTagIds, (1466867135,))
+        self.assertTrue(finishes[0].finishAll)
+        self.assertTrue(finishes[0].isFinishedEarly)
+
+    def test_finish_buff_advanced_emits_strict_tag_finish_step(self) -> None:
+        finish = BuffFinishSource(
+            startFrame=11,
+            endFrame=12,
+            actionIndex=1,
+            targetSource="Context",
+            targetGroupKey="smart_target",
+            buffCheckType="Tag",
+            buffIds=(),
+            tagQueryType="hasAny",
+            buffTagIds=(1466867135,),
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=True,
+            isAbsorbed=False,
+        )
+
+        self.assertEqual(
+            compile_buff_finish(finish, "fixture.finish"),
+            "\n".join(
+                [
+                    "step('finishBuffsByTag', {",
+                    "  target: 'enemy',",
+                    "  tagQueryType: 'hasAny',",
+                    "  buffTagIds: [1466867135],",
+                    "  reason: 'early',",
+                    "})",
+                ]
+            ),
+        )
 
     def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:
         root = {
@@ -226,7 +283,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.DamageAction+Data, Example"}
+                                            {"$type": "Example.DamageAction+Data, Example"},
+                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
                                         ]
                                     },
                                     "failActions": {
@@ -248,7 +306,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(actions[0].startFrame, 3)
         self.assertEqual(actions[0].conditions[0].sourceType, "CompareFloat")
         self.assertEqual(actions[0].conditions[0].left.blackboardKey, "swordIndex")
-        self.assertEqual(actions[0].succeedCombatActions, ("DamageAction",))
+        self.assertEqual(
+            actions[0].succeedCombatActions,
+            ("DamageAction", "FinishBuffAdvanced"),
+        )
         self.assertEqual(actions[0].failCombatActions, ("ObtainCostAction",))
 
     def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:

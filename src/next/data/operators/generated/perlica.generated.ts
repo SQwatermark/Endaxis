@@ -162,11 +162,13 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -595,11 +597,13 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1194,11 +1198,13 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1896,11 +1902,13 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2524,6 +2532,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [
         {
@@ -2550,6 +2559,7 @@ export const perlicaGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2567,6 +2577,7 @@ export const perlicaGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -2585,6 +2596,7 @@ export const perlicaGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -3041,11 +3053,13 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [
         {
           "startFrame": 3,
@@ -3610,6 +3624,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "conditionalActions": [],
       "inflictions": [
         {
           "startFrame": 13,
@@ -3634,6 +3649,7 @@ export const perlicaGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3651,6 +3667,7 @@ export const perlicaGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4063,11 +4080,13 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -5127,6 +5146,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "conditionalActions": [],
       "inflictions": [],
       "auxiliaryActions": [
         {
@@ -5153,6 +5173,7 @@ export const perlicaGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -5186,6 +5207,7 @@ export const perlicaGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],

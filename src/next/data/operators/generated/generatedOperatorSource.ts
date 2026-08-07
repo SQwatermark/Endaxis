@@ -139,6 +139,7 @@ export interface GeneratedBuffBehaviorSource {
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
   readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
+  readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
@@ -201,6 +202,23 @@ export interface GeneratedBuffBlackboardReadSource {
   readonly buffTagIds: readonly number[];
 }
 
+/** 原生 FinishBuffAdvanced 的可审计配置；正式 DSL 只接收已闭环的查询子集。 */
+export interface GeneratedBuffFinishSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffCheckType: string;
+  readonly buffIds: readonly string[];
+  readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+  readonly buffTagIds: readonly number[];
+  readonly finishAll: boolean;
+  readonly limitSource: boolean;
+  readonly isFinishedEarly: boolean;
+  readonly isAbsorbed: boolean;
+}
+
 /** 黑板键在当前技能中的可追溯来源；外部输入不得由生成器猜值。 */
 export interface GeneratedBlackboardKeyProvenanceSource {
   readonly key: string;
@@ -244,11 +262,13 @@ export interface GeneratedSkillSource {
   }[];
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
   readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
+  readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];

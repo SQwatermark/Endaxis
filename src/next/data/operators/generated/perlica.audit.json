@@ -9,10 +9,12 @@
       "timelineBlockFrames": 16,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -202,10 +204,12 @@
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -552,10 +556,12 @@
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1050,10 +1056,12 @@
       "timelineBlockFrames": 44,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1376,6 +1384,7 @@
           ]
         }
       ],
+      "conditionalActions": [],
       "auxiliaryActions": [
         {
           "startFrame": 0,
@@ -1401,6 +1410,7 @@
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1418,6 +1428,7 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -1436,6 +1447,7 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -1600,10 +1612,12 @@
           ]
         }
       ],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [
         {
           "startFrame": 3,
@@ -1869,6 +1883,7 @@
           ]
         }
       ],
+      "conditionalActions": [],
       "auxiliaryActions": [
         {
           "startFrame": 13,
@@ -1884,6 +1899,7 @@
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1901,6 +1917,7 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -2088,10 +2105,12 @@
       "timelineBlockFrames": 25,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2880,6 +2899,7 @@
           ]
         }
       ],
+      "conditionalActions": [],
       "auxiliaryActions": [
         {
           "startFrame": 0,
@@ -2905,6 +2925,7 @@
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
+      "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2938,6 +2959,7 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
+          "buffFinishes": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],

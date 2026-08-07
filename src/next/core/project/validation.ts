@@ -67,6 +67,8 @@ const operatorAttributes = new Set<string>(OPERATOR_ATTRIBUTES);
 const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
 const spGainKinds = new Set<string>(SP_GAIN_KINDS);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
+const gameplayTagQueryTypes = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
+const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
@@ -305,6 +307,35 @@ function validateCombatStepParameters(
         requireFiniteNumber(parameters.durationSeconds, `${path}.durationSeconds`, issues);
       if (parameters.effectiveness !== undefined)
         requireFiniteNumber(parameters.effectiveness, `${path}.effectiveness`, issues);
+      break;
+    case 'readBuffBlackboard':
+      if (parameters.target !== 'enemy') {
+        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
+      }
+      requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
+      if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
+        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
+      } else {
+        parameters.buffTagIds.forEach((tagId, index) =>
+          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
+        );
+      }
+      requireString(parameters, 'desiredKey', path, issues);
+      requireString(parameters, 'outputKey', path, issues);
+      break;
+    case 'finishBuffsByTag':
+      if (parameters.target !== 'enemy') {
+        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
+      }
+      requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
+      if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
+        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
+      } else {
+        parameters.buffTagIds.forEach((tagId, index) =>
+          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
+        );
+      }
+      requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
       break;
     case 'changeResource':
       requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);

@@ -53,6 +53,7 @@ export interface ResolvedCombatStepParameters {
   };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
+  finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   changeResource: {
     resource: CombatResource;
     amount: number;

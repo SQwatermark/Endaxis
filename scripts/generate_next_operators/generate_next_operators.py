@@ -162,6 +162,7 @@ class BuffBehaviorSource:
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
     blackboardMutations: tuple["BlackboardMutationSource", ...]
     buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
+    buffFinishes: tuple["BuffFinishSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
@@ -235,6 +236,23 @@ class BuffBlackboardReadSource:
 
 
 @dataclass(frozen=True)
+class BuffFinishSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
+    finishAll: bool
+    limitSource: bool
+    isFinishedEarly: bool
+    isAbsorbed: bool
+
+
+@dataclass(frozen=True)
 class BlackboardKeyProvenanceSource:
     key: str
     declaredInSkill: bool
@@ -262,11 +280,13 @@ class SkillSource:
     inputCacheWindows: tuple[dict[str, Any], ...]
     timelineActions: tuple[TimelineActionSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    conditionalActions: tuple[ConditionalActionSource, ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     blackboardCalculations: tuple[BlackboardCalculationSource, ...]
     blackboardMutations: tuple[BlackboardMutationSource, ...]
     buffBlackboardReads: tuple[BuffBlackboardReadSource, ...]
+    buffFinishes: tuple[BuffFinishSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
@@ -289,6 +309,19 @@ COMBAT_ACTION_NAMES = {
     "SpellInfliction",
     "ObtainCostAction",
     "IfElseAction",
+}
+
+# 这些运行时动作已单独解析，不进入 unresolvedCombatActions，但必须出现在条件分支审计中。
+CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
+    "FinishBuffAdvanced",
+    "GetTargetBuffBBAdvanced",
+    "ModifyDynamicBlackboard",
+}
+TAG_QUERY_TYPE_MAP = {
+    "HasAny": "hasAny",
+    "HasAll": "hasAll",
+    "ExceptAny": "exceptAny",
+    "ExceptAll": "exceptAll",
 }
 
 
@@ -496,7 +529,7 @@ def parse_conditional_actions(
                 {
                     action_name(action["$type"])
                     for action in walk_actions(value)
-                    if action_name(action["$type"]) in COMBAT_ACTION_NAMES
+                    if action_name(action["$type"]) in CONDITIONAL_AUDIT_ACTION_NAMES
                     and action_name(action["$type"]) != "IfElseAction"
                 }
             )
@@ -646,15 +679,49 @@ def parse_blackboard_calculations(
     return tuple(result)
 
 
+def parse_buff_find_settings(
+    value: Any,
+    path: str,
+) -> tuple[str, tuple[str, ...], str, tuple[int, ...]]:
+    """严格读取 BuffFindSettings；未知查询枚举和非整数标签必须立即报错。"""
+    settings = require_dict(value, path)
+    raw_ids = require_list(settings.get("buffIdList"), f"{path}.buffIdList")
+    tag_query = require_dict(settings.get("tagQuery"), f"{path}.tagQuery")
+    raw_tags = require_list(tag_query.get("tags"), f"{path}.tagQuery.tags")
+    raw_query_type = tag_query.get("queryType")
+    query_type = TAG_QUERY_TYPE_MAP.get(raw_query_type)
+    if query_type is None:
+        raise ValueError(f"{path}.tagQuery.queryType: unsupported value {raw_query_type!r}")
+
+    tag_ids: list[int] = []
+    for tag_index, raw_tag in enumerate(raw_tags):
+        tag = require_dict(raw_tag, f"{path}.tagQuery.tags[{tag_index}]")
+        tag_id = tag.get("tagId")
+        if not isinstance(tag_id, int):
+            raise ValueError(f"{path}.tagQuery.tags[{tag_index}].tagId: expected integer")
+        tag_ids.append(tag_id)
+    return (
+        str(settings.get("checkType", "")),
+        tuple(str(item) for item in raw_ids),
+        query_type,
+        tuple(tag_ids),
+    )
+
+
 def parse_blackboard_runtime_actions(
     root: dict[str, Any],
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
-) -> tuple[tuple[BlackboardMutationSource, ...], tuple[BuffBlackboardReadSource, ...]]:
+) -> tuple[
+    tuple[BlackboardMutationSource, ...],
+    tuple[BuffBlackboardReadSource, ...],
+    tuple[BuffFinishSource, ...],
+]:
     """读取会改变技能黑板，或从目标 Buff 黑板取值的运行时动作。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     mutations: list[BlackboardMutationSource] = []
     reads: list[BuffBlackboardReadSource] = []
+    finishes: list[BuffFinishSource] = []
     timelines = require_list(
         group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
     )
@@ -696,6 +763,32 @@ def parse_blackboard_runtime_actions(
                     )
                 )
                 continue
+            if kind == "FinishBuffAdvanced":
+                target = require_dict(
+                    action.get("buffOwner"), f"{source_name}.FinishBuffAdvanced.buffOwner"
+                )
+                check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+                    action.get("buffSettings"),
+                    f"{source_name}.FinishBuffAdvanced.buffSettings",
+                )
+                finishes.append(
+                    BuffFinishSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=action_index,
+                        targetSource=str(target.get("targetSource", "")),
+                        targetGroupKey=str(target.get("targetGroupKey", "")),
+                        buffCheckType=check_type,
+                        buffIds=buff_ids,
+                        tagQueryType=query_type,
+                        buffTagIds=tag_ids,
+                        finishAll=action.get("finishAll") is True,
+                        limitSource=action.get("limitSource") is True,
+                        isFinishedEarly=action.get("isFinishedEarly") is True,
+                        isAbsorbed=action.get("isAbsorbed") is True,
+                    )
+                )
+                continue
             if kind != "GetTargetBuffBBAdvanced":
                 continue
             output_key = action.get("blackboardKey")
@@ -712,47 +805,10 @@ def parse_blackboard_runtime_actions(
                 action.get("targetSettings"),
                 f"{source_name}.GetTargetBuffBBAdvanced.targetSettings",
             )
-            settings = require_dict(
+            check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
                 action.get("buffSettings"),
                 f"{source_name}.GetTargetBuffBBAdvanced.buffSettings",
             )
-            raw_ids = require_list(
-                settings.get("buffIdList"),
-                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.buffIdList",
-            )
-            tag_query = require_dict(
-                settings.get("tagQuery"),
-                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery",
-            )
-            raw_tags = require_list(
-                tag_query.get("tags"),
-                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery.tags",
-            )
-            query_type_map = {
-                "HasAny": "hasAny",
-                "HasAll": "hasAll",
-                "ExceptAny": "exceptAny",
-                "ExceptAll": "exceptAll",
-            }
-            raw_query_type = tag_query.get("queryType")
-            query_type = query_type_map.get(raw_query_type)
-            if query_type is None:
-                raise ValueError(
-                    f"{source_name}.GetTargetBuffBBAdvanced tag query type: "
-                    f"unsupported value {raw_query_type!r}"
-                )
-            tag_ids: list[int] = []
-            for tag_index, raw_tag in enumerate(raw_tags):
-                tag = require_dict(
-                    raw_tag,
-                    f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery.tags[{tag_index}]",
-                )
-                tag_id = tag.get("tagId")
-                if not isinstance(tag_id, int):
-                    raise ValueError(
-                        f"{source_name}.GetTargetBuffBBAdvanced tagId: expected integer"
-                    )
-                tag_ids.append(tag_id)
             reads.append(
                 BuffBlackboardReadSource(
                     startFrame=start_frame,
@@ -762,13 +818,13 @@ def parse_blackboard_runtime_actions(
                     desiredKey=desired_key,
                     targetSource=str(target.get("targetSource", "")),
                     targetGroupKey=str(target.get("targetGroupKey", "")),
-                    buffCheckType=str(settings.get("checkType", "")),
-                    buffIds=tuple(str(value) for value in raw_ids),
+                    buffCheckType=check_type,
+                    buffIds=buff_ids,
                     tagQueryType=query_type,
-                    buffTagIds=tuple(tag_ids),
+                    buffTagIds=tag_ids,
                 )
             )
-    return tuple(mutations), tuple(reads)
+    return tuple(mutations), tuple(reads), tuple(finishes)
 
 
 def parse_damage_units(
@@ -1400,6 +1456,7 @@ def resolve_buff_behaviors(
                 blackboardCalculations=(),
                 blackboardMutations=(),
                 buffBlackboardReads=(),
+                buffFinishes=(),
                 eventActions=(),
                 resourceGains=(),
                 nestedBuffBehaviors=(),
@@ -1490,7 +1547,7 @@ def resolve_buff_behaviors(
                     createdBuffBehaviors=tuple(created_buff_behaviors),
                 )
             )
-        blackboard_mutations, buff_blackboard_reads = parse_blackboard_runtime_actions(
+        blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
             adapted_root, buff_name, child_blackboard
         )
         return BuffBehaviorSource(
@@ -1507,6 +1564,7 @@ def resolve_buff_behaviors(
             ),
             blackboardMutations=blackboard_mutations,
             buffBlackboardReads=buff_blackboard_reads,
+            buffFinishes=buff_finishes,
             eventActions=tuple(event_actions),
             resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
             nestedBuffBehaviors=nested,
@@ -1643,7 +1701,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
     blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
-    blackboard_mutations, buff_blackboard_reads = parse_blackboard_runtime_actions(
+    blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
         root, source_name, patch.blackboard
     )
     return SkillSource(
@@ -1662,11 +1720,13 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inputCacheWindows=caches,
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
+        conditionalActions=parse_conditional_actions(root, source_name, patch.blackboard),
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
         blackboardCalculations=blackboard_calculations,
         blackboardMutations=blackboard_mutations,
         buffBlackboardReads=buff_blackboard_reads,
+        buffFinishes=buff_finishes,
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
         projectileHits=resolve_projectile_hits(
@@ -1785,6 +1845,31 @@ def compile_buff_blackboard_read(read: BuffBlackboardReadSource, path: str) -> s
             f"  buffTagIds: {ts_inline_literal(read.buffTagIds)},",
             f"  desiredKey: {ts_inline_literal(read.desiredKey)},",
             f"  outputKey: {ts_inline_literal(read.outputKey)},",
+            "})",
+        ]
+    )
+
+
+def compile_buff_finish(finish: BuffFinishSource, path: str) -> str:
+    """只编译已由 FinishBuffAdvanced 机器码和当前单敌人模型共同闭环的标签全量结束分支。"""
+    if finish.targetSource != "Context" or finish.targetGroupKey != "smart_target":
+        raise ValueError(f"{path}: unsupported buff finish target")
+    if finish.buffCheckType != "Tag" or finish.buffIds:
+        raise ValueError(f"{path}: only tag-based buff finish is supported")
+    if not finish.buffTagIds:
+        raise ValueError(f"{path}: buff tag query must not be empty")
+    if not finish.finishAll or finish.limitSource:
+        raise ValueError(f"{path}: only finishAll without source limiting is supported")
+    if finish.isFinishedEarly and finish.isAbsorbed:
+        raise ValueError(f"{path}: conflicting finish reasons")
+    reason = "early" if finish.isFinishedEarly else "absorbed" if finish.isAbsorbed else "other"
+    return "\n".join(
+        [
+            "step('finishBuffsByTag', {",
+            "  target: 'enemy',",
+            f"  tagQueryType: {ts_inline_literal(finish.tagQueryType)},",
+            f"  buffTagIds: {ts_inline_literal(finish.buffTagIds)},",
+            f"  reason: {ts_inline_literal(reason)},",
             "})",
         ]
     )
@@ -1921,6 +2006,15 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             (
                 read.actionIndex,
                 compile_buff_blackboard_read(read, f"{skill.key}.buffBlackboardReads[{index}]"),
+            )
+        )
+    for index, finish in enumerate(skill.buffFinishes):
+        if finish.startFrame != hit.startFrame:
+            raise ValueError(f"{skill.key}: buff finish and damage occur on different frames")
+        ordered_steps.append(
+            (
+                finish.actionIndex,
+                compile_buff_finish(finish, f"{skill.key}.buffFinishes[{index}]"),
             )
         )
     for infliction in skill.inflictions:
@@ -2801,7 +2895,12 @@ def render_operator_definition(
 def render_report(slug: str, skills: list[SkillSource]) -> str:
     report = {
         "operator": slug,
-        "complete": all(not skill.unresolvedCombatActions and not skill.blackboardKeys for skill in skills),
+        "complete": all(
+            not skill.unresolvedCombatActions
+            and not skill.blackboardKeys
+            and not skill.conditionalActions
+            for skill in skills
+        ),
         "skills": [
             {
                 "key": skill.key,
@@ -2810,6 +2909,9 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
+                "conditionalActions": [
+                    asdict(action) for action in skill.conditionalActions
+                ],
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
                 "blackboardCalculations": [
                     asdict(calculation) for calculation in skill.blackboardCalculations
@@ -2818,6 +2920,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                     asdict(mutation) for mutation in skill.blackboardMutations
                 ],
                 "buffBlackboardReads": [asdict(read) for read in skill.buffBlackboardReads],
+                "buffFinishes": [asdict(finish) for finish in skill.buffFinishes],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],

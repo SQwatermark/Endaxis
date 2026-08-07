@@ -3,7 +3,7 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
-import { BuffBlackboardOperationExecutor } from './buffBlackboardOperationExecutor';
+import { BuffOperationExecutor } from './buffOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const delegate: CombatOperationExecutor = {
@@ -11,7 +11,7 @@ const delegate: CombatOperationExecutor = {
   evaluate: () => false,
 };
 
-describe('BuffBlackboardOperationExecutor', () => {
+describe('BuffOperationExecutor', () => {
   it('reads the first matching active buff and writes its value to the action blackboard', () => {
     const path = 'buff/status/conduct';
     const target = new CombatBuffContainer(
@@ -38,7 +38,7 @@ describe('BuffBlackboardOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard();
-    const executor = new BuffBlackboardOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ target, delegate });
 
     expect(
       executor.execute(
@@ -75,7 +75,7 @@ describe('BuffBlackboardOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard({ output: 7 });
-    const executor = new BuffBlackboardOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ target, delegate });
     const createStep = (path: string) => ({
       kind: 'readBuffBlackboard' as const,
       parameters: {
@@ -92,5 +92,55 @@ describe('BuffBlackboardOperationExecutor', () => {
     blackboard.assignDynamic('output', 7);
     expect(executor.execute(createStep(missingPath), { blackboard })).toBe(false);
     expect(blackboard.getNumber('output')).toBe(7);
+  });
+
+  it('finishes every matching active buff with the configured reason', () => {
+    const path = 'buff/status/conduct';
+    const otherPath = 'buff/status/other';
+    const target = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path, otherPath]),
+    );
+    const first = target.add(
+      {
+        id: 'first',
+        stackingType: 'unlimited',
+        applyTags: [gameplayTagIdFromPath(path)],
+      },
+      'operator',
+    );
+    const second = target.add(
+      {
+        id: 'second',
+        stackingType: 'unlimited',
+        applyTags: [gameplayTagIdFromPath(path)],
+      },
+      'operator',
+    );
+    const unrelated = target.add(
+      {
+        id: 'unrelated',
+        stackingType: 'unlimited',
+        applyTags: [gameplayTagIdFromPath(otherPath)],
+      },
+      'operator',
+    );
+    const executor = new BuffOperationExecutor({ target, delegate });
+
+    expect(
+      executor.execute({
+        kind: 'finishBuffsByTag',
+        parameters: {
+          target: 'enemy',
+          tagQueryType: 'hasAny',
+          buffTagIds: [gameplayTagIdFromPath(path)],
+          reason: 'early',
+        },
+      }),
+    ).toBe(true);
+    expect(first?.finishReason).toBe('early');
+    expect(second?.finishReason).toBe('early');
+    expect(unrelated?.isFinished).toBe(false);
   });
 });

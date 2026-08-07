@@ -251,6 +251,13 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
+  /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
+  finishBuffsByTag: {
+    target: 'enemy';
+    tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+    buffTagIds: readonly number[];
+    reason: 'early' | 'absorbed' | 'other';
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -289,6 +296,7 @@ export const COMBAT_STEP_KINDS = [
   'dealDamage',
   'applyBuff',
   'readBuffBlackboard',
+  'finishBuffsByTag',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
