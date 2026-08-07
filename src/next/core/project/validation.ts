@@ -279,6 +279,33 @@ function validateStatusModifier(value: unknown, path: string, issues: Validation
   }
 }
 
+function validateResourceChangeMetadata(
+  parameters: JsonObject,
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
+  requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
+  if (parameters.spGainKind !== undefined) {
+    requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
+    if (parameters.resource !== 'sp') {
+      issues.push({
+        path: `${path}.spGainKind`,
+        message: "is only valid when resource is 'sp'",
+      });
+    }
+  }
+  if (parameters.spGainSource !== undefined) {
+    requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
+    if (parameters.resource !== 'sp') {
+      issues.push({
+        path: `${path}.spGainSource`,
+        message: "is only valid when resource is 'sp'",
+      });
+    }
+  }
+}
+
 function validateCombatStepParameters(
   kind: string,
   parameters: JsonObject,
@@ -416,50 +443,12 @@ function validateCombatStepParameters(
       validateActionValueOperand(parameters.right, `${path}.right`, issues);
       break;
     case 'changeResource':
-      requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
       validateLevelValues(parameters.amount, `${path}.amount`, issues);
-      requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
-      if (parameters.spGainKind !== undefined) {
-        requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
-        if (parameters.resource !== 'sp') {
-          issues.push({
-            path: `${path}.spGainKind`,
-            message: "is only valid when resource is 'sp'",
-          });
-        }
-      }
-      if (parameters.spGainSource !== undefined) {
-        requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
-        if (parameters.resource !== 'sp') {
-          issues.push({
-            path: `${path}.spGainSource`,
-            message: "is only valid when resource is 'sp'",
-          });
-        }
-      }
+      validateResourceChangeMetadata(parameters, path, issues);
       break;
     case 'changeResourceByActionValue':
-      requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
       validateActionValueOperand(parameters.amount, `${path}.amount`, issues);
-      requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
-      if (parameters.spGainKind !== undefined) {
-        requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
-        if (parameters.resource !== 'sp') {
-          issues.push({
-            path: `${path}.spGainKind`,
-            message: "is only valid when resource is 'sp'",
-          });
-        }
-      }
-      if (parameters.spGainSource !== undefined) {
-        requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
-        if (parameters.resource !== 'sp') {
-          issues.push({
-            path: `${path}.spGainSource`,
-            message: "is only valid when resource is 'sp'",
-          });
-        }
-      }
+      validateResourceChangeMetadata(parameters, path, issues);
       break;
     case 'gainSquadUltimateEnergyFromSkillCost':
       validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
