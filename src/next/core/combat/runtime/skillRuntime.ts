@@ -13,6 +13,7 @@ import type {
 } from '../../compiler/combatProgram';
 import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
+import { ActionBlackboard } from './actionBlackboard';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
@@ -20,10 +21,19 @@ export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
 export type RuntimeSkillInterruptReason = 'castNextSkill';
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
+export interface CombatOperationContext {
+  /** 一次技能运行实例独占的动作黑板；步骤不得把它缓存到实例生命周期之外。 */
+  readonly blackboard: ActionBlackboard;
+}
+
 export interface CombatOperationExecutor {
-  execute(step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>): boolean;
+  execute(
+    step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
+    context?: CombatOperationContext,
+  ): boolean;
   evaluate(
     condition: Extract<ResolvedCombatStep, { kind: 'conditional' }>['parameters']['condition'],
+    context?: CombatOperationContext,
   ): boolean;
 }
 
@@ -48,7 +58,7 @@ class RuntimeOperationStep extends CombatStep {
 
   override tryExecute(): boolean {
     this.runtime.record('CombatStepReached', { kind: this.step.kind });
-    return this.runtime.operations.execute(this.step);
+    return this.runtime.operations.execute(this.step, this.runtime.operationContext);
   }
 }
 
@@ -65,7 +75,10 @@ class RuntimeConditionalStep extends CombatStep {
   }
 
   override tryExecute(context: CombatExecutionContext): boolean {
-    const passed = this.runtime.operations.evaluate(this.step.parameters.condition);
+    const passed = this.runtime.operations.evaluate(
+      this.step.parameters.condition,
+      this.runtime.operationContext,
+    );
     this.runtime.record('CombatConditionEvaluated', {
       kind: this.step.parameters.condition.kind,
       passed,
@@ -81,6 +94,8 @@ export class SkillRuntime {
   readonly #program: CompiledSkillProgram;
   readonly #dependencies: SkillRuntimeDependencies;
   readonly #context: CombatExecutionContext = {};
+  readonly #blackboard = new ActionBlackboard();
+  readonly #operationContext: CombatOperationContext = { blackboard: this.#blackboard };
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
@@ -121,6 +136,10 @@ export class SkillRuntime {
     return this.#dependencies.operations;
   }
 
+  get operationContext(): CombatOperationContext {
+    return this.#operationContext;
+  }
+
   canStart(): boolean {
     return this.#state !== 'casting';
   }
@@ -148,6 +167,7 @@ export class SkillRuntime {
       },
     );
     this.#timeline.reset(this.#context);
+    this.#blackboard.restore({});
     this.#passedFrames = 0;
     this.#appliedCost = false;
     this.#attemptedCost = false;

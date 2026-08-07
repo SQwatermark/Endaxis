@@ -55,6 +55,21 @@ function createBattleSkillRuntime(initialSp: number) {
 }
 
 describe('SkillRuntime', () => {
+  it('为每个运行实例隔离动作黑板并在再次释放时重置', () => {
+    const first = createBattleSkillRuntime(300);
+    const second = createBattleSkillRuntime(300);
+
+    first.runtime.operationContext.blackboard.assignDynamic('count', 2);
+    expect(second.runtime.operationContext.blackboard.getNumber('count')).toBeUndefined();
+
+    first.runtime.tryStart();
+    first.runtime.operationContext.blackboard.assignDynamic('count', 3);
+    first.runtime.end();
+    first.runtime.tryStart();
+
+    expect(first.runtime.operationContext.blackboard.getNumber('count')).toBeUndefined();
+  });
+
   it('applies frame-zero cost during the native initial tick', () => {
     const fixture = createBattleSkillRuntime(300);
 

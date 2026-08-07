@@ -25,7 +25,10 @@ export interface SkillResourceOperationDependencies {
 export class SkillResourceOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: SkillResourceOperationDependencies) {}
 
-  execute(step: RuntimeOperation): boolean {
+  execute(
+    step: RuntimeOperation,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): boolean {
     if (
       step.kind === 'changeResource' &&
       step.parameters.resource === 'sp' &&
@@ -66,7 +69,9 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind !== 'gainSquadUltimateEnergyFromSkillCost') {
-      return this.dependencies.delegate.execute(step);
+      return context === undefined
+        ? this.dependencies.delegate.execute(step)
+        : this.dependencies.delegate.execute(step, context);
     }
 
     const changes = this.dependencies.resources.gainSquadUltimateEnergyFromSkillCost(
@@ -78,13 +83,16 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
-  evaluate(condition: Parameters<CombatOperationExecutor['evaluate']>[0]): boolean {
-    return this.dependencies.delegate.evaluate(condition);
+  evaluate(
+    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
+    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
+  ): boolean {
+    return context === undefined
+      ? this.dependencies.delegate.evaluate(condition)
+      : this.dependencies.delegate.evaluate(condition, context);
   }
 
-  #recordUltimateEnergyChange(
-    change: ReturnType<CombatResources['changeUltimateEnergy']>,
-  ): void {
+  #recordUltimateEnergyChange(change: ReturnType<CombatResources['changeUltimateEnergy']>): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,

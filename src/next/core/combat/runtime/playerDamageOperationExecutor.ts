@@ -80,8 +80,15 @@ export interface PlayerDamageOperationDependencies {
 export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: PlayerDamageOperationDependencies) {}
 
-  execute(step: RuntimeOperation): boolean {
-    if (step.kind !== 'dealDamage') return this.dependencies.delegate.execute(step);
+  execute(
+    step: RuntimeOperation,
+    operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): boolean {
+    if (step.kind !== 'dealDamage') {
+      return operationContext === undefined
+        ? this.dependencies.delegate.execute(step)
+        : this.dependencies.delegate.execute(step, operationContext);
+    }
 
     if (step.parameters.attackScalePerStatusStack !== undefined) {
       throw new Error('status-stack attack scale must be resolved by its recovered branch');
@@ -164,7 +171,12 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
-  evaluate(condition: Parameters<CombatOperationExecutor['evaluate']>[0]): boolean {
-    return this.dependencies.delegate.evaluate(condition);
+  evaluate(
+    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
+    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
+  ): boolean {
+    return context === undefined
+      ? this.dependencies.delegate.evaluate(condition)
+      : this.dependencies.delegate.evaluate(condition, context);
   }
 }

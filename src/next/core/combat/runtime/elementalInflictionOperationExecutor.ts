@@ -57,9 +57,14 @@ export interface ElementalInflictionOperationDependencies {
 export class ElementalInflictionOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: ElementalInflictionOperationDependencies) {}
 
-  execute(step: RuntimeOperation): boolean {
+  execute(
+    step: RuntimeOperation,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): boolean {
     if (step.kind !== 'applyElementalInfliction') {
-      return this.dependencies.delegate.execute(step);
+      return context === undefined
+        ? this.dependencies.delegate.execute(step)
+        : this.dependencies.delegate.execute(step, context);
     }
 
     const payload: ElementalInflictionEventPayload = {
@@ -94,7 +99,12 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     return true;
   }
 
-  evaluate(condition: Parameters<CombatOperationExecutor['evaluate']>[0]): boolean {
-    return this.dependencies.delegate.evaluate(condition);
+  evaluate(
+    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
+    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
+  ): boolean {
+    return context === undefined
+      ? this.dependencies.delegate.evaluate(condition)
+      : this.dependencies.delegate.evaluate(condition, context);
   }
 }
