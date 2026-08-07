@@ -18,6 +18,7 @@ import type {
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
 
 const BUFF_LIFETIME_EPSILON = 0.00001;
+const BUFF_PRIORITY_EPSILON = 0.00001;
 
 export const BUFF_STACKING_TYPES = [
   'unlimited',
@@ -58,6 +59,10 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
 export type BuffDuration = number | { readonly blackboardKey: string };
 /** 固定值或由实例黑板提供的 Buff 可触发次数。 */
 export type BuffTriggerCount = number | { readonly blackboardKey: string };
+/** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
+export type BuffPriority =
+  | number
+  | { readonly blackboardKey: string; readonly negate?: boolean };
 
 /** Buff 在启用、结束和移除边界执行的有序生命周期行为。 */
 export interface BuffLifecycleActions<Key extends string> {
@@ -76,6 +81,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
+  readonly priority?: BuffPriority;
   readonly maxStackCount?: number;
   /** 缺少持续时间表示已还原出的无限生命周期。 */
   readonly durationSeconds?: BuffDuration;
@@ -98,6 +104,7 @@ export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly attributeModifiers: readonly CombatAttributeModifier<Key>[];
   readonly blackboard: ActionBlackboard;
+  readonly priority: number;
   #passedTime = 0;
   #remainingDuration: number | null;
   #started = false;
@@ -120,6 +127,7 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard);
     this.blackboard.assign(options?.blackboardValues);
+    this.priority = resolveBuffPriority(definition, this.blackboard);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
     this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);
     const triggerInterval = resolveOptionalBuffNumber(
@@ -389,6 +397,8 @@ class BuffStackingGroup<Key extends string> {
     switch (this.stackingType) {
       case 'unlimited':
         return this.allocate(definition, sourceId, options);
+      case 'stack':
+        return this.stackInstances(definition, sourceId, options);
       case 'enhance':
         return this.enhance(existing, definition, sourceId, options);
       case 'refresh':
@@ -418,6 +428,34 @@ class BuffStackingGroup<Key extends string> {
     this.#buffs.push(buff);
     buff.enable();
     return buff;
+  }
+
+  private stackInstances(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (this.#currentStackCount === 0) {
+      this.#maxStackCount = definition.maxStackCount ?? 0;
+    }
+
+    const buff = this.owner.allocateBuff(definition, sourceId, options);
+    buff.attachStackingGroup(this);
+    if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) {
+      this.getLastUnfinishedBuff()?.finish('other');
+    }
+
+    this.#buffs.push(buff);
+    this.#currentStackCount = this.#buffs.filter(candidate => !candidate.isFinished).length;
+    buff.enable();
+    return buff;
+  }
+
+  private getLastUnfinishedBuff(): CombatBuff<Key> | undefined {
+    const sorted = this.#buffs
+      .filter(buff => !buff.isFinished)
+      .sort(compareBuffPriority);
+    return sorted[sorted.length - 1];
   }
 
   private enhanceAndRefresh(
@@ -514,6 +552,52 @@ function resolveBuffDuration<Key extends string>(
   if (value === null) return null;
   validateNonNegativeBuffNumber(value, 'buff duration');
   return value;
+}
+
+function resolveBuffPriority<Key extends string>(
+  definition: CombatBuffDefinition<Key>,
+  blackboard: ActionBlackboard,
+): number {
+  const configured = definition.priority ?? 0;
+  if (typeof configured === 'number') {
+    validateFiniteBuffPriority(configured);
+    return configured;
+  }
+  const value = blackboard.getNumber(configured.blackboardKey);
+  if (value === undefined) {
+    throw new Error(
+      `buff '${definition.id}' priority blackboard key '${configured.blackboardKey}' is missing or not numeric`,
+    );
+  }
+  const priority = configured.negate ? -value : value;
+  validateFiniteBuffPriority(priority);
+  return priority;
+}
+
+function compareBuffPriority<Key extends string>(
+  left: CombatBuff<Key>,
+  right: CombatBuff<Key>,
+): number {
+  const priority = compareDescending(left.priority, right.priority);
+  if (priority !== 0) return priority;
+
+  const duration = compareDurationDescending(left.remainingDuration, right.remainingDuration);
+  return duration !== 0 ? duration : left.instanceId - right.instanceId;
+}
+
+function compareDurationDescending(left: number | null, right: number | null): number {
+  if (left === null) return right === null ? 0 : -1;
+  if (right === null) return 1;
+  return compareDescending(left, right);
+}
+
+function compareDescending(left: number, right: number): number {
+  if (Math.abs(left - right) <= BUFF_PRIORITY_EPSILON) return 0;
+  return left > right ? -1 : 1;
+}
+
+function validateFiniteBuffPriority(value: number): void {
+  if (!Number.isFinite(value)) throw new RangeError('buff priority must resolve to a finite number');
 }
 
 function resolveBuffTriggerCount<Key extends string>(

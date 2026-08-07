@@ -416,6 +416,125 @@ describe('CombatBuffContainer', () => {
     expect(order).toEqual(['start', 'enable']);
   });
 
+  it('replaces the lowest-priority existing Stack instance before enabling the incoming one', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const stack = (id: string, priority: number): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.stack',
+      stackingType: 'stack',
+      maxStackCount: 2,
+      priority,
+      actions: {
+        start: () => order.push(`start:${id}`),
+        finish: () => order.push(`finish:${id}`),
+      },
+    });
+
+    const low = requireAddedBuff(container.add(stack('buff.low', 1), 'operator'));
+    const middle = requireAddedBuff(container.add(stack('buff.middle', 2), 'operator'));
+    const incoming = requireAddedBuff(container.add(stack('buff.incoming', 0), 'operator'));
+
+    expect(low.isFinished).toBe(true);
+    expect(low.finishReason).toBe('other');
+    expect(middle.isEnabled).toBe(true);
+    expect(incoming.isEnabled).toBe(true);
+    expect(container.buffs.filter(buff => !buff.isFinished)).toEqual([middle, incoming]);
+    expect(order.slice(-2)).toEqual(['finish:buff.low', 'start:buff.incoming']);
+  });
+
+  it('breaks equal Stack priorities by remaining duration and then instance id', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const stack = (id: string, durationSeconds: number): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.stack.duration',
+      stackingType: 'stack',
+      maxStackCount: 2,
+      priority: 1,
+      durationSeconds,
+    });
+
+    const long = requireAddedBuff(container.add(stack('buff.long', 20), 'operator'));
+    const short = requireAddedBuff(container.add(stack('buff.short', 10), 'operator'));
+    container.add(stack('buff.incoming', 30), 'operator');
+    expect(long.isFinished).toBe(false);
+    expect(short.isFinished).toBe(true);
+
+    const lifetimeContainer = new CombatBuffContainer('operator', attributes);
+    const infinite = requireAddedBuff(
+      lifetimeContainer.add(
+        {
+          ...stack('buff.infinite', 10),
+          stackingKey: 'buff.stack.lifetime',
+          durationSeconds: undefined,
+        },
+        'operator',
+      ),
+    );
+    const finite = requireAddedBuff(
+      lifetimeContainer.add(
+        { ...stack('buff.finite', 10), stackingKey: 'buff.stack.lifetime' },
+        'operator',
+      ),
+    );
+    lifetimeContainer.add(
+      { ...stack('buff.next', 10), stackingKey: 'buff.stack.lifetime' },
+      'operator',
+    );
+    expect(infinite.isFinished).toBe(false);
+    expect(finite.isFinished).toBe(true);
+
+    const tieContainer = new CombatBuffContainer('operator', attributes);
+    const tied = (id: string): CombatBuffDefinition<Attribute> => ({
+      ...stack(id, 10),
+      stackingKey: 'buff.stack.uid',
+    });
+    const first = requireAddedBuff(tieContainer.add(tied('buff.first'), 'operator'));
+    const second = requireAddedBuff(tieContainer.add(tied('buff.second'), 'operator'));
+    tieContainer.add(tied('buff.third'), 'operator');
+    expect(first.isFinished).toBe(false);
+    expect(second.isFinished).toBe(true);
+  });
+
+  it('resolves Stack priority from each instance blackboard and supports negation', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const dynamic = (
+      id: string,
+      negate = false,
+    ): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.stack.dynamic-priority',
+      stackingType: 'stack',
+      maxStackCount: 2,
+      priority: { blackboardKey: 'priority', negate },
+    });
+
+    const high = requireAddedBuff(
+      container.add(dynamic('buff.high'), 'operator', {
+        blackboardValues: { priority: 4 },
+      }),
+    );
+    const low = requireAddedBuff(
+      container.add(dynamic('buff.low', true), 'operator', {
+        blackboardValues: { priority: -2 },
+      }),
+    );
+    container.add(dynamic('buff.incoming'), 'operator', {
+      blackboardValues: { priority: 3 },
+    });
+
+    expect(high.priority).toBe(4);
+    expect(low.priority).toBe(2);
+    expect(high.isFinished).toBe(false);
+    expect(low.isFinished).toBe(true);
+    expect(() => container.add(dynamic('buff.missing'), 'operator')).toThrow(
+      "priority blackboard key 'priority' is missing or not numeric",
+    );
+  });
+
   it('enhances one instance, refreshes its lifetime, and still runs callbacks at the cap', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);

@@ -7,6 +7,7 @@ import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
   BuffDuration,
   BuffLifecycleActions,
+  BuffPriority,
   BuffStackingType,
   BuffTriggerCount,
   CombatBuff,
@@ -48,6 +49,7 @@ export interface CombatBuffCatalogEntry {
   readonly id: string;
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
+  readonly priority?: BuffPriority;
   readonly maxStackCount?: number;
   readonly durationSeconds?: BuffDuration;
   readonly triggerIntervalSeconds?: BuffDuration;
@@ -131,6 +133,7 @@ export class CompiledCombatBuffCatalog<
       id: entry.id,
       stackingType: entry.stackingType,
       stackingKey: entry.stackingKey,
+      priority: entry.priority,
       maxStackCount: entry.maxStackCount,
       durationSeconds: entry.durationSeconds,
       triggerIntervalSeconds: entry.triggerIntervalSeconds,
@@ -198,6 +201,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     'id',
     'stackingType',
     'stackingKey',
+    'priority',
     'maxStackCount',
     'durationSeconds',
     'triggerIntervalSeconds',
@@ -212,6 +216,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     id: requireNonEmptyString(entry.id, `${path}.id`),
     stackingType,
     ...parseOptionalString(entry, 'stackingKey', path),
+    ...parseOptionalPriority(entry, path),
     ...parseOptionalNonNegativeInteger(entry, 'maxStackCount', path),
     ...parseOptionalScalar(entry, 'durationSeconds', path),
     ...parseOptionalScalar(entry, 'triggerIntervalSeconds', path),
@@ -328,6 +333,31 @@ function parseOptionalScalar(
   if (value === undefined) return {};
   if (typeof value === 'number' && Number.isFinite(value)) return { [key]: value };
   return { [key]: parseBlackboardReference(value, `${path}.${key}`) };
+}
+
+function parseOptionalPriority(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { priority?: BuffPriority } {
+  if (entry.priority === undefined) return {};
+  if (typeof entry.priority === 'number' && Number.isFinite(entry.priority)) {
+    return { priority: entry.priority };
+  }
+  const priorityPath = `${path}.priority`;
+  const priority = requireObject(entry.priority, priorityPath);
+  requireOnlyKeys(priority, priorityPath, ['blackboardKey', 'negate']);
+  if (priority.negate !== undefined && typeof priority.negate !== 'boolean') {
+    throw new Error(`${priorityPath}.negate: expected boolean`);
+  }
+  return {
+    priority: {
+      blackboardKey: requireNonEmptyString(
+        priority.blackboardKey,
+        `${priorityPath}.blackboardKey`,
+      ),
+      ...(priority.negate === undefined ? {} : { negate: priority.negate }),
+    },
+  };
 }
 
 function parseBlackboardReference(input: unknown, path: string): { blackboardKey: string } {

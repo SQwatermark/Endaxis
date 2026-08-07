@@ -135,4 +135,28 @@ describe('compileCombatBuffCatalog', () => {
       }),
     ).toThrow("unknown property 'unexpectedNativeField'");
   });
+
+  it('parses and compiles dynamic priority without leaking native flag fields', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-priority',
+      buffs: [
+        {
+          id: 'buff.dynamic-priority',
+          stackingType: 'stack',
+          priority: { blackboardKey: 'priority', negate: true },
+          blackboard: { priority: -3 },
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('buff.dynamic-priority');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+
+    expect(definition.priority).toEqual({ blackboardKey: 'priority', negate: true });
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
+    expect(requireAddedBuff(container.add(definition, 'operator')).priority).toBe(3);
+  });
 });
