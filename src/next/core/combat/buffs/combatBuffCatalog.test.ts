@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import {
   COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
   compileCombatBuffCatalog,
@@ -158,5 +159,28 @@ describe('compileCombatBuffCatalog', () => {
     expect(definition.priority).toEqual({ blackboardKey: 'priority', negate: true });
     const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
     expect(requireAddedBuff(container.add(definition, 'operator')).priority).toBe(3);
+  });
+
+  it('preserves raw applyTags and compiles them into queryable identities', () => {
+    const path = 'Combat/Buff/Pulse/Triggered';
+    const tagId = gameplayTagIdFromPath(path);
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-tags',
+      buffs: [{ id: 'pulse-triggered', stackingType: 'unique', applyTagIds: [tagId] }],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('pulse-triggered');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const container = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet<Attribute>(),
+      new GameplayTagRegistry([path]),
+    );
+    requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(1);
   });
 });

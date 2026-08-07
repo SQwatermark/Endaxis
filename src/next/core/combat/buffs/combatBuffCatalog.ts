@@ -19,6 +19,7 @@ import type {
   ElementalInflictionStartedPayload,
 } from '../infliction/elementalInflictionBuffAdapter';
 import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 export const COMBAT_BUFF_CATALOG_SCHEMA_VERSION = 1 as const;
 
@@ -47,6 +48,8 @@ export interface CombatBuffCatalogLifecycleActions {
 /** 外部目录中的一项稳定 Buff 定义。 */
 export interface CombatBuffCatalogEntry {
   readonly id: string;
+  /** 解包数据中的原始有符号 int32 applyTags。 */
+  readonly applyTagIds?: readonly number[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -131,6 +134,7 @@ export class CompiledCombatBuffCatalog<
     }
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
+      applyTags: entry.applyTagIds?.map(gameplayTagId),
       stackingType: entry.stackingType,
       stackingKey: entry.stackingKey,
       priority: entry.priority,
@@ -199,6 +203,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',
+    'applyTagIds',
     'stackingType',
     'stackingKey',
     'priority',
@@ -214,6 +219,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
+    ...parseOptionalGameplayTagIds(entry, path),
     stackingType,
     ...parseOptionalString(entry, 'stackingKey', path),
     ...parseOptionalPriority(entry, path),
@@ -225,6 +231,25 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     ...parseOptionalBlackboard(entry, path),
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
+  };
+}
+
+function parseOptionalGameplayTagIds(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { applyTagIds?: readonly number[] } {
+  if (entry.applyTagIds === undefined) return {};
+  if (!Array.isArray(entry.applyTagIds)) {
+    throw new Error(`${path}.applyTagIds: expected array`);
+  }
+  return {
+    applyTagIds: entry.applyTagIds.map((value, index) => {
+      try {
+        return gameplayTagId(value as number);
+      } catch {
+        throw new Error(`${path}.applyTagIds[${index}]: expected signed 32-bit integer`);
+      }
+    }),
   };
 }
 
@@ -351,10 +376,7 @@ function parseOptionalPriority(
   }
   return {
     priority: {
-      blackboardKey: requireNonEmptyString(
-        priority.blackboardKey,
-        `${priorityPath}.blackboardKey`,
-      ),
+      blackboardKey: requireNonEmptyString(priority.blackboardKey, `${priorityPath}.blackboardKey`),
       ...(priority.negate === undefined ? {} : { negate: priority.negate }),
     },
   };
