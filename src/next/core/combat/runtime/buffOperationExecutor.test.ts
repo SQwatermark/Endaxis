@@ -12,6 +12,89 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('resolves action-blackboard assignments before applying a catalog buff', () => {
+    const applied: unknown[] = [];
+    const target = {
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      getCountByTags: () => 0,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const blackboard = new ActionBlackboard({ rate: 4 });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'ultimate-base',
+            target: 'caster',
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: 25 },
+              comboRate: { kind: 'blackboard', key: 'rate' },
+            },
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      {
+        buffId: 'ultimate-base',
+        sourceId: 'operator',
+        blackboardValues: { duration: 25, comboRate: 4 },
+      },
+    ]);
+  });
+
+  it('keeps legacy applyBuff timing fields on the existing delegate path', () => {
+    const calls: string[] = [];
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        apply: () => {
+          calls.push('catalog');
+          return true;
+        },
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        getCountByTags: () => 0,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate: {
+        execute: () => {
+          calls.push('delegate');
+          return true;
+        },
+        evaluate: () => false,
+      },
+    });
+
+    expect(
+      executor.execute({
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'legacy',
+          target: 'enemy',
+          durationSeconds: 10,
+          effectiveness: 1,
+        },
+      }),
+    ).toBe(true);
+    expect(calls).toEqual(['delegate']);
+  });
+
   it('compares matching buff enhance stacks with the native tolerance', () => {
     const path = 'buff/status/conduct';
     const target = new CombatBuffContainer(
@@ -27,7 +110,11 @@ describe('BuffOperationExecutor', () => {
     };
     target.add(definition, 'operator');
     target.add(definition, 'operator');
-    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
     const condition = {
       kind: 'buffStackCompare' as const,
       target: 'enemy' as const,
@@ -67,7 +154,11 @@ describe('BuffOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard();
-    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
 
     expect(
       executor.execute(
@@ -104,7 +195,11 @@ describe('BuffOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard({ output: 7 });
-    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
     const createStep = (path: string) => ({
       kind: 'readBuffBlackboard' as const,
       parameters: {
@@ -155,7 +250,11 @@ describe('BuffOperationExecutor', () => {
       },
       'operator',
     );
-    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
 
     expect(
       executor.execute({
@@ -180,7 +279,11 @@ describe('BuffOperationExecutor', () => {
       'operator',
     );
     caster.add({ id: 'sword-trigger', stackingType: 'stack', maxStackCount: 3 }, 'operator');
-    const executor = new BuffOperationExecutor({ resolveTarget: () => caster, delegate });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => caster,
+      delegate,
+    });
 
     expect(
       executor.evaluate({

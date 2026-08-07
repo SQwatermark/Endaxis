@@ -129,6 +129,7 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
     });
     const buffOperations = new BuffOperationExecutor({
+      sourceId: operatorId,
       resolveTarget: target => {
         if (target === 'enemy') return this.#enemyBuffs;
         const casterBuffs = operator.buffRuntime;

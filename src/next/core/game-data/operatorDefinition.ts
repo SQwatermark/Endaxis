@@ -287,6 +287,8 @@ export interface CombatStepParameters {
   applyBuff: {
     buffId: string;
     target: CombatTarget;
+    /** 在施加时从当前技能动作黑板求值，并覆盖 Buff 定义黑板的同名默认值。 */
+    blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
     durationSeconds?: number;
     effectiveness?: number;
   };

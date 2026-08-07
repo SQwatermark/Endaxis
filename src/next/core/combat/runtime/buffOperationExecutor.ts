@@ -7,6 +7,7 @@ import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
 import type { ActionBlackboard } from './actionBlackboard';
+import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 
@@ -19,6 +20,7 @@ export interface BuffQueryResult {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  apply?(request: BuffApplicationRequest): boolean;
   getCountByIds(ids: readonly string[]): number;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   getCountByTags(
@@ -39,7 +41,15 @@ export interface BuffOperationTarget {
   ): number;
 }
 
+/** 目录身份与本次施加覆盖值已经分离求值后的运行时请求。 */
+export interface BuffApplicationRequest {
+  readonly buffId: string;
+  readonly sourceId: string;
+  readonly blackboardValues: Readonly<Record<string, number>>;
+}
+
 export interface BuffOperationDependencies {
+  readonly sourceId: string;
   readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
   readonly delegate: CombatOperationExecutor;
 }
@@ -51,6 +61,38 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'applyBuff') {
+      // 旧手写配置仍由原执行器解释；目录路径只接收原生身份和施加黑板覆盖值。
+      if (
+        step.parameters.durationSeconds !== undefined ||
+        step.parameters.effectiveness !== undefined
+      ) {
+        return context === undefined
+          ? this.dependencies.delegate.execute(step)
+          : this.dependencies.delegate.execute(step, context);
+      }
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      if (target.apply === undefined) {
+        return context === undefined
+          ? this.dependencies.delegate.execute(step)
+          : this.dependencies.delegate.execute(step, context);
+      }
+      const assignments = step.parameters.blackboardAssignments ?? {};
+      if (Object.keys(assignments).length > 0 && context === undefined) {
+        throw new Error('applyBuff blackboard assignments require a combat operation context');
+      }
+      return target.apply({
+        buffId: step.parameters.buffId,
+        sourceId: this.dependencies.sourceId,
+        blackboardValues: Object.fromEntries(
+          Object.entries(assignments).map(([key, operand]) => [
+            key,
+            resolveActionValueOperand(operand, context!.blackboard),
+          ]),
+        ),
+      });
+    }
+
     if (step.kind === 'readBuffBlackboard') {
       if (context === undefined) {
         throw new Error('readBuffBlackboard requires a combat operation context');

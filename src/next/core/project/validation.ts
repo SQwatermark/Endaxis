@@ -391,6 +391,18 @@ function validateCombatStepParameters(
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);
       requireTarget();
+      if (parameters.blackboardAssignments !== undefined) {
+        if (!isObject(parameters.blackboardAssignments)) {
+          issues.push({
+            path: `${path}.blackboardAssignments`,
+            message: 'expected object',
+          });
+        } else {
+          for (const [key, value] of Object.entries(parameters.blackboardAssignments)) {
+            validateActionValueOperand(value, `${path}.blackboardAssignments.${key}`, issues);
+          }
+        }
+      }
       if (parameters.durationSeconds !== undefined)
         requireFiniteNumber(parameters.durationSeconds, `${path}.durationSeconds`, issues);
       if (parameters.effectiveness !== undefined)
