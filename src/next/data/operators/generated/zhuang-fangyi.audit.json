@@ -3787,6 +3787,7 @@
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
           "buffIds": [],
+          "tagQueryType": "hasAny",
           "buffTagIds": [
             1466867135
           ]
@@ -4839,6 +4840,7 @@
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
           "buffIds": [],
+          "tagQueryType": "hasAny",
           "buffTagIds": [
             1466867135
           ]

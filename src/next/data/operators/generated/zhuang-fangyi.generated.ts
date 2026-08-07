@@ -5824,6 +5824,7 @@ export const zhuangFangyiGeneratedSource = {
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
           "buffIds": [],
+          "tagQueryType": "hasAny",
           "buffTagIds": [
             1466867135
           ]
@@ -7355,6 +7356,7 @@ export const zhuangFangyiGeneratedSource = {
           "targetGroupKey": "smart_target",
           "buffCheckType": "Tag",
           "buffIds": [],
+          "tagQueryType": "hasAny",
           "buffTagIds": [
             1466867135
           ]

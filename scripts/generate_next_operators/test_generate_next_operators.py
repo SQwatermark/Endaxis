@@ -87,7 +87,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "buffSettings": {
                                         "checkType": "Tag",
                                         "buffIdList": [],
-                                        "tagQuery": {"tags": [{"tagId": 1466867135}]},
+                                        "tagQuery": {
+                                            "queryType": "HasAny",
+                                            "tags": [{"tagId": 1466867135}],
+                                        },
                                     },
                                 },
                                 {
@@ -118,6 +121,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(reads[0].outputKey, "conductCnt")
         self.assertEqual(reads[0].desiredKey, "count")
         self.assertEqual(reads[0].targetGroupKey, "smart_target")
+        self.assertEqual(reads[0].tagQueryType, "hasAny")
         self.assertEqual(reads[0].buffTagIds, (1466867135,))
 
     def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:

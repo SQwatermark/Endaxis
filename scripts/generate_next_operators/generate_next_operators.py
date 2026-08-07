@@ -230,6 +230,7 @@ class BuffBlackboardReadSource:
     targetGroupKey: str
     buffCheckType: str
     buffIds: tuple[str, ...]
+    tagQueryType: str
     buffTagIds: tuple[int, ...]
 
 
@@ -727,6 +728,19 @@ def parse_blackboard_runtime_actions(
                 tag_query.get("tags"),
                 f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery.tags",
             )
+            query_type_map = {
+                "HasAny": "hasAny",
+                "HasAll": "hasAll",
+                "ExceptAny": "exceptAny",
+                "ExceptAll": "exceptAll",
+            }
+            raw_query_type = tag_query.get("queryType")
+            query_type = query_type_map.get(raw_query_type)
+            if query_type is None:
+                raise ValueError(
+                    f"{source_name}.GetTargetBuffBBAdvanced tag query type: "
+                    f"unsupported value {raw_query_type!r}"
+                )
             tag_ids: list[int] = []
             for tag_index, raw_tag in enumerate(raw_tags):
                 tag = require_dict(
@@ -750,6 +764,7 @@ def parse_blackboard_runtime_actions(
                     targetGroupKey=str(target.get("targetGroupKey", "")),
                     buffCheckType=str(settings.get("checkType", "")),
                     buffIds=tuple(str(value) for value in raw_ids),
+                    tagQueryType=query_type,
                     buffTagIds=tuple(tag_ids),
                 )
             )

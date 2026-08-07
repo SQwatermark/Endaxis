@@ -196,6 +196,7 @@ export interface GeneratedBuffBlackboardReadSource {
   readonly targetGroupKey: string;
   readonly buffCheckType: string;
   readonly buffIds: readonly string[];
+  readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
   /** 原始有符号 int32 标签；进入运行时前须转为 GameplayTagId，不得与 DamageTag 混用。 */
   readonly buffTagIds: readonly number[];
 }
