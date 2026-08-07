@@ -165,6 +165,14 @@ export const perlicaGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 8,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack1_projhit"
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -564,6 +572,20 @@ export const perlicaGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 9,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack2_projhit"
+        },
+        {
+          "launchFrame": 12,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack2_projhit"
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -1112,6 +1134,26 @@ export const perlicaGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack3_projhit"
+        },
+        {
+          "launchFrame": 19,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack3_projhit"
+        },
+        {
+          "launchFrame": 22,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack3_projhit"
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -1755,6 +1797,14 @@ export const perlicaGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 27,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack4",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_attack4_projhit"
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -2354,6 +2404,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "resourceGains": [],
+      "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
       "patch": {
@@ -2770,6 +2821,32 @@ export const perlicaGeneratedSource = {
             "blackboardKey": null,
             "levelValues": null
           }
+        }
+      ],
+      "projectileLaunches": [
+        {
+          "launchFrame": 1,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit"
+        },
+        {
+          "launchFrame": 1,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit"
+        },
+        {
+          "launchFrame": 1,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit"
+        },
+        {
+          "launchFrame": 1,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit"
         }
       ],
       "projectileHits": [
@@ -3278,6 +3355,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "resourceGains": [],
+      "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
       "patch": {
@@ -3605,6 +3683,14 @@ export const perlicaGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 24,
+          "projectileId": "projectile_chr_0004_pelica_combo_skill",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0004_pelica_combo_skill_projhit"
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -4540,6 +4626,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "resourceGains": [],
+      "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [
         {
@@ -4551,6 +4638,7 @@ export const perlicaGeneratedSource = {
           "inflictions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [],

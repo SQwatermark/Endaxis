@@ -95,6 +95,13 @@ export interface GeneratedProjectileHitSource {
   readonly nestedProjectileHits: readonly GeneratedProjectileHitSource[];
 }
 
+export interface GeneratedProjectileLaunchSource {
+  readonly launchFrame: number;
+  readonly projectileId: string;
+  readonly castSkillOnHit: boolean;
+  readonly hitSkillId: string | null;
+}
+
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
 export interface GeneratedAbilityEntityHitSource {
   readonly spawnFrame: number;
@@ -105,6 +112,8 @@ export interface GeneratedAbilityEntityHitSource {
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  /** 原始发射动作；没有命中子技能时仍保留在这里，不能据此推断为无战斗效果。 */
+  readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   readonly nestedAbilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   readonly combatActions: readonly string[];
@@ -138,6 +147,7 @@ export interface GeneratedSkillSource {
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */

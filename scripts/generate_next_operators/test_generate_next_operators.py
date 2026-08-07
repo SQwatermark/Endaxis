@@ -16,6 +16,8 @@ from generate_next_operators import (
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
+    parse_auxiliary_actions,
+    parse_projectile_launches,
     parse_resource_gains,
     resolve_ability_entity_hits,
     parse_skill_patch,
@@ -28,6 +30,56 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 9,
+                        "_endFrame": 9,
+                        "_sequenceActionData": {
+                            "$type": "Example.LaunchProjectile+Data, Example",
+                            "isEnable": True,
+                            "projectileId": "visual_or_native_projectile",
+                            "castSkillOnHit": False,
+                            "projectileSkillId": "",
+                        },
+                    }
+                ]
+            }
+        }
+
+        launches = parse_projectile_launches(root, "skill.json")
+
+        self.assertEqual(len(launches), 1)
+        self.assertEqual(launches[0].launchFrame, 9)
+        self.assertFalse(launches[0].castSkillOnHit)
+        self.assertIsNone(launches[0].hitSkillId)
+
+    def test_ability_entity_without_child_skill_is_kept_as_non_combat_auxiliary_action(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 4,
+                        "_endFrame": 5,
+                        "_sequenceActionData": {
+                            "$type": "Example.SpawnAbilityEntity+Data, Example",
+                            "isEnable": True,
+                            "abilityEntityId": "fake_target",
+                            "abilityEntitySkillId": "",
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_auxiliary_actions(root, "skill.json", Path("."), {})
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(actions[0].sourceId, "fake_target")
+        self.assertEqual(actions[0].classification, "nonCombatAbilityEntity")
+
     def test_ability_entity_child_skill_keeps_spawn_offset_and_combat_details(self) -> None:
         spawn = {
             "$type": "Example.SpawnAbilityEntity+Data, Example",

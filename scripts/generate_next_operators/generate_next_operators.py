@@ -112,6 +112,14 @@ class ProjectileHitSource:
 
 
 @dataclass(frozen=True)
+class ProjectileLaunchSource:
+    launchFrame: int
+    projectileId: str
+    castSkillOnHit: bool
+    hitSkillId: str | None
+
+
+@dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
     abilityEntityId: str
@@ -121,6 +129,7 @@ class AbilityEntityHitSource:
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
+    projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     nestedAbilityEntityHits: tuple["AbilityEntityHitSource", ...]
     combatActions: tuple[str, ...]
@@ -155,6 +164,7 @@ class SkillSource:
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
+    projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     patch: SkillPatchSource
@@ -551,8 +561,22 @@ def parse_auxiliary_actions(
                 skill_id = action.get("abilityEntitySkillId")
                 if not isinstance(ability_id, str) or not ability_id:
                     raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
-                if not isinstance(skill_id, str) or not skill_id:
-                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntitySkillId")
+                if skill_id == "":
+                    result.append(
+                        AuxiliaryActionSource(
+                            startFrame=start_frame,
+                            endFrame=end_frame,
+                            actionIndex=action_index,
+                            actionType=name,
+                            sourceId=ability_id,
+                            classification="nonCombatAbilityEntity",
+                            blackboardAssignments={},
+                            nestedCombatActions=(),
+                        )
+                    )
+                    continue
+                if not isinstance(skill_id, str):
+                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected abilityEntitySkillId string")
                 child_name = f"{skill_id}.json"
                 child_path = source_dir / child_name
                 if not child_path.is_file():
@@ -656,7 +680,7 @@ def resolve_projectile_hits(
             if action_name(action["$type"]) != "LaunchProjectile":
                 continue
             if action.get("castSkillOnHit") is not True:
-                raise ValueError(f"{source_name}: projectile without castSkillOnHit is not supported")
+                continue
             hit_skill_id = action.get("projectileSkillId")
             projectile_id = action.get("projectileId")
             if not isinstance(hit_skill_id, str) or not hit_skill_id:
@@ -725,6 +749,41 @@ def resolve_projectile_hits(
     return tuple(result)
 
 
+def parse_projectile_launches(
+    root: dict[str, Any],
+    source_name: str,
+    base_frame: int = 0,
+) -> tuple[ProjectileLaunchSource, ...]:
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[ProjectileLaunchSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        launch_frame = base_frame + require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        for action in walk_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "LaunchProjectile" or action.get("isEnable") is False:
+                continue
+            projectile_id = action.get("projectileId")
+            if not isinstance(projectile_id, str) or not projectile_id:
+                raise ValueError(f"{source_name}: projectileId must be a non-empty string")
+            cast_on_hit = action.get("castSkillOnHit") is True
+            hit_skill_id = action.get("projectileSkillId")
+            if cast_on_hit and (not isinstance(hit_skill_id, str) or not hit_skill_id):
+                raise ValueError(f"{source_name}: cast-on-hit projectile requires projectileSkillId")
+            result.append(
+                ProjectileLaunchSource(
+                    launchFrame=launch_frame,
+                    projectileId=projectile_id,
+                    castSkillOnHit=cast_on_hit,
+                    hitSkillId=hit_skill_id if isinstance(hit_skill_id, str) and hit_skill_id else None,
+                )
+            )
+    return tuple(result)
+
+
 def resolve_ability_entity_hits(
     root: dict[str, Any],
     source_name: str,
@@ -751,8 +810,10 @@ def resolve_ability_entity_hits(
             skill_id = action.get("abilityEntitySkillId")
             if not isinstance(ability_id, str) or not ability_id:
                 raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
-            if not isinstance(skill_id, str) or not skill_id:
-                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntitySkillId")
+            if skill_id == "":
+                continue
+            if not isinstance(skill_id, str):
+                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected abilityEntitySkillId string")
             child_name = f"{skill_id}.json"
             child_path = source_dir / child_name
             if not child_path.is_file():
@@ -790,6 +851,7 @@ def resolve_ability_entity_hits(
                     inflictions=parse_inflictions(child, child_name),
                     auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
                     resourceGains=parse_resource_gains(child, child_name, blackboard),
+                    projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
                     projectileHits=resolve_projectile_hits(
                         child,
                         child_name,
@@ -983,6 +1045,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
+        projectileLaunches=parse_projectile_launches(root, source_name),
         projectileHits=resolve_projectile_hits(
             root,
             source_name,
@@ -1795,6 +1858,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
+                "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
