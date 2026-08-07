@@ -41,6 +41,7 @@ export interface ResolvedCombatStepParameters {
     damageType: DamageType;
     calculation?: 'standard' | 'breakingAttack';
     attackScale: number;
+    calculationMultiplier?: number;
     tags: readonly DamageTag[];
     stagger?: number;
     attackScalePerStatusStack?: {

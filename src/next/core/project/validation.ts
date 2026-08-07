@@ -248,6 +248,19 @@ function validateCombatStepParameters(
         requireEnum(parameters.calculation, damageCalculations, `${path}.calculation`, issues);
       }
       validateLevelValues(parameters.attackScale, `${path}.attackScale`, issues);
+      if (parameters.calculationMultiplier !== undefined) {
+        validateLevelValues(
+          parameters.calculationMultiplier,
+          `${path}.calculationMultiplier`,
+          issues,
+        );
+        if (parameters.calculation !== 'breakingAttack') {
+          issues.push({
+            path: `${path}.calculationMultiplier`,
+            message: "requires calculation 'breakingAttack'",
+          });
+        }
+      }
       if (!Array.isArray(parameters.tags)) {
         issues.push({ path: `${path}.tags`, message: 'expected an array' });
       } else {

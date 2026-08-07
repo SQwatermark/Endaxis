@@ -96,6 +96,15 @@ function resolveStep(
             skillLevel,
             `${path}.parameters.attackScale`,
           ),
+          ...(step.parameters.calculationMultiplier === undefined
+            ? {}
+            : {
+                calculationMultiplier: resolveLevelValue(
+                  step.parameters.calculationMultiplier,
+                  skillLevel,
+                  `${path}.parameters.calculationMultiplier`,
+                ),
+              }),
           tags: step.parameters.tags,
           ...(step.parameters.stagger === undefined
             ? {}

@@ -203,6 +203,7 @@ export const perlicaGeneratedSource = {
                   0.57
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -234,6 +235,7 @@ export const perlicaGeneratedSource = {
                       0.57
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -617,6 +619,7 @@ export const perlicaGeneratedSource = {
                   0.34
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -648,6 +651,7 @@ export const perlicaGeneratedSource = {
                       0.34
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -722,6 +726,7 @@ export const perlicaGeneratedSource = {
                   0.34
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -753,6 +758,7 @@ export const perlicaGeneratedSource = {
                       0.34
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1186,6 +1192,7 @@ export const perlicaGeneratedSource = {
                   0.28
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1217,6 +1224,7 @@ export const perlicaGeneratedSource = {
                       0.28
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1291,6 +1299,7 @@ export const perlicaGeneratedSource = {
                   0.28
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1322,6 +1331,7 @@ export const perlicaGeneratedSource = {
                       0.28
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1396,6 +1406,7 @@ export const perlicaGeneratedSource = {
                   0.28
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1427,6 +1438,7 @@ export const perlicaGeneratedSource = {
                       0.28
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1838,6 +1850,7 @@ export const perlicaGeneratedSource = {
                   1.27
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -1849,6 +1862,7 @@ export const perlicaGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 0.0,
                 "blackboardKey": "poise",
@@ -1897,6 +1911,7 @@ export const perlicaGeneratedSource = {
                       1.27
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -1908,6 +1923,7 @@ export const perlicaGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -2379,6 +2395,11 @@ export const perlicaGeneratedSource = {
                   9.0
                 ]
               },
+              "calculationMultiplier": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
               "poiseValue": null
             }
           ]
@@ -2819,6 +2840,7 @@ export const perlicaGeneratedSource = {
                   1.8
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ]
@@ -3322,6 +3344,7 @@ export const perlicaGeneratedSource = {
                   4.0
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -3346,6 +3369,7 @@ export const perlicaGeneratedSource = {
                   4.0
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 0.0,
                 "blackboardKey": "poise",
@@ -3772,6 +3796,7 @@ export const perlicaGeneratedSource = {
                   1.8
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -3783,6 +3808,7 @@ export const perlicaGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 0.0,
                 "blackboardKey": "poise",
@@ -3831,6 +3857,7 @@ export const perlicaGeneratedSource = {
                       1.8
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -3842,6 +3869,7 @@ export const perlicaGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -3979,6 +4007,7 @@ export const perlicaGeneratedSource = {
                       1.8
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -3990,6 +4019,7 @@ export const perlicaGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -4038,6 +4068,7 @@ export const perlicaGeneratedSource = {
                           1.8
                         ]
                       },
+                      "calculationMultiplier": null,
                       "poiseValue": null
                     },
                     {
@@ -4049,6 +4080,7 @@ export const perlicaGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       },
+                      "calculationMultiplier": null,
                       "poiseValue": {
                         "value": 0.0,
                         "blackboardKey": "poise",
@@ -4608,6 +4640,7 @@ export const perlicaGeneratedSource = {
                   10.0
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -4632,6 +4665,7 @@ export const perlicaGeneratedSource = {
                   10.0
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 20.0,
                 "blackboardKey": "poise",

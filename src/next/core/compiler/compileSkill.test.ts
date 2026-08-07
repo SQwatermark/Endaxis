@@ -13,6 +13,44 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('resolves the per-hit multiplier of a breaking attack', () => {
+    const skill = {
+      key: 'finisher-split',
+      timelineBlockFrames: 10,
+      scheduledSequences: [
+        {
+          startFrame: 3,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'electric',
+                  calculation: 'breakingAttack',
+                  attackScale: [4, 9],
+                  calculationMultiplier: [0.1, 0.2],
+                  tags: ['powerAttack'],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'finisher',
+      skillType: 'finisher',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
+      parameters: { attackScale: 9, calculationMultiplier: 0.2 },
+    });
+  });
+
   it('keeps the derived timeline block width in the compiled catalog', () => {
     const skill = {
       key: 'timeline-block',

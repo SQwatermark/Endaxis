@@ -40,6 +40,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             attributeType="Hp",
             calculation="standard",
             attackScale=ScalarSource(0, "atk", (0.5, 0.6)),
+            calculationMultiplier=None,
             poiseValue=None,
         )
         skill = SimpleNamespace(
@@ -577,6 +578,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             },
                             "atkCalculation": {
                                 "$type": "Example.BreakingAttackCalculation, Example",
+                                "multiplier": {
+                                    "useBlackboardKey": False,
+                                    "blackboardKey": "",
+                                    "value": 0.1,
+                                },
                                 "atkScale": {
                                     "useBlackboardKey": True,
                                     "blackboardKey": "atk_scale",
@@ -593,6 +599,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(unit.calculation, "breakingAttack")
         self.assertEqual(unit.attackScale.levelValues, (4.0, 9.0))
+        self.assertEqual(unit.calculationMultiplier.value, 0.1)
 
 
 if __name__ == "__main__":

@@ -42,6 +42,7 @@ export const perlicaGeneratedSkills = [
             attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
             tags: ['normalAttack', 'powerAttack'],
             calculation: 'breakingAttack',
+            calculationMultiplier: 1,
           }),
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
         ),

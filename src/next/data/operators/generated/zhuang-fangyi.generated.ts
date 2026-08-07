@@ -197,6 +197,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -228,6 +229,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -270,6 +272,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -301,6 +304,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -651,6 +655,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.11
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -682,6 +687,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.11
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -724,6 +730,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.11
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -755,6 +762,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.11
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -803,6 +811,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.08
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -834,6 +843,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.08
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1223,6 +1233,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1254,6 +1265,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1296,6 +1308,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1327,6 +1340,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1369,6 +1383,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1400,6 +1415,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1442,6 +1458,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.18
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ],
@@ -1473,6 +1490,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.18
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1794,6 +1812,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.25
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -1825,6 +1844,7 @@ export const zhuangFangyiGeneratedSource = {
                       0.25
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -2186,6 +2206,7 @@ export const zhuangFangyiGeneratedSource = {
                       1.08
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -2197,6 +2218,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -2734,6 +2756,7 @@ export const zhuangFangyiGeneratedSource = {
                       1.5
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -2783,6 +2806,7 @@ export const zhuangFangyiGeneratedSource = {
                       1.5
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -2832,6 +2856,7 @@ export const zhuangFangyiGeneratedSource = {
                       1.5
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -2881,6 +2906,7 @@ export const zhuangFangyiGeneratedSource = {
                       1.5
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -3287,6 +3313,7 @@ export const zhuangFangyiGeneratedSource = {
                       2.1
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -3336,6 +3363,7 @@ export const zhuangFangyiGeneratedSource = {
                       2.1
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -3385,6 +3413,7 @@ export const zhuangFangyiGeneratedSource = {
                       2.1
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -3434,6 +3463,7 @@ export const zhuangFangyiGeneratedSource = {
                       2.1
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -3772,6 +3802,7 @@ export const zhuangFangyiGeneratedSource = {
                       3.0
                     ]
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -3783,6 +3814,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -4229,6 +4261,11 @@ export const zhuangFangyiGeneratedSource = {
                   9.0
                 ]
               },
+              "calculationMultiplier": {
+                "value": 0.1,
+                "blackboardKey": null,
+                "levelValues": null
+              },
               "poiseValue": null
             }
           ]
@@ -4259,6 +4296,11 @@ export const zhuangFangyiGeneratedSource = {
                   8.3,
                   9.0
                 ]
+              },
+              "calculationMultiplier": {
+                "value": 0.9,
+                "blackboardKey": null,
+                "levelValues": null
               },
               "poiseValue": null
             }
@@ -4548,6 +4590,7 @@ export const zhuangFangyiGeneratedSource = {
                   1.8
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             }
           ]
@@ -5383,6 +5426,7 @@ export const zhuangFangyiGeneratedSource = {
                               0.45
                             ]
                           },
+                          "calculationMultiplier": null,
                           "poiseValue": null
                         }
                       ]
@@ -5414,6 +5458,7 @@ export const zhuangFangyiGeneratedSource = {
                               0.45
                             ]
                           },
+                          "calculationMultiplier": null,
                           "poiseValue": null
                         }
                       ]
@@ -5432,6 +5477,7 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardKey": "atk_scale_final",
                             "levelValues": null
                           },
+                          "calculationMultiplier": null,
                           "poiseValue": null
                         },
                         {
@@ -5443,6 +5489,7 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardKey": null,
                             "levelValues": null
                           },
+                          "calculationMultiplier": null,
                           "poiseValue": {
                             "value": 0.0,
                             "blackboardKey": "poise",
@@ -6270,6 +6317,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": "atk_scale_final",
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -6288,6 +6336,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": "atk_scale_final",
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 }
               ]
@@ -6306,6 +6355,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": "atk_scale_final",
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": null
                 },
                 {
@@ -6317,6 +6367,7 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
+                  "calculationMultiplier": null,
                   "poiseValue": {
                     "value": 0.0,
                     "blackboardKey": "poise",
@@ -6965,6 +7016,7 @@ export const zhuangFangyiGeneratedSource = {
                   3.6
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -6976,6 +7028,7 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 0.0,
                 "blackboardKey": "poise",
@@ -7542,6 +7595,7 @@ export const zhuangFangyiGeneratedSource = {
                   5.4
                 ]
               },
+              "calculationMultiplier": null,
               "poiseValue": null
             },
             {
@@ -7553,6 +7607,7 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
+              "calculationMultiplier": null,
               "poiseValue": {
                 "value": 0.0,
                 "blackboardKey": "poise",

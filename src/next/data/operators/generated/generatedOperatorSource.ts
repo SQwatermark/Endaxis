@@ -30,6 +30,7 @@ export interface GeneratedDamageUnitSource {
   readonly attributeType: string;
   readonly calculation: 'standard' | 'breakingAttack';
   readonly attackScale: GeneratedScalarSource;
+  readonly calculationMultiplier: GeneratedScalarSource | null;
   readonly poiseValue: GeneratedScalarSource | null;
 }
 

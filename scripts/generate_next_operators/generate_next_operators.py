@@ -53,6 +53,7 @@ class DamageUnitSource:
     attributeType: str
     calculation: str
     attackScale: ScalarSource
+    calculationMultiplier: ScalarSource | None
     poiseValue: ScalarSource | None
 
 
@@ -368,6 +369,7 @@ def parse_damage_units(
                 raise ValueError(f"{source_name}.DamageAction.damageUnits[{index}].simpleCalculation: expected boolean")
             attack_scale_source = unit.get("atkScale")
             calculation = "standard"
+            calculation_multiplier = None
             if not simple_calculation:
                 raw_calculation = require_dict(
                     unit.get("atkCalculation"),
@@ -384,6 +386,12 @@ def parse_damage_units(
                     )
                 calculation = calculation_types[calculation_type]
                 attack_scale_source = raw_calculation.get("atkScale")
+                if calculation == "breakingAttack":
+                    calculation_multiplier = parse_scalar(
+                        raw_calculation.get("multiplier"),
+                        f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation.multiplier",
+                        inherited_blackboard,
+                    )
             poise_value = None
             if unit.get("damageAttributeType") == "Poise":
                 poise_calculation = require_dict(
@@ -405,6 +413,7 @@ def parse_damage_units(
                         f"{source_name}.DamageAction.damageUnits[{index}].atkScale",
                         inherited_blackboard,
                     ),
+                    calculationMultiplier=calculation_multiplier,
                     poiseValue=poise_value,
                 )
             )
@@ -1297,6 +1306,10 @@ def require_level_values(source: ScalarSource, path: str) -> tuple[float, ...]:
     return source.levelValues
 
 
+def resolved_scalar_values(source: ScalarSource) -> tuple[float, ...]:
+    return source.levelValues if source.levelValues is not None else (source.value,)
+
+
 def compact_level_values(values: tuple[float, ...]) -> float | tuple[float, ...]:
     return values[0] if all(value == values[0] for value in values) else values
 
@@ -1413,6 +1426,11 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
     ]
     if hp.calculation != "standard":
         damage_fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+    if hp.calculationMultiplier is not None:
+        damage_fields.append(
+            "calculationMultiplier: "
+            f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
+        )
     if poise_units:
         poise = poise_units[0].poiseValue
         if poise is None:
@@ -1699,6 +1717,11 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         ]
         if hp.calculation != "standard":
             fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+        if hp.calculationMultiplier is not None:
+            fields.append(
+                "calculationMultiplier: "
+                f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
+            )
         if poise_units:
             poise = poise_units[0].poiseValue
             if poise is None:

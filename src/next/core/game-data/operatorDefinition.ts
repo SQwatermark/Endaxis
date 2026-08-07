@@ -123,6 +123,8 @@ export interface DealDamageParameters {
   calculation?: DamageCalculation;
   /** 单次命中的攻击倍率，使用小数表示。 */
   attackScale: LevelValues;
+  /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
+  calculationMultiplier?: LevelValues;
   tags: readonly DamageTag[];
   /** 同一次命中在生命伤害之后结算的失衡伤害。 */
   stagger?: LevelValues;
