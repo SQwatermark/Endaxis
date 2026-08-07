@@ -217,13 +217,20 @@ class ConditionSource:
 
 
 @dataclass(frozen=True)
+class ConditionalBranchActionSource:
+    actionType: str
+    actionIndex: int
+    nestedCondition: ConditionalActionSource | None = None
+
+
+@dataclass(frozen=True)
 class ConditionalActionSource:
     startFrame: int
     endFrame: int
     actionPath: tuple[str, ...]
     conditions: tuple[ConditionSource, ...]
-    succeedCombatActions: tuple[str, ...]
-    failCombatActions: tuple[str, ...]
+    succeedActions: tuple[ConditionalBranchActionSource, ...]
+    failActions: tuple[ConditionalBranchActionSource, ...]
 
 
 @dataclass(frozen=True)
@@ -333,7 +340,7 @@ def serialize_audit_value(value: Any) -> Any:
         return {
             key: serialize_audit_value(item)
             for key, item in value.items()
-            if not (key in {"entityCount", "buffStack"} and item is None)
+            if not (key in {"entityCount", "buffStack", "nestedCondition"} and item is None)
         }
     if isinstance(value, (list, tuple)):
         return [serialize_audit_value(item) for item in value]
@@ -358,6 +365,8 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "FinishBuffAdvanced",
     "GetTargetBuffBBAdvanced",
     "ModifyDynamicBlackboard",
+    "SaveBuffStackNumAdvanced",
+    "SimpleCalcBBAction",
 }
 TAG_QUERY_TYPE_MAP = {
     "HasAny": "hasAny",
@@ -561,18 +570,176 @@ def parse_conditional_actions(
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[ConditionalActionSource, ...]:
-    """保留会改变战斗行为的 IfElse 条件；暂不把展示分支带入审计层。"""
+    """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[ConditionalActionSource] = []
 
-    def combat_actions(value: Any) -> tuple[str, ...]:
-        """按原始遍历顺序保留分支动作；重复动作同样具有执行语义。"""
-        return tuple(
-            action_name(action["$type"])
-            for action in walk_actions(value)
-            if action_name(action["$type"]) in CONDITIONAL_AUDIT_ACTION_NAMES
-            and action_name(action["$type"]) != "IfElseAction"
+    def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
+        condition = require_dict(raw_condition, path)
+        condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "CompareFloat":
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=str(condition.get("compare", "")),
+                left=parse_scalar(condition.get("valueA"), f"{path}.valueA", inherited_blackboard),
+                right=parse_scalar(condition.get("valueB"), f"{path}.valueB", inherited_blackboard),
+                skillTypes=(),
+            )
+        if condition_type == "CheckSkillType":
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=tuple(
+                    str(item)
+                    for item in require_list(condition.get("skillTypeList"), f"{path}.skillTypeList")
+                ),
+            )
+        if condition_type == "CheckEntityNum":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            minimum_count = condition.get("minNum")
+            if not isinstance(minimum_count, int) or isinstance(minimum_count, bool):
+                raise ValueError(f"{path}.minNum: expected integer")
+            contains_hittable = condition.get("containsHittableTarget")
+            exclude_dead = condition.get("excludeDeadEntity")
+            store_key = condition.get("storeKey")
+            if not isinstance(contains_hittable, bool):
+                raise ValueError(f"{path}.containsHittableTarget: expected boolean")
+            if not isinstance(exclude_dead, bool):
+                raise ValueError(f"{path}.excludeDeadEntity: expected boolean")
+            if not isinstance(store_key, str):
+                raise ValueError(f"{path}.storeKey: expected string")
+            return ConditionSource(
+                sourceType=condition_type,
+                # 原生目标集合尚未进入单敌人模拟；这里只保真审计参数。
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                entityCount=EntityCountConditionSource(
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    minimumCount=minimum_count,
+                    comparison=str(condition.get("compareType", "")),
+                    containsHittableTarget=contains_hittable,
+                    excludeDeadEntity=exclude_dead,
+                    storeKey=store_key,
+                ),
+            )
+        if condition_type == "CheckBuffStackNumAdvanced":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+                condition.get("buffSettings"), f"{path}.buffSettings"
+            )
+            count_type = condition.get("buffStackNumType")
+            limit_skill_cast_id = condition.get("limitSkillCastId")
+            if not isinstance(count_type, str) or not count_type:
+                raise ValueError(f"{path}.buffStackNumType: expected string")
+            if not isinstance(limit_skill_cast_id, bool):
+                raise ValueError(f"{path}.limitSkillCastId: expected boolean")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=(
+                    count_type == "BuffCount"
+                    and not limit_skill_cast_id
+                    and check_type in {"Id", "Tag"}
+                ),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                buffStack=BuffStackConditionSource(
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    buffCheckType=check_type,
+                    buffIds=buff_ids,
+                    tagQueryType=query_type,
+                    buffTagIds=tag_ids,
+                    countType=count_type,
+                    comparison=str(condition.get("compareType", "")),
+                    value=parse_scalar(condition.get("value"), f"{path}.value", inherited_blackboard),
+                    limitSkillCastId=limit_skill_cast_id,
+                ),
+            )
+        return ConditionSource(
+            sourceType=condition_type,
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
         )
+
+    def parse_if_else(
+        value: dict[str, Any],
+        start_frame: int,
+        end_frame: int,
+        path: tuple[str, ...],
+    ) -> ConditionalActionSource | None:
+        source_path = f"{source_name}.{'.'.join(path)}"
+        condition_group = require_dict(
+            value.get("conditionAction"), f"{source_path}.conditionAction"
+        )
+        conditions = tuple(
+            parse_condition(
+                raw_condition,
+                f"{source_path}.conditionAction.actionData[{index}]",
+            )
+            for index, raw_condition in enumerate(
+                require_list(
+                    condition_group.get("actionData"),
+                    f"{source_path}.conditionAction.actionData",
+                )
+            )
+        )
+        succeed = parse_branch(
+            value.get("succeedActions"), start_frame, end_frame, (*path, "succeedActions")
+        )
+        fail = parse_branch(value.get("failActions"), start_frame, end_frame, (*path, "failActions"))
+        if not succeed and not fail:
+            return None
+        return ConditionalActionSource(
+            startFrame=start_frame,
+            endFrame=end_frame,
+            actionPath=path,
+            conditions=conditions,
+            succeedActions=succeed,
+            failActions=fail,
+        )
+
+    def parse_branch(
+        value: Any,
+        start_frame: int,
+        end_frame: int,
+        path: tuple[str, ...],
+    ) -> tuple[ConditionalBranchActionSource, ...]:
+        branch = require_dict(value, f"{source_name}.{'.'.join(path)}")
+        actions: list[ConditionalBranchActionSource] = []
+        for index, raw_action in enumerate(
+            require_list(branch.get("actionData"), f"{source_name}.{'.'.join(path)}.actionData")
+        ):
+            action = require_dict(raw_action, f"{source_name}.{'.'.join(path)}.actionData[{index}]")
+            action_type = action_name(str(action.get("$type", "")))
+            action_path = (*path, "actionData", f"[{index}]")
+            if action_type == "IfElseAction":
+                nested = parse_if_else(action, start_frame, end_frame, action_path)
+                if nested is not None:
+                    actions.append(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=index,
+                            nestedCondition=nested,
+                        )
+                    )
+            elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES:
+                actions.append(
+                    ConditionalBranchActionSource(actionType=action_type, actionIndex=index)
+                )
+        return tuple(actions)
 
     def visit(value: Any, start_frame: int, end_frame: int, path: tuple[str, ...]) -> None:
         if isinstance(value, list):
@@ -582,172 +749,11 @@ def parse_conditional_actions(
         if not isinstance(value, dict):
             return
         if action_name(str(value.get("$type", ""))) == "IfElseAction":
-            succeed = combat_actions(value.get("succeedActions"))
-            fail = combat_actions(value.get("failActions"))
-            if succeed or fail:
-                conditions: list[ConditionSource] = []
-                condition_group = require_dict(
-                    value.get("conditionAction"), f"{source_name}.IfElseAction.conditionAction"
-                )
-                for index, raw_condition in enumerate(
-                    require_list(
-                        condition_group.get("actionData"),
-                        f"{source_name}.IfElseAction.conditionAction.actionData",
-                    )
-                ):
-                    condition = require_dict(raw_condition, f"{source_name}.condition[{index}]")
-                    condition_type = action_name(str(condition.get("$type", "")))
-                    if condition_type == "CompareFloat":
-                        conditions.append(
-                            ConditionSource(
-                                sourceType=condition_type,
-                                supported=True,
-                                comparison=str(condition.get("compare", "")),
-                                left=parse_scalar(
-                                    condition.get("valueA"),
-                                    f"{source_name}.condition[{index}].valueA",
-                                    inherited_blackboard,
-                                ),
-                                right=parse_scalar(
-                                    condition.get("valueB"),
-                                    f"{source_name}.condition[{index}].valueB",
-                                    inherited_blackboard,
-                                ),
-                                skillTypes=(),
-                            )
-                        )
-                    elif condition_type == "CheckSkillType":
-                        conditions.append(
-                            ConditionSource(
-                                sourceType=condition_type,
-                                supported=True,
-                                comparison=None,
-                                left=None,
-                                right=None,
-                                skillTypes=tuple(
-                                    str(item)
-                                    for item in require_list(
-                                        condition.get("skillTypeList"),
-                                        f"{source_name}.condition[{index}].skillTypeList",
-                                    )
-                                ),
-                            )
-                        )
-                    elif condition_type == "CheckEntityNum":
-                        target = require_dict(
-                            condition.get("checkTarget"),
-                            f"{source_name}.condition[{index}].checkTarget",
-                        )
-                        minimum_count = condition.get("minNum")
-                        if not isinstance(minimum_count, int) or isinstance(minimum_count, bool):
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].minNum: expected integer"
-                            )
-                        contains_hittable = condition.get("containsHittableTarget")
-                        exclude_dead = condition.get("excludeDeadEntity")
-                        store_key = condition.get("storeKey")
-                        if not isinstance(contains_hittable, bool):
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].containsHittableTarget: expected boolean"
-                            )
-                        if not isinstance(exclude_dead, bool):
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].excludeDeadEntity: expected boolean"
-                            )
-                        if not isinstance(store_key, str):
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].storeKey: expected string"
-                            )
-                        conditions.append(
-                            ConditionSource(
-                                sourceType=condition_type,
-                                # 原生目标集合尚未进入单敌人模拟；这里只保真审计参数。
-                                supported=False,
-                                comparison=None,
-                                left=None,
-                                right=None,
-                                skillTypes=(),
-                                entityCount=EntityCountConditionSource(
-                                    targetSource=str(target.get("targetSource", "")),
-                                    targetGroupKey=str(target.get("targetGroupKey", "")),
-                                    minimumCount=minimum_count,
-                                    comparison=str(condition.get("compareType", "")),
-                                    containsHittableTarget=contains_hittable,
-                                    excludeDeadEntity=exclude_dead,
-                                    storeKey=store_key,
-                                ),
-                            )
-                        )
-                    elif condition_type == "CheckBuffStackNumAdvanced":
-                        target = require_dict(
-                            condition.get("checkTarget"),
-                            f"{source_name}.condition[{index}].checkTarget",
-                        )
-                        check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
-                            condition.get("buffSettings"),
-                            f"{source_name}.condition[{index}].buffSettings",
-                        )
-                        count_type = condition.get("buffStackNumType")
-                        limit_skill_cast_id = condition.get("limitSkillCastId")
-                        if not isinstance(count_type, str) or not count_type:
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].buffStackNumType: expected string"
-                            )
-                        if not isinstance(limit_skill_cast_id, bool):
-                            raise ValueError(
-                                f"{source_name}.condition[{index}].limitSkillCastId: expected boolean"
-                            )
-                        conditions.append(
-                            ConditionSource(
-                                sourceType=condition_type,
-                                supported=(
-                                    count_type == "BuffCount"
-                                    and not limit_skill_cast_id
-                                    and check_type in {"Id", "Tag"}
-                                ),
-                                comparison=None,
-                                left=None,
-                                right=None,
-                                skillTypes=(),
-                                buffStack=BuffStackConditionSource(
-                                    targetSource=str(target.get("targetSource", "")),
-                                    targetGroupKey=str(target.get("targetGroupKey", "")),
-                                    buffCheckType=check_type,
-                                    buffIds=buff_ids,
-                                    tagQueryType=query_type,
-                                    buffTagIds=tag_ids,
-                                    countType=count_type,
-                                    comparison=str(condition.get("compareType", "")),
-                                    value=parse_scalar(
-                                        condition.get("value"),
-                                        f"{source_name}.condition[{index}].value",
-                                        inherited_blackboard,
-                                    ),
-                                    limitSkillCastId=limit_skill_cast_id,
-                                ),
-                            )
-                        )
-                    else:
-                        conditions.append(
-                            ConditionSource(
-                                sourceType=condition_type,
-                                supported=False,
-                                comparison=None,
-                                left=None,
-                                right=None,
-                                skillTypes=(),
-                            )
-                        )
-                result.append(
-                    ConditionalActionSource(
-                        startFrame=start_frame,
-                        endFrame=end_frame,
-                        actionPath=path,
-                        conditions=tuple(conditions),
-                        succeedCombatActions=succeed,
-                        failCombatActions=fail,
-                    )
-                )
+            conditional = parse_if_else(value, start_frame, end_frame, path)
+            if conditional is not None:
+                result.append(conditional)
+            # 嵌套 IfElse 已由分支节点递归保存，不能再提升为并列的顶层条件。
+            return
         for key, child in value.items():
             visit(child, start_frame, end_frame, (*path, key))
 

@@ -285,6 +285,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         "actionData": [
                                             {"$type": "Example.FinishBuffAdvanced+Data, Example"},
                                             {"$type": "Example.DamageAction+Data, Example"},
+                                            {"$type": "Example.SimpleCalcBBAction+Data, Example"},
                                             {"$type": "Example.FinishBuffAdvanced+Data, Example"},
                                         ]
                                     },
@@ -308,10 +309,81 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(actions[0].conditions[0].sourceType, "CompareFloat")
         self.assertEqual(actions[0].conditions[0].left.blackboardKey, "swordIndex")
         self.assertEqual(
-            actions[0].succeedCombatActions,
-            ("FinishBuffAdvanced", "DamageAction", "FinishBuffAdvanced"),
+            tuple(action.actionType for action in actions[0].succeedActions),
+            (
+                "FinishBuffAdvanced",
+                "DamageAction",
+                "SimpleCalcBBAction",
+                "FinishBuffAdvanced",
+            ),
         )
-        self.assertEqual(actions[0].failCombatActions, ("ObtainCostAction",))
+        self.assertEqual(
+            tuple(action.actionType for action in actions[0].failActions),
+            ("ObtainCostAction",),
+        )
+        self.assertEqual(actions[0].succeedActions[2].actionIndex, 2)
+
+    def test_conditional_audit_preserves_nested_branch_structure(self) -> None:
+        compare = {
+            "$type": "Example.CompareFloat+Data, Example",
+            "valueA": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "compare": "Equals",
+            "valueB": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+        }
+        nested = {
+            "$type": "Example.IfElseAction+Data, Example",
+            "conditionAction": {"actionData": [compare]},
+            "succeedActions": {
+                "actionData": [{"$type": "Example.DamageAction+Data, Example"}]
+            },
+            "failActions": {
+                "actionData": [{"$type": "Example.ObtainCostAction+Data, Example"}]
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 4,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "conditionAction": {"actionData": [compare]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.CreateBuffAction+Data, Example"},
+                                            nested,
+                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "nested.json", {})
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(
+            tuple(action.actionType for action in actions[0].succeedActions),
+            ("CreateBuffAction", "IfElseAction", "FinishBuffAdvanced"),
+        )
+        nested_condition = actions[0].succeedActions[1].nestedCondition
+        self.assertIsNotNone(nested_condition)
+        self.assertEqual(
+            tuple(action.actionType for action in nested_condition.succeedActions),
+            ("DamageAction",),
+        )
+        self.assertEqual(
+            tuple(action.actionType for action in nested_condition.failActions),
+            ("ObtainCostAction",),
+        )
 
     def test_conditional_audit_preserves_entity_and_buff_stack_conditions(self) -> None:
         root = {

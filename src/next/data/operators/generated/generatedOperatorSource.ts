@@ -189,8 +189,16 @@ export interface GeneratedConditionalActionSource {
   /** 从 timeline 下标开始的原始对象路径，用于回查嵌套分支。 */
   readonly actionPath: readonly string[];
   readonly conditions: readonly GeneratedConditionSource[];
-  readonly succeedCombatActions: readonly string[];
-  readonly failCombatActions: readonly string[];
+  readonly succeedActions: readonly GeneratedConditionalBranchActionSource[];
+  readonly failActions: readonly GeneratedConditionalBranchActionSource[];
+}
+
+/** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */
+export interface GeneratedConditionalBranchActionSource {
+  readonly actionType: string;
+  /** 在所属 succeedActions/failActions 原始 actionData 中的下标。 */
+  readonly actionIndex: number;
+  readonly nestedCondition?: GeneratedConditionalActionSource;
 }
 
 export interface GeneratedBlackboardCalculationSource {

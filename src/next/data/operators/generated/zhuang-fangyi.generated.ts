@@ -675,11 +675,17 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0
+            }
           ],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard"
+          "failActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0
+            }
           ]
         },
         {
@@ -701,11 +707,17 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
+          "succeedActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 2
+            }
           ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
+          "failActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 2
+            }
           ]
         }
       ],
@@ -1371,11 +1383,17 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0
+            }
           ],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard"
+          "failActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0
+            }
           ]
         }
       ],
@@ -2040,11 +2058,17 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
+          "succeedActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 2
+            }
           ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
+          "failActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 2
+            }
           ]
         }
       ],
@@ -2494,72 +2518,90 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 20,
-          "endFrame": 23,
-          "actionPath": [
-            "timelineActions[4]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckDistanceCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 20,
+                "endFrame": 23,
+                "actionPath": [
+                  "timelineActions[4]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckDistanceCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 0,
+                    "nestedCondition": {
+                      "startFrame": 20,
+                      "endFrame": 23,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckDistanceCondition",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "SpawnAbilityEntity",
+                          "actionIndex": 2
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "SpawnAbilityEntity",
+                          "actionIndex": 2
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 2
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 20,
-          "endFrame": 23,
-          "actionPath": [
-            "timelineActions[4]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckDistanceCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 2
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         }
       ],
@@ -3140,72 +3182,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 12,
-          "endFrame": 13,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckDistanceCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 12,
+                "endFrame": 13,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckDistanceCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 1
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 12,
-          "endFrame": 13,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 12,
+                "endFrame": 13,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 1
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -3236,77 +3301,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 13,
-          "endFrame": 14,
-          "actionPath": [
-            "timelineActions[7]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 13,
+                "endFrame": 14,
+                "actionPath": [
+                  "timelineActions[7]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 13,
-          "endFrame": 14,
-          "actionPath": [
-            "timelineActions[7]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 13,
+                "endFrame": 14,
+                "actionPath": [
+                  "timelineActions[7]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         },
         {
@@ -3337,77 +3420,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 14,
-          "endFrame": 15,
-          "actionPath": [
-            "timelineActions[8]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 14,
+                "endFrame": 15,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 14,
-          "endFrame": 15,
-          "actionPath": [
-            "timelineActions[8]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 14,
+                "endFrame": 15,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         },
         {
@@ -3438,77 +3539,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 15,
-          "endFrame": 16,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 15,
+                "endFrame": 16,
+                "actionPath": [
+                  "timelineActions[9]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 15,
-          "endFrame": 16,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 15,
+                "endFrame": 16,
+                "actionPath": [
+                  "timelineActions[9]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         }
       ],
@@ -4153,72 +4272,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 10,
-          "endFrame": 11,
-          "actionPath": [
-            "timelineActions[5]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckDistanceCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 10,
+                "endFrame": 11,
+                "actionPath": [
+                  "timelineActions[5]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckDistanceCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 1
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 10,
-          "endFrame": 11,
-          "actionPath": [
-            "timelineActions[5]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 10,
+                "endFrame": 11,
+                "actionPath": [
+                  "timelineActions[5]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 1
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity",
-            "ModifyDynamicBlackboard"
           ]
         },
         {
@@ -4249,77 +4391,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 11,
-          "endFrame": 12,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 11,
+                "endFrame": 12,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 11,
-          "endFrame": 12,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 11,
+                "endFrame": 12,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         },
         {
@@ -4350,77 +4510,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 12,
-          "endFrame": 13,
-          "actionPath": [
-            "timelineActions[7]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 12,
+                "endFrame": 13,
+                "actionPath": [
+                  "timelineActions[7]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 12,
-          "endFrame": 13,
-          "actionPath": [
-            "timelineActions[7]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 12,
+                "endFrame": 13,
+                "actionPath": [
+                  "timelineActions[7]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         },
         {
@@ -4451,77 +4629,95 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 13,
-          "endFrame": 14,
-          "actionPath": [
-            "timelineActions[8]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "Equals",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "target_in_range",
-                "levelValues": null
-              },
-              "right": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 13,
+                "endFrame": 14,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "Equals",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "target_in_range",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 13,
-          "endFrame": 14,
-          "actionPath": [
-            "timelineActions[8]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 13,
+                "endFrame": 14,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         }
       ],
@@ -5114,69 +5310,87 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 3,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckDistanceCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 3,
+                "endFrame": 6,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckDistanceCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
           ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 3,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[6]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "failActions": [
             {
-              "sourceType": "CheckMainCharacterCondition",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 3,
+                "endFrame": 6,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckMainCharacterCondition",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "SpawnAbilityEntity",
+                    "actionIndex": 0
+                  }
+                ]
+              }
             }
-          ],
-          "succeedCombatActions": [
-            "SpawnAbilityEntity"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
           ]
         }
       ],
@@ -6666,10 +6880,13 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "FinishBuffAdvanced"
+          "succeedActions": [
+            {
+              "actionType": "FinishBuffAdvanced",
+              "actionIndex": 0
+            }
           ],
-          "failCombatActions": []
+          "failActions": []
         },
         {
           "startFrame": 6,
@@ -6699,279 +6916,329 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction",
-            "GetTargetBuffBBAdvanced",
-            "FinishBuffAdvanced",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ObtainCostAction",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[1]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "buffCheckType": "Tag",
-                "buffIds": [],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [
-                  1466867135
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 1,
+              "nestedCondition": {
+                "startFrame": 6,
+                "endFrame": 7,
+                "actionPath": [
+                  "timelineActions[13]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[1]"
                 ],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "GetTargetBuffBBAdvanced",
-            "FinishBuffAdvanced",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ObtainCostAction",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ]
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[4]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "LE",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "sword_gene_num",
-                "levelValues": null
-              },
-              "right": {
-                "value": 3.0,
-                "blackboardKey": "max_conduct_sword",
-                "levelValues": [
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0
+                "conditions": [
+                  {
+                    "sourceType": "CheckBuffStackNumAdvanced",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "buffStack": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "buffCheckType": "Tag",
+                      "buffIds": [],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [
+                        1466867135
+                      ],
+                      "countType": "BuffCount",
+                      "comparison": "GE",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "limitSkillCastId": false
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "GetTargetBuffBBAdvanced",
+                    "actionIndex": 0
+                  },
+                  {
+                    "actionType": "FinishBuffAdvanced",
+                    "actionIndex": 1
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 2
+                  },
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 3
+                  },
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 4,
+                    "nestedCondition": {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionPath": [
+                        "timelineActions[13]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[4]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "LE",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "sword_gene_num",
+                            "levelValues": null
+                          },
+                          "right": {
+                            "value": 3.0,
+                            "blackboardKey": "max_conduct_sword",
+                            "levelValues": [
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0
+                            ]
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedActions": [],
+                      "failActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "actionType": "ObtainCostAction",
+                    "actionIndex": 5
+                  },
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 6,
+                    "nestedCondition": {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionPath": [
+                        "timelineActions[13]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[6]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckBuffStackNumAdvanced",
+                          "supported": true,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "buffStack": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "buffCheckType": "Id",
+                            "buffIds": [
+                              "buff_chr_0030_zhuangfy_potential1_more_sword"
+                            ],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [],
+                            "countType": "BuffCount",
+                            "comparison": "GE",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "limitSkillCastId": false
+                          }
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0
+                        }
+                      ],
+                      "failActions": []
+                    }
+                  },
+                  {
+                    "actionType": "LaunchProjectile",
+                    "actionIndex": 8
+                  },
+                  {
+                    "actionType": "CreateBuffAction",
+                    "actionIndex": 10
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 0,
+                    "nestedCondition": {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionPath": [
+                        "timelineActions[13]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "failActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "LT",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "EntityBB_SwordNum",
+                            "levelValues": null
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "free_sword_limit",
+                            "levelValues": [
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0
+                            ]
+                          },
+                          "skillTypes": []
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0
+                        }
+                      ],
+                      "failActions": []
+                    }
+                  },
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 1,
+                    "nestedCondition": {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionPath": [
+                        "timelineActions[13]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "failActions",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckBuffStackNumAdvanced",
+                          "supported": true,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "buffStack": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "buffCheckType": "Id",
+                            "buffIds": [
+                              "buff_chr_0030_zhuangfy_potential1_more_sword"
+                            ],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [],
+                            "countType": "BuffCount",
+                            "comparison": "GE",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "limitSkillCastId": false
+                          }
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0
+                        }
+                      ],
+                      "failActions": []
+                    }
+                  },
+                  {
+                    "actionType": "LaunchProjectile",
+                    "actionIndex": 3
+                  },
+                  {
+                    "actionType": "CreateBuffAction",
+                    "actionIndex": 5
+                  }
                 ]
-              },
-              "skillTypes": []
+              }
             }
           ],
-          "succeedCombatActions": [],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard"
+          "failActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 0
+            }
           ]
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[6]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_potential1_more_sword"
-                ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "LT",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "EntityBB_SwordNum",
-                "levelValues": null
-              },
-              "right": {
-                "value": 0.0,
-                "blackboardKey": "free_sword_limit",
-                "levelValues": [
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0
-                ]
-              },
-              "skillTypes": []
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[1]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_potential1_more_sword"
-                ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
         },
         {
           "startFrame": 13,
@@ -7000,11 +7267,29 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "CreateBuffAction"
+          "succeedActions": [
+            {
+              "actionType": "SimpleCalcBBAction",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 1
+            },
+            {
+              "actionType": "SimpleCalcBBAction",
+              "actionIndex": 2
+            },
+            {
+              "actionType": "SimpleCalcBBAction",
+              "actionIndex": 3
+            },
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 4
+            }
           ],
-          "failCombatActions": []
+          "failActions": []
         },
         {
           "startFrame": 6,
@@ -7025,48 +7310,57 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "CreateBuffAction"
-          ]
-        },
-        {
-          "startFrame": 6,
-          "endFrame": 7,
-          "actionPath": [
-            "timelineActions[16]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckEntityNum",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "entityCount": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "minimumCount": 1,
-                "comparison": "GE",
-                "containsHittableTarget": false,
-                "excludeDeadEntity": false,
-                "storeKey": ""
-              }
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction"
-          ],
-          "failCombatActions": []
+          "failActions": [
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 6,
+                "endFrame": 7,
+                "actionPath": [
+                  "timelineActions[16]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckEntityNum",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "entityCount": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "minimumCount": 1,
+                      "comparison": "GE",
+                      "containsHittableTarget": false,
+                      "excludeDeadEntity": false,
+                      "storeKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateBuffAction",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ]
         }
       ],
       "inflictions": [],
@@ -7735,114 +8029,132 @@ export const zhuangFangyiGeneratedSource = {
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": [
-                        "DamageAction",
-                        "ObtainCostAction"
+                      "succeedActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 0
+                        },
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 2,
+                          "nestedCondition": {
+                            "startFrame": 3,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[4]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[5]",
+                              "succeedActions",
+                              "actionData",
+                              "[2]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "LT",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "swordIndex",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "right": {
+                                  "value": 0.0,
+                                  "blackboardKey": "remain_sword_limit",
+                                  "levelValues": [
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "ObtainCostAction",
+                                "actionIndex": 0
+                              }
+                            ],
+                            "failActions": []
+                          }
+                        }
                       ],
-                      "failCombatActions": [
-                        "DamageAction",
-                        "ObtainCostAction"
+                      "failActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 0
+                        },
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 2,
+                          "nestedCondition": {
+                            "startFrame": 3,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[4]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[5]",
+                              "failActions",
+                              "actionData",
+                              "[2]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "LT",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "swordIndex",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "right": {
+                                  "value": 0.0,
+                                  "blackboardKey": "remain_sword_limit",
+                                  "levelValues": [
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "ObtainCostAction",
+                                "actionIndex": 0
+                              }
+                            ],
+                            "failActions": []
+                          }
+                        }
                       ]
-                    },
-                    {
-                      "startFrame": 3,
-                      "endFrame": 6,
-                      "actionPath": [
-                        "timelineActions[4]",
-                        "_sequenceActionData",
-                        "actionData",
-                        "[5]",
-                        "succeedActions",
-                        "actionData",
-                        "[2]"
-                      ],
-                      "conditions": [
-                        {
-                          "sourceType": "CompareFloat",
-                          "supported": true,
-                          "comparison": "LT",
-                          "left": {
-                            "value": 0.0,
-                            "blackboardKey": "swordIndex",
-                            "levelValues": [
-                              0.0
-                            ]
-                          },
-                          "right": {
-                            "value": 0.0,
-                            "blackboardKey": "remain_sword_limit",
-                            "levelValues": [
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0
-                            ]
-                          },
-                          "skillTypes": []
-                        }
-                      ],
-                      "succeedCombatActions": [
-                        "ObtainCostAction"
-                      ],
-                      "failCombatActions": []
-                    },
-                    {
-                      "startFrame": 3,
-                      "endFrame": 6,
-                      "actionPath": [
-                        "timelineActions[4]",
-                        "_sequenceActionData",
-                        "actionData",
-                        "[5]",
-                        "failActions",
-                        "actionData",
-                        "[2]"
-                      ],
-                      "conditions": [
-                        {
-                          "sourceType": "CompareFloat",
-                          "supported": true,
-                          "comparison": "LT",
-                          "left": {
-                            "value": 0.0,
-                            "blackboardKey": "swordIndex",
-                            "levelValues": [
-                              0.0
-                            ]
-                          },
-                          "right": {
-                            "value": 0.0,
-                            "blackboardKey": "remain_sword_limit",
-                            "levelValues": [
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0,
-                              9.0
-                            ]
-                          },
-                          "skillTypes": []
-                        }
-                      ],
-                      "succeedCombatActions": [
-                        "ObtainCostAction"
-                      ],
-                      "failCombatActions": []
                     },
                     {
                       "startFrame": 6,
@@ -7886,10 +8198,13 @@ export const zhuangFangyiGeneratedSource = {
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": [
-                        "ObtainCostAction"
+                      "succeedActions": [
+                        {
+                          "actionType": "ObtainCostAction",
+                          "actionIndex": 0
+                        }
                       ],
-                      "failCombatActions": []
+                      "failActions": []
                     }
                   ],
                   "blackboardCalculations": [
@@ -8852,407 +9167,461 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction",
-            "LaunchProjectile",
-            "FinishBuffAdvanced",
-            "GetTargetBuffBBAdvanced",
-            "FinishBuffAdvanced",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ObtainCostAction",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "SpawnAbilityEntity"
-          ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_ult_skill_free"
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 1,
+              "nestedCondition": {
+                "startFrame": 5,
+                "endFrame": 6,
+                "actionPath": [
+                  "timelineActions[9]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[1]"
                 ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "LaunchProjectile",
-            "FinishBuffAdvanced"
-          ],
-          "failCombatActions": [
-            "GetTargetBuffBBAdvanced",
-            "FinishBuffAdvanced",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ObtainCostAction",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "succeedActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                "conditions": [
+                  {
+                    "sourceType": "CheckBuffStackNumAdvanced",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "buffStack": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "buffCheckType": "Id",
+                      "buffIds": [
+                        "buff_chr_0030_zhuangfy_ult_skill_free"
+                      ],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [],
+                      "countType": "BuffCount",
+                      "comparison": "GE",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "limitSkillCastId": false
+                    }
+                  }
                 ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "LaunchProjectile",
-            "FinishBuffAdvanced"
-          ],
-          "failCombatActions": [
-            "LaunchProjectile",
-            "FinishBuffAdvanced"
-          ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "buffCheckType": "Tag",
-                "buffIds": [],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [
-                  1466867135
+                "succeedActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 0,
+                    "nestedCondition": {
+                      "startFrame": 5,
+                      "endFrame": 6,
+                      "actionPath": [
+                        "timelineActions[9]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckBuffStackNumAdvanced",
+                          "supported": true,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "buffStack": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "buffCheckType": "Id",
+                            "buffIds": [
+                              "buff_chr_0030_zhuangfy_potential1_more_sword"
+                            ],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [],
+                            "countType": "BuffCount",
+                            "comparison": "GE",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "limitSkillCastId": false
+                          }
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "LaunchProjectile",
+                          "actionIndex": 1
+                        },
+                        {
+                          "actionType": "FinishBuffAdvanced",
+                          "actionIndex": 3
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "LaunchProjectile",
+                          "actionIndex": 1
+                        },
+                        {
+                          "actionType": "FinishBuffAdvanced",
+                          "actionIndex": 3
+                        }
+                      ]
+                    }
+                  }
                 ],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "GetTargetBuffBBAdvanced",
-            "FinishBuffAdvanced",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ObtainCostAction",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "LaunchProjectile",
-            "CreateBuffAction"
-          ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[4]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "LE",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "sword_gene_num",
-                "levelValues": null
-              },
-              "right": {
-                "value": 3.0,
-                "blackboardKey": "max_conduct_sword",
-                "levelValues": [
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0
+                "failActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 0,
+                    "nestedCondition": {
+                      "startFrame": 5,
+                      "endFrame": 6,
+                      "actionPath": [
+                        "timelineActions[9]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[1]",
+                        "failActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckBuffStackNumAdvanced",
+                          "supported": true,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "buffStack": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "smart_target",
+                            "buffCheckType": "Tag",
+                            "buffIds": [],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [
+                              1466867135
+                            ],
+                            "countType": "BuffCount",
+                            "comparison": "GE",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "limitSkillCastId": false
+                          }
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "GetTargetBuffBBAdvanced",
+                          "actionIndex": 0
+                        },
+                        {
+                          "actionType": "FinishBuffAdvanced",
+                          "actionIndex": 1
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 2
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 3
+                        },
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 4,
+                          "nestedCondition": {
+                            "startFrame": 5,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[9]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[1]",
+                              "failActions",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[4]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "LE",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "sword_gene_num",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 3.0,
+                                  "blackboardKey": "max_conduct_sword",
+                                  "levelValues": [
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [],
+                            "failActions": [
+                              {
+                                "actionType": "ModifyDynamicBlackboard",
+                                "actionIndex": 0
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "actionType": "ObtainCostAction",
+                          "actionIndex": 5
+                        },
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 6,
+                          "nestedCondition": {
+                            "startFrame": 5,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[9]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[1]",
+                              "failActions",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[6]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CheckBuffStackNumAdvanced",
+                                "supported": true,
+                                "comparison": null,
+                                "left": null,
+                                "right": null,
+                                "skillTypes": [],
+                                "buffStack": {
+                                  "targetSource": "Source",
+                                  "targetGroupKey": "",
+                                  "buffCheckType": "Id",
+                                  "buffIds": [
+                                    "buff_chr_0030_zhuangfy_potential1_more_sword"
+                                  ],
+                                  "tagQueryType": "hasAny",
+                                  "buffTagIds": [],
+                                  "countType": "BuffCount",
+                                  "comparison": "GE",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "limitSkillCastId": false
+                                }
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "ModifyDynamicBlackboard",
+                                "actionIndex": 0
+                              }
+                            ],
+                            "failActions": []
+                          }
+                        },
+                        {
+                          "actionType": "LaunchProjectile",
+                          "actionIndex": 8
+                        },
+                        {
+                          "actionType": "CreateBuffAction",
+                          "actionIndex": 10
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 0,
+                          "nestedCondition": {
+                            "startFrame": 5,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[9]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[1]",
+                              "failActions",
+                              "actionData",
+                              "[0]",
+                              "failActions",
+                              "actionData",
+                              "[0]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "LT",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "EntityBB_SwordNum",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 0.0,
+                                  "blackboardKey": "free_sword_limit",
+                                  "levelValues": [
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0,
+                                    3.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "ModifyDynamicBlackboard",
+                                "actionIndex": 0
+                              }
+                            ],
+                            "failActions": []
+                          }
+                        },
+                        {
+                          "actionType": "IfElseAction",
+                          "actionIndex": 1,
+                          "nestedCondition": {
+                            "startFrame": 5,
+                            "endFrame": 6,
+                            "actionPath": [
+                              "timelineActions[9]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[0]",
+                              "succeedActions",
+                              "actionData",
+                              "[1]",
+                              "failActions",
+                              "actionData",
+                              "[0]",
+                              "failActions",
+                              "actionData",
+                              "[1]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CheckBuffStackNumAdvanced",
+                                "supported": true,
+                                "comparison": null,
+                                "left": null,
+                                "right": null,
+                                "skillTypes": [],
+                                "buffStack": {
+                                  "targetSource": "Source",
+                                  "targetGroupKey": "",
+                                  "buffCheckType": "Id",
+                                  "buffIds": [
+                                    "buff_chr_0030_zhuangfy_potential1_more_sword"
+                                  ],
+                                  "tagQueryType": "hasAny",
+                                  "buffTagIds": [],
+                                  "countType": "BuffCount",
+                                  "comparison": "GE",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "limitSkillCastId": false
+                                }
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "ModifyDynamicBlackboard",
+                                "actionIndex": 0
+                              }
+                            ],
+                            "failActions": []
+                          }
+                        },
+                        {
+                          "actionType": "LaunchProjectile",
+                          "actionIndex": 3
+                        },
+                        {
+                          "actionType": "CreateBuffAction",
+                          "actionIndex": 5
+                        }
+                      ]
+                    }
+                  }
                 ]
-              },
-              "skillTypes": []
+              }
             }
           ],
-          "succeedCombatActions": [],
-          "failCombatActions": [
-            "ModifyDynamicBlackboard"
+          "failActions": [
+            {
+              "actionType": "SpawnAbilityEntity",
+              "actionIndex": 0
+            }
           ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[6]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_potential1_more_sword"
-                ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "LT",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "EntityBB_SwordNum",
-                "levelValues": null
-              },
-              "right": {
-                "value": 0.0,
-                "blackboardKey": "free_sword_limit",
-                "levelValues": [
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0,
-                  3.0
-                ]
-              },
-              "skillTypes": []
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[9]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[1]",
-            "failActions",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[1]"
-          ],
-          "conditions": [
-            {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Source",
-                "targetGroupKey": "",
-                "buffCheckType": "Id",
-                "buffIds": [
-                  "buff_chr_0030_zhuangfy_potential1_more_sword"
-                ],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
-              }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
         },
         {
           "startFrame": 5,
@@ -9273,48 +9642,57 @@ export const zhuangFangyiGeneratedSource = {
               "skillTypes": []
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction"
-          ],
-          "failCombatActions": [
-            "CreateBuffAction"
-          ]
-        },
-        {
-          "startFrame": 5,
-          "endFrame": 6,
-          "actionPath": [
-            "timelineActions[10]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "failActions",
-            "actionData",
-            "[0]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckEntityNum",
-              "supported": false,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "entityCount": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "minimumCount": 1,
-                "comparison": "GE",
-                "containsHittableTarget": false,
-                "excludeDeadEntity": false,
-                "storeKey": ""
-              }
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction"
-          ],
-          "failCombatActions": []
+          "failActions": [
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "nestedCondition": {
+                "startFrame": 5,
+                "endFrame": 6,
+                "actionPath": [
+                  "timelineActions[10]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckEntityNum",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "entityCount": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "minimumCount": 1,
+                      "comparison": "GE",
+                      "containsHittableTarget": false,
+                      "excludeDeadEntity": false,
+                      "storeKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateBuffAction",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ]
         }
       ],
       "inflictions": [],
@@ -10569,93 +10947,115 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 24,
-          "endFrame": 27,
-          "actionPath": [
-            "timelineActions[11]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[2]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "buffCheckType": "Tag",
-                "buffIds": [],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [
-                  1466867135
+              "actionType": "SaveBuffStackNumAdvanced",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 1
+            },
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 2,
+              "nestedCondition": {
+                "startFrame": 24,
+                "endFrame": 27,
+                "actionPath": [
+                  "timelineActions[11]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[2]"
                 ],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
+                "conditions": [
+                  {
+                    "sourceType": "CheckBuffStackNumAdvanced",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "buffStack": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "buffCheckType": "Tag",
+                      "buffIds": [],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [
+                        1466867135
+                      ],
+                      "countType": "BuffCount",
+                      "comparison": "GE",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "limitSkillCastId": false
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
               }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 24,
-          "endFrame": 27,
-          "actionPath": [
-            "timelineActions[11]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[3]"
-          ],
-          "conditions": [
+            },
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "GT",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "conductCnt",
-                "levelValues": null
-              },
-              "right": {
-                "value": 4.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 3,
+              "nestedCondition": {
+                "startFrame": 24,
+                "endFrame": 27,
+                "actionPath": [
+                  "timelineActions[11]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[3]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "GT",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "conductCnt",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 4.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
+              }
+            },
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 4
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
+          "failActions": []
         },
         {
           "startFrame": 24,
@@ -10685,11 +11085,21 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "ObtainCostAction",
-            "ObtainCostAction"
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "SimpleCalcBBAction",
+              "actionIndex": 1
+            },
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 2
+            }
           ],
-          "failCombatActions": []
+          "failActions": []
         }
       ],
       "inflictions": [],
@@ -11487,93 +11897,115 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "ModifyDynamicBlackboard",
-            "CreateBuffAction"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 24,
-          "endFrame": 27,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[2]"
-          ],
-          "conditions": [
+          "succeedActions": [
             {
-              "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": true,
-              "comparison": null,
-              "left": null,
-              "right": null,
-              "skillTypes": [],
-              "buffStack": {
-                "targetSource": "Context",
-                "targetGroupKey": "smart_target",
-                "buffCheckType": "Tag",
-                "buffIds": [],
-                "tagQueryType": "hasAny",
-                "buffTagIds": [
-                  1466867135
+              "actionType": "SaveBuffStackNumAdvanced",
+              "actionIndex": 0
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 1
+            },
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 2,
+              "nestedCondition": {
+                "startFrame": 24,
+                "endFrame": 27,
+                "actionPath": [
+                  "timelineActions[13]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[2]"
                 ],
-                "countType": "BuffCount",
-                "comparison": "GE",
-                "value": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "limitSkillCastId": false
+                "conditions": [
+                  {
+                    "sourceType": "CheckBuffStackNumAdvanced",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "buffStack": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "buffCheckType": "Tag",
+                      "buffIds": [],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [
+                        1466867135
+                      ],
+                      "countType": "BuffCount",
+                      "comparison": "GE",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "limitSkillCastId": false
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
               }
-            }
-          ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
-        },
-        {
-          "startFrame": 24,
-          "endFrame": 27,
-          "actionPath": [
-            "timelineActions[13]",
-            "_sequenceActionData",
-            "actionData",
-            "[0]",
-            "succeedActions",
-            "actionData",
-            "[3]"
-          ],
-          "conditions": [
+            },
             {
-              "sourceType": "CompareFloat",
-              "supported": true,
-              "comparison": "GT",
-              "left": {
-                "value": 0.0,
-                "blackboardKey": "conductCnt",
-                "levelValues": null
-              },
-              "right": {
-                "value": 4.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "skillTypes": []
+              "actionType": "IfElseAction",
+              "actionIndex": 3,
+              "nestedCondition": {
+                "startFrame": 24,
+                "endFrame": 27,
+                "actionPath": [
+                  "timelineActions[13]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[3]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "GT",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "conductCnt",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 4.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "skillTypes": []
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0
+                  }
+                ],
+                "failActions": []
+              }
+            },
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 4
             }
           ],
-          "succeedCombatActions": [
-            "ModifyDynamicBlackboard"
-          ],
-          "failCombatActions": []
+          "failActions": []
         }
       ],
       "inflictions": [],
@@ -12290,10 +12722,13 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "succeedCombatActions": [
-            "CreateBuffAction"
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0
+            }
           ],
-          "failCombatActions": []
+          "failActions": []
         }
       ],
       "inflictions": [],
