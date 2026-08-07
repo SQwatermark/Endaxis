@@ -1138,4 +1138,110 @@ describe('CombatBuffContainer', () => {
     container.tick(2);
     expect(triggerCount).toBe(1);
   });
+
+  it('modifies the original instance blackboard and registered attribute modifiers in place', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const lifecycle: string[] = [];
+    const triggeredValues: number[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.modify.original',
+      stackingKey: 'buff.modify',
+      stackingType: 'modify',
+      durationSeconds: 10,
+      triggerIntervalSeconds: 2,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      blackboard: { bonus: 5, retained: 'original' },
+      attributeModifiers: [
+        {
+          attribute: 'attack',
+          values: { slot: 'addition', blackboardKey: 'bonus' },
+          timing: 'runtime',
+        },
+      ],
+      actions: {
+        start: () => lifecycle.push('original-start'),
+        enable: () => lifecycle.push('original-enable'),
+        trigger: buff => triggeredValues.push(buff.blackboard.getNumber('bonus') ?? -1),
+      },
+    };
+    const buff = requireAddedBuff(
+      container.add(definition, 'original-source', {
+        blackboardValues: { bonus: 10 },
+      }),
+    );
+    container.tick(1);
+
+    const modified = container.add(
+      {
+        ...definition,
+        id: 'buff.modify.incoming',
+        durationSeconds: 30,
+        attributeModifiers: [
+          {
+            attribute: 'attack',
+            values: attributeModifierValues('addition', 500),
+            timing: 'runtime',
+          },
+        ],
+        actions: {
+          start: () => lifecycle.push('incoming-start'),
+          enable: () => lifecycle.push('incoming-enable'),
+        },
+      },
+      'incoming-source',
+      { blackboardValues: { bonus: 25, added: 3 } },
+    );
+
+    expect(modified).toBe(buff);
+    expect(buff.definition).toBe(definition);
+    expect(buff.sourceId).toBe('original-source');
+    expect(buff.passedTime).toBe(1);
+    expect(buff.remainingDuration).toBe(9);
+    expect(buff.blackboard.snapshot()).toEqual({
+      bonus: 25,
+      retained: 'original',
+      added: 3,
+    });
+    expect(attributes.get('attack')).toBe(125);
+    expect(attributes.modifierCount).toBe(1);
+    expect(lifecycle).toEqual(['original-start', 'original-enable']);
+
+    container.tick(1);
+    expect(triggeredValues).toEqual([25]);
+    buff.finish('other');
+    expect(attributes.get('attack')).toBe(100);
+  });
+
+  it('rolls back the blackboard and keeps old modifiers when modify cannot resolve a value', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.modify.rollback',
+      stackingType: 'modify',
+      blackboard: { bonus: 10, retained: 1 },
+      attributeModifiers: [
+        {
+          attribute: 'attack',
+          values: { slot: 'addition', blackboardKey: 'bonus' },
+          timing: 'runtime',
+        },
+      ],
+    };
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(() =>
+      container.add(definition, 'operator', {
+        blackboardValues: { bonus: 'invalid', added: 2 },
+      }),
+    ).toThrow("attribute modifier blackboard key 'bonus' is missing or not numeric");
+
+    expect(buff.blackboard.snapshot()).toEqual({ bonus: 10, retained: 1 });
+    expect(attributes.get('attack')).toBe(110);
+    expect(attributes.modifierCount).toBe(1);
+    expect(buff.attributeModifiers).toHaveLength(1);
+  });
 });

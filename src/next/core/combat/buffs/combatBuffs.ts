@@ -5,6 +5,8 @@
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
   CombatAttributeModifier,
+  attributeModifierValues,
+  type AttributeModifierSlot,
   type AttributeModifierTiming,
   type AttributeModifierValues,
   type CombatAttributeSet,
@@ -48,10 +50,20 @@ export const BUFF_FINISH_REASONS = [
 /** Buff 结束时记录并传给生命周期行为的原因。 */
 export type BuffFinishReason = (typeof BUFF_FINISH_REASONS)[number];
 
+/** 从 Buff 实例黑板读取单个原生属性槽位值的动态修正。 */
+export interface BuffBlackboardAttributeModifierValues {
+  readonly slot: AttributeModifierSlot;
+  readonly blackboardKey: string;
+}
+
+/** Buff 属性修正可使用固定八槽值，也可在实例运行期间从黑板重新解析。 */
+export type BuffAttributeModifierValues =
+  AttributeModifierValues | BuffBlackboardAttributeModifierValues;
+
 /** Buff 激活期间向实体属性系统注册的一项修正。 */
 export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly attribute: Key;
-  readonly values: AttributeModifierValues;
+  readonly values: BuffAttributeModifierValues;
   readonly timing: AttributeModifierTiming;
 }
 
@@ -102,9 +114,9 @@ export interface CombatBuffAddOptions {
 /** 一个实体上某项 Buff 的独立运行时实例。 */
 export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
-  readonly attributeModifiers: readonly CombatAttributeModifier<Key>[];
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
+  #attributeModifiers: readonly CombatAttributeModifier<Key>[];
   #passedTime = 0;
   #remainingDuration: number | null;
   #started = false;
@@ -146,15 +158,7 @@ export class CombatBuff<Key extends string> {
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
-    this.attributeModifiers = (definition.attributeModifiers ?? []).map(
-      modifier =>
-        new CombatAttributeModifier(
-          modifier.attribute,
-          modifier.values,
-          ATTRIBUTE_MODIFIER_SOURCES.buff,
-          modifier.timing,
-        ),
-    );
+    this.#attributeModifiers = this.createAttributeModifiers();
   }
 
   get passedTime(): number {
@@ -183,6 +187,10 @@ export class CombatBuff<Key extends string> {
 
   get enhanceCount(): number {
     return this.#enhanceCount;
+  }
+
+  get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
+    return this.#attributeModifiers;
   }
 
   enable(): void {
@@ -283,6 +291,18 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.afterEnhance?.(this, sourceId);
   }
 
+  /** 原生 Modify 只合并输入黑板，并据旧定义重建已注册的属性修正。 */
+  modify(options?: CombatBuffAddOptions): void {
+    const previousBlackboard = this.blackboard.snapshot();
+    this.blackboard.assign(options?.blackboardValues);
+    try {
+      this.replaceAttributeModifiers(this.createAttributeModifiers());
+    } catch (error) {
+      this.blackboard.restore(previousBlackboard);
+      throw error;
+    }
+  }
+
   private triggerInternal(deltaTime: number): void {
     if (this.#remainingTriggerCount === 0 || this.#triggerInterval === null) return;
     this.#triggerRemainingTime -= deltaTime;
@@ -299,9 +319,45 @@ export class CombatBuff<Key extends string> {
   }
 
   private removeAttributeModifiers(): void {
-    for (const modifier of this.attributeModifiers) {
+    for (const modifier of this.#attributeModifiers) {
       this.owner.attributes.removeModifier(modifier);
     }
+  }
+
+  private createAttributeModifiers(): readonly CombatAttributeModifier<Key>[] {
+    return (this.definition.attributeModifiers ?? []).map(modifier => {
+      const values = resolveBuffAttributeModifierValues(
+        this.definition.id,
+        modifier.values,
+        this.blackboard,
+      );
+      return new CombatAttributeModifier(
+        modifier.attribute,
+        values,
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        modifier.timing,
+      );
+    });
+  }
+
+  private replaceAttributeModifiers(replacements: readonly CombatAttributeModifier<Key>[]): void {
+    if (this.#enabled) {
+      let registeredCount = 0;
+      try {
+        for (const modifier of replacements) {
+          this.owner.attributes.addModifier(modifier);
+          registeredCount += 1;
+        }
+      } catch (error) {
+        for (const modifier of replacements.slice(0, registeredCount)) {
+          this.owner.attributes.removeModifier(modifier);
+        }
+        throw error;
+      }
+
+      this.removeAttributeModifiers();
+    }
+    this.#attributeModifiers = replacements;
   }
 }
 
@@ -415,6 +471,8 @@ class BuffStackingGroup<Key extends string> {
         return this.refresh(existing, definition, sourceId, options);
       case 'extend':
         return this.extend(existing, definition, sourceId, options);
+      case 'modify':
+        return this.modify(existing, definition, sourceId, options);
       case 'unique':
         return existing === undefined ? this.allocate(definition, sourceId, options) : null;
       case 'enhanceAndRefresh':
@@ -596,6 +654,34 @@ class BuffStackingGroup<Key extends string> {
     existing.overwriteDuration(resolveIncomingDuration(definition, options));
     return existing;
   }
+
+  private modify(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocate(definition, sourceId, options);
+
+    existing.modify(options);
+    return existing;
+  }
+}
+
+function resolveBuffAttributeModifierValues(
+  definitionId: string,
+  configured: BuffAttributeModifierValues,
+  blackboard: ActionBlackboard,
+): AttributeModifierValues {
+  if (!('blackboardKey' in configured)) return configured;
+  const value = blackboard.getNumber(configured.blackboardKey);
+  if (value === undefined) {
+    throw new Error(
+      `buff '${definitionId}' attribute modifier blackboard key ` +
+        `'${configured.blackboardKey}' is missing or not numeric`,
+    );
+  }
+  return attributeModifierValues(configured.slot, value);
 }
 
 function resolveIncomingDuration<Key extends string>(
