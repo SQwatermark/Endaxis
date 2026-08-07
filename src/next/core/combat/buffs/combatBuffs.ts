@@ -301,11 +301,12 @@ export class CombatBuffContainer<Key extends string> {
     return this.#buffs;
   }
 
+  /** 添加成功时返回实例；原生叠加策略拒绝本次施加时返回 null。 */
   add(
     definition: CombatBuffDefinition<Key>,
     sourceId: string,
     options?: CombatBuffAddOptions,
-  ): CombatBuff<Key> {
+  ): CombatBuff<Key> | null {
     const stackingKey = definition.stackingKey ?? definition.id;
     let group = this.#stackingGroups.get(stackingKey);
     if (group === undefined) {
@@ -374,7 +375,7 @@ class BuffStackingGroup<Key extends string> {
     definition: CombatBuffDefinition<Key>,
     sourceId: string,
     options?: CombatBuffAddOptions,
-  ): CombatBuff<Key> {
+  ): CombatBuff<Key> | null {
     if (definition.stackingType !== this.stackingType) {
       throw new Error(
         `buff stacking key '${this.key}' changed type from '${this.stackingType}' to '${definition.stackingType}'`,
@@ -386,6 +387,8 @@ class BuffStackingGroup<Key extends string> {
         return this.allocate(definition, sourceId, options);
       case 'refresh':
         return this.refresh(existing, definition, sourceId, options);
+      case 'unique':
+        return existing === undefined ? this.allocate(definition, sourceId, options) : null;
       case 'enhanceAndRefresh':
         return this.enhanceAndRefresh(existing, definition, sourceId, options);
       default:

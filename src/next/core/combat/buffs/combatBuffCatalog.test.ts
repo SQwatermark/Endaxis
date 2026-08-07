@@ -10,6 +10,11 @@ import {
 
 type Attribute = 'attack';
 
+function requireAddedBuff<T>(buff: T | null): T {
+  if (buff === null) throw new Error('test fixture buff was unexpectedly rejected');
+  return buff;
+}
+
 function createDocument(): CombatBuffCatalogDocument {
   return {
     schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
@@ -51,9 +56,11 @@ describe('compileCombatBuffCatalog', () => {
     const definition = catalog.getAttachment('heat');
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
 
-    const first = container.add(definition, 'operator', {
-      blackboardValues: { duration: 12 },
-    });
+    const first = requireAddedBuff(
+      container.add(definition, 'operator', {
+        blackboardValues: { duration: 12 },
+      }),
+    );
     expect(first.remainingDuration).toBe(12);
     expect(catalog.getAttachmentElement(definition)).toBe('heat');
     expect(catalog.getBurst('heat').id).toBe('burst.heat');

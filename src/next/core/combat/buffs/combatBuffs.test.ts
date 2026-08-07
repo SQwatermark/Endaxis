@@ -17,6 +17,11 @@ import { CombatBuffContainer, type CombatBuffDefinition } from './combatBuffs';
 
 type Attribute = 'attack';
 
+function requireAddedBuff<T>(buff: T | null): T {
+  if (buff === null) throw new Error('test fixture buff was unexpectedly rejected');
+  return buff;
+}
+
 const scaleAttributes = Object.fromEntries(
   DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
 ) as unknown as DamageScaleAttributeSnapshot;
@@ -112,14 +117,16 @@ describe('CombatBuffContainer', () => {
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
     const container = new CombatBuffContainer('operator', attributes);
     const order: string[] = [];
-    const buff = container.add(
-      createDefinition({
-        start: () => order.push('start'),
-        enable: () => order.push('enable'),
-        disable: () => order.push('disable'),
-        finish: () => order.push('finish'),
-      }),
-      'operator',
+    const buff = requireAddedBuff(
+      container.add(
+        createDefinition({
+          start: () => order.push('start'),
+          enable: () => order.push('enable'),
+          disable: () => order.push('disable'),
+          finish: () => order.push('finish'),
+        }),
+        'operator',
+      ),
     );
 
     expect(attributes.get('attack')).toBe(125);
@@ -146,10 +153,12 @@ describe('CombatBuffContainer', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
     const container = new CombatBuffContainer('operator', attributes);
-    const first = container.add(createDefinition(), 'operator');
-    const infinite = container.add(
-      { ...createDefinition(), id: 'buff.infinite', durationSeconds: undefined },
-      'operator',
+    const first = requireAddedBuff(container.add(createDefinition(), 'operator'));
+    const infinite = requireAddedBuff(
+      container.add(
+        { ...createDefinition(), id: 'buff.infinite', durationSeconds: undefined },
+        'operator',
+      ),
     );
 
     expect(container.getCountById('buff.attack')).toBe(1);
@@ -208,12 +217,45 @@ describe('CombatBuffContainer', () => {
     expect(context.value).toBe(100);
   });
 
-  it('rejects stacking strategies until their recovered groups are implemented', () => {
+  it('rejects a repeated unique buff until the existing instance finishes', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
-    expect(() =>
-      container.add({ id: 'buff.unique', stackingType: 'unique' }, 'operator'),
-    ).toThrow("stacking type 'unique' is not implemented");
+    const order: string[] = [];
+    const definition = {
+      id: 'buff.unique',
+      stackingType: 'unique',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 10, value: 1 },
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+        finish: () => order.push('finish'),
+      },
+    } as const satisfies CombatBuffDefinition<Attribute>;
+
+    const first = requireAddedBuff(container.add(definition, 'first-source'));
+    container.tick(4);
+
+    const rejected = container.add(definition, 'second-source', {
+      blackboardValues: { duration: 20, value: 2 },
+    });
+    expect(rejected).toBeNull();
+    expect(container.buffs).toHaveLength(1);
+    expect(first.remainingDuration).toBe(6);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('value')).toBe(1);
+    expect(order).toEqual(['start', 'enable']);
+
+    first.finish('other');
+    const replacement = requireAddedBuff(
+      container.add(definition, 'third-source', {
+        blackboardValues: { duration: 8 },
+      }),
+    );
+    expect(replacement).not.toBe(first);
+    expect(replacement.remainingDuration).toBe(8);
+    expect(container.buffs).toHaveLength(2);
+    expect(order).toEqual(['start', 'enable', 'finish', 'start', 'enable']);
   });
 
   it('refreshes the existing instance without restarting or enhancing it', () => {
@@ -234,13 +276,17 @@ describe('CombatBuffContainer', () => {
       },
     };
 
-    const first = container.add(definition, 'first-source', {
-      blackboardValues: { duration: 10 },
-    });
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { duration: 10 },
+      }),
+    );
     container.tick(4);
-    const refreshed = container.add(definition, 'second-source', {
-      blackboardValues: { duration: 12 },
-    });
+    const refreshed = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: 12 },
+      }),
+    );
 
     expect(refreshed).toBe(first);
     expect(container.buffs).toHaveLength(1);
@@ -276,14 +322,16 @@ describe('CombatBuffContainer', () => {
       },
     };
 
-    const first = container.add(definition, 'operator');
-    const second = container.add(definition, 'operator');
+    const first = requireAddedBuff(container.add(definition, 'operator'));
+    const second = requireAddedBuff(container.add(definition, 'operator'));
     expect(second).toBe(first);
     expect(first.enhanceCount).toBe(2);
     expect(order).toEqual(['before:1', 'changed:2', 'after:2']);
 
     container.tick(3);
-    const capped = container.add({ ...definition, durationSeconds: 12 }, 'operator');
+    const capped = requireAddedBuff(
+      container.add({ ...definition, durationSeconds: 12 }, 'operator'),
+    );
     expect(capped).toBe(first);
     expect(first.enhanceCount).toBe(2);
     expect(first.remainingDuration).toBe(12);
@@ -293,13 +341,15 @@ describe('CombatBuffContainer', () => {
   it('uses native duration refresh and infinite-lifetime semantics', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
-    const finite = container.add(
-      {
-        id: 'buff.finite',
-        stackingType: 'enhanceAndRefresh',
-        durationSeconds: 8,
-      },
-      'operator',
+    const finite = requireAddedBuff(
+      container.add(
+        {
+          id: 'buff.finite',
+          stackingType: 'enhanceAndRefresh',
+          durationSeconds: 8,
+        },
+        'operator',
+      ),
     );
 
     container.add(
@@ -331,7 +381,7 @@ describe('CombatBuffContainer', () => {
       stackingType: 'enhanceAndRefresh',
       maxStackCount: 3,
     };
-    const first = container.add(definition, 'operator');
+    const first = requireAddedBuff(container.add(definition, 'operator'));
     container.add(definition, 'operator');
     expect(first.enhanceCount).toBe(2);
 
@@ -347,7 +397,7 @@ describe('CombatBuffContainer', () => {
     ).toThrow("stacking key 'shared-key' changed type");
 
     first.finish('other');
-    const replacement = container.add(definition, 'operator');
+    const replacement = requireAddedBuff(container.add(definition, 'operator'));
     expect(replacement).not.toBe(first);
     expect(replacement.enhanceCount).toBe(1);
   });
@@ -355,14 +405,16 @@ describe('CombatBuffContainer', () => {
   it('builds each buff blackboard from defaults and add options', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
-    const buff = container.add(
-      {
-        id: 'buff.status',
-        stackingType: 'unlimited',
-        blackboard: { count: 0, label: 'default' },
-      },
-      'operator',
-      { blackboardValues: { count: 3 } },
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'buff.status',
+          stackingType: 'unlimited',
+          blackboard: { count: 0, label: 'default' },
+        },
+        'operator',
+        { blackboardValues: { count: 3 } },
+      ),
     );
 
     expect(buff.blackboard.getNumber('count')).toBe(3);
@@ -379,9 +431,11 @@ describe('CombatBuffContainer', () => {
       blackboard: { duration: 8 },
     };
 
-    const buff = container.add(definition, 'operator', {
-      blackboardValues: { duration: 10 },
-    });
+    const buff = requireAddedBuff(
+      container.add(definition, 'operator', {
+        blackboardValues: { duration: 10 },
+      }),
+    );
     expect(buff.remainingDuration).toBe(10);
     container.tick(4);
     container.add(definition, 'operator', {
@@ -455,17 +509,19 @@ describe('CombatBuffContainer', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     let triggerCount = 0;
-    const buff = container.add(
-      {
-        id: 'buff.periodic-disabled',
-        stackingType: 'unlimited',
-        durationSeconds: 10,
-        triggerIntervalSeconds: 2,
-        waitFirstTriggerInterval: true,
-        maxTriggerCount: 1,
-        actions: { trigger: () => (triggerCount += 1) },
-      },
-      'operator',
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'buff.periodic-disabled',
+          stackingType: 'unlimited',
+          durationSeconds: 10,
+          triggerIntervalSeconds: 2,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          actions: { trigger: () => (triggerCount += 1) },
+        },
+        'operator',
+      ),
     );
 
     buff.disable();

@@ -21,7 +21,7 @@ describe('elementalAttachmentCatalog', () => {
       expect(definition.stackingType).toBe('enhanceAndRefresh');
       expect(definition.maxStackCount).toBe(4);
       const buff = container.add(definition, 'operator');
-      expect(buff.remainingDuration).toBe(20);
+      expect(buff?.remainingDuration).toBe(20);
       container.add(definition, 'operator');
     }
 
