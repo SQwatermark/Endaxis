@@ -1,6 +1,76 @@
 {
   "operator": "perlica",
   "complete": false,
+  "buffDefinitions": [
+    {
+      "buffId": "buff_common_damage_immune_medium",
+      "sourceFile": "buff_common_damage_immune_medium.json",
+      "sourceAvailable": false,
+      "lifecycle": null,
+      "blackboard": [],
+      "applyTagIds": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_ult_skill",
+      "sourceFile": "buff_common_damage_immune_ult_skill.json",
+      "sourceAvailable": false,
+      "lifecycle": null,
+      "blackboard": [],
+      "applyTagIds": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": []
+    },
+    {
+      "buffId": "buff_common_obtain_ultimate_sp",
+      "sourceFile": "buff_common_obtain_ultimate_sp.json",
+      "sourceAvailable": false,
+      "lifecycle": null,
+      "blackboard": [],
+      "applyTagIds": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": []
+    },
+    {
+      "buffId": "buff_common_power_attack_disable_cast_skill",
+      "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
+      "sourceAvailable": false,
+      "lifecycle": null,
+      "blackboard": [],
+      "applyTagIds": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": []
+    }
+  ],
   "skills": [
     {
       "key": "basicAttack1",
@@ -200,7 +270,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 8,
@@ -621,7 +690,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 9,
@@ -1316,7 +1384,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 16,
@@ -1764,7 +1831,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 27,
@@ -1961,42 +2027,6 @@
       "referencedBuffIds": [
         "buff_common_damage_immune_medium",
         "buff_common_power_attack_disable_cast_skill"
-      ],
-      "buffDefinitions": [
-        {
-          "buffId": "buff_common_damage_immune_medium",
-          "sourceFile": "buff_common_damage_immune_medium.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "blackboard": [],
-          "applyTagIds": [],
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "combatActions": []
-        },
-        {
-          "buffId": "buff_common_power_attack_disable_cast_skill",
-          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "blackboard": [],
-          "applyTagIds": [],
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "combatActions": []
-        }
       ],
       "resolvedDamageHits": [
         {
@@ -2316,7 +2346,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 3,
@@ -2503,25 +2532,6 @@
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_common_obtain_ultimate_sp"
-      ],
-      "buffDefinitions": [
-        {
-          "buffId": "buff_common_obtain_ultimate_sp",
-          "sourceFile": "buff_common_obtain_ultimate_sp.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "blackboard": [],
-          "applyTagIds": [],
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "combatActions": []
-        }
       ],
       "resolvedDamageHits": [
         {
@@ -3073,7 +3083,6 @@
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitions": [],
       "resolvedDamageHits": [
         {
           "frame": 24,
@@ -3430,25 +3439,6 @@
       ],
       "referencedBuffIds": [
         "buff_common_damage_immune_ult_skill"
-      ],
-      "buffDefinitions": [
-        {
-          "buffId": "buff_common_damage_immune_ult_skill",
-          "sourceFile": "buff_common_damage_immune_ult_skill.json",
-          "sourceAvailable": false,
-          "lifecycle": null,
-          "blackboard": [],
-          "applyTagIds": [],
-          "directDamageHits": [],
-          "conditionalActions": [],
-          "blackboardCalculations": [],
-          "blackboardMutations": [],
-          "buffBlackboardReads": [],
-          "buffFinishes": [],
-          "eventActions": [],
-          "resourceGains": [],
-          "combatActions": []
-        }
       ],
       "resolvedDamageHits": [
         {

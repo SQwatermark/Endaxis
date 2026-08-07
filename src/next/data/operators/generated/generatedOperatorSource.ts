@@ -413,8 +413,6 @@ export interface GeneratedSkillSource {
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
   readonly referencedBuffIds: readonly string[];
-  /** 直接 Buff 依赖及其传递创建依赖组成的去重定义目录。 */
-  readonly buffDefinitions: readonly GeneratedBuffDefinitionSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
   /** SkillData 声明的黑板默认值；同名 SkillPatch 值在编译时覆盖它。 */
@@ -428,5 +426,7 @@ export interface GeneratedSkillSource {
 
 export interface GeneratedOperatorSource {
   readonly slug: string;
+  /** 所有技能直接引用及其传递创建依赖组成的干员级去重 Buff 定义目录。 */
+  readonly buffDefinitions: readonly GeneratedBuffDefinitionSource[];
   readonly skills: readonly GeneratedSkillSource[];
 }

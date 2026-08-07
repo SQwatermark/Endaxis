@@ -511,7 +511,6 @@ class SkillSource:
     projectileHits: tuple[ProjectileHitSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     referencedBuffIds: tuple[str, ...]
-    buffDefinitions: tuple[BuffDefinitionSource, ...]
     patch: SkillPatchSource
     declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...]
     blackboardKeys: tuple[str, ...]
@@ -1829,6 +1828,17 @@ def resolve_buff_definitions(
     return tuple(result[buff_id] for buff_id in sorted(result))
 
 
+def resolve_operator_buff_definitions(
+    skills: Iterable[SkillSource],
+    buff_source_dir: Path,
+) -> tuple[BuffDefinitionSource, ...]:
+    """按干员汇总技能引用，生成一份共享且去重的 Buff 定义目录。"""
+    referenced_ids = tuple(
+        sorted({buff_id for skill in skills for buff_id in skill.referencedBuffIds})
+    )
+    return resolve_buff_definitions(referenced_ids, buff_source_dir)
+
+
 def parse_buff_lifecycle(
     buff: dict[str, Any],
     source_name: str,
@@ -2574,10 +2584,6 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             inherited_blackboard=patch.blackboard,
         ),
         referencedBuffIds=referenced_buff_ids,
-        buffDefinitions=resolve_buff_definitions(
-            referenced_buff_ids,
-            source_dir.parent / "BuffData",
-        ),
         patch=patch,
         declaredBlackboard=parse_declared_blackboard(root, source_name),
         blackboardKeys=collect_blackboard_keys(root),
@@ -2616,8 +2622,17 @@ def ts_inline_literal(value: Any) -> str:
     raise TypeError(f"unsupported TypeScript literal: {type(value).__name__}")
 
 
-def render_typescript(export_name: str, slug: str, skills: list[SkillSource]) -> str:
-    payload = {"slug": slug, "skills": [serialize_audit_value(skill) for skill in skills]}
+def render_typescript(
+    export_name: str,
+    slug: str,
+    skills: list[SkillSource],
+    buff_definitions: tuple[BuffDefinitionSource, ...],
+) -> str:
+    payload = {
+        "slug": slug,
+        "buffDefinitions": [serialize_audit_value(item) for item in buff_definitions],
+        "skills": [serialize_audit_value(skill) for skill in skills],
+    }
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { GeneratedOperatorSource } from './generatedOperatorSource';\n\n"
@@ -4158,7 +4173,11 @@ def render_operator_definition(
             "",
         ]
     )
-def render_report(slug: str, skills: list[SkillSource]) -> str:
+def render_report(
+    slug: str,
+    skills: list[SkillSource],
+    buff_definitions: tuple[BuffDefinitionSource, ...],
+) -> str:
     report = {
         "operator": slug,
         "complete": all(
@@ -4167,6 +4186,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
             and not skill.conditionalActions
             for skill in skills
         ),
+        "buffDefinitions": [asdict(definition) for definition in buff_definitions],
         "skills": [
             {
                 "key": skill.key,
@@ -4192,9 +4212,6 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "referencedBuffIds": skill.referencedBuffIds,
-                "buffDefinitions": [
-                    asdict(definition) for definition in skill.buffDefinitions
-                ],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "resolvedSchedule": [
                     {
@@ -4265,8 +4282,20 @@ def main() -> None:
             parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source, patch_table)
             for entry in require_list(operator["skills"], f"{slug}.skills")
         ]
-        write_or_check(args.output / f"{slug}.generated.ts", render_typescript(str(operator["exportName"]), slug, skills), args.check)
-        write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
+        buff_definitions = resolve_operator_buff_definitions(
+            skills,
+            args.source.parent / "BuffData",
+        )
+        write_or_check(
+            args.output / f"{slug}.generated.ts",
+            render_typescript(str(operator["exportName"]), slug, skills, buff_definitions),
+            args.check,
+        )
+        write_or_check(
+            args.output / f"{slug}.audit.json",
+            render_report(slug, skills, buff_definitions),
+            args.check,
+        )
         output_stage = operator.get("outputStage", "complete")
         if output_stage == "audit":
             write_or_check(

@@ -41,6 +41,7 @@ from generate_next_operators import (
     resolve_projectile_hits,
     resolve_ability_entity_hits,
     resolve_buff_definitions,
+    resolve_operator_buff_definitions,
     parse_skill_patch,
     compile_buff_blackboard_read,
     compile_buff_finish,
@@ -212,6 +213,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertEqual(parent.eventActions[0].createdBuffIds, ("buff.child",))
         self.assertEqual(child.eventActions[0].createdBuffIds, ("buff.parent",))
+
+    def test_operator_buff_definitions_merge_skill_references_once(self) -> None:
+        skills = (
+            SimpleNamespace(referencedBuffIds=("buff.second", "buff.first")),
+            SimpleNamespace(referencedBuffIds=("buff.first",)),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            definitions = resolve_operator_buff_definitions(skills, Path(directory))
+
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.first", "buff.second"),
+        )
+        self.assertTrue(all(not definition.sourceAvailable for definition in definitions))
 
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
