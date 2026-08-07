@@ -397,6 +397,8 @@ class BuffStackingGroup<Key extends string> {
     switch (this.stackingType) {
       case 'unlimited':
         return this.allocate(definition, sourceId, options);
+      case 'highPriority':
+        return this.allocatePrioritized(definition, sourceId, options);
       case 'stack':
         return this.stackInstances(definition, sourceId, options);
       case 'enhance':
@@ -416,6 +418,7 @@ class BuffStackingGroup<Key extends string> {
 
   refreshAfterFinish(): void {
     this.#currentStackCount = this.#buffs.filter(buff => !buff.isFinished).length;
+    if (this.stackingType === 'highPriority') this.refreshPriority();
   }
 
   private allocate(
@@ -449,6 +452,32 @@ class BuffStackingGroup<Key extends string> {
     this.#currentStackCount = this.#buffs.filter(candidate => !candidate.isFinished).length;
     buff.enable();
     return buff;
+  }
+
+  private allocatePrioritized(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    const buff = this.owner.allocateBuff(definition, sourceId, options);
+    buff.attachStackingGroup(this);
+    this.#buffs.push(buff);
+    this.#currentStackCount += 1;
+    this.refreshPriority();
+    return buff;
+  }
+
+  private refreshPriority(): void {
+    let enabledCount = 0;
+    for (const buff of [...this.#buffs].sort(compareBuffPriority)) {
+      if (buff.isFinished) continue;
+      if (enabledCount < 1) {
+        enabledCount += 1;
+        buff.enable();
+      } else {
+        buff.disable();
+      }
+    }
   }
 
   private getLastUnfinishedBuff(): CombatBuff<Key> | undefined {

@@ -416,6 +416,86 @@ describe('CombatBuffContainer', () => {
     expect(order).toEqual(['start', 'enable']);
   });
 
+  it('enables a new HighPriority winner before disabling the previous one', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const prioritized = (
+      id: string,
+      priority: number,
+      addition: number,
+    ): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.high-priority',
+      stackingType: 'highPriority',
+      priority,
+      attributeModifiers: [
+        {
+          attribute: 'attack',
+          values: attributeModifierValues('addition', addition),
+          timing: 'runtime',
+        },
+      ],
+      actions: {
+        start: () => order.push(`start:${id}`),
+        enable: () => order.push(`enable:${id}:${attributes.get('attack')}`),
+        disable: () => order.push(`disable:${id}:${attributes.get('attack')}`),
+        finish: () => order.push(`finish:${id}:${attributes.get('attack')}`),
+      },
+    });
+
+    const low = requireAddedBuff(container.add(prioritized('low', 1, 25), 'operator'));
+    const high = requireAddedBuff(container.add(prioritized('high', 2, 50), 'operator'));
+
+    expect(low.isEnabled).toBe(false);
+    expect(high.isEnabled).toBe(true);
+    expect(attributes.get('attack')).toBe(150);
+    expect(order).toEqual([
+      'start:low',
+      'enable:low:125',
+      'start:high',
+      'enable:high:175',
+      'disable:low:175',
+    ]);
+
+    high.finish('other');
+    expect(low.isEnabled).toBe(true);
+    expect(attributes.get('attack')).toBe(125);
+    expect(order.slice(-2)).toEqual(['finish:high:150', 'enable:low:175']);
+  });
+
+  it('keeps losing HighPriority instances dormant and uses duration then uid as tie-breakers', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const starts: string[] = [];
+    const prioritized = (
+      id: string,
+      durationSeconds: number,
+    ): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.high-priority.tie',
+      stackingType: 'highPriority',
+      priority: 1,
+      durationSeconds,
+      actions: { start: () => starts.push(id) },
+    });
+
+    const short = requireAddedBuff(container.add(prioritized('short', 10), 'operator'));
+    const firstLong = requireAddedBuff(container.add(prioritized('first-long', 20), 'operator'));
+    const secondLong = requireAddedBuff(container.add(prioritized('second-long', 20), 'operator'));
+
+    expect(short.isEnabled).toBe(false);
+    expect(firstLong.isEnabled).toBe(true);
+    expect(secondLong.isEnabled).toBe(false);
+    expect(secondLong.isStarted).toBe(false);
+    expect(starts).toEqual(['short', 'first-long']);
+
+    firstLong.finish('other');
+    expect(secondLong.isEnabled).toBe(true);
+    expect(starts).toEqual(['short', 'first-long', 'second-long']);
+  });
+
   it('replaces the lowest-priority existing Stack instance before enabling the incoming one', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
