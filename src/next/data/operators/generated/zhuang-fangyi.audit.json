@@ -1,0 +1,4850 @@
+{
+  "operator": "zhuang-fangyi",
+  "complete": false,
+  "skills": [
+    {
+      "key": "basicAttack1",
+      "skillId": "chr_0030_zhuangfy_attack1",
+      "sourceFile": "chr_0030_zhuangfy_attack1.json",
+      "timelineBlockFrames": 15,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 6,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit"
+        },
+        {
+          "launchFrame": 8,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit"
+        }
+      ],
+      "projectileHits": [
+        {
+          "launchFrame": 6,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack1",
+          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 8,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack1",
+          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 6,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1",
+            "chr_0030_zhuangfy_attack1_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 8,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1",
+            "chr_0030_zhuangfy_attack1_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [],
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
+    },
+    {
+      "key": "basicAttack2",
+      "skillId": "chr_0030_zhuangfy_attack2",
+      "sourceFile": "chr_0030_zhuangfy_attack2.json",
+      "timelineBlockFrames": 15,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 4,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 2,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+        },
+        {
+          "launchFrame": 2,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+        }
+      ],
+      "projectileHits": [
+        {
+          "launchFrame": 2,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08,
+                      0.08,
+                      0.09,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 2,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08,
+                      0.08,
+                      0.09,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 15,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+          "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            },
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 5,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 2,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 15,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 24,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "sword_dist"
+      ],
+      "unresolvedCombatActions": [
+        "LaunchProjectile",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "basicAttack3",
+      "skillId": "chr_0030_zhuangfy_attack3",
+      "sourceFile": "chr_0030_zhuangfy_attack3.json",
+      "timelineBlockFrames": 26,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 14,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+        },
+        {
+          "launchFrame": 14,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+        }
+      ],
+      "projectileHits": [
+        {
+          "launchFrame": 14,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 14,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 16,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 16,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_sword",
+                    "levelValues": [
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 14,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 14,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 16,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 16,
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_sword",
+                "levelValues": [
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "sword_dist"
+      ],
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
+    },
+    {
+      "key": "basicAttack4",
+      "skillId": "chr_0030_zhuangfy_attack4",
+      "sourceFile": "chr_0030_zhuangfy_attack4.json",
+      "timelineBlockFrames": 17,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 4,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 11,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+          "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            },
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 5,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 11,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 20,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [],
+      "unresolvedCombatActions": [
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "basicAttack5",
+      "skillId": "chr_0030_zhuangfy_attack5",
+      "sourceFile": "chr_0030_zhuangfy_attack5.json",
+      "timelineBlockFrames": 50,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 4,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack5:chr_0030_zhuangfy_attack5_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 20,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+          "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 12,
+              "actionIndex": 1,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.48,
+                      0.53,
+                      0.58,
+                      0.62,
+                      0.67,
+                      0.72,
+                      0.77,
+                      0.82,
+                      0.86,
+                      0.92,
+                      1.0,
+                      1.08
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 2,
+              "actionIndex": 2,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            },
+            {
+              "startFrame": 4,
+              "endFrame": 6,
+              "actionIndex": 2,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            },
+            {
+              "startFrame": 8,
+              "endFrame": 10,
+              "actionIndex": 2,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 20,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack5",
+            "chr_0030_zhuangfy_attack5_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.48,
+                  0.53,
+                  0.58,
+                  0.62,
+                  0.67,
+                  0.72,
+                  0.77,
+                  0.82,
+                  0.86,
+                  0.92,
+                  1.0,
+                  1.08
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [],
+      "unresolvedCombatActions": [
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "enhancedBasicAttack1",
+      "skillId": "chr_0030_zhuangfy_attack1_ult",
+      "sourceFile": "chr_0030_zhuangfy_attack1_ult.json",
+      "timelineBlockFrames": 22,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 12,
+          "endFrame": 16,
+          "actionIndex": 5,
+          "damageUnits": []
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 12,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 13,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 14,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 15,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 15,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1_ult",
+            "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 16,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1_ult",
+            "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 17,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1_ult",
+            "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 18,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1_ult",
+            "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "target_in_range"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "enhancedBasicAttack2",
+      "skillId": "chr_0030_zhuangfy_attack2_ult",
+      "sourceFile": "chr_0030_zhuangfy_attack2_ult.json",
+      "timelineBlockFrames": 27,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 14,
+          "actionIndex": 5,
+          "damageUnits": []
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 12,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 10,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 11,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 12,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 13,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 13,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2_ult",
+            "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 14,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2_ult",
+            "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 15,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2_ult",
+            "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 16,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2_ult",
+            "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "target_in_range"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "enhancedBasicAttack3",
+      "skillId": "chr_0030_zhuangfy_attack3_ult",
+      "sourceFile": "chr_0030_zhuangfy_attack3_ult.json",
+      "timelineBlockFrames": 60,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 3,
+          "endFrame": 6,
+          "actionIndex": 0,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_attack3_ult:chr_0030_zhuangfy_attack3_ult_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ]
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 179,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 3,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 30,
+              "endFrame": 33,
+              "actionIndex": 1,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.34,
+                      1.47,
+                      1.6,
+                      1.74,
+                      1.87,
+                      2.0,
+                      2.14,
+                      2.27,
+                      2.4,
+                      2.57,
+                      2.77,
+                      3.0
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 30,
+              "endFrame": 33,
+              "actionIndex": 7,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 3,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
+          "sourceFile": "buff_chr_0030_zhuangfy_attack3_ult_cancel.json",
+          "sourceAvailable": true,
+          "lifeType": "Infinity",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 33,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3_ult",
+            "chr_0030_zhuangfy_attack3_ult_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.34,
+                  1.47,
+                  1.6,
+                  1.74,
+                  1.87,
+                  2.0,
+                  2.14,
+                  2.27,
+                  2.4,
+                  2.57,
+                  2.77,
+                  3.0
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "finisher",
+      "skillId": "chr_0030_zhuangfy_power_attack",
+      "sourceFile": "chr_0030_zhuangfy_power_attack.json",
+      "timelineBlockFrames": 41,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "startFrame": 40,
+          "endFrame": 43,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 45,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_medium",
+          "classification": "incomingDamageProtection",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 41,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_power_attack_disable_cast_skill",
+          "classification": "inputLock",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 0,
+          "applicationEvent": null,
+          "buffId": "buff_common_damage_immune_medium",
+          "sourceFile": "buff_common_damage_immune_medium.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 0,
+          "applicationEvent": null,
+          "buffId": "buff_common_power_attack_disable_cast_skill",
+          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 11,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 40,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ]
+    },
+    {
+      "key": "plungingAttack",
+      "skillId": "chr_0030_zhuangfy_plunging_attack_end",
+      "sourceFile": "chr_0030_zhuangfy_plunging_attack_end.json",
+      "timelineBlockFrames": 21,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [
+        {
+          "startFrame": 1,
+          "endFrame": 6,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "auxiliaryActions": [],
+      "resourceGains": [
+        {
+          "startFrame": 1,
+          "endFrame": 6,
+          "actionIndex": 4,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb",
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [],
+      "buffBehaviors": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 1,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0030_zhuangfy_plunging_attack_end"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atk_scale"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "battleSkill",
+      "skillId": "chr_0030_zhuangfy_normal_skill",
+      "sourceFile": "chr_0030_zhuangfy_normal_skill.json",
+      "timelineBlockFrames": 45,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 2,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 14,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": "skillCostUltimateEnergyGain",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 21,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": "skillCostUltimateEnergyGain",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 22,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+          "classification": "nonCombatAbilityEntity",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 5,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
+          "classification": null,
+          "blackboardAssignments": {
+            "interval": {
+              "value": 0.0,
+              "blackboardKey": "swordTriggerInterval",
+              "levelValues": null
+            },
+            "sword_range": {
+              "value": 0.0,
+              "blackboardKey": "sword_range",
+              "levelValues": [
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0
+              ]
+            },
+            "atk_scale": {
+              "value": 0.0,
+              "blackboardKey": "atk_scale",
+              "levelValues": [
+                0.2,
+                0.22,
+                0.24,
+                0.26,
+                0.28,
+                0.3,
+                0.32,
+                0.34,
+                0.36,
+                0.39,
+                0.42,
+                0.45
+              ]
+            },
+            "poise": {
+              "value": 0.0,
+              "blackboardKey": "poise",
+              "levelValues": [
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0
+              ]
+            },
+            "usp_extra": {
+              "value": 0.0,
+              "blackboardKey": "usp_extra",
+              "levelValues": [
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0
+              ]
+            },
+            "atk_up_final": {
+              "value": 0.0,
+              "blackboardKey": "atk_up_final",
+              "levelValues": null
+            },
+            "remain_sword_limit": {
+              "value": 0.0,
+              "blackboardKey": "remain_sword_limit",
+              "levelValues": [
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0
+              ]
+            },
+            "final_rate": {
+              "value": 0.0,
+              "blackboardKey": "final_rate",
+              "levelValues": [
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0
+              ]
+            }
+          },
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_talent1",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 8,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb_return",
+            "levelValues": null
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "projectileLaunches": [
+        {
+          "launchFrame": 6,
+          "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+          "castSkillOnHit": false,
+          "hitSkillId": null
+        },
+        {
+          "launchFrame": 6,
+          "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+          "castSkillOnHit": false,
+          "hitSkillId": null
+        }
+      ],
+      "projectileHits": [],
+      "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 6,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+          "sourceFile": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 6,
+          "applicationEvent": null,
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 6,
+          "applicationEvent": null,
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 13,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
+          "sourceFile": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "OnBuffTrigger",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_sword_triggerd"
+              ],
+              "createdBuffBehaviors": [
+                {
+                  "applicationFrame": null,
+                  "applicationEvent": "OnBuffTrigger",
+                  "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
+                  "sourceFile": "buff_chr_0030_zhuangfy_sword_triggerd.json",
+                  "sourceAvailable": true,
+                  "lifeType": "Limited",
+                  "directDamageHits": [
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionIndex": 7,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.2,
+                              0.22,
+                              0.24,
+                              0.26,
+                              0.28,
+                              0.3,
+                              0.32,
+                              0.34,
+                              0.36,
+                              0.39,
+                              0.42,
+                              0.45
+                            ]
+                          },
+                          "poiseValue": null
+                        }
+                      ]
+                    },
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionIndex": 13,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.2,
+                              0.22,
+                              0.24,
+                              0.26,
+                              0.28,
+                              0.3,
+                              0.32,
+                              0.34,
+                              0.36,
+                              0.39,
+                              0.42,
+                              0.45
+                            ]
+                          },
+                          "poiseValue": null
+                        }
+                      ]
+                    },
+                    {
+                      "startFrame": 6,
+                      "endFrame": 9,
+                      "actionIndex": 7,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_final",
+                            "levelValues": null
+                          },
+                          "poiseValue": null
+                        },
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "eventActions": [],
+                  "resourceGains": [
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionIndex": 12,
+                      "resource": "ultimateEnergy",
+                      "amount": {
+                        "value": 10.0,
+                        "blackboardKey": "usp_extra",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    },
+                    {
+                      "startFrame": 3,
+                      "endFrame": 6,
+                      "actionIndex": 18,
+                      "resource": "ultimateEnergy",
+                      "amount": {
+                        "value": 10.0,
+                        "blackboardKey": "usp_extra",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    },
+                    {
+                      "startFrame": 6,
+                      "endFrame": 9,
+                      "actionIndex": 14,
+                      "resource": "ultimateEnergy",
+                      "amount": {
+                        "value": 10.0,
+                        "blackboardKey": "usp_extra",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  ],
+                  "nestedBuffBehaviors": [
+                    {
+                      "applicationFrame": 3,
+                      "applicationEvent": null,
+                      "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
+                      "sourceFile": "buff_chr_0030_zhuangfy_talent1_mark.json",
+                      "sourceAvailable": true,
+                      "lifeType": "Limited",
+                      "directDamageHits": [],
+                      "eventActions": [],
+                      "resourceGains": [],
+                      "nestedBuffBehaviors": [],
+                      "combatActions": [],
+                      "cycleTruncated": false
+                    },
+                    {
+                      "applicationFrame": 6,
+                      "applicationEvent": null,
+                      "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
+                      "sourceFile": "buff_chr_0030_zhuangfy_talent1_mark.json",
+                      "sourceAvailable": true,
+                      "lifeType": "Limited",
+                      "directDamageHits": [],
+                      "eventActions": [],
+                      "resourceGains": [],
+                      "nestedBuffBehaviors": [],
+                      "combatActions": [],
+                      "cycleTruncated": false
+                    }
+                  ],
+                  "combatActions": [
+                    "CreateBuffAction",
+                    "DamageAction",
+                    "IfElseAction",
+                    "ObtainCostAction"
+                  ],
+                  "cycleTruncated": false
+                }
+              ]
+            },
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 6,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_talent1",
+          "sourceFile": "buff_chr_0030_zhuangfy_talent1.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [],
+      "blackboardKeys": [
+        "EntityBB_SwordNum",
+        "atb_return",
+        "atk_up_per_conduct",
+        "cam_angle",
+        "conductCnt",
+        "free_sword_limit",
+        "input_angle",
+        "max_conduct_sword",
+        "swordTriggerInterval",
+        "sword_gene_num"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile",
+        "ObtainCostAction",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "enhancedBattleSkill",
+      "skillId": "chr_0030_zhuangfy_normal_skill_ult",
+      "sourceFile": "chr_0030_zhuangfy_normal_skill_ult.json",
+      "timelineBlockFrames": 30,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 1,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 19,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": "skillCostUltimateEnergyGain",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 26,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_obtain_ultimate_sp",
+          "classification": "skillCostUltimateEnergyGain",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 27,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+          "classification": "nonCombatAbilityEntity",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_talent1",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 3,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction",
+            "SpellInfliction"
+          ]
+        }
+      ],
+      "resourceGains": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 13,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb_return",
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "projectileLaunches": [
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+          "castSkillOnHit": false,
+          "hitSkillId": null
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+          "castSkillOnHit": false,
+          "hitSkillId": null
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+          "castSkillOnHit": false,
+          "hitSkillId": null
+        }
+      ],
+      "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 15,
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
+          "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_normal_skill_ult_abilityrange.json",
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 64,
+              "actionIndex": 5,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_final",
+                    "levelValues": null
+                  },
+                  "poiseValue": null
+                }
+              ]
+            },
+            {
+              "startFrame": 12,
+              "endFrame": 64,
+              "actionIndex": 8,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_final",
+                    "levelValues": null
+                  },
+                  "poiseValue": null
+                }
+              ]
+            },
+            {
+              "startFrame": 69,
+              "endFrame": 70,
+              "actionIndex": 5,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_final",
+                    "levelValues": null
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [
+            {
+              "startFrame": 69,
+              "endFrame": 70,
+              "actionIndex": 3,
+              "element": "electric",
+              "isExtra": false
+            }
+          ],
+          "auxiliaryActions": [
+            {
+              "startFrame": 12,
+              "endFrame": 64,
+              "actionIndex": 2,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
+              "classification": null,
+              "blackboardAssignments": {},
+              "nestedCombatActions": []
+            },
+            {
+              "startFrame": 69,
+              "endFrame": 70,
+              "actionIndex": 1,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
+              "classification": null,
+              "blackboardAssignments": {},
+              "nestedCombatActions": []
+            }
+          ],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction",
+            "SpellInfliction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 5,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+          "sourceFile": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 5,
+          "applicationEvent": null,
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 5,
+          "applicationEvent": null,
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 5,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_talent1",
+          "sourceFile": "buff_chr_0030_zhuangfy_talent1.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 27,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult",
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_final",
+                "levelValues": null
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 27,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult",
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_final",
+                "levelValues": null
+              },
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 84,
+          "sourceKind": "abilityEntity",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult",
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_final",
+                "levelValues": null
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "EntityBB_SwordNum",
+        "atb_return",
+        "atk_up_per_conduct",
+        "cam_angle",
+        "conductCnt",
+        "free_sword_limit",
+        "input_angle",
+        "max_conduct_sword",
+        "sword_gene_num"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile",
+        "ObtainCostAction",
+        "SpawnAbilityEntity"
+      ]
+    },
+    {
+      "key": "comboSkill",
+      "skillId": "chr_0030_zhuangfy_combo_skill",
+      "sourceFile": "chr_0030_zhuangfy_combo_skill.json",
+      "timelineBlockFrames": 25,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.6,
+                  1.76,
+                  1.92,
+                  2.08,
+                  2.24,
+                  2.4,
+                  2.56,
+                  2.72,
+                  2.88,
+                  3.08,
+                  3.32,
+                  3.6
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 5,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_pulse_pulse_conduct_triggered",
+          "classification": "electrificationReaction",
+          "blackboardAssignments": {
+            "count": {
+              "value": 0.0,
+              "blackboardKey": "conductCnt",
+              "levelValues": null
+            }
+          },
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 13,
+          "resource": "ultimateEnergy",
+          "amount": {
+            "value": 0.2,
+            "blackboardKey": "usp",
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 15,
+          "resource": "ultimateEnergy",
+          "amount": {
+            "value": 0.2,
+            "blackboardKey": "usp_extra",
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 24,
+          "applicationEvent": null,
+          "buffId": "buff_common_pulse_pulse_conduct_triggered",
+          "sourceFile": "buff_common_pulse_pulse_conduct_triggered.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 24,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.6,
+                  1.76,
+                  1.92,
+                  2.08,
+                  2.24,
+                  2.4,
+                  2.56,
+                  2.72,
+                  2.88,
+                  3.08,
+                  3.32,
+                  3.6
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale",
+        "conductCnt",
+        "inflictCnt",
+        "owner_mainchar_alpha",
+        "owner_mainchar_distance",
+        "poise",
+        "usp",
+        "usp_extra"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "enhancedComboSkill",
+      "skillId": "chr_0030_zhuangfy_combo_skill_ult",
+      "sourceFile": "chr_0030_zhuangfy_combo_skill_ult.json",
+      "timelineBlockFrames": 25,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  2.4,
+                  2.64,
+                  2.88,
+                  3.12,
+                  3.36,
+                  3.6,
+                  3.84,
+                  4.08,
+                  4.32,
+                  4.62,
+                  4.98,
+                  5.4
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 5,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_pulse_pulse_conduct_triggered",
+          "classification": "electrificationReaction",
+          "blackboardAssignments": {
+            "count": {
+              "value": 0.0,
+              "blackboardKey": "conductCnt",
+              "levelValues": null
+            }
+          },
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 24,
+          "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
+          "castSkillOnHit": true,
+          "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit"
+        }
+      ],
+      "projectileHits": [
+        {
+          "launchFrame": 24,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
+          "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",
+          "sourceFile": "chr_0030_zhuangfy_combo_skill_ring_projhit.json",
+          "damageUnits": [],
+          "directDamageHits": [],
+          "auxiliaryActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 2,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0030_zhuangfy_combo_skill_ring_hit",
+              "classification": null,
+              "blackboardAssignments": {
+                "atk_scale": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_scale",
+                  "levelValues": [
+                    2.4,
+                    2.64,
+                    2.88,
+                    3.12,
+                    3.36,
+                    3.6,
+                    3.84,
+                    4.08,
+                    4.32,
+                    4.62,
+                    4.98,
+                    5.4
+                  ]
+                },
+                "poise": {
+                  "value": 0.0,
+                  "blackboardKey": "poise",
+                  "levelValues": [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                  ]
+                }
+              },
+              "nestedCombatActions": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 24,
+          "applicationEvent": null,
+          "buffId": "buff_common_pulse_pulse_conduct_triggered",
+          "sourceFile": "buff_common_pulse_pulse_conduct_triggered.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 24,
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill_ult"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  2.4,
+                  2.64,
+                  2.88,
+                  3.12,
+                  3.36,
+                  3.6,
+                  3.84,
+                  4.08,
+                  4.32,
+                  4.62,
+                  4.98,
+                  5.4
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale",
+        "conductCnt",
+        "inflictCnt",
+        "owner_mainchar_alpha",
+        "owner_mainchar_distance",
+        "poise"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ]
+    },
+    {
+      "key": "ultimate",
+      "skillId": "chr_0030_zhuangfy_ultimate_skill",
+      "sourceFile": "chr_0030_zhuangfy_ultimate_skill.json",
+      "timelineBlockFrames": 91,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 2,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_ult_mirror",
+          "classification": "nonCombatAbilityEntity",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 5,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_potential5_vfx",
+          "classification": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 78,
+          "actionIndex": 2,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0030_zhuangfy_ult",
+          "classification": "nonCombatAbilityEntity",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 78,
+          "endFrame": 81,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_ult_base",
+          "classification": null,
+          "blackboardAssignments": {
+            "duration": {
+              "value": 60.0,
+              "blackboardKey": "duration",
+              "levelValues": [
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0
+              ]
+            },
+            "combo_cd_rate": {
+              "value": 0.0,
+              "blackboardKey": "combo_cd_rate",
+              "levelValues": [
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0
+              ]
+            }
+          },
+          "nestedCombatActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 90,
+          "actionIndex": 0,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_ult_skill",
+          "classification": "incomingDamageProtection",
+          "blackboardAssignments": {},
+          "nestedCombatActions": []
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileHits": [],
+      "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 0,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
+          "sourceFile": "buff_chr_0030_zhuangfy_potential5_vfx.json",
+          "sourceAvailable": true,
+          "lifeType": "Infinity",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 78,
+          "applicationEvent": null,
+          "buffId": "buff_chr_0030_zhuangfy_ult_base",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_base.json",
+          "sourceAvailable": true,
+          "lifeType": "Limited",
+          "directDamageHits": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_hide_model_holder"
+              ],
+              "createdBuffBehaviors": [
+                {
+                  "applicationFrame": null,
+                  "applicationEvent": "DuringBuffEnable",
+                  "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
+                  "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model_holder.json",
+                  "sourceAvailable": true,
+                  "lifeType": "Infinity",
+                  "directDamageHits": [],
+                  "eventActions": [
+                    {
+                      "event": "OnBuffFinish",
+                      "combatActions": [
+                        "CreateBuffAction"
+                      ],
+                      "damageUnits": [],
+                      "createdBuffIds": [
+                        "buff_chr_0030_zhuangfy_ult_hide_model"
+                      ],
+                      "createdBuffBehaviors": [
+                        {
+                          "applicationFrame": null,
+                          "applicationEvent": "OnBuffFinish",
+                          "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
+                          "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model.json",
+                          "sourceAvailable": true,
+                          "lifeType": "Limited",
+                          "directDamageHits": [],
+                          "eventActions": [
+                            {
+                              "event": "DuringBuffEnable",
+                              "combatActions": [],
+                              "damageUnits": [],
+                              "createdBuffIds": [],
+                              "createdBuffBehaviors": []
+                            }
+                          ],
+                          "resourceGains": [],
+                          "nestedBuffBehaviors": [],
+                          "combatActions": [],
+                          "cycleTruncated": false
+                        }
+                      ]
+                    }
+                  ],
+                  "resourceGains": [],
+                  "nestedBuffBehaviors": [],
+                  "combatActions": [],
+                  "cycleTruncated": false
+                }
+              ]
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_env_vfx",
+                "buff_chr_0030_zhuangfy_ult_body_vfx"
+              ],
+              "createdBuffBehaviors": [
+                {
+                  "applicationFrame": null,
+                  "applicationEvent": "DuringBuffEnable",
+                  "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
+                  "sourceFile": "buff_chr_0030_zhuangfy_ult_env_vfx.json",
+                  "sourceAvailable": true,
+                  "lifeType": "Infinity",
+                  "directDamageHits": [],
+                  "eventActions": [
+                    {
+                      "event": "DuringBuffEnable",
+                      "combatActions": [],
+                      "damageUnits": [],
+                      "createdBuffIds": [],
+                      "createdBuffBehaviors": []
+                    }
+                  ],
+                  "resourceGains": [],
+                  "nestedBuffBehaviors": [],
+                  "combatActions": [],
+                  "cycleTruncated": false
+                },
+                {
+                  "applicationFrame": null,
+                  "applicationEvent": "DuringBuffEnable",
+                  "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
+                  "sourceFile": "buff_chr_0030_zhuangfy_ult_body_vfx.json",
+                  "sourceAvailable": true,
+                  "lifeType": "Infinity",
+                  "directDamageHits": [],
+                  "eventActions": [
+                    {
+                      "event": "DuringBuffEnable",
+                      "combatActions": [],
+                      "damageUnits": [],
+                      "createdBuffIds": [],
+                      "createdBuffBehaviors": []
+                    }
+                  ],
+                  "resourceGains": [],
+                  "nestedBuffBehaviors": [],
+                  "combatActions": [],
+                  "cycleTruncated": false
+                }
+              ]
+            },
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": [],
+              "createdBuffBehaviors": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_skill_free"
+              ],
+              "createdBuffBehaviors": [
+                {
+                  "applicationFrame": null,
+                  "applicationEvent": "OnBuffStart",
+                  "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
+                  "sourceFile": "buff_chr_0030_zhuangfy_ult_skill_free.json",
+                  "sourceAvailable": true,
+                  "lifeType": "Infinity",
+                  "directDamageHits": [],
+                  "eventActions": [],
+                  "resourceGains": [],
+                  "nestedBuffBehaviors": [],
+                  "combatActions": [],
+                  "cycleTruncated": false
+                }
+              ]
+            }
+          ],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 0,
+          "applicationEvent": null,
+          "buffId": "buff_common_damage_immune_ult_skill",
+          "sourceFile": "buff_common_damage_immune_ult_skill.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "resolvedDamageHits": [],
+      "blackboardKeys": [
+        "select_radius"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "SpawnAbilityEntity"
+      ]
+    }
+  ]
+}

@@ -2096,6 +2096,13 @@ def main() -> None:
         ]
         write_or_check(args.output / f"{slug}.generated.ts", render_typescript(str(operator["exportName"]), slug, skills), args.check)
         write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
+        output_stage = operator.get("outputStage", "complete")
+        if output_stage == "audit":
+            generated += 1
+            print(f"[{slug}] audited {len(skills)} skills -> {args.output}")
+            continue
+        if output_stage != "complete":
+            raise ValueError(f"{slug}.outputStage: expected 'audit' or 'complete'")
         write_or_check(args.output / f"{slug}.skills.generated.ts", render_compiled_skills(operator, skills), args.check)
         write_or_check(
             args.output / f"{slug}.operator.generated.ts",
