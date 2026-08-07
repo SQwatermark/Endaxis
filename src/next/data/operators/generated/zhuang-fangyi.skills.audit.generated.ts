@@ -257,4 +257,20 @@ export const zhuangFangyiGeneratedSkills = [
       ),
     ],
   },
+  {
+    key: 'plungingAttack',
+    timelineBlockFrames: 21,
+    scheduledSequences: [
+      scheduled(
+        1,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
 ] as const satisfies readonly SkillDefinition[];

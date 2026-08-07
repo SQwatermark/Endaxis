@@ -1662,11 +1662,18 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
 
 def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
     """将已闭环载体来源的命中统一编译为按绝对帧调度的伤害序列。"""
-    if skill.buffBehaviors or skill.resourceGains or skill.inflictions:
+    effective_resource_gains = [
+        gain
+        for gain in skill.resourceGains
+        if any(value != 0 for value in require_level_values(gain.amount, f"{skill.key}.resourceGain.amount"))
+    ]
+    if skill.buffBehaviors or effective_resource_gains or skill.inflictions:
         raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or resources")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
+    if skill.resourceGains and not effective_resource_gains:
+        allowed_actions.add("ObtainCostAction")
     if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
         raise ValueError(f"{skill.key}: unresolved combat actions are not covered by resolved damage compiler")
     hits = collect_resolved_damage_hits(skill)

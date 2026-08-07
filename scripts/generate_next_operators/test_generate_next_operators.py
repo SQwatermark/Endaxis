@@ -46,7 +46,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             key="attack",
             timelineBlockFrames=20,
             buffBehaviors=(),
-            resourceGains=(),
+            resourceGains=(SimpleNamespace(amount=ScalarSource(0, "unused", (0, 0))),),
             inflictions=(),
             projectileLaunches=(),
             unresolvedCombatActions=("SpawnAbilityEntity",),
