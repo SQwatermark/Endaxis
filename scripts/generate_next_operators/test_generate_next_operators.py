@@ -565,6 +565,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 targetSource="Context",
                 targetGroupKey="smart_target",
                 buffCheckType="Tag",
+                buffIds=(),
                 buffTagIds=(1466867135,),
                 countType="BuffCount",
                 comparison="GE",
@@ -582,7 +583,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffStackCompare'", result)
         self.assertIn("buffTagIds: [1466867135]", result)
 
-    def test_condition_compiler_rejects_unmodeled_buff_identity_queries(self) -> None:
+    def test_condition_compiler_emits_caster_buff_identity_queries(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",
             comparison=None,
@@ -592,6 +593,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 targetSource="Source",
                 targetGroupKey="",
                 buffCheckType="Id",
+                buffIds=("buff.example.sword",),
                 buffTagIds=(),
                 countType="BuffCount",
                 comparison="GE",
@@ -601,8 +603,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
-        with self.assertRaisesRegex(ValueError, "outside the single-enemy runtime model"):
-            compile_combat_condition_group((condition,), "fixture.conditions")
+        result = compile_combat_condition_group((condition,), "fixture.conditions")
+
+        self.assertIn("kind: 'buffIdStackCompare'", result)
+        self.assertIn("target: 'caster'", result)
+        self.assertIn("buffIds: ['buff.example.sword']", result)
 
     def test_conditional_action_compiler_preserves_nested_branch_order(self) -> None:
         compare = SimpleNamespace(
@@ -670,6 +675,45 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(result.count("branch("), 2)
         self.assertLess(result.index("readBuffBlackboard"), result.index("finishBuffsByTag"))
         self.assertIn("key: 'conductCount'", result)
+
+    def test_conditional_action_compiler_emits_caster_buff_identity_finish(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        finish = SimpleNamespace(
+            targetSource="Source",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=("buff.example.sword",),
+            buffTagIds=(),
+            tagQueryType="hasAny",
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=False,
+            isAbsorbed=False,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="FinishBuffAdvanced",
+                    nestedCondition=None,
+                    buffBlackboardRead=None,
+                    buffFinish=finish,
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("finishBuffsById", result)
+        self.assertIn("target: 'caster'", result)
+        self.assertIn("buffIds: ['buff.example.sword']", result)
 
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(

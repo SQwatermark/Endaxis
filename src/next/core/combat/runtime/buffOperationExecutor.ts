@@ -1,8 +1,9 @@
 /**
- * 执行技能序列中面向敌方 Buff 容器的查询与结束操作。
- * 这里只暴露动作需要的最小端口；具体 Buff 容器归属仍由战斗装配层决定。
+ * 执行技能序列中面向施法者或敌方 Buff 容器的查询与结束操作。
+ * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
 import type { ActionBlackboard } from './actionBlackboard';
@@ -18,6 +19,8 @@ export interface BuffQueryResult {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  getCountByIds(ids: readonly string[]): number;
+  finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   getCountByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,
@@ -37,7 +40,7 @@ export interface BuffOperationTarget {
 }
 
 export interface BuffOperationDependencies {
-  readonly target: BuffOperationTarget;
+  readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -52,8 +55,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('readBuffBlackboard requires a combat operation context');
       }
+      const target = this.dependencies.resolveTarget(step.parameters.target);
       const tags = step.parameters.buffTagIds.map(gameplayTagId);
-      const buff = this.dependencies.target.findFirstByTags(tags, step.parameters.tagQueryType);
+      const buff = target.findFirstByTags(tags, step.parameters.tagQueryType);
       if (buff === undefined) return false;
 
       context.blackboard.assignDynamic(
@@ -64,12 +68,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'finishBuffsByTag') {
+      const target = this.dependencies.resolveTarget(step.parameters.target);
       const tags = step.parameters.buffTagIds.map(gameplayTagId);
-      this.dependencies.target.finishByTags(
-        tags,
-        step.parameters.tagQueryType,
-        step.parameters.reason,
-      );
+      target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
+      return true;
+    }
+
+    if (step.kind === 'finishBuffsById') {
+      this.dependencies
+        .resolveTarget(step.parameters.target)
+        .finishByIds(step.parameters.buffIds, step.parameters.reason);
       return true;
     }
 
@@ -83,10 +91,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
     if (condition.kind === 'buffStackCompare') {
-      const count = this.dependencies.target.getCountByTags(
-        condition.buffTagIds.map(gameplayTagId),
-        condition.tagQueryType,
-      );
+      const count = this.dependencies
+        .resolveTarget(condition.target)
+        .getCountByTags(condition.buffTagIds.map(gameplayTagId), condition.tagQueryType);
+      return compareCombatNumbers(count, condition.value, condition.operator);
+    }
+    if (condition.kind === 'buffIdStackCompare') {
+      const count = this.dependencies
+        .resolveTarget(condition.target)
+        .getCountByIds(condition.buffIds);
       return compareCombatNumbers(count, condition.value, condition.operator);
     }
     return context === undefined

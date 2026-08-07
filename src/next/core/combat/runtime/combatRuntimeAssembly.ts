@@ -19,7 +19,8 @@ import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
-  readonly buffRuntime?: FrameRuntime;
+  /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
+  readonly buffRuntime?: FrameRuntime & BuffOperationTarget;
   readonly actionRuntime?: FrameRuntime;
 }
 
@@ -67,7 +68,7 @@ export class CombatRuntimeAssembly {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
       const skills = operator.skills.map(program =>
-        this.#createSkillRuntime(operator.operatorId, program, options.createOperationExecutor),
+        this.#createSkillRuntime(operator, program, options.createOperationExecutor),
       );
       this.#abilitySystems.set(
         operator.operatorId,
@@ -110,10 +111,11 @@ export class CombatRuntimeAssembly {
   }
 
   #createSkillRuntime(
-    operatorId: string,
+    operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
   ): SkillRuntime {
+    const operatorId = operator.operatorId;
     if (program.operatorId !== operatorId) {
       throw new Error(
         `skill '${program.skillId}' belongs to '${program.operatorId}', expected '${operatorId}'`,
@@ -127,7 +129,14 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
     });
     const buffOperations = new BuffOperationExecutor({
-      target: this.#enemyBuffs,
+      resolveTarget: target => {
+        if (target === 'enemy') return this.#enemyBuffs;
+        const casterBuffs = operator.buffRuntime;
+        if (casterBuffs === undefined) {
+          throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+        }
+        return casterBuffs;
+      },
       delegate: baseDelegate,
     });
     const delegate = new ActionBlackboardOperationExecutor(buffOperations);

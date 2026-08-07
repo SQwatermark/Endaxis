@@ -27,7 +27,7 @@ describe('BuffOperationExecutor', () => {
     };
     target.add(definition, 'operator');
     target.add(definition, 'operator');
-    const executor = new BuffOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
     const condition = {
       kind: 'buffStackCompare' as const,
       target: 'enemy' as const,
@@ -67,7 +67,7 @@ describe('BuffOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard();
-    const executor = new BuffOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
 
     expect(
       executor.execute(
@@ -104,7 +104,7 @@ describe('BuffOperationExecutor', () => {
       'operator',
     );
     const blackboard = new ActionBlackboard({ output: 7 });
-    const executor = new BuffOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
     const createStep = (path: string) => ({
       kind: 'readBuffBlackboard' as const,
       parameters: {
@@ -155,7 +155,7 @@ describe('BuffOperationExecutor', () => {
       },
       'operator',
     );
-    const executor = new BuffOperationExecutor({ target, delegate });
+    const executor = new BuffOperationExecutor({ resolveTarget: () => target, delegate });
 
     expect(
       executor.execute({
@@ -171,5 +171,37 @@ describe('BuffOperationExecutor', () => {
     expect(first?.finishReason).toBe('early');
     expect(second?.finishReason).toBe('early');
     expect(unrelated?.isFinished).toBe(false);
+  });
+
+  it('queries and finishes caster buffs by stable Buff identity', () => {
+    const caster = new CombatBuffContainer('operator', new CombatAttributeSet());
+    const active = caster.add(
+      { id: 'sword-trigger', stackingType: 'stack', maxStackCount: 3 },
+      'operator',
+    );
+    caster.add({ id: 'sword-trigger', stackingType: 'stack', maxStackCount: 3 }, 'operator');
+    const executor = new BuffOperationExecutor({ resolveTarget: () => caster, delegate });
+
+    expect(
+      executor.evaluate({
+        kind: 'buffIdStackCompare',
+        target: 'caster',
+        buffIds: ['sword-trigger'],
+        operator: 'greaterOrEqual',
+        value: 2,
+      }),
+    ).toBe(true);
+    expect(
+      executor.execute({
+        kind: 'finishBuffsById',
+        parameters: {
+          target: 'caster',
+          buffIds: ['sword-trigger'],
+          reason: 'other',
+        },
+      }),
+    ).toBe(true);
+    expect(active?.finishReason).toBe('other');
+    expect(caster.getCountById('sword-trigger')).toBe(0);
   });
 });

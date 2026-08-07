@@ -155,9 +155,17 @@ export type CombatCondition =
   | {
       /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
       kind: 'buffStackCompare';
-      target: 'enemy';
+      target: CombatTarget;
       tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
+      operator: ComparisonOperator;
+      value: number;
+    }
+  | {
+      /** 按目录 Buff 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
+      kind: 'buffIdStackCompare';
+      target: CombatTarget;
+      buffIds: readonly string[];
       operator: ComparisonOperator;
       value: number;
     }
@@ -187,6 +195,7 @@ export const COMBAT_CONDITION_KINDS = [
   'actionValueCompare',
   'statusActive',
   'buffStackCompare',
+  'buffIdStackCompare',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',
@@ -267,7 +276,7 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
   readBuffBlackboard: {
-    target: 'enemy';
+    target: CombatTarget;
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
     desiredKey: string;
@@ -275,9 +284,15 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {
-    target: 'enemy';
+    target: CombatTarget;
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
+    reason: 'early' | 'absorbed' | 'other';
+  };
+  /** 按目录 Buff 身份结束目标身上的全部匹配实例。 */
+  finishBuffsById: {
+    target: CombatTarget;
+    buffIds: readonly string[];
     reason: 'early' | 'absorbed' | 'other';
   };
   changeResource: {
@@ -319,6 +334,7 @@ export const COMBAT_STEP_KINDS = [
   'applyBuff',
   'readBuffBlackboard',
   'finishBuffsByTag',
+  'finishBuffsById',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',

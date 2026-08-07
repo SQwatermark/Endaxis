@@ -87,6 +87,22 @@ function validateLevelValues(value: unknown, path: string, issues: ValidationIss
   value.forEach((entry, index) => requireFiniteNumber(entry, `${path}[${index}]`, issues));
 }
 
+function validateNonEmptyStringArray(
+  value: unknown,
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  if (!Array.isArray(value) || value.length === 0) {
+    issues.push({ path, message: 'expected a non-empty array' });
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || entry.length === 0) {
+      issues.push({ path: `${path}[${index}]`, message: 'expected a non-empty string' });
+    }
+  });
+}
+
 function validateCombatCondition(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (!isObject(value)) {
     issues.push({ path, message: 'expected an object' });
@@ -129,9 +145,7 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       }
       break;
     case 'buffStackCompare':
-      if (value.target !== 'enemy') {
-        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
-      }
+      requireEnum(value.target, combatTargets, `${path}.target`, issues);
       requireEnum(value.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
       if (!Array.isArray(value.buffTagIds) || value.buffTagIds.length === 0) {
         issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
@@ -140,6 +154,12 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
           requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
         );
       }
+      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
+      requireFiniteNumber(value.value, `${path}.value`, issues);
+      break;
+    case 'buffIdStackCompare':
+      requireEnum(value.target, combatTargets, `${path}.target`, issues);
+      validateNonEmptyStringArray(value.buffIds, `${path}.buffIds`, issues);
       requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
       requireFiniteNumber(value.value, `${path}.value`, issues);
       break;
@@ -344,9 +364,7 @@ function validateCombatStepParameters(
         requireFiniteNumber(parameters.effectiveness, `${path}.effectiveness`, issues);
       break;
     case 'readBuffBlackboard':
-      if (parameters.target !== 'enemy') {
-        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
-      }
+      requireTarget();
       requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
       if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
         issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
@@ -359,9 +377,7 @@ function validateCombatStepParameters(
       requireString(parameters, 'outputKey', path, issues);
       break;
     case 'finishBuffsByTag':
-      if (parameters.target !== 'enemy') {
-        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
-      }
+      requireTarget();
       requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
       if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
         issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
@@ -370,6 +386,11 @@ function validateCombatStepParameters(
           requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
         );
       }
+      requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
+      break;
+    case 'finishBuffsById':
+      requireTarget();
+      validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
       requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
       break;
     case 'changeResource':

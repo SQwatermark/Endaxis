@@ -507,6 +507,24 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** 统计所有未结束且 ID 命中任一候选项的 Buff 层数。 */
+  getCountByIds(ids: readonly string[]): number {
+    const accepted = new Set(ids);
+    return this.#buffs
+      .filter(buff => !buff.isFinished && accepted.has(buff.definition.id))
+      .reduce((count, buff) => count + buff.enhanceCount, 0);
+  }
+
+  /** 按容器插入顺序结束所有 ID 命中任一候选项的 Buff。 */
+  finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
+    const accepted = new Set(ids);
+    let count = 0;
+    for (const buff of this.#buffs) {
+      if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) count += 1;
+    }
+    return count;
+  }
+
   /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */
   getCountByTags(
     tags: readonly GameplayTagId[],

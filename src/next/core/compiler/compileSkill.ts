@@ -211,6 +211,8 @@ function resolveStep(
           buffTagIds: step.parameters.buffTagIds.map(gameplayTagId),
         },
       };
+    case 'finishBuffsById':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,

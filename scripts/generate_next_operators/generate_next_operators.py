@@ -2313,15 +2313,8 @@ def compile_combat_condition(source: ConditionSource, path: str) -> str:
         buff = source.buffStack
         if buff is None:
             raise ValueError(f"{path}: missing Buff stack condition payload")
-        if (
-            buff.targetSource != "Context"
-            or buff.targetGroupKey != "smart_target"
-            or buff.buffCheckType != "Tag"
-            or not buff.buffTagIds
-            or buff.countType != "BuffCount"
-            or buff.limitSkillCastId
-        ):
-            raise ValueError(f"{path}: Buff stack query is outside the single-enemy runtime model")
+        if buff.countType != "BuffCount" or buff.limitSkillCastId:
+            raise ValueError(f"{path}: unsupported Buff stack count semantics")
         operator = COMPARISON_OPERATOR_MAP.get(buff.comparison)
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {buff.comparison!r}")
@@ -2330,18 +2323,44 @@ def compile_combat_condition(source: ConditionSource, path: str) -> str:
         if not value_source.startswith(prefix):
             raise ValueError(f"{path}.value: dynamic Buff count thresholds are not supported")
         value = value_source.removeprefix(prefix).removesuffix(" }")
-        return "\n".join(
-            [
-                "{",
-                "  kind: 'buffStackCompare',",
-                "  target: 'enemy',",
-                f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
-                f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
-                f"  operator: {ts_inline_literal(operator)},",
-                f"  value: {value},",
-                "}",
-            ]
-        )
+        if (
+            buff.targetSource == "Context"
+            and buff.targetGroupKey == "smart_target"
+            and buff.buffCheckType == "Tag"
+            and buff.buffTagIds
+            and not buff.buffIds
+        ):
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'buffStackCompare',",
+                    "  target: 'enemy',",
+                    f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
+                    f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {value},",
+                    "}",
+                ]
+            )
+        if (
+            buff.targetSource == "Source"
+            and not buff.targetGroupKey
+            and buff.buffCheckType == "Id"
+            and buff.buffIds
+            and not buff.buffTagIds
+        ):
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'buffIdStackCompare',",
+                    "  target: 'caster',",
+                    f"  buffIds: {ts_inline_literal(buff.buffIds)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {value},",
+                    "}",
+                ]
+            )
+        raise ValueError(f"{path}: unsupported Buff stack query target or identity")
     raise ValueError(f"{path}: unsupported condition type {source.sourceType!r}")
 
 
@@ -2396,28 +2415,46 @@ def compile_buff_blackboard_read(read: BuffBlackboardReadSource, path: str) -> s
 
 
 def compile_buff_finish(finish: BuffFinishSource, path: str) -> str:
-    """只编译已由 FinishBuffAdvanced 机器码和当前单敌人模型共同闭环的标签全量结束分支。"""
-    if finish.targetSource != "Context" or finish.targetGroupKey != "smart_target":
-        raise ValueError(f"{path}: unsupported buff finish target")
-    if finish.buffCheckType != "Tag" or finish.buffIds:
-        raise ValueError(f"{path}: only tag-based buff finish is supported")
-    if not finish.buffTagIds:
-        raise ValueError(f"{path}: buff tag query must not be empty")
+    """编译已闭环的敌方标签或施法者 ID 全量结束分支。"""
     if not finish.finishAll or finish.limitSource:
         raise ValueError(f"{path}: only finishAll without source limiting is supported")
     if finish.isFinishedEarly and finish.isAbsorbed:
         raise ValueError(f"{path}: conflicting finish reasons")
     reason = "early" if finish.isFinishedEarly else "absorbed" if finish.isAbsorbed else "other"
-    return "\n".join(
-        [
-            "step('finishBuffsByTag', {",
-            "  target: 'enemy',",
-            f"  tagQueryType: {ts_inline_literal(finish.tagQueryType)},",
-            f"  buffTagIds: {ts_inline_literal(finish.buffTagIds)},",
-            f"  reason: {ts_inline_literal(reason)},",
-            "})",
-        ]
-    )
+    if (
+        finish.targetSource == "Context"
+        and finish.targetGroupKey == "smart_target"
+        and finish.buffCheckType == "Tag"
+        and finish.buffTagIds
+        and not finish.buffIds
+    ):
+        return "\n".join(
+            [
+                "step('finishBuffsByTag', {",
+                "  target: 'enemy',",
+                f"  tagQueryType: {ts_inline_literal(finish.tagQueryType)},",
+                f"  buffTagIds: {ts_inline_literal(finish.buffTagIds)},",
+                f"  reason: {ts_inline_literal(reason)},",
+                "})",
+            ]
+        )
+    if (
+        finish.targetSource == "Source"
+        and not finish.targetGroupKey
+        and finish.buffCheckType == "Id"
+        and finish.buffIds
+        and not finish.buffTagIds
+    ):
+        return "\n".join(
+            [
+                "step('finishBuffsById', {",
+                "  target: 'caster',",
+                f"  buffIds: {ts_inline_literal(finish.buffIds)},",
+                f"  reason: {ts_inline_literal(reason)},",
+                "})",
+            ]
+        )
+    raise ValueError(f"{path}: unsupported buff finish target or identity")
 
 
 def indent_source(source: str, spaces: int) -> list[str]:

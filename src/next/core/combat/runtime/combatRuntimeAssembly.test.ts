@@ -7,6 +7,8 @@ import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const emptyEnemyBuffs = {
+  getCountByIds: () => 0,
+  finishByIds: () => 0,
   getCountByTags: () => 0,
   findFirstByTags: () => undefined,
   finishByTags: () => 0,
@@ -16,6 +18,21 @@ const rejectingExecutor: CombatOperationExecutor = {
   execute: () => false,
   evaluate: () => false,
 };
+
+function asBuffRuntime(container: CombatBuffContainer<string>) {
+  return {
+    advanceFrame: () => undefined,
+    getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),
+    finishByIds: (ids: readonly string[], reason: 'early' | 'absorbed' | 'other') =>
+      container.finishByIds(ids, reason),
+    getCountByTags: (...args: Parameters<typeof container.getCountByTags>) =>
+      container.getCountByTags(...args),
+    findFirstByTags: (...args: Parameters<typeof container.findFirstByTags>) =>
+      container.findFirstByTags(...args),
+    finishByTags: (...args: Parameters<typeof container.finishByTags>) =>
+      container.finishByTags(...args),
+  };
+}
 
 function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProgram {
   return {
@@ -260,6 +277,76 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(reachedBranch).toBe(true);
+  });
+
+  it('routes caster Buff identity operations to that operator Buff runtime', () => {
+    const casterBuffs = new CombatBuffContainer('operator', new CombatAttributeSet());
+    const previous = casterBuffs.add({ id: 'sword-trigger', stackingType: 'unique' }, 'operator');
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'buffIdStackCompare',
+                    target: 'caster',
+                    buffIds: ['sword-trigger'],
+                    operator: 'greaterOrEqual',
+                    value: 1,
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'finishBuffsById',
+                      parameters: {
+                        target: 'caster',
+                        buffIds: ['sword-trigger'],
+                        reason: 'other',
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      enemyBuffs: emptyEnemyBuffs,
+      operators: [
+        { operatorId: 'operator', skills: [program], buffRuntime: asBuffRuntime(casterBuffs) },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(previous?.finishReason).toBe('other');
   });
 
   it('processes frame input after recovery and before the skill cost tick', () => {
