@@ -1,314 +1,367 @@
 /** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { percentages, scheduled, sequence, step } from '../definitionHelpers';
+import { percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
-export const zhuangFangyiBasicAttack1: SkillDefinition = {
-  key: 'basicAttack1',
-  timelineBlockFrames: 15,
-  scheduledSequences: [
-    scheduled(
-      6,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack1',
+    timelineBlockFrames: 15,
+    scheduledSequences: [
+      scheduled(
+        6,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      8,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        8,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
+    'display_atk_scale': [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+  },
+);
 
-export const zhuangFangyiBasicAttack2: SkillDefinition = {
-  key: 'basicAttack2',
-  timelineBlockFrames: 15,
-  scheduledSequences: [
-    scheduled(
-      2,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack2',
+    timelineBlockFrames: 15,
+    scheduledSequences: [
+      scheduled(
+        2,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      2,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        2,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      15,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        15,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      24,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        24,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
+    'atk_scale_sword': [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
+    'display_atk_scale': [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
+  },
+);
 
-export const zhuangFangyiBasicAttack3: SkillDefinition = {
-  key: 'basicAttack3',
-  timelineBlockFrames: 26,
-  scheduledSequences: [
-    scheduled(
-      14,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    timelineBlockFrames: 26,
+    scheduledSequences: [
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      14,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      16,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      16,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale_sword': [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
+    'display_atk_scale': [0.32, 0.35, 0.39, 0.42, 0.45, 0.48, 0.52, 0.55, 0.58, 0.62, 0.67, 0.72],
+  },
+);
 
-export const zhuangFangyiBasicAttack4: SkillDefinition = {
-  key: 'basicAttack4',
-  timelineBlockFrames: 17,
-  scheduledSequences: [
-    scheduled(
-      11,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack4',
+    timelineBlockFrames: 17,
+    scheduledSequences: [
+      scheduled(
+        11,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      20,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        20,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25],
+    'display_atk_scale': [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
+  },
+);
 
-export const zhuangFangyiBasicAttack5: SkillDefinition = {
-  key: 'basicAttack5',
-  timelineBlockFrames: 50,
-  scheduledSequences: [
-    scheduled(
-      20,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([48, 53, 58, 62, 67, 72, 77, 82, 86, 92, 100, 108]),
-          tags: ['normalAttack'],
-          stagger: 18,
-        }),
+export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack5',
+    timelineBlockFrames: 50,
+    scheduledSequences: [
+      scheduled(
+        20,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([48, 53, 58, 62, 67, 72, 77, 82, 86, 92, 100, 108]),
+            tags: ['normalAttack'],
+            stagger: 18,
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atb': 18,
+    'atk_scale': [0.48, 0.53, 0.58, 0.62, 0.67, 0.72, 0.77, 0.82, 0.86, 0.92, 1, 1.08],
+    'poise': 18,
+  },
+);
 
-export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = {
-  key: 'enhancedBasicAttack1',
-  timelineBlockFrames: 22,
-  scheduledSequences: [
-    scheduled(
-      15,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedBasicAttack1',
+    timelineBlockFrames: 22,
+    scheduledSequences: [
+      scheduled(
+        15,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      16,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      17,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        17,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      18,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        18,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [0.67, 0.73, 0.8, 0.86, 0.93, 1, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5],
+  },
+);
 
-export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = {
-  key: 'enhancedBasicAttack2',
-  timelineBlockFrames: 27,
-  scheduledSequences: [
-    scheduled(
-      13,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
-          tags: ['normalAttack'],
-        }),
+export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedBasicAttack2',
+    timelineBlockFrames: 27,
+    scheduledSequences: [
+      scheduled(
+        13,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      14,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      15,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        15,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      16,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
-          tags: ['normalAttack'],
-        }),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
+            tags: ['normalAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1],
+  },
+);
 
-export const zhuangFangyiFinisher: SkillDefinition = {
-  key: 'finisher',
-  timelineBlockFrames: 41,
-  availability: { kind: 'targetStaggered', target: 'enemy' },
-  scheduledSequences: [
-    scheduled(
-      11,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
-          tags: ['normalAttack', 'powerAttack'],
-          calculation: 'breakingAttack',
-          calculationMultiplier: 0.1,
-        }),
+export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'finisher',
+    timelineBlockFrames: 41,
+    availability: { kind: 'targetStaggered', target: 'enemy' },
+    scheduledSequences: [
+      scheduled(
+        11,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+            calculationMultiplier: 0.1,
+          }),
+        ),
       ),
-    ),
-    scheduled(
-      40,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
-          tags: ['normalAttack', 'powerAttack'],
-          calculation: 'breakingAttack',
-          calculationMultiplier: 0.9,
-        }),
-        step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+      scheduled(
+        40,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+            calculationMultiplier: 0.9,
+          }),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+  },
+);
 
-export const zhuangFangyiPlungingAttack: SkillDefinition = {
-  key: 'plungingAttack',
-  timelineBlockFrames: 21,
-  scheduledSequences: [
-    scheduled(
-      1,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
-          tags: ['normalAttack', 'plungingAttack'],
-        }),
+export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    timelineBlockFrames: 21,
+    scheduledSequences: [
+      scheduled(
+        1,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atb': 0,
+    'atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+  },
+);

@@ -117,6 +117,14 @@ export function scheduled(
   return { startFrame: frame, sequence: actionSequence };
 }
 
+/** 为技能定义附加按等级解析的初始动作黑板，不改变原技能对象。 */
+export function withSkillBlackboard(
+  skill: SkillDefinition,
+  blackboard: NonNullable<SkillDefinition['blackboard']>,
+): SkillDefinition {
+  return { ...skill, blackboard };
+}
+
 type DamageOptions = Omit<DealDamageParameters, 'damageType' | 'attackScale' | 'tags'>;
 
 export interface BasicAttackOptions extends DamageOptions {

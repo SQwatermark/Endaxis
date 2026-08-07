@@ -1,153 +1,211 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { electricBasicAttack, percentages, scheduled, sequence, step } from '../definitionHelpers';
+import { electricBasicAttack, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
-export const perlicaBasicAttack1: SkillDefinition = electricBasicAttack(
-  'basicAttack1',
-  16,
-  8,
-  percentages([25, 28, 31, 33, 36, 38, 41, 43, 46, 49, 53, 57]),
+export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
+  electricBasicAttack(
+    'basicAttack1',
+    16,
+    8,
+    percentages([25, 28, 31, 33, 36, 38, 41, 43, 46, 49, 53, 57]),
+  ),
+  {
+    'atb': 0,
+    'atk_scale': [0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57],
+  },
 );
 
-export const perlicaBasicAttack2: SkillDefinition = electricBasicAttack(
-  'basicAttack2',
-  18,
-  [9, 12],
-  percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
+export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
+  electricBasicAttack(
+    'basicAttack2',
+    18,
+    [9, 12],
+    percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
+  ),
+  {
+    'atb': 0,
+    'atk_scale': [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    'display_atk_scale': [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+  },
 );
 
-export const perlicaBasicAttack3: SkillDefinition = electricBasicAttack(
-  'basicAttack3',
-  26,
-  [16, 19, 22],
-  percentages([12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 26, 28]),
+export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
+  electricBasicAttack(
+    'basicAttack3',
+    26,
+    [16, 19, 22],
+    percentages([12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 26, 28]),
+  ),
+  {
+    'atb': 0,
+    'atk_scale': [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28],
+    'display_atk_scale': [0.37, 0.41, 0.45, 0.48, 0.52, 0.56, 0.59, 0.63, 0.67, 0.71, 0.77, 0.84],
+  },
 );
 
-export const perlicaBasicAttack4: SkillDefinition = electricBasicAttack(
-  'basicAttack4',
-  44,
-  27,
-  percentages([57, 62, 68, 73, 79, 85, 90, 96, 102, 109, 117, 127]),
-  { final: true, spRecovery: 15, stagger: 15 },
+export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
+  electricBasicAttack(
+    'basicAttack4',
+    44,
+    27,
+    percentages([57, 62, 68, 73, 79, 85, 90, 96, 102, 109, 117, 127]),
+    { final: true, spRecovery: 15, stagger: 15 },
+  ),
+  {
+    'atb': 15,
+    'atk_scale': [0.57, 0.62, 0.68, 0.73, 0.79, 0.85, 0.9, 0.96, 1.02, 1.09, 1.17, 1.27],
+    'poise': 15,
+  },
 );
 
-export const perlicaFinisher: SkillDefinition = {
-  key: 'finisher',
-  timelineBlockFrames: 35,
-  availability: { kind: 'targetStaggered', target: 'enemy' },
-  scheduledSequences: [
-    scheduled(
-      35,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
-          tags: ['normalAttack', 'powerAttack'],
-          calculation: 'breakingAttack',
-          calculationMultiplier: 1,
-        }),
-        step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'finisher',
+    timelineBlockFrames: 35,
+    availability: { kind: 'targetStaggered', target: 'enemy' },
+    scheduledSequences: [
+      scheduled(
+        35,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+            calculationMultiplier: 1,
+          }),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+  },
+);
 
-export const perlicaPlungingAttack: SkillDefinition = {
-  key: 'plungingAttack',
-  timelineBlockFrames: 21,
-  scheduledSequences: [
-    scheduled(
-      3,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
-          tags: ['normalAttack', 'plungingAttack'],
-        }),
+export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    timelineBlockFrames: 21,
+    scheduledSequences: [
+      scheduled(
+        3,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atb': 0,
+    'atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+  },
+);
 
-export const perlicaBattleSkill: SkillDefinition = {
-  key: 'battleSkill',
-  timelineBlockFrames: 28,
-  costs: [{ resource: 'sp', value: 100 }],
-  costFrame: 0,
-  scheduledSequences: [
-    scheduled(
-      13,
-      sequence(
-        step('applyElementalInfliction', { element: 'electric', isExtra: false }),
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([178, 196, 213, 231, 249, 267, 285, 302, 320, 342, 369, 400]),
-          tags: ['normalSkill'],
-          stagger: 10,
-        }),
-        step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'battleSkill',
+    timelineBlockFrames: 28,
+    costs: [{ resource: 'sp', value: 100 }],
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        13,
+        sequence(
+          step('applyElementalInfliction', { element: 'electric', isExtra: false }),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([178, 196, 213, 231, 249, 267, 285, 302, 320, 342, 369, 400]),
+            tags: ['normalSkill'],
+            stagger: 10,
+          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
+    'poise': 10,
+  },
+);
 
-export const perlicaComboSkill: SkillDefinition = {
-  key: 'comboSkill',
-  timelineBlockFrames: 25,
-  cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
-  activationWindow: {
-    durationFrames: 150,
-    rules: {
-      trigger: {
-        kind: 'damageTagHit',
-        tag: 'normalAttackLastCombo',
-        scope: 'team',
+export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'comboSkill',
+    timelineBlockFrames: 25,
+    cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    activationWindow: {
+      durationFrames: 150,
+      rules: {
+        trigger: {
+          kind: 'damageTagHit',
+          tag: 'normalAttackLastCombo',
+          scope: 'team',
+        },
       },
     },
+    scheduledSequences: [
+      scheduled(
+        24,
+        sequence(
+          step('applyElementalReaction', {
+            reaction: 'electrification',
+            target: 'enemy',
+            durationSeconds: 5,
+            effectiveness: 1,
+          }, 'comboSkill.electrification'),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['comboSkill'],
+            stagger: 10,
+          }),
+          step('changeResource', { resource: 'ultimateEnergy', amount: 10, recipient: 'caster' }),
+        ),
+      ),
+    ],
   },
-  scheduledSequences: [
-    scheduled(
-      24,
-      sequence(
-        step('applyElementalReaction', {
-          reaction: 'electrification',
-          target: 'enemy',
-          durationSeconds: 5,
-          effectiveness: 1,
-        }, 'comboSkill.electrification'),
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
-          tags: ['comboSkill'],
-          stagger: 10,
-        }),
-        step('changeResource', { resource: 'ultimateEnergy', amount: 10, recipient: 'caster' }),
-      ),
-    ),
-  ],
-};
+  {
+    'atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    'duration': 5,
+    'poise': 10,
+    'usp': 10,
+  },
+);
 
-export const perlicaUltimate: SkillDefinition = {
-  key: 'ultimate',
-  timelineBlockFrames: 63,
-  cooldownFrames: 300,
-  costs: [{ resource: 'ultimateEnergy', value: 80 }],
-  costFrame: 0,
-  scheduledSequences: [
-    scheduled(
-      58,
-      sequence(
-        step('dealDamage', {
-          damageType: 'electric',
-          attackScale: percentages([445, 489, 534, 578, 622, 667, 711, 756, 800, 856, 923, 1000]),
-          tags: ['ultimateSkill'],
-          stagger: 20,
-        }),
+export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'ultimate',
+    timelineBlockFrames: 63,
+    cooldownFrames: 300,
+    costs: [{ resource: 'ultimateEnergy', value: 80 }],
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        58,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([445, 489, 534, 578, 622, 667, 711, 756, 800, 856, 923, 1000]),
+            tags: ['ultimateSkill'],
+            stagger: 20,
+          }),
+        ),
       ),
-    ),
-  ],
-};
+    ],
+  },
+  {
+    'atk_scale': [4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8, 8.56, 9.23, 10],
+    'poise': 20,
+  },
+);
 
 export const perlicaGeneratedOperator: OperatorDefinition = {
   slug: 'perlica',

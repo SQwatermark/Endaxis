@@ -2290,6 +2290,22 @@ def render_named_skills(
         if not value.endswith(","):
             raise ValueError(f"{skill.key}: compiled skill expression must end with a comma")
         value = textwrap.dedent(value[:-1])
+        if skill.patch.blackboard:
+            blackboard_lines = [
+                f"  {ts_inline_literal(key)}: "
+                f"{ts_inline_literal(compact_level_values(values))},"
+                for key, values in skill.patch.blackboard.items()
+            ]
+            value = "\n".join(
+                [
+                    "withSkillBlackboard(",
+                    textwrap.indent(value, "  ") + ",",
+                    "  {",
+                    *(f"  {line}" for line in blackboard_lines),
+                    "  },",
+                    ")",
+                ]
+            )
         value_lines = value.splitlines()
         if len(value_lines) == 1:
             result.extend(
@@ -2313,7 +2329,14 @@ def render_named_skills(
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     compiled, damage_type_factories = compile_skill_entries(operator, skills)
     helper_imports = ", ".join(
-        (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
+        (
+            *sorted(damage_type_factories),
+            "percentages",
+            "scheduled",
+            "sequence",
+            "step",
+            "withSkillBlackboard",
+        )
     )
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
@@ -2702,7 +2725,14 @@ def render_operator_definition(
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
     helper_imports = ", ".join(
-        (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
+        (
+            *sorted(damage_type_factories),
+            "percentages",
+            "scheduled",
+            "sequence",
+            "step",
+            "withSkillBlackboard",
+        )
     )
     return "\n".join(
         [

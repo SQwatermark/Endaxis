@@ -7,9 +7,19 @@ import {
   scaleDamageByStatusStacks,
   statusActive,
   statusStacksExactly,
+  withSkillBlackboard,
 } from './definitionHelpers';
 
 describe('operator definition helpers', () => {
+  it('附加初始黑板时不修改原技能定义', () => {
+    const skill = basicAttackOfType('electric')('basicAttack1', 10, 5, 0.2);
+    const wrapped = withSkillBlackboard(skill, { attackScale: [0.2, 0.3] });
+
+    expect(skill.blackboard).toBeUndefined();
+    expect(wrapped.blackboard).toEqual({ attackScale: [0.2, 0.3] });
+    expect(wrapped.scheduledSequences).toBe(skill.scheduledSequences);
+  });
+
   it('keeps the explicitly bound damage type on every basic-attack hit', () => {
     const natureBasicAttack = basicAttackOfType('nature');
     const segment = natureBasicAttack('basicAttack1', 20, [5, 8], [0.1, 0.2]);
