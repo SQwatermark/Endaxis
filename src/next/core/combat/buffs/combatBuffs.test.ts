@@ -306,6 +306,66 @@ describe('CombatBuffContainer', () => {
     expect(first.remainingDuration).toBeNull();
   });
 
+  it('enhances one instance without refreshing its lifetime and runs attempt hooks at the cap', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.enhance',
+      stackingType: 'enhance',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 10, value: 1 },
+      maxStackCount: 2,
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+        beforeEnhance: buff => order.push(`before:${buff.enhanceCount}`),
+        enhanceChanged: buff => order.push(`changed:${buff.enhanceCount}`),
+        afterEnhance: buff => order.push(`after:${buff.enhanceCount}`),
+        finish: () => order.push('finish'),
+      },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { duration: 10, value: 1 },
+      }),
+    );
+    container.tick(4);
+
+    const enhanced = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: 20, value: 2 },
+      }),
+    );
+    expect(enhanced).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBe(6);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('value')).toBe(1);
+
+    const capped = requireAddedBuff(container.add(definition, 'third-source'));
+    expect(capped).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(container.buffs).toHaveLength(1);
+    expect(order).toEqual([
+      'start',
+      'enable',
+      'before:1',
+      'changed:2',
+      'after:2',
+      'before:2',
+      'after:2',
+    ]);
+
+    first.finish('other');
+    const replacement = requireAddedBuff(container.add(definition, 'fourth-source'));
+    expect(replacement).not.toBe(first);
+    expect(replacement.enhanceCount).toBe(1);
+    expect(container.buffs).toHaveLength(2);
+    expect(order.slice(-3)).toEqual(['finish', 'start', 'enable']);
+  });
+
   it('enhances one instance, refreshes its lifetime, and still runs callbacks at the cap', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);

@@ -385,6 +385,8 @@ class BuffStackingGroup<Key extends string> {
     switch (this.stackingType) {
       case 'unlimited':
         return this.allocate(definition, sourceId, options);
+      case 'enhance':
+        return this.enhance(existing, definition, sourceId, options);
       case 'refresh':
         return this.refresh(existing, definition, sourceId, options);
       case 'unique':
@@ -418,21 +420,44 @@ class BuffStackingGroup<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
-    if (existing === undefined) {
-      const buff = this.allocate(definition, sourceId, options);
-      this.#currentStackCount = 1;
-      this.#maxStackCount = definition.maxStackCount ?? 0;
-      return buff;
-    }
+    if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
 
     existing.executeBeforeEnhance(sourceId);
-    if (this.#maxStackCount <= 0 || this.#currentStackCount < this.#maxStackCount) {
-      this.#currentStackCount += 1;
-      existing.enhance(sourceId);
-    }
+    this.enhanceWithinLimit(existing, sourceId);
     existing.refreshDuration(resolveIncomingDuration(definition, options));
     existing.executeAfterEnhance(sourceId);
     return existing;
+  }
+
+  private enhance(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
+
+    existing.executeBeforeEnhance(sourceId);
+    this.enhanceWithinLimit(existing, sourceId);
+    existing.executeAfterEnhance(sourceId);
+    return existing;
+  }
+
+  private allocateEnhanced(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    const buff = this.allocate(definition, sourceId, options);
+    this.#currentStackCount = 1;
+    this.#maxStackCount = definition.maxStackCount ?? 0;
+    return buff;
+  }
+
+  private enhanceWithinLimit(buff: CombatBuff<Key>, sourceId: string): void {
+    if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) return;
+    this.#currentStackCount += 1;
+    buff.enhance(sourceId);
   }
 
   private refresh(
