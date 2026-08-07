@@ -340,7 +340,7 @@ def classify_buff(buff_id: str) -> str | None:
         return "inputLock"
     if buff_id == "buff_common_obtain_ultimate_sp":
         return "skillCostUltimateEnergyGain"
-    if buff_id == "buff_chr_0004_pelica_combo_skill_tutorial_marker":
+    if buff_id.startswith("buff_chr_") and buff_id.endswith("_tutorial_marker"):
         return "tutorialMarker"
     if buff_id == "buff_common_pulse_pulse_conduct_triggered":
         return "electrificationReaction"
@@ -1354,8 +1354,16 @@ def validate_skill_groups(skills: list[SkillSource], growth: dict[str, Any], pat
         )
 
 
+def skill_id_by_key(skills: list[SkillSource], key: str) -> str:
+    matches = [skill.skillId for skill in skills if skill.key == key]
+    if len(matches) != 1:
+        raise ValueError(f"operator skills: expected exactly one skill with key {key!r}")
+    return matches[0]
+
+
 def render_talents(
     operator: dict[str, Any],
+    skills: list[SkillSource],
     growth: dict[str, Any],
     effects: dict[str, Any],
 ) -> list[str]:
@@ -1387,8 +1395,9 @@ def render_talents(
                 if len(data) != 1:
                     raise ValueError(f"{effect_id}: expected one talent effect")
                 attach = require_dict(require_dict(data[0], f"{effect_id}.dataList[0]").get("attachBuff"), "attachBuff")
-                if attach.get("buffId") != "buff_chr_0004_pelica_talent_0":
-                    raise ValueError(f"{effect_id}: unexpected stagger damage buff")
+                buff_id = attach.get("buffId")
+                if not isinstance(buff_id, str) or not buff_id:
+                    raise ValueError(f"{effect_id}: missing stagger damage buff")
                 blackboard = require_list(attach.get("blackboard"), f"{effect_id}.attachBuff.blackboard")
                 item = next((item for item in blackboard if item.get("key") == "dmg"), None)
                 if item is None:
@@ -1409,7 +1418,7 @@ def render_talents(
             data = require_list(effect.get("dataList"), f"{entries[0][1]}.dataList")
             modifier = require_dict(require_dict(data[0], "dataList[0]").get("skillBbModifier"), "skillBbModifier")
             if (
-                modifier.get("skillId") != "chr_0004_pelica_combo_skill"
+                modifier.get("skillId") != skill_id_by_key(skills, "comboSkill")
                 or modifier.get("bbKey") != "talent2"
                 or float(modifier.get("floatValue", 0)) != 1
             ):
@@ -1422,6 +1431,7 @@ def render_talents(
 
 def render_potentials(
     operator: dict[str, Any],
+    skills: list[SkillSource],
     potential_table: dict[str, Any],
     effects: dict[str, Any],
 ) -> list[str]:
@@ -1432,6 +1442,8 @@ def render_potentials(
     if len(unlocks) != len(configs):
         raise ValueError(f"{char_id}: potential config count does not match source")
     result: list[str] = []
+    combo_skill_id = skill_id_by_key(skills, "comboSkill")
+    ultimate_skill_id = skill_id_by_key(skills, "ultimate")
     for raw_unlock, raw_config in zip(unlocks, configs, strict=True):
         unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[]")
         config = require_dict(raw_config, f"{operator['slug']}.potentials[]")
@@ -1447,27 +1459,28 @@ def render_potentials(
             modifier = require_dict(data.get("skillBbModifier"), f"{effect_id}.skillBbModifier")
             value = float(modifier["floatValue"])
             if kind == "multiplyReactionDuration":
-                if modifier.get("skillId") != "chr_0004_pelica_combo_skill" or modifier.get("bbKey") != "duration":
+                if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "duration":
                     raise ValueError(f"{effect_id}: unexpected reaction duration modifier target")
                 body = "modifiers: [{ kind: 'multiplyEffectDuration', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"multiplier: {ts_inline_literal(value)} }}]"
             elif kind == "setReactionEffectiveness":
-                if modifier.get("skillId") != "chr_0004_pelica_combo_skill" or modifier.get("bbKey") != "extra_scaling":
+                if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "extra_scaling":
                     raise ValueError(f"{effect_id}: unexpected reaction effectiveness modifier target")
                 body = "modifiers: [{ kind: 'setEffectiveness', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"value: {ts_inline_literal(value)} }}]"
             else:
-                if modifier.get("skillId") != "chr_0004_pelica_ultimate_skill" or modifier.get("bbKey") != "crit":
+                if modifier.get("skillId") != ultimate_skill_id or modifier.get("bbKey") != "crit":
                     raise ValueError(f"{effect_id}: unexpected ultimate critical-rate modifier target")
                 body = "modifiers: [{ kind: 'addSkillStat', skillGroupKey: 'ultimate', stat: 'criticalRate', " f"value: {ts_inline_literal(value)} }}]"
         elif kind == "multiplyUltimateCost":
             modifier = require_dict(data.get("skillParamModifier"), f"{effect_id}.skillParamModifier")
-            if modifier.get("skillId") != "chr_0004_pelica_ultimate_skill" or modifier.get("paramType") != 1:
+            if modifier.get("skillId") != ultimate_skill_id or modifier.get("paramType") != 1:
                 raise ValueError(f"{effect_id}: unexpected ultimate cost modifier target")
             value = float(modifier["paramValue"])
             body = "modifiers: [{ kind: 'multiplySkillCost', skillGroupKey: 'ultimate', resource: 'ultimateEnergy', " f"multiplier: {ts_inline_literal(value)} }}]"
         elif kind == "attackAfterReaction":
             attach = require_dict(data.get("attachBuff"), f"{effect_id}.attachBuff")
             values = {str(item["key"]): float(item["value"]) for item in require_list(attach.get("blackboard"), "attachBuff.blackboard")}
-            if attach.get("buffId") != "buff_chr_0004_pelica_potential_3" or set(values) != {"atk_up", "atk_duration", "max_stack"}:
+            buff_id = attach.get("buffId")
+            if not isinstance(buff_id, str) or not buff_id or set(values) != {"atk_up", "atk_duration", "max_stack"}:
                 raise ValueError(f"{effect_id}: unexpected reaction attack buff shape")
             body = (
                 "eventHandlers: [{ event: { kind: 'reactionApplied', reaction: 'electrification' }, "
@@ -1505,8 +1518,8 @@ def render_operator_definition(
     operator_export_name = f"{identifier}GeneratedOperator"
     validate_skill_groups(skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(skills, skills_export_name)
-    talents = render_talents(operator, growth, effects)
-    potentials = render_potentials(operator, potential_table, effects)
+    talents = render_talents(operator, skills, growth, effects)
+    potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
     return "\n".join(
         [

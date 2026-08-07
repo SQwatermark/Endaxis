@@ -113,6 +113,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "tutorialMarker",
         )
         self.assertEqual(
+            classify_buff("buff_chr_9999_example_skill_tutorial_marker"),
+            "tutorialMarker",
+        )
+        self.assertEqual(
             classify_buff("buff_common_pulse_pulse_conduct_triggered"),
             "electrificationReaction",
         )
