@@ -47,6 +47,7 @@ describe('CombatResources', () => {
     const resources = createResources();
 
     expect(resources.gainSp(250, 'refund')).toEqual({
+      baseValue: 250,
       requestedValue: 250,
       actualValue: 200,
       previousValue: 100,
@@ -60,6 +61,25 @@ describe('CombatResources', () => {
       nonReturnedSpCost: 10,
     });
     expect(resources.returnedSp).toBe(0);
+  });
+
+  it('applies the registered shared SP efficiency before the shared cap', () => {
+    const resources = createResources();
+    resources.sharedSpGainModifiers.add(
+      new SharedSpGainModifier('gainEfficiency', 'addition', 0.5, false),
+    );
+    resources.sharedSpGainModifiers.add(
+      new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
+    );
+
+    expect(resources.gainSp(20, 'gain', 'powerAttack')).toEqual({
+      baseValue: 20,
+      requestedValue: 45,
+      actualValue: 45,
+      previousValue: 100,
+      currentValue: 145,
+      gainKind: 'gain',
+    });
   });
 
   it('tracks the native non-returned SP portion while paying the full cost', () => {

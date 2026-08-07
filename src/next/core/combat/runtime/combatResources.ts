@@ -56,6 +56,7 @@ export interface SkillPaymentResult {
 
 /** 一次共享技力增加的请求值、实际值与前后账本状态。 */
 export interface SpChange {
+  readonly baseValue: number;
   readonly requestedValue: number;
   readonly actualValue: number;
   readonly previousValue: number;
@@ -169,14 +170,25 @@ export class CombatResources {
     return this.#spRecoveryPauseRemaining;
   }
 
-  gainSp(value: number, gainKind: SpGainKind = 'gain'): SpChange {
+  gainSp(
+    value: number,
+    gainKind: SpGainKind = 'gain',
+    source?: Parameters<SharedSpGainModifierSet['resolve']>[0],
+  ): SpChange {
     requireNonNegativeFinite(value, 'sp gain');
+    const requestedValue =
+      source === undefined
+        ? value
+        : value *
+          this.sharedSpGainModifiers.resolve(source, gainKind === 'refund' ? 'return' : 'gain')
+            .totalEfficiency;
     const previousValue = this.#sp;
-    this.#sp = Math.min(this.#maxSp, previousValue + value);
+    this.#sp = Math.min(this.#maxSp, previousValue + requestedValue);
     const actualValue = this.#sp - previousValue;
     if (gainKind === 'refund') this.#returnedSp += actualValue;
     return {
-      requestedValue: value,
+      baseValue: value,
+      requestedValue,
       actualValue,
       previousValue,
       currentValue: this.#sp,
@@ -290,6 +302,7 @@ export class CombatResources {
 
   #unchangedSpChange(requestedValue: number): SpChange {
     return {
+      baseValue: requestedValue,
       requestedValue,
       actualValue: 0,
       previousValue: this.#sp,

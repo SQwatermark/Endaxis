@@ -37,6 +37,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       const change = this.dependencies.resources.gainSp(
         step.parameters.amount,
         step.parameters.spGainKind,
+        step.parameters.spGainSource ?? 'default',
       );
       this.dependencies.receipt.record({
         frame: this.dependencies.clock.frame,
@@ -45,6 +46,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         sourceId: this.dependencies.sourceOperatorId,
         data: {
           skillId: this.dependencies.skillId,
+          baseValue: change.baseValue,
           requestedValue: change.requestedValue,
           actualValue: change.actualValue,
           previousValue: change.previousValue,

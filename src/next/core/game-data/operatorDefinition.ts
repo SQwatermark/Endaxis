@@ -190,6 +190,10 @@ export const SP_GAIN_KINDS = ['gain', 'refund'] as const;
 /** 技力增加是否计入返还技力；返还部分再次被消耗时不会重复转化为终结技能量。 */
 export type SpGainKind = (typeof SP_GAIN_KINDS)[number];
 
+export const SP_GAIN_SOURCES = ['default', 'normalAttack', 'powerAttack', 'skill'] as const;
+/** 原生共享 SP 获取效率用于区分普攻、重击和其他动作来源。 */
+export type SpGainSource = (typeof SP_GAIN_SOURCES)[number];
+
 /**
  * 语义战斗状态每层能够贡献的修正。
  * 这些定义由编译器展开，不能携带运行时回调或直接引用 UI 状态。
@@ -253,6 +257,7 @@ export interface CombatStepParameters {
     recipient: ResourceRecipient;
     /** 仅对正向技力变化有效；省略时按普通获得处理。 */
     spGainKind?: SpGainKind;
+    spGainSource?: SpGainSource;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
   gainFinisherSp: { factor: number; recipient: 'team' };

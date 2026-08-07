@@ -145,6 +145,9 @@ function resolveStep(
           ...(step.parameters.spGainKind === undefined
             ? {}
             : { spGainKind: step.parameters.spGainKind }),
+          ...(step.parameters.spGainSource === undefined
+            ? {}
+            : { spGainSource: step.parameters.spGainSource }),
         },
       };
     case 'applyStatus':

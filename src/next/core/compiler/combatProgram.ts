@@ -13,6 +13,7 @@ import type {
   OperatorAttribute,
   ResourceRecipient,
   SpGainKind,
+  SpGainSource,
   SkillType,
   StatusModifierDefinition,
 } from '../game-data/operatorDefinition';
@@ -57,6 +58,7 @@ export interface ResolvedCombatStepParameters {
     amount: number;
     recipient: ResourceRecipient;
     spGainKind?: SpGainKind;
+    spGainSource?: SpGainSource;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];
