@@ -59,10 +59,10 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
 export type BuffDuration = number | { readonly blackboardKey: string };
 /** 固定值或由实例黑板提供的 Buff 可触发次数。 */
 export type BuffTriggerCount = number | { readonly blackboardKey: string };
+/** 固定最大层数，或从首次施加实例的黑板读取的动态最大层数。 */
+export type BuffMaxStackCount = number | { readonly blackboardKey: string };
 /** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
-export type BuffPriority =
-  | number
-  | { readonly blackboardKey: string; readonly negate?: boolean };
+export type BuffPriority = number | { readonly blackboardKey: string; readonly negate?: boolean };
 
 /** Buff 在启用、结束和移除边界执行的有序生命周期行为。 */
 export interface BuffLifecycleActions<Key extends string> {
@@ -82,7 +82,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
-  readonly maxStackCount?: number;
+  readonly maxStackCount?: BuffMaxStackCount;
   /** 缺少持续时间表示已还原出的无限生命周期。 */
   readonly durationSeconds?: BuffDuration;
   readonly triggerIntervalSeconds?: BuffDuration;
@@ -450,12 +450,12 @@ class BuffStackingGroup<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
-    if (this.#currentStackCount === 0) {
-      this.#maxStackCount = definition.maxStackCount ?? 0;
-    }
+    const initialMaxStackCount =
+      this.#currentStackCount === 0 ? resolveIncomingMaxStackCount(definition, options) : undefined;
 
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
+    if (initialMaxStackCount !== undefined) this.#maxStackCount = initialMaxStackCount;
     if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) {
       this.getLastUnfinishedBuff()?.finish('other');
     }
@@ -493,9 +493,7 @@ class BuffStackingGroup<Key extends string> {
   }
 
   private getLastUnfinishedBuff(): CombatBuff<Key> | undefined {
-    const sorted = this.#buffs
-      .filter(buff => !buff.isFinished)
-      .sort(compareBuffPriority);
+    const sorted = this.#buffs.filter(buff => !buff.isFinished).sort(compareBuffPriority);
     return sorted[sorted.length - 1];
   }
 
@@ -549,9 +547,10 @@ class BuffStackingGroup<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
+    const maxStackCount = resolveIncomingMaxStackCount(definition, options);
     const buff = this.allocate(definition, sourceId, options);
     this.#currentStackCount = 1;
-    this.#maxStackCount = definition.maxStackCount ?? 0;
+    this.#maxStackCount = maxStackCount;
     return buff;
   }
 
@@ -606,6 +605,34 @@ function resolveIncomingDuration<Key extends string>(
   const blackboard = new ActionBlackboard(definition.blackboard);
   blackboard.assign(options?.blackboardValues);
   return resolveBuffDuration(definition, blackboard);
+}
+
+function resolveIncomingMaxStackCount<Key extends string>(
+  definition: CombatBuffDefinition<Key>,
+  options?: CombatBuffAddOptions,
+): number {
+  const blackboard = new ActionBlackboard(definition.blackboard);
+  blackboard.assign(options?.blackboardValues);
+  const configured = definition.maxStackCount ?? 0;
+  if (typeof configured === 'number') {
+    validateBuffMaxStackCount(configured);
+    return configured;
+  }
+  const value = blackboard.getNumber(configured.blackboardKey);
+  if (value === undefined) {
+    throw new Error(
+      `buff '${definition.id}' max stack count blackboard key ` +
+        `'${configured.blackboardKey}' is missing or not numeric`,
+    );
+  }
+  validateBuffMaxStackCount(value);
+  return value;
+}
+
+function validateBuffMaxStackCount(value: number): void {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new RangeError('buff max stack count must resolve to a non-negative safe integer');
+  }
 }
 
 function resolveBuffDuration<Key extends string>(
@@ -666,7 +693,8 @@ function compareDescending(left: number, right: number): number {
 }
 
 function validateFiniteBuffPriority(value: number): void {
-  if (!Number.isFinite(value)) throw new RangeError('buff priority must resolve to a finite number');
+  if (!Number.isFinite(value))
+    throw new RangeError('buff priority must resolve to a finite number');
 }
 
 function resolveBuffTriggerCount<Key extends string>(

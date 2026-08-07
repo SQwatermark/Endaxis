@@ -360,10 +360,7 @@ describe('CombatBuffContainer', () => {
     };
     const finite = requireAddedBuff(finiteContainer.add(finiteDefinition, 'source'));
 
-    finiteContainer.add(
-      { ...finiteDefinition, durationSeconds: undefined },
-      'infinite-source',
-    );
+    finiteContainer.add({ ...finiteDefinition, durationSeconds: undefined }, 'infinite-source');
     expect(finite.remainingDuration).toBeNull();
 
     const infiniteContainer = new CombatBuffContainer('operator', attributes);
@@ -373,10 +370,7 @@ describe('CombatBuffContainer', () => {
     };
     const infinite = requireAddedBuff(infiniteContainer.add(infiniteDefinition, 'source'));
 
-    infiniteContainer.add(
-      { ...infiniteDefinition, durationSeconds: 8 },
-      'finite-source',
-    );
+    infiniteContainer.add({ ...infiniteDefinition, durationSeconds: 8 }, 'finite-source');
     expect(infinite.remainingDuration).toBeNull();
   });
 
@@ -458,6 +452,49 @@ describe('CombatBuffContainer', () => {
     expect(replacement.enhanceCount).toBe(1);
     expect(container.buffs).toHaveLength(2);
     expect(order.slice(-3)).toEqual(['finish', 'start', 'enable']);
+  });
+
+  it('locks a dynamic Enhance limit from the first instance blackboard', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.enhance.dynamic-limit',
+      stackingType: 'enhance',
+      maxStackCount: { blackboardKey: 'limit' },
+      blackboard: { limit: 4 },
+      actions: {
+        beforeEnhance: () => order.push('before'),
+        enhanceChanged: () => order.push('changed'),
+        afterEnhance: () => order.push('after'),
+      },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { limit: 2 },
+      }),
+    );
+    container.add(definition, 'second-source', {
+      blackboardValues: { limit: 4 },
+    });
+    container.add(definition, 'third-source', {
+      blackboardValues: { limit: 4 },
+    });
+
+    expect(first.enhanceCount).toBe(2);
+    expect(first.blackboard.getNumber('limit')).toBe(2);
+    expect(order).toEqual(['before', 'changed', 'after', 'before', 'after']);
+
+    first.finish('other');
+    const replacement = requireAddedBuff(
+      container.add(definition, 'replacement-source', {
+        blackboardValues: { limit: 3 },
+      }),
+    );
+    container.add(definition, 'replacement-source');
+    container.add(definition, 'replacement-source');
+    expect(replacement.enhanceCount).toBe(3);
   });
 
   it('overwrites the existing duration without replacing or restarting the instance', () => {
@@ -563,10 +600,7 @@ describe('CombatBuffContainer', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     const starts: string[] = [];
-    const prioritized = (
-      id: string,
-      durationSeconds: number,
-    ): CombatBuffDefinition<Attribute> => ({
+    const prioritized = (id: string, durationSeconds: number): CombatBuffDefinition<Attribute> => ({
       id,
       stackingKey: 'buff.high-priority.tie',
       stackingType: 'highPriority',
@@ -617,6 +651,62 @@ describe('CombatBuffContainer', () => {
     expect(container.buffs.filter(buff => !buff.isFinished)).toEqual([middle, incoming]);
     expect(order.slice(-2)).toEqual(['finish:buff.low', 'start:buff.incoming']);
   });
+
+  it('locks a dynamic Stack limit from the first instance blackboard', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.stack.dynamic-limit',
+      stackingType: 'stack',
+      maxStackCount: { blackboardKey: 'limit' },
+      blackboard: { limit: 2 },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { limit: 2 },
+      }),
+    );
+    const second = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { limit: 1 },
+      }),
+    );
+    expect(first.isFinished).toBe(false);
+    expect(second.isFinished).toBe(false);
+
+    const third = requireAddedBuff(
+      container.add(definition, 'third-source', {
+        blackboardValues: { limit: 4 },
+      }),
+    );
+    expect(first.isFinished).toBe(false);
+    expect(second.isFinished).toBe(true);
+    expect(third.isFinished).toBe(false);
+    expect(container.buffs.filter(buff => !buff.isFinished)).toEqual([first, third]);
+  });
+
+  it.each([-1, 1.5, Number.POSITIVE_INFINITY])(
+    'rejects invalid dynamic max stack count %s before allocating an instance',
+    invalidLimit => {
+      const attributes = new CombatAttributeSet<Attribute>();
+      const container = new CombatBuffContainer('operator', attributes);
+
+      expect(() =>
+        container.add(
+          {
+            id: 'buff.stack.invalid-limit',
+            stackingType: 'stack',
+            maxStackCount: { blackboardKey: 'limit' },
+            blackboard: { limit: 2 },
+          },
+          'source',
+          { blackboardValues: { limit: invalidLimit } },
+        ),
+      ).toThrow('buff max stack count must resolve to a non-negative safe integer');
+      expect(container.buffs).toEqual([]);
+    },
+  );
 
   it('breaks equal Stack priorities by remaining duration and then instance id', () => {
     const attributes = new CombatAttributeSet<Attribute>();
@@ -675,10 +765,7 @@ describe('CombatBuffContainer', () => {
   it('resolves Stack priority from each instance blackboard and supports negation', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
-    const dynamic = (
-      id: string,
-      negate = false,
-    ): CombatBuffDefinition<Attribute> => ({
+    const dynamic = (id: string, negate = false): CombatBuffDefinition<Attribute> => ({
       id,
       stackingKey: 'buff.stack.dynamic-priority',
       stackingType: 'stack',
@@ -800,10 +887,7 @@ describe('CombatBuffContainer', () => {
     expect(capped).toBe(first);
     expect(first.enhanceCount).toBe(2);
     expect(first.remainingDuration).toBe(12);
-    expect(order.slice(-2)).toEqual([
-      'before:third-source:2:2',
-      'after:third-source:2:12',
-    ]);
+    expect(order.slice(-2)).toEqual(['before:third-source:2:2', 'after:third-source:2:12']);
     expect(order.filter(event => event === 'start')).toHaveLength(1);
     expect(order.filter(event => event === 'enable')).toHaveLength(1);
   });
