@@ -1769,6 +1769,27 @@ def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:
     return tuple(result)
 
 
+def compile_buff_blackboard_read(read: BuffBlackboardReadSource, path: str) -> str:
+    """将已确认的单敌人标签查询映射为正式 DSL，拒绝尚未建模的目标与 ID 查询。"""
+    if read.targetSource != "Context" or read.targetGroupKey != "smart_target":
+        raise ValueError(f"{path}: unsupported buff blackboard target")
+    if read.buffCheckType != "Tag" or read.buffIds:
+        raise ValueError(f"{path}: only tag-based buff lookup is supported")
+    if not read.buffTagIds:
+        raise ValueError(f"{path}: buff tag query must not be empty")
+    return "\n".join(
+        [
+            "step('readBuffBlackboard', {",
+            "  target: 'enemy',",
+            f"  tagQueryType: {ts_inline_literal(read.tagQueryType)},",
+            f"  buffTagIds: {ts_inline_literal(read.buffTagIds)},",
+            f"  desiredKey: {ts_inline_literal(read.desiredKey)},",
+            f"  outputKey: {ts_inline_literal(read.outputKey)},",
+            "})",
+        ]
+    )
+
+
 def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
     if skill.unresolvedCombatActions != ("LaunchProjectile",):
         raise ValueError(
@@ -1853,6 +1874,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         *({"ObtainCostAction"} if skill.resourceGains else set()),
         *({"SpellInfliction"} if skill.inflictions else set()),
         *({"LaunchProjectile"} if skill.projectileHits else set()),
+        *({"GetTargetBuffBBAdvanced"} if skill.buffBlackboardReads else set()),
     }
     if set(skill.unresolvedCombatActions) != expected_actions:
         raise ValueError(f"{skill.key}: unresolved combat actions are not fully accounted for")
@@ -1892,6 +1914,15 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         ]
     )
     ordered_steps: list[tuple[float, str]] = [(hit.actionIndex, damage_step)]
+    for index, read in enumerate(skill.buffBlackboardReads):
+        if read.startFrame != hit.startFrame:
+            raise ValueError(f"{skill.key}: buff blackboard read and damage occur on different frames")
+        ordered_steps.append(
+            (
+                read.actionIndex,
+                compile_buff_blackboard_read(read, f"{skill.key}.buffBlackboardReads[{index}]"),
+            )
+        )
     for infliction in skill.inflictions:
         if infliction.startFrame != hit.startFrame:
             raise ValueError(f"{skill.key}: infliction and damage occur on different frames")

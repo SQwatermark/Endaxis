@@ -11,6 +11,7 @@ from generate_next_operators import (
     collect_resolved_damage_hits,
     build_blackboard_provenance,
     compile_resolved_damage_sequence,
+    BuffBlackboardReadSource,
     DamageUnitSource,
     ScalarSource,
     classify_buff,
@@ -29,6 +30,7 @@ from generate_next_operators import (
     resolve_ability_entity_hits,
     resolve_buff_behaviors,
     parse_skill_patch,
+    compile_buff_blackboard_read,
     percentage_values,
     ts_inline_literal,
     typescript_identifier,
@@ -38,6 +40,36 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_compile_buff_blackboard_read_emits_strict_runtime_step(self) -> None:
+        read = BuffBlackboardReadSource(
+            startFrame=11,
+            endFrame=12,
+            actionIndex=0,
+            outputKey="conductCnt",
+            desiredKey="count",
+            targetSource="Context",
+            targetGroupKey="smart_target",
+            buffCheckType="Tag",
+            buffIds=(),
+            tagQueryType="hasAny",
+            buffTagIds=(1466867135,),
+        )
+
+        self.assertEqual(
+            compile_buff_blackboard_read(read, "fixture.read"),
+            "\n".join(
+                [
+                    "step('readBuffBlackboard', {",
+                    "  target: 'enemy',",
+                    "  tagQueryType: 'hasAny',",
+                    "  buffTagIds: [1466867135],",
+                    "  desiredKey: 'count',",
+                    "  outputKey: 'conductCnt',",
+                    "})",
+                ]
+            ),
+        )
+
     def test_blackboard_provenance_distinguishes_external_runtime_input(self) -> None:
         root = {
             "blackboard": [{"key": "conductCnt"}],
