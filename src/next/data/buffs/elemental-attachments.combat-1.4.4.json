@@ -4,6 +4,7 @@
   "buffs": [
     {
       "id": "buff_common_energy_shard_attached_fire",
+      "applyTagIds": [-1558844517],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -36,6 +37,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_pulse",
+      "applyTagIds": [2123008650],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -67,6 +69,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_cryst",
+      "applyTagIds": [1570888476],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -98,6 +101,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_natural",
+      "applyTagIds": [-1411846745],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
