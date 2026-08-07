@@ -13,6 +13,26 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('keeps the recovered natural end separate from the editor duration', () => {
+    const skill = {
+      key: 'separate-duration-boundaries',
+      durationFrames: 18,
+      naturalEndFrame: 30,
+      scheduledSequences: [],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 1,
+      skill,
+    });
+
+    expect(program.durationFrames).toBe(18);
+    expect(program.naturalEndFrame).toBe(30);
+  });
+
   it('compiles Perlica battle skill into a single-level runtime program', () => {
     const skill = findPerlicaSkill('battleSkill');
 

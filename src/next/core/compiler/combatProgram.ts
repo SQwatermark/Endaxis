@@ -113,6 +113,7 @@ export interface CompiledSkillProgram {
   readonly skillType: SkillType;
   readonly skillLevel: number;
   readonly durationFrames: number;
+  readonly naturalEndFrame?: number;
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];

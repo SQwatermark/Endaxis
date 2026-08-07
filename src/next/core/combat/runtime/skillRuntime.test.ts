@@ -17,7 +17,7 @@ function findPerlicaSkill(key: string): SkillDefinition {
   throw new Error(`missing Perlica skill '${key}'`);
 }
 
-function createBattleSkillRuntime(initialSp: number) {
+function createBattleSkillRuntime(initialSp: number, terminalFrame?: number) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
@@ -41,14 +41,27 @@ function createBattleSkillRuntime(initialSp: number) {
     execute: vi.fn(() => true),
     evaluate: vi.fn(() => true),
   };
-  const runtime = new SkillRuntime(
-    compileSkill({
+  const compiledProgram = compileSkill({
       operatorId: 'perlica',
       skillGroupKey: 'battleSkill',
       skillType: 'battleSkill',
       skillLevel: 12,
       skill: findPerlicaSkill('battleSkill'),
-    }),
+    });
+  const program = terminalFrame === undefined
+    ? compiledProgram
+    : {
+        ...compiledProgram,
+        durationFrames: terminalFrame,
+        naturalEndFrame: terminalFrame,
+        timelineActions: compiledProgram.timelineActions.map(action => ({
+          ...action,
+          startFrame: terminalFrame,
+          endFrame: terminalFrame,
+        })),
+      };
+  const runtime = new SkillRuntime(
+    program,
     { clock, resources, receipt, operations },
   );
   const simulation = new CombatSimulation(clock);
@@ -57,6 +70,28 @@ function createBattleSkillRuntime(initialSp: number) {
 }
 
 describe('SkillRuntime', () => {
+  it('在持续时间末帧执行动作后自然结束', () => {
+    const fixture = createBattleSkillRuntime(300, 2);
+    expect(fixture.runtime.tryStart()).toBe(true);
+
+    fixture.runtime.advanceFrame();
+    expect(fixture.runtime.state).toBe('casting');
+
+    fixture.runtime.advanceFrame();
+
+    expect(fixture.runtime.state).toBe('ended');
+    expect(fixture.receipt.entries.map(entry => entry.event)).toEqual([
+      'SkillStarted',
+      'SkillCostApplied',
+      'TimelineActionStarted',
+      'CombatStepReached',
+      'CombatStepReached',
+      'CombatStepReached',
+      'TimelineActionEnded',
+      'SkillEnded',
+    ]);
+  });
+
   it('applies frame-zero cost during the native initial tick', () => {
     const fixture = createBattleSkillRuntime(300);
 
