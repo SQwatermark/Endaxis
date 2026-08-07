@@ -354,6 +354,8 @@ export interface CombatEventHandlerDefinition {
  */
 export interface SkillDefinition {
   key: string;
+  /** 技能实例创建时按当前技能等级解析、每次释放前恢复的原生动作黑板。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
   /**

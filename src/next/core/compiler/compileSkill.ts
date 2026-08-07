@@ -237,6 +237,12 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     resource: cost.resource,
     value: resolveLevelValue(cost.value, input.skillLevel, `costs[${index}].value`),
   }));
+  const initialBlackboard = Object.fromEntries(
+    Object.entries(input.skill.blackboard ?? {}).map(([key, value]) => [
+      key,
+      resolveLevelValue(value, input.skillLevel, `blackboard.${key}`),
+    ]),
+  );
   if (costs.length > 1) {
     throw new Error(
       `skill '${input.skill.key}' has multiple costs, but native CastData has one cost`,
@@ -261,6 +267,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     skillId: input.skill.key,
     skillType: input.skillType,
     skillLevel: input.skillLevel,
+    initialBlackboard,
     timelineBlockFrames: input.skill.timelineBlockFrames,
     ...(input.skill.cooldownFrames === undefined
       ? {}

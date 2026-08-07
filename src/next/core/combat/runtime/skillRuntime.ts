@@ -167,7 +167,7 @@ export class SkillRuntime {
       },
     );
     this.#timeline.reset(this.#context);
-    this.#blackboard.restore({});
+    this.#blackboard.restore(this.#program.initialBlackboard);
     this.#passedFrames = 0;
     this.#appliedCost = false;
     this.#attemptedCost = false;

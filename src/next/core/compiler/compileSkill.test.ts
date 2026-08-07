@@ -13,6 +13,25 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('按技能等级解析初始动作黑板', () => {
+    const skill = {
+      key: 'blackboard',
+      blackboard: { fixed: 3, scaling: [10, 20] },
+      timelineBlockFrames: 1,
+      scheduledSequences: [],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.initialBlackboard).toEqual({ fixed: 3, scaling: 20 });
+  });
+
   it('resolves the per-hit multiplier of a breaking attack', () => {
     const skill = {
       key: 'finisher-split',
