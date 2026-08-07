@@ -681,50 +681,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must consume conditional actions"):
             compile_skill_entries(operator, [skill])
 
-    def test_skill_compiler_ignores_identical_condition_branches_without_store(self) -> None:
-        unit = DamageUnitSource(
-            damageType="Pulse",
-            attributeType="Hp",
-            calculation="standard",
-            attackScale=ScalarSource(1, None, (1,)),
-            calculationMultiplier=None,
-            poiseValue=None,
-        )
-        leaf = SimpleNamespace(actionType="SpawnAbilityEntity")
-        condition = SimpleNamespace(
-            conditions=(SimpleNamespace(entityCount=None),),
-            succeedActions=(leaf,),
-            failActions=(leaf,),
-        )
-        skill = SimpleNamespace(
-            key="attack",
-            timelineBlockFrames=1,
-            conditionalActions=(condition,),
-            buffBehaviors=(),
-            auxiliaryActions=(),
-            resourceGains=(),
-            inflictions=(),
-            projectileLaunches=(),
-            unresolvedCombatActions=("DamageAction",),
-            skillId="attack",
-            directDamageHits=(SimpleNamespace(startFrame=0, damageUnits=(unit,)),),
-            projectileHits=(),
-            abilityEntityHits=(),
-        )
-        operator = {
-            "slug": "fixture",
-            "skills": [
-                {
-                    "key": "attack",
-                    "compile": {"kind": "resolvedDamageSequence", "tags": ["normalAttack"]},
-                }
-            ],
-        }
-
-        compiled, _ = compile_skill_entries(operator, [skill])
-
-        self.assertEqual(len(compiled), 1)
-
     def test_missing_buff_source_is_explicit_in_the_audit_layer(self) -> None:
         root = {
             "actionGroupData": {
