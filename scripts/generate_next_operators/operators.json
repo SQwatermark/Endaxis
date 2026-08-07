@@ -1,0 +1,19 @@
+{
+  "operators": [
+    {
+      "slug": "perlica",
+      "exportName": "perlicaGeneratedSource",
+      "skills": [
+        { "key": "basicAttack1", "skillType": "basicAttack", "source": "chr_0004_pelica_attack1.json" },
+        { "key": "basicAttack2", "skillType": "basicAttack", "source": "chr_0004_pelica_attack2.json" },
+        { "key": "basicAttack3", "skillType": "basicAttack", "source": "chr_0004_pelica_attack3.json" },
+        { "key": "basicAttack4", "skillType": "basicAttack", "source": "chr_0004_pelica_attack4.json" },
+        { "key": "finisher", "skillType": "finisher", "source": "chr_0004_pelica_power_attack.json" },
+        { "key": "plungingAttack", "skillType": "plungingAttack", "source": "chr_0004_pelica_plunging_attack_end.json" },
+        { "key": "battleSkill", "skillType": "battleSkill", "source": "chr_0004_pelica_normal_skill.json" },
+        { "key": "comboSkill", "skillType": "comboSkill", "source": "chr_0004_pelica_combo_skill.json" },
+        { "key": "ultimate", "skillType": "ultimate", "source": "chr_0004_pelica_ultimate_skill.json" }
+      ]
+    }
+  ]
+}
