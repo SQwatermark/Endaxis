@@ -7,6 +7,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_skill_patch,
+    ts_inline_literal,
 )
 
 
@@ -57,6 +58,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 },
                 "skill",
             )
+
+    def test_inline_typescript_literal_keeps_short_values_compact(self) -> None:
+        self.assertEqual(
+            ts_inline_literal({"final": True, "values": (0.25, 15.0)}),
+            "{ final: true, values: [0.25, 15] }",
+        )
 
 
 if __name__ == "__main__":

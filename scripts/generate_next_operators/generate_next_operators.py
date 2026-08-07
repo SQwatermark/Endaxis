@@ -434,6 +434,24 @@ def ts_literal(value: Any, indent: int = 0) -> str:
     return json.dumps(value, ensure_ascii=False, indent=2).replace("\n", "\n" + " " * indent)
 
 
+def ts_inline_literal(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str):
+        return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(int(value)) if isinstance(value, float) and value.is_integer() else str(value)
+    if isinstance(value, (list, tuple)):
+        return "[" + ", ".join(ts_inline_literal(item) for item in value) + "]"
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        return "{ " + ", ".join(f"{key}: {ts_inline_literal(item)}" for key, item in value.items()) + " }"
+    raise TypeError(f"unsupported TypeScript literal: {type(value).__name__}")
+
+
 def render_typescript(export_name: str, slug: str, skills: list[SkillSource]) -> str:
     payload = {"slug": slug, "skills": [asdict(skill) for skill in skills]}
     return (
@@ -515,10 +533,16 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any]) -> str:
     if stagger is not None:
         options["stagger"] = compact_level_values(stagger)
     frames: int | list[int] = hit_frames[0] if len(hit_frames) == 1 else hit_frames
-    return (
-        f"  basicAttackOfType({json.dumps(damage_type)})({json.dumps(skill.key)}, "
-        f"{skill.timelineBlockFrames}, {ts_literal(frames)}, {ts_literal(attack_scale)}, "
-        f"{ts_literal(options)}),"
+    return "\n".join(
+        (
+            f"  basicAttackOfType({ts_inline_literal(damage_type)})(",
+            f"    {ts_inline_literal(skill.key)},",
+            f"    {skill.timelineBlockFrames},",
+            f"    {ts_inline_literal(frames)},",
+            f"    {ts_inline_literal(attack_scale)},",
+            f"    {ts_inline_literal(options)},",
+            "  ),",
+        )
     )
 
 
