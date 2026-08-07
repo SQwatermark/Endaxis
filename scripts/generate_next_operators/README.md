@@ -55,7 +55,7 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - 技能释放条件只用于合法性诊断。即使条件、费用或冷却不满足，用户排入时间轴的技能仍会进入模拟并产生结果。
 - 当前战斗模型只有一个敌人。佩丽卡连携的多目标递归弹射必须在清单中显式声明忽略，并由生成器校验它确实是同一投射物和命中技能形成的递归分支。
 - 没有战斗效果的表现投射物、教程标记和全等级为零的资源动作会保留在审计层，但不生成无效果 DSL 步骤。
-- `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 已有反编译闭环，`CheckEntityNum` 仍只保存原始目标集合参数，不会在固定单敌人模型中擅自改写成战斗状态。根时间轴上的 `SimpleCalcBBAction` 与条件分支内的同类动作共用编译器，并按其原生帧和 `serverActionIndex` 进入统一调度。
+- `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 已有反编译闭环，`CheckEntityNum` 仍只保存原始目标集合参数，不会在固定单敌人模型中擅自改写成战斗状态。根时间轴上的双操作数计算、原地黑板修改、Buff 黑板读取和 Buff 结束与条件分支内的同类动作共用编译器，并按其原生帧和 `serverActionIndex` 进入统一调度。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。
 - 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。重复动作不会排序或去重。

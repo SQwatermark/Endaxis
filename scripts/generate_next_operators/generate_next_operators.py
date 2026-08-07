@@ -8,7 +8,7 @@ import textwrap
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Literal, cast
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -154,17 +154,32 @@ class ResolvedDamageHitSource:
     damageUnits: tuple[DamageUnitSource, ...]
 
 
+ResolvedScheduleItemType = Literal[
+    "damage",
+    "condition",
+    "blackboardCalculation",
+    "blackboardMutation",
+    "buffBlackboardRead",
+    "buffFinish",
+]
+
+
 @dataclass(frozen=True)
 class ResolvedScheduleItemSource:
     """根技能坐标系中的有序战斗项；具体载荷始终只有一种。"""
 
     frame: int
     actionOrder: tuple[int, ...]
-    itemType: str
+    itemType: ResolvedScheduleItemType
     sourcePath: tuple[str, ...]
-    damageHit: ResolvedDamageHitSource | None
-    conditionalAction: "ConditionalActionSource | None"
-    blackboardCalculation: "BlackboardCalculationSource | None"
+    payload: (
+        "ResolvedDamageHitSource"
+        " | ConditionalActionSource"
+        " | BlackboardCalculationSource"
+        " | BlackboardMutationSource"
+        " | BuffBlackboardReadSource"
+        " | BuffFinishSource"
+    )
 
 
 @dataclass(frozen=True)
@@ -2009,9 +2024,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             actionOrder=hit.actionOrder,
             itemType="damage",
             sourcePath=hit.sourcePath,
-            damageHit=hit,
-            conditionalAction=None,
-            blackboardCalculation=None,
+            payload=hit,
         )
         for hit in collect_resolved_damage_hits(skill)
     ]
@@ -2021,9 +2034,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             actionOrder=(action.actionIndex,),
             itemType="condition",
             sourcePath=action.actionPath,
-            damageHit=None,
-            conditionalAction=action,
-            blackboardCalculation=None,
+            payload=action,
         )
         for action in skill.conditionalActions
     )
@@ -2033,12 +2044,25 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             actionOrder=(calculation.actionIndex,),
             itemType="blackboardCalculation",
             sourcePath=(skill.skillId,),
-            damageHit=None,
-            conditionalAction=None,
-            blackboardCalculation=calculation,
+            payload=calculation,
         )
         for calculation in skill.blackboardCalculations
     )
+    for item_type, actions in (
+        ("blackboardMutation", skill.blackboardMutations),
+        ("buffBlackboardRead", skill.buffBlackboardReads),
+        ("buffFinish", skill.buffFinishes),
+    ):
+        result.extend(
+            ResolvedScheduleItemSource(
+                frame=action.startFrame,
+                actionOrder=(action.actionIndex,),
+                itemType=item_type,
+                sourcePath=(skill.skillId,),
+                payload=action,
+            )
+            for action in actions
+        )
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
@@ -2559,7 +2583,10 @@ def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:
     return tuple(result)
 
 
-def compile_buff_blackboard_read(read: BuffBlackboardReadSource, path: str) -> str:
+def compile_buff_blackboard_read(
+    read: BuffBlackboardReadPayload | BuffBlackboardReadSource,
+    path: str,
+) -> str:
     """将已确认的单敌人标签查询映射为正式 DSL，拒绝尚未建模的目标与 ID 查询。"""
     if read.targetSource != "Context" or read.targetGroupKey != "smart_target":
         raise ValueError(f"{path}: unsupported buff blackboard target")
@@ -2580,7 +2607,7 @@ def compile_buff_blackboard_read(read: BuffBlackboardReadSource, path: str) -> s
     )
 
 
-def compile_buff_finish(finish: BuffFinishSource, path: str) -> str:
+def compile_buff_finish(finish: BuffFinishPayload | BuffFinishSource, path: str) -> str:
     """编译已闭环的敌方标签或施法者 ID 全量结束分支。"""
     if not finish.finishAll or finish.limitSource:
         raise ValueError(f"{path}: only finishAll without source limiting is supported")
@@ -2650,6 +2677,25 @@ def compile_blackboard_calculation(
     )
 
 
+def compile_blackboard_mutation(
+    mutation: BlackboardMutationPayload | BlackboardMutationSource,
+    path: str,
+) -> str:
+    """将原生单操作数修改映射为读取目标旧值的原地运算步骤。"""
+    operation = ACTION_VALUE_OPERATION_MAP.get(mutation.operation)
+    if operation is None:
+        raise ValueError(f"{path}: unsupported action blackboard operation {mutation.operation!r}")
+    return "\n".join(
+        [
+            "step('modifyActionValue', {",
+            f"  key: {ts_inline_literal(mutation.key)},",
+            f"  operation: {ts_inline_literal(operation)},",
+            f"  value: {compile_condition_operand(mutation.value, f'{path}.value')},",
+            "})",
+        ]
+    )
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource, path: str
 ) -> str:
@@ -2661,19 +2707,7 @@ def compile_conditional_branch_action(
     if action.buffFinish is not None:
         return compile_buff_finish(action.buffFinish, path)
     if action.blackboardMutation is not None:
-        mutation = action.blackboardMutation
-        operation = ACTION_VALUE_OPERATION_MAP.get(mutation.operation)
-        if operation is None:
-            raise ValueError(f"{path}: unsupported action blackboard operation {mutation.operation!r}")
-        return "\n".join(
-            [
-                "step('modifyActionValue', {",
-                f"  key: {ts_inline_literal(mutation.key)},",
-                f"  operation: {ts_inline_literal(operation)},",
-                f"  value: {compile_condition_operand(mutation.value, f'{path}.value')},",
-                "})",
-            ]
-        )
+        return compile_blackboard_mutation(action.blackboardMutation, path)
     if action.blackboardCalculation is not None:
         return compile_blackboard_calculation(action.blackboardCalculation, path)
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
@@ -3224,6 +3258,12 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         allowed_actions.add("IfElseAction")
     if skill.blackboardCalculations:
         allowed_actions.add("SimpleCalcBBAction")
+    if skill.blackboardMutations:
+        allowed_actions.add("ModifyDynamicBlackboard")
+    if skill.buffBlackboardReads:
+        allowed_actions.add("GetTargetBuffBBAdvanced")
+    if skill.buffFinishes:
+        allowed_actions.add("FinishBuffAdvanced")
     if ignored_auxiliary_classifications:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains and not effective_resource_gains:
@@ -3237,27 +3277,48 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     damage_indexes = {hit: index for index, hit in enumerate(hits)}
     scheduled_entries: list[str] = []
     for schedule_index, item in enumerate(schedule):
-        if item.damageHit is not None:
-            index = damage_indexes[item.damageHit]
+        if item.itemType == "damage":
+            payload = cast(ResolvedDamageHitSource, item.payload)
+            index = damage_indexes[payload]
             step_lines = compile_resolved_damage_steps(
                 skill,
                 config,
-                item.damageHit,
+                payload,
                 index,
                 index == len(hits) - 1,
             )
-        elif item.conditionalAction is not None:
+        elif item.itemType == "condition":
+            payload = cast(ConditionalActionSource, item.payload)
             step_lines = compile_conditional_action(
-                item.conditionalAction,
+                payload,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
             ).splitlines()
-        elif item.blackboardCalculation is not None:
+        elif item.itemType == "blackboardCalculation":
+            payload = cast(BlackboardCalculationSource, item.payload)
             step_lines = compile_blackboard_calculation(
-                item.blackboardCalculation,
+                payload,
                 f"{skill.key}.schedule[{schedule_index}].blackboardCalculation",
             ).splitlines()
+        elif item.itemType == "blackboardMutation":
+            payload = cast(BlackboardMutationSource, item.payload)
+            step_lines = compile_blackboard_mutation(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].blackboardMutation",
+            ).splitlines()
+        elif item.itemType == "buffBlackboardRead":
+            payload = cast(BuffBlackboardReadSource, item.payload)
+            step_lines = compile_buff_blackboard_read(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffBlackboardRead",
+            ).splitlines()
+        elif item.itemType == "buffFinish":
+            payload = cast(BuffFinishSource, item.payload)
+            step_lines = compile_buff_finish(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffFinish",
+            ).splitlines()
         else:
-            raise AssertionError(f"{skill.key}: schedule item has no payload")
+            raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
         scheduled_entries.extend(
             [
                 "      scheduled(",

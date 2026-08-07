@@ -6331,6 +6331,16 @@
             "chr_0030_zhuangfy_normal_skill_ult",
             "chr_0030_zhuangfy_normal_skill_ult_abilityrange"
           ]
+        },
+        {
+          "frame": 100,
+          "actionOrder": [
+            83
+          ],
+          "itemType": "buffFinish",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult"
+          ]
         }
       ],
       "blackboardKeys": [
@@ -7030,6 +7040,16 @@
         {
           "frame": 24,
           "actionOrder": [
+            50
+          ],
+          "itemType": "buffFinish",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
             54
           ],
           "itemType": "condition",
@@ -7561,6 +7581,16 @@
             51
           ],
           "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill_ult"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            52
+          ],
+          "itemType": "buffFinish",
           "sourcePath": [
             "chr_0030_zhuangfy_combo_skill_ult"
           ]

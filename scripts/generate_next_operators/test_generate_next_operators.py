@@ -16,6 +16,7 @@ from generate_next_operators import (
     compile_combat_condition_group,
     compile_conditional_action,
     BlackboardCalculationPayload,
+    BlackboardMutationSource,
     BuffBlackboardReadSource,
     BuffFinishSource,
     DamageUnitSource,
@@ -930,6 +931,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             projectileLaunches=(),
             conditionalActions=(),
             blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
             unresolvedCombatActions=("SpawnAbilityEntity", "CreateBuffAction"),
             skillId="root",
             directDamageHits=(),
@@ -1010,6 +1014,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             projectileLaunches=(),
             conditionalActions=(condition,),
             blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
             unresolvedCombatActions=("IfElseAction", "SpawnAbilityEntity"),
             skillId="root",
             directDamageHits=(),
@@ -1032,7 +1039,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertLess(source.index("branch("), source.index("step('dealDamage'"))
 
-    def test_resolved_damage_compiler_interleaves_root_blackboard_calculation(self) -> None:
+    def test_resolved_damage_compiler_interleaves_supported_root_actions(self) -> None:
         unit = DamageUnitSource(
             damageType="Pulse",
             attributeType="Hp",
@@ -1060,7 +1067,55 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     right=ScalarSource(1.5, None, None),
                 ),
             ),
-            unresolvedCombatActions=("SimpleCalcBBAction", "SpawnAbilityEntity"),
+            blackboardMutations=(
+                BlackboardMutationSource(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=2,
+                    key="count",
+                    operation="Add",
+                    value=ScalarSource(1, None, None),
+                ),
+            ),
+            buffBlackboardReads=(
+                BuffBlackboardReadSource(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=3,
+                    outputKey="buffScale",
+                    desiredKey="scale",
+                    targetSource="Context",
+                    targetGroupKey="smart_target",
+                    buffCheckType="Tag",
+                    buffIds=(),
+                    tagQueryType="hasAny",
+                    buffTagIds=(100,),
+                ),
+            ),
+            buffFinishes=(
+                BuffFinishSource(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=4,
+                    targetSource="Context",
+                    targetGroupKey="smart_target",
+                    buffCheckType="Tag",
+                    buffIds=(),
+                    tagQueryType="hasAny",
+                    buffTagIds=(100,),
+                    finishAll=True,
+                    limitSource=False,
+                    isFinishedEarly=True,
+                    isAbsorbed=False,
+                ),
+            ),
+            unresolvedCombatActions=(
+                "FinishBuffAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "ModifyDynamicBlackboard",
+                "SimpleCalcBBAction",
+                "SpawnAbilityEntity",
+            ),
             skillId="root",
             directDamageHits=(),
             projectileHits=(),
@@ -1080,7 +1135,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
-        self.assertLess(source.index("calculateActionValue"), source.index("step('dealDamage'"))
+        ordered_markers = [
+            "modifyActionValue",
+            "readBuffBlackboard",
+            "finishBuffsByTag",
+            "calculateActionValue",
+            "step('dealDamage'",
+        ]
+        self.assertEqual(
+            [source.index(marker) for marker in ordered_markers],
+            sorted(source.index(marker) for marker in ordered_markers),
+        )
 
     def test_skill_compiler_rejects_unconsumed_conditional_actions(self) -> None:
         skill = SimpleNamespace(
