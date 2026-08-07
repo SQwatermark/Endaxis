@@ -32,6 +32,7 @@ from generate_next_operators import (
     parse_panel_attributes,
     parse_declared_blackboard,
     parse_auxiliary_actions,
+    parse_buff_attribute_modifiers,
     parse_buff_lifecycle,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
@@ -125,6 +126,21 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isDynamic": True,
                 }
             ],
+            "attributeModifier": {
+                "isConvertedAttribute": False,
+                "attributeModifiers": [
+                    {
+                        "modifyAttributeType": "Specific",
+                        "attributeType": "ComboSkillCooldownRecoveryScalar",
+                        "formulaItem": "BaseMultiplier",
+                        "param": {
+                            "useBlackboardKey": False,
+                            "value": 0.5,
+                            "blackboardKey": "",
+                        },
+                    }
+                ],
+            },
             "applyTags": [{"tagId": -1486085048}],
             "timelineActions": [],
             "buffEventAction": [],
@@ -141,6 +157,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].lifecycle.duration.levelValues, (3.0,))
         self.assertEqual(definitions[1].blackboard[0].key, "duration")
         self.assertEqual(definitions[1].applyTagIds, (-1486085048,))
+        self.assertEqual(
+            definitions[1].attributeModifiers[0].attributeType,
+            "ComboSkillCooldownRecoveryScalar",
+        )
+        self.assertEqual(definitions[1].attributeModifiers[0].slot, "BaseMultiplier")
+        self.assertEqual(definitions[1].attributeModifiers[0].value.value, 0.5)
         self.assertEqual(definitions[1].combatActions, ())
 
     def test_buff_definitions_follow_event_dependencies_once(self) -> None:
@@ -186,6 +208,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isNeedStackEffect": False,
                 },
                 "blackboard": [],
+                "attributeModifier": {
+                    "isConvertedAttribute": False,
+                    "attributeModifiers": [],
+                },
                 "applyTags": [],
                 "timelineActions": [],
                 "buffEventAction": [{"buffEvent": "OnBuffStart", "actions": actions}],
@@ -227,6 +253,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.first", "buff.second"),
         )
         self.assertTrue(all(not definition.sourceAvailable for definition in definitions))
+
+    def test_buff_attribute_modifiers_reject_unknown_formula_slot(self) -> None:
+        buff = {
+            "attributeModifier": {
+                "isConvertedAttribute": False,
+                "attributeModifiers": [
+                    {
+                        "modifyAttributeType": "Specific",
+                        "attributeType": "Atk",
+                        "formulaItem": "FutureSlot",
+                        "param": {
+                            "useBlackboardKey": False,
+                            "value": 1,
+                            "blackboardKey": "",
+                        },
+                    }
+                ],
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "formulaItem: unsupported value"):
+            parse_buff_attribute_modifiers(buff, "buff.test.json", {})
 
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
@@ -1470,6 +1518,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isDynamic": False,
                 },
             ],
+            "attributeModifier": {
+                "isConvertedAttribute": False,
+                "attributeModifiers": [],
+            },
             "applyTags": [],
             "timelineActions": [],
             "buffEventAction": [

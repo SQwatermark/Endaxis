@@ -48,6 +48,7 @@
         }
       ],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -105,6 +106,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -233,6 +235,7 @@
       "applyTagIds": [
         -1486085048
       ],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -310,6 +313,7 @@
       "applyTagIds": [
         1670936726
       ],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -375,6 +379,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -478,6 +483,7 @@
         }
       ],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [
         {
           "startFrame": 6,
@@ -943,6 +949,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -993,6 +1000,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1058,6 +1066,20 @@
       "applyTagIds": [
         -388303696,
         189882742
+      ],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "ComboSkillCooldownRecoveryScalar",
+          "slot": "BaseMultiplier",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": "combo_cd_rate",
+            "levelValues": [
+              3.0
+            ]
+          }
+        }
       ],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1161,6 +1183,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1218,6 +1241,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1275,6 +1299,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1332,6 +1357,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1393,6 +1419,18 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "AtbCostAddition",
+          "slot": "BaseAddition",
+          "value": {
+            "value": -100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1410,6 +1448,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1427,6 +1466,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1444,6 +1484,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1461,6 +1502,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1478,6 +1520,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],

@@ -51,6 +51,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -108,6 +109,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -236,6 +238,7 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         -1486085048
       ],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -313,6 +316,7 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         1670936726
       ],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -378,6 +382,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -481,6 +486,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [
         {
           "startFrame": 6,
@@ -873,6 +879,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -923,6 +930,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -988,6 +996,20 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         -388303696,
         189882742
+      ],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "ComboSkillCooldownRecoveryScalar",
+          "slot": "BaseMultiplier",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": "combo_cd_rate",
+            "levelValues": [
+              3.0
+            ]
+          }
+        }
       ],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1091,6 +1113,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1148,6 +1171,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1205,6 +1229,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1262,6 +1287,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1323,6 +1349,18 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "AtbCostAddition",
+          "slot": "BaseAddition",
+          "value": {
+            "value": -100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1340,6 +1378,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1357,6 +1396,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1374,6 +1414,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1391,6 +1432,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -1408,6 +1450,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],

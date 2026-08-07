@@ -161,6 +161,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */
   readonly applyTagIds: readonly number[];
+  /** Buff 启用期间注册到原生八槽属性公式的修正；目标属性名仍保留原生身份。 */
+  readonly attributeModifiers: readonly GeneratedBuffAttributeModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
@@ -170,6 +172,21 @@ export interface GeneratedBuffDefinitionSource {
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly combatActions: readonly string[];
+}
+
+export interface GeneratedBuffAttributeModifierSource {
+  readonly targetType: 'Specific' | 'Main' | 'Sub' | 'All';
+  readonly attributeType: string;
+  readonly slot:
+    | 'Addition'
+    | 'Multiplier'
+    | 'FinalAddition'
+    | 'FinalMultiplier'
+    | 'BaseAddition'
+    | 'BaseMultiplier'
+    | 'BaseFinalAddition'
+    | 'BaseFinalMultiplier';
+  readonly value: GeneratedScalarSource;
 }
 
 /** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */

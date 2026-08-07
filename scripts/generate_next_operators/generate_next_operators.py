@@ -42,6 +42,17 @@ BUFF_STACKING_TYPES = {
     "EnhanceAndOverwriteDuration",
     "HighPriorityWithMaxStack",
 }
+BUFF_ATTRIBUTE_TARGET_TYPES = {"Specific", "Main", "Sub", "All"}
+BUFF_ATTRIBUTE_MODIFIER_SLOTS = {
+    "Addition",
+    "Multiplier",
+    "FinalAddition",
+    "FinalMultiplier",
+    "BaseAddition",
+    "BaseMultiplier",
+    "BaseFinalAddition",
+    "BaseFinalMultiplier",
+}
 
 
 @dataclass(frozen=True)
@@ -233,6 +244,7 @@ class BuffDefinitionSource:
     lifecycle: BuffLifecycleSource | None
     blackboard: tuple["DeclaredBlackboardValueSource", ...]
     applyTagIds: tuple[int, ...]
+    attributeModifiers: tuple["BuffAttributeModifierSource", ...]
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
@@ -242,6 +254,14 @@ class BuffDefinitionSource:
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BuffAttributeModifierSource:
+    targetType: str
+    attributeType: str
+    slot: str
+    value: ScalarSource
 
 
 @dataclass(frozen=True)
@@ -1708,6 +1728,55 @@ def parse_buff_apply_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[in
     return tuple(result)
 
 
+def parse_buff_attribute_modifiers(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffAttributeModifierSource, ...]:
+    """保留 Buff 挂载期间注册到原生八槽属性公式的修正。"""
+    config = require_dict(buff.get("attributeModifier"), f"{source_name}.attributeModifier")
+    expected_config_fields = {"isConvertedAttribute", "attributeModifiers"}
+    if set(config) != expected_config_fields:
+        raise ValueError(
+            f"{source_name}.attributeModifier: unexpected fields {sorted(config)}"
+        )
+    if config.get("isConvertedAttribute") is not False:
+        raise ValueError(
+            f"{source_name}.attributeModifier.isConvertedAttribute: expected false"
+        )
+
+    result: list[BuffAttributeModifierSource] = []
+    for index, raw_modifier in enumerate(
+        require_list(
+            config.get("attributeModifiers"),
+            f"{source_name}.attributeModifier.attributeModifiers",
+        )
+    ):
+        path = f"{source_name}.attributeModifier.attributeModifiers[{index}]"
+        modifier = require_dict(raw_modifier, path)
+        expected_fields = {"modifyAttributeType", "attributeType", "formulaItem", "param"}
+        if set(modifier) != expected_fields:
+            raise ValueError(f"{path}: unexpected fields {sorted(modifier)}")
+        target_type = modifier.get("modifyAttributeType")
+        if target_type not in BUFF_ATTRIBUTE_TARGET_TYPES:
+            raise ValueError(f"{path}.modifyAttributeType: unsupported value {target_type!r}")
+        attribute_type = modifier.get("attributeType")
+        if not isinstance(attribute_type, str) or not attribute_type:
+            raise ValueError(f"{path}.attributeType: expected non-empty string")
+        slot = modifier.get("formulaItem")
+        if slot not in BUFF_ATTRIBUTE_MODIFIER_SLOTS:
+            raise ValueError(f"{path}.formulaItem: unsupported value {slot!r}")
+        result.append(
+            BuffAttributeModifierSource(
+                targetType=target_type,
+                attributeType=attribute_type,
+                slot=slot,
+                value=parse_scalar(modifier.get("param"), f"{path}.param", blackboard),
+            )
+        )
+    return tuple(result)
+
+
 def parse_buff_event_actions(
     buff: dict[str, Any],
     source_name: str,
@@ -1769,6 +1838,7 @@ def resolve_buff_definitions(
                 lifecycle=None,
                 blackboard=(),
                 applyTagIds=(),
+                attributeModifiers=(),
                 directDamageHits=(),
                 conditionalActions=(),
                 blackboardCalculations=(),
@@ -1800,6 +1870,9 @@ def resolve_buff_definitions(
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
             blackboard=declared_blackboard,
             applyTagIds=parse_buff_apply_tag_ids(buff, source_file),
+            attributeModifiers=parse_buff_attribute_modifiers(
+                buff, source_file, blackboard
+            ),
             directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
             conditionalActions=parse_conditional_actions(adapted_root, source_file, blackboard),
             blackboardCalculations=parse_blackboard_calculations(
