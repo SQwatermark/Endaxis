@@ -167,7 +167,11 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
             tags: ['comboSkill'],
             stagger: 10,
           }),
-          step('changeResource', { resource: 'ultimateEnergy', amount: 10, recipient: 'caster' }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            recipient: 'caster',
+          }),
         ),
       ),
     ],

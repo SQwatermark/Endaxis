@@ -20,6 +20,7 @@ from generate_next_operators import (
     BuffBlackboardReadSource,
     BuffFinishSource,
     DamageUnitSource,
+    ResourceGainPayload,
     ScalarSource,
     classify_buff,
     derive_timeline_block,
@@ -870,6 +871,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     blackboardMutation=None,
                     buffBlackboardRead=None,
                     buffFinish=None,
+                    resourceGain=None,
                 ),
             ),
             failActions=(),
@@ -882,6 +884,48 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operation: 'multiply'", result)
         self.assertIn("left: { kind: 'blackboard', key: 'baseScale' }", result)
         self.assertIn("right: { kind: 'constant', value: 1.5 }", result)
+
+    def test_conditional_action_compiler_emits_dynamic_resource_gain(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="ObtainCostAction",
+                    nestedCondition=None,
+                    blackboardCalculation=None,
+                    blackboardMutation=None,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                    resourceGain=ResourceGainPayload(
+                        resource="sp",
+                        amount=ScalarSource(None, "atbReturn", None),
+                        coefficient=ScalarSource(1, None, None),
+                        spGainKind="refund",
+                        spGainSource="skill",
+                        onlyMainOperator=False,
+                        isPercentValue=False,
+                        useUltimateRecoveryTag=False,
+                        ultimateRecoveryTagId=0,
+                        ignoreUltimateGainScalar=False,
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("changeResourceByActionValue", result)
+        self.assertIn("amount: { kind: 'blackboard', key: 'atbReturn' }", result)
+        self.assertIn("spGainKind: 'refund'", result)
+        self.assertIn("spGainSource: 'skill'", result)
 
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(
@@ -901,6 +945,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     blackboardMutation=None,
                     buffBlackboardRead=None,
                     buffFinish=None,
+                    resourceGain=None,
                 ),
             ),
             failActions=(),

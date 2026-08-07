@@ -4,10 +4,10 @@
  */
 import type {
   ActionValueCalculationOperation,
-  ActionValueOperand,
   ActionValueOperation,
   CombatCondition,
 } from '../../game-data/operatorDefinition';
+import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
@@ -22,7 +22,9 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       if (context === undefined) {
         throw new Error('modifyActionValue requires a combat operation context');
       }
-      const operand = Math.fround(resolveOperand(step.parameters.value, context));
+      const operand = Math.fround(
+        resolveActionValueOperand(step.parameters.value, context.blackboard),
+      );
       const oldValue = Math.fround(context.blackboard.getNumber(step.parameters.key) ?? 0);
       context.blackboard.assignDynamic(
         step.parameters.key,
@@ -34,8 +36,10 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       if (context === undefined) {
         throw new Error('calculateActionValue requires a combat operation context');
       }
-      const left = Math.fround(resolveOperand(step.parameters.left, context));
-      const right = Math.fround(resolveOperand(step.parameters.right, context));
+      const left = Math.fround(resolveActionValueOperand(step.parameters.left, context.blackboard));
+      const right = Math.fround(
+        resolveActionValueOperand(step.parameters.right, context.blackboard),
+      );
       context.blackboard.assignDynamic(
         step.parameters.key,
         evaluateActionValueCalculation(step.parameters.operation, left, right),
@@ -60,8 +64,8 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         throw new Error('actionValueCompare requires a combat operation context');
       }
       return compareCombatNumbers(
-        resolveOperand(condition.left, context),
-        resolveOperand(condition.right, context),
+        resolveActionValueOperand(condition.left, context.blackboard),
+        resolveActionValueOperand(condition.right, context.blackboard),
         condition.operator,
       );
     }
@@ -124,13 +128,4 @@ function roundToEven(value: number): number {
 function toUnityInt32(value: number): number {
   if (!Number.isFinite(value) || value < INT32_MIN || value > INT32_MAX) return INT32_MIN;
   return Math.trunc(value);
-}
-
-function resolveOperand(operand: ActionValueOperand, context: CombatOperationContext): number {
-  if (operand.kind === 'constant') return operand.value;
-  const value = context.blackboard.getNumber(operand.key);
-  if (value === undefined) {
-    throw new Error(`action blackboard value '${operand.key}' is missing`);
-  }
-  return value;
 }

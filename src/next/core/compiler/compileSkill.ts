@@ -217,6 +217,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'changeResourceByActionValue':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,

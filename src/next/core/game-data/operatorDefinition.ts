@@ -332,6 +332,14 @@ export interface CombatStepParameters {
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
   };
+  /** 执行时从当前技能动作黑板读取数值，再交给同一资源账本处理。 */
+  changeResourceByActionValue: {
+    resource: CombatResource;
+    amount: ActionValueOperand;
+    recipient: ResourceRecipient;
+    spGainKind?: SpGainKind;
+    spGainSource?: SpGainSource;
+  };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
   gainFinisherSp: { factor: number; recipient: 'team' };
   applyStatus: {
@@ -367,6 +375,7 @@ export const COMBAT_STEP_KINDS = [
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',
+  'changeResourceByActionValue',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
   'applyStatus',

@@ -438,6 +438,29 @@ function validateCombatStepParameters(
         }
       }
       break;
+    case 'changeResourceByActionValue':
+      requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
+      validateActionValueOperand(parameters.amount, `${path}.amount`, issues);
+      requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
+      if (parameters.spGainKind !== undefined) {
+        requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
+        if (parameters.resource !== 'sp') {
+          issues.push({
+            path: `${path}.spGainKind`,
+            message: "is only valid when resource is 'sp'",
+          });
+        }
+      }
+      if (parameters.spGainSource !== undefined) {
+        requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
+        if (parameters.resource !== 'sp') {
+          issues.push({
+            path: `${path}.spGainSource`,
+            message: "is only valid when resource is 'sp'",
+          });
+        }
+      }
+      break;
     case 'gainSquadUltimateEnergyFromSkillCost':
       validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
       break;

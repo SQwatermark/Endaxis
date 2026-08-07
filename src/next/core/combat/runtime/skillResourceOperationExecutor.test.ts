@@ -3,6 +3,7 @@ import { perlica } from '../../../data/operators/perlica';
 import { compileSkill } from '../../compiler/compileSkill';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { ActionBlackboard } from './actionBlackboard';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
@@ -204,6 +205,61 @@ describe('SkillResourceOperationExecutor', () => {
         currentValue: 300,
         gainKind: 'refund',
       },
+    });
+  });
+
+  it('resolves a dynamic resource amount from the current action blackboard', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 250,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'zhuang-fangyi',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: true,
+        },
+      ],
+    });
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'zhuang-fangyi',
+      skillId: 'battleSkill',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    expect(
+      operations.execute(
+        {
+          kind: 'changeResourceByActionValue',
+          parameters: {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atbReturn' },
+            recipient: 'team',
+            spGainKind: 'refund',
+            spGainSource: 'default',
+          },
+        },
+        { blackboard: new ActionBlackboard({ atbReturn: 30 }) },
+      ),
+    ).toBe(true);
+
+    expect(resources.sp).toBe(280);
+    expect(resources.returnedSp).toBe(30);
+    expect(receipt.entries[0]).toMatchObject({
+      event: 'SpChanged',
+      data: { baseValue: 30, gainKind: 'refund' },
     });
   });
 

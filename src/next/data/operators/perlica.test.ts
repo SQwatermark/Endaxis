@@ -21,8 +21,16 @@ describe('next Perlica definition', () => {
     expect(steps.map(step => step.kind)).toEqual([
       'applyElementalReaction',
       'dealDamage',
-      'changeResource',
+      'changeResourceByActionValue',
     ]);
+    expect(steps[2]).toMatchObject({
+      kind: 'changeResourceByActionValue',
+      parameters: {
+        resource: 'ultimateEnergy',
+        amount: { kind: 'blackboard', key: 'usp' },
+        recipient: 'caster',
+      },
+    });
   });
 
   it('uses the earliest operable boundary as each basic attack timeline width', () => {
@@ -32,7 +40,9 @@ describe('next Perlica definition', () => {
     if (!basicAttackGroup || !Array.isArray(basicAttackGroup.skills)) {
       throw new Error('expected basic attack sequence');
     }
-    expect(basicAttackGroup.skills.map(skill => skill.timelineBlockFrames)).toEqual([16, 18, 26, 44]);
+    expect(basicAttackGroup.skills.map(skill => skill.timelineBlockFrames)).toEqual([
+      16, 18, 26, 44,
+    ]);
   });
 
   it('marks only the final normal-attack hit as the last combo hit', () => {

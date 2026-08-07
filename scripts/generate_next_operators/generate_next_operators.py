@@ -2773,9 +2773,13 @@ def resource_recipient(resource: str) -> str:
     raise ValueError(f"unsupported resource recipient mapping for {resource!r}")
 
 
-def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
-    """编译原生固定数值资源获得；动态系数尚未闭环时必须拒绝。"""
-    amount = compact_level_values(require_level_values(gain.amount, f"{path}.amount"))
+def compile_resource_gain(
+    gain: ResourceGainPayload | TimedResourceGainSource,
+    path: str,
+) -> str:
+    """编译原生资源获得；数值可读动作黑板，动态系数仍严格拒绝。"""
+    if gain.coefficient.blackboardKey is not None:
+        raise ValueError(f"{path}: dynamic resource gain coefficient is not supported")
     coefficient = compact_level_values(
         gain.coefficient.levelValues
         if gain.coefficient.levelValues is not None
@@ -2792,7 +2796,6 @@ def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
         raise ValueError(f"{path}: unsupported ultimate-energy recovery options")
     fields = [
         f"resource: {ts_inline_literal(gain.resource)}",
-        f"amount: {ts_inline_literal(amount)}",
         f"recipient: {ts_inline_literal(recipient)}",
     ]
     if gain.resource == "sp":
@@ -2804,6 +2807,17 @@ def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
                 f"spGainSource: {ts_inline_literal(gain.spGainSource)}",
             ]
         )
+    if gain.amount.blackboardKey is not None:
+        fields.insert(1, f"amount: {compile_condition_operand(gain.amount, f'{path}.amount')}")
+        return "\n".join(
+            [
+                "step('changeResourceByActionValue', {",
+                *(f"  {field}," for field in fields),
+                "})",
+            ]
+        )
+    amount = compact_level_values(require_level_values(gain.amount, f"{path}.amount"))
+    fields.insert(1, f"amount: {ts_inline_literal(amount)}")
     return "step('changeResource', { " + ", ".join(fields) + " })"
 
 
@@ -2821,6 +2835,8 @@ def compile_conditional_branch_action(
         return compile_blackboard_mutation(action.blackboardMutation, path)
     if action.blackboardCalculation is not None:
         return compile_blackboard_calculation(action.blackboardCalculation, path)
+    if action.resourceGain is not None:
+        return compile_resource_gain(action.resourceGain, path)
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 

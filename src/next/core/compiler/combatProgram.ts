@@ -64,6 +64,7 @@ export interface ResolvedCombatStepParameters {
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
   };
+  changeResourceByActionValue: CombatStepParameters['changeResourceByActionValue'];
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];
   applyStatus: {

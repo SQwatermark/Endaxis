@@ -7,6 +7,7 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { resolveActionValueOperand } from './actionBlackboard';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 
@@ -29,6 +30,23 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'changeResourceByActionValue') {
+      if (context === undefined) {
+        throw new Error('changeResourceByActionValue requires a combat operation context');
+      }
+      return this.execute(
+        {
+          kind: 'changeResource',
+          parameters: {
+            ...step.parameters,
+            amount: Math.fround(
+              resolveActionValueOperand(step.parameters.amount, context.blackboard),
+            ),
+          },
+        },
+        context,
+      );
+    }
     if (
       step.kind === 'changeResource' &&
       step.parameters.resource === 'sp' &&
