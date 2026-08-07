@@ -2420,6 +2420,64 @@ def compile_buff_finish(finish: BuffFinishSource, path: str) -> str:
     )
 
 
+def indent_source(source: str, spaces: int) -> list[str]:
+    prefix = " " * spaces
+    return [f"{prefix}{line}" for line in source.splitlines()]
+
+
+def compile_conditional_branch_action(
+    action: ConditionalBranchActionSource, path: str
+) -> str:
+    """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
+    if action.nestedCondition is not None:
+        return compile_conditional_action(action.nestedCondition, f"{path}.nestedCondition")
+    if action.buffBlackboardRead is not None:
+        return compile_buff_blackboard_read(action.buffBlackboardRead, path)
+    if action.buffFinish is not None:
+        return compile_buff_finish(action.buffFinish, path)
+    raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
+
+
+def compile_conditional_branch(
+    actions: tuple[ConditionalBranchActionSource, ...], path: str
+) -> str:
+    """按原始数组顺序生成一个同步 action sequence。"""
+    if not actions:
+        return "sequence()"
+    lines = ["sequence("]
+    for index, action in enumerate(actions):
+        compiled = compile_conditional_branch_action(action, f"{path}[{index}]")
+        action_lines = indent_source(compiled, 2)
+        action_lines[-1] += ","
+        lines.extend(action_lines)
+    lines.append(")")
+    return "\n".join(lines)
+
+
+def compile_conditional_action(action: ConditionalActionSource, path: str) -> str:
+    """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
+    condition = compile_combat_condition_group(action.conditions, f"{path}.conditions")
+    succeed = compile_conditional_branch(action.succeedActions, f"{path}.succeedActions")
+    fail = (
+        compile_conditional_branch(action.failActions, f"{path}.failActions")
+        if action.failActions
+        else None
+    )
+    lines = ["branch("]
+    condition_lines = indent_source(condition, 2)
+    condition_lines[-1] += ","
+    lines.extend(condition_lines)
+    succeed_lines = indent_source(succeed, 2)
+    succeed_lines[-1] += ","
+    lines.extend(succeed_lines)
+    if fail is not None:
+        fail_lines = indent_source(fail, 2)
+        fail_lines[-1] += ","
+        lines.extend(fail_lines)
+    lines.append(")")
+    return "\n".join(lines)
+
+
 def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
     if skill.unresolvedCombatActions != ("LaunchProjectile",):
         raise ValueError(

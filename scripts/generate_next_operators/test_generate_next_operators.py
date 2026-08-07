@@ -13,6 +13,7 @@ from generate_next_operators import (
     compile_skill_entries,
     compile_resolved_damage_sequence,
     compile_combat_condition_group,
+    compile_conditional_action,
     BuffBlackboardReadSource,
     BuffFinishSource,
     DamageUnitSource,
@@ -602,6 +603,100 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "outside the single-enemy runtime model"):
             compile_combat_condition_group((condition,), "fixture.conditions")
+
+    def test_conditional_action_compiler_preserves_nested_branch_order(self) -> None:
+        compare = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(0, "conductCount", None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        read = SimpleNamespace(
+            targetSource="Context",
+            targetGroupKey="smart_target",
+            buffCheckType="Tag",
+            buffIds=(),
+            buffTagIds=(1466867135,),
+            tagQueryType="hasAny",
+            desiredKey="count",
+            outputKey="conductCount",
+        )
+        finish = SimpleNamespace(
+            targetSource="Context",
+            targetGroupKey="smart_target",
+            buffCheckType="Tag",
+            buffIds=(),
+            buffTagIds=(1466867135,),
+            tagQueryType="hasAny",
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=True,
+            isAbsorbed=False,
+        )
+        nested = SimpleNamespace(
+            conditions=(compare,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="FinishBuffAdvanced",
+                    nestedCondition=None,
+                    buffBlackboardRead=None,
+                    buffFinish=finish,
+                ),
+            ),
+            failActions=(),
+        )
+        action = SimpleNamespace(
+            conditions=(compare,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="GetTargetBuffBBAdvanced",
+                    nestedCondition=None,
+                    buffBlackboardRead=read,
+                    buffFinish=None,
+                ),
+                SimpleNamespace(
+                    actionType="IfElseAction",
+                    nestedCondition=nested,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertEqual(result.count("branch("), 2)
+        self.assertLess(result.index("readBuffBlackboard"), result.index("finishBuffsByTag"))
+        self.assertIn("key: 'conductCount'", result)
+
+    def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="DamageAction",
+                    nestedCondition=None,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                ),
+            ),
+            failActions=(),
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"fixture\.condition\.succeedActions\[0\].*DamageAction",
+        ):
+            compile_conditional_action(action, "fixture.condition")
 
     def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:
         unit = DamageUnitSource(
