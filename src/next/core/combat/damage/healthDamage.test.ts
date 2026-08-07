@@ -43,7 +43,8 @@ describe('executeHealthDamage', () => {
       target,
       clock: new CombatClock(),
       receipt,
-      emitSourceEvent: event => order.push(`event:${event}`),
+      emitSourceEvent: event => order.push(`source:${event}`),
+      emitTargetEvent: event => order.push(`target:${event}`),
     });
 
     expect(result).toEqual({
@@ -53,11 +54,11 @@ describe('executeHealthDamage', () => {
       currentHealth: 0,
     });
     expect(order).toEqual([
-      'event:beforeTakeDamage',
-      'event:beforeOutputDamage',
+      'target:beforeTakeDamage',
+      'source:beforeOutputDamage',
       'receipt:DamageApplied',
-      'event:takeDamage',
-      'event:outputDamage',
+      'target:takeDamage',
+      'source:outputDamage',
     ]);
   });
 });

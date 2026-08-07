@@ -52,6 +52,7 @@ function createAttributeSnapshots(attack = 100, defense = 0) {
 
 describe('PlayerDamageOperationExecutor', () => {
   it('applies standard health damage before the hit poise unit', () => {
+    const healthEvents: string[] = [];
     const targetVitals = new CombatVitals({
       health: 1000,
       maxPoise: 100,
@@ -80,7 +81,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clearInstantAttributeModifiers: () => undefined,
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1.5, taken: 2 }),
-      emitHealthSourceEvent: () => undefined,
+      emitHealthSourceEvent: event => healthEvents.push(`source:${event}`),
+      emitHealthTargetEvent: event => healthEvents.push(`target:${event}`),
       emitPoiseSourceEvent: () => undefined,
       emitPoiseTargetEvent: () => undefined,
       delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
@@ -89,6 +91,12 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(executor.execute(DAMAGE_STEP)).toBe(true);
     expect(targetVitals.health).toBe(600);
     expect(targetVitals.poise).toBe(40);
+    expect(healthEvents).toEqual([
+      'target:beforeTakeDamage',
+      'source:beforeOutputDamage',
+      'target:takeDamage',
+      'source:outputDamage',
+    ]);
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
   });
 
@@ -138,6 +146,7 @@ describe('PlayerDamageOperationExecutor', () => {
       emitPreparationEvent: event => order.push(event),
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
       emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,
       emitPoiseTargetEvent: () => undefined,
       delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
@@ -191,6 +200,7 @@ describe('PlayerDamageOperationExecutor', () => {
       emitPreparationEvent: vi.fn(),
       resolvePoiseMultipliers: vi.fn(),
       emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,
       emitPoiseTargetEvent: () => undefined,
       delegate,

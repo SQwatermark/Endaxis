@@ -69,6 +69,7 @@ export interface PlayerDamageOperationDependencies {
   ) => void;
   readonly resolvePoiseMultipliers: (step: DamageStep) => PoiseDamageMultipliers;
   readonly emitHealthSourceEvent: Parameters<typeof executeHealthDamage>[0]['emitSourceEvent'];
+  readonly emitHealthTargetEvent: Parameters<typeof executeHealthDamage>[0]['emitTargetEvent'];
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly emitPoiseTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly delegate: CombatOperationExecutor;
@@ -133,6 +134,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       clock: this.dependencies.clock,
       receipt: this.dependencies.receipt,
       emitSourceEvent: this.dependencies.emitHealthSourceEvent,
+      emitTargetEvent: this.dependencies.emitHealthTargetEvent,
     });
 
     if (step.parameters.stagger !== undefined) {

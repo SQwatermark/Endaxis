@@ -108,6 +108,7 @@ describe('Perlica standard damage slice', () => {
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
       emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,
       emitPoiseTargetEvent: () => undefined,
       delegate: unresolvedOperations,

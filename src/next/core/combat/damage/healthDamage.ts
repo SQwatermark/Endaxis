@@ -16,6 +16,16 @@ export const HEALTH_DAMAGE_EVENTS = [
 ] as const;
 /** 生命伤害写入前后向来源方和目标方发布的事件。 */
 export type HealthDamageEvent = (typeof HEALTH_DAMAGE_EVENTS)[number];
+/** 生命伤害结算中由攻击来源接收的事件。 */
+export type HealthDamageSourceEvent = Extract<
+  HealthDamageEvent,
+  'beforeOutputDamage' | 'outputDamage'
+>;
+/** 生命伤害结算中由承伤目标接收的事件。 */
+export type HealthDamageTargetEvent = Extract<
+  HealthDamageEvent,
+  'beforeTakeDamage' | 'takeDamage'
+>;
 
 /** 生命伤害事件共享的伤害包、请求值和实际值。 */
 export interface HealthDamageEventPayload {
@@ -34,7 +44,14 @@ export interface ExecuteHealthDamageInput {
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  readonly emitSourceEvent: (event: HealthDamageEvent, payload: HealthDamageEventPayload) => void;
+  readonly emitSourceEvent: (
+    event: HealthDamageSourceEvent,
+    payload: HealthDamageEventPayload,
+  ) => void;
+  readonly emitTargetEvent: (
+    event: HealthDamageTargetEvent,
+    payload: HealthDamageEventPayload,
+  ) => void;
 }
 
 /** 在已还原的公式后边界应用解析完成的玩家主动伤害。 */
@@ -46,7 +63,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     result: input.result,
   };
 
-  input.emitSourceEvent('beforeTakeDamage', payload);
+  input.emitTargetEvent('beforeTakeDamage', payload);
   input.emitSourceEvent('beforeOutputDamage', payload);
   const stateChange = input.target.takeDamage(input.result.value);
   input.receipt.record({
@@ -70,7 +87,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       physicalInflictionMultiplier: input.result.physicalInflictionMultiplier,
     },
   });
-  input.emitSourceEvent('takeDamage', payload);
+  input.emitTargetEvent('takeDamage', payload);
   input.emitSourceEvent('outputDamage', payload);
   return stateChange;
 }
