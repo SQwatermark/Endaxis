@@ -444,6 +444,109 @@ def render_typescript(export_name: str, slug: str, skills: list[SkillSource]) ->
     )
 
 
+DAMAGE_TYPE_MAP = {
+    "Physical": "physical",
+    "Heat": "heat",
+    "Cold": "cryo",
+    "Pulse": "electric",
+    "Nature": "nature",
+}
+
+
+def require_level_values(source: ScalarSource, path: str) -> tuple[float, ...]:
+    if source.levelValues is None:
+        raise ValueError(f"{path}: scalar has no resolved level values")
+    return source.levelValues
+
+
+def compact_level_values(values: tuple[float, ...]) -> float | tuple[float, ...]:
+    return values[0] if all(value == values[0] for value in values) else values
+
+
+def compile_basic_attack(skill: SkillSource, config: dict[str, Any]) -> str:
+    if skill.unresolvedCombatActions != ("LaunchProjectile",):
+        raise ValueError(
+            f"{skill.key}: basic attack compiler expected only LaunchProjectile, got {skill.unresolvedCombatActions}"
+        )
+    if not skill.projectileHits:
+        raise ValueError(f"{skill.key}: basic attack has no projectile hits")
+    hit_frames: list[int] = []
+    attack_scale: tuple[float, ...] | None = None
+    stagger: tuple[float, ...] | None = None
+    damage_type: str | None = None
+    for index, hit in enumerate(skill.projectileHits):
+        if hit.cycleTruncated or hit.nestedProjectileHits:
+            raise ValueError(f"{skill.key}.projectileHits[{index}]: recursive projectile is not supported")
+        hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
+        poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
+        unknown_units = [unit for unit in hit.damageUnits if unit.attributeType not in {"Hp", "Poise"}]
+        if len(hp_units) != 1 or len(poise_units) > 1 or unknown_units:
+            raise ValueError(f"{skill.key}.projectileHits[{index}]: unsupported DamageUnit layout")
+        hp = hp_units[0]
+        mapped_type = DAMAGE_TYPE_MAP.get(hp.damageType)
+        if mapped_type is None:
+            raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
+        current_scale = require_level_values(hp.attackScale, f"{skill.key}.projectileHits[{index}].attackScale")
+        current_stagger = (
+            require_level_values(poise_units[0].poiseValue, f"{skill.key}.projectileHits[{index}].poise")
+            if poise_units and poise_units[0].poiseValue
+            else None
+        )
+        if damage_type is not None and damage_type != mapped_type:
+            raise ValueError(f"{skill.key}: projectile hits use different damage types")
+        if attack_scale is not None and attack_scale != current_scale:
+            raise ValueError(f"{skill.key}: projectile hits use different attack scales")
+        if stagger is not None and stagger != current_stagger:
+            raise ValueError(f"{skill.key}: projectile hits use different stagger values")
+        damage_type = mapped_type
+        attack_scale = current_scale
+        stagger = current_stagger
+        hit_frames.append(hit.launchFrame + hit.assumedTravelFrames)
+    if damage_type is None or attack_scale is None:
+        raise ValueError(f"{skill.key}: incomplete damage source")
+    options: dict[str, Any] = {}
+    if config.get("final") is True:
+        options["final"] = True
+    recovery_key = config.get("spRecoveryBlackboardKey")
+    if recovery_key is not None:
+        if not isinstance(recovery_key, str) or recovery_key not in skill.patch.blackboard:
+            raise ValueError(f"{skill.key}: invalid spRecoveryBlackboardKey")
+        options["spRecovery"] = compact_level_values(skill.patch.blackboard[recovery_key])
+    if stagger is not None:
+        options["stagger"] = compact_level_values(stagger)
+    frames: int | list[int] = hit_frames[0] if len(hit_frames) == 1 else hit_frames
+    return (
+        f"  basicAttackOfType({json.dumps(damage_type)})({json.dumps(skill.key)}, "
+        f"{skill.timelineBlockFrames}, {ts_literal(frames)}, {ts_literal(attack_scale)}, "
+        f"{ts_literal(options)}),"
+    )
+
+
+def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
+    entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
+    lines: list[str] = []
+    for entry, skill in zip(entries, skills, strict=True):
+        config = entry.get("compile")
+        if config is None:
+            continue
+        config = require_dict(config, f"{skill.key}.compile")
+        kind = config.get("kind")
+        if kind == "basicAttack":
+            lines.append(compile_basic_attack(skill, config))
+        else:
+            raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
+    export_name = f"{operator['slug']}GeneratedSkills"
+    return (
+        "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
+        "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
+        "import { basicAttackOfType } from '../definitionHelpers';\n\n"
+        "// prettier-ignore\n"
+        f"export const {export_name} = [\n"
+        + "\n".join(lines)
+        + "\n] as const satisfies readonly SkillDefinition[];\n"
+    )
+
+
 def render_report(slug: str, skills: list[SkillSource]) -> str:
     report = {
         "operator": slug,
@@ -492,6 +595,7 @@ def main() -> None:
         ]
         write_or_check(args.output / f"{slug}.generated.ts", render_typescript(str(operator["exportName"]), slug, skills), args.check)
         write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
+        write_or_check(args.output / f"{slug}.skills.generated.ts", render_compiled_skills(operator, skills), args.check)
         print(f"[{slug}] generated {len(skills)} skills -> {args.output}")
         generated += 1
     if selected and generated != len(selected):

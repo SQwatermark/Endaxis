@@ -45,3 +45,8 @@ python scripts/generate_next_operators/generate_next_operators.py --check
 最终 DSL 由后续语义编译阶段生成。该阶段只能消费已经闭环的中间节点；例如投射物 DamageUnit 的
 `blackboardKey` 必须已经解析出 `levelValues`。仍包含未支持战斗行为的技能只进入审计报告，不允许
 通过省略行为的方式伪装成完整技能。
+
+清单中带有 `compile` 的技能会额外写入 `<slug>.skills.generated.ts`。当前首个编译器支持普通攻击：
+它将逐枚投射物命中编译为调度伤害，并支持同次命中的失衡。`final` 和
+`spRecoveryBlackboardKey` 是无法仅凭通用 DamageUnit 唯一确定的业务语义，必须在清单中显式声明；
+实际回复数值仍从 SkillPatch 读取。
