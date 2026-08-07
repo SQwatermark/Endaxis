@@ -180,6 +180,31 @@ class BuffEventActionSource:
 
 
 @dataclass(frozen=True)
+class EntityCountConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    minimumCount: int
+    comparison: str
+    containsHittableTarget: bool
+    excludeDeadEntity: bool
+    storeKey: str
+
+
+@dataclass(frozen=True)
+class BuffStackConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
+    countType: str
+    comparison: str
+    value: ScalarSource
+    limitSkillCastId: bool
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -187,6 +212,8 @@ class ConditionSource:
     left: ScalarSource | None
     right: ScalarSource | None
     skillTypes: tuple[str, ...]
+    entityCount: EntityCountConditionSource | None = None
+    buffStack: BuffStackConditionSource | None = None
 
 
 @dataclass(frozen=True)
@@ -296,6 +323,21 @@ class SkillSource:
     blackboardKeys: tuple[str, ...]
     blackboardProvenance: tuple[BlackboardKeyProvenanceSource, ...]
     unresolvedCombatActions: tuple[str, ...]
+
+
+def serialize_audit_value(value: Any) -> Any:
+    """序列化审计对象，并省略仅对特定条件有意义的空详情。"""
+    if hasattr(value, "__dataclass_fields__"):
+        return serialize_audit_value(asdict(value))
+    if isinstance(value, dict):
+        return {
+            key: serialize_audit_value(item)
+            for key, item in value.items()
+            if not (key in {"entityCount", "buffStack"} and item is None)
+        }
+    if isinstance(value, (list, tuple)):
+        return [serialize_audit_value(item) for item in value]
+    return value
 
 
 COMBAT_ACTION_NAMES = {
@@ -594,9 +636,110 @@ def parse_conditional_actions(
                                 ),
                             )
                         )
+                    elif condition_type == "CheckEntityNum":
+                        target = require_dict(
+                            condition.get("checkTarget"),
+                            f"{source_name}.condition[{index}].checkTarget",
+                        )
+                        minimum_count = condition.get("minNum")
+                        if not isinstance(minimum_count, int) or isinstance(minimum_count, bool):
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].minNum: expected integer"
+                            )
+                        contains_hittable = condition.get("containsHittableTarget")
+                        exclude_dead = condition.get("excludeDeadEntity")
+                        store_key = condition.get("storeKey")
+                        if not isinstance(contains_hittable, bool):
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].containsHittableTarget: expected boolean"
+                            )
+                        if not isinstance(exclude_dead, bool):
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].excludeDeadEntity: expected boolean"
+                            )
+                        if not isinstance(store_key, str):
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].storeKey: expected string"
+                            )
+                        conditions.append(
+                            ConditionSource(
+                                sourceType=condition_type,
+                                # 原生目标集合尚未进入单敌人模拟；这里只保真审计参数。
+                                supported=False,
+                                comparison=None,
+                                left=None,
+                                right=None,
+                                skillTypes=(),
+                                entityCount=EntityCountConditionSource(
+                                    targetSource=str(target.get("targetSource", "")),
+                                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                                    minimumCount=minimum_count,
+                                    comparison=str(condition.get("compareType", "")),
+                                    containsHittableTarget=contains_hittable,
+                                    excludeDeadEntity=exclude_dead,
+                                    storeKey=store_key,
+                                ),
+                            )
+                        )
+                    elif condition_type == "CheckBuffStackNumAdvanced":
+                        target = require_dict(
+                            condition.get("checkTarget"),
+                            f"{source_name}.condition[{index}].checkTarget",
+                        )
+                        check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+                            condition.get("buffSettings"),
+                            f"{source_name}.condition[{index}].buffSettings",
+                        )
+                        count_type = condition.get("buffStackNumType")
+                        limit_skill_cast_id = condition.get("limitSkillCastId")
+                        if not isinstance(count_type, str) or not count_type:
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].buffStackNumType: expected string"
+                            )
+                        if not isinstance(limit_skill_cast_id, bool):
+                            raise ValueError(
+                                f"{source_name}.condition[{index}].limitSkillCastId: expected boolean"
+                            )
+                        conditions.append(
+                            ConditionSource(
+                                sourceType=condition_type,
+                                supported=(
+                                    count_type == "BuffCount"
+                                    and not limit_skill_cast_id
+                                    and check_type in {"Id", "Tag"}
+                                ),
+                                comparison=None,
+                                left=None,
+                                right=None,
+                                skillTypes=(),
+                                buffStack=BuffStackConditionSource(
+                                    targetSource=str(target.get("targetSource", "")),
+                                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                                    buffCheckType=check_type,
+                                    buffIds=buff_ids,
+                                    tagQueryType=query_type,
+                                    buffTagIds=tag_ids,
+                                    countType=count_type,
+                                    comparison=str(condition.get("compareType", "")),
+                                    value=parse_scalar(
+                                        condition.get("value"),
+                                        f"{source_name}.condition[{index}].value",
+                                        inherited_blackboard,
+                                    ),
+                                    limitSkillCastId=limit_skill_cast_id,
+                                ),
+                            )
+                        )
                     else:
                         conditions.append(
-                            ConditionSource(condition_type, False, None, None, None, ())
+                            ConditionSource(
+                                sourceType=condition_type,
+                                supported=False,
+                                comparison=None,
+                                left=None,
+                                right=None,
+                                skillTypes=(),
+                            )
                         )
                 result.append(
                     ConditionalActionSource(
@@ -1789,7 +1932,7 @@ def ts_inline_literal(value: Any) -> str:
 
 
 def render_typescript(export_name: str, slug: str, skills: list[SkillSource]) -> str:
-    payload = {"slug": slug, "skills": [asdict(skill) for skill in skills]}
+    payload = {"slug": slug, "skills": [serialize_audit_value(skill) for skill in skills]}
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { GeneratedOperatorSource } from './generatedOperatorSource';\n\n"
@@ -2910,7 +3053,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
                 "conditionalActions": [
-                    asdict(action) for action in skill.conditionalActions
+                    serialize_audit_value(action) for action in skill.conditionalActions
                 ],
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
                 "blackboardCalculations": [

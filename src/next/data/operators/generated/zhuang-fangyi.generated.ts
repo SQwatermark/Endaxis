@@ -2482,7 +2482,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -3119,7 +3128,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -3206,7 +3224,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -3298,7 +3325,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -3390,7 +3426,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -4096,7 +4141,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -4183,7 +4237,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -4275,7 +4338,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -4367,7 +4439,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -5021,7 +5102,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": true,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6551,11 +6641,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_normal_skill_trigger_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6579,7 +6687,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": true,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6609,11 +6726,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  1466867135
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6699,11 +6834,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6780,11 +6933,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -6870,7 +7041,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8650,7 +8830,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": true,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8680,11 +8869,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_ult_skill_free"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8718,11 +8925,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8752,11 +8977,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  1466867135
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8848,11 +9091,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8935,11 +9196,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential1_more_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -8992,7 +9271,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -10228,11 +10516,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  2123008650
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -10256,11 +10562,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  1466867135
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -10319,7 +10643,16 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
             }
           ],
           "succeedCombatActions": [
@@ -11098,11 +11431,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  2123008650
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -11126,11 +11477,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  1466867135
+                ],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [
@@ -11863,11 +12232,29 @@ export const zhuangFangyiGeneratedSource = {
           "conditions": [
             {
               "sourceType": "CheckBuffStackNumAdvanced",
-              "supported": false,
+              "supported": true,
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_potential5_vfx"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              }
             }
           ],
           "succeedCombatActions": [

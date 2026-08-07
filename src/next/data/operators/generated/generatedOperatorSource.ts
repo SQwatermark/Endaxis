@@ -147,6 +147,31 @@ export interface GeneratedBuffBehaviorSource {
   readonly cycleTruncated: boolean;
 }
 
+/** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */
+export interface GeneratedEntityCountConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly minimumCount: number;
+  readonly comparison: string;
+  readonly containsHittableTarget: boolean;
+  readonly excludeDeadEntity: boolean;
+  readonly storeKey: string;
+}
+
+/** 原始 Buff 层数检查；`BuffCount` 表示匹配 Buff 的强化层数总和。 */
+export interface GeneratedBuffStackConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffCheckType: string;
+  readonly buffIds: readonly string[];
+  readonly tagQueryType: string;
+  readonly buffTagIds: readonly number[];
+  readonly countType: string;
+  readonly comparison: string;
+  readonly value: GeneratedScalarSource;
+  readonly limitSkillCastId: boolean;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -154,6 +179,8 @@ export interface GeneratedConditionSource {
   readonly left: GeneratedScalarSource | null;
   readonly right: GeneratedScalarSource | null;
   readonly skillTypes: readonly string[];
+  readonly entityCount?: GeneratedEntityCountConditionSource;
+  readonly buffStack?: GeneratedBuffStackConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {

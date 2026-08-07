@@ -312,6 +312,82 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertEqual(actions[0].failCombatActions, ("ObtainCostAction",))
 
+    def test_conditional_audit_preserves_entity_and_buff_stack_conditions(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckEntityNum+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Context",
+                                                    "targetGroupKey": "smart_target",
+                                                },
+                                                "minNum": 1,
+                                                "containsHittableTarget": False,
+                                                "compareType": "GE",
+                                                "excludeDeadEntity": True,
+                                                "storeKey": "",
+                                            },
+                                            {
+                                                "$type": "Example.CheckBuffStackNumAdvanced+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Context",
+                                                    "targetGroupKey": "smart_target",
+                                                },
+                                                "buffSettings": {
+                                                    "checkType": "Tag",
+                                                    "buffIdList": [],
+                                                    "tagQuery": {
+                                                        "queryType": "HasAny",
+                                                        "tags": [{"tagId": 1466867135}],
+                                                    },
+                                                },
+                                                "buffStackNumType": "BuffCount",
+                                                "compareType": "GE",
+                                                "value": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "limitSkillCastId": False,
+                                            },
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "skill.json", {})[0]
+
+        entity = action.conditions[0]
+        self.assertFalse(entity.supported)
+        self.assertEqual(entity.entityCount.targetGroupKey, "smart_target")
+        self.assertEqual(entity.entityCount.minimumCount, 1)
+        buff = action.conditions[1]
+        self.assertTrue(buff.supported)
+        self.assertEqual(buff.buffStack.buffTagIds, (1466867135,))
+        self.assertEqual(buff.buffStack.countType, "BuffCount")
+        self.assertEqual(buff.buffStack.value.value, 1)
+
     def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:
         unit = DamageUnitSource(
             damageType="Pulse",
