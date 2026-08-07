@@ -18,6 +18,11 @@ import type {
   PlayerDamageContext,
 } from '../damage/playerDamageContext';
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
+import {
+  GameplayTagRegistry,
+  type GameplayTagId,
+  type GameplayTagQueryType,
+} from '../tags/gameplayTags';
 
 const BUFF_LIFETIME_EPSILON = 0.00001;
 const BUFF_PRIORITY_EPSILON = 0.00001;
@@ -104,6 +109,8 @@ export interface BuffLifecycleActions<Key extends string> {
 /** 可复用、不可变的 Buff 目录定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
+  /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
+  readonly applyTags?: readonly GameplayTagId[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -206,6 +213,13 @@ export class CombatBuff<Key extends string> {
 
   get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
     return this.#attributeModifiers;
+  }
+
+  /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
+  containsTag(tag: GameplayTagId, exact = false): boolean {
+    return (this.definition.applyTags ?? []).some(candidate =>
+      this.owner.tagRegistry.matches(candidate, tag, exact),
+    );
   }
 
   enable(): void {
@@ -403,6 +417,7 @@ export class CombatBuffContainer<Key extends string> {
   constructor(
     readonly ownerId: string,
     readonly attributes: CombatAttributeSet<Key>,
+    readonly tagRegistry = new GameplayTagRegistry([]),
   ) {}
 
   get buffs(): readonly CombatBuff<Key>[] {
@@ -437,6 +452,21 @@ export class CombatBuffContainer<Key extends string> {
   getCountById(id: string): number {
     return this.#buffs
       .filter(buff => !buff.isFinished && buff.definition.id === id)
+      .reduce((count, buff) => count + buff.enhanceCount, 0);
+  }
+
+  /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */
+  getCountByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType = 'hasAny',
+    exact = false,
+  ): number {
+    return this.#buffs
+      .filter(
+        buff =>
+          !buff.isFinished &&
+          this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
+      )
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 

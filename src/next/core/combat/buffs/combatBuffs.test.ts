@@ -18,6 +18,7 @@ import {
   type BuffDuringEnableAction,
   type CombatBuffDefinition,
 } from './combatBuffs';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 
 type Attribute = 'attack';
 
@@ -117,6 +118,26 @@ function createDefinition(
 }
 
 describe('CombatBuffContainer', () => {
+  it('按 applyTags 的原生层级语义查询 Buff', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const registry = new GameplayTagRegistry(['Combat/Buff/Pulse/Triggered']);
+    const container = new CombatBuffContainer('operator', attributes, registry);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'pulse-triggered',
+      applyTags: [gameplayTagIdFromPath('Combat/Buff/Pulse/Triggered')],
+      stackingType: 'enhance',
+    };
+
+    requireAddedBuff(container.add(definition, 'skill'));
+    requireAddedBuff(container.add(definition, 'skill'));
+
+    expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(2);
+    expect(
+      container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')], 'hasAny', true),
+    ).toBe(0);
+  });
+
   it('registers independent modifiers and follows enable-disable-finish lifecycle', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
