@@ -1300,6 +1300,49 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         buff = {
             "lifeType": "Limited",
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 3,
+                "blackboardKey": "duration",
+            },
+            "triggerInterval": {
+                "useBlackboardKey": True,
+                "value": 0.2,
+                "blackboardKey": "interval",
+            },
+            "waitFirstTriggerInterval": True,
+            "maxTriggerCnt": {
+                "useBlackboardKey": False,
+                "value": 5,
+                "blackboardKey": "",
+            },
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "Stack",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "negatePriority": False,
+                "priority": 0,
+                "useMaxStackCntKey": True,
+                "maxStackCntKey": "max_stack",
+                "maxStackCnt": 1,
+                "isNeedStackEffect": False,
+            },
+            "blackboard": [
+                {
+                    "key": "interval",
+                    "valueDouble": 0.3,
+                    "valueStr": "",
+                    "isDynamic": False,
+                },
+                {
+                    "key": "max_stack",
+                    "valueDouble": 4,
+                    "valueStr": "",
+                    "isDynamic": False,
+                },
+            ],
             "timelineActions": [],
             "buffEventAction": [
                 {
@@ -1325,6 +1368,18 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             behaviors = resolve_buff_behaviors(root, "skill.json", path, path, {})
 
         event = behaviors[0].eventActions[0]
+        lifecycle = behaviors[0].lifecycle
+        self.assertIsNotNone(lifecycle)
+        assert lifecycle is not None
+        self.assertEqual(lifecycle.lifeType, "Limited")
+        self.assertEqual(lifecycle.duration.value, 3)
+        self.assertEqual(lifecycle.triggerInterval.blackboardKey, "interval")
+        self.assertEqual(lifecycle.triggerInterval.levelValues, (0.3,))
+        self.assertTrue(lifecycle.waitFirstTriggerInterval)
+        self.assertEqual(lifecycle.maxTriggerCount.value, 5)
+        self.assertEqual(lifecycle.stackingType, "Stack")
+        self.assertEqual(lifecycle.maxStackCount.blackboardKey, "max_stack")
+        self.assertEqual(lifecycle.maxStackCount.levelValues, (4.0,))
         self.assertEqual(event.event, "OnBuffTrigger")
         self.assertEqual(event.combatActions, ("CreateBuffAction",))
         self.assertEqual(event.createdBuffIds, ("child_buff",))

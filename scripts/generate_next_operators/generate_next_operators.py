@@ -194,13 +194,29 @@ class ResolvedScheduleItemSource:
 
 
 @dataclass(frozen=True)
+class BuffLifecycleSource:
+    lifeType: str
+    duration: ScalarSource
+    triggerInterval: ScalarSource
+    waitFirstTriggerInterval: bool
+    maxTriggerCount: ScalarSource
+    stackingIdentifierType: str
+    stackingType: str
+    stackingKey: str
+    priority: ScalarSource
+    negatePriority: bool
+    maxStackCount: ScalarSource
+    hasStackEffects: bool
+
+
+@dataclass(frozen=True)
 class BuffBehaviorSource:
     applicationFrame: int | None
     applicationEvent: str | None
     buffId: str
     sourceFile: str
     sourceAvailable: bool
-    lifeType: str
+    lifecycle: BuffLifecycleSource | None
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
@@ -1642,6 +1658,82 @@ def parse_buff_assignments(
     return result
 
 
+def parse_buff_lifecycle(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> BuffLifecycleSource:
+    """读取 BuffData 的计时与叠加配置；这里仅保留事实，不推断运行时事件。"""
+    life_type = buff.get("lifeType")
+    if life_type not in {"Limited", "Infinity"}:
+        raise ValueError(f"{source_name}.lifeType: unsupported value {life_type!r}")
+    wait_first = buff.get("waitFirstTriggerInterval")
+    if not isinstance(wait_first, bool):
+        raise ValueError(f"{source_name}.waitFirstTriggerInterval: expected boolean")
+    settings = require_dict(buff.get("stackingSettings"), f"{source_name}.stackingSettings")
+
+    def configured_scalar(
+        use_key_name: str,
+        key_name: str,
+        value_name: str,
+    ) -> ScalarSource:
+        use_key = settings.get(use_key_name)
+        if not isinstance(use_key, bool):
+            raise ValueError(f"{source_name}.stackingSettings.{use_key_name}: expected boolean")
+        key = settings.get(key_name)
+        if not isinstance(key, str):
+            raise ValueError(f"{source_name}.stackingSettings.{key_name}: expected string")
+        value = settings.get(value_name)
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValueError(f"{source_name}.stackingSettings.{value_name}: expected number")
+        if use_key and not key:
+            raise ValueError(
+                f"{source_name}.stackingSettings.{key_name}: active reference has no key"
+            )
+        return ScalarSource(
+            value=float(value),
+            blackboardKey=key if use_key else None,
+            levelValues=blackboard.get(key) if use_key else None,
+        )
+
+    identifier_type = settings.get("identifierType")
+    stacking_type = settings.get("stackingType")
+    stacking_key = settings.get("stackingKey")
+    if not isinstance(identifier_type, str) or not identifier_type:
+        raise ValueError(f"{source_name}.stackingSettings.identifierType: expected string")
+    if not isinstance(stacking_type, str) or not stacking_type:
+        raise ValueError(f"{source_name}.stackingSettings.stackingType: expected string")
+    if not isinstance(stacking_key, str):
+        raise ValueError(f"{source_name}.stackingSettings.stackingKey: expected string")
+    negate_priority = settings.get("negatePriority")
+    has_stack_effects = settings.get("isNeedStackEffect")
+    if not isinstance(negate_priority, bool):
+        raise ValueError(f"{source_name}.stackingSettings.negatePriority: expected boolean")
+    if not isinstance(has_stack_effects, bool):
+        raise ValueError(f"{source_name}.stackingSettings.isNeedStackEffect: expected boolean")
+
+    return BuffLifecycleSource(
+        lifeType=life_type,
+        duration=parse_scalar(buff.get("duration"), f"{source_name}.duration", blackboard),
+        triggerInterval=parse_scalar(
+            buff.get("triggerInterval"), f"{source_name}.triggerInterval", blackboard
+        ),
+        waitFirstTriggerInterval=wait_first,
+        maxTriggerCount=parse_scalar(
+            buff.get("maxTriggerCnt"), f"{source_name}.maxTriggerCnt", blackboard
+        ),
+        stackingIdentifierType=identifier_type,
+        stackingType=stacking_type,
+        stackingKey=stacking_key,
+        priority=configured_scalar("usePriorityKey", "priorityKey", "priority"),
+        negatePriority=negate_priority,
+        maxStackCount=configured_scalar(
+            "useMaxStackCntKey", "maxStackCntKey", "maxStackCnt"
+        ),
+        hasStackEffects=has_stack_effects,
+    )
+
+
 def parse_auxiliary_actions(
     root: dict[str, Any],
     source_name: str,
@@ -2172,7 +2264,7 @@ def resolve_buff_behaviors(
                 buffId=buff_id,
                 sourceFile=buff_name,
                 sourceAvailable=False,
-                lifeType="",
+                lifecycle=None,
                 directDamageHits=(),
                 conditionalActions=(),
                 blackboardCalculations=(),
@@ -2191,6 +2283,9 @@ def resolve_buff_behaviors(
         child_blackboard = dict(inherited_blackboard)
         for key, scalar in assignments.items():
             child_blackboard[key] = scalar.levelValues or (scalar.value,)
+        for entry in parse_declared_blackboard(buff, buff_name):
+            child_blackboard.setdefault(entry.key, (entry.value,))
+        lifecycle = parse_buff_lifecycle(buff, buff_name, child_blackboard)
         cycle_truncated = buff_id in current_stack
         nested = (
             ()
@@ -2278,7 +2373,7 @@ def resolve_buff_behaviors(
             buffId=buff_id,
             sourceFile=buff_name,
             sourceAvailable=True,
-            lifeType=str(buff.get("lifeType", "")),
+            lifecycle=lifecycle,
             directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
             conditionalActions=parse_conditional_actions(adapted_root, buff_name, child_blackboard),
             blackboardCalculations=parse_blackboard_calculations(

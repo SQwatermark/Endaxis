@@ -124,6 +124,22 @@ export interface GeneratedAbilityEntityHitSource {
   readonly cycleTruncated: boolean;
 }
 
+/** BuffData 自身的计时与叠加事实；事件动作仍由 GeneratedBuffBehaviorSource 单独保存。 */
+export interface GeneratedBuffLifecycleSource {
+  readonly lifeType: 'Limited' | 'Infinity';
+  readonly duration: GeneratedScalarSource;
+  readonly triggerInterval: GeneratedScalarSource;
+  readonly waitFirstTriggerInterval: boolean;
+  readonly maxTriggerCount: GeneratedScalarSource;
+  readonly stackingIdentifierType: string;
+  readonly stackingType: string;
+  readonly stackingKey: string;
+  readonly priority: GeneratedScalarSource;
+  readonly negatePriority: boolean;
+  readonly maxStackCount: GeneratedScalarSource;
+  readonly hasStackEffects: boolean;
+}
+
 /** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
 export interface GeneratedBuffBehaviorSource {
   readonly applicationFrame: number | null;
@@ -133,7 +149,8 @@ export interface GeneratedBuffBehaviorSource {
   readonly sourceFile: string;
   /** false 表示当前 BuffData 导出缺少该引用，审计层不得把它视为已解析。 */
   readonly sourceAvailable: boolean;
-  readonly lifeType: string;
+  /** null 表示数据源缺失，不能据此构造运行时 Buff。 */
+  readonly lifecycle: GeneratedBuffLifecycleSource | null;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   /** 会影响战斗动作集合的原生条件分支；unsupported 条件不得直接编译。 */
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];

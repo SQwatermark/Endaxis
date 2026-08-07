@@ -4928,7 +4928,40 @@ export const zhuangFangyiGeneratedSource = {
           "buffId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
           "sourceFile": "buff_chr_0030_zhuangfy_attack3_ult_cancel.json",
           "sourceAvailable": true,
-          "lifeType": "Infinity",
+          "lifecycle": {
+            "lifeType": "Infinity",
+            "duration": {
+              "value": 1.0,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": false,
+            "maxTriggerCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unique",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          },
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
@@ -5452,7 +5485,7 @@ export const zhuangFangyiGeneratedSource = {
           "buffId": "buff_common_damage_immune_medium",
           "sourceFile": "buff_common_damage_immune_medium.json",
           "sourceAvailable": false,
-          "lifeType": "",
+          "lifecycle": null,
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
@@ -5471,7 +5504,7 @@ export const zhuangFangyiGeneratedSource = {
           "buffId": "buff_common_power_attack_disable_cast_skill",
           "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
           "sourceAvailable": false,
-          "lifeType": "",
+          "lifecycle": null,
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
@@ -11796,7 +11829,53 @@ export const zhuangFangyiGeneratedSource = {
           "buffId": "buff_chr_0030_zhuangfy_ult_base",
           "sourceFile": "buff_chr_0030_zhuangfy_ult_base.json",
           "sourceAvailable": true,
-          "lifeType": "Limited",
+          "lifecycle": {
+            "lifeType": "Limited",
+            "duration": {
+              "value": 1.5,
+              "blackboardKey": "duration",
+              "levelValues": [
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0
+              ]
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": false,
+            "maxTriggerCount": {
+              "value": 99.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Stack",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          },
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
@@ -11827,7 +11906,40 @@ export const zhuangFangyiGeneratedSource = {
                   "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
                   "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model_holder.json",
                   "sourceAvailable": true,
-                  "lifeType": "Infinity",
+                  "lifecycle": {
+                    "lifeType": "Infinity",
+                    "duration": {
+                      "value": 0.033,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "triggerInterval": {
+                      "value": -1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "waitFirstTriggerInterval": false,
+                    "maxTriggerCount": {
+                      "value": 99.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "stackingIdentifierType": "Id",
+                    "stackingType": "Stack",
+                    "stackingKey": "NormalSkillCtrl",
+                    "priority": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "negatePriority": false,
+                    "maxStackCount": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "hasStackEffects": false
+                  },
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
@@ -11851,7 +11963,40 @@ export const zhuangFangyiGeneratedSource = {
                           "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
                           "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model.json",
                           "sourceAvailable": true,
-                          "lifeType": "Limited",
+                          "lifecycle": {
+                            "lifeType": "Limited",
+                            "duration": {
+                              "value": 0.1,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "triggerInterval": {
+                              "value": -1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "waitFirstTriggerInterval": false,
+                            "maxTriggerCount": {
+                              "value": 99.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "stackingIdentifierType": "Id",
+                            "stackingType": "Stack",
+                            "stackingKey": "NormalSkillCtrl",
+                            "priority": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "negatePriority": false,
+                            "maxStackCount": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "hasStackEffects": false
+                          },
                           "directDamageHits": [],
                           "conditionalActions": [],
                           "blackboardCalculations": [],
@@ -11906,7 +12051,53 @@ export const zhuangFangyiGeneratedSource = {
                   "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
                   "sourceFile": "buff_chr_0030_zhuangfy_ult_env_vfx.json",
                   "sourceAvailable": true,
-                  "lifeType": "Infinity",
+                  "lifecycle": {
+                    "lifeType": "Infinity",
+                    "duration": {
+                      "value": 1.5,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0
+                      ]
+                    },
+                    "triggerInterval": {
+                      "value": -1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "waitFirstTriggerInterval": true,
+                    "maxTriggerCount": {
+                      "value": 999.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "stackingIdentifierType": "Id",
+                    "stackingType": "Unique",
+                    "stackingKey": "NormalSkillCtrl",
+                    "priority": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "negatePriority": false,
+                    "maxStackCount": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "hasStackEffects": false
+                  },
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
@@ -11933,7 +12124,53 @@ export const zhuangFangyiGeneratedSource = {
                   "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
                   "sourceFile": "buff_chr_0030_zhuangfy_ult_body_vfx.json",
                   "sourceAvailable": true,
-                  "lifeType": "Infinity",
+                  "lifecycle": {
+                    "lifeType": "Infinity",
+                    "duration": {
+                      "value": 1.5,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0
+                      ]
+                    },
+                    "triggerInterval": {
+                      "value": -1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "waitFirstTriggerInterval": true,
+                    "maxTriggerCount": {
+                      "value": 999.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "stackingIdentifierType": "Id",
+                    "stackingType": "Unique",
+                    "stackingKey": "NormalSkillCtrl",
+                    "priority": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "negatePriority": false,
+                    "maxStackCount": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "hasStackEffects": false
+                  },
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
@@ -11981,7 +12218,53 @@ export const zhuangFangyiGeneratedSource = {
                   "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
                   "sourceFile": "buff_chr_0030_zhuangfy_ult_skill_free.json",
                   "sourceAvailable": true,
-                  "lifeType": "Infinity",
+                  "lifecycle": {
+                    "lifeType": "Infinity",
+                    "duration": {
+                      "value": 1.5,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0,
+                        25.0
+                      ]
+                    },
+                    "triggerInterval": {
+                      "value": -1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "waitFirstTriggerInterval": true,
+                    "maxTriggerCount": {
+                      "value": 999.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "stackingIdentifierType": "Id",
+                    "stackingType": "Unique",
+                    "stackingKey": "NormalSkillCtrl",
+                    "priority": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "negatePriority": false,
+                    "maxStackCount": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "hasStackEffects": false
+                  },
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
@@ -12008,7 +12291,7 @@ export const zhuangFangyiGeneratedSource = {
           "buffId": "buff_common_damage_immune_ult_skill",
           "sourceFile": "buff_common_damage_immune_ult_skill.json",
           "sourceAvailable": false,
-          "lifeType": "",
+          "lifecycle": null,
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
