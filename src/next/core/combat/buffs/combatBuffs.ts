@@ -19,6 +19,12 @@ import type {
 } from '../damage/playerDamageContext';
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
 import {
+  SharedSpGainModifier,
+  type SharedSpGainAttribute,
+  type SharedSpGainModifierOperation,
+  type SharedSpGainModifierSet,
+} from '../resources/sharedSpGainModifiers';
+import {
   GameplayTagRegistry,
   type GameplayTagId,
   type GameplayTagQueryType,
@@ -72,6 +78,14 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly timing: AttributeModifierTiming;
 }
 
+/** Buff 启用期间注册到整场战斗共享 SP 系统的一项固定值修正。 */
+export interface BuffSharedSpGainModifierDefinition {
+  readonly attribute: SharedSpGainAttribute;
+  readonly operation: SharedSpGainModifierOperation;
+  readonly value: number;
+  readonly applyToReturnSpGain: boolean;
+}
+
 /** 固定秒数或由实例黑板提供的 Buff 持续时间。 */
 export type BuffDuration = number | { readonly blackboardKey: string };
 /** 固定值或由实例黑板提供的 Buff 可触发次数。 */
@@ -123,6 +137,11 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
+  /**
+   * 共享 SP 修正属于战斗级状态，但其注册生命周期归当前 Buff 实例所有。
+   * 当前仅支持固定值；原生动态黑板刷新链尚未闭环前，不在这里复用属性修正的动态语义。
+   */
+  readonly sharedSpGainModifiers?: readonly BuffSharedSpGainModifierDefinition[];
   readonly actions?: BuffLifecycleActions<Key>;
 }
 
@@ -137,6 +156,7 @@ export class CombatBuff<Key extends string> {
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];
+  readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
   #passedTime = 0;
   #remainingDuration: number | null;
   #started = false;
@@ -180,6 +200,20 @@ export class CombatBuff<Key extends string> {
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
     this.#attributeModifiers = this.createAttributeModifiers();
+    this.#sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(
+      modifier =>
+        new SharedSpGainModifier(
+          modifier.attribute,
+          modifier.operation,
+          modifier.value,
+          modifier.applyToReturnSpGain,
+        ),
+    );
+    if (this.#sharedSpGainModifiers.length > 0 && owner.sharedSpGainModifiers === null) {
+      throw new Error(
+        `buff '${definition.id}' requires a shared SP gain modifier set on its owner`,
+      );
+    }
     this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
   }
 
@@ -236,7 +270,9 @@ export class CombatBuff<Key extends string> {
       for (const modifier of this.attributeModifiers) {
         this.owner.attributes.addModifier(modifier);
       }
+      this.registerSharedSpGainModifiers();
     } catch (error) {
+      this.unregisterSharedSpGainModifiers();
       this.removeAttributeModifiers();
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.#enabled = false;
@@ -252,6 +288,7 @@ export class CombatBuff<Key extends string> {
     this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
     this.removeAttributeModifiers();
+    this.unregisterSharedSpGainModifiers();
     this.#enabled = false;
   }
 
@@ -267,6 +304,7 @@ export class CombatBuff<Key extends string> {
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.removeAttributeModifiers();
+      this.unregisterSharedSpGainModifiers();
     }
     this.endDuringEnableAction();
     this.#finishing = false;
@@ -364,6 +402,18 @@ export class CombatBuff<Key extends string> {
     }
   }
 
+  private registerSharedSpGainModifiers(): void {
+    const registry = this.owner.sharedSpGainModifiers;
+    if (registry === null) return;
+    for (const modifier of this.#sharedSpGainModifiers) registry.add(modifier);
+  }
+
+  private unregisterSharedSpGainModifiers(): void {
+    const registry = this.owner.sharedSpGainModifiers;
+    if (registry === null) return;
+    for (const modifier of this.#sharedSpGainModifiers) registry.remove(modifier);
+  }
+
   private endDuringEnableAction(): void {
     if (this.#duringEnableAction === null) return;
     this.#duringEnableAction.end(this);
@@ -418,6 +468,8 @@ export class CombatBuffContainer<Key extends string> {
     readonly ownerId: string,
     readonly attributes: CombatAttributeSet<Key>,
     readonly tagRegistry = new GameplayTagRegistry([]),
+    /** 一次战斗唯一的共享 SP 修正注册表；仅使用相关 Buff 的容器需要提供。 */
+    readonly sharedSpGainModifiers: SharedSpGainModifierSet | null = null,
   ) {}
 
   get buffs(): readonly CombatBuff<Key>[] {

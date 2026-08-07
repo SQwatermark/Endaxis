@@ -19,6 +19,7 @@ import {
   type CombatBuffDefinition,
 } from './combatBuffs';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { SharedSpGainModifierSet } from '../resources/sharedSpGainModifiers';
 
 type Attribute = 'attack';
 
@@ -1545,5 +1546,104 @@ describe('CombatBuffContainer', () => {
     expect(attributes.modifierCount).toBe(1);
     expect(attributes.get('attack')).toBe(110);
     expect(buff.blackboard.getNumber('bonus')).toBeUndefined();
+  });
+
+  it('registers and unregisters shared SP gain modifiers with the buff lifecycle', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const sharedSpGainModifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
+    const container = new CombatBuffContainer(
+      'operator',
+      attributes,
+      new GameplayTagRegistry([]),
+      sharedSpGainModifiers,
+    );
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'buff.shared-sp.lifecycle',
+          stackingType: 'unlimited',
+          sharedSpGainModifiers: [
+            {
+              attribute: 'powerAttackEfficiency',
+              operation: 'addition',
+              value: 0.5,
+              applyToReturnSpGain: false,
+            },
+          ],
+        },
+        'operator',
+      ),
+    );
+
+    expect(sharedSpGainModifiers.modifierCount).toBe(1);
+    expect(sharedSpGainModifiers.resolve('powerAttack', 'gain').totalEfficiency).toBe(1.5);
+
+    buff.enable();
+    expect(sharedSpGainModifiers.modifierCount).toBe(1);
+
+    buff.disable();
+    expect(sharedSpGainModifiers.modifierCount).toBe(0);
+    expect(sharedSpGainModifiers.resolve('powerAttack', 'gain').totalEfficiency).toBe(1);
+
+    buff.enable();
+    expect(sharedSpGainModifiers.modifierCount).toBe(1);
+    buff.finish('other');
+    expect(sharedSpGainModifiers.modifierCount).toBe(0);
+  });
+
+  it('keeps equal shared SP modifiers isolated by buff instance identity', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const sharedSpGainModifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
+    const container = new CombatBuffContainer(
+      'operator',
+      attributes,
+      new GameplayTagRegistry([]),
+      sharedSpGainModifiers,
+    );
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.shared-sp.instances',
+      stackingType: 'unlimited',
+      sharedSpGainModifiers: [
+        {
+          attribute: 'gainEfficiency',
+          operation: 'addition',
+          value: 0.25,
+          applyToReturnSpGain: true,
+        },
+      ],
+    };
+    const first = requireAddedBuff(container.add(definition, 'first'));
+    requireAddedBuff(container.add(definition, 'second'));
+
+    expect(sharedSpGainModifiers.modifierCount).toBe(2);
+    expect(sharedSpGainModifiers.resolve('skill', 'gain').totalEfficiency).toBe(1.5);
+
+    first.disable();
+    expect(sharedSpGainModifiers.modifierCount).toBe(1);
+    expect(sharedSpGainModifiers.resolve('skill', 'gain').totalEfficiency).toBe(1.25);
+  });
+
+  it('rejects a shared SP modifier buff when its container has no battle registry', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
+
+    expect(() =>
+      container.add(
+        {
+          id: 'buff.shared-sp.missing-registry',
+          stackingType: 'unlimited',
+          sharedSpGainModifiers: [
+            {
+              attribute: 'gainEfficiency',
+              operation: 'addition',
+              value: 0.25,
+              applyToReturnSpGain: true,
+            },
+          ],
+        },
+        'operator',
+      ),
+    ).toThrow(
+      "buff 'buff.shared-sp.missing-registry' requires a shared SP gain modifier set on its owner",
+    );
   });
 });
