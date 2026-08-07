@@ -134,6 +134,9 @@ describe('CombatBuffContainer', () => {
 
     expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(2);
     expect(
+      container.findFirstByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])?.definition.id,
+    ).toBe('pulse-triggered');
+    expect(
       container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')], 'hasAny', true),
     ).toBe(0);
   });

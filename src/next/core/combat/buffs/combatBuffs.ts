@@ -470,6 +470,19 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** 按容器插入顺序返回首个未结束且分类标签满足查询的 Buff。 */
+  findFirstByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType = 'hasAny',
+    exact = false,
+  ): CombatBuff<Key> | undefined {
+    return this.#buffs.find(
+      buff =>
+        !buff.isFinished &&
+        this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
+    );
+  }
+
   findFirst(predicate: (buff: CombatBuff<Key>) => boolean): CombatBuff<Key> | undefined {
     return this.#buffs.find(buff => !buff.isFinished && predicate(buff));
   }
