@@ -97,6 +97,7 @@ export interface GeneratedProjectileHitSource {
 
 export interface GeneratedSkillSource {
   readonly key: string;
+  readonly skillId: string;
   readonly skillType: SkillType;
   readonly sourceFile: string;
   readonly timelineBlockFrames: number;

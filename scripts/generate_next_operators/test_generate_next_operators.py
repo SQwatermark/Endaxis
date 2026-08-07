@@ -10,14 +10,41 @@ from generate_next_operators import (
     parse_direct_damage_hits,
     parse_damage_units,
     parse_inflictions,
+    parse_panel_attributes,
     parse_resource_gains,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
+    typescript_identifier,
 )
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
+        self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")
+
+    def test_panel_attributes_select_milestone_levels_and_truncate_display_values(self) -> None:
+        attributes = []
+        for level in (1, 20, 40, 60, 80, 90):
+            attributes.append(
+                {
+                    "Attribute": {
+                        "attrs": [
+                            {"attrType": 0, "attrValue": level},
+                            *(
+                                {"attrType": attr_type, "attrValue": level + 0.9}
+                                for attr_type in (39, 40, 41, 42, 2, 1)
+                            ),
+                        ]
+                    }
+                }
+            )
+
+        result = parse_panel_attributes({"attributes": attributes}, "character")
+
+        self.assertEqual(result["strength"], (1, 20, 40, 60, 80, 90))
+        self.assertEqual(result["baseHealth"], (1, 20, 40, 60, 80, 90))
+
     def test_allow_next_can_open_before_generic_interrupt_boundary(self) -> None:
         frame, source = derive_timeline_block(
             22,

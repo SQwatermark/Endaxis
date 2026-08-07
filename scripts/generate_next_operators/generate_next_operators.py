@@ -114,6 +114,7 @@ class ProjectileHitSource:
 @dataclass(frozen=True)
 class SkillSource:
     key: str
+    skillId: str
     skillType: str
     sourceFile: str
     timelineBlockFrames: int
@@ -763,6 +764,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
     return SkillSource(
         key=str(entry["key"]),
+        skillId=skill_id,
         skillType=str(entry["skillType"]),
         sourceFile=source_name,
         timelineBlockFrames=block_frame,
@@ -1231,7 +1233,7 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
             lines.append(compile_projectile_damage(skill, config))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
-    export_name = f"{operator['slug']}GeneratedSkills"
+    export_name = f"{typescript_identifier(str(operator['slug']))}GeneratedSkills"
     helper_imports = ", ".join(
         (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
     )
@@ -1246,6 +1248,298 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
     )
 
 
+WEAPON_TYPE_MAP = {2: "arts-unit"}
+ELEMENT_TYPE_MAP = {"Pulse": "electric"}
+PROFESSION_MAP = {5: "caster"}
+ATTRIBUTE_TYPE_MAP = {39: "strength", 40: "agility", 41: "intellect", 42: "will"}
+PANEL_ATTRIBUTE_TYPES = {
+    "strength": 39,
+    "agility": 40,
+    "intellect": 41,
+    "will": 42,
+    "baseAttack": 2,
+    "baseHealth": 1,
+}
+PANEL_LEVELS = (1, 20, 40, 60, 80, 90)
+
+
+def table_row(table: dict[str, Any], key: str, path: str) -> dict[str, Any]:
+    if key not in table:
+        raise ValueError(f"{path}: missing {key}")
+    return require_dict(table[key], f"{path}.{key}")
+
+
+def parse_panel_attributes(character: dict[str, Any], path: str) -> dict[str, tuple[int, ...]]:
+    rows_by_level: dict[int, dict[int, float]] = {}
+    for index, raw_row in enumerate(require_list(character.get("attributes"), f"{path}.attributes")):
+        row = require_dict(raw_row, f"{path}.attributes[{index}]")
+        attributes = require_dict(row.get("Attribute"), f"{path}.attributes[{index}].Attribute")
+        values = {
+            require_non_negative_int(item.get("attrType"), f"{path}.attributes[{index}].attrType"): float(item["attrValue"])
+            for item in (
+                require_dict(raw_item, f"{path}.attributes[{index}].attrs[]")
+                for raw_item in require_list(attributes.get("attrs"), f"{path}.attributes[{index}].attrs")
+            )
+        }
+        level = int(values.get(0, -1))
+        if level in PANEL_LEVELS and level not in rows_by_level:
+            rows_by_level[level] = values
+    missing = set(PANEL_LEVELS).difference(rows_by_level)
+    if missing:
+        raise ValueError(f"{path}.attributes: missing panel levels {sorted(missing)}")
+    return {
+        name: tuple(int(rows_by_level[level][attr_type]) for level in PANEL_LEVELS)
+        for name, attr_type in PANEL_ATTRIBUTE_TYPES.items()
+    }
+
+
+def typescript_identifier(slug: str) -> str:
+    parts = slug.split("-")
+    if not parts or any(not part or not part.replace("_", "").isalnum() for part in parts):
+        raise ValueError(f"invalid operator slug for TypeScript identifier: {slug!r}")
+    return parts[0] + "".join(part[0].upper() + part[1:] for part in parts[1:])
+
+
+def render_skill_groups(skills: list[SkillSource], skills_export_name: str) -> list[str]:
+    groups: list[tuple[str, str, list[int]]] = []
+    for index, skill in enumerate(skills):
+        group_key = "basicAttack" if skill.skillType == "basicAttack" else skill.key
+        if groups and groups[-1][0] == group_key:
+            groups[-1][2].append(index)
+        else:
+            groups.append((group_key, skill.skillType, [index]))
+    level_sources = {
+        "basicAttack": "basicAttack",
+        "finisher": "basicAttack",
+        "plungingAttack": "basicAttack",
+        "battleSkill": "battleSkill",
+        "comboSkill": "comboSkill",
+        "ultimate": "ultimate",
+    }
+    result: list[str] = []
+    for key, skill_type, indexes in groups:
+        level_source = level_sources.get(skill_type)
+        if level_source is None:
+            raise ValueError(f"skill group {key}: unsupported skill type {skill_type}")
+        references = [f"{skills_export_name}[{index}]!" for index in indexes]
+        skills_source = references[0] if len(references) == 1 else f"[{', '.join(references)}]"
+        result.append(
+            "{ "
+            f"key: {ts_inline_literal(key)}, skillType: {ts_inline_literal(skill_type)}, "
+            f"levelSource: {ts_inline_literal(level_source)}, skills: {skills_source} "
+            "}"
+        )
+    return result
+
+
+def validate_skill_groups(skills: list[SkillSource], growth: dict[str, Any], path: str) -> None:
+    expected_by_type = {
+        0: [skill.skillId for skill in skills if skill.skillType in {"basicAttack", "finisher", "plungingAttack"}],
+        1: [skill.skillId for skill in skills if skill.skillType == "battleSkill"],
+        2: [skill.skillId for skill in skills if skill.skillType == "ultimate"],
+        3: [skill.skillId for skill in skills if skill.skillType == "comboSkill"],
+    }
+    actual_by_type: dict[int, list[str]] = {}
+    for raw_group in require_dict(growth.get("skillGroupMap"), f"{path}.skillGroupMap").values():
+        group = require_dict(raw_group, f"{path}.skillGroupMap[]")
+        group_type = require_non_negative_int(group.get("skillGroupType"), "skillGroupType")
+        skill_ids = [str(item) for item in require_list(group.get("skillIdList"), "skillIdList")]
+        if group_type in actual_by_type:
+            raise ValueError(f"{path}.skillGroupMap: duplicate group type {group_type}")
+        actual_by_type[group_type] = skill_ids
+    if actual_by_type != expected_by_type:
+        raise ValueError(
+            f"{path}.skillGroupMap does not match generated skill sources: "
+            f"expected {expected_by_type}, got {actual_by_type}"
+        )
+
+
+def render_talents(
+    operator: dict[str, Any],
+    growth: dict[str, Any],
+    effects: dict[str, Any],
+) -> list[str]:
+    nodes = require_dict(growth.get("talentNodeMap"), "CharGrowthTable.talentNodeMap")
+    by_index: dict[int, list[tuple[int, str]]] = {}
+    for raw_node in nodes.values():
+        node = require_dict(raw_node, "CharGrowthTable.talentNodeMap[]")
+        passive = require_dict(node.get("passiveSkillNodeInfo"), "passiveSkillNodeInfo")
+        effect_id = passive.get("talentEffectId")
+        if not effect_id:
+            continue
+        index = require_non_negative_int(passive.get("index"), "passiveSkillNodeInfo.index")
+        level = require_non_negative_int(passive.get("level"), "passiveSkillNodeInfo.level")
+        by_index.setdefault(index, []).append((level, str(effect_id)))
+    result: list[str] = []
+    for raw_config in require_list(operator.get("talents"), f"{operator['slug']}.talents"):
+        config = require_dict(raw_config, f"{operator['slug']}.talents[]")
+        index = require_non_negative_int(config.get("index"), "talent.index")
+        entries = sorted(by_index.get(index, []))
+        if not entries:
+            raise ValueError(f"talent index {index}: no source effects")
+        kind = config.get("compile")
+        key = str(config["key"])
+        if kind == "targetStaggeredDamage":
+            values: list[float] = []
+            for _, effect_id in entries:
+                effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+                data = require_list(effect.get("dataList"), f"{effect_id}.dataList")
+                if len(data) != 1:
+                    raise ValueError(f"{effect_id}: expected one talent effect")
+                attach = require_dict(require_dict(data[0], f"{effect_id}.dataList[0]").get("attachBuff"), "attachBuff")
+                if attach.get("buffId") != "buff_chr_0004_pelica_talent_0":
+                    raise ValueError(f"{effect_id}: unexpected stagger damage buff")
+                blackboard = require_list(attach.get("blackboard"), f"{effect_id}.attachBuff.blackboard")
+                item = next((item for item in blackboard if item.get("key") == "dmg"), None)
+                if item is None:
+                    raise ValueError(f"{effect_id}: missing dmg blackboard")
+                values.append(float(item["value"]))
+            result.append(
+                "{ "
+                f"key: {ts_inline_literal(key)}, levels: {len(entries)}, "
+                "modifiers: [{ kind: 'addConditionalDamage', "
+                "condition: { kind: 'targetStaggered', target: 'enemy' }, "
+                f"values: {ts_inline_literal(values)} }}] "
+                "}"
+            )
+        elif kind == "unmodeledMultiTarget":
+            if len(entries) != 1:
+                raise ValueError(f"talent {key}: expected one source level")
+            effect = table_row(effects, entries[0][1], "PotentialTalentEffectTable")
+            data = require_list(effect.get("dataList"), f"{entries[0][1]}.dataList")
+            modifier = require_dict(require_dict(data[0], "dataList[0]").get("skillBbModifier"), "skillBbModifier")
+            if (
+                modifier.get("skillId") != "chr_0004_pelica_combo_skill"
+                or modifier.get("bbKey") != "talent2"
+                or float(modifier.get("floatValue", 0)) != 1
+            ):
+                raise ValueError(f"talent {key}: unexpected multi-target modifier source")
+            result.append(f"{{ key: {ts_inline_literal(key)}, levels: 1, modifiers: [] }}")
+        else:
+            raise ValueError(f"talent {key}: unsupported compiler {kind!r}")
+    return result
+
+
+def render_potentials(
+    operator: dict[str, Any],
+    potential_table: dict[str, Any],
+    effects: dict[str, Any],
+) -> list[str]:
+    char_id = str(operator["charId"])
+    source = table_row(potential_table, char_id, "CharacterPotentialTable")
+    unlocks = require_list(source.get("potentialUnlockBundle"), f"CharacterPotentialTable.{char_id}")
+    configs = require_list(operator.get("potentials"), f"{operator['slug']}.potentials")
+    if len(unlocks) != len(configs):
+        raise ValueError(f"{char_id}: potential config count does not match source")
+    result: list[str] = []
+    for raw_unlock, raw_config in zip(unlocks, configs, strict=True):
+        unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[]")
+        config = require_dict(raw_config, f"{operator['slug']}.potentials[]")
+        effect_id = str(unlock["potentialEffectId"])
+        effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+        data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
+        if len(data_list) != 1:
+            raise ValueError(f"{effect_id}: expected one effect entry")
+        data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
+        key = str(config["key"])
+        kind = config.get("compile")
+        if kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
+            modifier = require_dict(data.get("skillBbModifier"), f"{effect_id}.skillBbModifier")
+            value = float(modifier["floatValue"])
+            if kind == "multiplyReactionDuration":
+                if modifier.get("skillId") != "chr_0004_pelica_combo_skill" or modifier.get("bbKey") != "duration":
+                    raise ValueError(f"{effect_id}: unexpected reaction duration modifier target")
+                body = "modifiers: [{ kind: 'multiplyEffectDuration', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"multiplier: {ts_inline_literal(value)} }}]"
+            elif kind == "setReactionEffectiveness":
+                if modifier.get("skillId") != "chr_0004_pelica_combo_skill" or modifier.get("bbKey") != "extra_scaling":
+                    raise ValueError(f"{effect_id}: unexpected reaction effectiveness modifier target")
+                body = "modifiers: [{ kind: 'setEffectiveness', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"value: {ts_inline_literal(value)} }}]"
+            else:
+                if modifier.get("skillId") != "chr_0004_pelica_ultimate_skill" or modifier.get("bbKey") != "crit":
+                    raise ValueError(f"{effect_id}: unexpected ultimate critical-rate modifier target")
+                body = "modifiers: [{ kind: 'addSkillStat', skillGroupKey: 'ultimate', stat: 'criticalRate', " f"value: {ts_inline_literal(value)} }}]"
+        elif kind == "multiplyUltimateCost":
+            modifier = require_dict(data.get("skillParamModifier"), f"{effect_id}.skillParamModifier")
+            if modifier.get("skillId") != "chr_0004_pelica_ultimate_skill" or modifier.get("paramType") != 1:
+                raise ValueError(f"{effect_id}: unexpected ultimate cost modifier target")
+            value = float(modifier["paramValue"])
+            body = "modifiers: [{ kind: 'multiplySkillCost', skillGroupKey: 'ultimate', resource: 'ultimateEnergy', " f"multiplier: {ts_inline_literal(value)} }}]"
+        elif kind == "attackAfterReaction":
+            attach = require_dict(data.get("attachBuff"), f"{effect_id}.attachBuff")
+            values = {str(item["key"]): float(item["value"]) for item in require_list(attach.get("blackboard"), "attachBuff.blackboard")}
+            if attach.get("buffId") != "buff_chr_0004_pelica_potential_3" or set(values) != {"atk_up", "atk_duration", "max_stack"}:
+                raise ValueError(f"{effect_id}: unexpected reaction attack buff shape")
+            body = (
+                "eventHandlers: [{ event: { kind: 'reactionApplied', reaction: 'electrification' }, "
+                "sequence: sequence(step('applyStatus', { statusKey: 'attackAfterElectrification', target: 'caster', "
+                f"durationFrames: {ts_inline_literal(values['atk_duration'] * 30)}, maxStacks: {ts_inline_literal(values['max_stack'])}, "
+                f"modifiers: [{{ kind: 'attackPercent', value: {ts_inline_literal(values['atk_up'])} }}] }})) }}]"
+            )
+        else:
+            raise ValueError(f"potential {key}: unsupported compiler {kind!r}")
+        result.append(f"{{ key: {ts_inline_literal(key)}, levels: 1, {body} }}")
+    return result
+
+
+def render_operator_definition(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    character_table: dict[str, Any],
+    growth_table: dict[str, Any],
+    potential_table: dict[str, Any],
+    effects: dict[str, Any],
+) -> str:
+    char_id = str(operator["charId"])
+    character = table_row(character_table, char_id, "CharacterTable")
+    growth = table_row(growth_table, char_id, "CharGrowthTable")
+    attributes = parse_panel_attributes(character, f"CharacterTable.{char_id}")
+    weapon_type = WEAPON_TYPE_MAP.get(character.get("weaponType"))
+    element = ELEMENT_TYPE_MAP.get(character.get("charTypeId"))
+    role = PROFESSION_MAP.get(character.get("profession"))
+    main_attribute = ATTRIBUTE_TYPE_MAP.get(character.get("mainAttrType"))
+    secondary_attribute = ATTRIBUTE_TYPE_MAP.get(character.get("subAttrType"))
+    if None in {weapon_type, element, role, main_attribute, secondary_attribute}:
+        raise ValueError(f"{char_id}: unsupported operator metadata enum")
+    identifier = typescript_identifier(str(operator["slug"]))
+    skills_export_name = f"{identifier}GeneratedSkills"
+    operator_export_name = f"{identifier}GeneratedOperator"
+    validate_skill_groups(skills, growth, f"CharGrowthTable.{char_id}")
+    groups = render_skill_groups(skills, skills_export_name)
+    talents = render_talents(operator, growth, effects)
+    potentials = render_potentials(operator, potential_table, effects)
+    attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
+    return "\n".join(
+        [
+            "/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */",
+            "import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';",
+            "import { sequence, step } from '../definitionHelpers';",
+            f"import {{ {skills_export_name} }} from './{operator['slug']}.skills.generated';",
+            "",
+            f"export const {operator_export_name} = {{",
+            f"  slug: {ts_inline_literal(operator['slug'])},",
+            f"  gameId: {ts_inline_literal(str(character['engName']).upper())},",
+            f"  rarity: {require_non_negative_int(character.get('rarity'), f'{char_id}.rarity')},",
+            f"  weaponType: {ts_inline_literal(weapon_type)},",
+            f"  element: {ts_inline_literal(element)},",
+            f"  role: {ts_inline_literal(role)},",
+            f"  mainAttribute: {ts_inline_literal(main_attribute)},",
+            f"  secondaryAttribute: {ts_inline_literal(secondary_attribute)},",
+            "  attributes: {",
+            *attribute_lines,
+            "  },",
+            "  skillGroups: [",
+            *(f"    {group}," for group in groups),
+            "  ],",
+            "  talents: [",
+            *(f"    {talent}," for talent in talents),
+            "  ],",
+            "  potentials: [",
+            *(f"    {potential}," for potential in potentials),
+            "  ],",
+            "} as const satisfies OperatorDefinition;",
+            "",
+        ]
+    )
 def render_report(slug: str, skills: list[SkillSource]) -> str:
     report = {
         "operator": slug,
@@ -1253,6 +1547,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
         "skills": [
             {
                 "key": skill.key,
+                "skillId": skill.skillId,
                 "sourceFile": skill.sourceFile,
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
@@ -1284,6 +1579,19 @@ def main() -> None:
     manifest = require_dict(json.loads(args.manifest.read_text(encoding="utf-8")), str(args.manifest))
     patch_path = args.tables / "SkillPatchTable.json"
     patch_table = require_dict(json.loads(patch_path.read_text(encoding="utf-8")), str(patch_path))
+    table_names = (
+        "CharacterTable.json",
+        "CharGrowthTable.json",
+        "CharacterPotentialTable.json",
+        "PotentialTalentEffectTable.json",
+    )
+    loaded_tables = {
+        name: require_dict(
+            json.loads((args.tables / name).read_text(encoding="utf-8")),
+            str(args.tables / name),
+        )
+        for name in table_names
+    }
     selected = set(args.operators or [])
     generated = 0
     for raw_operator in require_list(manifest.get("operators"), "operators"):
@@ -1298,6 +1606,18 @@ def main() -> None:
         write_or_check(args.output / f"{slug}.generated.ts", render_typescript(str(operator["exportName"]), slug, skills), args.check)
         write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
         write_or_check(args.output / f"{slug}.skills.generated.ts", render_compiled_skills(operator, skills), args.check)
+        write_or_check(
+            args.output / f"{slug}.operator.generated.ts",
+            render_operator_definition(
+                operator,
+                skills,
+                loaded_tables["CharacterTable.json"],
+                loaded_tables["CharGrowthTable.json"],
+                loaded_tables["CharacterPotentialTable.json"],
+                loaded_tables["PotentialTalentEffectTable.json"],
+            ),
+            args.check,
+        )
         print(f"[{slug}] generated {len(skills)} skills -> {args.output}")
         generated += 1
     if selected and generated != len(selected):

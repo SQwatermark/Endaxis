@@ -7,6 +7,7 @@ export const perlicaGeneratedSource = {
   "skills": [
     {
       "key": "basicAttack1",
+      "skillId": "chr_0004_pelica_attack1",
       "skillType": "basicAttack",
       "sourceFile": "chr_0004_pelica_attack1.json",
       "timelineBlockFrames": 16,
@@ -365,6 +366,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "basicAttack2",
+      "skillId": "chr_0004_pelica_attack2",
       "skillType": "basicAttack",
       "sourceFile": "chr_0004_pelica_attack2.json",
       "timelineBlockFrames": 18,
@@ -879,6 +881,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "basicAttack3",
+      "skillId": "chr_0004_pelica_attack3",
       "skillType": "basicAttack",
       "sourceFile": "chr_0004_pelica_attack3.json",
       "timelineBlockFrames": 26,
@@ -1527,6 +1530,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "basicAttack4",
+      "skillId": "chr_0004_pelica_attack4",
       "skillType": "basicAttack",
       "sourceFile": "chr_0004_pelica_attack4.json",
       "timelineBlockFrames": 44,
@@ -2013,6 +2017,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "finisher",
+      "skillId": "chr_0004_pelica_power_attack",
       "skillType": "finisher",
       "sourceFile": "chr_0004_pelica_power_attack.json",
       "timelineBlockFrames": 35,
@@ -2447,6 +2452,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "plungingAttack",
+      "skillId": "chr_0004_pelica_plunging_attack_end",
       "skillType": "plungingAttack",
       "sourceFile": "chr_0004_pelica_plunging_attack_end.json",
       "timelineBlockFrames": 21,
@@ -2934,6 +2940,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "battleSkill",
+      "skillId": "chr_0004_pelica_normal_skill",
       "skillType": "battleSkill",
       "sourceFile": "chr_0004_pelica_normal_skill.json",
       "timelineBlockFrames": 28,
@@ -3424,6 +3431,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "comboSkill",
+      "skillId": "chr_0004_pelica_combo_skill",
       "skillType": "comboSkill",
       "sourceFile": "chr_0004_pelica_combo_skill.json",
       "timelineBlockFrames": 25,
@@ -4226,6 +4234,7 @@ export const perlicaGeneratedSource = {
     },
     {
       "key": "ultimate",
+      "skillId": "chr_0004_pelica_ultimate_skill",
       "skillType": "ultimate",
       "sourceFile": "chr_0004_pelica_ultimate_skill.json",
       "timelineBlockFrames": 63,

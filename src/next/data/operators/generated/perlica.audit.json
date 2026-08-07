@@ -4,6 +4,7 @@
   "skills": [
     {
       "key": "basicAttack1",
+      "skillId": "chr_0004_pelica_attack1",
       "sourceFile": "chr_0004_pelica_attack1.json",
       "timelineBlockFrames": 16,
       "blockBoundarySource": "exclusiveFrame+1",
@@ -123,6 +124,7 @@
     },
     {
       "key": "basicAttack2",
+      "skillId": "chr_0004_pelica_attack2",
       "sourceFile": "chr_0004_pelica_attack2.json",
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -346,6 +348,7 @@
     },
     {
       "key": "basicAttack3",
+      "skillId": "chr_0004_pelica_attack3",
       "sourceFile": "chr_0004_pelica_attack3.json",
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -673,6 +676,7 @@
     },
     {
       "key": "basicAttack4",
+      "skillId": "chr_0004_pelica_attack4",
       "sourceFile": "chr_0004_pelica_attack4.json",
       "timelineBlockFrames": 44,
       "blockBoundarySource": "exclusiveFrame+1",
@@ -848,6 +852,7 @@
     },
     {
       "key": "finisher",
+      "skillId": "chr_0004_pelica_power_attack",
       "sourceFile": "chr_0004_pelica_power_attack.json",
       "timelineBlockFrames": 35,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -922,6 +927,7 @@
     },
     {
       "key": "plungingAttack",
+      "skillId": "chr_0004_pelica_plunging_attack_end",
       "sourceFile": "chr_0004_pelica_plunging_attack_end.json",
       "timelineBlockFrames": 21,
       "blockBoundarySource": "exclusiveFrame+1",
@@ -1060,6 +1066,7 @@
     },
     {
       "key": "battleSkill",
+      "skillId": "chr_0004_pelica_normal_skill",
       "sourceFile": "chr_0004_pelica_normal_skill.json",
       "timelineBlockFrames": 28,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -1165,6 +1172,7 @@
     },
     {
       "key": "comboSkill",
+      "skillId": "chr_0004_pelica_combo_skill",
       "sourceFile": "chr_0004_pelica_combo_skill.json",
       "timelineBlockFrames": 25,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -1599,6 +1607,7 @@
     },
     {
       "key": "ultimate",
+      "skillId": "chr_0004_pelica_ultimate_skill",
       "sourceFile": "chr_0004_pelica_ultimate_skill.json",
       "timelineBlockFrames": 63,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",

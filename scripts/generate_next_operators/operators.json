@@ -3,6 +3,18 @@
     {
       "slug": "perlica",
       "exportName": "perlicaGeneratedSource",
+      "charId": "chr_0004_pelica",
+      "talents": [
+        { "index": 0, "key": "staggerDamageBonus", "compile": "targetStaggeredDamage" },
+        { "index": 1, "key": "comboRicochetAgainstBrokenEnemy", "compile": "unmodeledMultiTarget" }
+      ],
+      "potentials": [
+        { "key": "extendedElectrification", "compile": "multiplyReactionDuration" },
+        { "key": "reducedUltimateCost", "compile": "multiplyUltimateCost" },
+        { "key": "attackAfterElectrification", "compile": "attackAfterReaction" },
+        { "key": "strongerElectrification", "compile": "setReactionEffectiveness" },
+        { "key": "ultimateCriticalRate", "compile": "addUltimateCriticalRate" }
+      ],
       "skills": [
         {
           "key": "basicAttack1",
