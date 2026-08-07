@@ -271,6 +271,38 @@ class BuffStackReadPayload:
 
 
 @dataclass(frozen=True)
+class BuffApplicationEntryPayload:
+    buffId: str
+    classification: str | None
+    blackboardAssignments: dict[str, ScalarSource]
+
+
+@dataclass(frozen=True)
+class BuffApplicationPayload:
+    buffs: tuple[BuffApplicationEntryPayload, ...]
+
+
+@dataclass(frozen=True)
+class ResourceGainPayload:
+    resource: str
+    amount: ScalarSource
+    coefficient: ScalarSource
+
+
+@dataclass(frozen=True)
+class ProjectileLaunchPayload:
+    projectileId: str
+    castSkillOnHit: bool
+    hitSkillId: str | None
+
+
+@dataclass(frozen=True)
+class AbilityEntitySpawnPayload:
+    abilityEntityId: str
+    skillId: str | None
+
+
+@dataclass(frozen=True)
 class ConditionalBranchActionSource:
     actionType: str
     actionIndex: int
@@ -280,6 +312,10 @@ class ConditionalBranchActionSource:
     buffBlackboardRead: BuffBlackboardReadPayload | None = None
     buffFinish: BuffFinishPayload | None = None
     buffStackRead: BuffStackReadPayload | None = None
+    buffApplication: BuffApplicationPayload | None = None
+    resourceGain: ResourceGainPayload | None = None
+    projectileLaunch: ProjectileLaunchPayload | None = None
+    abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
 
 
 @dataclass(frozen=True)
@@ -410,6 +446,10 @@ def serialize_audit_value(value: Any) -> Any:
                     "buffBlackboardRead",
                     "buffFinish",
                     "buffStackRead",
+                    "buffApplication",
+                    "resourceGain",
+                    "projectileLaunch",
+                    "abilityEntitySpawn",
                 }
                 and item is None
             )
@@ -748,6 +788,88 @@ def parse_buff_stack_read_payload(action: dict[str, Any], path: str) -> BuffStac
     )
 
 
+def parse_buff_application_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> BuffApplicationPayload:
+    buffs: list[BuffApplicationEntryPayload] = []
+    for index, raw_buff in enumerate(require_list(action.get("buffs"), f"{path}.buffs")):
+        buff_path = f"{path}.buffs[{index}]"
+        buff = require_dict(raw_buff, buff_path)
+        buff_id = buff.get("buffId")
+        if not isinstance(buff_id, str) or not buff_id:
+            raise ValueError(f"{buff_path}.buffId: expected non-empty string")
+        buffs.append(
+            BuffApplicationEntryPayload(
+                buffId=buff_id,
+                classification=classify_buff(buff_id),
+                blackboardAssignments=parse_buff_assignments(
+                    buff,
+                    buff_path,
+                    inherited_blackboard,
+                ),
+            )
+        )
+    return BuffApplicationPayload(buffs=tuple(buffs))
+
+
+def parse_resource_gain_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ResourceGainPayload:
+    raw_resource = action.get("costType")
+    resource = RESOURCE_TYPE_MAP.get(raw_resource)
+    if resource is None:
+        raise ValueError(f"{path}.costType: unsupported value {raw_resource!r}")
+    if action.get("isPercentValue") is not False:
+        raise ValueError(f"{path}.isPercentValue: percentage resource gain is not supported")
+    return ResourceGainPayload(
+        resource=resource,
+        amount=parse_scalar(action.get("costValue"), f"{path}.costValue", inherited_blackboard),
+        coefficient=parse_scalar(
+            action.get("coefficient"),
+            f"{path}.coefficient",
+            inherited_blackboard,
+        ),
+    )
+
+
+def parse_projectile_launch_payload(
+    action: dict[str, Any],
+    path: str,
+) -> ProjectileLaunchPayload:
+    projectile_id = action.get("projectileId")
+    if not isinstance(projectile_id, str) or not projectile_id:
+        raise ValueError(f"{path}.projectileId: expected non-empty string")
+    cast_on_hit = action.get("castSkillOnHit") is True
+    hit_skill_id = action.get("projectileSkillId")
+    if cast_on_hit and (not isinstance(hit_skill_id, str) or not hit_skill_id):
+        raise ValueError(f"{path}.projectileSkillId: cast-on-hit projectile requires a skill")
+    return ProjectileLaunchPayload(
+        projectileId=projectile_id,
+        castSkillOnHit=cast_on_hit,
+        hitSkillId=hit_skill_id if isinstance(hit_skill_id, str) and hit_skill_id else None,
+    )
+
+
+def parse_ability_entity_spawn_payload(
+    action: dict[str, Any],
+    path: str,
+) -> AbilityEntitySpawnPayload:
+    ability_id = action.get("abilityEntityId")
+    skill_id = action.get("abilityEntitySkillId")
+    if not isinstance(ability_id, str) or not ability_id:
+        raise ValueError(f"{path}.abilityEntityId: expected non-empty string")
+    if not isinstance(skill_id, str):
+        raise ValueError(f"{path}.abilityEntitySkillId: expected string")
+    return AbilityEntitySpawnPayload(
+        abilityEntityId=ability_id,
+        skillId=skill_id or None,
+    )
+
+
 def parse_conditional_actions(
     root: dict[str, Any],
     source_name: str,
@@ -906,6 +1028,8 @@ def parse_conditional_actions(
             require_list(branch.get("actionData"), f"{source_name}.{'.'.join(path)}.actionData")
         ):
             action = require_dict(raw_action, f"{source_name}.{'.'.join(path)}.actionData[{index}]")
+            if action.get("isEnable") is False:
+                continue
             action_type = action_name(str(action.get("$type", "")))
             action_path = (*path, "actionData", f"[{index}]")
             if action_type == "IfElseAction":
@@ -925,6 +1049,10 @@ def parse_conditional_actions(
                 buff_read = None
                 buff_finish = None
                 buff_stack_read = None
+                buff_application = None
+                resource_gain = None
+                projectile_launch = None
+                ability_entity_spawn = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -939,6 +1067,20 @@ def parse_conditional_actions(
                     buff_finish = parse_buff_finish_payload(action, source_path)
                 elif action_type == "SaveBuffStackNumAdvanced":
                     buff_stack_read = parse_buff_stack_read_payload(action, source_path)
+                elif action_type == "CreateBuffAction":
+                    buff_application = parse_buff_application_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "ObtainCostAction":
+                    resource_gain = parse_resource_gain_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "LaunchProjectile":
+                    projectile_launch = parse_projectile_launch_payload(action, source_path)
+                elif action_type == "SpawnAbilityEntity":
+                    ability_entity_spawn = parse_ability_entity_spawn_payload(
+                        action, source_path
+                    )
                 actions.append(
                     ConditionalBranchActionSource(
                         actionType=action_type,
@@ -948,6 +1090,10 @@ def parse_conditional_actions(
                         buffBlackboardRead=buff_read,
                         buffFinish=buff_finish,
                         buffStackRead=buff_stack_read,
+                        buffApplication=buff_application,
+                        resourceGain=resource_gain,
+                        projectileLaunch=projectile_launch,
+                        abilityEntitySpawn=ability_entity_spawn,
                     )
                 )
         return tuple(actions)
@@ -1362,49 +1508,43 @@ def parse_auxiliary_actions(
                 continue
             name = action_name(action["$type"])
             if name == "CreateBuffAction":
-                buffs = require_list(action.get("buffs"), f"{source_name}.CreateBuffAction.buffs")
-                for raw_buff in buffs:
-                    buff = require_dict(raw_buff, f"{source_name}.CreateBuffAction.buffs[]")
-                    buff_id = buff.get("buffId")
-                    if not isinstance(buff_id, str) or not buff_id:
-                        raise ValueError(f"{source_name}.CreateBuffAction: expected non-empty buffId")
+                payload = parse_buff_application_payload(
+                    action,
+                    f"{source_name}.CreateBuffAction",
+                    inherited_blackboard,
+                )
+                for buff in payload.buffs:
                     result.append(
                         AuxiliaryActionSource(
                             startFrame=start_frame,
                             endFrame=end_frame,
                             actionIndex=action_index,
                             actionType=name,
-                            sourceId=buff_id,
-                            classification=classify_buff(buff_id),
-                            blackboardAssignments=parse_buff_assignments(
-                                buff,
-                                f"{source_name}.CreateBuffAction.buffs[]",
-                                inherited_blackboard,
-                            ),
+                            sourceId=buff.buffId,
+                            classification=buff.classification,
+                            blackboardAssignments=buff.blackboardAssignments,
                             nestedCombatActions=(),
                         )
                     )
             elif name == "SpawnAbilityEntity":
-                ability_id = action.get("abilityEntityId")
-                skill_id = action.get("abilityEntitySkillId")
-                if not isinstance(ability_id, str) or not ability_id:
-                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
-                if skill_id == "":
+                payload = parse_ability_entity_spawn_payload(
+                    action, f"{source_name}.SpawnAbilityEntity"
+                )
+                if payload.skillId is None:
                     result.append(
                         AuxiliaryActionSource(
                             startFrame=start_frame,
                             endFrame=end_frame,
                             actionIndex=action_index,
                             actionType=name,
-                            sourceId=ability_id,
+                            sourceId=payload.abilityEntityId,
                             classification="nonCombatAbilityEntity",
                             blackboardAssignments={},
                             nestedCombatActions=(),
                         )
                     )
                     continue
-                if not isinstance(skill_id, str):
-                    raise ValueError(f"{source_name}.SpawnAbilityEntity: expected abilityEntitySkillId string")
+                skill_id = payload.skillId
                 child_name = f"{skill_id}.json"
                 child_path = source_dir / child_name
                 if not child_path.is_file():
@@ -1425,7 +1565,7 @@ def parse_auxiliary_actions(
                         endFrame=end_frame,
                         actionIndex=action_index,
                         actionType=name,
-                        sourceId=f"{ability_id}:{skill_id}",
+                        sourceId=f"{payload.abilityEntityId}:{skill_id}",
                         classification="nonCombatAbilityEntity" if not nested else None,
                         blackboardAssignments={},
                         nestedCombatActions=nested,
@@ -1460,28 +1600,19 @@ def parse_resource_gains(
         for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
             if action_name(action["$type"]) != "ObtainCostAction" or action.get("isEnable") is False:
                 continue
-            raw_resource = action.get("costType")
-            resource = RESOURCE_TYPE_MAP.get(raw_resource)
-            if resource is None:
-                raise ValueError(f"{source_name}.ObtainCostAction: unsupported costType {raw_resource!r}")
-            if action.get("isPercentValue") is not False:
-                raise ValueError(f"{source_name}.ObtainCostAction: percentage resource gain is not supported")
+            payload = parse_resource_gain_payload(
+                action,
+                f"{source_name}.ObtainCostAction",
+                inherited_blackboard,
+            )
             result.append(
                 TimedResourceGainSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
                     actionIndex=action_index,
-                    resource=resource,
-                    amount=parse_scalar(
-                        action.get("costValue"),
-                        f"{source_name}.ObtainCostAction.costValue",
-                        inherited_blackboard,
-                    ),
-                    coefficient=parse_scalar(
-                        action.get("coefficient"),
-                        f"{source_name}.ObtainCostAction.coefficient",
-                        inherited_blackboard,
-                    ),
+                    resource=payload.resource,
+                    amount=payload.amount,
+                    coefficient=payload.coefficient,
                 )
             )
     return tuple(result)
@@ -1507,14 +1638,16 @@ def resolve_projectile_hits(
         for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "LaunchProjectile":
                 continue
-            if action.get("castSkillOnHit") is not True:
+            if action.get("isEnable") is False:
                 continue
-            hit_skill_id = action.get("projectileSkillId")
-            projectile_id = action.get("projectileId")
-            if not isinstance(hit_skill_id, str) or not hit_skill_id:
-                raise ValueError(f"{source_name}: projectileSkillId must be a non-empty string")
-            if not isinstance(projectile_id, str) or not projectile_id:
-                raise ValueError(f"{source_name}: projectileId must be a non-empty string")
+            payload = parse_projectile_launch_payload(
+                action, f"{source_name}.LaunchProjectile"
+            )
+            if not payload.castSkillOnHit:
+                continue
+            hit_skill_id = payload.hitSkillId
+            if hit_skill_id is None:
+                raise AssertionError("cast-on-hit projectile payload must expose hitSkillId")
             hit_source_name = f"{hit_skill_id}.json"
             hit_path = source_dir / hit_source_name
             if not hit_path.is_file():
@@ -1537,7 +1670,7 @@ def resolve_projectile_hits(
                 ProjectileHitSource(
                     launchFrame=launch_frame,
                     assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
-                    projectileId=projectile_id,
+                    projectileId=payload.projectileId,
                     hitSkillId=hit_skill_id,
                     sourceFile=hit_source_name,
                     damageUnits=parse_damage_units(
@@ -1594,19 +1727,15 @@ def parse_projectile_launches(
         for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "LaunchProjectile" or action.get("isEnable") is False:
                 continue
-            projectile_id = action.get("projectileId")
-            if not isinstance(projectile_id, str) or not projectile_id:
-                raise ValueError(f"{source_name}: projectileId must be a non-empty string")
-            cast_on_hit = action.get("castSkillOnHit") is True
-            hit_skill_id = action.get("projectileSkillId")
-            if cast_on_hit and (not isinstance(hit_skill_id, str) or not hit_skill_id):
-                raise ValueError(f"{source_name}: cast-on-hit projectile requires projectileSkillId")
+            payload = parse_projectile_launch_payload(
+                action, f"{source_name}.LaunchProjectile"
+            )
             result.append(
                 ProjectileLaunchSource(
                     launchFrame=launch_frame,
-                    projectileId=projectile_id,
-                    castSkillOnHit=cast_on_hit,
-                    hitSkillId=hit_skill_id if isinstance(hit_skill_id, str) and hit_skill_id else None,
+                    projectileId=payload.projectileId,
+                    castSkillOnHit=payload.castSkillOnHit,
+                    hitSkillId=payload.hitSkillId,
                 )
             )
     return tuple(result)
@@ -1634,14 +1763,12 @@ def resolve_ability_entity_hits(
         for action in walk_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SpawnAbilityEntity" or action.get("isEnable") is False:
                 continue
-            ability_id = action.get("abilityEntityId")
-            skill_id = action.get("abilityEntitySkillId")
-            if not isinstance(ability_id, str) or not ability_id:
-                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
-            if skill_id == "":
+            payload = parse_ability_entity_spawn_payload(
+                action, f"{source_name}.SpawnAbilityEntity"
+            )
+            if payload.skillId is None:
                 continue
-            if not isinstance(skill_id, str):
-                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected abilityEntitySkillId string")
+            skill_id = payload.skillId
             child_name = f"{skill_id}.json"
             child_path = source_dir / child_name
             if not child_path.is_file():
@@ -1672,7 +1799,7 @@ def resolve_ability_entity_hits(
             result.append(
                 AbilityEntityHitSource(
                     spawnFrame=spawn_frame,
-                    abilityEntityId=ability_id,
+                    abilityEntityId=payload.abilityEntityId,
                     skillId=skill_id,
                     sourceFile=child_name,
                     directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),

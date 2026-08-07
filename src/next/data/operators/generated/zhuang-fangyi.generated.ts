@@ -728,13 +728,21 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+              }
             }
           ],
           "failActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+              }
             }
           ]
         }
@@ -2097,13 +2105,21 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+              }
             }
           ],
           "failActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+              }
             }
           ]
         }
@@ -2612,13 +2628,21 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "SpawnAbilityEntity",
-                          "actionIndex": 2
+                          "actionIndex": 2,
+                          "abilityEntitySpawn": {
+                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                          }
                         }
                       ],
                       "failActions": [
                         {
                           "actionType": "SpawnAbilityEntity",
-                          "actionIndex": 2
+                          "actionIndex": 2,
+                          "abilityEntitySpawn": {
+                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                          }
                         }
                       ]
                     }
@@ -2627,7 +2651,11 @@ export const zhuangFangyiGeneratedSource = {
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 2
+                    "actionIndex": 2,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                      "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                    }
                   }
                 ]
               }
@@ -2636,7 +2664,11 @@ export const zhuangFangyiGeneratedSource = {
           "failActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+              }
             }
           ]
         }
@@ -3247,7 +3279,11 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -3266,7 +3302,11 @@ export const zhuangFangyiGeneratedSource = {
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3301,13 +3341,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -3392,13 +3440,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3433,13 +3489,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3511,13 +3575,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3552,13 +3624,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3630,13 +3710,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ]
               }
@@ -3671,13 +3759,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4355,7 +4451,11 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -4374,7 +4474,11 @@ export const zhuangFangyiGeneratedSource = {
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4409,13 +4513,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -4500,13 +4612,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4541,13 +4661,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4619,13 +4747,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4660,13 +4796,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4738,13 +4882,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ]
               }
@@ -4779,13 +4931,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                    }
                   }
                 ]
               }
@@ -5411,13 +5571,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                    }
                   }
                 ]
               }
@@ -5452,13 +5620,21 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                    }
                   }
                 ],
                 "failActions": [
                   {
                     "actionType": "SpawnAbilityEntity",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "abilityEntitySpawn": {
+                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                    }
                   }
                 ]
               }
@@ -7005,7 +7181,16 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ]
+              }
             },
             {
               "actionType": "IfElseAction",
@@ -7193,7 +7378,20 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "ObtainCostAction",
-                    "actionIndex": 5
+                    "actionIndex": 5,
+                    "resourceGain": {
+                      "resource": "sp",
+                      "amount": {
+                        "value": 0.0,
+                        "blackboardKey": "atb_return",
+                        "levelValues": null
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   },
                   {
                     "actionType": "IfElseAction",
@@ -7261,11 +7459,25 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "LaunchProjectile",
-                    "actionIndex": 8
+                    "actionIndex": 8,
+                    "projectileLaunch": {
+                      "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                      "castSkillOnHit": false,
+                      "hitSkillId": null
+                    }
                   },
                   {
                     "actionType": "CreateBuffAction",
-                    "actionIndex": 10
+                    "actionIndex": 10,
+                    "buffApplication": {
+                      "buffs": [
+                        {
+                          "buffId": "buff_common_obtain_ultimate_sp",
+                          "classification": "skillCostUltimateEnergyGain",
+                          "blackboardAssignments": {}
+                        }
+                      ]
+                    }
                   }
                 ],
                 "failActions": [
@@ -7402,11 +7614,25 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "LaunchProjectile",
-                    "actionIndex": 3
+                    "actionIndex": 3,
+                    "projectileLaunch": {
+                      "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                      "castSkillOnHit": false,
+                      "hitSkillId": null
+                    }
                   },
                   {
                     "actionType": "CreateBuffAction",
-                    "actionIndex": 5
+                    "actionIndex": 5,
+                    "buffApplication": {
+                      "buffs": [
+                        {
+                          "buffId": "buff_common_obtain_ultimate_sp",
+                          "classification": "skillCostUltimateEnergyGain",
+                          "blackboardAssignments": {}
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -7415,7 +7641,11 @@ export const zhuangFangyiGeneratedSource = {
           "failActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+                "skillId": null
+              }
             }
           ]
         },
@@ -7529,7 +7759,135 @@ export const zhuangFangyiGeneratedSource = {
             },
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 4
+              "actionIndex": 4,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "interval": {
+                        "value": 0.0,
+                        "blackboardKey": "swordTriggerInterval",
+                        "levelValues": null
+                      },
+                      "sword_range": {
+                        "value": 0.0,
+                        "blackboardKey": "sword_range",
+                        "levelValues": [
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0,
+                          50.0
+                        ]
+                      },
+                      "atk_scale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.2,
+                          0.22,
+                          0.24,
+                          0.26,
+                          0.28,
+                          0.3,
+                          0.32,
+                          0.34,
+                          0.36,
+                          0.39,
+                          0.42,
+                          0.45
+                        ]
+                      },
+                      "poise": {
+                        "value": 0.0,
+                        "blackboardKey": "poise",
+                        "levelValues": [
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0
+                        ]
+                      },
+                      "usp_extra": {
+                        "value": 0.0,
+                        "blackboardKey": "usp_extra",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      },
+                      "atk_up_final": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_final",
+                        "levelValues": null
+                      },
+                      "remain_sword_limit": {
+                        "value": 0.0,
+                        "blackboardKey": "remain_sword_limit",
+                        "levelValues": [
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0,
+                          9.0
+                        ]
+                      },
+                      "final_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "final_rate",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
             }
           ],
           "failActions": []
@@ -7556,7 +7914,16 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_talent1",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ]
+              }
             }
           ],
           "failActions": [
@@ -7597,7 +7964,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "CreateBuffAction",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "buffApplication": {
+                      "buffs": [
+                        {
+                          "buffId": "buff_chr_0030_zhuangfy_talent1",
+                          "classification": null,
+                          "blackboardAssignments": {}
+                        }
+                      ]
+                    }
                   }
                 ],
                 "failActions": []
@@ -8328,7 +8704,33 @@ export const zhuangFangyiGeneratedSource = {
                             "succeedActions": [
                               {
                                 "actionType": "ObtainCostAction",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "resourceGain": {
+                                  "resource": "ultimateEnergy",
+                                  "amount": {
+                                    "value": 10.0,
+                                    "blackboardKey": "usp_extra",
+                                    "levelValues": [
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  }
+                                }
                               }
                             ],
                             "failActions": []
@@ -8391,7 +8793,33 @@ export const zhuangFangyiGeneratedSource = {
                             "succeedActions": [
                               {
                                 "actionType": "ObtainCostAction",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "resourceGain": {
+                                  "resource": "ultimateEnergy",
+                                  "amount": {
+                                    "value": 10.0,
+                                    "blackboardKey": "usp_extra",
+                                    "levelValues": [
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0,
+                                      6.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  }
+                                }
                               }
                             ],
                             "failActions": []
@@ -8444,7 +8872,33 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "ObtainCostAction",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "resourceGain": {
+                            "resource": "ultimateEnergy",
+                            "amount": {
+                              "value": 10.0,
+                              "blackboardKey": "usp_extra",
+                              "levelValues": [
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0,
+                                6.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         }
                       ],
                       "failActions": []
@@ -9413,7 +9867,16 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ]
+              }
             },
             {
               "actionType": "IfElseAction",
@@ -9508,7 +9971,12 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "LaunchProjectile",
-                          "actionIndex": 1
+                          "actionIndex": 1,
+                          "projectileLaunch": {
+                            "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                            "castSkillOnHit": false,
+                            "hitSkillId": null
+                          }
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -9532,7 +10000,12 @@ export const zhuangFangyiGeneratedSource = {
                       "failActions": [
                         {
                           "actionType": "LaunchProjectile",
-                          "actionIndex": 1
+                          "actionIndex": 1,
+                          "projectileLaunch": {
+                            "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                            "castSkillOnHit": false,
+                            "hitSkillId": null
+                          }
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -9749,7 +10222,33 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         {
                           "actionType": "ObtainCostAction",
-                          "actionIndex": 5
+                          "actionIndex": 5,
+                          "resourceGain": {
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb_return",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         },
                         {
                           "actionType": "IfElseAction",
@@ -9820,11 +10319,25 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         {
                           "actionType": "LaunchProjectile",
-                          "actionIndex": 8
+                          "actionIndex": 8,
+                          "projectileLaunch": {
+                            "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                            "castSkillOnHit": false,
+                            "hitSkillId": null
+                          }
                         },
                         {
                           "actionType": "CreateBuffAction",
-                          "actionIndex": 10
+                          "actionIndex": 10,
+                          "buffApplication": {
+                            "buffs": [
+                              {
+                                "buffId": "buff_common_obtain_ultimate_sp",
+                                "classification": "skillCostUltimateEnergyGain",
+                                "blackboardAssignments": {}
+                              }
+                            ]
+                          }
                         }
                       ],
                       "failActions": [
@@ -9967,11 +10480,25 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         {
                           "actionType": "LaunchProjectile",
-                          "actionIndex": 3
+                          "actionIndex": 3,
+                          "projectileLaunch": {
+                            "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                            "castSkillOnHit": false,
+                            "hitSkillId": null
+                          }
                         },
                         {
                           "actionType": "CreateBuffAction",
-                          "actionIndex": 5
+                          "actionIndex": 5,
+                          "buffApplication": {
+                            "buffs": [
+                              {
+                                "buffId": "buff_common_obtain_ultimate_sp",
+                                "classification": "skillCostUltimateEnergyGain",
+                                "blackboardAssignments": {}
+                              }
+                            ]
+                          }
                         }
                       ]
                     }
@@ -9983,7 +10510,11 @@ export const zhuangFangyiGeneratedSource = {
           "failActions": [
             {
               "actionType": "SpawnAbilityEntity",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "abilityEntitySpawn": {
+                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+                "skillId": null
+              }
             }
           ]
         },
@@ -10009,7 +10540,16 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_talent1",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ]
+              }
             }
           ],
           "failActions": [
@@ -10050,7 +10590,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "CreateBuffAction",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "buffApplication": {
+                      "buffs": [
+                        {
+                          "buffId": "buff_chr_0030_zhuangfy_talent1",
+                          "classification": null,
+                          "blackboardAssignments": {}
+                        }
+                      ]
+                    }
                   }
                 ],
                 "failActions": []
@@ -11456,7 +12005,22 @@ export const zhuangFangyiGeneratedSource = {
             },
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 4
+              "actionIndex": 4,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_pulse_pulse_conduct_triggered",
+                    "classification": "electrificationReaction",
+                    "blackboardAssignments": {
+                      "count": {
+                        "value": 0.0,
+                        "blackboardKey": "conductCnt",
+                        "levelValues": null
+                      }
+                    }
+                  }
+                ]
+              }
             }
           ],
           "failActions": []
@@ -11492,7 +12056,33 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "ObtainCostAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "resourceGain": {
+                "resource": "ultimateEnergy",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "usp",
+                  "levelValues": [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -11527,7 +12117,33 @@ export const zhuangFangyiGeneratedSource = {
             },
             {
               "actionType": "ObtainCostAction",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "resourceGain": {
+                "resource": "ultimateEnergy",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "usp_extra",
+                  "levelValues": [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             }
           ],
           "failActions": []
@@ -12473,7 +13089,22 @@ export const zhuangFangyiGeneratedSource = {
             },
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 4
+              "actionIndex": 4,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_pulse_pulse_conduct_triggered",
+                    "classification": "electrificationReaction",
+                    "blackboardAssignments": {
+                      "count": {
+                        "value": 0.0,
+                        "blackboardKey": "conductCnt",
+                        "levelValues": null
+                      }
+                    }
+                  }
+                ]
+              }
             }
           ],
           "failActions": []
@@ -13196,7 +13827,16 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "CreateBuffAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ]
+              }
             }
           ],
           "failActions": []

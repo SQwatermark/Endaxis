@@ -42,6 +42,15 @@ export interface GeneratedTimedDamageSource {
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
 }
 
+export type GeneratedAuxiliaryClassification =
+  | 'incomingDamageProtection'
+  | 'inputLock'
+  | 'skillCostUltimateEnergyGain'
+  | 'tutorialMarker'
+  | 'electrificationReaction'
+  | 'nonCombatAbilityEntity'
+  | null;
+
 export interface GeneratedAuxiliaryActionSource {
   readonly startFrame: number;
   readonly endFrame: number;
@@ -49,14 +58,7 @@ export interface GeneratedAuxiliaryActionSource {
   readonly actionType: 'CreateBuffAction' | 'SpawnAbilityEntity';
   readonly sourceId: string;
   /** 原生辅助行为的已确认语义；是否输出为步骤由具体分类决定，null 会阻止正式生成。 */
-  readonly classification:
-    | 'incomingDamageProtection'
-    | 'inputLock'
-    | 'skillCostUltimateEnergyGain'
-    | 'tutorialMarker'
-    | 'electrificationReaction'
-    | 'nonCombatAbilityEntity'
-    | null;
+  readonly classification: GeneratedAuxiliaryClassification;
   readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
   readonly nestedCombatActions: readonly string[];
 }
@@ -69,13 +71,10 @@ export interface GeneratedTimedInflictionSource {
   readonly isExtra: boolean;
 }
 
-export interface GeneratedTimedResourceGainSource {
+export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainPayload {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
-  readonly resource: 'sp' | 'ultimateEnergy';
-  readonly amount: GeneratedScalarSource;
-  readonly coefficient: GeneratedScalarSource;
 }
 
 export interface GeneratedProjectileHitSource {
@@ -97,11 +96,8 @@ export interface GeneratedProjectileHitSource {
   readonly nestedProjectileHits: readonly GeneratedProjectileHitSource[];
 }
 
-export interface GeneratedProjectileLaunchSource {
+export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
   readonly launchFrame: number;
-  readonly projectileId: string;
-  readonly castSkillOnHit: boolean;
-  readonly hitSkillId: string | null;
 }
 
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
@@ -243,6 +239,33 @@ export interface GeneratedBuffStackReadPayload {
   readonly limitSkillCastId: boolean;
 }
 
+export interface GeneratedBuffApplicationEntryPayload {
+  readonly buffId: string;
+  readonly classification: GeneratedAuxiliaryClassification;
+  readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
+}
+
+export interface GeneratedBuffApplicationPayload {
+  readonly buffs: readonly GeneratedBuffApplicationEntryPayload[];
+}
+
+export interface GeneratedResourceGainPayload {
+  readonly resource: 'sp' | 'ultimateEnergy';
+  readonly amount: GeneratedScalarSource;
+  readonly coefficient: GeneratedScalarSource;
+}
+
+export interface GeneratedProjectileLaunchPayload {
+  readonly projectileId: string;
+  readonly castSkillOnHit: boolean;
+  readonly hitSkillId: string | null;
+}
+
+export interface GeneratedAbilityEntitySpawnPayload {
+  readonly abilityEntityId: string;
+  readonly skillId: string | null;
+}
+
 /** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */
 export interface GeneratedConditionalBranchActionSource {
   readonly actionType: string;
@@ -254,6 +277,10 @@ export interface GeneratedConditionalBranchActionSource {
   readonly buffBlackboardRead?: GeneratedBuffBlackboardReadPayload;
   readonly buffFinish?: GeneratedBuffFinishPayload;
   readonly buffStackRead?: GeneratedBuffStackReadPayload;
+  readonly buffApplication?: GeneratedBuffApplicationPayload;
+  readonly resourceGain?: GeneratedResourceGainPayload;
+  readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
+  readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
 }
 
 export interface GeneratedBlackboardCalculationSource

@@ -283,7 +283,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
+                                            {"$type": "Example.DamageAction+Data, Example"},
                                             {"$type": "Example.DamageAction+Data, Example"},
                                             {
                                                 "$type": "Example.SimpleCalcBBAction+Data, Example",
@@ -300,12 +300,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                     "blackboardKey": "swordIndex",
                                                 },
                                             },
-                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
+                                            {"$type": "Example.DamageAction+Data, Example"},
                                         ]
                                     },
                                     "failActions": {
                                         "actionData": [
-                                            {"$type": "Example.ObtainCostAction+Data, Example"}
+                                            {"$type": "Example.DamageAction+Data, Example"}
                                         ]
                                     },
                                 }
@@ -325,15 +325,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             tuple(action.actionType for action in actions[0].succeedActions),
             (
-                "SpawnAbilityEntity",
+                "DamageAction",
                 "DamageAction",
                 "SimpleCalcBBAction",
-                "SpawnAbilityEntity",
+                "DamageAction",
             ),
         )
         self.assertEqual(
             tuple(action.actionType for action in actions[0].failActions),
-            ("ObtainCostAction",),
+            ("DamageAction",),
         )
         self.assertEqual(actions[0].succeedActions[2].actionIndex, 2)
         calculation = actions[0].succeedActions[2].blackboardCalculation
@@ -354,7 +354,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "actionData": [{"$type": "Example.DamageAction+Data, Example"}]
             },
             "failActions": {
-                "actionData": [{"$type": "Example.ObtainCostAction+Data, Example"}]
+                "actionData": [{"$type": "Example.DamageAction+Data, Example"}]
             },
         }
         root = {
@@ -370,9 +370,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "conditionAction": {"actionData": [compare]},
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.CreateBuffAction+Data, Example"},
+                                            {"$type": "Example.DamageAction+Data, Example"},
                                             nested,
-                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
+                                            {"$type": "Example.DamageAction+Data, Example"},
                                         ]
                                     },
                                     "failActions": {"actionData": []},
@@ -389,7 +389,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(
             tuple(action.actionType for action in actions[0].succeedActions),
-            ("CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"),
+            ("DamageAction", "IfElseAction", "DamageAction"),
         )
         nested_condition = actions[0].succeedActions[1].nestedCondition
         self.assertIsNotNone(nested_condition)
@@ -399,8 +399,75 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertEqual(
             tuple(action.actionType for action in nested_condition.failActions),
-            ("ObtainCostAction",),
+            ("DamageAction",),
         )
+
+    def test_conditional_audit_parses_effect_leaf_payloads(self) -> None:
+        scalar = {"useBlackboardKey": False, "value": 2, "blackboardKey": ""}
+        condition = {
+            "$type": "Example.CompareFloat+Data, Example",
+            "valueA": scalar,
+            "compare": "Equals",
+            "valueB": scalar,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 1,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CreateBuffAction+Data, Example",
+                                                "buffs": [
+                                                    {
+                                                        "buffId": "buff.test",
+                                                        "assignItems": [],
+                                                    }
+                                                ],
+                                            },
+                                            {
+                                                "$type": "Example.ObtainCostAction+Data, Example",
+                                                "costType": "Atb",
+                                                "isPercentValue": False,
+                                                "costValue": scalar,
+                                                "coefficient": scalar,
+                                            },
+                                            {
+                                                "$type": "Example.LaunchProjectile+Data, Example",
+                                                "projectileId": "projectile.test",
+                                                "castSkillOnHit": True,
+                                                "projectileSkillId": "skill.projectile.hit",
+                                            },
+                                            {
+                                                "$type": "Example.SpawnAbilityEntity+Data, Example",
+                                                "abilityEntityId": "entity.test",
+                                                "abilityEntitySkillId": "skill.entity.hit",
+                                            },
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "effects.json", {})[0].succeedActions
+
+        self.assertEqual(actions[0].buffApplication.buffs[0].buffId, "buff.test")
+        self.assertEqual(actions[1].resourceGain.resource, "sp")
+        self.assertEqual(actions[1].resourceGain.amount.value, 2)
+        self.assertEqual(actions[2].projectileLaunch.hitSkillId, "skill.projectile.hit")
+        self.assertEqual(actions[3].abilityEntitySpawn.skillId, "skill.entity.hit")
 
     def test_conditional_audit_preserves_entity_and_buff_stack_conditions(self) -> None:
         root = {
@@ -454,7 +521,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"}
+                                            {"$type": "Example.DamageAction+Data, Example"}
                                         ]
                                     },
                                     "failActions": {"actionData": []},
