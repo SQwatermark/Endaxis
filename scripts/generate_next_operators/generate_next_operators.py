@@ -494,6 +494,15 @@ COMPARISON_OPERATOR_MAP = {
     "Equals": "equal",
     "NotEquals": "notEqual",
 }
+ACTION_VALUE_OPERATION_MAP = {
+    "Assign": "assign",
+    "Add": "add",
+    "Multiply": "multiply",
+    "Divide": "divide",
+    "Floor": "floor",
+    "Ceil": "ceil",
+    "RoundToInt": "roundToInt",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -2472,6 +2481,20 @@ def compile_conditional_branch_action(
         return compile_buff_blackboard_read(action.buffBlackboardRead, path)
     if action.buffFinish is not None:
         return compile_buff_finish(action.buffFinish, path)
+    if action.blackboardMutation is not None:
+        mutation = action.blackboardMutation
+        operation = ACTION_VALUE_OPERATION_MAP.get(mutation.operation)
+        if operation is None:
+            raise ValueError(f"{path}: unsupported action blackboard operation {mutation.operation!r}")
+        return "\n".join(
+            [
+                "step('modifyActionValue', {",
+                f"  key: {ts_inline_literal(mutation.key)},",
+                f"  operation: {ts_inline_literal(operation)},",
+                f"  value: {compile_condition_operand(mutation.value, f'{path}.value')},",
+                "})",
+            ]
+        )
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 

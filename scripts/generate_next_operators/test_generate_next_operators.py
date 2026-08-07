@@ -715,6 +715,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
 
+    def test_conditional_action_compiler_emits_action_blackboard_mutation(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="ModifyDynamicBlackboard",
+                    nestedCondition=None,
+                    blackboardMutation=SimpleNamespace(
+                        key="swordCount",
+                        operation="Add",
+                        value=ScalarSource(1, None, None),
+                    ),
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("modifyActionValue", result)
+        self.assertIn("key: 'swordCount'", result)
+        self.assertIn("operation: 'add'", result)
+
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",
@@ -729,6 +761,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 SimpleNamespace(
                     actionType="DamageAction",
                     nestedCondition=None,
+                    blackboardMutation=None,
                     buffBlackboardRead=None,
                     buffFinish=None,
                 ),

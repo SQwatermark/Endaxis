@@ -210,6 +210,18 @@ export type CombatConditionKind = (typeof COMBAT_CONDITION_KINDS)[number];
 export type ActionValueOperand =
   { kind: 'blackboard'; key: string } | { kind: 'constant'; value: number };
 
+export const ACTION_VALUE_OPERATIONS = [
+  'assign',
+  'add',
+  'multiply',
+  'divide',
+  'floor',
+  'ceil',
+  'roundToInt',
+] as const;
+/** `ModifyDynamicBlackboard` 直接值路径已闭环的运算集合。 */
+export type ActionValueOperation = (typeof ACTION_VALUE_OPERATIONS)[number];
+
 /** 只依赖养成面板、可在战斗开始前决定的条件子集。 */
 export type BuildCondition = Extract<CombatCondition, { kind: 'deckAttributeCompare' }>;
 
@@ -295,6 +307,12 @@ export interface CombatStepParameters {
     buffIds: readonly string[];
     reason: 'early' | 'absorbed' | 'other';
   };
+  /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
+  modifyActionValue: {
+    key: string;
+    operation: ActionValueOperation;
+    value: ActionValueOperand;
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -335,6 +353,7 @@ export const COMBAT_STEP_KINDS = [
   'readBuffBlackboard',
   'finishBuffsByTag',
   'finishBuffsById',
+  'modifyActionValue',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',

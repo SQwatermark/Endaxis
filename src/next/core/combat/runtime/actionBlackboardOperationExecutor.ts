@@ -13,6 +13,18 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     step: Parameters<CombatOperationExecutor['execute']>[0],
     context?: CombatOperationContext,
   ): boolean {
+    if (step.kind === 'modifyActionValue') {
+      if (context === undefined) {
+        throw new Error('modifyActionValue requires a combat operation context');
+      }
+      const operand = Math.fround(resolveOperand(step.parameters.value, context));
+      const oldValue = Math.fround(context.blackboard.getNumber(step.parameters.key) ?? 0);
+      context.blackboard.assignDynamic(
+        step.parameters.key,
+        evaluateActionValueOperation(step.parameters.operation, oldValue, operand),
+      );
+      return true;
+    }
     return context === undefined
       ? this.delegate.execute(step)
       : this.delegate.execute(step, context);
@@ -40,6 +52,46 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       ? this.delegate.evaluate(condition)
       : this.delegate.evaluate(condition, context);
   }
+}
+
+const ACTION_VALUE_EPSILON = 0.00001;
+const INT32_MIN = -2147483648;
+const INT32_MAX = 2147483647;
+
+function evaluateActionValueOperation(
+  operation: import('../../game-data/operatorDefinition').ActionValueOperation,
+  oldValue: number,
+  operand: number,
+): number {
+  switch (operation) {
+    case 'assign':
+      return operand;
+    case 'add':
+      return Math.fround(oldValue + operand);
+    case 'multiply':
+      return Math.fround(oldValue * operand);
+    case 'divide':
+      return Math.abs(operand) <= ACTION_VALUE_EPSILON ? 0 : Math.fround(oldValue / operand);
+    case 'floor':
+      return toUnityInt32(Math.floor(operand + ACTION_VALUE_EPSILON));
+    case 'ceil':
+      return toUnityInt32(Math.ceil(operand - ACTION_VALUE_EPSILON));
+    case 'roundToInt':
+      return toUnityInt32(roundToEven(operand));
+  }
+}
+
+function roundToEven(value: number): number {
+  const lower = Math.floor(value);
+  const fraction = value - lower;
+  if (fraction < 0.5) return lower;
+  if (fraction > 0.5) return lower + 1;
+  return lower % 2 === 0 ? lower : lower + 1;
+}
+
+function toUnityInt32(value: number): number {
+  if (!Number.isFinite(value) || value < INT32_MIN || value > INT32_MAX) return INT32_MIN;
+  return Math.trunc(value);
 }
 
 function resolveOperand(operand: ActionValueOperand, context: CombatOperationContext): number {

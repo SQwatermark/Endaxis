@@ -11,6 +11,7 @@ import {
   type JsonObject,
 } from './schema';
 import {
+  ACTION_VALUE_OPERATIONS,
   COMBAT_RESOURCES,
   COMBAT_CONDITION_KINDS,
   COMBAT_STEP_KINDS,
@@ -69,6 +70,7 @@ const spGainKinds = new Set<string>(SP_GAIN_KINDS);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
 const gameplayTagQueryTypes = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
 const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
+const actionValueOperations = new Set<string>(ACTION_VALUE_OPERATIONS);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
@@ -392,6 +394,11 @@ function validateCombatStepParameters(
       requireTarget();
       validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
       requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
+      break;
+    case 'modifyActionValue':
+      requireString(parameters, 'key', path, issues);
+      requireEnum(parameters.operation, actionValueOperations, `${path}.operation`, issues);
+      validateActionValueOperand(parameters.value, `${path}.value`, issues);
       break;
     case 'changeResource':
       requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);

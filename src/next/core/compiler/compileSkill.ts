@@ -213,6 +213,8 @@ function resolveStep(
       };
     case 'finishBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'modifyActionValue':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,
