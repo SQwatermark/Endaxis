@@ -1145,6 +1145,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
+        self.assertIn("resource: 'sp', amount: 5, recipient: 'team'", source)
         ordered_markers = [
             "changeResource",
             "modifyActionValue",

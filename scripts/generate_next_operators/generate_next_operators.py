@@ -2711,6 +2711,15 @@ def compile_blackboard_mutation(
     )
 
 
+def resource_recipient(resource: str) -> str:
+    """映射 Next 的资源所有权：技力属于全队，终结技能量属于施法者。"""
+    if resource == "sp":
+        return "team"
+    if resource == "ultimateEnergy":
+        return "caster"
+    raise ValueError(f"unsupported resource recipient mapping for {resource!r}")
+
+
 def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
     """编译原生固定数值资源获得；动态系数尚未闭环时必须拒绝。"""
     amount = compact_level_values(require_level_values(gain.amount, f"{path}.amount"))
@@ -2721,10 +2730,11 @@ def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
     )
     if coefficient != 1:
         raise ValueError(f"{path}: resource gain coefficient other than 1 is not supported")
+    recipient = resource_recipient(gain.resource)
     return (
         "step('changeResource', "
         f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
-        "recipient: 'caster' })"
+        f"recipient: {ts_inline_literal(recipient)} }})"
     )
 
 
@@ -2967,7 +2977,8 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             (
                 gain.actionIndex,
                 "step('changeResource', "
-                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, recipient: 'caster' }})",
+                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
+                f"recipient: {ts_inline_literal(resource_recipient(gain.resource))} }})",
             )
         )
     after_damage = config.get("afterDamage")
@@ -3123,7 +3134,8 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
             (
                 gain.actionIndex,
                 "step('changeResource', "
-                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, recipient: 'caster' }})",
+                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
+                f"recipient: {ts_inline_literal(resource_recipient(gain.resource))} }})",
             )
         )
     rendered_steps = [
