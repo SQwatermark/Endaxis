@@ -12,6 +12,7 @@ import {
 const defender: PlayerDamageDefenderSnapshot = {
   defense: 100,
   shelterDamageMultiplier: 0,
+  breakingAttackDamageTakenMultiplier: 1,
   resistances: {
     physical: { percent: 0, damageTakenMultiplier: 1 },
     heat: { percent: 0, damageTakenMultiplier: 1 },
@@ -73,7 +74,7 @@ describe('resolvePlayerActiveDamageInput', () => {
     expect(calculatePlayerActiveDamage(input).value).toBe(2400);
   });
 
-  it('rejects unresolved status-stack and breaking-attack calculations', () => {
+  it('accepts an already-resolved breaking-attack value and rejects unresolved status stacks', () => {
     const step = findDamageStep();
     const common = {
       finalAttackValue: 1,
@@ -94,15 +95,15 @@ describe('resolvePlayerActiveDamageInput', () => {
       },
     } as const;
 
-    expect(() =>
+    expect(
       resolvePlayerActiveDamageInput({
         ...common,
         step: {
           ...step,
           parameters: { ...step.parameters, calculation: 'breakingAttack' },
         },
-      }),
-    ).toThrow('separate recovered calculation branch');
+      }).finalAttackValue,
+    ).toBe(1);
     expect(() =>
       resolvePlayerActiveDamageInput({
         ...common,

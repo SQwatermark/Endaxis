@@ -29,6 +29,8 @@ export interface PlayerDamageAttackerSnapshot {
 export interface PlayerDamageDefenderSnapshot {
   readonly defense: number;
   readonly shelterDamageMultiplier: number;
+  /** 敌人固定属性 `BreakingAttackDamageTakenScalar`，只参与处决基础值计算。 */
+  readonly breakingAttackDamageTakenMultiplier: number;
   readonly resistances: Readonly<Record<ResistibleDamageType, DamageResistanceSnapshot>>;
 }
 
@@ -59,9 +61,6 @@ export function resolvePlayerActiveDamageInput({
   defender,
   runtime,
 }: ResolvePlayerActiveDamageInput): PlayerActiveDamageInput {
-  if (step.parameters.calculation === 'breakingAttack') {
-    throw new Error('breaking-attack input requires the separate recovered calculation branch');
-  }
   if (step.parameters.attackScalePerStatusStack !== undefined) {
     throw new Error('status-stack attack scale must be resolved before damage input construction');
   }

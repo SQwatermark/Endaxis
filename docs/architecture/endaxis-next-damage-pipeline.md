@@ -86,7 +86,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `executeCompoundStatusFactory` 已复刻工厂内部的 `ReadSkillSettingData -> CreateBuffAction` 求值：以一基列号、中点取偶和 float32 边界读取参数，按来源的物理与法术附着增强应用线性或饱和公式，再依据配置复制下一 Buff 的 Blackboard。设置项或列不存在时保留原 Blackboard 值，与原生 `continue` 行为一致。`parseSkillSettingCatalog` 已提供生成目录的严格 schema、唯一性、四列数值和公式引用校验，并建立可复用查找索引。求值器只返回下一 Buff 创建请求；与 1.4.4 运行时配对的真实 SkillSetting 资源和自然 wrapper 尚未接入，因此运行时仍不能把异类反应宣称为完整闭环。
 
-`calculateBreakingAttackValue` 已独立复刻处决基础计算：先将 `Atk * BreakingAttackDamageTakenScalar` 转为 float32，再按原生顺序乘每个 hit 的 `multiplier` 与技能 `atkScale`，每次 float 乘法均保留舍入。当前尚未接入技能执行器，因为现有 `dealDamage` 只保存了技能总倍率，没有保存原生每个 hit 独立的 `multiplier`；执行器继续显式拒绝该分支，直到处决动作树完整导入，避免把多段处决错误归并为单次伤害。
+`calculateBreakingAttackValue` 已复刻并接入处决基础计算：先将 `Atk * BreakingAttackDamageTakenScalar` 转为 float32，再按原生顺序乘每个 hit 的 `multiplier` 与技能 `atkScale`，每次 float 乘法均保留舍入。`PlayerDamageOperationExecutor` 只在基础攻击值阶段选择该分支，计算前后的事件、属性修正、DamageScale、暴击、防御、抗性与生命扣减仍复用标准伤害生命周期。敌人目录中的 `finisherMultiplier` 需要在场景装配时进入冻结的目标属性快照。
 
 ## 3. 输入所有权
 
@@ -107,7 +107,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 1. 导出真实 SkillSetting 数据与增强公式，并投影三种自然 wrapper 与 12 种最终状态；
 2. 从 BuffData 投影四种同类爆发，严格补齐事件、伤害与生命周期动作；
-3. 将处决逐 hit 的 `multiplier` 导入技能 DSL 后接通 `BreakingAttack`，再实现生命汲取和特殊失衡计算分支；
+3. 将已闭环干员的逐 hit 处决动作导入技能 DSL，再实现生命汲取和特殊失衡计算分支；
 4. 用真实面板快照和游戏内战斗样本校验整条数值链；
 5. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
 

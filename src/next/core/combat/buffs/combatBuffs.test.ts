@@ -44,6 +44,7 @@ function createDamageContext(
       ...scaleAttributes,
       defense: 0,
       shelterDamageMultiplier: 0,
+      breakingAttackDamageTakenMultiplier: 1,
       resistances: {
         physical: { percent: 0, damageTakenMultiplier: 1 },
         heat: { percent: 0, damageTakenMultiplier: 1 },

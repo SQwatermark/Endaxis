@@ -3,6 +3,7 @@
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import { calculateBreakingAttackValue } from '../damage/breakingAttackDamage';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
 import {
@@ -82,9 +83,6 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   execute(step: RuntimeOperation): boolean {
     if (step.kind !== 'dealDamage') return this.dependencies.delegate.execute(step);
 
-    if (step.parameters.calculation === 'breakingAttack') {
-      throw new Error('breaking-attack input requires the separate recovered calculation branch');
-    }
     if (step.parameters.attackScalePerStatusStack !== undefined) {
       throw new Error('status-stack attack scale must be resolved by its recovered branch');
     }
@@ -108,7 +106,17 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     this.dependencies.emitPreparationEvent('beforeDamageAction', context);
     this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
     context.applyModifiers('beforeCalculation');
-    context.setCalculationResult(context.attackerAttributes.attack * step.parameters.attackScale);
+    context.setCalculationResult(
+      step.parameters.calculation === 'breakingAttack'
+        ? calculateBreakingAttackValue({
+            attack: context.attackerAttributes.attack,
+            targetDamageTakenMultiplier:
+              context.defenderAttributes.breakingAttackDamageTakenMultiplier,
+            calculationMultiplier: step.parameters.calculationMultiplier ?? 1,
+            attackScale: step.parameters.attackScale,
+          })
+        : context.attackerAttributes.attack * step.parameters.attackScale,
+    );
     injectDamageScaleAttributes(context.damageScales, {
       damageType: step.parameters.damageType,
       classifications: classifyDamageTags(step.parameters.tags),

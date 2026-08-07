@@ -38,6 +38,7 @@ function createAttributeSnapshots(attack = 100, defense = 0) {
       ...scaleAttributes,
       defense,
       shelterDamageMultiplier: 0,
+      breakingAttackDamageTakenMultiplier: 1,
       resistances: {
         physical: { percent: 0, damageTakenMultiplier: 1 },
         heat: { percent: 0, damageTakenMultiplier: 1 },
@@ -174,6 +175,62 @@ describe('PlayerDamageOperationExecutor', () => {
       'clear:attacker',
       'clear:defender',
     ]);
+  });
+
+  it('uses the enemy and per-hit multipliers for breaking-attack base damage', () => {
+    const targetVitals = new CombatVitals({
+      health: 2000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const snapshots = createAttributeSnapshots();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'zhuang-fangyi',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => ({
+        ...snapshots,
+        defender: {
+          ...snapshots.defender,
+          breakingAttackDamageTakenMultiplier: 1.5,
+        },
+      }),
+      resolveRuntimeSnapshot: () => ({
+        criticalSample: 1,
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      kind: 'dealDamage',
+      parameters: {
+        damageType: 'physical',
+        attackScale: 4,
+        calculation: 'breakingAttack',
+        calculationMultiplier: 0.1,
+        tags: ['normalAttack', 'powerAttack'],
+      },
+    });
+
+    expect(targetVitals.health).toBeCloseTo(1940);
   });
 
   it('delegates operations outside the damage path', () => {
