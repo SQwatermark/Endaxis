@@ -92,6 +92,9 @@ function scalarValue(
   source: GeneratedScalarSource,
   negate = false,
 ): number | { readonly blackboardKey: string; readonly negate?: boolean } {
+  if (source.levelValues !== null) {
+    throw new Error('generated Buff scalar still contains unresolved level values');
+  }
   if (source.blackboardKey === null) return negate ? -source.value : source.value;
   return { blackboardKey: source.blackboardKey, ...(negate ? { negate: true } : {}) };
 }

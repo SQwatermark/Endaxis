@@ -34,4 +34,19 @@ describe('adaptGeneratedBuffDefinition', () => {
       adaptGeneratedBuffDefinition(requireBuff('buff_common_obtain_ultimate_sp')),
     ).toThrow('no available source definition');
   });
+
+  it('rejects unresolved level values instead of selecting a default silently', () => {
+    const source = requireBuff('buff_chr_0030_zhuangfy_ult_skill_free');
+    expect(() =>
+      adaptGeneratedBuffDefinition({
+        ...source,
+        attributeModifiers: [
+          {
+            ...source.attributeModifiers[0]!,
+            value: { ...source.attributeModifiers[0]!.value, levelValues: [-100, -90] },
+          },
+        ],
+      }),
+    ).toThrow('unresolved level values');
+  });
 });
