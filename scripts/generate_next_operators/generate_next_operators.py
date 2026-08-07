@@ -233,6 +233,15 @@ class BuffDefinitionSource:
     lifecycle: BuffLifecycleSource | None
     blackboard: tuple["DeclaredBlackboardValueSource", ...]
     applyTagIds: tuple[int, ...]
+    directDamageHits: tuple[TimedDamageSource, ...]
+    conditionalActions: tuple["ConditionalActionSource", ...]
+    blackboardCalculations: tuple["BlackboardCalculationSource", ...]
+    blackboardMutations: tuple["BlackboardMutationSource", ...]
+    buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
+    buffFinishes: tuple["BuffFinishSource", ...]
+    eventActions: tuple["BuffEventActionSource", ...]
+    resourceGains: tuple[TimedResourceGainSource, ...]
+    combatActions: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -262,7 +271,6 @@ class BuffEventActionSource:
     combatActions: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
     createdBuffIds: tuple[str, ...]
-    createdBuffBehaviors: tuple[BuffBehaviorSource, ...]
 
 
 @dataclass(frozen=True)
@@ -1723,6 +1731,46 @@ def parse_buff_apply_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[in
     return tuple(result)
 
 
+def parse_buff_event_actions(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffEventActionSource, ...]:
+    """保留 Buff 事件槽中的动作事实；被创建 Buff 的定义由中央目录解析。"""
+    result: list[BuffEventActionSource] = []
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction"), f"{source_name}.buffEventAction")
+    ):
+        event = require_dict(raw_event, f"{source_name}.buffEventAction[{event_index}]")
+        event_name = event.get("buffEvent")
+        if not isinstance(event_name, str) or not event_name:
+            raise ValueError(
+                f"{source_name}.buffEventAction[{event_index}].buffEvent: expected string"
+            )
+        actions = event.get("actions")
+        action_root = {"actionGroupData": {"actions": actions}}
+        walked_actions = list(walk_unconditional_actions(actions))
+        result.append(
+            BuffEventActionSource(
+                event=event_name,
+                combatActions=tuple(
+                    sorted(
+                        {
+                            action_name(item["$type"])
+                            for item in walked_actions
+                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                        }
+                    )
+                ),
+                damageUnits=parse_damage_units(
+                    action_root, f"{source_name}.{event_name}", blackboard
+                ),
+                createdBuffIds=collect_created_buff_ids(actions, source_name),
+            )
+        )
+    return tuple(result)
+
+
 def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
     buff_source_dir: Path,
@@ -1737,11 +1785,37 @@ def resolve_buff_definitions(
         source_file = f"{buff_id}.json"
         source_path = buff_source_dir / source_file
         if not source_path.is_file():
-            result[buff_id] = BuffDefinitionSource(buff_id, source_file, False, None, (), ())
+            result[buff_id] = BuffDefinitionSource(
+                buffId=buff_id,
+                sourceFile=source_file,
+                sourceAvailable=False,
+                lifecycle=None,
+                blackboard=(),
+                applyTagIds=(),
+                directDamageHits=(),
+                conditionalActions=(),
+                blackboardCalculations=(),
+                blackboardMutations=(),
+                buffBlackboardReads=(),
+                buffFinishes=(),
+                eventActions=(),
+                resourceGains=(),
+                combatActions=(),
+            )
             continue
         buff = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_file)
         declared_blackboard = parse_declared_blackboard(buff, source_file)
         blackboard = {entry.key: (entry.value,) for entry in declared_blackboard}
+        adapted_root = {
+            "actionGroupData": {
+                "timelineActions": require_list(
+                    buff.get("timelineActions"), f"{source_file}.timelineActions"
+                )
+            }
+        }
+        mutations, reads, finishes = parse_blackboard_runtime_actions(
+            adapted_root, source_file, blackboard
+        )
         result[buff_id] = BuffDefinitionSource(
             buffId=buff_id,
             sourceFile=source_file,
@@ -1749,6 +1823,25 @@ def resolve_buff_definitions(
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
             blackboard=declared_blackboard,
             applyTagIds=parse_buff_apply_tag_ids(buff, source_file),
+            directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
+            conditionalActions=parse_conditional_actions(adapted_root, source_file, blackboard),
+            blackboardCalculations=parse_blackboard_calculations(
+                adapted_root, source_file, blackboard
+            ),
+            blackboardMutations=mutations,
+            buffBlackboardReads=reads,
+            buffFinishes=finishes,
+            eventActions=parse_buff_event_actions(buff, source_file, blackboard),
+            resourceGains=parse_resource_gains(adapted_root, source_file, blackboard),
+            combatActions=tuple(
+                sorted(
+                    {
+                        action_name(item["$type"])
+                        for item in walk_actions(adapted_root.get("actionGroupData"))
+                        if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                    }
+                )
+            ),
         )
         pending.extend(
             child_id
@@ -2417,61 +2510,7 @@ def resolve_buff_behaviors(
                 }
             )
         )
-        event_actions: list[BuffEventActionSource] = []
-        for event_index, raw_event in enumerate(
-            require_list(buff.get("buffEventAction"), f"{buff_name}.buffEventAction")
-        ):
-            event = require_dict(raw_event, f"{buff_name}.buffEventAction[{event_index}]")
-            event_name = event.get("buffEvent")
-            if not isinstance(event_name, str) or not event_name:
-                raise ValueError(f"{buff_name}.buffEventAction[{event_index}].buffEvent: expected string")
-            event_root = {"actionGroupData": {"actions": event.get("actions")}}
-            actions = list(walk_unconditional_actions(event.get("actions")))
-            created_buff_ids: list[str] = []
-            created_buff_behaviors: list[BuffBehaviorSource] = []
-            for event_action in actions:
-                if action_name(event_action["$type"]) != "CreateBuffAction":
-                    continue
-                for raw_created in require_list(
-                    event_action.get("buffs"), f"{buff_name}.{event_name}.CreateBuffAction.buffs"
-                ):
-                    created = require_dict(raw_created, f"{buff_name}.{event_name}.CreateBuffAction.buffs[]")
-                    created_id = created.get("buffId")
-                    if not isinstance(created_id, str) or not created_id:
-                        raise ValueError(f"{buff_name}.{event_name}: expected created buffId")
-                    created_buff_ids.append(created_id)
-                    created_assignments = parse_buff_assignments(
-                        created,
-                        f"{buff_name}.{event_name}.CreateBuffAction.buffs[]",
-                        child_blackboard,
-                    )
-                    if not cycle_truncated:
-                        created_buff_behaviors.append(
-                            resolve_one(
-                                created_id,
-                                created_assignments,
-                                None,
-                                event_name,
-                                (*current_stack, buff_id),
-                            )
-                        )
-            event_actions.append(
-                BuffEventActionSource(
-                    event=event_name,
-                    combatActions=tuple(
-                        sorted(
-                            {
-                                action_name(item["$type"])
-                                for item in actions
-                                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
-                            }
-                        )
-                    ),
-                    damageUnits=parse_damage_units(event_root, f"{buff_name}.{event_name}", child_blackboard),
-                    createdBuffIds=tuple(created_buff_ids),
-                    createdBuffBehaviors=tuple(created_buff_behaviors),
-                )
-            )
+        event_actions = parse_buff_event_actions(buff, buff_name, child_blackboard)
         blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
             adapted_root, buff_name, child_blackboard
         )
@@ -2490,7 +2529,7 @@ def resolve_buff_behaviors(
             blackboardMutations=blackboard_mutations,
             buffBlackboardReads=buff_blackboard_reads,
             buffFinishes=buff_finishes,
-            eventActions=tuple(event_actions),
+            eventActions=event_actions,
             resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
             nestedBuffBehaviors=nested,
             combatActions=combat_actions,

@@ -126,6 +126,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 }
             ],
             "applyTags": [{"tagId": -1486085048}],
+            "timelineActions": [],
+            "buffEventAction": [],
         }
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
@@ -139,6 +141,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].lifecycle.duration.levelValues, (3.0,))
         self.assertEqual(definitions[1].blackboard[0].key, "duration")
         self.assertEqual(definitions[1].applyTagIds, (-1486085048,))
+        self.assertEqual(definitions[1].combatActions, ())
 
     def test_buff_definitions_follow_event_dependencies_once(self) -> None:
         def buff(buff_id: str, child_id: str | None) -> dict[str, object]:
@@ -202,6 +205,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             tuple(definition.buffId for definition in definitions),
             ("buff.child", "buff.parent"),
         )
+        parent = next(
+            definition for definition in definitions if definition.buffId == "buff.parent"
+        )
+        child = next(
+            definition for definition in definitions if definition.buffId == "buff.child"
+        )
+        self.assertEqual(parent.eventActions[0].createdBuffIds, ("buff.child",))
+        self.assertEqual(child.eventActions[0].createdBuffIds, ("buff.parent",))
 
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
@@ -1534,10 +1545,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(event.event, "OnBuffTrigger")
         self.assertEqual(event.combatActions, ("CreateBuffAction",))
         self.assertEqual(event.createdBuffIds, ("child_buff",))
-        self.assertEqual(len(event.createdBuffBehaviors), 1)
-        self.assertEqual(event.createdBuffBehaviors[0].applicationEvent, "OnBuffTrigger")
-        self.assertIsNone(event.createdBuffBehaviors[0].applicationFrame)
-        self.assertFalse(event.createdBuffBehaviors[0].sourceAvailable)
 
     def test_buff_lifecycle_rejects_unknown_stacking_type(self) -> None:
         buff = {

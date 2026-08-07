@@ -2013,7 +2013,16 @@
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -2021,7 +2030,16 @@
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "resolvedDamageHits": [
@@ -2559,7 +2577,16 @@
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "resolvedDamageHits": [
@@ -3499,7 +3526,16 @@
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "resolvedDamageHits": [

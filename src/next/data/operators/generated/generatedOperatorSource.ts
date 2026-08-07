@@ -161,6 +161,15 @@ export interface GeneratedBuffDefinitionSource {
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */
   readonly applyTagIds: readonly number[];
+  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
+  readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
+  readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
+  readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
+  readonly buffFinishes: readonly GeneratedBuffFinishSource[];
+  readonly eventActions: readonly GeneratedBuffEventActionSource[];
+  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  readonly combatActions: readonly string[];
 }
 
 /** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
@@ -391,7 +400,6 @@ export interface GeneratedBuffEventActionSource {
   readonly combatActions: readonly string[];
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly createdBuffIds: readonly string[];
-  readonly createdBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
 }
 
 export interface GeneratedSkillSource {

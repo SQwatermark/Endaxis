@@ -4984,7 +4984,23 @@ export const zhuangFangyiGeneratedSource = {
               "isDynamic": true
             }
           ],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
@@ -5039,8 +5055,7 @@ export const zhuangFangyiGeneratedSource = {
               "event": "OnBuffFinish",
               "combatActions": [],
               "damageUnits": [],
-              "createdBuffIds": [],
-              "createdBuffBehaviors": []
+              "createdBuffIds": []
             }
           ],
           "resourceGains": [],
@@ -5555,7 +5570,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -5563,7 +5587,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
@@ -7425,7 +7458,41 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "applyTagIds": [
             -1486085048
-          ]
+          ],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "OnBuffTrigger",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_sword_triggerd"
+              ]
+            },
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -7468,7 +7535,31 @@ export const zhuangFangyiGeneratedSource = {
           "blackboard": [],
           "applyTagIds": [
             1670936726
-          ]
+          ],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -7555,7 +7646,358 @@ export const zhuangFangyiGeneratedSource = {
               "isDynamic": false
             }
           ],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [
+            {
+              "startFrame": 6,
+              "endFrame": 9,
+              "actionIndex": 37,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_final",
+                    "levelValues": [
+                      0.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      0.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "conditionalActions": [
+            {
+              "startFrame": 3,
+              "endFrame": 6,
+              "actionIndex": 18,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "Equals",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "swordIndex",
+                    "levelValues": [
+                      0.0
+                    ]
+                  },
+                  "right": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 2,
+                  "nestedCondition": {
+                    "startFrame": 3,
+                    "endFrame": 6,
+                    "actionIndex": 22,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[5]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "LT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "swordIndex",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": "remain_sword_limit",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "skillTypes": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ObtainCostAction",
+                        "actionIndex": 0,
+                        "resourceGain": {
+                          "resource": "ultimateEnergy",
+                          "amount": {
+                            "value": 10.0,
+                            "blackboardKey": "usp_extra",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "coefficient": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "spGainKind": null,
+                          "spGainSource": null,
+                          "onlyMainOperator": false,
+                          "isPercentValue": false,
+                          "useUltimateRecoveryTag": false,
+                          "ultimateRecoveryTagId": 0,
+                          "ignoreUltimateGainScalar": false
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 2,
+                  "nestedCondition": {
+                    "startFrame": 3,
+                    "endFrame": 6,
+                    "actionIndex": 27,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[5]",
+                      "failActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "LT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "swordIndex",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": "remain_sword_limit",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "skillTypes": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ObtainCostAction",
+                        "actionIndex": 0,
+                        "resourceGain": {
+                          "resource": "ultimateEnergy",
+                          "amount": {
+                            "value": 10.0,
+                            "blackboardKey": "usp_extra",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "coefficient": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "spGainKind": null,
+                          "spGainSource": null,
+                          "onlyMainOperator": false,
+                          "isPercentValue": false,
+                          "useUltimateRecoveryTag": false,
+                          "ultimateRecoveryTagId": 0,
+                          "ignoreUltimateGainScalar": false
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ]
+            },
+            {
+              "startFrame": 6,
+              "endFrame": 9,
+              "actionIndex": 39,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[8]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "LT",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "swordIndex",
+                    "levelValues": [
+                      0.0
+                    ]
+                  },
+                  "right": {
+                    "value": 0.0,
+                    "blackboardKey": "remain_sword_limit",
+                    "levelValues": [
+                      0.0
+                    ]
+                  },
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 0,
+                  "resourceGain": {
+                    "resource": "ultimateEnergy",
+                    "amount": {
+                      "value": 10.0,
+                      "blackboardKey": "usp_extra",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "spGainKind": null,
+                    "spGainSource": null,
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
+                  }
+                }
+              ],
+              "failActions": []
+            }
+          ],
+          "blackboardCalculations": [
+            {
+              "startFrame": 6,
+              "endFrame": 9,
+              "actionIndex": 36,
+              "key": "atk_scale_final",
+              "operation": "Multiply",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.0
+                ]
+              },
+              "right": {
+                "value": 3.0,
+                "blackboardKey": "final_rate",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "blackboardMutations": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 7,
+              "key": "swordCnt",
+              "operation": "Add",
+              "value": {
+                "value": -1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
+          "buffBlackboardReads": [],
+          "buffFinishes": [
+            {
+              "startFrame": 9,
+              "endFrame": 12,
+              "actionIndex": 11,
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0030_zhuangfy_normal_skill_trigger_sword"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false
+            }
+          ],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ]
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -7596,7 +8038,16 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -7637,7 +8088,16 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_obtain_ultimate_sp",
@@ -7645,7 +8105,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [],
@@ -9581,7 +10050,31 @@ export const zhuangFangyiGeneratedSource = {
           "blackboard": [],
           "applyTagIds": [
             1670936726
-          ]
+          ],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "OnBuffStart",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -9622,7 +10115,16 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_obtain_ultimate_sp",
@@ -9630,7 +10132,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [],
@@ -10796,7 +11307,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [],
@@ -11684,7 +12204,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [],
@@ -12416,7 +12945,29 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -12457,7 +13008,23 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -12514,7 +13081,68 @@ export const zhuangFangyiGeneratedSource = {
           "applyTagIds": [
             -388303696,
             189882742
-          ]
+          ],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_hide_model_holder"
+              ]
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_body_vfx",
+                "buff_chr_0030_zhuangfy_ult_env_vfx"
+              ]
+            },
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": []
+            },
+            {
+              "event": "OnBuffStart",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_skill_free"
+              ]
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -12555,7 +13183,23 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -12596,7 +13240,23 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -12637,7 +13297,23 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "DuringBuffEnable",
+              "combatActions": [],
+              "damageUnits": [],
+              "createdBuffIds": []
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -12678,7 +13354,27 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [
+            {
+              "event": "OnBuffFinish",
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "damageUnits": [],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_hide_model"
+              ]
+            }
+          ],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -12719,7 +13415,16 @@ export const zhuangFangyiGeneratedSource = {
             "hasStackEffects": false
           },
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_damage_immune_ult_skill",
@@ -12727,7 +13432,16 @@ export const zhuangFangyiGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
@@ -12795,8 +13509,7 @@ export const zhuangFangyiGeneratedSource = {
               "event": "DuringBuffEnable",
               "combatActions": [],
               "damageUnits": [],
-              "createdBuffIds": [],
-              "createdBuffBehaviors": []
+              "createdBuffIds": []
             },
             {
               "event": "DuringBuffEnable",
@@ -12806,141 +13519,13 @@ export const zhuangFangyiGeneratedSource = {
               "damageUnits": [],
               "createdBuffIds": [
                 "buff_chr_0030_zhuangfy_ult_hide_model_holder"
-              ],
-              "createdBuffBehaviors": [
-                {
-                  "applicationFrame": null,
-                  "applicationEvent": "DuringBuffEnable",
-                  "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
-                  "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model_holder.json",
-                  "sourceAvailable": true,
-                  "lifecycle": {
-                    "lifeType": "Infinity",
-                    "duration": {
-                      "value": 0.033,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "triggerInterval": {
-                      "value": -1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "waitFirstTriggerInterval": false,
-                    "maxTriggerCount": {
-                      "value": 99.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "stackingIdentifierType": "Id",
-                    "stackingType": "Stack",
-                    "stackingKey": "NormalSkillCtrl",
-                    "priority": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "negatePriority": false,
-                    "maxStackCount": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "hasStackEffects": false
-                  },
-                  "directDamageHits": [],
-                  "conditionalActions": [],
-                  "blackboardCalculations": [],
-                  "blackboardMutations": [],
-                  "buffBlackboardReads": [],
-                  "buffFinishes": [],
-                  "eventActions": [
-                    {
-                      "event": "OnBuffFinish",
-                      "combatActions": [
-                        "CreateBuffAction"
-                      ],
-                      "damageUnits": [],
-                      "createdBuffIds": [
-                        "buff_chr_0030_zhuangfy_ult_hide_model"
-                      ],
-                      "createdBuffBehaviors": [
-                        {
-                          "applicationFrame": null,
-                          "applicationEvent": "OnBuffFinish",
-                          "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
-                          "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model.json",
-                          "sourceAvailable": true,
-                          "lifecycle": {
-                            "lifeType": "Limited",
-                            "duration": {
-                              "value": 0.1,
-                              "blackboardKey": null,
-                              "levelValues": null
-                            },
-                            "triggerInterval": {
-                              "value": -1.0,
-                              "blackboardKey": null,
-                              "levelValues": null
-                            },
-                            "waitFirstTriggerInterval": false,
-                            "maxTriggerCount": {
-                              "value": 99.0,
-                              "blackboardKey": null,
-                              "levelValues": null
-                            },
-                            "stackingIdentifierType": "Id",
-                            "stackingType": "Stack",
-                            "stackingKey": "NormalSkillCtrl",
-                            "priority": {
-                              "value": 1.0,
-                              "blackboardKey": null,
-                              "levelValues": null
-                            },
-                            "negatePriority": false,
-                            "maxStackCount": {
-                              "value": 1.0,
-                              "blackboardKey": null,
-                              "levelValues": null
-                            },
-                            "hasStackEffects": false
-                          },
-                          "directDamageHits": [],
-                          "conditionalActions": [],
-                          "blackboardCalculations": [],
-                          "blackboardMutations": [],
-                          "buffBlackboardReads": [],
-                          "buffFinishes": [],
-                          "eventActions": [
-                            {
-                              "event": "DuringBuffEnable",
-                              "combatActions": [],
-                              "damageUnits": [],
-                              "createdBuffIds": [],
-                              "createdBuffBehaviors": []
-                            }
-                          ],
-                          "resourceGains": [],
-                          "nestedBuffBehaviors": [],
-                          "combatActions": [],
-                          "cycleTruncated": false
-                        }
-                      ]
-                    }
-                  ],
-                  "resourceGains": [],
-                  "nestedBuffBehaviors": [],
-                  "combatActions": [],
-                  "cycleTruncated": false
-                }
               ]
             },
             {
               "event": "DuringBuffEnable",
               "combatActions": [],
               "damageUnits": [],
-              "createdBuffIds": [],
-              "createdBuffBehaviors": []
+              "createdBuffIds": []
             },
             {
               "event": "DuringBuffEnable",
@@ -12949,156 +13534,8 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "damageUnits": [],
               "createdBuffIds": [
-                "buff_chr_0030_zhuangfy_ult_env_vfx",
-                "buff_chr_0030_zhuangfy_ult_body_vfx"
-              ],
-              "createdBuffBehaviors": [
-                {
-                  "applicationFrame": null,
-                  "applicationEvent": "DuringBuffEnable",
-                  "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
-                  "sourceFile": "buff_chr_0030_zhuangfy_ult_env_vfx.json",
-                  "sourceAvailable": true,
-                  "lifecycle": {
-                    "lifeType": "Infinity",
-                    "duration": {
-                      "value": 1.5,
-                      "blackboardKey": "duration",
-                      "levelValues": [
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0
-                      ]
-                    },
-                    "triggerInterval": {
-                      "value": -1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "waitFirstTriggerInterval": true,
-                    "maxTriggerCount": {
-                      "value": 999.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "stackingIdentifierType": "Id",
-                    "stackingType": "Unique",
-                    "stackingKey": "NormalSkillCtrl",
-                    "priority": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "negatePriority": false,
-                    "maxStackCount": {
-                      "value": 0.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "hasStackEffects": false
-                  },
-                  "directDamageHits": [],
-                  "conditionalActions": [],
-                  "blackboardCalculations": [],
-                  "blackboardMutations": [],
-                  "buffBlackboardReads": [],
-                  "buffFinishes": [],
-                  "eventActions": [
-                    {
-                      "event": "DuringBuffEnable",
-                      "combatActions": [],
-                      "damageUnits": [],
-                      "createdBuffIds": [],
-                      "createdBuffBehaviors": []
-                    }
-                  ],
-                  "resourceGains": [],
-                  "nestedBuffBehaviors": [],
-                  "combatActions": [],
-                  "cycleTruncated": false
-                },
-                {
-                  "applicationFrame": null,
-                  "applicationEvent": "DuringBuffEnable",
-                  "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
-                  "sourceFile": "buff_chr_0030_zhuangfy_ult_body_vfx.json",
-                  "sourceAvailable": true,
-                  "lifecycle": {
-                    "lifeType": "Infinity",
-                    "duration": {
-                      "value": 1.5,
-                      "blackboardKey": "duration",
-                      "levelValues": [
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0
-                      ]
-                    },
-                    "triggerInterval": {
-                      "value": -1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "waitFirstTriggerInterval": true,
-                    "maxTriggerCount": {
-                      "value": 999.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "stackingIdentifierType": "Id",
-                    "stackingType": "Unique",
-                    "stackingKey": "NormalSkillCtrl",
-                    "priority": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "negatePriority": false,
-                    "maxStackCount": {
-                      "value": 0.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "hasStackEffects": false
-                  },
-                  "directDamageHits": [],
-                  "conditionalActions": [],
-                  "blackboardCalculations": [],
-                  "blackboardMutations": [],
-                  "buffBlackboardReads": [],
-                  "buffFinishes": [],
-                  "eventActions": [
-                    {
-                      "event": "DuringBuffEnable",
-                      "combatActions": [],
-                      "damageUnits": [],
-                      "createdBuffIds": [],
-                      "createdBuffBehaviors": []
-                    }
-                  ],
-                  "resourceGains": [],
-                  "nestedBuffBehaviors": [],
-                  "combatActions": [],
-                  "cycleTruncated": false
-                }
+                "buff_chr_0030_zhuangfy_ult_body_vfx",
+                "buff_chr_0030_zhuangfy_ult_env_vfx"
               ]
             },
             {
@@ -13107,8 +13544,7 @@ export const zhuangFangyiGeneratedSource = {
                 "IfElseAction"
               ],
               "damageUnits": [],
-              "createdBuffIds": [],
-              "createdBuffBehaviors": []
+              "createdBuffIds": []
             },
             {
               "event": "OnBuffStart",
@@ -13118,73 +13554,6 @@ export const zhuangFangyiGeneratedSource = {
               "damageUnits": [],
               "createdBuffIds": [
                 "buff_chr_0030_zhuangfy_ult_skill_free"
-              ],
-              "createdBuffBehaviors": [
-                {
-                  "applicationFrame": null,
-                  "applicationEvent": "OnBuffStart",
-                  "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
-                  "sourceFile": "buff_chr_0030_zhuangfy_ult_skill_free.json",
-                  "sourceAvailable": true,
-                  "lifecycle": {
-                    "lifeType": "Infinity",
-                    "duration": {
-                      "value": 1.5,
-                      "blackboardKey": "duration",
-                      "levelValues": [
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0,
-                        25.0
-                      ]
-                    },
-                    "triggerInterval": {
-                      "value": -1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "waitFirstTriggerInterval": true,
-                    "maxTriggerCount": {
-                      "value": 999.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "stackingIdentifierType": "Id",
-                    "stackingType": "Unique",
-                    "stackingKey": "NormalSkillCtrl",
-                    "priority": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "negatePriority": false,
-                    "maxStackCount": {
-                      "value": 0.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "hasStackEffects": false
-                  },
-                  "directDamageHits": [],
-                  "conditionalActions": [],
-                  "blackboardCalculations": [],
-                  "blackboardMutations": [],
-                  "buffBlackboardReads": [],
-                  "buffFinishes": [],
-                  "eventActions": [],
-                  "resourceGains": [],
-                  "nestedBuffBehaviors": [],
-                  "combatActions": [],
-                  "cycleTruncated": false
-                }
               ]
             }
           ],

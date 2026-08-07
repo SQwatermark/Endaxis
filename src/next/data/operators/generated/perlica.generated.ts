@@ -2973,7 +2973,16 @@ export const perlicaGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         },
         {
           "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -2981,7 +2990,16 @@ export const perlicaGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
@@ -4158,7 +4176,16 @@ export const perlicaGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
@@ -5713,7 +5740,16 @@ export const perlicaGeneratedSource = {
           "sourceAvailable": false,
           "lifecycle": null,
           "blackboard": [],
-          "applyTagIds": []
+          "applyTagIds": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "eventActions": [],
+          "resourceGains": [],
+          "combatActions": []
         }
       ],
       "buffBehaviors": [
