@@ -82,7 +82,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 7,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -111,6 +111,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -202,7 +203,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 6,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -231,6 +232,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -306,7 +308,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 6,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -335,6 +337,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -426,7 +429,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -455,6 +458,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -530,7 +534,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -559,6 +563,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -634,7 +639,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -663,6 +668,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -810,7 +816,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 10,
+              "actionIndex": 8,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -839,6 +845,7 @@
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -1244,7 +1251,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 15,
+              "actionIndex": 12,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1305,7 +1312,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 13,
+              "actionIndex": 10,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
               "classification": "tutorialMarker",
@@ -1315,7 +1322,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 14,
+              "actionIndex": 11,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_common_pulse_pulse_conduct_triggered",
               "classification": "electrificationReaction",
@@ -1351,7 +1358,7 @@
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 23,
+              "actionIndex": 20,
               "resource": "ultimateEnergy",
               "amount": {
                 "value": 0.2,
@@ -1381,6 +1388,7 @@
           "combatActions": [
             "CreateBuffAction",
             "DamageAction",
+            "IfElseAction",
             "LaunchProjectile",
             "ObtainCostAction"
           ],
@@ -1450,7 +1458,7 @@
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 15,
+                  "actionIndex": 12,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -1511,7 +1519,7 @@
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 13,
+                  "actionIndex": 10,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
                   "classification": "tutorialMarker",
@@ -1521,7 +1529,7 @@
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 14,
+                  "actionIndex": 11,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_common_pulse_pulse_conduct_triggered",
                   "classification": "electrificationReaction",
@@ -1557,7 +1565,7 @@
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 23,
+                  "actionIndex": 20,
                   "resource": "ultimateEnergy",
                   "amount": {
                     "value": 0.2,
@@ -1587,6 +1595,7 @@
               "combatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "IfElseAction",
                 "LaunchProjectile",
                 "ObtainCostAction"
               ],

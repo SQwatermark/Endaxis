@@ -18,6 +18,7 @@ from generate_next_operators import (
     ts_inline_literal,
     typescript_identifier,
     validate_skill_groups,
+    walk_actions,
 )
 
 
@@ -70,6 +71,48 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
 
         validate_skill_groups(operator, skills, growth, "growth")
+
+    def test_if_else_with_identical_combat_branches_is_folded_once(self) -> None:
+        spawn = lambda server_index: {
+            "$type": "Example.SpawnAbilityEntity+Data, Example",
+            "isEnable": True,
+            "serverActionIndex": server_index,
+            "abilityEntityId": "entity",
+            "abilityEntitySkillId": "hit_skill",
+        }
+        root = {
+            "$type": "Example.IfElseAction+Data, Example",
+            "isEnable": True,
+            "succeedActions": {"actionData": [spawn(1)]},
+            "failActions": {"actionData": [spawn(2)]},
+        }
+
+        actions = list(walk_actions(root))
+
+        self.assertEqual(len(actions), 1)
+        self.assertIn("SpawnAbilityEntity", actions[0]["$type"])
+
+    def test_if_else_with_different_combat_branches_remains_unresolved(self) -> None:
+        root = {
+            "$type": "Example.IfElseAction+Data, Example",
+            "isEnable": True,
+            "succeedActions": {
+                "actionData": [
+                    {
+                        "$type": "Example.ObtainCostAction+Data, Example",
+                        "costType": "Atb",
+                        "costValue": {"value": 10},
+                    }
+                ]
+            },
+            "failActions": {"actionData": []},
+        }
+
+        actions = list(walk_actions(root))
+
+        self.assertEqual(len(actions), 2)
+        self.assertIn("IfElseAction", actions[0]["$type"])
+        self.assertIn("ObtainCostAction", actions[1]["$type"])
 
     def test_allow_next_can_open_before_generic_interrupt_boundary(self) -> None:
         frame, source = derive_timeline_block(

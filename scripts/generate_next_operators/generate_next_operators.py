@@ -147,6 +147,7 @@ COMBAT_ACTION_NAMES = {
     "BuffEventAction",
     "SpellInfliction",
     "ObtainCostAction",
+    "IfElseAction",
 }
 
 
@@ -184,11 +185,60 @@ def action_name(type_name: str) -> str:
     return qualified.rsplit(".", 1)[-1].split("+", 1)[0]
 
 
+def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
+    name = action_name(str(action.get("$type", "")))
+    if name not in COMBAT_ACTION_NAMES or name == "IfElseAction":
+        return None
+    if name == "DamageAction":
+        payload = action.get("damageUnits")
+    elif name == "CreateBuffAction":
+        payload = action.get("buffs")
+    elif name == "DestroyBuffAction":
+        payload = action.get("buffIdList")
+    elif name == "LaunchProjectile":
+        payload = (action.get("projectileId"), action.get("projectileSkillId"))
+    elif name == "SpawnAbilityEntity":
+        payload = (action.get("abilityEntityId"), action.get("abilityEntitySkillId"))
+    elif name == "SpellInfliction":
+        payload = (action.get("inflictionType"), action.get("isExtra"))
+    elif name == "ObtainCostAction":
+        payload = (
+            action.get("costType"),
+            action.get("isPercentValue"),
+            action.get("costValue"),
+            action.get("coefficient"),
+        )
+    else:
+        payload = action
+    return (name, json.dumps(payload, ensure_ascii=False, sort_keys=True))
+
+
 def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
     if isinstance(value, dict):
         if value.get("isEnable") is False:
             return
-        if isinstance(value.get("$type"), str):
+        type_name = value.get("$type")
+        if isinstance(type_name, str) and action_name(type_name) == "IfElseAction":
+            succeed = list(walk_actions(value.get("succeedActions")))
+            fail = list(walk_actions(value.get("failActions")))
+            succeed_signature = tuple(
+                signature
+                for action in succeed
+                if (signature := combat_action_signature(action)) is not None
+            )
+            fail_signature = tuple(
+                signature
+                for action in fail
+                if (signature := combat_action_signature(action)) is not None
+            )
+            if succeed_signature == fail_signature:
+                yield from succeed
+            else:
+                yield value
+                yield from succeed
+                yield from fail
+            return
+        if isinstance(type_name, str):
             yield value
         for child in value.values():
             yield from walk_actions(child)
@@ -1093,6 +1143,7 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         *({"CreateBuffAction"} if hit.auxiliaryActions else set()),
         *({"ObtainCostAction"} if hit.resourceGains else set()),
         *({"LaunchProjectile"} if hit.nestedProjectileHits else set()),
+        *({"IfElseAction"} if hit.nestedProjectileHits else set()),
     }
     if set(hit.combatActions) != expected_child_actions:
         raise ValueError(f"{skill.key}: projectile child actions are not fully accounted for")

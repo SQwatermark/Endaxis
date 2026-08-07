@@ -236,7 +236,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 7,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -265,6 +265,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -633,7 +634,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 6,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -662,6 +663,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -737,7 +739,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 6,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -766,6 +768,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -1178,7 +1181,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1207,6 +1210,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -1282,7 +1286,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1311,6 +1315,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -1386,7 +1391,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 9,
+              "actionIndex": 5,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1415,6 +1420,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -1873,7 +1879,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 10,
+              "actionIndex": 8,
               "resource": "sp",
               "amount": {
                 "value": 0.0,
@@ -1902,6 +1908,7 @@ export const perlicaGeneratedSource = {
           ],
           "combatActions": [
             "DamageAction",
+            "IfElseAction",
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
@@ -2091,16 +2098,12 @@ export const perlicaGeneratedSource = {
             "DamageAction",
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "KnockDownAction",
             "EnemyHurtAnimAction",
             "FAnimationCurve",
             "CameraImpulseAction",
             "FAnimationCurve",
             "GainBreakingAttackAtb",
-            "IfElseAction",
-            "CheckEntityNum",
             "PlaySoundAction"
           ]
         },
@@ -2115,8 +2118,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 35,
           "endFrame": 38,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "HitStopAction",
             "FAnimationCurve"
           ]
@@ -2133,13 +2134,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 32,
           "endFrame": 45,
           "actionTypes": [
-            "IfElseAction",
-            "CompareFloat",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "AddDynamicCcsAction",
             "FAnimationCurve",
             "FAnimationCurve",
@@ -2162,13 +2156,6 @@ export const perlicaGeneratedSource = {
             "FAnimationCurve",
             "SaveCameraAngle",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "IfElseAction",
-            "CompareFloat",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "FAnimationCurve",
             "AddDynamicCcsAction",
             "FAnimationCurve",
@@ -2502,8 +2489,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 2,
           "endFrame": 7,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "CameraImpulseAction",
             "FAnimationCurve"
           ]
@@ -2995,12 +2980,7 @@ export const perlicaGeneratedSource = {
             "Selector",
             "Selector",
             "FindTargetAction",
-            "Selector",
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "TeleportPosSelectAction",
-            "CheckDistanceCondition",
-            "TeleportAction"
+            "Selector"
           ]
         },
         {
@@ -3033,9 +3013,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 2,
           "actionTypes": [
-            "IfElseAction",
-            "CheckEntityNum",
-            "SelfRotateAction",
             "SelfRotateAction"
           ]
         },
@@ -3087,39 +3064,15 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 27,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "AddCameraControlStateAction",
             "FAnimationCurve",
-            "FAnimationCurve",
-            "SaveTwoDirectionAngle",
-            "Selector",
-            "Selector",
-            "Selector",
-            "Selector",
-            "Selector",
-            "IfElseAction",
-            "CompareFloat",
-            "IfElseAction",
-            "CheckDistanceCondition",
-            "Selector",
-            "Selector",
-            "AddCameraControlStateAction",
-            "AddCameraControlStateAction",
-            "IfElseAction",
-            "CheckDistanceCondition",
-            "Selector",
-            "Selector",
-            "AddCameraControlStateAction",
-            "AddCameraControlStateAction"
+            "FAnimationCurve"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 12,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "AddCameraControlStateAction",
             "FAnimationCurve",
             "FAnimationCurve"
@@ -3129,11 +3082,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 12,
           "endFrame": 27,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "AddCameraControlStateAction",
             "FAnimationCurve",
             "FAnimationCurve"
@@ -3143,10 +3091,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 12,
           "actionTypes": [
-            "IfElseAction",
-            "CheckEntityNum",
-            "NotNextCheckAction",
-            "CheckMainCharacterCondition",
             "SaveTwoDirectionAngle",
             "Selector",
             "Selector",
@@ -3482,14 +3426,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 11,
           "actionTypes": [
-            "IfElseAction",
-            "CheckEntityNum",
-            "Selector",
-            "ConvertToTargetContext",
-            "Selector",
-            "FindTargetAction",
-            "Selector",
-            "Selector",
             "ConvertToTargetContext",
             "Selector"
           ]
@@ -3515,11 +3451,6 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 110,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "TeleportPosSelectAction",
-            "Selector",
-            "TeleportAction",
             "SelfRotateAction",
             "Selector"
           ]
@@ -3555,35 +3486,12 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 0,
           "endFrame": 23,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "FindTargetAction",
-            "Selector",
-            "Selector",
-            "SaveTargetDistanceAction",
-            "IfElseAction",
-            "CheckComboSkillCameraAlphaSetting",
-            "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "OverrideCameraFollowAction",
-            "Selector",
-            "Selector",
-            "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "OverrideCameraFollowAction",
-            "Selector",
-            "Selector"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
           "endFrame": 25,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "TemporaryUnlockAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
@@ -3755,7 +3663,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 15,
+              "actionIndex": 12,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -3816,7 +3724,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 13,
+              "actionIndex": 10,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
               "classification": "tutorialMarker",
@@ -3826,7 +3734,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 14,
+              "actionIndex": 11,
               "actionType": "CreateBuffAction",
               "sourceId": "buff_common_pulse_pulse_conduct_triggered",
               "classification": "electrificationReaction",
@@ -3862,7 +3770,7 @@ export const perlicaGeneratedSource = {
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 23,
+              "actionIndex": 20,
               "resource": "ultimateEnergy",
               "amount": {
                 "value": 0.2,
@@ -3892,6 +3800,7 @@ export const perlicaGeneratedSource = {
           "combatActions": [
             "CreateBuffAction",
             "DamageAction",
+            "IfElseAction",
             "LaunchProjectile",
             "ObtainCostAction"
           ],
@@ -3961,7 +3870,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 15,
+                  "actionIndex": 12,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4022,7 +3931,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 13,
+                  "actionIndex": 10,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
                   "classification": "tutorialMarker",
@@ -4032,7 +3941,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 14,
+                  "actionIndex": 11,
                   "actionType": "CreateBuffAction",
                   "sourceId": "buff_common_pulse_pulse_conduct_triggered",
                   "classification": "electrificationReaction",
@@ -4068,7 +3977,7 @@ export const perlicaGeneratedSource = {
                 {
                   "startFrame": 0,
                   "endFrame": 3,
-                  "actionIndex": 23,
+                  "actionIndex": 20,
                   "resource": "ultimateEnergy",
                   "amount": {
                     "value": 0.2,
@@ -4098,6 +4007,7 @@ export const perlicaGeneratedSource = {
               "combatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "IfElseAction",
                 "LaunchProjectile",
                 "ObtainCostAction"
               ],
@@ -4302,13 +4212,6 @@ export const perlicaGeneratedSource = {
             "Selector",
             "Selector",
             "FindTargetAction",
-            "Selector",
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "TeleportPosSelectAction",
-            "Selector",
-            "TeleportAction",
-            "SelfRotateAction",
             "Selector"
           ]
         },
@@ -4330,19 +4233,13 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 56,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "AnimatedCameraAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 47,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "AnimatedCameraAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 58,
@@ -4414,47 +4311,31 @@ export const perlicaGeneratedSource = {
         {
           "startFrame": 48,
           "endFrame": 68,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "EffectAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
           "endFrame": 65,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "EffectAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 47,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "EffectAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
           "endFrame": 50,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "UltimateShowAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 47,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "UltimateShowAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
@@ -4495,19 +4376,13 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 89,
           "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
             "EffectAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 47,
-          "actionTypes": [
-            "IfElseAction",
-            "CheckMainCharacterCondition",
-            "EffectAction"
-          ]
+          "actionTypes": []
         },
         {
           "startFrame": 0,
