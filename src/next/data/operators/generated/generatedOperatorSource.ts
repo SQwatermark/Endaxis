@@ -136,6 +136,8 @@ export interface GeneratedBuffBehaviorSource {
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   /** 按时间顺序写回 Buff 黑板、供后续动作读取的原生简单计算。 */
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
+  readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
+  readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
@@ -170,6 +172,30 @@ export interface GeneratedBlackboardCalculationSource {
   readonly operation: string;
   readonly left: GeneratedScalarSource;
   readonly right: GeneratedScalarSource;
+}
+
+/** 直接修改当前动作黑板的原生运行时操作。 */
+export interface GeneratedBlackboardMutationSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly key: string;
+  readonly operation: string;
+  readonly value: GeneratedScalarSource;
+}
+
+/** 从目标 Buff 实例黑板读取数值并写入当前动作黑板。 */
+export interface GeneratedBuffBlackboardReadSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly outputKey: string;
+  readonly desiredKey: string;
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffCheckType: string;
+  readonly buffIds: readonly string[];
+  readonly buffTagIds: readonly number[];
 }
 
 export interface GeneratedBuffEventActionSource {
@@ -207,6 +233,8 @@ export interface GeneratedSkillSource {
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
+  readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
+  readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];

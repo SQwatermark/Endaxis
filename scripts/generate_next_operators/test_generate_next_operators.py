@@ -21,6 +21,7 @@ from generate_next_operators import (
     parse_panel_attributes,
     parse_auxiliary_actions,
     parse_blackboard_calculations,
+    parse_blackboard_runtime_actions,
     parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
@@ -36,6 +37,59 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_blackboard_runtime_actions_preserve_mutation_and_buff_read(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 11,
+                        "_endFrame": 12,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.GetTargetBuffBBAdvanced+Data, Example",
+                                    "blackboardKey": "conductCnt",
+                                    "desiredKey": "count",
+                                    "targetSettings": {
+                                        "targetSource": "Context",
+                                        "targetGroupKey": "smart_target",
+                                    },
+                                    "buffSettings": {
+                                        "checkType": "Tag",
+                                        "buffIdList": [],
+                                        "tagQuery": {"tags": [{"tagId": 1466867135}]},
+                                    },
+                                },
+                                {
+                                    "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                    "key": "conductCnt",
+                                    "operation": "Add",
+                                    "directValue": True,
+                                    "value": {
+                                        "useBlackboardKey": False,
+                                        "value": 1,
+                                        "blackboardKey": "",
+                                    },
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        mutations, reads = parse_blackboard_runtime_actions(root, "skill.json", {})
+
+        self.assertEqual(len(mutations), 1)
+        self.assertEqual(mutations[0].key, "conductCnt")
+        self.assertEqual(mutations[0].operation, "Add")
+        self.assertEqual(mutations[0].value.value, 1)
+        self.assertEqual(len(reads), 1)
+        self.assertEqual(reads[0].outputKey, "conductCnt")
+        self.assertEqual(reads[0].desiredKey, "count")
+        self.assertEqual(reads[0].targetGroupKey, "smart_target")
+        self.assertEqual(reads[0].buffTagIds, (1466867135,))
+
     def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:
         root = {
             "actionGroupData": {

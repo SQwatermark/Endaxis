@@ -153,6 +153,8 @@ export const zhuangFangyiGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -612,6 +614,21 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 2,
+          "endFrame": 3,
+          "actionIndex": 1,
+          "key": "sword_dist",
+          "operation": "Add",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1179,6 +1196,21 @@ export const zhuangFangyiGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 1,
+          "key": "sword_dist",
+          "operation": "Add",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1779,6 +1811,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2174,6 +2208,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2725,6 +2761,21 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionIndex": 2,
+          "key": "target_in_range",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3283,6 +3334,21 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 2,
+          "key": "target_in_range",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3773,6 +3839,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3899,6 +3967,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffFinish",
@@ -4341,6 +4411,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -4356,6 +4428,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4372,6 +4446,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4614,6 +4690,8 @@ export const zhuangFangyiGeneratedSource = {
       "inflictions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [
         {
           "startFrame": 1,
@@ -5353,6 +5431,96 @@ export const zhuangFangyiGeneratedSource = {
           }
         }
       ],
+      "blackboardMutations": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 6,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 7,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 9,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 15,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 16,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 2,
+          "key": "swordTriggerInterval",
+          "operation": "Multiply",
+          "value": {
+            "value": -1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 4,
+          "outputKey": "conductCnt",
+          "desiredKey": "count",
+          "targetSource": "Context",
+          "targetGroupKey": "smart_target",
+          "buffCheckType": "Tag",
+          "buffIds": [],
+          "buffTagIds": [
+            1466867135
+          ]
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 6,
@@ -5398,6 +5566,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5431,6 +5601,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5447,6 +5619,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5463,6 +5637,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5834,6 +6010,21 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     }
                   ],
+                  "blackboardMutations": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 3,
+                      "actionIndex": 8,
+                      "key": "swordCnt",
+                      "operation": "Add",
+                      "value": {
+                        "value": -1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  ],
+                  "buffBlackboardReads": [],
                   "eventActions": [],
                   "resourceGains": [
                     {
@@ -5935,6 +6126,8 @@ export const zhuangFangyiGeneratedSource = {
                       "directDamageHits": [],
                       "conditionalActions": [],
                       "blackboardCalculations": [],
+                      "blackboardMutations": [],
+                      "buffBlackboardReads": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5951,6 +6144,8 @@ export const zhuangFangyiGeneratedSource = {
                       "directDamageHits": [],
                       "conditionalActions": [],
                       "blackboardCalculations": [],
+                      "blackboardMutations": [],
+                      "buffBlackboardReads": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5991,6 +6186,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6604,6 +6801,84 @@ export const zhuangFangyiGeneratedSource = {
           }
         }
       ],
+      "blackboardMutations": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 11,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 12,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 14,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 20,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 21,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 9,
+          "outputKey": "conductCnt",
+          "desiredKey": "count",
+          "targetSource": "Context",
+          "targetGroupKey": "smart_target",
+          "buffCheckType": "Tag",
+          "buffIds": [],
+          "buffTagIds": [
+            1466867135
+          ]
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 5,
@@ -6805,6 +7080,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -6838,6 +7115,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6854,6 +7133,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6870,6 +7151,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -7470,6 +7753,45 @@ export const zhuangFangyiGeneratedSource = {
           }
         }
       ],
+      "blackboardMutations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 2,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 3,
+          "key": "conductCnt",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 4,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 4.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [
         {
           "startFrame": 24,
@@ -7544,6 +7866,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -8052,6 +8376,45 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 2,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 3,
+          "key": "conductCnt",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 4,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 4.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -8139,6 +8502,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -8673,6 +9038,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -8688,6 +9055,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8712,6 +9081,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8740,6 +9111,8 @@ export const zhuangFangyiGeneratedSource = {
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "OnBuffFinish",
@@ -8761,6 +9134,8 @@ export const zhuangFangyiGeneratedSource = {
                           "directDamageHits": [],
                           "conditionalActions": [],
                           "blackboardCalculations": [],
+                          "blackboardMutations": [],
+                          "buffBlackboardReads": [],
                           "eventActions": [
                             {
                               "event": "DuringBuffEnable",
@@ -8813,6 +9188,8 @@ export const zhuangFangyiGeneratedSource = {
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8837,6 +9214,8 @@ export const zhuangFangyiGeneratedSource = {
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8880,6 +9259,8 @@ export const zhuangFangyiGeneratedSource = {
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [],
                   "resourceGains": [],
                   "nestedBuffBehaviors": [],
@@ -8904,6 +9285,8 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],

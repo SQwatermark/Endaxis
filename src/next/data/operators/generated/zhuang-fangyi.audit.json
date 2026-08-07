@@ -2626,6 +2626,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffFinish",
@@ -2831,6 +2833,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -2847,6 +2851,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -3361,6 +3367,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -3394,6 +3402,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -3410,6 +3420,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -3426,6 +3438,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -3797,6 +3811,21 @@
                       }
                     }
                   ],
+                  "blackboardMutations": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 3,
+                      "actionIndex": 8,
+                      "key": "swordCnt",
+                      "operation": "Add",
+                      "value": {
+                        "value": -1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  ],
+                  "buffBlackboardReads": [],
                   "eventActions": [],
                   "resourceGains": [
                     {
@@ -3898,6 +3927,8 @@
                       "directDamageHits": [],
                       "conditionalActions": [],
                       "blackboardCalculations": [],
+                      "blackboardMutations": [],
+                      "buffBlackboardReads": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -3914,6 +3945,8 @@
                       "directDamageHits": [],
                       "conditionalActions": [],
                       "blackboardCalculations": [],
+                      "blackboardMutations": [],
+                      "buffBlackboardReads": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -3954,6 +3987,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4289,6 +4324,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -4322,6 +4359,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4338,6 +4377,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4354,6 +4395,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4670,6 +4713,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4934,6 +4979,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5133,6 +5180,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -5157,6 +5206,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -5185,6 +5236,8 @@
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "OnBuffFinish",
@@ -5206,6 +5259,8 @@
                           "directDamageHits": [],
                           "conditionalActions": [],
                           "blackboardCalculations": [],
+                          "blackboardMutations": [],
+                          "buffBlackboardReads": [],
                           "eventActions": [
                             {
                               "event": "DuringBuffEnable",
@@ -5258,6 +5313,8 @@
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -5282,6 +5339,8 @@
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -5325,6 +5384,8 @@
                   "directDamageHits": [],
                   "conditionalActions": [],
                   "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
                   "eventActions": [],
                   "resourceGains": [],
                   "nestedBuffBehaviors": [],
@@ -5349,6 +5410,8 @@
           "directDamageHits": [],
           "conditionalActions": [],
           "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],

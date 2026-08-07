@@ -156,6 +156,8 @@ class BuffBehaviorSource:
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
+    blackboardMutations: tuple["BlackboardMutationSource", ...]
+    buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
@@ -204,6 +206,30 @@ class BlackboardCalculationSource:
 
 
 @dataclass(frozen=True)
+class BlackboardMutationSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    key: str
+    operation: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffBlackboardReadSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    outputKey: str
+    desiredKey: str
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    buffTagIds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -223,6 +249,8 @@ class SkillSource:
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     blackboardCalculations: tuple[BlackboardCalculationSource, ...]
+    blackboardMutations: tuple[BlackboardMutationSource, ...]
+    buffBlackboardReads: tuple[BuffBlackboardReadSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
@@ -549,6 +577,117 @@ def parse_blackboard_calculations(
                 )
             )
     return tuple(result)
+
+
+def parse_blackboard_runtime_actions(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[tuple[BlackboardMutationSource, ...], tuple[BuffBlackboardReadSource, ...]]:
+    """读取会改变技能黑板，或从目标 Buff 黑板取值的运行时动作。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    mutations: list[BlackboardMutationSource] = []
+    reads: list[BuffBlackboardReadSource] = []
+    timelines = require_list(
+        group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
+    )
+    for timeline_index, raw_timeline in enumerate(timelines):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+            kind = action_name(action["$type"])
+            if kind == "ModifyDynamicBlackboard":
+                key = action.get("key")
+                operation = action.get("operation")
+                if not isinstance(key, str) or not key:
+                    raise ValueError(f"{source_name}.ModifyDynamicBlackboard.key: expected non-empty string")
+                if not isinstance(operation, str) or not operation:
+                    raise ValueError(
+                        f"{source_name}.ModifyDynamicBlackboard.operation: expected non-empty string"
+                    )
+                if action.get("directValue") is not True:
+                    raise ValueError(
+                        f"{source_name}.ModifyDynamicBlackboard.directValue: unsupported false"
+                    )
+                mutations.append(
+                    BlackboardMutationSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=action_index,
+                        key=key,
+                        operation=operation,
+                        value=parse_scalar(
+                            action.get("value"),
+                            f"{source_name}.ModifyDynamicBlackboard.value",
+                            inherited_blackboard,
+                        ),
+                    )
+                )
+                continue
+            if kind != "GetTargetBuffBBAdvanced":
+                continue
+            output_key = action.get("blackboardKey")
+            desired_key = action.get("desiredKey")
+            if not isinstance(output_key, str) or not output_key:
+                raise ValueError(
+                    f"{source_name}.GetTargetBuffBBAdvanced.blackboardKey: expected non-empty string"
+                )
+            if not isinstance(desired_key, str) or not desired_key:
+                raise ValueError(
+                    f"{source_name}.GetTargetBuffBBAdvanced.desiredKey: expected non-empty string"
+                )
+            target = require_dict(
+                action.get("targetSettings"),
+                f"{source_name}.GetTargetBuffBBAdvanced.targetSettings",
+            )
+            settings = require_dict(
+                action.get("buffSettings"),
+                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings",
+            )
+            raw_ids = require_list(
+                settings.get("buffIdList"),
+                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.buffIdList",
+            )
+            tag_query = require_dict(
+                settings.get("tagQuery"),
+                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery",
+            )
+            raw_tags = require_list(
+                tag_query.get("tags"),
+                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery.tags",
+            )
+            tag_ids: list[int] = []
+            for tag_index, raw_tag in enumerate(raw_tags):
+                tag = require_dict(
+                    raw_tag,
+                    f"{source_name}.GetTargetBuffBBAdvanced.buffSettings.tagQuery.tags[{tag_index}]",
+                )
+                tag_id = tag.get("tagId")
+                if not isinstance(tag_id, int):
+                    raise ValueError(
+                        f"{source_name}.GetTargetBuffBBAdvanced tagId: expected integer"
+                    )
+                tag_ids.append(tag_id)
+            reads.append(
+                BuffBlackboardReadSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    outputKey=output_key,
+                    desiredKey=desired_key,
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    buffCheckType=str(settings.get("checkType", "")),
+                    buffIds=tuple(str(value) for value in raw_ids),
+                    buffTagIds=tuple(tag_ids),
+                )
+            )
+    return tuple(mutations), tuple(reads)
 
 
 def parse_damage_units(
@@ -1178,6 +1317,8 @@ def resolve_buff_behaviors(
                 directDamageHits=(),
                 conditionalActions=(),
                 blackboardCalculations=(),
+                blackboardMutations=(),
+                buffBlackboardReads=(),
                 eventActions=(),
                 resourceGains=(),
                 nestedBuffBehaviors=(),
@@ -1268,6 +1409,9 @@ def resolve_buff_behaviors(
                     createdBuffBehaviors=tuple(created_buff_behaviors),
                 )
             )
+        blackboard_mutations, buff_blackboard_reads = parse_blackboard_runtime_actions(
+            adapted_root, buff_name, child_blackboard
+        )
         return BuffBehaviorSource(
             applicationFrame=application_frame,
             applicationEvent=application_event,
@@ -1280,6 +1424,8 @@ def resolve_buff_behaviors(
             blackboardCalculations=parse_blackboard_calculations(
                 adapted_root, buff_name, child_blackboard
             ),
+            blackboardMutations=blackboard_mutations,
+            buffBlackboardReads=buff_blackboard_reads,
             eventActions=tuple(event_actions),
             resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
             nestedBuffBehaviors=nested,
@@ -1415,6 +1561,9 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     block_frame, block_source = derive_timeline_block(exclusive, allows)
     action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
+    blackboard_mutations, buff_blackboard_reads = parse_blackboard_runtime_actions(
+        root, source_name, patch.blackboard
+    )
     return SkillSource(
         key=str(entry["key"]),
         skillId=skill_id,
@@ -1434,6 +1583,8 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
         blackboardCalculations=parse_blackboard_calculations(root, source_name, patch.blackboard),
+        blackboardMutations=blackboard_mutations,
+        buffBlackboardReads=buff_blackboard_reads,
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
         projectileHits=resolve_projectile_hits(
