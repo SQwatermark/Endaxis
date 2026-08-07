@@ -258,6 +258,14 @@ export class CombatBuff<Key extends string> {
     }
   }
 
+  extendDuration(incomingDuration: number | null): void {
+    if (this.#remainingDuration === null || incomingDuration === null) {
+      this.#remainingDuration = null;
+      return;
+    }
+    this.#remainingDuration += incomingDuration;
+  }
+
   overwriteDuration(incomingDuration: number | null): void {
     this.#remainingDuration = incomingDuration;
   }
@@ -405,6 +413,8 @@ class BuffStackingGroup<Key extends string> {
         return this.enhance(existing, definition, sourceId, options);
       case 'refresh':
         return this.refresh(existing, definition, sourceId, options);
+      case 'extend':
+        return this.extend(existing, definition, sourceId, options);
       case 'unique':
         return existing === undefined ? this.allocate(definition, sourceId, options) : null;
       case 'enhanceAndRefresh':
@@ -543,6 +553,18 @@ class BuffStackingGroup<Key extends string> {
 
     // 原生 Refresh 只借用本次输入计算初始时长，不替换旧实例或重跑启用流程。
     existing.refreshDuration(resolveIncomingDuration(definition, options));
+    return existing;
+  }
+
+  private extend(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocate(definition, sourceId, options);
+
+    existing.extendDuration(resolveIncomingDuration(definition, options));
     return existing;
   }
 

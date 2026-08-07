@@ -306,6 +306,99 @@ describe('CombatBuffContainer', () => {
     expect(first.remainingDuration).toBeNull();
   });
 
+  it('extends only the existing lifetime without replacing runtime identity or inputs', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.extend',
+      stackingType: 'extend',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 8, value: 1 },
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+      },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { duration: 10, value: 1 },
+      }),
+    );
+    container.tick(4);
+    const extended = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: 3, value: 2 },
+      }),
+    );
+
+    expect(extended).toBe(first);
+    expect(container.buffs).toHaveLength(1);
+    expect(first.remainingDuration).toBe(9);
+    expect(first.passedTime).toBe(4);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('duration')).toBe(10);
+    expect(first.blackboard.getNumber('value')).toBe(1);
+    expect(order).toEqual(['start', 'enable']);
+
+    container.add(definition, 'large-duration-source', {
+      blackboardValues: { duration: 1_000_000 },
+    });
+    expect(first.remainingDuration).toBe(1_000_009);
+    expect(order).toEqual(['start', 'enable']);
+  });
+
+  it('makes an extended lifetime infinite when either side is infinite', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const finiteContainer = new CombatBuffContainer('operator', attributes);
+    const finiteDefinition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.extend.finite',
+      stackingType: 'extend',
+      durationSeconds: 8,
+    };
+    const finite = requireAddedBuff(finiteContainer.add(finiteDefinition, 'source'));
+
+    finiteContainer.add(
+      { ...finiteDefinition, durationSeconds: undefined },
+      'infinite-source',
+    );
+    expect(finite.remainingDuration).toBeNull();
+
+    const infiniteContainer = new CombatBuffContainer('operator', attributes);
+    const infiniteDefinition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.extend.infinite',
+      stackingType: 'extend',
+    };
+    const infinite = requireAddedBuff(infiniteContainer.add(infiniteDefinition, 'source'));
+
+    infiniteContainer.add(
+      { ...infiniteDefinition, durationSeconds: 8 },
+      'finite-source',
+    );
+    expect(infinite.remainingDuration).toBeNull();
+  });
+
+  it('rejects a negative Extend duration without mutating the existing instance', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.extend.negative',
+      stackingType: 'extend',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 10 },
+    };
+    const existing = requireAddedBuff(container.add(definition, 'first-source'));
+
+    expect(() =>
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: -3 },
+      }),
+    ).toThrow('buff duration must resolve to a non-negative finite number');
+    expect(existing.remainingDuration).toBe(10);
+    expect(container.buffs).toEqual([existing]);
+  });
+
   it('enhances one instance without refreshing its lifetime and runs attempt hooks at the cap', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
