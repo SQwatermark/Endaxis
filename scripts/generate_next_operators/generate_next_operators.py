@@ -169,6 +169,7 @@ ResolvedScheduleItemType = Literal[
     "buffBlackboardRead",
     "buffFinish",
     "resourceGain",
+    "infliction",
 ]
 
 
@@ -188,6 +189,7 @@ class ResolvedScheduleItemSource:
         " | BuffBlackboardReadSource"
         " | BuffFinishSource"
         " | TimedResourceGainSource"
+        " | TimedInflictionSource"
     )
 
 
@@ -2131,6 +2133,16 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
                 payload=gain,
             )
         )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=infliction.startFrame,
+            actionOrder=(infliction.actionIndex,),
+            itemType="infliction",
+            sourcePath=(skill.skillId,),
+            payload=infliction,
+        )
+        for infliction in skill.inflictions
+    )
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
@@ -2821,6 +2833,15 @@ def compile_resource_gain(
     return "step('changeResource', { " + ", ".join(fields) + " })"
 
 
+def compile_infliction(infliction: TimedInflictionSource) -> str:
+    """编译根时间轴上的元素附着，并保留额外附着标记。"""
+    return (
+        "step('applyElementalInfliction', "
+        f"{{ element: {ts_inline_literal(infliction.element)}, "
+        f"isExtra: {ts_inline_literal(infliction.isExtra)} }})"
+    )
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource, path: str
 ) -> str:
@@ -3028,8 +3049,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         ordered_steps.append(
             (
                 infliction.actionIndex,
-                "step('applyElementalInfliction', "
-                f"{{ element: {ts_inline_literal(infliction.element)}, isExtra: {ts_inline_literal(infliction.isExtra)} }})",
+                compile_infliction(infliction),
             )
         )
     for action in skill.auxiliaryActions:
@@ -3358,8 +3378,8 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     unignored_buff_behaviors = [
         behavior for behavior in skill.buffBehaviors if behavior.buffId not in ignored_buff_ids
     ]
-    if unignored_auxiliary_actions or unignored_buff_behaviors or skill.inflictions:
-        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or inflictions")
+    if unignored_auxiliary_actions or unignored_buff_behaviors:
+        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
@@ -3373,6 +3393,8 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         allowed_actions.add("GetTargetBuffBBAdvanced")
     if skill.buffFinishes:
         allowed_actions.add("FinishBuffAdvanced")
+    if skill.inflictions:
+        allowed_actions.add("SpellInfliction")
     if ignored_auxiliary_classifications:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
@@ -3432,6 +3454,9 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].resourceGain",
             ).splitlines()
+        elif item.itemType == "infliction":
+            payload = cast(TimedInflictionSource, item.payload)
+            step_lines = compile_infliction(payload).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
         scheduled_entries.extend(

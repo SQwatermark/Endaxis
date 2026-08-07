@@ -2602,6 +2602,16 @@
         {
           "frame": 13,
           "actionOrder": [
+            11
+          ],
+          "itemType": "infliction",
+          "sourcePath": [
+            "chr_0004_pelica_normal_skill"
+          ]
+        },
+        {
+          "frame": 13,
+          "actionOrder": [
             12
           ],
           "itemType": "damage",

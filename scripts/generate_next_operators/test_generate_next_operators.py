@@ -1121,7 +1121,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     ignoreUltimateGainScalar=False,
                 ),
             ),
-            inflictions=(),
+            inflictions=(
+                SimpleNamespace(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=0,
+                    element="heat",
+                    isExtra=False,
+                ),
+            ),
             projectileLaunches=(),
             conditionalActions=(),
             blackboardCalculations=(
@@ -1182,6 +1190,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "ModifyDynamicBlackboard",
                 "ObtainCostAction",
                 "SimpleCalcBBAction",
+                "SpellInfliction",
                 "SpawnAbilityEntity",
             ),
             skillId="root",
@@ -1205,6 +1214,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("resource: 'sp', amount: 5, recipient: 'team'", source)
         ordered_markers = [
+            "applyElementalInfliction",
             "changeResource",
             "modifyActionValue",
             "readBuffBlackboard",
