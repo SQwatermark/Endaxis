@@ -384,6 +384,8 @@ class BuffStackingGroup<Key extends string> {
     switch (this.stackingType) {
       case 'unlimited':
         return this.allocate(definition, sourceId, options);
+      case 'refresh':
+        return this.refresh(existing, definition, sourceId, options);
       case 'enhanceAndRefresh':
         return this.enhanceAndRefresh(existing, definition, sourceId, options);
       default:
@@ -427,6 +429,19 @@ class BuffStackingGroup<Key extends string> {
     }
     existing.refreshDuration(resolveIncomingDuration(definition, options));
     existing.executeAfterEnhance(sourceId);
+    return existing;
+  }
+
+  private refresh(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocate(definition, sourceId, options);
+
+    // 原生 Refresh 只借用本次输入计算初始时长，不替换旧实例或重跑启用流程。
+    existing.refreshDuration(resolveIncomingDuration(definition, options));
     return existing;
   }
 }

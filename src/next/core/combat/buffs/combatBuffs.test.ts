@@ -212,8 +212,52 @@ describe('CombatBuffContainer', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     expect(() =>
-      container.add({ id: 'buff.refresh', stackingType: 'refresh' }, 'operator'),
-    ).toThrow("stacking type 'refresh' is not implemented");
+      container.add({ id: 'buff.unique', stackingType: 'unique' }, 'operator'),
+    ).toThrow("stacking type 'unique' is not implemented");
+  });
+
+  it('refreshes the existing instance without restarting or enhancing it', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.refresh',
+      stackingType: 'refresh',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 8 },
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+        beforeEnhance: () => order.push('beforeEnhance'),
+        enhanceChanged: () => order.push('enhanceChanged'),
+        afterEnhance: () => order.push('afterEnhance'),
+      },
+    };
+
+    const first = container.add(definition, 'first-source', {
+      blackboardValues: { duration: 10 },
+    });
+    container.tick(4);
+    const refreshed = container.add(definition, 'second-source', {
+      blackboardValues: { duration: 12 },
+    });
+
+    expect(refreshed).toBe(first);
+    expect(container.buffs).toHaveLength(1);
+    expect(first.remainingDuration).toBe(12);
+    expect(first.enhanceCount).toBe(1);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('duration')).toBe(10);
+    expect(order).toEqual(['start', 'enable']);
+
+    container.tick(3);
+    container.add(definition, 'third-source', {
+      blackboardValues: { duration: 8 },
+    });
+    expect(first.remainingDuration).toBe(9);
+
+    container.add({ ...definition, durationSeconds: undefined }, 'infinite-source');
+    expect(first.remainingDuration).toBeNull();
   });
 
   it('enhances one instance, refreshes its lifetime, and still runs callbacks at the cap', () => {
