@@ -20,6 +20,7 @@ from generate_next_operators import (
     parse_projectile_launches,
     parse_resource_gains,
     resolve_ability_entity_hits,
+    resolve_buff_behaviors,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -30,6 +31,35 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_missing_buff_source_is_explicit_in_the_audit_layer(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 6,
+                        "_sequenceActionData": {
+                            "$type": "Example.CreateBuffAction+Data, Example",
+                            "isEnable": True,
+                            "buffs": [
+                                {
+                                    "buffId": "missing_buff",
+                                    "assignItems": [],
+                                }
+                            ],
+                        },
+                    }
+                ]
+            }
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            behaviors = resolve_buff_behaviors(root, "skill.json", path, path, {})
+
+        self.assertEqual(len(behaviors), 1)
+        self.assertEqual(behaviors[0].buffId, "missing_buff")
+        self.assertFalse(behaviors[0].sourceAvailable)
+
     def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
         root = {
             "actionGroupData": {

@@ -120,6 +120,21 @@ export interface GeneratedAbilityEntityHitSource {
   readonly cycleTruncated: boolean;
 }
 
+/** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
+export interface GeneratedBuffBehaviorSource {
+  readonly applicationFrame: number;
+  readonly buffId: string;
+  readonly sourceFile: string;
+  /** false 表示当前 BuffData 导出缺少该引用，审计层不得把它视为已解析。 */
+  readonly sourceAvailable: boolean;
+  readonly lifeType: string;
+  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
+  readonly combatActions: readonly string[];
+  readonly cycleTruncated: boolean;
+}
+
 export interface GeneratedSkillSource {
   readonly key: string;
   readonly skillId: string;
@@ -150,6 +165,7 @@ export interface GeneratedSkillSource {
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
+  readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
   /** 需要由 SkillPatch、Buff 或运行时上下文赋值后才能闭环的原生黑板键。 */

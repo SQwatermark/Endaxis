@@ -281,6 +281,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -799,6 +800,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -1472,6 +1474,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -1969,6 +1972,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -2407,6 +2411,32 @@ export const perlicaGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 0,
+          "buffId": "buff_common_damage_immune_medium",
+          "sourceFile": "buff_common_damage_immune_medium.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        },
+        {
+          "applicationFrame": 0,
+          "buffId": "buff_common_power_attack_disable_cast_skill",
+          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
       "patch": {
         "levels": [
           1,
@@ -2908,6 +2938,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -3358,6 +3389,20 @@ export const perlicaGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 13,
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
       "patch": {
         "levels": [
           1,
@@ -4111,6 +4156,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "buffBehaviors": [],
       "patch": {
         "levels": [
           1,
@@ -4641,6 +4687,20 @@ export const perlicaGeneratedSource = {
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
+      "buffBehaviors": [
+        {
+          "applicationFrame": 0,
+          "buffId": "buff_common_damage_immune_ult_skill",
+          "sourceFile": "buff_common_damage_immune_ult_skill.json",
+          "sourceAvailable": false,
+          "lifeType": "",
+          "directDamageHits": [],
+          "resourceGains": [],
+          "nestedBuffBehaviors": [],
           "combatActions": [],
           "cycleTruncated": false
         }

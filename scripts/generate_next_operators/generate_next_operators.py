@@ -145,6 +145,20 @@ class ResolvedDamageHitSource:
 
 
 @dataclass(frozen=True)
+class BuffBehaviorSource:
+    applicationFrame: int
+    buffId: str
+    sourceFile: str
+    sourceAvailable: bool
+    lifeType: str
+    directDamageHits: tuple[TimedDamageSource, ...]
+    resourceGains: tuple[TimedResourceGainSource, ...]
+    nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
+    combatActions: tuple[str, ...]
+    cycleTruncated: bool
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -167,6 +181,7 @@ class SkillSource:
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
+    buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
     unresolvedCombatActions: tuple[str, ...]
@@ -914,6 +929,85 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
     return tuple(sorted(result, key=lambda hit: hit.frame))
 
 
+def resolve_buff_behaviors(
+    root: dict[str, Any],
+    source_name: str,
+    skill_source_dir: Path,
+    buff_source_dir: Path,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+    base_frame: int = 0,
+    stack: tuple[str, ...] = (),
+) -> tuple[BuffBehaviorSource, ...]:
+    """递归读取 CreateBuffAction 引用的 BuffData，但不推断其触发事件时机。"""
+    result: list[BuffBehaviorSource] = []
+    for action in parse_auxiliary_actions(root, source_name, skill_source_dir, inherited_blackboard):
+        if action.actionType != "CreateBuffAction":
+            continue
+        buff_id = action.sourceId
+        buff_name = f"{buff_id}.json"
+        buff_path = buff_source_dir / buff_name
+        if not buff_path.is_file():
+            result.append(
+                BuffBehaviorSource(
+                    applicationFrame=base_frame + action.startFrame,
+                    buffId=buff_id,
+                    sourceFile=buff_name,
+                    sourceAvailable=False,
+                    lifeType="",
+                    directDamageHits=(),
+                    resourceGains=(),
+                    nestedBuffBehaviors=(),
+                    combatActions=(),
+                    cycleTruncated=False,
+                )
+            )
+            continue
+        buff = require_dict(json.loads(buff_path.read_text(encoding="utf-8")), buff_name)
+        timeline_actions = require_list(buff.get("timelineActions"), f"{buff_name}.timelineActions")
+        adapted_root = {"actionGroupData": {"timelineActions": timeline_actions}}
+        child_blackboard = dict(inherited_blackboard)
+        for key, scalar in action.blackboardAssignments.items():
+            child_blackboard[key] = scalar.levelValues or (scalar.value,)
+        cycle_truncated = buff_id in stack
+        nested = (
+            ()
+            if cycle_truncated
+            else resolve_buff_behaviors(
+                adapted_root,
+                buff_name,
+                skill_source_dir,
+                buff_source_dir,
+                child_blackboard,
+                base_frame + action.startFrame,
+                (*stack, buff_id),
+            )
+        )
+        combat_actions = tuple(
+            sorted(
+                {
+                    action_name(item["$type"])
+                    for item in walk_actions(adapted_root.get("actionGroupData"))
+                    if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                }
+            )
+        )
+        result.append(
+            BuffBehaviorSource(
+                applicationFrame=base_frame + action.startFrame,
+                buffId=buff_id,
+                sourceFile=buff_name,
+                sourceAvailable=True,
+                lifeType=str(buff.get("lifeType", "")),
+                directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
+                resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
+                nestedBuffBehaviors=nested,
+                combatActions=combat_actions,
+                cycleTruncated=cycle_truncated,
+            )
+        )
+    return tuple(result)
+
+
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -1059,6 +1153,14 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             source_dir,
             stack=(skill_id,),
             inherited_blackboard=patch.blackboard,
+        ),
+        buffBehaviors=resolve_buff_behaviors(
+            root,
+            source_name,
+            source_dir,
+            source_dir.parent / "BuffData",
+            patch.blackboard,
+            stack=(skill_id,),
         ),
         patch=patch,
         blackboardKeys=collect_blackboard_keys(root),
@@ -1861,6 +1963,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
+                "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
