@@ -2226,9 +2226,9 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
 
 def compile_skill_entries(
     operator: dict[str, Any], skills: list[SkillSource]
-) -> tuple[list[str], set[str]]:
+) -> tuple[list[tuple[SkillSource, str]], set[str]]:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
-    lines: list[str] = []
+    compiled: list[tuple[SkillSource, str]] = []
     damage_type_factories: set[str] = set()
     for entry, skill in zip(entries, skills, strict=True):
         config = entry.get("compile")
@@ -2248,21 +2248,55 @@ def compile_skill_entries(
             damage_type = next(iter(damage_types))
             factory_name = f"{damage_type}BasicAttack"
             damage_type_factories.add(factory_name)
-            lines.append(compile_basic_attack(skill, config, factory_name))
+            compiled.append((skill, compile_basic_attack(skill, config, factory_name)))
         elif kind == "directDamage":
-            lines.append(compile_direct_damage(skill, config))
+            compiled.append((skill, compile_direct_damage(skill, config)))
         elif kind == "projectileDamage":
-            lines.append(compile_projectile_damage(skill, config))
+            compiled.append((skill, compile_projectile_damage(skill, config)))
         elif kind == "resolvedDamageSequence":
-            lines.append(compile_resolved_damage_sequence(skill, config))
+            compiled.append((skill, compile_resolved_damage_sequence(skill, config)))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
-    return lines, damage_type_factories
+    return compiled, damage_type_factories
+
+
+def generated_skill_name(operator: dict[str, Any], skill_key: str) -> str:
+    if not skill_key or not skill_key.replace("_", "").isalnum():
+        raise ValueError(f"invalid stable skill key for TypeScript identifier: {skill_key!r}")
+    return f"{typescript_identifier(str(operator['slug']))}{skill_key[0].upper()}{skill_key[1:]}"
+
+
+def render_named_skills(
+    operator: dict[str, Any], compiled: list[tuple[SkillSource, str]]
+) -> list[str]:
+    result: list[str] = []
+    for skill, expression in compiled:
+        value = expression.rstrip()
+        if not value.endswith(","):
+            raise ValueError(f"{skill.key}: compiled skill expression must end with a comma")
+        value = textwrap.dedent(value[:-1])
+        value_lines = value.splitlines()
+        if len(value_lines) == 1:
+            result.extend(
+                [
+                    f"export const {generated_skill_name(operator, skill.key)}: SkillDefinition = {value};",
+                    "",
+                ]
+            )
+            continue
+        result.extend(
+            [
+                f"export const {generated_skill_name(operator, skill.key)}: SkillDefinition = {value_lines[0]}",
+                *(f"{line}" for line in value_lines[1:-1]),
+                f"{value_lines[-1]};",
+                "",
+            ]
+        )
+    return result
 
 
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
-    lines, damage_type_factories = compile_skill_entries(operator, skills)
-    export_name = f"{typescript_identifier(str(operator['slug']))}GeneratedSkills"
+    compiled, damage_type_factories = compile_skill_entries(operator, skills)
     helper_imports = ", ".join(
         (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
     )
@@ -2271,9 +2305,7 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
         "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
         f"import {{ {helper_imports} }} from '../definitionHelpers';\n\n"
         "// prettier-ignore\n"
-        f"export const {export_name} = [\n"
-        + "\n".join(lines)
-        + "\n] as const satisfies readonly SkillDefinition[];\n"
+        + "\n".join(render_named_skills(operator, compiled))
     )
 
 
@@ -2332,10 +2364,9 @@ def typescript_identifier(slug: str) -> str:
 def render_skill_groups(
     operator: dict[str, Any],
     skills: list[SkillSource],
-    skills_export_name: str,
 ) -> list[str]:
-    index_by_key = {skill.key: index for index, skill in enumerate(skills)}
-    if len(index_by_key) != len(skills):
+    skill_by_key = {skill.key: skill for skill in skills}
+    if len(skill_by_key) != len(skills):
         raise ValueError(f"{operator['slug']}.skills: duplicate stable skill key")
     result: list[str] = []
     for raw_group in require_list(operator.get("skillGroups"), f"{operator['slug']}.skillGroups"):
@@ -2347,12 +2378,12 @@ def render_skill_groups(
         if not skill_keys:
             raise ValueError(f"skillGroups.{key}: expected at least one skill")
         try:
-            indexes = [index_by_key[skill_key] for skill_key in skill_keys]
+            referenced_skills = [skill_by_key[skill_key] for skill_key in skill_keys]
         except KeyError as error:
             raise ValueError(f"skillGroups.{key}: unknown skill key {error.args[0]!r}") from error
-        if any(skills[index].skillType != skill_type for index in indexes):
+        if any(skill.skillType != skill_type for skill in referenced_skills):
             raise ValueError(f"skillGroups.{key}: skill type does not match referenced skills")
-        references = [f"{skills_export_name}[{index}]!" for index in indexes]
+        references = [generated_skill_name(operator, skill.key) for skill in referenced_skills]
         skills_source = references[0] if len(references) == 1 else f"[{', '.join(references)}]"
         result.append(
             "{ "
@@ -2648,11 +2679,10 @@ def render_operator_definition(
     if None in {weapon_type, element, role, main_attribute, secondary_attribute}:
         raise ValueError(f"{char_id}: unsupported operator metadata enum")
     identifier = typescript_identifier(str(operator["slug"]))
-    skills_export_name = f"{identifier}GeneratedSkills"
     operator_export_name = f"{identifier}GeneratedOperator"
     skill_entries, damage_type_factories = compile_skill_entries(operator, skills)
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
-    groups = render_skill_groups(operator, skills, skills_export_name)
+    groups = render_skill_groups(operator, skills)
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
@@ -2666,10 +2696,7 @@ def render_operator_definition(
             f"import {{ {helper_imports} }} from '../definitionHelpers';",
             "",
             "// prettier-ignore",
-            f"export const {skills_export_name} = [",
-            *skill_entries,
-            "] as const satisfies readonly SkillDefinition[];",
-            "",
+            *render_named_skills(operator, skill_entries),
             f"export const {operator_export_name}: OperatorDefinition = {{",
             f"  slug: {ts_inline_literal(operator['slug'])},",
             f"  gameId: {ts_inline_literal(str(character['engName']).upper())},",
