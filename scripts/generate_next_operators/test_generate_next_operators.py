@@ -15,6 +15,7 @@ from generate_next_operators import (
     compile_resolved_damage_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
+    BlackboardCalculationPayload,
     BuffBlackboardReadSource,
     BuffFinishSource,
     DamageUnitSource,
@@ -839,6 +840,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("key: 'swordCount'", result)
         self.assertIn("operation: 'add'", result)
 
+    def test_conditional_action_compiler_emits_two_operand_blackboard_calculation(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="SimpleCalcBBAction",
+                    nestedCondition=None,
+                    blackboardCalculation=BlackboardCalculationPayload(
+                        key="attackScale",
+                        operation="Multiply",
+                        left=ScalarSource(None, "baseScale", None),
+                        right=ScalarSource(1.5, None, None),
+                    ),
+                    blackboardMutation=None,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("calculateActionValue", result)
+        self.assertIn("key: 'attackScale'", result)
+        self.assertIn("operation: 'multiply'", result)
+        self.assertIn("left: { kind: 'blackboard', key: 'baseScale' }", result)
+        self.assertIn("right: { kind: 'constant', value: 1.5 }", result)
+
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",
@@ -853,6 +890,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 SimpleNamespace(
                     actionType="DamageAction",
                     nestedCondition=None,
+                    blackboardCalculation=None,
                     blackboardMutation=None,
                     buffBlackboardRead=None,
                     buffFinish=None,

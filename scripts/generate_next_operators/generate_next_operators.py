@@ -2634,6 +2634,23 @@ def compile_conditional_branch_action(
                 "})",
             ]
         )
+    if action.blackboardCalculation is not None:
+        calculation = action.blackboardCalculation
+        operation = ACTION_VALUE_OPERATION_MAP.get(calculation.operation)
+        if operation not in {"add", "multiply", "divide"}:
+            raise ValueError(
+                f"{path}: unsupported action blackboard calculation {calculation.operation!r}"
+            )
+        return "\n".join(
+            [
+                "step('calculateActionValue', {",
+                f"  key: {ts_inline_literal(calculation.key)},",
+                f"  operation: {ts_inline_literal(operation)},",
+                f"  left: {compile_condition_operand(calculation.left, f'{path}.left')},",
+                f"  right: {compile_condition_operand(calculation.right, f'{path}.right')},",
+                "})",
+            ]
+        )
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 

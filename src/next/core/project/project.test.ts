@@ -306,6 +306,16 @@ describe('V2 project document', () => {
                   edited: [],
                 },
                 {
+                  kind: 'calculateActionValue',
+                  parameters: {
+                    key: 'result',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'base' },
+                    right: { kind: 'constant', value: 1.5 },
+                  },
+                  edited: [],
+                },
+                {
                   kind: 'dealDamage',
                   hitId: 'hit:1',
                   parameters: {
@@ -360,8 +370,13 @@ describe('V2 project document', () => {
       const sequence =
         parsed.value.scenarios[0]!.tracks[0]!.skillCasts[0]!.editable.scheduledSequences[0]!
           .sequence.steps;
-      expect(sequence.map(step => step.kind)).toEqual(['applyBuff', 'dealDamage', 'conditional']);
-      const branch = sequence[2];
+      expect(sequence.map(step => step.kind)).toEqual([
+        'applyBuff',
+        'calculateActionValue',
+        'dealDamage',
+        'conditional',
+      ]);
+      const branch = sequence[3];
       expect(branch?.kind).toBe('conditional');
       if (branch?.kind === 'conditional') {
         expect(branch.whenTrue.steps[0]?.kind).toBe('setContextFlag');
@@ -387,7 +402,7 @@ describe('V2 project document', () => {
     }
 
     const mismatchedParameters = JSON.parse(serializeProjectDocument(project));
-    mismatchedParameters.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[1].parameters =
+    mismatchedParameters.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters =
       { buffId: 'not-damage-parameters', target: 'enemy' };
     const mismatchedResult = parseProjectDocument(mismatchedParameters);
     expect(mismatchedResult.ok).toBe(false);
@@ -398,7 +413,7 @@ describe('V2 project document', () => {
     }
 
     const invalidDamageTag = JSON.parse(serializeProjectDocument(project));
-    invalidDamageTag.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[1].parameters.tags =
+    invalidDamageTag.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters.tags =
       ['unknownDamageTag'];
     const invalidDamageTagResult = validateProjectDocument(invalidDamageTag);
     expect(invalidDamageTagResult.ok).toBe(false);
@@ -409,13 +424,24 @@ describe('V2 project document', () => {
     }
 
     const invalidCondition = JSON.parse(serializeProjectDocument(project));
-    invalidCondition.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters.condition.operator =
+    invalidCondition.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[3].parameters.condition.operator =
       'approximately';
     const invalidConditionResult = validateProjectDocument(invalidCondition);
     expect(invalidConditionResult.ok).toBe(false);
     if (!invalidConditionResult.ok) {
       expect(invalidConditionResult.issues).toContainEqual(
         expect.objectContaining({ path: expect.stringContaining('.condition.operator') }),
+      );
+    }
+
+    const invalidCalculation = JSON.parse(serializeProjectDocument(project));
+    invalidCalculation.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[1].parameters.operation =
+      'floor';
+    const invalidCalculationResult = validateProjectDocument(invalidCalculation);
+    expect(invalidCalculationResult.ok).toBe(false);
+    if (!invalidCalculationResult.ok) {
+      expect(invalidCalculationResult.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.parameters.operation') }),
       );
     }
 

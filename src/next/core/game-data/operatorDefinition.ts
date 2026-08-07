@@ -222,6 +222,10 @@ export const ACTION_VALUE_OPERATIONS = [
 /** `ModifyDynamicBlackboard` 直接值路径已闭环的运算集合。 */
 export type ActionValueOperation = (typeof ACTION_VALUE_OPERATIONS)[number];
 
+export const ACTION_VALUE_CALCULATION_OPERATIONS = ['add', 'multiply', 'divide'] as const;
+/** `SimpleCalcBBAction` 使用两个显式操作数计算结果，不读取目标键的旧值。 */
+export type ActionValueCalculationOperation = (typeof ACTION_VALUE_CALCULATION_OPERATIONS)[number];
+
 /** 只依赖养成面板、可在战斗开始前决定的条件子集。 */
 export type BuildCondition = Extract<CombatCondition, { kind: 'deckAttributeCompare' }>;
 
@@ -313,6 +317,13 @@ export interface CombatStepParameters {
     operation: ActionValueOperation;
     value: ActionValueOperand;
   };
+  /** 计算两个动作黑板操作数，并将单精度结果写入当前技能实例。 */
+  calculateActionValue: {
+    key: string;
+    operation: ActionValueCalculationOperation;
+    left: ActionValueOperand;
+    right: ActionValueOperand;
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -354,6 +365,7 @@ export const COMBAT_STEP_KINDS = [
   'finishBuffsByTag',
   'finishBuffsById',
   'modifyActionValue',
+  'calculateActionValue',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',

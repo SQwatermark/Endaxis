@@ -2,7 +2,12 @@
  * 处理依赖当前技能动作黑板的条件，并把其余操作继续交给运行时执行器链。
  * 该执行器必须位于技能运行时内部，因为动作黑板不能跨技能实例共享。
  */
-import type { ActionValueOperand, CombatCondition } from '../../game-data/operatorDefinition';
+import type {
+  ActionValueCalculationOperation,
+  ActionValueOperand,
+  ActionValueOperation,
+  CombatCondition,
+} from '../../game-data/operatorDefinition';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
@@ -22,6 +27,18 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       context.blackboard.assignDynamic(
         step.parameters.key,
         evaluateActionValueOperation(step.parameters.operation, oldValue, operand),
+      );
+      return true;
+    }
+    if (step.kind === 'calculateActionValue') {
+      if (context === undefined) {
+        throw new Error('calculateActionValue requires a combat operation context');
+      }
+      const left = Math.fround(resolveOperand(step.parameters.left, context));
+      const right = Math.fround(resolveOperand(step.parameters.right, context));
+      context.blackboard.assignDynamic(
+        step.parameters.key,
+        evaluateActionValueCalculation(step.parameters.operation, left, right),
       );
       return true;
     }
@@ -54,12 +71,27 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   }
 }
 
+function evaluateActionValueCalculation(
+  operation: ActionValueCalculationOperation,
+  left: number,
+  right: number,
+): number {
+  switch (operation) {
+    case 'add':
+      return Math.fround(left + right);
+    case 'multiply':
+      return Math.fround(left * right);
+    case 'divide':
+      return Math.fround(left / right);
+  }
+}
+
 const ACTION_VALUE_EPSILON = 0.00001;
 const INT32_MIN = -2147483648;
 const INT32_MAX = 2147483647;
 
 function evaluateActionValueOperation(
-  operation: import('../../game-data/operatorDefinition').ActionValueOperation,
+  operation: ActionValueOperation,
   oldValue: number,
   operand: number,
 ): number {

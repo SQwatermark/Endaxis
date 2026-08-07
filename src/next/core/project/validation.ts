@@ -12,6 +12,7 @@ import {
 } from './schema';
 import {
   ACTION_VALUE_OPERATIONS,
+  ACTION_VALUE_CALCULATION_OPERATIONS,
   COMBAT_RESOURCES,
   COMBAT_CONDITION_KINDS,
   COMBAT_STEP_KINDS,
@@ -71,6 +72,7 @@ const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
 const gameplayTagQueryTypes = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
 const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
 const actionValueOperations = new Set<string>(ACTION_VALUE_OPERATIONS);
+const actionValueCalculationOperations = new Set<string>(ACTION_VALUE_CALCULATION_OPERATIONS);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
@@ -399,6 +401,17 @@ function validateCombatStepParameters(
       requireString(parameters, 'key', path, issues);
       requireEnum(parameters.operation, actionValueOperations, `${path}.operation`, issues);
       validateActionValueOperand(parameters.value, `${path}.value`, issues);
+      break;
+    case 'calculateActionValue':
+      requireString(parameters, 'key', path, issues);
+      requireEnum(
+        parameters.operation,
+        actionValueCalculationOperations,
+        `${path}.operation`,
+        issues,
+      );
+      validateActionValueOperand(parameters.left, `${path}.left`, issues);
+      validateActionValueOperand(parameters.right, `${path}.right`, issues);
       break;
     case 'changeResource':
       requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
