@@ -7,6 +7,42 @@
       "sourceFile": "chr_0004_pelica_attack1.json",
       "timelineBlockFrames": 16,
       "blockBoundarySource": "exclusiveFrame+1",
+      "projectileHits": [
+        {
+          "launchFrame": 8,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack1",
+          "hitSkillId": "chr_0004_pelica_attack1_projhit",
+          "sourceFile": "chr_0004_pelica_attack1_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 0.9,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.25,
+                  0.28,
+                  0.31,
+                  0.33,
+                  0.36,
+                  0.38,
+                  0.41,
+                  0.43,
+                  0.46,
+                  0.49,
+                  0.53,
+                  0.57
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -17,6 +53,76 @@
       "sourceFile": "chr_0004_pelica_attack2.json",
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [
+        {
+          "launchFrame": 9,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "hitSkillId": "chr_0004_pelica_attack2_projhit",
+          "sourceFile": "chr_0004_pelica_attack2_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 12,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "hitSkillId": "chr_0004_pelica_attack2_projhit",
+          "sourceFile": "chr_0004_pelica_attack2_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -27,6 +133,110 @@
       "sourceFile": "chr_0004_pelica_attack3.json",
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [
+        {
+          "launchFrame": 16,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 19,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 22,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -37,6 +247,69 @@
       "sourceFile": "chr_0004_pelica_attack4.json",
       "timelineBlockFrames": 44,
       "blockBoundarySource": "exclusiveFrame+1",
+      "projectileHits": [
+        {
+          "launchFrame": 27,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack4",
+          "hitSkillId": "chr_0004_pelica_attack4_projhit",
+          "sourceFile": "chr_0004_pelica_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.57,
+                  0.62,
+                  0.68,
+                  0.73,
+                  0.79,
+                  0.85,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.17,
+                  1.27
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
+                ]
+              }
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -47,6 +320,7 @@
       "sourceFile": "chr_0004_pelica_power_attack.json",
       "timelineBlockFrames": 35,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [],
       "blackboardKeys": [
         "addition_vertical",
         "atk_scale",
@@ -64,6 +338,48 @@
       "sourceFile": "chr_0004_pelica_plunging_attack_end.json",
       "timelineBlockFrames": 21,
       "blockBoundarySource": "exclusiveFrame+1",
+      "projectileHits": [
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -78,6 +394,7 @@
       "sourceFile": "chr_0004_pelica_normal_skill.json",
       "timelineBlockFrames": 28,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [],
       "blackboardKeys": [
         "atk_scale",
         "cam_angle",
@@ -94,6 +411,131 @@
       "sourceFile": "chr_0004_pelica_combo_skill.json",
       "timelineBlockFrames": 25,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [
+        {
+          "launchFrame": 24,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_combo_skill",
+          "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
+          "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 2.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": [
+            {
+              "launchFrame": 24,
+              "assumedTravelFrames": 0,
+              "projectileId": "projectile_chr_0004_pelica_combo_skill",
+              "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
+              "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "attackScale": {
+                    "value": 2.5,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.8,
+                      0.88,
+                      0.96,
+                      1.04,
+                      1.12,
+                      1.2,
+                      1.28,
+                      1.36,
+                      1.44,
+                      1.54,
+                      1.66,
+                      1.8
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Physical",
+                  "attributeType": "Poise",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
+                    ]
+                  }
+                }
+              ],
+              "cycleTruncated": true,
+              "nestedProjectileHits": []
+            }
+          ]
+        }
+      ],
       "blackboardKeys": [
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
@@ -108,6 +550,7 @@
       "sourceFile": "chr_0004_pelica_ultimate_skill.json",
       "timelineBlockFrames": 63,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "projectileHits": [],
       "blackboardKeys": [
         "atk_scale",
         "crit",

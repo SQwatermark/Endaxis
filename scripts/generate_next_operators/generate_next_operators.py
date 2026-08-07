@@ -14,6 +14,13 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPOSITORY_ROOT = SCRIPT_DIR.parents[1]
 DEFAULT_MANIFEST = SCRIPT_DIR / "operators.json"
 DEFAULT_SOURCE = REPOSITORY_ROOT.parent / "vfs-index-browser" / "combat-spec" / "artifacts" / "skill-data-cdn"
+DEFAULT_TABLES = (
+    REPOSITORY_ROOT.parent
+    / "vfs-index-browser"
+    / "combat-spec"
+    / "artifacts"
+    / "TableCfg-1.4.4-8764515-7"
+)
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "generated"
 
 
@@ -22,6 +29,42 @@ class TimelineActionSource:
     startFrame: int
     endFrame: int
     actionTypes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ScalarSource:
+    value: float
+    blackboardKey: str | None
+    levelValues: tuple[float, ...] | None
+
+
+@dataclass(frozen=True)
+class SkillPatchSource:
+    levels: tuple[int, ...]
+    blackboard: dict[str, tuple[float, ...]]
+    cooldownSeconds: tuple[float, ...]
+    costTypes: tuple[int, ...]
+    costValues: tuple[float, ...]
+
+
+@dataclass(frozen=True)
+class DamageUnitSource:
+    damageType: str
+    attributeType: str
+    attackScale: ScalarSource
+    poiseValue: ScalarSource | None
+
+
+@dataclass(frozen=True)
+class ProjectileHitSource:
+    launchFrame: int
+    assumedTravelFrames: int
+    projectileId: str
+    hitSkillId: str
+    sourceFile: str
+    damageUnits: tuple[DamageUnitSource, ...]
+    cycleTruncated: bool
+    nestedProjectileHits: tuple["ProjectileHitSource", ...]
 
 
 @dataclass(frozen=True)
@@ -39,6 +82,8 @@ class SkillSource:
     allowNextWindows: tuple[dict[str, Any], ...]
     inputCacheWindows: tuple[dict[str, Any], ...]
     timelineActions: tuple[TimelineActionSource, ...]
+    projectileHits: tuple[ProjectileHitSource, ...]
+    patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
     unresolvedCombatActions: tuple[str, ...]
 
@@ -58,6 +103,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
+    parser.add_argument("--tables", type=Path, default=DEFAULT_TABLES)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--operator", action="append", dest="operators")
     parser.add_argument("--check", action="store_true", help="校验现有输出是否与重新生成结果一致")
@@ -115,6 +161,135 @@ def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
     return tuple(sorted(keys))
 
 
+def parse_scalar(
+    value: Any,
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ScalarSource:
+    source = require_dict(value, path)
+    raw_value = source.get("value")
+    if not isinstance(raw_value, (int, float)) or isinstance(raw_value, bool):
+        raise ValueError(f"{path}.value: expected number")
+    use_blackboard = source.get("useBlackboardKey")
+    if not isinstance(use_blackboard, bool):
+        raise ValueError(f"{path}.useBlackboardKey: expected boolean")
+    key = source.get("blackboardKey")
+    if not isinstance(key, str):
+        raise ValueError(f"{path}.blackboardKey: expected string")
+    if use_blackboard and not key:
+        raise ValueError(f"{path}: active scalar blackboard reference has no key")
+    blackboard_key = key if use_blackboard else None
+    level_values = inherited_blackboard.get(blackboard_key) if blackboard_key else None
+    return ScalarSource(
+        value=float(raw_value),
+        blackboardKey=blackboard_key,
+        levelValues=level_values,
+    )
+
+
+def parse_damage_units(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[DamageUnitSource, ...]:
+    result: list[DamageUnitSource] = []
+    for action in walk_actions(root.get("actionGroupData")):
+        if action_name(action["$type"]) != "DamageAction":
+            continue
+        units = require_list(action.get("damageUnits"), f"{source_name}.DamageAction.damageUnits")
+        for index, raw_unit in enumerate(units):
+            unit = require_dict(raw_unit, f"{source_name}.DamageAction.damageUnits[{index}]")
+            poise_value = None
+            if unit.get("damageAttributeType") == "Poise":
+                calculation = require_dict(
+                    unit.get("poiseCalculation"),
+                    f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation",
+                )
+                poise_value = parse_scalar(
+                    calculation.get("value"),
+                    f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation.value",
+                    inherited_blackboard,
+                )
+            result.append(
+                DamageUnitSource(
+                    damageType=str(unit.get("damageType", "")),
+                    attributeType=str(unit.get("damageAttributeType", "")),
+                    attackScale=parse_scalar(
+                        unit.get("atkScale"),
+                        f"{source_name}.DamageAction.damageUnits[{index}].atkScale",
+                        inherited_blackboard,
+                    ),
+                    poiseValue=poise_value,
+                )
+            )
+    return tuple(result)
+
+
+def resolve_projectile_hits(
+    root: dict[str, Any],
+    source_name: str,
+    source_dir: Path,
+    base_frame: int = 0,
+    stack: tuple[str, ...] = (),
+    inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
+) -> tuple[ProjectileHitSource, ...]:
+    result: list[ProjectileHitSource] = []
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        launch_frame = base_frame + require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        for action in walk_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "LaunchProjectile":
+                continue
+            if action.get("castSkillOnHit") is not True:
+                raise ValueError(f"{source_name}: projectile without castSkillOnHit is not supported")
+            hit_skill_id = action.get("projectileSkillId")
+            projectile_id = action.get("projectileId")
+            if not isinstance(hit_skill_id, str) or not hit_skill_id:
+                raise ValueError(f"{source_name}: projectileSkillId must be a non-empty string")
+            if not isinstance(projectile_id, str) or not projectile_id:
+                raise ValueError(f"{source_name}: projectileId must be a non-empty string")
+            hit_source_name = f"{hit_skill_id}.json"
+            hit_path = source_dir / hit_source_name
+            if not hit_path.is_file():
+                raise FileNotFoundError(f"{source_name}: missing projectile hit skill {hit_path}")
+            hit_root = require_dict(json.loads(hit_path.read_text(encoding="utf-8")), hit_source_name)
+            cycle_truncated = hit_skill_id in stack
+            nested = (
+                ()
+                if cycle_truncated
+                else resolve_projectile_hits(
+                    hit_root,
+                    hit_source_name,
+                    source_dir,
+                    launch_frame,
+                    (*stack, hit_skill_id),
+                    inherited_blackboard=inherited_blackboard,
+                )
+            )
+            result.append(
+                ProjectileHitSource(
+                    launchFrame=launch_frame,
+                    assumedTravelFrames=0,
+                    projectileId=projectile_id,
+                    hitSkillId=hit_skill_id,
+                    sourceFile=hit_source_name,
+                    damageUnits=parse_damage_units(
+                        hit_root,
+                        hit_source_name,
+                        inherited_blackboard or {},
+                    ),
+                    cycleTruncated=cycle_truncated,
+                    nestedProjectileHits=nested,
+                )
+            )
+    return tuple(result)
+
+
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -161,7 +336,51 @@ def derive_timeline_block(exclusive_frame: int, allow_windows: tuple[dict[str, A
     return frame, source
 
 
-def parse_skill(entry: dict[str, Any], source_dir: Path) -> SkillSource:
+def parse_skill_patch(raw: Any, skill_id: str) -> SkillPatchSource:
+    entry = require_dict(raw, f"SkillPatchTable.{skill_id}")
+    bundles = require_list(entry.get("SkillPatchDataBundle"), f"SkillPatchTable.{skill_id}.SkillPatchDataBundle")
+    if not bundles:
+        raise ValueError(f"SkillPatchTable.{skill_id}: expected at least one level")
+    levels: list[int] = []
+    blackboard_rows: list[dict[str, float]] = []
+    cooldowns: list[float] = []
+    cost_types: list[int] = []
+    costs: list[float] = []
+    for index, raw_bundle in enumerate(bundles):
+        bundle = require_dict(raw_bundle, f"SkillPatchTable.{skill_id}[{index}]")
+        levels.append(require_non_negative_int(bundle.get("level"), f"SkillPatchTable.{skill_id}[{index}].level"))
+        row: dict[str, float] = {}
+        for raw_item in require_list(bundle.get("blackboard"), f"SkillPatchTable.{skill_id}[{index}].blackboard"):
+            item = require_dict(raw_item, f"SkillPatchTable.{skill_id}[{index}].blackboard[]")
+            key = item.get("key")
+            value = item.get("value")
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"SkillPatchTable.{skill_id}[{index}]: invalid blackboard key")
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise ValueError(f"SkillPatchTable.{skill_id}[{index}].blackboard.{key}: expected number")
+            if key in row:
+                raise ValueError(f"SkillPatchTable.{skill_id}[{index}]: duplicate blackboard key {key}")
+            row[key] = float(value)
+        blackboard_rows.append(row)
+        cooldowns.append(float(bundle.get("coolDown", 0)))
+        cost_types.append(int(bundle.get("costType", 0)))
+        costs.append(float(bundle.get("costValue", 0)))
+    if levels != sorted(levels) or len(set(levels)) != len(levels):
+        raise ValueError(f"SkillPatchTable.{skill_id}: levels must be unique and ascending")
+    all_keys = set().union(*(row.keys() for row in blackboard_rows))
+    for key in all_keys:
+        if any(key not in row for row in blackboard_rows):
+            raise ValueError(f"SkillPatchTable.{skill_id}: blackboard key {key} is missing at some levels")
+    return SkillPatchSource(
+        levels=tuple(levels),
+        blackboard={key: tuple(row[key] for row in blackboard_rows) for key in sorted(all_keys)},
+        cooldownSeconds=tuple(cooldowns),
+        costTypes=tuple(cost_types),
+        costValues=tuple(costs),
+    )
+
+
+def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, Any]) -> SkillSource:
     source_name = entry.get("source")
     if not isinstance(source_name, str):
         raise ValueError("skill.source: expected string")
@@ -169,6 +388,12 @@ def parse_skill(entry: dict[str, Any], source_dir: Path) -> SkillSource:
     if not source_path.is_file():
         raise FileNotFoundError(source_path)
     root = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_name)
+    skill_id = root.get("skillId")
+    if not isinstance(skill_id, str) or not skill_id:
+        raise ValueError(f"{source_name}.skillId: expected non-empty string")
+    if skill_id not in patch_table:
+        raise ValueError(f"SkillPatchTable: missing {skill_id}")
+    patch = parse_skill_patch(patch_table[skill_id], skill_id)
     cast = require_dict(root.get("castData"), f"{source_name}.castData")
     cost = require_dict(cast.get("costData"), f"{source_name}.castData.costData")
     timeline = parse_timeline(root, source_name)
@@ -191,6 +416,14 @@ def parse_skill(entry: dict[str, Any], source_dir: Path) -> SkillSource:
         allowNextWindows=allows,
         inputCacheWindows=caches,
         timelineActions=timeline,
+        projectileHits=resolve_projectile_hits(
+            root,
+            source_name,
+            source_dir,
+            stack=(skill_id,),
+            inherited_blackboard=patch.blackboard,
+        ),
+        patch=patch,
         blackboardKeys=collect_blackboard_keys(root),
         unresolvedCombatActions=unresolved,
     )
@@ -221,6 +454,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "sourceFile": skill.sourceFile,
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
+                "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
@@ -243,6 +477,8 @@ def write_or_check(path: Path, content: str, check: bool) -> None:
 def main() -> None:
     args = parse_args()
     manifest = require_dict(json.loads(args.manifest.read_text(encoding="utf-8")), str(args.manifest))
+    patch_path = args.tables / "SkillPatchTable.json"
+    patch_table = require_dict(json.loads(patch_path.read_text(encoding="utf-8")), str(patch_path))
     selected = set(args.operators or [])
     generated = 0
     for raw_operator in require_list(manifest.get("operators"), "operators"):
@@ -250,7 +486,10 @@ def main() -> None:
         slug = str(operator["slug"])
         if selected and slug not in selected:
             continue
-        skills = [parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source) for entry in require_list(operator["skills"], f"{slug}.skills")]
+        skills = [
+            parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source, patch_table)
+            for entry in require_list(operator["skills"], f"{slug}.skills")
+        ]
         write_or_check(args.output / f"{slug}.generated.ts", render_typescript(str(operator["exportName"]), slug, skills), args.check)
         write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
         print(f"[{slug}] generated {len(skills)} skills -> {args.output}")

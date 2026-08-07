@@ -160,6 +160,130 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 8,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack1",
+          "hitSkillId": "chr_0004_pelica_attack1_projhit",
+          "sourceFile": "chr_0004_pelica_attack1_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 0.9,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.25,
+                  0.28,
+                  0.31,
+                  0.33,
+                  0.36,
+                  0.38,
+                  0.41,
+                  0.43,
+                  0.46,
+                  0.49,
+                  0.53,
+                  0.57
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atb": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "atk_scale": [
+            0.25,
+            0.28,
+            0.31,
+            0.33,
+            0.36,
+            0.38,
+            0.41,
+            0.43,
+            0.46,
+            0.49,
+            0.53,
+            0.57
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -358,6 +482,178 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 9,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "hitSkillId": "chr_0004_pelica_attack2_projhit",
+          "sourceFile": "chr_0004_pelica_attack2_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 12,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack2",
+          "hitSkillId": "chr_0004_pelica_attack2_projhit",
+          "sourceFile": "chr_0004_pelica_attack2_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atb": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "atk_scale": [
+            0.15,
+            0.17,
+            0.18,
+            0.2,
+            0.21,
+            0.23,
+            0.24,
+            0.26,
+            0.27,
+            0.29,
+            0.31,
+            0.34
+          ],
+          "display_atk_scale": [
+            0.3,
+            0.33,
+            0.36,
+            0.39,
+            0.42,
+            0.45,
+            0.48,
+            0.51,
+            0.54,
+            0.58,
+            0.62,
+            0.68
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -586,6 +882,212 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 16,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 19,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 22,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack3",
+          "hitSkillId": "chr_0004_pelica_attack3_projhit",
+          "sourceFile": "chr_0004_pelica_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "poiseValue": null
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atb": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "atk_scale": [
+            0.12,
+            0.14,
+            0.15,
+            0.16,
+            0.17,
+            0.19,
+            0.2,
+            0.21,
+            0.22,
+            0.24,
+            0.26,
+            0.28
+          ],
+          "display_atk_scale": [
+            0.37,
+            0.41,
+            0.45,
+            0.48,
+            0.52,
+            0.56,
+            0.59,
+            0.63,
+            0.67,
+            0.71,
+            0.77,
+            0.84
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -804,6 +1306,171 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 27,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_normal_attack4",
+          "hitSkillId": "chr_0004_pelica_attack4_projhit",
+          "sourceFile": "chr_0004_pelica_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.1,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.57,
+                  0.62,
+                  0.68,
+                  0.73,
+                  0.79,
+                  0.85,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.17,
+                  1.27
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
+                ]
+              }
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atb": [
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0
+          ],
+          "atk_scale": [
+            0.57,
+            0.62,
+            0.68,
+            0.73,
+            0.79,
+            0.85,
+            0.9,
+            0.96,
+            1.02,
+            1.09,
+            1.17,
+            1.27
+          ],
+          "poise": [
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -1099,6 +1766,81 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            4.0,
+            4.4,
+            4.8,
+            5.2,
+            5.6,
+            6.0,
+            6.4,
+            6.8,
+            7.2,
+            7.7,
+            8.3,
+            9.0
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [
         "addition_vertical",
         "atk_scale",
@@ -1376,6 +2118,136 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        },
+        {
+          "launchFrame": 1,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_plunging_attack",
+          "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "cycleTruncated": false,
+          "nestedProjectileHits": []
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atb": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "atk_scale": [
+            0.8,
+            0.88,
+            0.96,
+            1.04,
+            1.12,
+            1.2,
+            1.28,
+            1.36,
+            1.44,
+            1.54,
+            1.66,
+            1.8
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -1678,6 +2550,95 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            1.78,
+            1.96,
+            2.13,
+            2.31,
+            2.49,
+            2.67,
+            2.85,
+            3.02,
+            3.2,
+            3.42,
+            3.69,
+            4.0
+          ],
+          "poise": [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "costValues": [
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ]
+      },
       "blackboardKeys": [
         "atk_scale",
         "cam_angle",
@@ -1945,6 +2906,247 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [
+        {
+          "launchFrame": 24,
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0004_pelica_combo_skill",
+          "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
+          "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 2.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileHits": [
+            {
+              "launchFrame": 24,
+              "assumedTravelFrames": 0,
+              "projectileId": "projectile_chr_0004_pelica_combo_skill",
+              "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
+              "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "attackScale": {
+                    "value": 2.5,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.8,
+                      0.88,
+                      0.96,
+                      1.04,
+                      1.12,
+                      1.2,
+                      1.28,
+                      1.36,
+                      1.44,
+                      1.54,
+                      1.66,
+                      1.8
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Physical",
+                  "attributeType": "Poise",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
+                    ]
+                  }
+                }
+              ],
+              "cycleTruncated": true,
+              "nestedProjectileHits": []
+            }
+          ]
+        }
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            0.8,
+            0.88,
+            0.96,
+            1.04,
+            1.12,
+            1.2,
+            1.28,
+            1.36,
+            1.44,
+            1.54,
+            1.66,
+            1.8
+          ],
+          "duration": [
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0,
+            5.0
+          ],
+          "poise": [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          "usp": [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ]
+        },
+        "cooldownSeconds": [
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          19.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
       "blackboardKeys": [
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
@@ -2280,6 +3482,95 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "projectileHits": [],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            4.45,
+            4.89,
+            5.34,
+            5.78,
+            6.22,
+            6.67,
+            7.11,
+            7.56,
+            8.0,
+            8.56,
+            9.23,
+            10.0
+          ],
+          "poise": [
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0
+          ]
+        },
+        "cooldownSeconds": [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0,
+          80.0
+        ]
+      },
       "blackboardKeys": [
         "atk_scale",
         "crit",

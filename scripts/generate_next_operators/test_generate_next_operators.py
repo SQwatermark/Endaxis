@@ -2,7 +2,12 @@
 
 import unittest
 
-from generate_next_operators import collect_blackboard_keys, derive_timeline_block
+from generate_next_operators import (
+    collect_blackboard_keys,
+    derive_timeline_block,
+    parse_scalar,
+    parse_skill_patch,
+)
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
@@ -30,6 +35,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_empty_template_blackboard_key_is_not_a_dependency(self) -> None:
         self.assertEqual(collect_blackboard_keys({"useBlackboardKey": True, "blackboardKey": ""}), ())
+
+    def test_scalar_resolves_level_values_from_inherited_blackboard(self) -> None:
+        scalar = parse_scalar(
+            {"useBlackboardKey": True, "blackboardKey": "atk_scale", "value": 0},
+            "damage.atkScale",
+            {"atk_scale": (0.25, 0.5)},
+        )
+
+        self.assertEqual(scalar.blackboardKey, "atk_scale")
+        self.assertEqual(scalar.levelValues, (0.25, 0.5))
+
+    def test_skill_patch_requires_every_level_to_have_the_same_keys(self) -> None:
+        with self.assertRaisesRegex(ValueError, "missing at some levels"):
+            parse_skill_patch(
+                {
+                    "SkillPatchDataBundle": [
+                        {"level": 1, "blackboard": [{"key": "atk", "value": 1}]},
+                        {"level": 2, "blackboard": []},
+                    ]
+                },
+                "skill",
+            )
 
 
 if __name__ == "__main__":
