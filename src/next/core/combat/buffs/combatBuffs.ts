@@ -76,6 +76,18 @@ export type BuffMaxStackCount = number | { readonly blackboardKey: string };
 /** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
 export type BuffPriority = number | { readonly blackboardKey: string; readonly negate?: boolean };
 
+/**
+ * Buff 启用期间持续执行的有状态动作。
+ * 定义对象只充当蓝图；每个 Buff 实例必须通过 createRuntimeInstance 获得独立运行状态。
+ */
+export interface BuffDuringEnableAction<Key extends string> {
+  createRuntimeInstance(): BuffDuringEnableAction<Key>;
+  tryExecute(buff: CombatBuff<Key>): boolean;
+  tick(deltaTime: number, buff: CombatBuff<Key>): void;
+  end(buff: CombatBuff<Key>): void;
+  reset(buff: CombatBuff<Key>): void;
+}
+
 /** Buff 在启用、结束和移除边界执行的有序生命周期行为。 */
 export interface BuffLifecycleActions<Key extends string> {
   readonly start?: (buff: CombatBuff<Key>) => void;
@@ -86,6 +98,7 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly trigger?: (buff: CombatBuff<Key>) => void;
+  readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
 /** 可复用、不可变的 Buff 目录定义；实例状态不应写回这里。 */
@@ -129,6 +142,7 @@ export class CombatBuff<Key extends string> {
   #triggerInterval: number | null = null;
   #triggerRemainingTime = 0;
   #remainingTriggerCount = 0;
+  readonly #duringEnableAction: BuffDuringEnableAction<Key> | null;
 
   constructor(
     readonly definition: CombatBuffDefinition<Key>,
@@ -159,6 +173,7 @@ export class CombatBuff<Key extends string> {
       modifier => new DamageModifier(owner.ownerId, modifier),
     );
     this.#attributeModifiers = this.createAttributeModifiers();
+    this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
   }
 
   get passedTime(): number {
@@ -214,11 +229,13 @@ export class CombatBuff<Key extends string> {
       throw error;
     }
     this.definition.actions?.enable?.(this);
+    this.#duringEnableAction?.tryExecute(this);
   }
 
   disable(): void {
     if (!this.#enabled) return;
     this.definition.actions?.disable?.(this);
+    this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
     this.removeAttributeModifiers();
     this.#enabled = false;
@@ -237,6 +254,7 @@ export class CombatBuff<Key extends string> {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.removeAttributeModifiers();
     }
+    this.endDuringEnableAction();
     this.#finishing = false;
     return true;
   }
@@ -246,7 +264,10 @@ export class CombatBuff<Key extends string> {
     if (!Number.isFinite(deltaTime)) throw new TypeError('buff delta time must be finite');
     const elapsed = Math.max(0, deltaTime);
     this.#passedTime += elapsed;
-    if (this.#enabled) this.triggerInternal(elapsed);
+    if (this.#enabled) {
+      this.triggerInternal(elapsed);
+      this.#duringEnableAction?.tick(elapsed, this);
+    }
     if (this.#remainingDuration === null) return;
     this.#remainingDuration = Math.max(0, this.#remainingDuration - elapsed);
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
@@ -327,6 +348,12 @@ export class CombatBuff<Key extends string> {
     for (const modifier of this.#attributeModifiers) {
       this.owner.attributes.removeModifier(modifier);
     }
+  }
+
+  private endDuringEnableAction(): void {
+    if (this.#duringEnableAction === null) return;
+    this.#duringEnableAction.end(this);
+    this.#duringEnableAction.reset(this);
   }
 
   private createAttributeModifiers(): readonly CombatAttributeModifier<Key>[] {

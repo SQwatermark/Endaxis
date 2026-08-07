@@ -13,7 +13,11 @@ import {
   PlayerDamageContext,
   type PlayerDamageAttributeSnapshots,
 } from '../damage/playerDamageContext';
-import { CombatBuffContainer, type CombatBuffDefinition } from './combatBuffs';
+import {
+  CombatBuffContainer,
+  type BuffDuringEnableAction,
+  type CombatBuffDefinition,
+} from './combatBuffs';
 
 type Attribute = 'attack';
 
@@ -148,6 +152,96 @@ describe('CombatBuffContainer', () => {
     expect(buff.finish()).toBe(false);
     expect(attributes.get('attack')).toBe(100);
     expect(order).toEqual(['start', 'enable', 'disable', 'enable', 'finish']);
+  });
+
+  it('runs during-enable actions only while enabled and restarts them after re-enable', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const duringEnable: BuffDuringEnableAction<Attribute> = {
+      createRuntimeInstance: () => duringEnable,
+      tryExecute: () => {
+        order.push(`during-execute:${attributes.get('attack')}`);
+        return true;
+      },
+      tick: deltaTime => order.push(`during-tick:${deltaTime}`),
+      end: () => order.push(`during-end:${attributes.get('attack')}`),
+      reset: () => order.push(`during-reset:${attributes.get('attack')}`),
+    };
+    const buff = requireAddedBuff(
+      container.add(
+        createDefinition({
+          enable: () => order.push('enable'),
+          disable: () => order.push('disable'),
+          finish: () => order.push('finish'),
+          duringEnable,
+        }),
+        'operator',
+      ),
+    );
+
+    container.tick(0.25);
+    buff.disable();
+    container.tick(0.5);
+    buff.enable();
+    container.tick(0.75);
+    buff.finish();
+
+    expect(order).toEqual([
+      'enable',
+      'during-execute:125',
+      'during-tick:0.25',
+      'disable',
+      'during-end:125',
+      'during-reset:125',
+      'enable',
+      'during-execute:125',
+      'during-tick:0.75',
+      'finish',
+      'during-end:100',
+      'during-reset:100',
+    ]);
+  });
+
+  it('creates independent during-enable action state for every buff instance', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const runtimeTicks: number[][] = [];
+    const blueprint: BuffDuringEnableAction<Attribute> = {
+      createRuntimeInstance: () => {
+        const ticks: number[] = [];
+        runtimeTicks.push(ticks);
+        return {
+          createRuntimeInstance: () => {
+            throw new Error('a runtime action must not be cloned again');
+          },
+          tryExecute: () => true,
+          tick: deltaTime => ticks.push(deltaTime),
+          end: () => undefined,
+          reset: () => undefined,
+        };
+      },
+      tryExecute: () => {
+        throw new Error('the configured action blueprint must not execute');
+      },
+      tick: () => undefined,
+      end: () => undefined,
+      reset: () => undefined,
+    };
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.during-enable.independent',
+      stackingType: 'unlimited',
+      actions: { duringEnable: blueprint },
+    };
+    const first = requireAddedBuff(container.add(definition, 'operator'));
+    requireAddedBuff(container.add(definition, 'operator'));
+
+    first.disable();
+    container.tick(0.5);
+
+    expect(runtimeTicks).toEqual([[], [0.5]]);
   });
 
   it('expires finite buffs in insertion order while infinite buffs remain', () => {
