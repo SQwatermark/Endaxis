@@ -93,7 +93,6 @@ describe('compileSkill', () => {
       scheduledSequences: [
         {
           startFrame: 0,
-          endFrame: 0,
           sequence: {
             steps: [
               {

@@ -346,7 +346,6 @@ const finisher = {
         ),
         step('gainFinisherSp', { factor: 1, recipient: 'team' }),
       ),
-      43,
     ),
   ],
 } as const satisfies SkillDefinition;

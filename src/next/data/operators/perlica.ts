@@ -60,7 +60,6 @@ const finisher = {
         ),
         step('gainFinisherSp', { factor: 1, recipient: 'team' }),
       ),
-      44,
     ),
   ],
 } satisfies SkillDefinition;
@@ -68,7 +67,7 @@ const finisher = {
 const plungingAttack = {
   key: 'plungingAttack',
   // 此定义从落地时刻开始；滞空时长属于移动状态，不在战斗技能中重复建模。
-  timelineBlockFrames: 20,
+  timelineBlockFrames: 21,
   scheduledSequences: [
     scheduled(
       3,
@@ -81,7 +80,6 @@ const plungingAttack = {
           ]),
         ),
       ),
-      8,
     ),
   ],
 } satisfies SkillDefinition;
@@ -175,7 +173,6 @@ const ultimate = {
           ),
         ),
       ),
-      63,
     ),
   ],
 } satisfies SkillDefinition;

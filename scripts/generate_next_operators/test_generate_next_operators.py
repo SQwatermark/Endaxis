@@ -9,6 +9,7 @@ from generate_next_operators import (
     parse_scalar,
     parse_direct_damage_hits,
     parse_damage_units,
+    parse_inflictions,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -72,10 +73,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
     def test_percentage_values_restore_readable_percentages(self) -> None:
         self.assertEqual(percentage_values((0.25, 1.02, 0.125)), (25, 102, 12.5))
 
-    def test_only_known_non_output_buffs_are_classified(self) -> None:
+    def test_only_buffs_with_confirmed_semantics_are_classified(self) -> None:
         self.assertEqual(classify_buff("buff_common_damage_immune_ult_skill"), "incomingDamageProtection")
         self.assertEqual(classify_buff("buff_common_power_attack_disable_cast_skill"), "inputLock")
+        self.assertEqual(
+            classify_buff("buff_common_obtain_ultimate_sp"),
+            "skillCostUltimateEnergyGain",
+        )
         self.assertIsNone(classify_buff("buff_operator_damage_bonus"))
+
+    def test_spell_infliction_keeps_frame_action_order_and_element(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 13,
+                        "_endFrame": 13,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {"$type": "Example.FindTarget, Example"},
+                                {
+                                    "$type": "Example.SpellInfliction+Data, Example",
+                                    "inflictionType": "Pulse",
+                                    "isExtra": False,
+                                },
+                                {"$type": "Example.DamageAction, Example"},
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        inflictions = parse_inflictions(root, "skill.json")
+
+        self.assertEqual(len(inflictions), 1)
+        self.assertEqual(
+            (
+                inflictions[0].startFrame,
+                inflictions[0].endFrame,
+                inflictions[0].actionIndex,
+                inflictions[0].element,
+                inflictions[0].isExtra,
+            ),
+            (13, 13, 1, "electric", False),
+        )
 
     def test_direct_damage_keeps_timeline_and_action_order(self) -> None:
         root = {

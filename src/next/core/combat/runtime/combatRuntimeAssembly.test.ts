@@ -69,7 +69,6 @@ describe('CombatRuntimeAssembly', () => {
       timelineActions: [
         {
           startFrame: 1,
-          endFrame: 1,
           sequence: {
             steps: [
               {

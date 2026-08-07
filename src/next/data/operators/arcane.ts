@@ -114,7 +114,7 @@ const basicAttack5 = natureBasicAttack(
   41,
   22,
   percentages([47, 52, 56, 61, 66, 71, 75, 80, 85, 90, 98, 106]),
-  { final: true, stagger: 17, spRecovery: 17, lastHitEndFrame: 25 },
+  { final: true, stagger: 17, spRecovery: 17 },
 );
 
 const finisher = {
@@ -134,7 +134,6 @@ const finisher = {
         }),
         step('gainFinisherSp', { factor: 1, recipient: 'team' }),
       ),
-      39,
     ),
   ],
 } satisfies SkillDefinition;
@@ -154,7 +153,6 @@ const plungingAttack = {
           ),
         ),
       ),
-      6,
     ),
   ],
 } satisfies SkillDefinition;

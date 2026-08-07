@@ -615,17 +615,6 @@ function validateSkillCast(
       scheduledSequenceIds.add(sequenceId);
     }
     requireNonNegativeInteger(scheduledSequence.startFrame, `${sequencePath}.startFrame`, issues);
-    requireNonNegativeInteger(scheduledSequence.endFrame, `${sequencePath}.endFrame`, issues);
-    if (
-      typeof scheduledSequence.startFrame === 'number' &&
-      typeof scheduledSequence.endFrame === 'number' &&
-      scheduledSequence.endFrame < scheduledSequence.startFrame
-    ) {
-      issues.push({
-        path: `${sequencePath}.endFrame`,
-        message: 'must not precede startFrame',
-      });
-    }
     if (!isObject(scheduledSequence.sequence)) {
       issues.push({ path: `${sequencePath}.sequence`, message: 'expected an object' });
       return;
@@ -636,7 +625,7 @@ function validateSkillCast(
       damageHitIds,
       issues,
     );
-    const allowedSequenceEdits = new Set(['startFrame', 'endFrame', 'sequence']);
+    const allowedSequenceEdits = new Set(['startFrame', 'sequence']);
     validateEditedFields(
       scheduledSequence.edited,
       allowedSequenceEdits,

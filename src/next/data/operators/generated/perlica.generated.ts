@@ -161,6 +161,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -194,6 +195,9 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -486,6 +490,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -519,6 +524,9 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -554,6 +562,9 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -890,6 +901,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -923,6 +935,9 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -959,6 +974,9 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -993,6 +1011,9 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -1319,6 +1340,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -1380,6 +1402,9 @@ export const perlicaGeneratedSource = {
                 ]
               }
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -1815,6 +1840,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "inflictions": [],
       "auxiliaryActions": [
         {
           "startFrame": 0,
@@ -2220,6 +2246,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -2229,6 +2256,7 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -2239,6 +2267,7 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -2249,6 +2278,7 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -2259,6 +2289,7 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -2727,6 +2758,15 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "inflictions": [
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 3,
+          "element": "electric",
+          "isExtra": false
+        }
+      ],
       "auxiliaryActions": [
         {
           "startFrame": 13,
@@ -2734,7 +2774,7 @@ export const perlicaGeneratedSource = {
           "actionIndex": 12,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
-          "classification": null,
+          "classification": "skillCostUltimateEnergyGain",
           "nestedCombatActions": []
         }
       ],
@@ -2835,7 +2875,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
-        "DamageAction"
+        "DamageAction",
+        "SpellInfliction"
       ]
     },
     {
@@ -3095,6 +3136,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "auxiliaryActions": [],
       "projectileHits": [
         {
@@ -3157,6 +3199,11 @@ export const perlicaGeneratedSource = {
               }
             }
           ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "LaunchProjectile"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": [
             {
@@ -3218,6 +3265,11 @@ export const perlicaGeneratedSource = {
                     ]
                   }
                 }
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "DamageAction",
+                "LaunchProjectile"
               ],
               "cycleTruncated": true,
               "nestedProjectileHits": []
@@ -3750,6 +3802,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "inflictions": [],
       "auxiliaryActions": [
         {
           "startFrame": 0,

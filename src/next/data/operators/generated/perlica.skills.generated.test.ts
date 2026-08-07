@@ -41,9 +41,14 @@ describe('佩丽卡生成 DSL', () => {
 
   it('与当前人工配置的处决和终结技战斗语义一致', () => {
     const finisher = perlica.skillGroups.find(group => group.key === 'finisher');
+    const plungingAttack = perlica.skillGroups.find(group => group.key === 'plungingAttack');
+    const battleSkill = perlica.skillGroups.find(group => group.key === 'battleSkill');
     const ultimate = perlica.skillGroups.find(group => group.key === 'ultimate');
 
-    expect(perlicaGeneratedSkills[4]).toEqual(finisher?.skills);
-    expect(perlicaGeneratedSkills[5]).toEqual(ultimate?.skills);
+    const generatedByKey = new Map(perlicaGeneratedSkills.map(skill => [skill.key, skill]));
+    expect(generatedByKey.get('finisher')).toEqual(finisher?.skills);
+    expect(generatedByKey.get('plungingAttack')).toEqual(plungingAttack?.skills);
+    expect(generatedByKey.get('battleSkill')).toEqual(battleSkill?.skills);
+    expect(generatedByKey.get('ultimate')).toEqual(ultimate?.skills);
   });
 });

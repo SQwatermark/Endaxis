@@ -76,6 +76,15 @@ class AuxiliaryActionSource:
 
 
 @dataclass(frozen=True)
+class TimedInflictionSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    element: str
+    isExtra: bool
+
+
+@dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
     assumedTravelFrames: int
@@ -83,6 +92,7 @@ class ProjectileHitSource:
     hitSkillId: str
     sourceFile: str
     damageUnits: tuple[DamageUnitSource, ...]
+    combatActions: tuple[str, ...]
     cycleTruncated: bool
     nestedProjectileHits: tuple["ProjectileHitSource", ...]
 
@@ -103,6 +113,7 @@ class SkillSource:
     inputCacheWindows: tuple[dict[str, Any], ...]
     timelineActions: tuple[TimelineActionSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     patch: SkillPatchSource
@@ -118,6 +129,7 @@ COMBAT_ACTION_NAMES = {
     "SpawnAbilityEntity",
     "AbilityEventAction",
     "BuffEventAction",
+    "SpellInfliction",
 }
 
 
@@ -307,7 +319,52 @@ def classify_buff(buff_id: str) -> str | None:
         return "incomingDamageProtection"
     if buff_id == "buff_common_power_attack_disable_cast_skill":
         return "inputLock"
+    if buff_id == "buff_common_obtain_ultimate_sp":
+        return "skillCostUltimateEnergyGain"
     return None
+
+
+INFLICTION_TYPE_MAP = {
+    "Fire": "heat",
+    "Cryst": "cryo",
+    "Pulse": "electric",
+    "Natural": "nature",
+}
+
+
+def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInflictionSource, ...]:
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedInflictionSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+            if action_name(action["$type"]) != "SpellInfliction":
+                continue
+            raw_type = action.get("inflictionType")
+            element = INFLICTION_TYPE_MAP.get(raw_type)
+            if element is None:
+                raise ValueError(f"{source_name}.SpellInfliction: unsupported inflictionType {raw_type!r}")
+            is_extra = action.get("isExtra")
+            if not isinstance(is_extra, bool):
+                raise ValueError(f"{source_name}.SpellInfliction.isExtra: expected boolean")
+            result.append(
+                TimedInflictionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    element=element,
+                    isExtra=is_extra,
+                )
+            )
+    return tuple(result)
 
 
 def parse_auxiliary_actions(
@@ -440,6 +497,15 @@ def resolve_projectile_hits(
                         hit_root,
                         hit_source_name,
                         inherited_blackboard or {},
+                    ),
+                    combatActions=tuple(
+                        sorted(
+                            {
+                                action_name(item["$type"])
+                                for item in walk_actions(hit_root.get("actionGroupData"))
+                                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                            }
+                        )
                     ),
                     cycleTruncated=cycle_truncated,
                     nestedProjectileHits=nested,
@@ -575,6 +641,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inputCacheWindows=caches,
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
+        inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir),
         projectileHits=resolve_projectile_hits(
             root,
@@ -715,12 +782,24 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
 
 
 def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
-    if skill.projectileHits or len(skill.directDamageHits) != 1:
+    if len(skill.directDamageHits) != 1:
         raise ValueError(f"{skill.key}: direct damage compiler requires exactly one non-projectile hit")
+    non_presentation_projectiles = [
+        hit
+        for hit in skill.projectileHits
+        if hit.cycleTruncated or hit.combatActions or hit.nestedProjectileHits
+    ]
+    if non_presentation_projectiles:
+        raise ValueError(f"{skill.key}: projectile contains combat behavior and cannot be omitted")
     unclassified = [action.sourceId for action in skill.auxiliaryActions if action.classification is None]
     if unclassified:
         raise ValueError(f"{skill.key}: unclassified auxiliary actions: {unclassified}")
-    expected_actions = {"DamageAction", *(action.actionType for action in skill.auxiliaryActions)}
+    expected_actions = {
+        "DamageAction",
+        *(action.actionType for action in skill.auxiliaryActions),
+        *({"SpellInfliction"} if skill.inflictions else set()),
+        *({"LaunchProjectile"} if skill.projectileHits else set()),
+    }
     if set(skill.unresolvedCombatActions) != expected_actions:
         raise ValueError(f"{skill.key}: unresolved combat actions are not fully accounted for")
     hit = skill.directDamageHits[0]
@@ -746,12 +825,49 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             raise ValueError(f"{skill.key}: Poise unit has no value")
         stagger = compact_level_values(require_level_values(poise, f"{skill.key}.stagger"))
         damage_fields.append(f"stagger: {ts_inline_literal(stagger)}")
-    steps = [f"step('dealDamage', {{ {', '.join(damage_fields)} }})"]
+    damage_step = "\n".join(
+        [
+            "step('dealDamage', {",
+            *(f"  {field}," for field in damage_fields),
+            "})",
+        ]
+    )
+    ordered_steps: list[tuple[float, str]] = [(hit.actionIndex, damage_step)]
+    for infliction in skill.inflictions:
+        if infliction.startFrame != hit.startFrame:
+            raise ValueError(f"{skill.key}: infliction and damage occur on different frames")
+        ordered_steps.append(
+            (
+                infliction.actionIndex,
+                "step('applyElementalInfliction', "
+                f"{{ element: {ts_inline_literal(infliction.element)}, isExtra: {ts_inline_literal(infliction.isExtra)} }})",
+            )
+        )
+    for action in skill.auxiliaryActions:
+        if action.classification != "skillCostUltimateEnergyGain":
+            continue
+        if action.startFrame != hit.startFrame:
+            raise ValueError(f"{skill.key}: ultimate energy gain and damage occur on different frames")
+        ordered_steps.append(
+            (
+                action.actionIndex,
+                "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })",
+            )
+        )
     after_damage = config.get("afterDamage")
     if after_damage == "gainFinisherSp":
-        steps.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
+        ordered_steps.append(
+            (hit.actionIndex + 0.5, "step('gainFinisherSp', { factor: 1, recipient: 'team' })")
+        )
     elif after_damage is not None:
         raise ValueError(f"{skill.key}.compile.afterDamage: unsupported value")
+    steps = [step_source for _, step_source in sorted(ordered_steps, key=lambda item: item[0])]
+    rendered_steps = [
+        f"          {line}{',' if index == len(lines) - 1 else ''}"
+        for step_source in steps
+        for lines in [step_source.splitlines()]
+        for index, line in enumerate(lines)
+    ]
     fields = [f"key: {ts_inline_literal(skill.key)},", f"timelineBlockFrames: {skill.timelineBlockFrames},"]
     availability = config.get("availability")
     if availability == "targetStaggered":
@@ -774,9 +890,8 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             "      scheduled(",
             f"        {hit.startFrame},",
             "        sequence(",
-            *(f"          {item}," for item in steps),
+            *rendered_steps,
             "        ),",
-            f"        {hit.endFrame},",
             "      ),",
             "    ],",
             "  },",

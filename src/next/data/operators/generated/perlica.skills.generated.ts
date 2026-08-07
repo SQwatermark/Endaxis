@@ -37,10 +37,51 @@ export const perlicaGeneratedSkills = [
       scheduled(
         35,
         sequence(
-          step('dealDamage', { damageType: 'electric', attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]), tags: ['normalAttack', 'powerAttack'], calculation: 'breakingAttack' }),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+          }),
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
         ),
-        44,
+      ),
+    ],
+  },
+  {
+    key: 'plungingAttack',
+    timelineBlockFrames: 21,
+    scheduledSequences: [
+      scheduled(
+        3,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    key: 'battleSkill',
+    timelineBlockFrames: 28,
+    costs: [{ resource: 'sp', value: 100 }],
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        13,
+        sequence(
+          step('applyElementalInfliction', { element: 'electric', isExtra: false }),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([178, 196, 213, 231, 249, 267, 285, 302, 320, 342, 369, 400]),
+            tags: ['normalSkill'],
+            stagger: 10,
+          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+        ),
       ),
     ],
   },
@@ -54,9 +95,13 @@ export const perlicaGeneratedSkills = [
       scheduled(
         58,
         sequence(
-          step('dealDamage', { damageType: 'electric', attackScale: percentages([445, 489, 534, 578, 622, 667, 711, 756, 800, 856, 923, 1000]), tags: ['ultimateSkill'], stagger: 20 }),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([445, 489, 534, 578, 622, 667, 711, 756, 800, 856, 923, 1000]),
+            tags: ['ultimateSkill'],
+            stagger: 20,
+          }),
         ),
-        63,
       ),
     ],
   },

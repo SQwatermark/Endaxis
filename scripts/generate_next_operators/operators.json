@@ -42,12 +42,21 @@
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
-          "source": "chr_0004_pelica_plunging_attack_end.json"
+          "source": "chr_0004_pelica_plunging_attack_end.json",
+          "compile": {
+            "kind": "directDamage",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
-          "source": "chr_0004_pelica_normal_skill.json"
+          "source": "chr_0004_pelica_normal_skill.json",
+          "compile": {
+            "kind": "directDamage",
+            "tags": ["normalSkill"],
+            "costResource": "sp"
+          }
         },
         {
           "key": "comboSkill",

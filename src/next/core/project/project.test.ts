@@ -294,7 +294,6 @@ describe('V2 project document', () => {
           {
             id: 'timeline:1',
             startFrame: 8,
-            endFrame: 8,
             edited: [],
             sequence: {
               steps: [

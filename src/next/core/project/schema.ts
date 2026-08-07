@@ -126,15 +126,14 @@ export interface ActionSequenceDocument {
 
 /**
  * 相对于所属技能释放时刻的一段调度序列。点事件的起止帧相同；
- * 持续事件会在到达 `endFrame` 前不断接收更新。
+ * 每个调度项只在 `startFrame` 到达时执行一次。
  */
 export interface ScheduledSequenceDocument {
   id: string;
   sourceSequenceKey?: string;
   startFrame: number;
-  endFrame: number;
   sequence: ActionSequenceDocument;
-  edited: ('startFrame' | 'endFrame' | 'sequence')[];
+  edited: ('startFrame' | 'sequence')[];
 }
 
 /** 用户添加在技能块上的辅助展示条。 */

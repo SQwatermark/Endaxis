@@ -137,19 +137,16 @@ export class SkillRuntime {
     this.#timeline = new TimelineActionProcessor(
       this.#program.timelineActions.map(action => ({
         startFrame: action.startFrame,
-        endFrame: action.endFrame,
         sequence: this.createSequence(action.sequence),
       })),
       {
         started: action =>
           this.record('TimelineActionStarted', {
             startFrame: action.startFrame,
-            endFrame: action.endFrame,
           }),
         ended: action =>
           this.record('TimelineActionEnded', {
             startFrame: action.startFrame,
-            endFrame: action.endFrame,
           }),
       },
     );

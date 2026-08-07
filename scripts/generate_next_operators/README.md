@@ -53,6 +53,7 @@ python scripts/generate_next_operators/generate_next_operators.py --check
 `spRecoveryBlackboardKey` 是无法仅凭通用 DamageUnit 唯一确定的业务语义，必须在清单中显式声明；
 实际回复数值仍从 SkillPatch 读取。
 
-直接伤害编译器只接受一条已闭环的本体伤害，并要求附带 Buff/AbilityEntity 全部完成分类。当前主动
-输出模拟会保留但不执行受击免伤、施法输入锁定和不含战斗行为的表现实体；未知 Buff 或包含战斗行为
-的子实体会阻止生成。
+直接伤害编译器只接受一条已闭环的本体伤害，并要求附带 Buff/AbilityEntity 全部完成分类。它会按
+原始动作序号编排元素附着、伤害和已识别的按技力消耗回能，并可忽略已经证明不含战斗行为的表现
+投射物。当前主动输出模拟会保留但不执行受击免伤、施法输入锁定和不含战斗行为的表现实体；未知
+Buff 或包含战斗行为的子实体会阻止生成。

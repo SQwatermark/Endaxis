@@ -42,6 +42,9 @@
               "poiseValue": null
             }
           ],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -91,6 +94,9 @@
               "poiseValue": null
             }
           ],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -125,6 +131,9 @@
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -175,6 +184,9 @@
               "poiseValue": null
             }
           ],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -210,6 +222,9 @@
               "poiseValue": null
             }
           ],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -244,6 +259,9 @@
               },
               "poiseValue": null
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -321,6 +339,9 @@
                 ]
               }
             }
+          ],
+          "combatActions": [
+            "DamageAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -449,6 +470,7 @@
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -459,6 +481,7 @@
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -469,6 +492,7 @@
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -479,6 +503,7 @@
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -578,7 +603,7 @@
           "actionIndex": 12,
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
-          "classification": null,
+          "classification": "skillCostUltimateEnergyGain",
           "nestedCombatActions": []
         }
       ],
@@ -591,7 +616,8 @@
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
-        "DamageAction"
+        "DamageAction",
+        "SpellInfliction"
       ]
     },
     {
@@ -662,6 +688,11 @@
               }
             }
           ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "LaunchProjectile"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": [
             {
@@ -723,6 +754,11 @@
                     ]
                   }
                 }
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "DamageAction",
+                "LaunchProjectile"
               ],
               "cycleTruncated": true,
               "nestedProjectileHits": []

@@ -39,10 +39,9 @@ describe('operator definition helpers', () => {
       final: true,
       stagger: 15,
       spRecovery: 17,
-      lastHitEndFrame: 27,
     });
 
-    expect(segment.scheduledSequences.map(item => item.endFrame)).toEqual([20, 27]);
+    expect(segment.scheduledSequences.map(item => item.startFrame)).toEqual([20, 24]);
     expect(segment.scheduledSequences[0]?.sequence.steps).toHaveLength(1);
     expect(segment.scheduledSequences[1]?.sequence.steps).toEqual([
       {

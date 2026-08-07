@@ -47,10 +47,22 @@ export interface GeneratedAuxiliaryActionSource {
   readonly actionIndex: number;
   readonly actionType: 'CreateBuffAction' | 'SpawnAbilityEntity';
   readonly sourceId: string;
-  /** 非空表示该行为已确认不影响当前主动输出模拟，但仍保留在审计数据中。 */
+  /** 原生辅助行为的已确认语义；是否输出为步骤由具体分类决定，null 会阻止正式生成。 */
   readonly classification:
-    'incomingDamageProtection' | 'inputLock' | 'nonCombatAbilityEntity' | null;
+    | 'incomingDamageProtection'
+    | 'inputLock'
+    | 'skillCostUltimateEnergyGain'
+    | 'nonCombatAbilityEntity'
+    | null;
   readonly nestedCombatActions: readonly string[];
+}
+
+export interface GeneratedTimedInflictionSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly element: 'heat' | 'cryo' | 'electric' | 'nature';
+  readonly isExtra: boolean;
 }
 
 export interface GeneratedProjectileHitSource {
@@ -61,6 +73,8 @@ export interface GeneratedProjectileHitSource {
   readonly hitSkillId: string;
   readonly sourceFile: string;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
+  /** 命中技能内仍可能影响战斗的原生行为；非空时不得作为纯表现投射物省略。 */
+  readonly combatActions: readonly string[];
   /** 命中 SkillData 再次引用调用链中的同一技能时为真，避免静态生成无限递归。 */
   readonly cycleTruncated: boolean;
   readonly nestedProjectileHits: readonly GeneratedProjectileHitSource[];
@@ -89,6 +103,7 @@ export interface GeneratedSkillSource {
   }[];
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */

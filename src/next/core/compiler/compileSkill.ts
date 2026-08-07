@@ -266,7 +266,6 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     costs,
     timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({
       startFrame: scheduled.startFrame,
-      endFrame: scheduled.endFrame,
       sequence: resolveSequence(
         scheduled.sequence,
         input.skillLevel,

@@ -58,7 +58,7 @@ The editor block is a `SkillCast`. Its authored gameplay payload follows the rec
 
 ```text
 SkillCast
-  -> ScheduledSequence(startFrame, endFrame)
+  -> ScheduledSequence(startFrame)
      -> ActionSequence
         -> CombatStep[]
 ```

@@ -24,15 +24,9 @@ class RecordingStep extends CombatStep {
   }
 }
 
-function timelineAction(
-  startFrame: number,
-  endFrame: number,
-  name: string,
-  events: string[],
-): TimelineAction {
+function timelineAction(startFrame: number, name: string, events: string[]): TimelineAction {
   return {
     startFrame,
-    endFrame,
     sequence: new ActionSequence([new RecordingStep(name, events)]),
   };
 }
@@ -40,24 +34,24 @@ function timelineAction(
 describe('TimelineActionProcessor', () => {
   const context: CombatExecutionContext = {};
 
-  it('starts, ticks, and ends an action on its inclusive frame interval', () => {
+  it('executes and ends an action at its scheduled frame', () => {
     const events: string[] = [];
-    const processor = new TimelineActionProcessor([timelineAction(2, 3, 'action', events)]);
+    const processor = new TimelineActionProcessor([timelineAction(2, 'action', events)]);
     processor.reset(context);
 
     processor.tick(1, 1 / 30, context);
     processor.tick(2, 1 / 30, context);
     processor.tick(3, 1 / 30, context);
 
-    expect(events).toEqual(['action:execute', 'action:tick', 'action:tick', 'action:end']);
+    expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
     expect(processor.isComplete).toBe(true);
   });
 
   it('uses source order for equal start frames', () => {
     const events: string[] = [];
     const processor = new TimelineActionProcessor([
-      timelineAction(1, 1, 'first', events),
-      timelineAction(1, 1, 'second', events),
+      timelineAction(1, 'first', events),
+      timelineAction(1, 'second', events),
     ]);
     processor.reset(context);
 
@@ -73,11 +67,11 @@ describe('TimelineActionProcessor', () => {
     ]);
   });
 
-  it('ticks an earlier active action before starting a later action', () => {
+  it('executes actions only when their frames are reached', () => {
     const events: string[] = [];
     const processor = new TimelineActionProcessor([
-      timelineAction(1, 3, 'active', events),
-      timelineAction(2, 2, 'new', events),
+      timelineAction(1, 'first', events),
+      timelineAction(2, 'second', events),
     ]);
     processor.reset(context);
     processor.tick(1, 1 / 30, context);
@@ -85,15 +79,15 @@ describe('TimelineActionProcessor', () => {
 
     processor.tick(2, 1 / 30, context);
 
-    expect(events).toEqual(['active:tick', 'new:execute', 'new:tick', 'new:end']);
+    expect(events).toEqual(['second:execute', 'second:tick', 'second:end']);
   });
 
-  it('ends only active actions when a skill finishes early', () => {
+  it('does not execute future actions when a skill finishes early', () => {
     const events: string[] = [];
-    const future = timelineAction(10, 10, 'future', events);
+    const future = timelineAction(10, 'future', events);
     const lifecycle = { started: vi.fn(), ended: vi.fn() };
     const processor = new TimelineActionProcessor(
-      [timelineAction(1, 5, 'active', events), future],
+      [timelineAction(1, 'action', events), future],
       lifecycle,
     );
     processor.reset(context);
@@ -101,15 +95,15 @@ describe('TimelineActionProcessor', () => {
 
     processor.end(2, context);
 
-    expect(events).toEqual(['active:execute', 'active:tick', 'active:end']);
+    expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
     expect(lifecycle.started).toHaveBeenCalledTimes(1);
     expect(lifecycle.ended).toHaveBeenCalledTimes(1);
     expect(processor.isComplete).toBe(false);
   });
 
-  it('rejects invalid intervals before runtime', () => {
-    expect(() => new TimelineActionProcessor([timelineAction(2, 1, 'invalid', [])])).toThrow(
-      'timeline action 0 ends before it starts',
+  it('rejects non-integer frames before runtime', () => {
+    expect(() => new TimelineActionProcessor([timelineAction(1.5, 'invalid', [])])).toThrow(
+      'timeline action 0 must use an integer frame',
     );
   });
 });

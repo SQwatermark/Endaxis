@@ -26,7 +26,6 @@ function findPerlicaSkill(key: string): SkillDefinition {
 const battleSkill = findPerlicaSkill('battleSkill');
 const longTimeline = Array.from({ length: 1_800 }, (_, frame) => ({
   startFrame: frame,
-  endFrame: frame,
   sequence: new ActionSequence([new EmptyStep()]),
 }));
 const context: CombatExecutionContext = {};

@@ -113,9 +113,8 @@ export function firstMatching(
 export function scheduled(
   frame: number,
   actionSequence: ActionSequenceDefinition,
-  endFrame = frame,
 ): ScheduledSequenceDefinition {
-  return { startFrame: frame, endFrame, sequence: actionSequence };
+  return { startFrame: frame, sequence: actionSequence };
 }
 
 type DamageOptions = Omit<DealDamageParameters, 'damageType' | 'attackScale' | 'tags'>;
@@ -124,7 +123,6 @@ export interface BasicAttackOptions extends DamageOptions {
   availability?: CombatCondition;
   final?: boolean;
   spRecovery?: LevelValues;
-  lastHitEndFrame?: number;
 }
 
 /** 绑定干员的伤害类型，同时要求每次命中显式配置倍率与标签。 */
@@ -145,7 +143,7 @@ export function basicAttackOfType(damageType: DamageType) {
     attackScale: LevelValues,
     options: BasicAttackOptions = {},
   ): SkillDefinition => {
-    const { availability, final = false, spRecovery, lastHitEndFrame, ...damageOptions } = options;
+    const { availability, final = false, spRecovery, ...damageOptions } = options;
     const frames = typeof hitFrames === 'number' ? [hitFrames] : hitFrames;
     const tags = final
       ? (['normalAttack', 'normalAttackLastCombo'] as const)
@@ -171,7 +169,6 @@ export function basicAttackOfType(damageType: DamageType) {
                 ]
               : []),
           ),
-          last ? (lastHitEndFrame ?? frame) : frame,
         );
       }),
     };

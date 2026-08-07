@@ -306,7 +306,6 @@ export interface ActionSequenceDefinition {
 /** 相对技能释放帧调度的点事件或持续序列。 */
 export interface ScheduledSequenceDefinition {
   startFrame: number;
-  endFrame: number;
   sequence: ActionSequenceDefinition;
 }
 

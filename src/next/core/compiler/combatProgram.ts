@@ -95,7 +95,6 @@ export interface ResolvedActionSequence {
 /** 技能释放时刻相对帧上的一个已编译调度项。 */
 export interface CompiledTimelineAction {
   readonly startFrame: number;
-  readonly endFrame: number;
   readonly sequence: ResolvedActionSequence;
 }
 
