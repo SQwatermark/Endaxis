@@ -1515,7 +1515,7 @@ def render_operator_definition(
             "import { sequence, step } from '../definitionHelpers';",
             f"import {{ {skills_export_name} }} from './{operator['slug']}.skills.generated';",
             "",
-            f"export const {operator_export_name} = {{",
+            f"export const {operator_export_name}: OperatorDefinition = {{",
             f"  slug: {ts_inline_literal(operator['slug'])},",
             f"  gameId: {ts_inline_literal(str(character['engName']).upper())},",
             f"  rarity: {require_non_negative_int(character.get('rarity'), f'{char_id}.rarity')},",
@@ -1536,7 +1536,7 @@ def render_operator_definition(
             "  potentials: [",
             *(f"    {potential}," for potential in potentials),
             "  ],",
-            "} as const satisfies OperatorDefinition;",
+            "};",
             "",
         ]
     )

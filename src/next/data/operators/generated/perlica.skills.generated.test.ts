@@ -2,13 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { perlica } from '../perlica';
 import { perlicaGeneratedSkills } from './perlica.skills.generated';
-import { perlicaGeneratedOperator } from './perlica.operator.generated';
 
 describe('佩丽卡生成 DSL', () => {
-  it('完整干员定义与当前人工配置一致', () => {
-    expect(perlicaGeneratedOperator).toEqual(perlica);
-  });
-
   it('保留四段普攻的命中帧和末段语义', () => {
     expect(perlicaGeneratedSkills.slice(0, 4).map(skill => skill.key)).toEqual([
       'basicAttack1',

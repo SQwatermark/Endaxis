@@ -3,7 +3,7 @@ import type { OperatorDefinition } from '../../../core/game-data/operatorDefinit
 import { sequence, step } from '../definitionHelpers';
 import { perlicaGeneratedSkills } from './perlica.skills.generated';
 
-export const perlicaGeneratedOperator = {
+export const perlicaGeneratedOperator: OperatorDefinition = {
   slug: 'perlica',
   gameId: 'PERLICA',
   rarity: 5,
@@ -39,4 +39,4 @@ export const perlicaGeneratedOperator = {
     { key: 'strongerElectrification', levels: 1, modifiers: [{ kind: 'setEffectiveness', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', value: 1.33 }] },
     { key: 'ultimateCriticalRate', levels: 1, modifiers: [{ kind: 'addSkillStat', skillGroupKey: 'ultimate', stat: 'criticalRate', value: 0.3 }] },
   ],
-} as const satisfies OperatorDefinition;
+};
