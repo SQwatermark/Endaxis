@@ -105,6 +105,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(event.event, "OnBuffTrigger")
         self.assertEqual(event.combatActions, ("CreateBuffAction",))
         self.assertEqual(event.createdBuffIds, ("child_buff",))
+        self.assertEqual(len(event.createdBuffBehaviors), 1)
+        self.assertEqual(event.createdBuffBehaviors[0].applicationEvent, "OnBuffTrigger")
+        self.assertIsNone(event.createdBuffBehaviors[0].applicationFrame)
+        self.assertFalse(event.createdBuffBehaviors[0].sourceAvailable)
 
     def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
         root = {

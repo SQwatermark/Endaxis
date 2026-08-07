@@ -146,7 +146,8 @@ class ResolvedDamageHitSource:
 
 @dataclass(frozen=True)
 class BuffBehaviorSource:
-    applicationFrame: int
+    applicationFrame: int | None
+    applicationEvent: str | None
     buffId: str
     sourceFile: str
     sourceAvailable: bool
@@ -165,6 +166,7 @@ class BuffEventActionSource:
     combatActions: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
     createdBuffIds: tuple[str, ...]
+    createdBuffBehaviors: tuple[BuffBehaviorSource, ...]
 
 
 @dataclass(frozen=True)
@@ -948,37 +950,37 @@ def resolve_buff_behaviors(
     stack: tuple[str, ...] = (),
 ) -> tuple[BuffBehaviorSource, ...]:
     """递归读取 CreateBuffAction 引用的 BuffData，但不推断其触发事件时机。"""
-    result: list[BuffBehaviorSource] = []
-    for action in parse_auxiliary_actions(root, source_name, skill_source_dir, inherited_blackboard):
-        if action.actionType != "CreateBuffAction":
-            continue
-        buff_id = action.sourceId
+    def resolve_one(
+        buff_id: str,
+        assignments: dict[str, ScalarSource],
+        application_frame: int | None,
+        application_event: str | None,
+        current_stack: tuple[str, ...],
+    ) -> BuffBehaviorSource:
         buff_name = f"{buff_id}.json"
         buff_path = buff_source_dir / buff_name
         if not buff_path.is_file():
-            result.append(
-                BuffBehaviorSource(
-                    applicationFrame=base_frame + action.startFrame,
-                    buffId=buff_id,
-                    sourceFile=buff_name,
-                    sourceAvailable=False,
-                    lifeType="",
-                    directDamageHits=(),
-                    eventActions=(),
-                    resourceGains=(),
-                    nestedBuffBehaviors=(),
-                    combatActions=(),
-                    cycleTruncated=False,
-                )
+            return BuffBehaviorSource(
+                applicationFrame=application_frame,
+                applicationEvent=application_event,
+                buffId=buff_id,
+                sourceFile=buff_name,
+                sourceAvailable=False,
+                lifeType="",
+                directDamageHits=(),
+                eventActions=(),
+                resourceGains=(),
+                nestedBuffBehaviors=(),
+                combatActions=(),
+                cycleTruncated=False,
             )
-            continue
         buff = require_dict(json.loads(buff_path.read_text(encoding="utf-8")), buff_name)
         timeline_actions = require_list(buff.get("timelineActions"), f"{buff_name}.timelineActions")
         adapted_root = {"actionGroupData": {"timelineActions": timeline_actions}}
         child_blackboard = dict(inherited_blackboard)
-        for key, scalar in action.blackboardAssignments.items():
+        for key, scalar in assignments.items():
             child_blackboard[key] = scalar.levelValues or (scalar.value,)
-        cycle_truncated = buff_id in stack
+        cycle_truncated = buff_id in current_stack
         nested = (
             ()
             if cycle_truncated
@@ -988,8 +990,8 @@ def resolve_buff_behaviors(
                 skill_source_dir,
                 buff_source_dir,
                 child_blackboard,
-                base_frame + action.startFrame,
-                (*stack, buff_id),
+                application_frame or 0,
+                (*current_stack, buff_id),
             )
         )
         combat_actions = tuple(
@@ -1012,6 +1014,7 @@ def resolve_buff_behaviors(
             event_root = {"actionGroupData": {"actions": event.get("actions")}}
             actions = list(walk_actions(event.get("actions")))
             created_buff_ids: list[str] = []
+            created_buff_behaviors: list[BuffBehaviorSource] = []
             for event_action in actions:
                 if action_name(event_action["$type"]) != "CreateBuffAction":
                     continue
@@ -1023,6 +1026,21 @@ def resolve_buff_behaviors(
                     if not isinstance(created_id, str) or not created_id:
                         raise ValueError(f"{buff_name}.{event_name}: expected created buffId")
                     created_buff_ids.append(created_id)
+                    created_assignments = parse_buff_assignments(
+                        created,
+                        f"{buff_name}.{event_name}.CreateBuffAction.buffs[]",
+                        child_blackboard,
+                    )
+                    if not cycle_truncated:
+                        created_buff_behaviors.append(
+                            resolve_one(
+                                created_id,
+                                created_assignments,
+                                None,
+                                event_name,
+                                (*current_stack, buff_id),
+                            )
+                        )
             event_actions.append(
                 BuffEventActionSource(
                     event=event_name,
@@ -1037,21 +1055,35 @@ def resolve_buff_behaviors(
                     ),
                     damageUnits=parse_damage_units(event_root, f"{buff_name}.{event_name}", child_blackboard),
                     createdBuffIds=tuple(created_buff_ids),
+                    createdBuffBehaviors=tuple(created_buff_behaviors),
                 )
             )
+        return BuffBehaviorSource(
+            applicationFrame=application_frame,
+            applicationEvent=application_event,
+            buffId=buff_id,
+            sourceFile=buff_name,
+            sourceAvailable=True,
+            lifeType=str(buff.get("lifeType", "")),
+            directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
+            eventActions=tuple(event_actions),
+            resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
+            nestedBuffBehaviors=nested,
+            combatActions=combat_actions,
+            cycleTruncated=cycle_truncated,
+        )
+
+    result: list[BuffBehaviorSource] = []
+    for action in parse_auxiliary_actions(root, source_name, skill_source_dir, inherited_blackboard):
+        if action.actionType != "CreateBuffAction":
+            continue
         result.append(
-            BuffBehaviorSource(
-                applicationFrame=base_frame + action.startFrame,
-                buffId=buff_id,
-                sourceFile=buff_name,
-                sourceAvailable=True,
-                lifeType=str(buff.get("lifeType", "")),
-                directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
-                eventActions=tuple(event_actions),
-                resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
-                nestedBuffBehaviors=nested,
-                combatActions=combat_actions,
-                cycleTruncated=cycle_truncated,
+            resolve_one(
+                action.sourceId,
+                action.blackboardAssignments,
+                base_frame + action.startFrame,
+                None,
+                stack,
             )
         )
     return tuple(result)

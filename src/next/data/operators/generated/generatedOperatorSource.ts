@@ -122,7 +122,9 @@ export interface GeneratedAbilityEntityHitSource {
 
 /** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
 export interface GeneratedBuffBehaviorSource {
-  readonly applicationFrame: number;
+  readonly applicationFrame: number | null;
+  /** 非 null 表示该 Buff 由父 Buff 的事件槽位施加，具体帧只能在运行时确定。 */
+  readonly applicationEvent: string | null;
   readonly buffId: string;
   readonly sourceFile: string;
   /** false 表示当前 BuffData 导出缺少该引用，审计层不得把它视为已解析。 */
@@ -141,6 +143,7 @@ export interface GeneratedBuffEventActionSource {
   readonly combatActions: readonly string[];
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly createdBuffIds: readonly string[];
+  readonly createdBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
 }
 
 export interface GeneratedSkillSource {

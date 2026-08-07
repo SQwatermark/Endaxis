@@ -2414,6 +2414,7 @@ export const perlicaGeneratedSource = {
       "buffBehaviors": [
         {
           "applicationFrame": 0,
+          "applicationEvent": null,
           "buffId": "buff_common_damage_immune_medium",
           "sourceFile": "buff_common_damage_immune_medium.json",
           "sourceAvailable": false,
@@ -2427,6 +2428,7 @@ export const perlicaGeneratedSource = {
         },
         {
           "applicationFrame": 0,
+          "applicationEvent": null,
           "buffId": "buff_common_power_attack_disable_cast_skill",
           "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
           "sourceAvailable": false,
@@ -3394,6 +3396,7 @@ export const perlicaGeneratedSource = {
       "buffBehaviors": [
         {
           "applicationFrame": 13,
+          "applicationEvent": null,
           "buffId": "buff_common_obtain_ultimate_sp",
           "sourceFile": "buff_common_obtain_ultimate_sp.json",
           "sourceAvailable": false,
@@ -4697,6 +4700,7 @@ export const perlicaGeneratedSource = {
       "buffBehaviors": [
         {
           "applicationFrame": 0,
+          "applicationEvent": null,
           "buffId": "buff_common_damage_immune_ult_skill",
           "sourceFile": "buff_common_damage_immune_ult_skill.json",
           "sourceAvailable": false,
