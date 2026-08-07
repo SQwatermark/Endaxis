@@ -7390,8 +7390,86 @@ export const zhuangFangyiGeneratedSource = {
           }
         },
         {
+          "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
+          "sourceFile": "buff_chr_0030_zhuangfy_sword_triggerd.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Limited",
+            "duration": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": true,
+            "maxTriggerCount": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unlimited",
+            "stackingKey": "",
+            "priority": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
           "buffId": "buff_chr_0030_zhuangfy_talent1",
           "sourceFile": "buff_chr_0030_zhuangfy_talent1.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Limited",
+            "duration": {
+              "value": 0.1,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": true,
+            "maxTriggerCount": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unlimited",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 3.0,
+              "blackboardKey": "max_stack",
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
+          "sourceFile": "buff_chr_0030_zhuangfy_talent1_mark.json",
           "sourceAvailable": true,
           "lifecycle": {
             "lifeType": "Limited",
@@ -12153,6 +12231,45 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "buffDefinitionHeaders": [
         {
+          "buffId": "buff_chr_0030_zhuangfy_dash_hide",
+          "sourceFile": "buff_chr_0030_zhuangfy_dash_hide.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Limited",
+            "duration": {
+              "value": 0.2,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": false,
+            "maxTriggerCount": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Stack",
+            "stackingKey": "",
+            "priority": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
           "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
           "sourceFile": "buff_chr_0030_zhuangfy_potential5_vfx.json",
           "sourceAvailable": true,
@@ -12226,6 +12343,201 @@ export const zhuangFangyiGeneratedSource = {
             "negatePriority": false,
             "maxStackCount": {
               "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_body_vfx.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Infinity",
+            "duration": {
+              "value": 1.5,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": true,
+            "maxTriggerCount": {
+              "value": 999.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unique",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_env_vfx.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Infinity",
+            "duration": {
+              "value": 1.5,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": true,
+            "maxTriggerCount": {
+              "value": 999.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unique",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 0.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Limited",
+            "duration": {
+              "value": 0.1,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": false,
+            "maxTriggerCount": {
+              "value": 99.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Stack",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_hide_model_holder.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Infinity",
+            "duration": {
+              "value": 0.033,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": false,
+            "maxTriggerCount": {
+              "value": 99.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Stack",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "hasStackEffects": false
+          }
+        },
+        {
+          "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
+          "sourceFile": "buff_chr_0030_zhuangfy_ult_skill_free.json",
+          "sourceAvailable": true,
+          "lifecycle": {
+            "lifeType": "Infinity",
+            "duration": {
+              "value": 1.5,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "triggerInterval": {
+              "value": -1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "waitFirstTriggerInterval": true,
+            "maxTriggerCount": {
+              "value": 999.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "stackingIdentifierType": "Id",
+            "stackingType": "Unique",
+            "stackingKey": "NormalSkillCtrl",
+            "priority": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "negatePriority": false,
+            "maxStackCount": {
+              "value": 0.0,
               "blackboardKey": null,
               "levelValues": null
             },

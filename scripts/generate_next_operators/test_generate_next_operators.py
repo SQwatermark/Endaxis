@@ -137,6 +137,65 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         assert headers[1].lifecycle is not None
         self.assertEqual(headers[1].lifecycle.duration.levelValues, (3.0,))
 
+    def test_buff_definition_headers_follow_event_dependencies_once(self) -> None:
+        def buff(buff_id: str, child_id: str | None) -> dict[str, object]:
+            actions = []
+            if child_id is not None:
+                actions.append(
+                    {
+                        "$type": "Example.CreateBuffAction+Data, Example",
+                        "buffs": [{"buffId": child_id, "assignItems": []}],
+                    }
+                )
+            return {
+                "id": buff_id,
+                "lifeType": "Infinity",
+                "duration": {
+                    "useBlackboardKey": False,
+                    "value": 0,
+                    "blackboardKey": "",
+                },
+                "triggerInterval": {
+                    "useBlackboardKey": False,
+                    "value": -1,
+                    "blackboardKey": "",
+                },
+                "waitFirstTriggerInterval": False,
+                "maxTriggerCnt": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "stackingSettings": {
+                    "identifierType": "Id",
+                    "stackingType": "Unlimited",
+                    "stackingKey": "",
+                    "usePriorityKey": False,
+                    "priorityKey": "",
+                    "negatePriority": False,
+                    "priority": 0,
+                    "useMaxStackCntKey": False,
+                    "maxStackCntKey": "",
+                    "maxStackCnt": 1,
+                    "isNeedStackEffect": False,
+                },
+                "blackboard": [],
+                "timelineActions": [],
+                "buffEventAction": [{"buffEvent": "OnBuffStart", "actions": actions}],
+            }
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            (path / "buff.parent.json").write_text(
+                json.dumps(buff("buff.parent", "buff.child")), encoding="utf-8"
+            )
+            (path / "buff.child.json").write_text(
+                json.dumps(buff("buff.child", "buff.parent")), encoding="utf-8"
+            )
+            headers = resolve_buff_definition_headers(("buff.parent",), path)
+
+        self.assertEqual(tuple(header.buffId for header in headers), ("buff.child", "buff.parent"))
+
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
             "actionData": [

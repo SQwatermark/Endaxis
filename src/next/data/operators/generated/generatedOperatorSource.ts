@@ -152,7 +152,7 @@ export interface GeneratedBuffLifecycleSource {
   readonly hasStackEffects: boolean;
 }
 
-/** 与应用位置解耦的 Buff 定义头；后续目录编译以 buffId 去重。 */
+/** 与应用位置解耦的 Buff 定义头；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
 export interface GeneratedBuffDefinitionHeaderSource {
   readonly buffId: string;
   readonly sourceFile: string;
@@ -428,6 +428,7 @@ export interface GeneratedSkillSource {
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
   readonly referencedBuffIds: readonly string[];
+  /** 直接 Buff 依赖及其传递创建依赖组成的去重定义头目录。 */
   readonly buffDefinitionHeaders: readonly GeneratedBuffDefinitionHeaderSource[];
   readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */

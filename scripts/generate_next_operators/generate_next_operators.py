@@ -1686,8 +1686,13 @@ def parse_buff_assignments(
 
 def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
     """收集整棵动作树直接创建的 Buff；保留定义入口，但不改变条件分支归属。"""
+    return collect_created_buff_ids(root.get("actionGroupData"), source_name)
+
+
+def collect_created_buff_ids(value: Any, source_name: str) -> tuple[str, ...]:
+    """从任意动作容器收集 CreateBuffAction 引用，供技能与 Buff 定义共同使用。"""
     result: set[str] = set()
-    for action in walk_actions(root.get("actionGroupData")):
+    for action in walk_actions(value):
         if action_name(action["$type"]) != "CreateBuffAction":
             continue
         for index, raw_buff in enumerate(
@@ -1708,27 +1713,34 @@ def resolve_buff_definition_headers(
     buff_source_dir: Path,
 ) -> tuple[BuffDefinitionHeaderSource, ...]:
     """解析直接 Buff 依赖的定义头；应用参数不得污染定义自身的黑板默认值。"""
-    result: list[BuffDefinitionHeaderSource] = []
-    for buff_id in buff_ids:
+    result: dict[str, BuffDefinitionHeaderSource] = {}
+    pending = list(buff_ids)
+    while pending:
+        buff_id = pending.pop(0)
+        if buff_id in result:
+            continue
         source_file = f"{buff_id}.json"
         source_path = buff_source_dir / source_file
         if not source_path.is_file():
-            result.append(BuffDefinitionHeaderSource(buff_id, source_file, False, None))
+            result[buff_id] = BuffDefinitionHeaderSource(buff_id, source_file, False, None)
             continue
         buff = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_file)
         blackboard = {
             entry.key: (entry.value,)
             for entry in parse_declared_blackboard(buff, source_file)
         }
-        result.append(
-            BuffDefinitionHeaderSource(
-                buffId=buff_id,
-                sourceFile=source_file,
-                sourceAvailable=True,
-                lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
-            )
+        result[buff_id] = BuffDefinitionHeaderSource(
+            buffId=buff_id,
+            sourceFile=source_file,
+            sourceAvailable=True,
+            lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
         )
-    return tuple(result)
+        pending.extend(
+            child_id
+            for child_id in collect_created_buff_ids(buff, source_file)
+            if child_id not in result
+        )
+    return tuple(result[buff_id] for buff_id in sorted(result))
 
 
 def parse_buff_lifecycle(

@@ -69,4 +69,4 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - 佩丽卡已经完整生成并作为正式数据入口；新增干员前应优先把所需通用语义编译器补齐，避免在清单中复制手写 TS。
 - `CreateBuffAction` 引用的 BuffData 已在审计层保留持续时间、周期、首轮等待、触发次数、叠加身份、叠加策略、优先级和最大层数；这些字段会解析动作传入值及 Buff 自身黑板引用。事件动作尚未完整编译前，它们仍是中间层事实，不能只凭 Buff ID 生成一个无行为的 `applyBuff`。
 - 每个技能的 `referencedBuffIds` 会遍历完整动作树并列出直接 Buff 依赖，包含条件分支中的创建动作；它只是构建定义目录的入口，不会把条件分支中的应用提升为无条件步骤。后续应以该清单递归构建去重的 Buff 定义目录，并继续由原动作树保存应用时机和参数。
-- `buffDefinitionHeaders` 已按直接依赖读取 Buff 自身文件与生命周期，并明确记录缺失数据源；定义头只使用 Buff 自身黑板默认值，技能应用时传入的覆盖值仍留在 `CreateBuffAction` 载荷中。当前尚未递归展开事件创建的间接依赖，也尚未把定义头编译成运行时 Buff 目录。
+- `buffDefinitionHeaders` 从直接依赖出发，递归扫描 Buff 时间轴与事件动作创建的间接依赖，并按 Buff ID 去重；循环引用不会造成重复或无限递归，缺失数据源会被明确记录。定义头只使用 Buff 自身黑板默认值，技能应用时传入的覆盖值仍留在 `CreateBuffAction` 载荷中。当前尚未把完整 Buff 动作定义编译成运行时目录。
