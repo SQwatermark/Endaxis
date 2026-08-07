@@ -356,7 +356,10 @@ export interface SkillDefinition {
   key: string;
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
-  /** 用户尝试释放技能时检查的条件。 */
+  /**
+   * 技能释放条件只生成合法性诊断；不成立也不会阻止技能进入模拟。
+   * 模拟层将用户排入时间轴的动作视为已经成功释放，不得改写或跳过。
+   */
   availability?: CombatCondition;
   cooldownFrames?: LevelValues;
   costs?: readonly SkillCostDefinition[];

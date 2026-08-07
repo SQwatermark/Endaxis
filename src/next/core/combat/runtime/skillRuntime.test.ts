@@ -92,15 +92,24 @@ describe('SkillRuntime', () => {
     });
   });
 
-  it('rejects the cast before creating runtime state when SP is insufficient', () => {
+  it('reports insufficient SP without preventing the scheduled skill simulation', () => {
     const fixture = createBattleSkillRuntime(99);
 
-    expect(fixture.runtime.tryStart()).toBe(false);
+    expect(fixture.runtime.tryStart()).toBe(true);
 
-    expect(fixture.runtime.state).toBe('ready');
+    expect(fixture.runtime.state).toBe('casting');
     expect(fixture.resources.sp).toBe(99);
-    expect(fixture.receipt.entries).toHaveLength(1);
-    expect(fixture.receipt.entries[0]?.event).toBe('SkillCastRejectedByCost');
+    expect(fixture.receipt.entries.map(entry => entry.event)).toEqual([
+      'SkillCostUnavailableAtStart',
+      'SkillStarted',
+      'SkillCostRejected',
+    ]);
+
+    fixture.simulation.advanceFrames(13);
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(3);
+    expect(
+      fixture.receipt.entries.filter(entry => entry.event === 'SkillCostRejected'),
+    ).toHaveLength(1);
   });
 
   it('continues the native timeline when shared resource is unavailable at the cost point', () => {

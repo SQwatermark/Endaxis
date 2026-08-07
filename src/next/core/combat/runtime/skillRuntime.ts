@@ -85,6 +85,7 @@ export class SkillRuntime {
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
   #appliedCost = false;
+  #attemptedCost = false;
   #nonReturnedSpCost = 0;
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
@@ -121,17 +122,13 @@ export class SkillRuntime {
   }
 
   canStart(): boolean {
-    return (
-      this.#state !== 'casting' &&
-      this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)
-    );
+    return this.#state !== 'casting';
   }
 
   tryStart(): boolean {
     if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
-    if (!this.canStart()) {
-      this.record('SkillCastRejectedByCost');
-      return false;
+    if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)) {
+      this.record('SkillCostUnavailableAtStart');
     }
 
     this.#timeline = new TimelineActionProcessor(
@@ -153,6 +150,7 @@ export class SkillRuntime {
     this.#timeline.reset(this.#context);
     this.#passedFrames = 0;
     this.#appliedCost = false;
+    this.#attemptedCost = false;
     this.#nonReturnedSpCost = 0;
     this.#state = 'casting';
     this.record('SkillStarted');
@@ -203,10 +201,11 @@ export class SkillRuntime {
 
   #tick(deltaTime: number): void {
     if (
-      !this.#appliedCost &&
+      !this.#attemptedCost &&
       this.#program.costFrame !== undefined &&
       this.#passedFrames >= this.#program.costFrame
     ) {
+      this.#attemptedCost = true;
       const payment = this.#dependencies.resources.pay(
         this.#program.operatorId,
         this.#program.costs,
