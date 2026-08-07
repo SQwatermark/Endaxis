@@ -2920,6 +2920,15 @@ def compile_skill_entries(
         if config is None:
             continue
         config = require_dict(config, f"{skill.key}.compile")
+        material_conditions = [
+            action
+            for action in skill.conditionalActions
+            if not is_semantically_redundant_condition(action)
+        ]
+        if material_conditions:
+            raise ValueError(
+                f"{skill.key}: compiler must consume conditional actions before emitting DSL"
+            )
         kind = config.get("kind")
         if kind == "basicAttack":
             damage_types = {
@@ -2943,6 +2952,16 @@ def compile_skill_entries(
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     return compiled, damage_type_factories
+
+
+def is_semantically_redundant_condition(action: ConditionalActionSource) -> bool:
+    """仅消去两侧动作完全相同且条件求值不写黑板的无效分支。"""
+    if action.succeedActions != action.failActions:
+        return False
+    return all(
+        condition.entityCount is None or not condition.entityCount.storeKey
+        for condition in action.conditions
+    )
 
 
 def generated_skill_name(operator: dict[str, Any], skill_key: str) -> str:
