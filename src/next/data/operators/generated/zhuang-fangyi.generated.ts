@@ -152,6 +152,7 @@ export const zhuangFangyiGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -610,6 +611,7 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1176,6 +1178,7 @@ export const zhuangFangyiGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1775,6 +1778,7 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2169,6 +2173,7 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2719,6 +2724,7 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3276,6 +3282,7 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3765,6 +3772,7 @@ export const zhuangFangyiGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -4332,6 +4340,7 @@ export const zhuangFangyiGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -4604,6 +4613,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [
         {
           "startFrame": 1,
@@ -5275,6 +5285,72 @@ export const zhuangFangyiGeneratedSource = {
           "classification": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
+        }
+      ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 1,
+          "key": "swordTriggerInterval",
+          "operation": "Divide",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "EntityBB_SwordNum",
+            "levelValues": null
+          },
+          "right": {
+            "value": 90.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 3,
+          "key": "swordTriggerInterval",
+          "operation": "Add",
+          "left": {
+            "value": 0.3,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "right": {
+            "value": 90.0,
+            "blackboardKey": "swordTriggerInterval",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 4,
+          "key": "atk_up_final",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "atk_up_per_conduct",
+            "levelValues": [
+              0.03,
+              0.04,
+              0.04,
+              0.04,
+              0.05,
+              0.05,
+              0.05,
+              0.06,
+              0.06,
+              0.07,
+              0.08,
+              0.09
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
         }
       ],
       "resourceGains": [
@@ -6496,6 +6572,38 @@ export const zhuangFangyiGeneratedSource = {
           ]
         }
       ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 0,
+          "key": "atk_up_final",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "atk_up_per_conduct",
+            "levelValues": [
+              0.08,
+              0.09,
+              0.1,
+              0.11,
+              0.11,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.16,
+              0.17,
+              0.18
+            ]
+          }
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 5,
@@ -7330,6 +7438,38 @@ export const zhuangFangyiGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 14,
+          "key": "usp_extra",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "usp_extra",
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 24,
@@ -7911,6 +8051,7 @@ export const zhuangFangyiGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -8531,6 +8672,7 @@ export const zhuangFangyiGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],

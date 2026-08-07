@@ -222,6 +222,7 @@ class SkillSource:
     directDamageHits: tuple[TimedDamageSource, ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
+    blackboardCalculations: tuple[BlackboardCalculationSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
@@ -1432,6 +1433,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
+        blackboardCalculations=parse_blackboard_calculations(root, source_name, patch.blackboard),
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
         projectileHits=resolve_projectile_hits(
@@ -2378,6 +2380,9 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
+                "blackboardCalculations": [
+                    asdict(calculation) for calculation in skill.blackboardCalculations
+                ],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],

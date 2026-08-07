@@ -10,6 +10,7 @@
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -180,6 +181,7 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -498,6 +500,7 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -964,6 +967,7 @@
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1279,6 +1283,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1410,6 +1415,7 @@
         }
       ],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [
         {
           "startFrame": 3,
@@ -1667,6 +1673,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1787,6 +1794,7 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2469,6 +2477,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],

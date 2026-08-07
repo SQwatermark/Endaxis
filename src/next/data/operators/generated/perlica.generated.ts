@@ -164,6 +164,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -574,6 +575,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1141,6 +1143,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1811,6 +1814,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2428,6 +2432,7 @@ export const perlicaGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2852,6 +2857,7 @@ export const perlicaGeneratedSource = {
       ],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [
         {
           "startFrame": 3,
@@ -3417,6 +3423,7 @@ export const perlicaGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3763,6 +3770,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -4717,6 +4725,7 @@ export const perlicaGeneratedSource = {
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],

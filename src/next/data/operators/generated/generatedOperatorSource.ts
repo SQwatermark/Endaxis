@@ -206,6 +206,7 @@ export interface GeneratedSkillSource {
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
+  readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];

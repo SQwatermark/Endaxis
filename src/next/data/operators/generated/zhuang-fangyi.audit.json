@@ -10,6 +10,7 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -277,6 +278,7 @@
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -687,6 +689,7 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1188,6 +1191,7 @@
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1375,6 +1379,7 @@
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1684,6 +1689,7 @@
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2104,6 +2110,7 @@
           ]
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2492,6 +2499,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2807,6 +2815,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2972,6 +2981,7 @@
         }
       ],
       "auxiliaryActions": [],
+      "blackboardCalculations": [],
       "resourceGains": [
         {
           "startFrame": 1,
@@ -3238,6 +3248,72 @@
           "classification": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
+        }
+      ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 1,
+          "key": "swordTriggerInterval",
+          "operation": "Divide",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "EntityBB_SwordNum",
+            "levelValues": null
+          },
+          "right": {
+            "value": 90.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 3,
+          "key": "swordTriggerInterval",
+          "operation": "Add",
+          "left": {
+            "value": 0.3,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "right": {
+            "value": 90.0,
+            "blackboardKey": "swordTriggerInterval",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 4,
+          "key": "atk_up_final",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "atk_up_per_conduct",
+            "levelValues": [
+              0.03,
+              0.04,
+              0.04,
+              0.04,
+              0.05,
+              0.05,
+              0.05,
+              0.06,
+              0.06,
+              0.07,
+              0.08,
+              0.09
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
         }
       ],
       "resourceGains": [
@@ -3980,6 +4056,38 @@
           ]
         }
       ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 0,
+          "key": "atk_up_final",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "atk_up_per_conduct",
+            "levelValues": [
+              0.08,
+              0.09,
+              0.1,
+              0.11,
+              0.11,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.16,
+              0.17,
+              0.18
+            ]
+          }
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 5,
@@ -4456,6 +4564,38 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 14,
+          "key": "usp_extra",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "usp_extra",
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 24,
@@ -4706,6 +4846,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -4976,6 +5117,7 @@
           "nestedCombatActions": []
         }
       ],
+      "blackboardCalculations": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
