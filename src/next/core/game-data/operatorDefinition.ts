@@ -251,6 +251,19 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
+  /** 用两个常量或当前动作黑板值计算派生数值，并写回当前动作黑板。 */
+  calculateBlackboard: {
+    outputKey: string;
+    operation: 'add' | 'multiply' | 'divide';
+    left: { value: LevelValues } | { blackboardKey: string };
+    right: { value: LevelValues } | { blackboardKey: string };
+  };
+  /** 对当前动作黑板中的既有数值执行原生动态修改操作。 */
+  modifyBlackboard: {
+    key: string;
+    operation: 'assign' | 'add' | 'multiply';
+    value: { value: LevelValues } | { blackboardKey: string };
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -289,6 +302,8 @@ export const COMBAT_STEP_KINDS = [
   'dealDamage',
   'applyBuff',
   'readBuffBlackboard',
+  'calculateBlackboard',
+  'modifyBlackboard',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
