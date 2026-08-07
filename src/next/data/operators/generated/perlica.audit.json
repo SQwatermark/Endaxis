@@ -7,6 +7,7 @@
       "sourceFile": "chr_0004_pelica_attack1.json",
       "timelineBlockFrames": 16,
       "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -53,6 +54,7 @@
       "sourceFile": "chr_0004_pelica_attack2.json",
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -133,6 +135,7 @@
       "sourceFile": "chr_0004_pelica_attack3.json",
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -247,6 +250,7 @@
       "sourceFile": "chr_0004_pelica_attack4.json",
       "timelineBlockFrames": 44,
       "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -320,6 +324,25 @@
       "sourceFile": "chr_0004_pelica_power_attack.json",
       "timelineBlockFrames": 35,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 35,
+          "endFrame": 44,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "projectileHits": [],
       "blackboardKeys": [
         "addition_vertical",
@@ -338,6 +361,38 @@
       "sourceFile": "chr_0004_pelica_plunging_attack_end.json",
       "timelineBlockFrames": 21,
       "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [
+        {
+          "startFrame": 3,
+          "endFrame": 8,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 1,
@@ -394,6 +449,65 @@
       "sourceFile": "chr_0004_pelica_normal_skill.json",
       "timelineBlockFrames": 28,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 4,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 2.85,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
+                ]
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "projectileHits": [],
       "blackboardKeys": [
         "atk_scale",
@@ -411,6 +525,7 @@
       "sourceFile": "chr_0004_pelica_combo_skill.json",
       "timelineBlockFrames": 25,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -550,6 +665,78 @@
       "sourceFile": "chr_0004_pelica_ultimate_skill.json",
       "timelineBlockFrames": 63,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 58,
+          "endFrame": 63,
+          "actionIndex": 3,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 6.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "projectileHits": [],
       "blackboardKeys": [
         "atk_scale",

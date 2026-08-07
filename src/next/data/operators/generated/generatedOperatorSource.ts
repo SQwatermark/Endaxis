@@ -32,6 +32,14 @@ export interface GeneratedDamageUnitSource {
   readonly poiseValue: GeneratedScalarSource | null;
 }
 
+export interface GeneratedTimedDamageSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  /** 同一原生 TimelineAction 展开后的动作顺序，用于维持同帧结算次序。 */
+  readonly actionIndex: number;
+  readonly damageUnits: readonly GeneratedDamageUnitSource[];
+}
+
 export interface GeneratedProjectileHitSource {
   readonly launchFrame: number;
   /** 暂定为0；后续接入 ProjectileData 飞行时间后替换。 */
@@ -67,6 +75,7 @@ export interface GeneratedSkillSource {
     readonly mappings: readonly Readonly<Record<string, unknown>>[];
   }[];
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
+  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;

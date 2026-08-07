@@ -56,6 +56,14 @@ class DamageUnitSource:
 
 
 @dataclass(frozen=True)
+class TimedDamageSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    damageUnits: tuple[DamageUnitSource, ...]
+
+
+@dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
     assumedTravelFrames: int
@@ -82,6 +90,7 @@ class SkillSource:
     allowNextWindows: tuple[dict[str, Any], ...]
     inputCacheWindows: tuple[dict[str, Any], ...]
     timelineActions: tuple[TimelineActionSource, ...]
+    directDamageHits: tuple[TimedDamageSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
@@ -220,6 +229,39 @@ def parse_damage_units(
                         inherited_blackboard,
                     ),
                     poiseValue=poise_value,
+                )
+            )
+    return tuple(result)
+
+
+def parse_direct_damage_hits(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedDamageSource, ...]:
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedDamageSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        actions = list(walk_actions(timeline.get("_sequenceActionData")))
+        for action_index, action in enumerate(actions):
+            if action_name(action["$type"]) != "DamageAction":
+                continue
+            action_root = {"actionGroupData": {"action": action}}
+            result.append(
+                TimedDamageSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    damageUnits=parse_damage_units(action_root, source_name, inherited_blackboard),
                 )
             )
     return tuple(result)
@@ -416,6 +458,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         allowNextWindows=allows,
         inputCacheWindows=caches,
         timelineActions=timeline,
+        directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
         projectileHits=resolve_projectile_hits(
             root,
             source_name,
@@ -557,7 +600,7 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
-    damage_type_factories: dict[str, str] = {}
+    damage_type_factories: set[str] = set()
     for entry, skill in zip(entries, skills, strict=True):
         config = entry.get("compile")
         if config is None:
@@ -575,21 +618,16 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
                 raise ValueError(f"{skill.key}: expected exactly one supported health damage type")
             damage_type = next(iter(damage_types))
             factory_name = f"{damage_type}BasicAttack"
-            damage_type_factories[damage_type] = factory_name
+            damage_type_factories.add(factory_name)
             lines.append(compile_basic_attack(skill, config, factory_name))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     export_name = f"{operator['slug']}GeneratedSkills"
-    factories = "\n".join(
-        f"const {factory_name} = basicAttackOfType({ts_inline_literal(damage_type)});"
-        for damage_type, factory_name in sorted(damage_type_factories.items())
-    )
+    helper_imports = ", ".join((*sorted(damage_type_factories), "percentages"))
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
-        "import { basicAttackOfType, percentages } from '../definitionHelpers';\n\n"
-        + factories
-        + "\n\n"
+        f"import {{ {helper_imports} }} from '../definitionHelpers';\n\n"
         "// prettier-ignore\n"
         f"export const {export_name} = [\n"
         + "\n".join(lines)
@@ -607,6 +645,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "sourceFile": skill.sourceFile,
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
+                "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,

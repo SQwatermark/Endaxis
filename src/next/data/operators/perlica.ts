@@ -1,7 +1,7 @@
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import {
-  basicAttackOfType,
   damageOfType,
+  electricBasicAttack,
   percentages,
   scheduled,
   secondsToFrames,
@@ -10,8 +10,6 @@ import {
 } from './definitionHelpers';
 
 const electricDamage = damageOfType('electric');
-const electricBasicAttack = basicAttackOfType('electric');
-
 const basicAttacks = [
   electricBasicAttack(
     'basicAttack1',

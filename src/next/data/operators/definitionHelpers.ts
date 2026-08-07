@@ -178,6 +178,13 @@ export function basicAttackOfType(damageType: DamageType) {
   };
 }
 
+/** 常用普攻构造器集中定义，干员配置与生成代码不再重复绑定伤害类型。 */
+export const physicalBasicAttack = basicAttackOfType('physical');
+export const heatBasicAttack = basicAttackOfType('heat');
+export const cryoBasicAttack = basicAttackOfType('cryo');
+export const electricBasicAttack = basicAttackOfType('electric');
+export const natureBasicAttack = basicAttackOfType('nature');
+
 export function multiplyLevelValues(values: number, multiplier: number): number;
 export function multiplyLevelValues(values: readonly number[], multiplier: number): number[];
 export function multiplyLevelValues(values: LevelValues, multiplier: number): LevelValues;

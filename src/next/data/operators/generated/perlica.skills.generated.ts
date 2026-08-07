@@ -1,8 +1,6 @@
 /** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { basicAttackOfType, percentages } from '../definitionHelpers';
-
-const electricBasicAttack = basicAttackOfType('electric');
+import { electricBasicAttack, percentages } from '../definitionHelpers';
 
 // prettier-ignore
 export const perlicaGeneratedSkills = [

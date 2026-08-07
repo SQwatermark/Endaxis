@@ -160,6 +160,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -482,6 +483,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -882,6 +884,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -1306,6 +1309,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -1766,6 +1770,25 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [
+        {
+          "startFrame": 35,
+          "endFrame": 44,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null
+            }
+          ]
+        }
+      ],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -2115,6 +2138,38 @@ export const perlicaGeneratedSource = {
           "endFrame": 70,
           "actionTypes": [
             "PlaySoundAction"
+          ]
+        }
+      ],
+      "directDamageHits": [
+        {
+          "startFrame": 3,
+          "endFrame": 8,
+          "actionIndex": 0,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "poiseValue": null
+            }
           ]
         }
       ],
@@ -2550,6 +2605,65 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 4,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 2.85,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
+                ]
+              },
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -2906,6 +3020,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "directDamageHits": [],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -3479,6 +3594,78 @@ export const perlicaGeneratedSource = {
           "endFrame": 67,
           "actionTypes": [
             "PlaySoundAction"
+          ]
+        }
+      ],
+      "directDamageHits": [
+        {
+          "startFrame": 58,
+          "endFrame": 63,
+          "actionIndex": 3,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": null
+            },
+            {
+              "damageType": "Pulse",
+              "attributeType": "Poise",
+              "attackScale": {
+                "value": 6.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
+                ]
+              },
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
+                ]
+              }
+            }
           ]
         }
       ],

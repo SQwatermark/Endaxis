@@ -6,6 +6,7 @@ from generate_next_operators import (
     collect_blackboard_keys,
     derive_timeline_block,
     parse_scalar,
+    parse_direct_damage_hits,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -68,6 +69,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_percentage_values_restore_readable_percentages(self) -> None:
         self.assertEqual(percentage_values((0.25, 1.02, 0.125)), (25, 102, 12.5))
+
+    def test_direct_damage_keeps_timeline_and_action_order(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 13,
+                        "_endFrame": 15,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {"$type": "Example.CreateBuffAction, Example"},
+                                {
+                                    "$type": "Example.DamageAction, Example",
+                                    "damageUnits": [
+                                        {
+                                            "damageType": "Pulse",
+                                            "damageAttributeType": "Hp",
+                                            "atkScale": {
+                                                "useBlackboardKey": True,
+                                                "blackboardKey": "atk",
+                                                "value": 0,
+                                            },
+                                        }
+                                    ],
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        hits = parse_direct_damage_hits(root, "skill.json", {"atk": (1.0, 2.0)})
+
+        self.assertEqual((hits[0].startFrame, hits[0].endFrame, hits[0].actionIndex), (13, 15, 1))
+        self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (1.0, 2.0))
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@
 - TimelineAction 起止帧和嵌套行为类型；
 - 非空 Blackboard 依赖键；原始模板中启用标记为真但键为空的占位配置不视为依赖；
 - `LaunchProjectile.projectileSkillId` 指向的命中 SkillData、DamageUnit 和二级投射物；
+- 技能本体中 `DamageAction` 的时间段、动作序号与 DamageUnit；
 - 技能逐等级 Blackboard、费用与冷却，以及 DamageUnit 对 Blackboard 等级值的解析结果；
 - 阻止技能被误认为完整的未解析战斗行为清单。
 
