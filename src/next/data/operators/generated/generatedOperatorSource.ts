@@ -95,6 +95,22 @@ export interface GeneratedProjectileHitSource {
   readonly nestedProjectileHits: readonly GeneratedProjectileHitSource[];
 }
 
+/** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
+export interface GeneratedAbilityEntityHitSource {
+  readonly spawnFrame: number;
+  readonly abilityEntityId: string;
+  readonly skillId: string;
+  readonly sourceFile: string;
+  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly inflictions: readonly GeneratedTimedInflictionSource[];
+  readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
+  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  readonly projectileHits: readonly GeneratedProjectileHitSource[];
+  readonly nestedAbilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
+  readonly combatActions: readonly string[];
+  readonly cycleTruncated: boolean;
+}
+
 export interface GeneratedSkillSource {
   readonly key: string;
   readonly skillId: string;
@@ -123,6 +139,7 @@ export interface GeneratedSkillSource {
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
+  readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
   /** 需要由 SkillPatch、Buff 或运行时上下文赋值后才能闭环的原生黑板键。 */
