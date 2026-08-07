@@ -52,8 +52,11 @@ export interface GeneratedAuxiliaryActionSource {
     | 'incomingDamageProtection'
     | 'inputLock'
     | 'skillCostUltimateEnergyGain'
+    | 'tutorialMarker'
+    | 'electrificationReaction'
     | 'nonCombatAbilityEntity'
     | null;
+  readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
   readonly nestedCombatActions: readonly string[];
 }
 
@@ -65,6 +68,15 @@ export interface GeneratedTimedInflictionSource {
   readonly isExtra: boolean;
 }
 
+export interface GeneratedTimedResourceGainSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly resource: 'sp' | 'ultimateEnergy';
+  readonly amount: GeneratedScalarSource;
+  readonly coefficient: GeneratedScalarSource;
+}
+
 export interface GeneratedProjectileHitSource {
   readonly launchFrame: number;
   /** 暂定为0；后续接入 ProjectileData 飞行时间后替换。 */
@@ -73,6 +85,9 @@ export interface GeneratedProjectileHitSource {
   readonly hitSkillId: string;
   readonly sourceFile: string;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
+  readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
+  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   /** 命中技能内仍可能影响战斗的原生行为；非空时不得作为纯表现投射物省略。 */
   readonly combatActions: readonly string[];
   /** 命中 SkillData 再次引用调用链中的同一技能时为真，避免静态生成无限递归。 */
@@ -105,6 +120,7 @@ export interface GeneratedSkillSource {
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
+  readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;

@@ -163,6 +163,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [],
       "projectileHits": [
         {
           "launchFrame": 8,
@@ -196,8 +197,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.25,
+                      0.28,
+                      0.31,
+                      0.33,
+                      0.36,
+                      0.38,
+                      0.41,
+                      0.43,
+                      0.46,
+                      0.49,
+                      0.53,
+                      0.57
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 7,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -492,6 +559,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [],
       "projectileHits": [
         {
           "launchFrame": 9,
@@ -525,8 +593,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.15,
+                      0.17,
+                      0.18,
+                      0.2,
+                      0.21,
+                      0.23,
+                      0.24,
+                      0.26,
+                      0.27,
+                      0.29,
+                      0.31,
+                      0.34
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 6,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 0.3333333,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -563,8 +697,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.15,
+                      0.17,
+                      0.18,
+                      0.2,
+                      0.21,
+                      0.23,
+                      0.24,
+                      0.26,
+                      0.27,
+                      0.29,
+                      0.31,
+                      0.34
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 6,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 0.3333333,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -903,6 +1103,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [],
       "projectileHits": [
         {
           "launchFrame": 16,
@@ -936,8 +1137,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.1,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 9,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -974,8 +1241,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.1,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 9,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -1012,8 +1345,74 @@ export const perlicaGeneratedSource = {
               "poiseValue": null
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.1,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
+                    ]
+                  },
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 9,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -1342,6 +1741,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [],
       "projectileHits": [
         {
           "launchFrame": 27,
@@ -1403,8 +1803,102 @@ export const perlicaGeneratedSource = {
               }
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.1,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.57,
+                      0.62,
+                      0.68,
+                      0.73,
+                      0.79,
+                      0.85,
+                      0.9,
+                      0.96,
+                      1.02,
+                      1.09,
+                      1.17,
+                      1.27
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Physical",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 10,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -1849,6 +2343,7 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
+          "blackboardAssignments": {},
           "nestedCombatActions": []
         },
         {
@@ -1858,9 +2353,11 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
+          "blackboardAssignments": {},
           "nestedCombatActions": []
         }
       ],
+      "resourceGains": [],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -2248,6 +2745,37 @@ export const perlicaGeneratedSource = {
       ],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [
+        {
+          "startFrame": 3,
+          "endFrame": 8,
+          "actionIndex": 4,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb",
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
       "projectileHits": [
         {
           "launchFrame": 1,
@@ -2256,6 +2784,9 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "directDamageHits": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -2267,6 +2798,9 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "directDamageHits": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -2278,6 +2812,9 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "directDamageHits": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -2289,6 +2826,9 @@ export const perlicaGeneratedSource = {
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
+          "directDamageHits": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileHits": []
@@ -2388,7 +2928,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "DamageAction",
-        "LaunchProjectile"
+        "LaunchProjectile",
+        "ObtainCostAction"
       ]
     },
     {
@@ -2775,9 +3316,11 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
+          "blackboardAssignments": {},
           "nestedCombatActions": []
         }
       ],
+      "resourceGains": [],
       "projectileHits": [],
       "patch": {
         "levels": [
@@ -3138,6 +3681,7 @@ export const perlicaGeneratedSource = {
       "directDamageHits": [],
       "inflictions": [],
       "auxiliaryActions": [],
+      "resourceGains": [],
       "projectileHits": [
         {
           "launchFrame": 24,
@@ -3199,10 +3743,149 @@ export const perlicaGeneratedSource = {
               }
             }
           ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 15,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 2.5,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.8,
+                      0.88,
+                      0.96,
+                      1.04,
+                      1.12,
+                      1.2,
+                      1.28,
+                      1.36,
+                      1.44,
+                      1.54,
+                      1.66,
+                      1.8
+                    ]
+                  },
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Physical",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "auxiliaryActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 13,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
+              "classification": "tutorialMarker",
+              "blackboardAssignments": {},
+              "nestedCombatActions": []
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 14,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_common_pulse_pulse_conduct_triggered",
+              "classification": "electrificationReaction",
+              "blackboardAssignments": {
+                "duration": {
+                  "value": 7.5,
+                  "blackboardKey": "duration",
+                  "levelValues": [
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0
+                  ]
+                },
+                "extra_scaling": {
+                  "value": 0.0,
+                  "blackboardKey": "extra_scaling",
+                  "levelValues": null
+                }
+              },
+              "nestedCombatActions": []
+            }
+          ],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 23,
+              "resource": "ultimateEnergy",
+              "amount": {
+                "value": 0.2,
+                "blackboardKey": "usp",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
           "combatActions": [
             "CreateBuffAction",
             "DamageAction",
-            "LaunchProjectile"
+            "LaunchProjectile",
+            "ObtainCostAction"
           ],
           "cycleTruncated": false,
           "nestedProjectileHits": [
@@ -3266,10 +3949,149 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
+              "directDamageHits": [
+                {
+                  "startFrame": 0,
+                  "endFrame": 3,
+                  "actionIndex": 15,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 2.5,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.8,
+                          0.88,
+                          0.96,
+                          1.04,
+                          1.12,
+                          1.2,
+                          1.28,
+                          1.36,
+                          1.44,
+                          1.54,
+                          1.66,
+                          1.8
+                        ]
+                      },
+                      "poiseValue": null
+                    },
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Poise",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "poiseValue": {
+                        "value": 0.0,
+                        "blackboardKey": "poise",
+                        "levelValues": [
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "auxiliaryActions": [
+                {
+                  "startFrame": 0,
+                  "endFrame": 3,
+                  "actionIndex": 13,
+                  "actionType": "CreateBuffAction",
+                  "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
+                  "classification": "tutorialMarker",
+                  "blackboardAssignments": {},
+                  "nestedCombatActions": []
+                },
+                {
+                  "startFrame": 0,
+                  "endFrame": 3,
+                  "actionIndex": 14,
+                  "actionType": "CreateBuffAction",
+                  "sourceId": "buff_common_pulse_pulse_conduct_triggered",
+                  "classification": "electrificationReaction",
+                  "blackboardAssignments": {
+                    "duration": {
+                      "value": 7.5,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0
+                      ]
+                    },
+                    "extra_scaling": {
+                      "value": 0.0,
+                      "blackboardKey": "extra_scaling",
+                      "levelValues": null
+                    }
+                  },
+                  "nestedCombatActions": []
+                }
+              ],
+              "resourceGains": [
+                {
+                  "startFrame": 0,
+                  "endFrame": 3,
+                  "actionIndex": 23,
+                  "resource": "ultimateEnergy",
+                  "amount": {
+                    "value": 0.2,
+                    "blackboardKey": "usp",
+                    "levelValues": [
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
+                    ]
+                  },
+                  "coefficient": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  }
+                }
+              ],
               "combatActions": [
                 "CreateBuffAction",
                 "DamageAction",
-                "LaunchProjectile"
+                "LaunchProjectile",
+                "ObtainCostAction"
               ],
               "cycleTruncated": true,
               "nestedProjectileHits": []
@@ -3811,6 +4633,7 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
+          "blackboardAssignments": {},
           "nestedCombatActions": []
         },
         {
@@ -3820,9 +4643,11 @@ export const perlicaGeneratedSource = {
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0004_pelica_ultimate_skill:chr_0004_pelica_ultimate_skill_abilityrange",
           "classification": "nonCombatAbilityEntity",
+          "blackboardAssignments": {},
           "nestedCombatActions": []
         }
       ],
+      "resourceGains": [],
       "projectileHits": [],
       "patch": {
         "levels": [

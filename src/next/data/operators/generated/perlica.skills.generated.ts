@@ -86,6 +86,41 @@ export const perlicaGeneratedSkills = [
     ],
   },
   {
+    key: 'comboSkill',
+    timelineBlockFrames: 25,
+    cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    activationWindow: {
+      durationFrames: 150,
+      rules: {
+        trigger: {
+          kind: 'damageTagHit',
+          tag: 'normalAttackLastCombo',
+          scope: 'team',
+        },
+      },
+    },
+    scheduledSequences: [
+      scheduled(
+        24,
+        sequence(
+          step('applyElementalReaction', {
+            reaction: 'electrification',
+            target: 'enemy',
+            durationSeconds: 5,
+            effectiveness: 1,
+          }, 'comboSkill.electrification'),
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+            tags: ['comboSkill'],
+            stagger: 10,
+          }),
+          step('changeResource', { resource: 'ultimateEnergy', amount: 10, recipient: 'caster' }),
+        ),
+      ),
+    ],
+  },
+  {
     key: 'ultimate',
     timelineBlockFrames: 63,
     cooldownFrames: 300,

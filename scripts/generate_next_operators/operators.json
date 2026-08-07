@@ -61,7 +61,16 @@
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
-          "source": "chr_0004_pelica_combo_skill.json"
+          "source": "chr_0004_pelica_combo_skill.json",
+          "compile": {
+            "kind": "projectileDamage",
+            "tags": ["comboSkill"],
+            "ignoreRecursiveProjectileForSingleTarget": true,
+            "activationWindow": {
+              "durationFrames": 150,
+              "damageTag": "normalAttackLastCombo"
+            }
+          }
         },
         {
           "key": "ultimate",

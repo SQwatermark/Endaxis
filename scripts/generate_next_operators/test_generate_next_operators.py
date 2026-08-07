@@ -10,6 +10,7 @@ from generate_next_operators import (
     parse_direct_damage_hits,
     parse_damage_units,
     parse_inflictions,
+    parse_resource_gains,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -80,7 +81,59 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             classify_buff("buff_common_obtain_ultimate_sp"),
             "skillCostUltimateEnergyGain",
         )
+        self.assertEqual(
+            classify_buff("buff_chr_0004_pelica_combo_skill_tutorial_marker"),
+            "tutorialMarker",
+        )
+        self.assertEqual(
+            classify_buff("buff_common_pulse_pulse_conduct_triggered"),
+            "electrificationReaction",
+        )
         self.assertIsNone(classify_buff("buff_operator_damage_bonus"))
+
+    def test_resource_gain_resolves_level_values_and_ignores_disabled_actions(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 24,
+                        "_endFrame": 27,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ObtainCostAction+Data, Example",
+                                    "isEnable": False,
+                                    "costType": "Atb",
+                                },
+                                {
+                                    "$type": "Example.ObtainCostAction+Data, Example",
+                                    "isEnable": True,
+                                    "costType": "UltimateSp",
+                                    "isPercentValue": False,
+                                    "costValue": {
+                                        "useBlackboardKey": True,
+                                        "blackboardKey": "usp",
+                                        "value": 0,
+                                    },
+                                    "coefficient": {
+                                        "useBlackboardKey": False,
+                                        "blackboardKey": "",
+                                        "value": 1,
+                                    },
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        gains = parse_resource_gains(root, "skill.json", {"usp": (8.0, 10.0)})
+
+        self.assertEqual(len(gains), 1)
+        self.assertEqual((gains[0].startFrame, gains[0].actionIndex), (24, 0))
+        self.assertEqual(gains[0].resource, "ultimateEnergy")
+        self.assertEqual(gains[0].amount.levelValues, (8.0, 10.0))
 
     def test_spell_infliction_keeps_frame_action_order_and_element(self) -> None:
         root = {

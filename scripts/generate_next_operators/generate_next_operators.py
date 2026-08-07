@@ -72,6 +72,7 @@ class AuxiliaryActionSource:
     actionType: str
     sourceId: str
     classification: str | None
+    blackboardAssignments: dict[str, ScalarSource]
     nestedCombatActions: tuple[str, ...]
 
 
@@ -85,6 +86,16 @@ class TimedInflictionSource:
 
 
 @dataclass(frozen=True)
+class TimedResourceGainSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    resource: str
+    amount: ScalarSource
+    coefficient: ScalarSource
+
+
+@dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
     assumedTravelFrames: int
@@ -92,6 +103,9 @@ class ProjectileHitSource:
     hitSkillId: str
     sourceFile: str
     damageUnits: tuple[DamageUnitSource, ...]
+    directDamageHits: tuple[TimedDamageSource, ...]
+    auxiliaryActions: tuple[AuxiliaryActionSource, ...]
+    resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
     nestedProjectileHits: tuple["ProjectileHitSource", ...]
@@ -115,6 +129,7 @@ class SkillSource:
     directDamageHits: tuple[TimedDamageSource, ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
+    resourceGains: tuple[TimedResourceGainSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
@@ -130,6 +145,7 @@ COMBAT_ACTION_NAMES = {
     "AbilityEventAction",
     "BuffEventAction",
     "SpellInfliction",
+    "ObtainCostAction",
 }
 
 
@@ -169,6 +185,8 @@ def action_name(type_name: str) -> str:
 
 def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
     if isinstance(value, dict):
+        if value.get("isEnable") is False:
+            return
         if isinstance(value.get("$type"), str):
             yield value
         for child in value.values():
@@ -321,6 +339,10 @@ def classify_buff(buff_id: str) -> str | None:
         return "inputLock"
     if buff_id == "buff_common_obtain_ultimate_sp":
         return "skillCostUltimateEnergyGain"
+    if buff_id == "buff_chr_0004_pelica_combo_skill_tutorial_marker":
+        return "tutorialMarker"
+    if buff_id == "buff_common_pulse_pulse_conduct_triggered":
+        return "electrificationReaction"
     return None
 
 
@@ -367,10 +389,46 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
     return tuple(result)
 
 
+def parse_buff_assignments(
+    buff: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> dict[str, ScalarSource]:
+    if buff.get("assignBlackboard") is not True:
+        return {}
+    result: dict[str, ScalarSource] = {}
+    for index, raw_item in enumerate(require_list(buff.get("assignItems"), f"{path}.assignItems")):
+        item = require_dict(raw_item, f"{path}.assignItems[{index}]")
+        target_key = item.get("targetKey")
+        if not isinstance(target_key, str) or not target_key:
+            raise ValueError(f"{path}.assignItems[{index}].targetKey: expected non-empty string")
+        if target_key in result:
+            raise ValueError(f"{path}: duplicate assignment for {target_key}")
+        direct = item.get("useDirectValue")
+        if not isinstance(direct, bool):
+            raise ValueError(f"{path}.assignItems[{index}].useDirectValue: expected boolean")
+        numeric = item.get("numericValue")
+        if not isinstance(numeric, (int, float)) or isinstance(numeric, bool):
+            raise ValueError(f"{path}.assignItems[{index}].numericValue: expected number")
+        if direct:
+            result[target_key] = ScalarSource(float(numeric), None, None)
+            continue
+        input_key = item.get("inputValueKey")
+        if not isinstance(input_key, str) or not input_key:
+            raise ValueError(f"{path}.assignItems[{index}].inputValueKey: expected non-empty string")
+        result[target_key] = ScalarSource(
+            float(numeric),
+            input_key,
+            inherited_blackboard.get(input_key),
+        )
+    return result
+
+
 def parse_auxiliary_actions(
     root: dict[str, Any],
     source_name: str,
     source_dir: Path,
+    inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[AuxiliaryActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[AuxiliaryActionSource] = []
@@ -386,6 +444,8 @@ def parse_auxiliary_actions(
         )
         actions = list(walk_actions(timeline.get("_sequenceActionData")))
         for action_index, action in enumerate(actions):
+            if action.get("isEnable") is False:
+                continue
             name = action_name(action["$type"])
             if name == "CreateBuffAction":
                 buffs = require_list(action.get("buffs"), f"{source_name}.CreateBuffAction.buffs")
@@ -402,6 +462,11 @@ def parse_auxiliary_actions(
                             actionType=name,
                             sourceId=buff_id,
                             classification=classify_buff(buff_id),
+                            blackboardAssignments=parse_buff_assignments(
+                                buff,
+                                f"{source_name}.CreateBuffAction.buffs[]",
+                                inherited_blackboard,
+                            ),
                             nestedCombatActions=(),
                         )
                     )
@@ -434,9 +499,63 @@ def parse_auxiliary_actions(
                         actionType=name,
                         sourceId=f"{ability_id}:{skill_id}",
                         classification="nonCombatAbilityEntity" if not nested else None,
+                        blackboardAssignments={},
                         nestedCombatActions=nested,
                     )
                 )
+    return tuple(result)
+
+
+RESOURCE_TYPE_MAP = {
+    "UltimateSp": "ultimateEnergy",
+    "Atb": "sp",
+}
+
+
+def parse_resource_gains(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedResourceGainSource, ...]:
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedResourceGainSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+            if action_name(action["$type"]) != "ObtainCostAction" or action.get("isEnable") is False:
+                continue
+            raw_resource = action.get("costType")
+            resource = RESOURCE_TYPE_MAP.get(raw_resource)
+            if resource is None:
+                raise ValueError(f"{source_name}.ObtainCostAction: unsupported costType {raw_resource!r}")
+            if action.get("isPercentValue") is not False:
+                raise ValueError(f"{source_name}.ObtainCostAction: percentage resource gain is not supported")
+            result.append(
+                TimedResourceGainSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    resource=resource,
+                    amount=parse_scalar(
+                        action.get("costValue"),
+                        f"{source_name}.ObtainCostAction.costValue",
+                        inherited_blackboard,
+                    ),
+                    coefficient=parse_scalar(
+                        action.get("coefficient"),
+                        f"{source_name}.ObtainCostAction.coefficient",
+                        inherited_blackboard,
+                    ),
+                )
+            )
     return tuple(result)
 
 
@@ -494,6 +613,22 @@ def resolve_projectile_hits(
                     hitSkillId=hit_skill_id,
                     sourceFile=hit_source_name,
                     damageUnits=parse_damage_units(
+                        hit_root,
+                        hit_source_name,
+                        inherited_blackboard or {},
+                    ),
+                    directDamageHits=parse_direct_damage_hits(
+                        hit_root,
+                        hit_source_name,
+                        inherited_blackboard or {},
+                    ),
+                    auxiliaryActions=parse_auxiliary_actions(
+                        hit_root,
+                        hit_source_name,
+                        source_dir,
+                        inherited_blackboard or {},
+                    ),
+                    resourceGains=parse_resource_gains(
                         hit_root,
                         hit_source_name,
                         inherited_blackboard or {},
@@ -642,7 +777,8 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
         inflictions=parse_inflictions(root, source_name),
-        auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir),
+        auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
+        resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileHits=resolve_projectile_hits(
             root,
             source_name,
@@ -797,6 +933,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
     expected_actions = {
         "DamageAction",
         *(action.actionType for action in skill.auxiliaryActions),
+        *({"ObtainCostAction"} if skill.resourceGains else set()),
         *({"SpellInfliction"} if skill.inflictions else set()),
         *({"LaunchProjectile"} if skill.projectileHits else set()),
     }
@@ -854,6 +991,28 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
                 "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })",
             )
         )
+    for gain in skill.resourceGains:
+        if gain.startFrame != hit.startFrame:
+            raise ValueError(f"{skill.key}: resource gain and damage occur on different frames")
+        amount_values = require_level_values(gain.amount, f"{skill.key}.resourceGain.amount")
+        # 原生数据中存在已启用但全等级数值均为 0 的资源动作；保留在审计层，但不生成无效果步骤。
+        if all(value == 0 for value in amount_values):
+            continue
+        amount = compact_level_values(amount_values)
+        coefficient = compact_level_values(
+            gain.coefficient.levelValues
+            if gain.coefficient.levelValues is not None
+            else (gain.coefficient.value,)
+        )
+        if coefficient != 1:
+            raise ValueError(f"{skill.key}: resource gain coefficient other than 1 is not supported")
+        ordered_steps.append(
+            (
+                gain.actionIndex,
+                "step('changeResource', "
+                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, recipient: 'caster' }})",
+            )
+        )
     after_damage = config.get("afterDamage")
     if after_damage == "gainFinisherSp":
         ordered_steps.append(
@@ -899,6 +1058,150 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
     )
 
 
+def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str:
+    if skill.unresolvedCombatActions != ("LaunchProjectile",):
+        raise ValueError(
+            f"{skill.key}: projectile damage compiler expected only root LaunchProjectile, "
+            f"got {skill.unresolvedCombatActions}"
+        )
+    if len(skill.projectileHits) != 1:
+        raise ValueError(f"{skill.key}: projectile damage compiler requires exactly one root projectile")
+    hit = skill.projectileHits[0]
+    if hit.cycleTruncated:
+        raise ValueError(f"{skill.key}: root projectile unexpectedly truncates a cycle")
+    if hit.assumedTravelFrames != 0:
+        raise ValueError(f"{skill.key}: non-zero projectile travel is not supported yet")
+    if len(hit.directDamageHits) != 1:
+        raise ValueError(f"{skill.key}: projectile hit requires exactly one direct damage action")
+    if hit.nestedProjectileHits:
+        if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
+            raise ValueError(
+                f"{skill.key}: recursive projectile requires an explicit single-target omission declaration"
+            )
+        if any(
+            nested.projectileId != hit.projectileId
+            or nested.hitSkillId != hit.hitSkillId
+            or not nested.cycleTruncated
+            for nested in hit.nestedProjectileHits
+        ):
+            raise ValueError(f"{skill.key}: recursive projectile shape is not the expected self-cycle")
+
+    expected_child_actions = {
+        "DamageAction",
+        *({"CreateBuffAction"} if hit.auxiliaryActions else set()),
+        *({"ObtainCostAction"} if hit.resourceGains else set()),
+        *({"LaunchProjectile"} if hit.nestedProjectileHits else set()),
+    }
+    if set(hit.combatActions) != expected_child_actions:
+        raise ValueError(f"{skill.key}: projectile child actions are not fully accounted for")
+    unclassified = [action.sourceId for action in hit.auxiliaryActions if action.classification is None]
+    if unclassified:
+        raise ValueError(f"{skill.key}: unclassified projectile child actions: {unclassified}")
+
+    damage = hit.directDamageHits[0]
+    hp_units = [unit for unit in damage.damageUnits if unit.attributeType == "Hp"]
+    poise_units = [unit for unit in damage.damageUnits if unit.attributeType == "Poise"]
+    if len(hp_units) != 1 or len(poise_units) > 1 or len(hp_units) + len(poise_units) != len(damage.damageUnits):
+        raise ValueError(f"{skill.key}: unsupported projectile DamageUnit layout")
+    hp = hp_units[0]
+    damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
+    if damage_type is None:
+        raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
+    damage_fields = [
+        f"damageType: {ts_inline_literal(damage_type)}",
+        f"attackScale: percentages({ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.attackScale')))})",
+        f"tags: {ts_inline_literal(require_list(config.get('tags'), f'{skill.key}.compile.tags'))}",
+    ]
+    if poise_units:
+        poise = poise_units[0].poiseValue
+        if poise is None:
+            raise ValueError(f"{skill.key}: Poise unit has no value")
+        damage_fields.append(
+            f"stagger: {ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.stagger')))}"
+        )
+    damage_step = "\n".join(
+        ["step('dealDamage', {", *(f"  {field}," for field in damage_fields), "})"]
+    )
+    ordered_steps: list[tuple[int, str]] = [(damage.actionIndex, damage_step)]
+    for action in hit.auxiliaryActions:
+        if action.classification == "tutorialMarker":
+            continue
+        if action.classification != "electrificationReaction":
+            raise ValueError(f"{skill.key}: unsupported auxiliary classification {action.classification}")
+        duration = action.blackboardAssignments.get("duration")
+        if duration is None:
+            raise ValueError(f"{skill.key}: electrification reaction has no duration assignment")
+        duration_seconds = compact_level_values(
+            require_level_values(duration, f"{skill.key}.electrification.duration")
+        )
+        ordered_steps.append(
+            (
+                action.actionIndex,
+                "\n".join(
+                    [
+                        "step('applyElementalReaction', {",
+                        "  reaction: 'electrification',",
+                        "  target: 'enemy',",
+                        f"  durationSeconds: {ts_inline_literal(duration_seconds)},",
+                        "  effectiveness: 1,",
+                        f"}}, {ts_inline_literal(f'{skill.key}.electrification')})",
+                    ]
+                ),
+            )
+        )
+    for gain in hit.resourceGains:
+        amount = compact_level_values(require_level_values(gain.amount, f"{skill.key}.resourceGain.amount"))
+        if gain.coefficient.levelValues is not None or gain.coefficient.value != 1:
+            raise ValueError(f"{skill.key}: non-constant resource gain coefficient is not supported")
+        ordered_steps.append(
+            (
+                gain.actionIndex,
+                "step('changeResource', "
+                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, recipient: 'caster' }})",
+            )
+        )
+    rendered_steps = [
+        f"          {line}{',' if index == len(lines) - 1 else ''}"
+        for _, step_source in sorted(ordered_steps, key=lambda item: item[0])
+        for lines in [step_source.splitlines()]
+        for index, line in enumerate(lines)
+    ]
+    cooldown_frames = tuple(round(value * 30, 8) for value in skill.patch.cooldownSeconds)
+    activation = require_dict(config.get("activationWindow"), f"{skill.key}.compile.activationWindow")
+    trigger_tag = activation.get("damageTag")
+    duration_frames = activation.get("durationFrames")
+    if not isinstance(trigger_tag, str) or not trigger_tag:
+        raise ValueError(f"{skill.key}.compile.activationWindow.damageTag: expected non-empty string")
+    duration_frames = require_non_negative_int(duration_frames, f"{skill.key}.compile.activationWindow.durationFrames")
+    return "\n".join(
+        [
+            "  {",
+            f"    key: {ts_inline_literal(skill.key)},",
+            f"    timelineBlockFrames: {skill.timelineBlockFrames},",
+            f"    cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},",
+            "    activationWindow: {",
+            f"      durationFrames: {duration_frames},",
+            "      rules: {",
+            "        trigger: {",
+            "          kind: 'damageTagHit',",
+            f"          tag: {ts_inline_literal(trigger_tag)},",
+            "          scope: 'team',",
+            "        },",
+            "      },",
+            "    },",
+            "    scheduledSequences: [",
+            "      scheduled(",
+            f"        {hit.launchFrame + hit.assumedTravelFrames + damage.startFrame},",
+            "        sequence(",
+            *rendered_steps,
+            "        ),",
+            "      ),",
+            "    ],",
+            "  },",
+        ]
+    )
+
+
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
@@ -924,6 +1227,8 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
             lines.append(compile_basic_attack(skill, config, factory_name))
         elif kind == "directDamage":
             lines.append(compile_direct_damage(skill, config))
+        elif kind == "projectileDamage":
+            lines.append(compile_projectile_damage(skill, config))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     export_name = f"{operator['slug']}GeneratedSkills"
@@ -953,6 +1258,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
+                "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,

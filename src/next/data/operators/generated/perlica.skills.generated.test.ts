@@ -43,12 +43,14 @@ describe('佩丽卡生成 DSL', () => {
     const finisher = perlica.skillGroups.find(group => group.key === 'finisher');
     const plungingAttack = perlica.skillGroups.find(group => group.key === 'plungingAttack');
     const battleSkill = perlica.skillGroups.find(group => group.key === 'battleSkill');
+    const comboSkill = perlica.skillGroups.find(group => group.key === 'comboSkill');
     const ultimate = perlica.skillGroups.find(group => group.key === 'ultimate');
 
     const generatedByKey = new Map(perlicaGeneratedSkills.map(skill => [skill.key, skill]));
     expect(generatedByKey.get('finisher')).toEqual(finisher?.skills);
     expect(generatedByKey.get('plungingAttack')).toEqual(plungingAttack?.skills);
     expect(generatedByKey.get('battleSkill')).toEqual(battleSkill?.skills);
+    expect(generatedByKey.get('comboSkill')).toEqual(comboSkill?.skills);
     expect(generatedByKey.get('ultimate')).toEqual(ultimate?.skills);
   });
 });
