@@ -303,6 +303,11 @@ export class CombatBuff<Key extends string> {
     }
   }
 
+  /** 按当前实例黑板重新解析属性修正；供原生刷新修正值动作调用。 */
+  refreshAttributeModifierValues(): void {
+    this.replaceAttributeModifiers(this.createAttributeModifiers());
+  }
+
   private triggerInternal(deltaTime: number): void {
     if (this.#remainingTriggerCount === 0 || this.#triggerInterval === null) return;
     this.#triggerRemainingTime -= deltaTime;
