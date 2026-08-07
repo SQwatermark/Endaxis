@@ -366,6 +366,56 @@ describe('CombatBuffContainer', () => {
     expect(order.slice(-3)).toEqual(['finish', 'start', 'enable']);
   });
 
+  it('overwrites the existing duration without replacing or restarting the instance', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.overwrite-duration',
+      stackingType: 'overwriteDuration',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 8, value: 1 },
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+      },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { duration: 10, value: 1 },
+      }),
+    );
+    container.tick(4);
+
+    const shortened = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: 3, value: 2 },
+      }),
+    );
+    expect(shortened).toBe(first);
+    expect(first.remainingDuration).toBe(3);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('value')).toBe(1);
+    expect(order).toEqual(['start', 'enable']);
+
+    const infinite = requireAddedBuff(
+      container.add({ ...definition, durationSeconds: undefined }, 'infinite-source'),
+    );
+    expect(infinite).toBe(first);
+    expect(first.remainingDuration).toBeNull();
+
+    const finiteAgain = requireAddedBuff(
+      container.add(definition, 'finite-source', {
+        blackboardValues: { duration: 7 },
+      }),
+    );
+    expect(finiteAgain).toBe(first);
+    expect(first.remainingDuration).toBe(7);
+    expect(container.buffs).toHaveLength(1);
+    expect(order).toEqual(['start', 'enable']);
+  });
+
   it('enhances one instance, refreshes its lifetime, and still runs callbacks at the cap', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);

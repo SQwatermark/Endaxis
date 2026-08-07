@@ -250,6 +250,10 @@ export class CombatBuff<Key extends string> {
     }
   }
 
+  overwriteDuration(incomingDuration: number | null): void {
+    this.#remainingDuration = incomingDuration;
+  }
+
   executeBeforeEnhance(sourceId: string): void {
     this.definition.actions?.beforeEnhance?.(this, sourceId);
   }
@@ -393,6 +397,8 @@ class BuffStackingGroup<Key extends string> {
         return existing === undefined ? this.allocate(definition, sourceId, options) : null;
       case 'enhanceAndRefresh':
         return this.enhanceAndRefresh(existing, definition, sourceId, options);
+      case 'overwriteDuration':
+        return this.overwriteDuration(existing, definition, sourceId, options);
       default:
         throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
     }
@@ -470,6 +476,18 @@ class BuffStackingGroup<Key extends string> {
 
     // 原生 Refresh 只借用本次输入计算初始时长，不替换旧实例或重跑启用流程。
     existing.refreshDuration(resolveIncomingDuration(definition, options));
+    return existing;
+  }
+
+  private overwriteDuration(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocate(definition, sourceId, options);
+
+    existing.overwriteDuration(resolveIncomingDuration(definition, options));
     return existing;
   }
 }
