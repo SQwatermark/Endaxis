@@ -9,6 +9,9 @@ from types import SimpleNamespace
 from generate_next_operators import (
     collect_blackboard_keys,
     collect_resolved_damage_hits,
+    compile_resolved_damage_sequence,
+    DamageUnitSource,
+    ScalarSource,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
@@ -31,6 +34,42 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(0, "atk", (0.5, 0.6)),
+            poiseValue=None,
+        )
+        skill = SimpleNamespace(
+            key="attack",
+            timelineBlockFrames=20,
+            buffBehaviors=(),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            unresolvedCombatActions=("SpawnAbilityEntity",),
+            skillId="root",
+            directDamageHits=(),
+            projectileHits=(),
+            abilityEntityHits=(
+                SimpleNamespace(
+                    spawnFrame=10,
+                    skillId="entity_hit",
+                    directDamageHits=(SimpleNamespace(startFrame=2, damageUnits=(unit,)),),
+                    projectileHits=(),
+                    nestedAbilityEntityHits=(),
+                ),
+            ),
+        )
+
+        source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+
+        self.assertIn("scheduled(\n        12,", source)
+        self.assertIn("attackScale: percentages([50, 60])", source)
+        self.assertIn("damageType: 'electric'", source)
+
     def test_missing_buff_source_is_explicit_in_the_audit_layer(self) -> None:
         root = {
             "actionGroupData": {

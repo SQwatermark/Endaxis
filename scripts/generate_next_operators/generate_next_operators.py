@@ -1660,6 +1660,70 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
     )
 
 
+def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
+    """将已闭环载体来源的命中统一编译为按绝对帧调度的伤害序列。"""
+    if skill.buffBehaviors or skill.resourceGains or skill.inflictions:
+        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or resources")
+    if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
+        raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
+    allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
+    if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
+        raise ValueError(f"{skill.key}: unresolved combat actions are not covered by resolved damage compiler")
+    hits = collect_resolved_damage_hits(skill)
+    if not hits:
+        raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
+    tags = require_list(config.get("tags"), f"{skill.key}.compile.tags")
+    scheduled_entries: list[str] = []
+    for index, hit in enumerate(hits):
+        hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
+        poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
+        if len(hp_units) != 1 or len(poise_units) > 1 or len(hp_units) + len(poise_units) != len(hit.damageUnits):
+            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported DamageUnit layout")
+        hp = hp_units[0]
+        damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
+        if damage_type is None:
+            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported damage type {hp.damageType}")
+        fields = [
+            f"damageType: {ts_inline_literal(damage_type)}",
+            "attackScale: percentages("
+            f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.hit[{index}].attackScale')))}"
+            ")",
+            f"tags: {ts_inline_literal(tags)}",
+        ]
+        if hp.calculation != "standard":
+            fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+        if poise_units:
+            poise = poise_units[0].poiseValue
+            if poise is None:
+                raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: Poise unit has no value")
+            fields.append(
+                "stagger: "
+                f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.hit[{index}].stagger')))}"
+            )
+        step_lines = ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+        scheduled_entries.extend(
+            [
+                "      scheduled(",
+                f"        {hit.frame},",
+                "        sequence(",
+                *(f"          {line}{',' if line == step_lines[-1] else ''}" for line in step_lines),
+                "        ),",
+                "      ),",
+            ]
+        )
+    return "\n".join(
+        [
+            "  {",
+            f"    key: {ts_inline_literal(skill.key)},",
+            f"    timelineBlockFrames: {skill.timelineBlockFrames},",
+            "    scheduledSequences: [",
+            *scheduled_entries,
+            "    ],",
+            "  },",
+        ]
+    )
+
+
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
@@ -1687,6 +1751,8 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
             lines.append(compile_direct_damage(skill, config))
         elif kind == "projectileDamage":
             lines.append(compile_projectile_damage(skill, config))
+        elif kind == "resolvedDamageSequence":
+            lines.append(compile_resolved_damage_sequence(skill, config))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     export_name = f"{typescript_identifier(str(operator['slug']))}GeneratedSkills"
@@ -2098,6 +2164,11 @@ def main() -> None:
         write_or_check(args.output / f"{slug}.audit.json", render_report(slug, skills), args.check)
         output_stage = operator.get("outputStage", "complete")
         if output_stage == "audit":
+            write_or_check(
+                args.output / f"{slug}.skills.audit.generated.ts",
+                render_compiled_skills(operator, skills),
+                args.check,
+            )
             generated += 1
             print(f"[{slug}] audited {len(skills)} skills -> {args.output}")
             continue
