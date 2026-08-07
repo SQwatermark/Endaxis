@@ -421,6 +421,8 @@ class BuffStackingGroup<Key extends string> {
         return this.enhanceAndRefresh(existing, definition, sourceId, options);
       case 'overwriteDuration':
         return this.overwriteDuration(existing, definition, sourceId, options);
+      case 'enhanceAndOverwriteDuration':
+        return this.enhanceAndOverwriteDuration(existing, definition, sourceId, options);
       default:
         throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
     }
@@ -508,6 +510,22 @@ class BuffStackingGroup<Key extends string> {
     existing.executeBeforeEnhance(sourceId);
     this.enhanceWithinLimit(existing, sourceId);
     existing.refreshDuration(resolveIncomingDuration(definition, options));
+    existing.executeAfterEnhance(sourceId);
+    return existing;
+  }
+
+  private enhanceAndOverwriteDuration(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
+
+    const incomingDuration = resolveIncomingDuration(definition, options);
+    existing.executeBeforeEnhance(sourceId);
+    this.enhanceWithinLimit(existing, sourceId);
+    existing.overwriteDuration(incomingDuration);
     existing.executeAfterEnhance(sourceId);
     return existing;
   }

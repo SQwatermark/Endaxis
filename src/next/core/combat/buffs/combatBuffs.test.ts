@@ -741,6 +741,125 @@ describe('CombatBuffContainer', () => {
     expect(order).toEqual(['before:1', 'changed:2', 'after:2', 'before:2', 'after:2']);
   });
 
+  it('enhances before overwriting duration and keeps the existing instance inputs', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const order: string[] = [];
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.enhance-overwrite',
+      stackingType: 'enhanceAndOverwriteDuration',
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: { duration: 8, value: 1 },
+      maxStackCount: 2,
+      actions: {
+        start: () => order.push('start'),
+        enable: () => order.push('enable'),
+        beforeEnhance: (buff, sourceId) =>
+          order.push(`before:${sourceId}:${buff.enhanceCount}:${buff.remainingDuration}`),
+        enhanceChanged: (buff, sourceId) =>
+          order.push(`changed:${sourceId}:${buff.enhanceCount}:${buff.remainingDuration}`),
+        afterEnhance: (buff, sourceId) =>
+          order.push(`after:${sourceId}:${buff.enhanceCount}:${buff.remainingDuration}`),
+      },
+    };
+
+    const first = requireAddedBuff(
+      container.add(definition, 'first-source', {
+        blackboardValues: { duration: 10, value: 1 },
+      }),
+    );
+    container.tick(4);
+    const enhanced = requireAddedBuff(
+      container.add(definition, 'second-source', {
+        blackboardValues: { duration: 3, value: 2 },
+      }),
+    );
+
+    expect(enhanced).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBe(3);
+    expect(first.passedTime).toBe(4);
+    expect(first.sourceId).toBe('first-source');
+    expect(first.blackboard.getNumber('duration')).toBe(10);
+    expect(first.blackboard.getNumber('value')).toBe(1);
+    expect(container.buffs).toEqual([first]);
+    expect(order).toEqual([
+      'start',
+      'enable',
+      'before:second-source:1:6',
+      'changed:second-source:2:6',
+      'after:second-source:2:3',
+    ]);
+
+    container.tick(1);
+    const capped = requireAddedBuff(
+      container.add(definition, 'third-source', {
+        blackboardValues: { duration: 12 },
+      }),
+    );
+    expect(capped).toBe(first);
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBe(12);
+    expect(order.slice(-2)).toEqual([
+      'before:third-source:2:2',
+      'after:third-source:2:12',
+    ]);
+    expect(order.filter(event => event === 'start')).toHaveLength(1);
+    expect(order.filter(event => event === 'enable')).toHaveLength(1);
+  });
+
+  it('overwrites finite and infinite lifetimes in both directions while enhancing', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.enhance-overwrite.infinite',
+      stackingType: 'enhanceAndOverwriteDuration',
+      durationSeconds: 10,
+      maxStackCount: 2,
+    };
+    const first = requireAddedBuff(container.add(definition, 'first-source'));
+
+    container.add({ ...definition, durationSeconds: undefined }, 'infinite-source');
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBeNull();
+
+    container.add({ ...definition, durationSeconds: 7 }, 'finite-source');
+    expect(first.enhanceCount).toBe(2);
+    expect(first.remainingDuration).toBe(7);
+  });
+
+  it.each([-1, Number.POSITIVE_INFINITY])(
+    'rejects invalid enhance-and-overwrite duration %s without partial mutation',
+    invalidDuration => {
+      const attributes = new CombatAttributeSet<Attribute>();
+      const container = new CombatBuffContainer('operator', attributes);
+      const order: string[] = [];
+      const definition: CombatBuffDefinition<Attribute> = {
+        id: 'buff.enhance-overwrite.invalid',
+        stackingType: 'enhanceAndOverwriteDuration',
+        durationSeconds: { blackboardKey: 'duration' },
+        blackboard: { duration: 10 },
+        maxStackCount: 3,
+        actions: {
+          beforeEnhance: () => order.push('before'),
+          enhanceChanged: () => order.push('changed'),
+          afterEnhance: () => order.push('after'),
+        },
+      };
+      const existing = requireAddedBuff(container.add(definition, 'first-source'));
+
+      expect(() =>
+        container.add(definition, 'invalid-source', {
+          blackboardValues: { duration: invalidDuration },
+        }),
+      ).toThrow('buff duration must resolve to a non-negative finite number');
+      expect(existing.enhanceCount).toBe(1);
+      expect(existing.remainingDuration).toBe(10);
+      expect(container.buffs).toEqual([existing]);
+      expect(order).toEqual([]);
+    },
+  );
+
   it('uses native duration refresh and infinite-lifetime semantics', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
