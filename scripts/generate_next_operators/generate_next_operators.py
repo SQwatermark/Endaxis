@@ -481,7 +481,15 @@ def compact_level_values(values: tuple[float, ...]) -> float | tuple[float, ...]
     return values[0] if all(value == values[0] for value in values) else values
 
 
-def compile_basic_attack(skill: SkillSource, config: dict[str, Any]) -> str:
+def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:
+    result: list[int | float] = []
+    for value in values:
+        percentage = round(value * 100, 8)
+        result.append(int(percentage) if percentage.is_integer() else percentage)
+    return tuple(result)
+
+
+def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
     if skill.unresolvedCombatActions != ("LaunchProjectile",):
         raise ValueError(
             f"{skill.key}: basic attack compiler expected only LaunchProjectile, got {skill.unresolvedCombatActions}"
@@ -533,22 +541,23 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any]) -> str:
     if stagger is not None:
         options["stagger"] = compact_level_values(stagger)
     frames: int | list[int] = hit_frames[0] if len(hit_frames) == 1 else hit_frames
+    arguments = [
+        ts_inline_literal(skill.key),
+        str(skill.timelineBlockFrames),
+        ts_inline_literal(frames),
+        f"percentages({ts_inline_literal(percentage_values(attack_scale))})",
+    ]
+    if options:
+        arguments.append(ts_inline_literal(options))
     return "\n".join(
-        (
-            f"  basicAttackOfType({ts_inline_literal(damage_type)})(",
-            f"    {ts_inline_literal(skill.key)},",
-            f"    {skill.timelineBlockFrames},",
-            f"    {ts_inline_literal(frames)},",
-            f"    {ts_inline_literal(attack_scale)},",
-            f"    {ts_inline_literal(options)},",
-            "  ),",
-        )
+        [f"  {factory_name}(", *(f"    {argument}," for argument in arguments), "  ),"]
     )
 
 
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
+    damage_type_factories: dict[str, str] = {}
     for entry, skill in zip(entries, skills, strict=True):
         config = entry.get("compile")
         if config is None:
@@ -556,14 +565,31 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
         config = require_dict(config, f"{skill.key}.compile")
         kind = config.get("kind")
         if kind == "basicAttack":
-            lines.append(compile_basic_attack(skill, config))
+            damage_types = {
+                DAMAGE_TYPE_MAP[unit.damageType]
+                for hit in skill.projectileHits
+                for unit in hit.damageUnits
+                if unit.attributeType == "Hp" and unit.damageType in DAMAGE_TYPE_MAP
+            }
+            if len(damage_types) != 1:
+                raise ValueError(f"{skill.key}: expected exactly one supported health damage type")
+            damage_type = next(iter(damage_types))
+            factory_name = f"{damage_type}BasicAttack"
+            damage_type_factories[damage_type] = factory_name
+            lines.append(compile_basic_attack(skill, config, factory_name))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     export_name = f"{operator['slug']}GeneratedSkills"
+    factories = "\n".join(
+        f"const {factory_name} = basicAttackOfType({ts_inline_literal(damage_type)});"
+        for damage_type, factory_name in sorted(damage_type_factories.items())
+    )
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
-        "import { basicAttackOfType } from '../definitionHelpers';\n\n"
+        "import { basicAttackOfType, percentages } from '../definitionHelpers';\n\n"
+        + factories
+        + "\n\n"
         "// prettier-ignore\n"
         f"export const {export_name} = [\n"
         + "\n".join(lines)

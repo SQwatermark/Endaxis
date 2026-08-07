@@ -7,6 +7,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_skill_patch,
+    percentage_values,
     ts_inline_literal,
 )
 
@@ -64,6 +65,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ts_inline_literal({"final": True, "values": (0.25, 15.0)}),
             "{ final: true, values: [0.25, 15] }",
         )
+
+    def test_percentage_values_restore_readable_percentages(self) -> None:
+        self.assertEqual(percentage_values((0.25, 1.02, 0.125)), (25, 102, 12.5))
 
 
 if __name__ == "__main__":
