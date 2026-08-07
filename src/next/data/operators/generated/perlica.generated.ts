@@ -376,6 +376,26 @@ export const perlicaGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -916,6 +936,35 @@ export const perlicaGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1599,6 +1648,35 @@ export const perlicaGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2104,6 +2182,35 @@ export const perlicaGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2565,6 +2672,71 @@ export const perlicaGeneratedSource = {
         "cam_angle",
         "input_angle",
         "vertical"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "addition_vertical",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "look_at_x",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "vertical",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
@@ -3083,6 +3255,26 @@ export const perlicaGeneratedSource = {
         "atb",
         "atk_scale"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "DamageAction",
         "LaunchProjectile",
@@ -3559,6 +3751,89 @@ export const perlicaGeneratedSource = {
         "cam_angle",
         "input_angle",
         "poise"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "consume_cnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "gained_atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
@@ -4352,6 +4627,134 @@ export const perlicaGeneratedSource = {
         "owner_mainchar_distance",
         "select_radius"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "count",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "extra_scaling",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "talent2",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -4884,6 +5287,62 @@ export const perlicaGeneratedSource = {
         "poise",
         "radius",
         "select_radius"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "crit",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "radius",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",

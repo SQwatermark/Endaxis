@@ -11,6 +11,8 @@
       "directDamageHits": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -253,6 +255,53 @@
         }
       ],
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -279,6 +328,21 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 2,
+          "endFrame": 3,
+          "actionIndex": 1,
+          "key": "sword_dist",
+          "operation": "Add",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -676,6 +740,44 @@
       "blackboardKeys": [
         "sword_dist"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile",
         "SpawnAbilityEntity"
@@ -690,6 +792,21 @@
       "directDamageHits": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 1,
+          "key": "sword_dist",
+          "operation": "Add",
+          "value": {
+            "value": 3.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1166,6 +1283,44 @@
       "blackboardKeys": [
         "sword_dist"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1192,6 +1347,8 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1353,6 +1510,26 @@
         }
       ],
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -1380,6 +1557,8 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -1621,6 +1800,35 @@
         }
       ],
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -1690,6 +1898,21 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionIndex": 2,
+          "key": "target_in_range",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2041,6 +2264,44 @@
       "blackboardKeys": [
         "target_in_range"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "target_in_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
@@ -2111,6 +2372,21 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 2,
+          "key": "target_in_range",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2462,6 +2738,35 @@
       "blackboardKeys": [
         "target_in_range"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "target_in_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
@@ -2500,6 +2805,8 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2710,6 +3017,44 @@
         }
       ],
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "thunderIndex",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "SpawnAbilityEntity"
@@ -2818,6 +3163,8 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2941,6 +3288,17 @@
       "blackboardKeys": [
         "atk_scale"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -2988,6 +3346,8 @@
       ],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [
         {
           "startFrame": 1,
@@ -3062,6 +3422,26 @@
       "blackboardKeys": [
         "atb",
         "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "DamageAction",
@@ -3320,6 +3700,96 @@
             "blackboardKey": "conductCnt",
             "levelValues": null
           }
+        }
+      ],
+      "blackboardMutations": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 6,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 7,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 9,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 15,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 16,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 16,
+          "actionIndex": 2,
+          "key": "swordTriggerInterval",
+          "operation": "Multiply",
+          "value": {
+            "value": -1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 4,
+          "outputKey": "conductCnt",
+          "desiredKey": "count",
+          "targetSource": "Context",
+          "targetGroupKey": "smart_target",
+          "buffCheckType": "Tag",
+          "buffIds": [],
+          "buffTagIds": [
+            1466867135
+          ]
         }
       ],
       "resourceGains": [
@@ -4009,6 +4479,179 @@
         "swordTriggerInterval",
         "sword_gene_num"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "EntityBB_SwordNum",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "atb_return",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_final",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": true,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "final_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "free_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_conduct_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_gene_num",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra_limit",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -4121,6 +4764,84 @@
               0.18
             ]
           }
+        }
+      ],
+      "blackboardMutations": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 11,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "conductCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 12,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 14,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 20,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 21,
+          "key": "sword_gene_num",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 9,
+          "outputKey": "conductCnt",
+          "desiredKey": "count",
+          "targetSource": "Context",
+          "targetGroupKey": "smart_target",
+          "buffCheckType": "Tag",
+          "buffIds": [],
+          "buffTagIds": [
+            1466867135
+          ]
         }
       ],
       "resourceGains": [
@@ -4512,6 +5233,161 @@
         "max_conduct_sword",
         "sword_gene_num"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "EntityBB_SwordNum",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "atb_return",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_final",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": true,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "final_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "free_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_conduct_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_gene_num",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -4639,6 +5515,45 @@
           }
         }
       ],
+      "blackboardMutations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 2,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 3,
+          "key": "conductCnt",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 4,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 4.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [
         {
           "startFrame": 24,
@@ -4797,6 +5712,89 @@
         "usp",
         "usp_extra"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "consumedInflict",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "inflictCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4892,6 +5890,45 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 2,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": "inflictCnt",
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 3,
+          "key": "conductCnt",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 27,
+          "actionIndex": 4,
+          "key": "conductCnt",
+          "operation": "Assign",
+          "value": {
+            "value": 4.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -5061,6 +6098,71 @@
         "owner_mainchar_distance",
         "poise"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "consumedInflict",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "inflictCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5165,6 +6267,8 @@
         }
       ],
       "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -5422,6 +6526,44 @@
       "resolvedDamageHits": [],
       "blackboardKeys": [
         "select_radius"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "combo_cd_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration_extra",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",

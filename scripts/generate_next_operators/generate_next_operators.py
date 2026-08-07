@@ -230,6 +230,17 @@ class BuffBlackboardReadSource:
 
 
 @dataclass(frozen=True)
+class BlackboardKeyProvenanceSource:
+    key: str
+    declaredInSkill: bool
+    suppliedByPatch: bool
+    calculatedLocally: bool
+    mutatedLocally: bool
+    readFromBuff: bool
+    externalRuntimeInput: bool
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -258,6 +269,7 @@ class SkillSource:
     buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
+    blackboardProvenance: tuple[BlackboardKeyProvenanceSource, ...]
     unresolvedCombatActions: tuple[str, ...]
 
 
@@ -386,6 +398,56 @@ def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
         for child in value:
             keys.update(collect_blackboard_keys(child))
     return tuple(sorted(keys))
+
+
+def collect_declared_blackboard_keys(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
+    """读取 SkillData 自身声明的黑板键，不把运行时引用误当作声明。"""
+    result: list[str] = []
+    for index, raw_entry in enumerate(require_list(root.get("blackboard"), f"{source_name}.blackboard")):
+        entry = require_dict(raw_entry, f"{source_name}.blackboard[{index}]")
+        key = entry.get("key")
+        if not isinstance(key, str) or not key:
+            raise ValueError(f"{source_name}.blackboard[{index}].key: expected non-empty string")
+        result.append(key)
+    if len(set(result)) != len(result):
+        raise ValueError(f"{source_name}.blackboard: duplicate key")
+    return tuple(sorted(result))
+
+
+def build_blackboard_provenance(
+    root: dict[str, Any],
+    source_name: str,
+    patch: SkillPatchSource,
+    calculations: tuple[BlackboardCalculationSource, ...],
+    mutations: tuple[BlackboardMutationSource, ...],
+    reads: tuple[BuffBlackboardReadSource, ...],
+) -> tuple[BlackboardKeyProvenanceSource, ...]:
+    referenced = set(collect_blackboard_keys(root))
+    declared = set(collect_declared_blackboard_keys(root, source_name))
+    supplied = set(patch.blackboard)
+    calculated = {item.key for item in calculations}
+    mutated = {item.key for item in mutations}
+    read = {item.outputKey for item in reads}
+    keys = referenced | declared | supplied | calculated | mutated | read
+    return tuple(
+        BlackboardKeyProvenanceSource(
+            key=key,
+            declaredInSkill=key in declared,
+            suppliedByPatch=key in supplied,
+            calculatedLocally=key in calculated,
+            mutatedLocally=key in mutated,
+            readFromBuff=key in read,
+            externalRuntimeInput=(
+                key in referenced
+                and key not in declared
+                and key not in supplied
+                and key not in calculated
+                and key not in mutated
+                and key not in read
+            ),
+        )
+        for key in sorted(keys)
+    )
 
 
 def parse_scalar(
@@ -1561,6 +1623,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     block_frame, block_source = derive_timeline_block(exclusive, allows)
     action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
+    blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
     blackboard_mutations, buff_blackboard_reads = parse_blackboard_runtime_actions(
         root, source_name, patch.blackboard
     )
@@ -1582,7 +1645,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
-        blackboardCalculations=parse_blackboard_calculations(root, source_name, patch.blackboard),
+        blackboardCalculations=blackboard_calculations,
         blackboardMutations=blackboard_mutations,
         buffBlackboardReads=buff_blackboard_reads,
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
@@ -1611,6 +1674,14 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         ),
         patch=patch,
         blackboardKeys=collect_blackboard_keys(root),
+        blackboardProvenance=build_blackboard_provenance(
+            root,
+            source_name,
+            patch,
+            blackboard_calculations,
+            blackboard_mutations,
+            buff_blackboard_reads,
+        ),
         unresolvedCombatActions=unresolved,
     )
 
@@ -2534,6 +2605,10 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "blackboardCalculations": [
                     asdict(calculation) for calculation in skill.blackboardCalculations
                 ],
+                "blackboardMutations": [
+                    asdict(mutation) for mutation in skill.blackboardMutations
+                ],
+                "buffBlackboardReads": [asdict(read) for read in skill.buffBlackboardReads],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
@@ -2541,6 +2616,9 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "blackboardKeys": skill.blackboardKeys,
+                "blackboardProvenance": [
+                    asdict(provenance) for provenance in skill.blackboardProvenance
+                ],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
             for skill in skills

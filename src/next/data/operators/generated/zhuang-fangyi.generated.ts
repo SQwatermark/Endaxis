@@ -413,6 +413,53 @@ export const zhuangFangyiGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -985,6 +1032,44 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboardKeys": [
         "sword_dist"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile",
@@ -1633,6 +1718,44 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardKeys": [
         "sword_dist"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1990,6 +2113,26 @@ export const zhuangFangyiGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -2487,6 +2630,35 @@ export const zhuangFangyiGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -3058,6 +3230,44 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboardKeys": [
         "target_in_range"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "target_in_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "DamageAction",
@@ -3632,6 +3842,35 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardKeys": [
         "target_in_range"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_dist",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "target_in_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
@@ -4087,6 +4326,44 @@ export const zhuangFangyiGeneratedSource = {
         ]
       },
       "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "thunderIndex",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "SpawnAbilityEntity"
@@ -4532,6 +4809,17 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardKeys": [
         "atk_scale"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -4818,6 +5106,26 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardKeys": [
         "atb",
         "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "DamageAction",
@@ -6421,6 +6729,179 @@ export const zhuangFangyiGeneratedSource = {
         "swordTriggerInterval",
         "sword_gene_num"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "EntityBB_SwordNum",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "atb_return",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_final",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": true,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "final_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "free_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_conduct_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_gene_num",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra_limit",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -7371,6 +7852,161 @@ export const zhuangFangyiGeneratedSource = {
         "max_conduct_sword",
         "sword_gene_num"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "EntityBB_SwordNum",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "atb_return",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_final",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": true,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "final_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "free_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_conduct_sword",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_gene_num",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sword_range",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -8001,6 +8637,89 @@ export const zhuangFangyiGeneratedSource = {
         "usp",
         "usp_extra"
       ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "consumedInflict",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "inflictCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp_extra",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -8606,6 +9325,71 @@ export const zhuangFangyiGeneratedSource = {
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
         "poise"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "conductCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "consumedInflict",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "inflictCnt",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
@@ -9398,6 +10182,44 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboardKeys": [
         "select_radius"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "combo_cd_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration_extra",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        }
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",

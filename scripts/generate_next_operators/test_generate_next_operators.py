@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from generate_next_operators import (
     collect_blackboard_keys,
     collect_resolved_damage_hits,
+    build_blackboard_provenance,
     compile_resolved_damage_sequence,
     DamageUnitSource,
     ScalarSource,
@@ -37,6 +38,35 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_blackboard_provenance_distinguishes_external_runtime_input(self) -> None:
+        root = {
+            "blackboard": [{"key": "conductCnt"}],
+            "actionGroupData": {
+                "value": {
+                    "useBlackboardKey": True,
+                    "value": 0,
+                    "blackboardKey": "EntityBB_SwordNum",
+                }
+            },
+        }
+        patch = SimpleNamespace(blackboard={"atk": (1, 2)})
+        calculations = (
+            SimpleNamespace(key="interval"),
+        )
+        mutations = (SimpleNamespace(key="swordCount"),)
+        reads = (SimpleNamespace(outputKey="conductCnt"),)
+
+        provenance = build_blackboard_provenance(
+            root, "skill.json", patch, calculations, mutations, reads
+        )
+        by_key = {item.key: item for item in provenance}
+
+        self.assertTrue(by_key["EntityBB_SwordNum"].externalRuntimeInput)
+        self.assertTrue(by_key["conductCnt"].declaredInSkill)
+        self.assertTrue(by_key["conductCnt"].readFromBuff)
+        self.assertTrue(by_key["atk"].suppliedByPatch)
+        self.assertFalse(by_key["interval"].externalRuntimeInput)
+
     def test_blackboard_runtime_actions_preserve_mutation_and_buff_read(self) -> None:
         root = {
             "actionGroupData": {

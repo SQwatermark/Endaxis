@@ -198,6 +198,17 @@ export interface GeneratedBuffBlackboardReadSource {
   readonly buffTagIds: readonly number[];
 }
 
+/** 黑板键在当前技能中的可追溯来源；外部输入不得由生成器猜值。 */
+export interface GeneratedBlackboardKeyProvenanceSource {
+  readonly key: string;
+  readonly declaredInSkill: boolean;
+  readonly suppliedByPatch: boolean;
+  readonly calculatedLocally: boolean;
+  readonly mutatedLocally: boolean;
+  readonly readFromBuff: boolean;
+  readonly externalRuntimeInput: boolean;
+}
+
 export interface GeneratedBuffEventActionSource {
   readonly event: string;
   readonly combatActions: readonly string[];
@@ -244,6 +255,7 @@ export interface GeneratedSkillSource {
   readonly patch: GeneratedSkillPatchSource;
   /** 需要由 SkillPatch、Buff 或运行时上下文赋值后才能闭环的原生黑板键。 */
   readonly blackboardKeys: readonly string[];
+  readonly blackboardProvenance: readonly GeneratedBlackboardKeyProvenanceSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }
