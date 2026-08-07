@@ -380,6 +380,18 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.25,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -948,6 +960,18 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.29,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -1671,6 +1695,18 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.23,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -2210,6 +2246,23 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_scale",
+          "value": 1.07,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -2699,6 +2752,43 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "addition_vertical",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_scale",
+          "value": 5.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "cam_duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "look_at_x",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "vertical",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "addition_vertical",
         "atk_scale",
@@ -3298,6 +3388,18 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.7,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -3796,6 +3898,53 @@ export const perlicaGeneratedSource = {
           100.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 2.85,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "cam_duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "consume_cnt",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "gained_atb",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "select_radius",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "cam_angle",
@@ -4681,6 +4830,78 @@ export const perlicaGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 2.85,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "cam_duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 5.0,
+          "isDynamic": false
+        },
+        {
+          "key": "extra_scaling",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "select_radius",
+          "value": 4.0,
+          "isDynamic": false
+        },
+        {
+          "key": "talent2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
@@ -5346,6 +5567,38 @@ export const perlicaGeneratedSource = {
           80.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 8.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_2",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "crit",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 4.0,
+          "isDynamic": false
+        },
+        {
+          "key": "select_radius",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "crit",

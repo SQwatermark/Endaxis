@@ -420,6 +420,28 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.25,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_dist",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -1150,6 +1172,23 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.6,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "value": 0.4,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_dist",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "sword_dist"
       ],
@@ -1909,6 +1948,23 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_sword",
+          "value": 0.23,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_dist",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "sword_dist"
       ],
@@ -2353,6 +2409,13 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 1.07,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -3009,6 +3072,23 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 20.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 1.07,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 15.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -4193,6 +4273,28 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_dist",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "target_in_range",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "target_in_range"
       ],
@@ -5389,6 +5491,23 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.6,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_dist",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "target_in_range",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "target_in_range"
       ],
@@ -6012,6 +6131,28 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.6,
+          "isDynamic": false
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "thunderIndex",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [],
       "blackboardProvenance": [
         {
@@ -6497,6 +6638,13 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.35,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atk_scale"
       ],
@@ -6796,6 +6944,18 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.7,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -9478,6 +9638,93 @@ export const zhuangFangyiGeneratedSource = {
           100.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb_return",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 2.85,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_up_final",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "conductCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "free_sword_limit",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "max_conduct_sword",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "sword_duration",
+          "value": 40.0,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_gene_num",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "sword_range",
+          "value": 20.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_extra",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "EntityBB_SwordNum",
         "atb_return",
@@ -11446,6 +11693,88 @@ export const zhuangFangyiGeneratedSource = {
           100.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atb_return",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 2.85,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_up_final",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_up_per_conduct",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "conductCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "free_sword_limit",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "max_conduct_sword",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "remain_sword_limit",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "swordTriggerInterval",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "sword_duration",
+          "value": 40.0,
+          "isDynamic": false
+        },
+        {
+          "key": "sword_gene_num",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "sword_range",
+          "value": 20.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "EntityBB_SwordNum",
         "atb_return",
@@ -12583,6 +12912,53 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 1.43,
+          "isDynamic": false
+        },
+        {
+          "key": "conductCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "consumedInflict",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "inflictCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_extra",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "conductCnt",
@@ -13504,6 +13880,43 @@ export const zhuangFangyiGeneratedSource = {
           0.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 1.43,
+          "isDynamic": false
+        },
+        {
+          "key": "conductCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "consumedInflict",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "inflictCnt",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "conductCnt",
@@ -14432,6 +14845,18 @@ export const zhuangFangyiGeneratedSource = {
           240.0
         ]
       },
+      "declaredBlackboard": [
+        {
+          "key": "combo_cd_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
       "blackboardKeys": [
         "select_radius"
       ],

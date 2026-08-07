@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 from generate_next_operators import (
     collect_blackboard_keys,
+    collect_conditional_blackboard_keys,
     collect_resolved_damage_hits,
     build_blackboard_provenance,
     compile_skill_entries,
@@ -25,6 +26,7 @@ from generate_next_operators import (
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
+    parse_declared_blackboard,
     parse_auxiliary_actions,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
@@ -46,6 +48,50 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_declared_blackboard_preserves_default_value_and_dynamic_flag(self) -> None:
+        root = {
+            "blackboard": [
+                {
+                    "key": "sword_dist",
+                    "valueDouble": 0,
+                    "valueStr": "",
+                    "isDynamic": True,
+                }
+            ]
+        }
+
+        values = parse_declared_blackboard(root, "skill.json")
+
+        self.assertEqual(values[0].key, "sword_dist")
+        self.assertEqual(values[0].value, 0)
+        self.assertTrue(values[0].isDynamic)
+
+    def test_condition_blackboard_collection_excludes_unrelated_declared_values(self) -> None:
+        action = SimpleNamespace(
+            conditions=(
+                SimpleNamespace(
+                    left=ScalarSource(0, "sword_dist", None),
+                    right=ScalarSource(10, None, None),
+                    buffStack=None,
+                ),
+            ),
+            succeedActions=(
+                SimpleNamespace(
+                    nestedCondition=None,
+                    blackboardMutation=SimpleNamespace(
+                        key="sword_dist",
+                        value=ScalarSource(3, None, None),
+                    ),
+                    buffBlackboardRead=None,
+                ),
+            ),
+            failActions=(),
+        )
+
+        keys = collect_conditional_blackboard_keys((action,))
+
+        self.assertEqual(keys, {"sword_dist"})
+
     def test_compile_buff_blackboard_read_emits_strict_runtime_step(self) -> None:
         read = BuffBlackboardReadSource(
             startFrame=11,
@@ -78,7 +124,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_blackboard_provenance_distinguishes_external_runtime_input(self) -> None:
         root = {
-            "blackboard": [{"key": "conductCnt"}],
+            "blackboard": [
+                {
+                    "key": "conductCnt",
+                    "valueDouble": 0,
+                    "valueStr": "",
+                    "isDynamic": True,
+                }
+            ],
             "actionGroupData": {
                 "value": {
                     "useBlackboardKey": True,

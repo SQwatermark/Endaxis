@@ -328,6 +328,12 @@ export interface GeneratedBlackboardKeyProvenanceSource {
   readonly externalRuntimeInput: boolean;
 }
 
+export interface GeneratedDeclaredBlackboardValueSource {
+  readonly key: string;
+  readonly value: number;
+  readonly isDynamic: boolean;
+}
+
 export interface GeneratedBuffEventActionSource {
   readonly event: string;
   readonly combatActions: readonly string[];
@@ -374,6 +380,8 @@ export interface GeneratedSkillSource {
   readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
+  /** SkillData 声明的黑板默认值；同名 SkillPatch 值在编译时覆盖它。 */
+  readonly declaredBlackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 需要由 SkillPatch、Buff 或运行时上下文赋值后才能闭环的原生黑板键。 */
   readonly blackboardKeys: readonly string[];
   readonly blackboardProvenance: readonly GeneratedBlackboardKeyProvenanceSource[];

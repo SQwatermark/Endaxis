@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -33,6 +33,87 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     'atk_scale': [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     'display_atk_scale': [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+  },
+);
+
+export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    timelineBlockFrames: 26,
+    scheduledSequences: [
+      scheduled(
+        14,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'sword_dist' },
+              operator: 'lessOrEqual',
+              right: { kind: 'constant', value: 10 },
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'sword_dist',
+                operation: 'add',
+                value: { kind: 'constant', value: 3 },
+              }),
+            ),
+            sequence(
+              step('modifyActionValue', {
+                key: 'sword_dist',
+                operation: 'assign',
+                value: { kind: 'constant', value: 14 },
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([8, 9, 10, 10, 11, 12, 13, 14, 14, 15, 17, 18]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'sword_dist': 0,
+    'atk_scale_sword': [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
+    'display_atk_scale': [0.32, 0.35, 0.39, 0.42, 0.45, 0.48, 0.52, 0.55, 0.58, 0.62, 0.67, 0.72],
   },
 );
 

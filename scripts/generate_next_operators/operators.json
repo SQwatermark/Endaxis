@@ -161,7 +161,11 @@
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack3.json"
+          "source": "chr_0030_zhuangfy_attack3.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack"]
+          }
         },
         {
           "key": "basicAttack4",

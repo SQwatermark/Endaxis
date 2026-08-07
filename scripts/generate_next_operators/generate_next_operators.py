@@ -408,6 +408,15 @@ class BlackboardKeyProvenanceSource:
 
 
 @dataclass(frozen=True)
+class DeclaredBlackboardValueSource:
+    """SkillData 自身声明的动作黑板初值；SkillPatch 可按等级覆盖同名键。"""
+
+    key: str
+    value: float
+    isDynamic: bool
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -437,6 +446,7 @@ class SkillSource:
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
+    declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...]
     blackboardKeys: tuple[str, ...]
     blackboardProvenance: tuple[BlackboardKeyProvenanceSource, ...]
     unresolvedCombatActions: tuple[str, ...]
@@ -638,18 +648,32 @@ def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
     return tuple(sorted(keys))
 
 
-def collect_declared_blackboard_keys(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
-    """读取 SkillData 自身声明的黑板键，不把运行时引用误当作声明。"""
-    result: list[str] = []
+def parse_declared_blackboard(
+    root: dict[str, Any], source_name: str
+) -> tuple[DeclaredBlackboardValueSource, ...]:
+    """严格读取 SkillData 的数值黑板声明，不把运行时引用误当作声明。"""
+    result: list[DeclaredBlackboardValueSource] = []
     for index, raw_entry in enumerate(require_list(root.get("blackboard"), f"{source_name}.blackboard")):
         entry = require_dict(raw_entry, f"{source_name}.blackboard[{index}]")
         key = entry.get("key")
         if not isinstance(key, str) or not key:
             raise ValueError(f"{source_name}.blackboard[{index}].key: expected non-empty string")
-        result.append(key)
-    if len(set(result)) != len(result):
+        value = entry.get("valueDouble")
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValueError(f"{source_name}.blackboard[{index}].valueDouble: expected number")
+        if entry.get("valueStr") != "":
+            raise ValueError(f"{source_name}.blackboard[{index}].valueStr: expected empty string")
+        is_dynamic = entry.get("isDynamic")
+        if not isinstance(is_dynamic, bool):
+            raise ValueError(f"{source_name}.blackboard[{index}].isDynamic: expected boolean")
+        result.append(DeclaredBlackboardValueSource(key, float(value), is_dynamic))
+    if len({item.key for item in result}) != len(result):
         raise ValueError(f"{source_name}.blackboard: duplicate key")
-    return tuple(sorted(result))
+    return tuple(sorted(result, key=lambda item: item.key))
+
+
+def collect_declared_blackboard_keys(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
+    return tuple(item.key for item in parse_declared_blackboard(root, source_name))
 
 
 def build_blackboard_provenance(
@@ -2307,6 +2331,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             stack=(skill_id,),
         ),
         patch=patch,
+        declaredBlackboard=parse_declared_blackboard(root, source_name),
         blackboardKeys=collect_blackboard_keys(root),
         blackboardProvenance=build_blackboard_provenance(
             root,
@@ -3212,12 +3237,22 @@ def render_named_skills(
         if not value.endswith(","):
             raise ValueError(f"{skill.key}: compiled skill expression must end with a comma")
         value = textwrap.dedent(value[:-1])
-        if skill.patch.blackboard:
-            blackboard_lines = [
-                f"  {ts_inline_literal(key)}: "
-                f"{ts_inline_literal(compact_level_values(values))},"
-                for key, values in skill.patch.blackboard.items()
-            ]
+        condition_blackboard_keys = collect_conditional_blackboard_keys(
+            skill.conditionalActions
+        )
+        blackboard = {
+            item.key: item.value
+            for item in skill.declaredBlackboard
+            if item.key in condition_blackboard_keys
+        }
+        blackboard.update(skill.patch.blackboard)
+        if blackboard:
+            blackboard_lines: list[str] = []
+            for key, values in blackboard.items():
+                compiled_values = compact_level_values(values) if isinstance(values, tuple) else values
+                blackboard_lines.append(
+                    f"  {ts_inline_literal(key)}: {ts_inline_literal(compiled_values)},"
+                )
             value = "\n".join(
                 [
                     "withSkillBlackboard(",
@@ -3248,18 +3283,56 @@ def render_named_skills(
     return result
 
 
+def collect_conditional_blackboard_keys(
+    actions: tuple[ConditionalActionSource, ...],
+) -> set[str]:
+    """收集已编译条件树实际读写的动作黑板键，避免注入表现层原生变量。"""
+    result: set[str] = set()
+
+    def add_scalar(source: ScalarSource | None) -> None:
+        if source is not None and source.blackboardKey is not None:
+            result.add(source.blackboardKey)
+
+    def visit_condition(action: ConditionalActionSource) -> None:
+        for condition in action.conditions:
+            add_scalar(condition.left)
+            add_scalar(condition.right)
+            if condition.buffStack is not None:
+                add_scalar(condition.buffStack.value)
+        for branch_action in (*action.succeedActions, *action.failActions):
+            if branch_action.nestedCondition is not None:
+                visit_condition(branch_action.nestedCondition)
+            if branch_action.blackboardMutation is not None:
+                result.add(branch_action.blackboardMutation.key)
+                add_scalar(branch_action.blackboardMutation.value)
+            if branch_action.buffBlackboardRead is not None:
+                result.add(branch_action.buffBlackboardRead.outputKey)
+
+    for action in actions:
+        visit_condition(action)
+    return result
+
+
+def collect_definition_helpers(
+    compiled: list[tuple[SkillSource, str]], damage_type_factories: set[str]
+) -> str:
+    """收集生成技能实际需要的 DSL helper，供两种输出入口共用。"""
+    helpers = {
+        *damage_type_factories,
+        "percentages",
+        "scheduled",
+        "sequence",
+        "step",
+        "withSkillBlackboard",
+    }
+    if any(skill.conditionalActions for skill, _ in compiled):
+        helpers.add("branch")
+    return ", ".join(sorted(helpers))
+
+
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
     compiled, damage_type_factories = compile_skill_entries(operator, skills)
-    helper_imports = ", ".join(
-        (
-            *sorted(damage_type_factories),
-            "percentages",
-            "scheduled",
-            "sequence",
-            "step",
-            "withSkillBlackboard",
-        )
-    )
+    helper_imports = collect_definition_helpers(compiled, damage_type_factories)
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
         "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
@@ -3646,16 +3719,7 @@ def render_operator_definition(
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
-    helper_imports = ", ".join(
-        (
-            *sorted(damage_type_factories),
-            "percentages",
-            "scheduled",
-            "sequence",
-            "step",
-            "withSkillBlackboard",
-        )
-    )
+    helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
     return "\n".join(
         [
             "/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */",
