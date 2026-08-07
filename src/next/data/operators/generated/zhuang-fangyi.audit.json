@@ -6311,6 +6311,16 @@
           ]
         },
         {
+          "frame": 15,
+          "actionOrder": [
+            79
+          ],
+          "itemType": "blackboardCalculation",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult"
+          ]
+        },
+        {
           "frame": 84,
           "actionOrder": [
             81,

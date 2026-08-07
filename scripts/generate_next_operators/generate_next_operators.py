@@ -161,8 +161,10 @@ class ResolvedScheduleItemSource:
     frame: int
     actionOrder: tuple[int, ...]
     itemType: str
+    sourcePath: tuple[str, ...]
     damageHit: ResolvedDamageHitSource | None
     conditionalAction: "ConditionalActionSource | None"
+    blackboardCalculation: "BlackboardCalculationSource | None"
 
 
 @dataclass(frozen=True)
@@ -2006,8 +2008,10 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             frame=hit.frame,
             actionOrder=hit.actionOrder,
             itemType="damage",
+            sourcePath=hit.sourcePath,
             damageHit=hit,
             conditionalAction=None,
+            blackboardCalculation=None,
         )
         for hit in collect_resolved_damage_hits(skill)
     ]
@@ -2016,10 +2020,24 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             frame=action.startFrame,
             actionOrder=(action.actionIndex,),
             itemType="condition",
+            sourcePath=action.actionPath,
             damageHit=None,
             conditionalAction=action,
+            blackboardCalculation=None,
         )
         for action in skill.conditionalActions
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=calculation.startFrame,
+            actionOrder=(calculation.actionIndex,),
+            itemType="blackboardCalculation",
+            sourcePath=(skill.skillId,),
+            damageHit=None,
+            conditionalAction=None,
+            blackboardCalculation=calculation,
+        )
+        for calculation in skill.blackboardCalculations
     )
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
@@ -2610,6 +2628,28 @@ def indent_source(source: str, spaces: int) -> list[str]:
     return [f"{prefix}{line}" for line in source.splitlines()]
 
 
+def compile_blackboard_calculation(
+    calculation: BlackboardCalculationPayload | BlackboardCalculationSource,
+    path: str,
+) -> str:
+    """将原生双操作数计算映射为独立步骤，避免与原地修改混淆。"""
+    operation = ACTION_VALUE_OPERATION_MAP.get(calculation.operation)
+    if operation not in {"add", "multiply", "divide"}:
+        raise ValueError(
+            f"{path}: unsupported action blackboard calculation {calculation.operation!r}"
+        )
+    return "\n".join(
+        [
+            "step('calculateActionValue', {",
+            f"  key: {ts_inline_literal(calculation.key)},",
+            f"  operation: {ts_inline_literal(operation)},",
+            f"  left: {compile_condition_operand(calculation.left, f'{path}.left')},",
+            f"  right: {compile_condition_operand(calculation.right, f'{path}.right')},",
+            "})",
+        ]
+    )
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource, path: str
 ) -> str:
@@ -2635,22 +2675,7 @@ def compile_conditional_branch_action(
             ]
         )
     if action.blackboardCalculation is not None:
-        calculation = action.blackboardCalculation
-        operation = ACTION_VALUE_OPERATION_MAP.get(calculation.operation)
-        if operation not in {"add", "multiply", "divide"}:
-            raise ValueError(
-                f"{path}: unsupported action blackboard calculation {calculation.operation!r}"
-            )
-        return "\n".join(
-            [
-                "step('calculateActionValue', {",
-                f"  key: {ts_inline_literal(calculation.key)},",
-                f"  operation: {ts_inline_literal(operation)},",
-                f"  left: {compile_condition_operand(calculation.left, f'{path}.left')},",
-                f"  right: {compile_condition_operand(calculation.right, f'{path}.right')},",
-                "})",
-            ]
-        )
+        return compile_blackboard_calculation(action.blackboardCalculation, path)
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 
@@ -3197,6 +3222,8 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
     if skill.conditionalActions:
         allowed_actions.add("IfElseAction")
+    if skill.blackboardCalculations:
+        allowed_actions.add("SimpleCalcBBAction")
     if ignored_auxiliary_classifications:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains and not effective_resource_gains:
@@ -3223,6 +3250,11 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
             step_lines = compile_conditional_action(
                 item.conditionalAction,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
+            ).splitlines()
+        elif item.blackboardCalculation is not None:
+            step_lines = compile_blackboard_calculation(
+                item.blackboardCalculation,
+                f"{skill.key}.schedule[{schedule_index}].blackboardCalculation",
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: schedule item has no payload")
@@ -3868,11 +3900,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                         "frame": item.frame,
                         "actionOrder": item.actionOrder,
                         "itemType": item.itemType,
-                        "sourcePath": (
-                            item.damageHit.sourcePath
-                            if item.damageHit is not None
-                            else item.conditionalAction.actionPath
-                        ),
+                        "sourcePath": item.sourcePath,
                     }
                     for item in collect_resolved_schedule(skill)
                 ],

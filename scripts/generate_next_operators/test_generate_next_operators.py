@@ -929,6 +929,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             inflictions=(),
             projectileLaunches=(),
             conditionalActions=(),
+            blackboardCalculations=(),
             unresolvedCombatActions=("SpawnAbilityEntity", "CreateBuffAction"),
             skillId="root",
             directDamageHits=(),
@@ -975,6 +976,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         condition = SimpleNamespace(
             startFrame=12,
             actionIndex=5,
+            actionPath=("root", "condition"),
             conditions=(
                 SimpleNamespace(
                     sourceType="CompareFloat",
@@ -1007,6 +1009,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             inflictions=(),
             projectileLaunches=(),
             conditionalActions=(condition,),
+            blackboardCalculations=(),
             unresolvedCombatActions=("IfElseAction", "SpawnAbilityEntity"),
             skillId="root",
             directDamageHits=(),
@@ -1028,6 +1031,56 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
         self.assertLess(source.index("branch("), source.index("step('dealDamage'"))
+
+    def test_resolved_damage_compiler_interleaves_root_blackboard_calculation(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        skill = SimpleNamespace(
+            key="attack",
+            timelineBlockFrames=20,
+            buffBehaviors=(),
+            auxiliaryActions=(),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(),
+            blackboardCalculations=(
+                SimpleNamespace(
+                    startFrame=12,
+                    actionIndex=5,
+                    key="attackScale",
+                    operation="Multiply",
+                    left=ScalarSource(None, "baseScale", None),
+                    right=ScalarSource(1.5, None, None),
+                ),
+            ),
+            unresolvedCombatActions=("SimpleCalcBBAction", "SpawnAbilityEntity"),
+            skillId="root",
+            directDamageHits=(),
+            projectileHits=(),
+            abilityEntityHits=(
+                SimpleNamespace(
+                    spawnFrame=12,
+                    actionOrder=(6,),
+                    skillId="entity_hit",
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=(unit,)),
+                    ),
+                    projectileHits=(),
+                    nestedAbilityEntityHits=(),
+                ),
+            ),
+        )
+
+        source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+
+        self.assertLess(source.index("calculateActionValue"), source.index("step('dealDamage'"))
 
     def test_skill_compiler_rejects_unconsumed_conditional_actions(self) -> None:
         skill = SimpleNamespace(
