@@ -57,6 +57,7 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - 没有战斗效果的表现投射物、教程标记和全等级为零的资源动作会保留在审计层，但不生成无效果 DSL 步骤。
 - `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 已有反编译闭环，`CheckEntityNum` 仍只保存原始目标集合参数，不会在固定单敌人模型中擅自改写成战斗状态。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
+- 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。
 - 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。重复动作不会排序或去重。
 - 顶层时间轴动作统一保留原生 `serverActionIndex`。递归子技能使用由各层 `serverActionIndex` 组成的 `actionOrder`，例如 `[3, 7]` 表示根动作 3 触发的子技能动作 7。跨载体归并按 `(frame, actionOrder)` 排序；分支子动作的 `actionIndex` 仍表示分支数组下标，两类索引不可互换。
 - SkillData 声明的动作黑板默认值会保留在审计层。正式 DSL 只注入已编译条件树实际读写的声明值，随后由 SkillPatch 的逐等级同名值覆盖；相机、输入方向等表现变量不会因为存在于原生黑板就进入战斗运行时。

@@ -44,10 +44,39 @@ from generate_next_operators import (
     typescript_identifier,
     validate_skill_groups,
     walk_actions,
+    walk_unconditional_actions,
 )
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
+        sequence = {
+            "actionData": [
+                {"$type": "Example.DamageAction+Data, Example", "serverActionIndex": 0},
+                {
+                    "$type": "Example.IfElseAction+Data, Example",
+                    "serverActionIndex": 1,
+                    "conditionAction": {"actionData": []},
+                    "succeedActions": {
+                        "actionData": [
+                            {
+                                "$type": "Example.SpawnAbilityEntity+Data, Example",
+                                "serverActionIndex": 2,
+                            }
+                        ]
+                    },
+                    "failActions": {"actionData": []},
+                },
+            ]
+        }
+
+        action_types = [
+            action["$type"].split(".")[-1].split("+")[0]
+            for action in walk_unconditional_actions(sequence)
+        ]
+
+        self.assertEqual(action_types, ["DamageAction", "IfElseAction"])
+
     def test_declared_blackboard_preserves_default_value_and_dynamic_flag(self) -> None:
         root = {
             "blackboard": [
@@ -1583,6 +1612,40 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual((hits[0].startFrame, hits[0].endFrame, hits[0].actionIndex), (13, 15, 1))
         self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (1.0, 2.0))
+
+    def test_direct_damage_does_not_project_conditional_branch_hits(self) -> None:
+        damage = {
+            "$type": "Example.DamageAction+Data, Example",
+            "serverActionIndex": 2,
+            "damageUnits": [],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 3,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                damage,
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 4,
+                                    "conditionAction": {"actionData": []},
+                                    "succeedActions": {"actionData": [damage]},
+                                    "failActions": {"actionData": [damage]},
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        hits = parse_direct_damage_hits(root, "skill.json", {})
+
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0].actionIndex, 2)
 
     def test_breaking_attack_reads_its_nested_scale(self) -> None:
         root = {

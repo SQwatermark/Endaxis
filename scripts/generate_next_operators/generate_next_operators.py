@@ -110,6 +110,7 @@ class ProjectileHitSource:
     sourceFile: str
     damageUnits: tuple[DamageUnitSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    conditionalActions: tuple["ConditionalActionSource", ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
@@ -133,6 +134,7 @@ class AbilityEntityHitSource:
     skillId: str
     sourceFile: str
     directDamageHits: tuple[TimedDamageSource, ...]
+    conditionalActions: tuple["ConditionalActionSource", ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
@@ -629,6 +631,19 @@ def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
     elif isinstance(value, list):
         for child in value:
             yield from walk_actions(child)
+
+
+def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
+    """只展开动作列表容器；具体 Action 的子树必须交给对应语义解析器。"""
+    if isinstance(value, dict):
+        if isinstance(value.get("$type"), str):
+            yield value
+            return
+        for child in value.values():
+            yield from walk_unconditional_actions(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk_unconditional_actions(child)
 
 
 def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
@@ -1215,7 +1230,7 @@ def parse_blackboard_calculations(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SimpleCalcBBAction":
                 continue
             payload = parse_blackboard_calculation_payload(
@@ -1293,7 +1308,7 @@ def parse_blackboard_runtime_actions(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             kind = action_name(action["$type"])
             if kind == "ModifyDynamicBlackboard":
                 payload = parse_blackboard_mutation_payload(
@@ -1369,7 +1384,7 @@ def parse_damage_units(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[DamageUnitSource, ...]:
     result: list[DamageUnitSource] = []
-    for action in walk_actions(root.get("actionGroupData")):
+    for action in walk_unconditional_actions(root.get("actionGroupData")):
         if action_name(action["$type"]) != "DamageAction":
             continue
         units = require_list(action.get("damageUnits"), f"{source_name}.DamageAction.damageUnits")
@@ -1448,7 +1463,7 @@ def parse_direct_damage_hits(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        actions = list(walk_actions(timeline.get("_sequenceActionData")))
+        actions = list(walk_unconditional_actions(timeline.get("_sequenceActionData")))
         for action in actions:
             if action_name(action["$type"]) != "DamageAction":
                 continue
@@ -1501,7 +1516,7 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SpellInfliction":
                 continue
             raw_type = action.get("inflictionType")
@@ -1578,7 +1593,7 @@ def parse_auxiliary_actions(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        actions = list(walk_actions(timeline.get("_sequenceActionData")))
+        actions = list(walk_unconditional_actions(timeline.get("_sequenceActionData")))
         for action in actions:
             if action.get("isEnable") is False:
                 continue
@@ -1679,7 +1694,7 @@ def parse_resource_gains(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "ObtainCostAction" or action.get("isEnable") is False:
                 continue
             payload = parse_resource_gain_payload(
@@ -1720,7 +1735,7 @@ def resolve_projectile_hits(
         launch_frame = base_frame + require_non_negative_int(
             timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "LaunchProjectile":
                 continue
             if action.get("isEnable") is False:
@@ -1774,6 +1789,11 @@ def resolve_projectile_hits(
                         hit_source_name,
                         inherited_blackboard or {},
                     ),
+                    conditionalActions=parse_conditional_actions(
+                        hit_root,
+                        hit_source_name,
+                        inherited_blackboard or {},
+                    ),
                     auxiliaryActions=parse_auxiliary_actions(
                         hit_root,
                         hit_source_name,
@@ -1815,7 +1835,7 @@ def parse_projectile_launches(
         launch_frame = base_frame + require_non_negative_int(
             timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "LaunchProjectile" or action.get("isEnable") is False:
                 continue
             payload = parse_projectile_launch_payload(
@@ -1852,7 +1872,7 @@ def resolve_ability_entity_hits(
         spawn_frame = base_frame + require_non_negative_int(
             timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SpawnAbilityEntity" or action.get("isEnable") is False:
                 continue
             payload = parse_ability_entity_spawn_payload(
@@ -1901,6 +1921,7 @@ def resolve_ability_entity_hits(
                     skillId=skill_id,
                     sourceFile=child_name,
                     directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
+                    conditionalActions=parse_conditional_actions(child, child_name, blackboard),
                     inflictions=parse_inflictions(child, child_name),
                     auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
                     resourceGains=parse_resource_gains(child, child_name, blackboard),
@@ -2080,7 +2101,7 @@ def resolve_buff_behaviors(
             if not isinstance(event_name, str) or not event_name:
                 raise ValueError(f"{buff_name}.buffEventAction[{event_index}].buffEvent: expected string")
             event_root = {"actionGroupData": {"actions": event.get("actions")}}
-            actions = list(walk_actions(event.get("actions")))
+            actions = list(walk_unconditional_actions(event.get("actions")))
             created_buff_ids: list[str] = []
             created_buff_behaviors: list[BuffBehaviorSource] = []
             for event_action in actions:
@@ -2901,6 +2922,14 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         raise ValueError(f"{skill.key}: non-zero projectile travel is not supported yet")
     if len(hit.directDamageHits) != 1:
         raise ValueError(f"{skill.key}: projectile hit requires exactly one direct damage action")
+    if hit.conditionalActions:
+        if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
+            raise ValueError(
+                f"{skill.key}: conditional projectile branch requires an explicit single-target omission declaration"
+            )
+        validate_ignored_recursive_projectile_conditions(
+            hit, f"{skill.key}.projectileHits[0].conditionalActions"
+        )
     if hit.nestedProjectileHits:
         if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
             raise ValueError(
@@ -2919,7 +2948,7 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         *({"CreateBuffAction"} if hit.auxiliaryActions else set()),
         *({"ObtainCostAction"} if hit.resourceGains else set()),
         *({"LaunchProjectile"} if hit.nestedProjectileHits else set()),
-        *({"IfElseAction"} if hit.nestedProjectileHits else set()),
+        *({"IfElseAction", "LaunchProjectile"} if hit.conditionalActions else set()),
     }
     if set(hit.combatActions) != expected_child_actions:
         raise ValueError(f"{skill.key}: projectile child actions are not fully accounted for")
@@ -3029,6 +3058,35 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
             "  },",
         ]
     )
+
+
+def validate_ignored_recursive_projectile_conditions(
+    hit: ProjectileHitSource, path: str
+) -> None:
+    """校验显式省略项确实只是在条件分支中再次发射同一命中技能。"""
+    launches: list[ProjectileLaunchSource] = []
+    for condition_index, condition in enumerate(hit.conditionalActions):
+        if condition.failActions:
+            raise ValueError(f"{path}[{condition_index}]: recursive omission has a fail branch")
+        for action_index, action in enumerate(condition.succeedActions):
+            if action.projectileLaunch is not None:
+                launches.append(action.projectileLaunch)
+                continue
+            if action.blackboardMutation is not None:
+                continue
+            raise ValueError(
+                f"{path}[{condition_index}].succeedActions[{action_index}]: "
+                f"unsupported recursive omission leaf {action.actionType!r}"
+            )
+    if len(launches) != 1:
+        raise ValueError(f"{path}: expected exactly one recursive projectile launch")
+    launch = launches[0]
+    if (
+        not launch.castSkillOnHit
+        or launch.projectileId != hit.projectileId
+        or launch.hitSkillId != hit.hitSkillId
+    ):
+        raise ValueError(f"{path}: recursive launch does not target the same projectile hit skill")
 
 
 def compile_resolved_damage_steps(

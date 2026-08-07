@@ -249,38 +249,81 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 5,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  }
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -705,38 +748,64 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 4,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 0.3333333,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 0.3333333,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -815,38 +884,64 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 4,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 0.3333333,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 0.3333333,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1330,38 +1425,81 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 7,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  }
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1440,38 +1578,81 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 7,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  }
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1550,38 +1731,81 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 7,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              },
-              "coefficient": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  }
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -2101,38 +2325,81 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
-          "auxiliaryActions": [],
-          "resourceGains": [
+          "conditionalActions": [
             {
               "startFrame": 0,
               "endFrame": 3,
-              "actionIndex": 6,
-              "resource": "sp",
-              "amount": {
-                "value": 0.0,
-                "blackboardKey": "atb",
-                "levelValues": [
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0,
-                  15.0
-                ]
-              },
-              "coefficient": {
-                "value": 1.0,
-                "blackboardKey": null,
-                "levelValues": null
-              }
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckMainCharacterCondition",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  }
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 1,
+                  "resourceGain": {
+                    "resource": "sp",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "atb",
+                      "levelValues": [
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0,
+                        15.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
+          "auxiliaryActions": [],
+          "resourceGains": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -3240,6 +3507,7 @@ export const perlicaGeneratedSource = {
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
+          "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
           "combatActions": [],
@@ -3257,6 +3525,7 @@ export const perlicaGeneratedSource = {
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
+          "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
           "combatActions": [],
@@ -3274,6 +3543,7 @@ export const perlicaGeneratedSource = {
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
+          "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
           "combatActions": [],
@@ -3291,6 +3561,7 @@ export const perlicaGeneratedSource = {
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
+          "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
           "combatActions": [],
@@ -4407,6 +4678,86 @@ export const perlicaGeneratedSource = {
               ]
             }
           ],
+          "conditionalActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "Equals",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "talent2",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CheckTagMatch",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                },
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "Equals",
+                  "left": {
+                    "value": 1.0,
+                    "blackboardKey": "EntityBB_bounced",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 0,
+                  "blackboardMutation": {
+                    "key": "EntityBB_bounced",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 2,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0004_pelica_combo_skill",
+                    "castSkillOnHit": true,
+                    "hitSkillId": "chr_0004_pelica_combo_skill_projhit"
+                  }
+                }
+              ],
+              "failActions": []
+            }
+          ],
           "auxiliaryActions": [
             {
               "startFrame": 0,
@@ -4492,224 +4843,7 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": [
-            {
-              "launchFrame": 24,
-              "actionOrder": [
-                7,
-                6
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0004_pelica_combo_skill",
-              "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
-              "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 2.5,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.8,
-                      0.88,
-                      0.96,
-                      1.04,
-                      1.12,
-                      1.2,
-                      1.28,
-                      1.36,
-                      1.44,
-                      1.54,
-                      1.66,
-                      1.8
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null
-                },
-                {
-                  "damageType": "Physical",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 0.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0
-                    ]
-                  }
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 3,
-                  "actionIndex": 11,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 2.5,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.8,
-                          0.88,
-                          0.96,
-                          1.04,
-                          1.12,
-                          1.2,
-                          1.28,
-                          1.36,
-                          1.44,
-                          1.54,
-                          1.66,
-                          1.8
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null
-                    },
-                    {
-                      "damageType": "Physical",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 0.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0,
-                          10.0
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ],
-              "auxiliaryActions": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 3,
-                  "actionIndex": 9,
-                  "actionType": "CreateBuffAction",
-                  "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
-                  "classification": "tutorialMarker",
-                  "blackboardAssignments": {},
-                  "nestedCombatActions": []
-                },
-                {
-                  "startFrame": 0,
-                  "endFrame": 3,
-                  "actionIndex": 10,
-                  "actionType": "CreateBuffAction",
-                  "sourceId": "buff_common_pulse_pulse_conduct_triggered",
-                  "classification": "electrificationReaction",
-                  "blackboardAssignments": {
-                    "duration": {
-                      "value": 7.5,
-                      "blackboardKey": "duration",
-                      "levelValues": [
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0,
-                        5.0
-                      ]
-                    },
-                    "extra_scaling": {
-                      "value": 0.0,
-                      "blackboardKey": "extra_scaling",
-                      "levelValues": null
-                    }
-                  },
-                  "nestedCombatActions": []
-                }
-              ],
-              "resourceGains": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 3,
-                  "actionIndex": 15,
-                  "resource": "ultimateEnergy",
-                  "amount": {
-                    "value": 0.2,
-                    "blackboardKey": "usp",
-                    "levelValues": [
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0,
-                      10.0
-                    ]
-                  },
-                  "coefficient": {
-                    "value": 1.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  }
-                }
-              ],
-              "combatActions": [
-                "CreateBuffAction",
-                "DamageAction",
-                "IfElseAction",
-                "LaunchProjectile",
-                "ObtainCostAction"
-              ],
-              "cycleTruncated": true,
-              "nestedProjectileHits": []
-            }
-          ]
+          "nestedProjectileHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -5448,6 +5582,7 @@ export const perlicaGeneratedSource = {
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
           "directDamageHits": [],
+          "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
           "resourceGains": [],

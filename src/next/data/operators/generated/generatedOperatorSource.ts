@@ -89,6 +89,7 @@ export interface GeneratedProjectileHitSource {
   readonly sourceFile: string;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   /** 命中技能内仍可能影响战斗的原生行为；非空时不得作为纯表现投射物省略。 */
@@ -111,6 +112,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly skillId: string;
   readonly sourceFile: string;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
