@@ -624,6 +624,110 @@ describe('CombatBuffContainer', () => {
     expect(starts).toEqual(['short', 'first-long', 'second-long']);
   });
 
+  it('enables the leading HighPriorityWithMaxStack instances and restores a dormant candidate', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const prioritized = (
+      id: string,
+      priority: number,
+      addition: number,
+    ): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.high-priority-with-limit',
+      stackingType: 'highPriorityWithMaxStack',
+      maxStackCount: { blackboardKey: 'limit' },
+      priority,
+      attributeModifiers: [
+        {
+          attribute: 'attack',
+          values: attributeModifierValues('addition', addition),
+          timing: 'runtime',
+        },
+      ],
+    });
+
+    const low = requireAddedBuff(
+      container.add(prioritized('low', 1, 10), 'low-source', {
+        blackboardValues: { limit: 2 },
+      }),
+    );
+    const high = requireAddedBuff(
+      container.add(prioritized('high', 3, 30), 'high-source', {
+        blackboardValues: { limit: 1 },
+      }),
+    );
+    const middle = requireAddedBuff(
+      container.add(prioritized('middle', 2, 20), 'middle-source', {
+        blackboardValues: { limit: 4 },
+      }),
+    );
+
+    expect(low.isFinished).toBe(false);
+    expect(low.isEnabled).toBe(false);
+    expect(high.isEnabled).toBe(true);
+    expect(middle.isEnabled).toBe(true);
+    expect(attributes.get('attack')).toBe(150);
+    expect(container.buffs).toHaveLength(3);
+
+    high.finish('other');
+    expect(high.isFinished).toBe(true);
+    expect(low.isEnabled).toBe(true);
+    expect(middle.isEnabled).toBe(true);
+    expect(attributes.get('attack')).toBe(130);
+    expect(container.buffs.filter(buff => !buff.isFinished)).toEqual([low, middle]);
+  });
+
+  it('uses duration and instance id as stable HighPriorityWithMaxStack tie-breakers', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const prioritized = (id: string, durationSeconds: number): CombatBuffDefinition<Attribute> => ({
+      id,
+      stackingKey: 'buff.high-priority-with-limit.tie',
+      stackingType: 'highPriorityWithMaxStack',
+      maxStackCount: 2,
+      priority: 1,
+      durationSeconds,
+    });
+
+    const short = requireAddedBuff(container.add(prioritized('short', 5), 'operator'));
+    const firstLong = requireAddedBuff(container.add(prioritized('first-long', 10), 'operator'));
+    const secondLong = requireAddedBuff(container.add(prioritized('second-long', 10), 'operator'));
+    const thirdLong = requireAddedBuff(container.add(prioritized('third-long', 10), 'operator'));
+
+    expect(short.isEnabled).toBe(false);
+    expect(firstLong.isEnabled).toBe(true);
+    expect(secondLong.isEnabled).toBe(true);
+    expect(thirdLong.isEnabled).toBe(false);
+    expect(thirdLong.isStarted).toBe(false);
+
+    firstLong.finish('other');
+    expect(short.isEnabled).toBe(false);
+    expect(secondLong.isEnabled).toBe(true);
+    expect(thirdLong.isEnabled).toBe(true);
+    expect(thirdLong.isStarted).toBe(true);
+  });
+
+  it('keeps HighPriorityWithMaxStack instances dormant when the configured limit is zero', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.high-priority-with-zero-limit',
+      stackingType: 'highPriorityWithMaxStack',
+      maxStackCount: 0,
+    };
+
+    const first = requireAddedBuff(container.add(definition, 'first-source'));
+    const second = requireAddedBuff(container.add(definition, 'second-source'));
+
+    expect(first.isFinished).toBe(false);
+    expect(second.isFinished).toBe(false);
+    expect(first.isEnabled).toBe(false);
+    expect(second.isEnabled).toBe(false);
+    expect(first.isStarted).toBe(false);
+    expect(second.isStarted).toBe(false);
+  });
+
   it('replaces the lowest-priority existing Stack instance before enabling the incoming one', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);

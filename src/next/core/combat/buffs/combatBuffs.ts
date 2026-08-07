@@ -463,6 +463,8 @@ class BuffStackingGroup<Key extends string> {
         return this.allocate(definition, sourceId, options);
       case 'highPriority':
         return this.allocatePrioritized(definition, sourceId, options);
+      case 'highPriorityWithMaxStack':
+        return this.allocatePrioritized(definition, sourceId, options);
       case 'stack':
         return this.stackInstances(definition, sourceId, options);
       case 'enhance':
@@ -488,7 +490,9 @@ class BuffStackingGroup<Key extends string> {
 
   refreshAfterFinish(): void {
     this.#currentStackCount = this.#buffs.filter(buff => !buff.isFinished).length;
-    if (this.stackingType === 'highPriority') this.refreshPriority();
+    if (this.stackingType === 'highPriority' || this.stackingType === 'highPriorityWithMaxStack') {
+      this.refreshPriority();
+    }
   }
 
   private allocate(
@@ -529,8 +533,13 @@ class BuffStackingGroup<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
+    const initialMaxStackCount =
+      this.stackingType === 'highPriorityWithMaxStack' && this.#currentStackCount === 0
+        ? resolveIncomingMaxStackCount(definition, options)
+        : undefined;
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
+    if (initialMaxStackCount !== undefined) this.#maxStackCount = initialMaxStackCount;
     this.#buffs.push(buff);
     this.#currentStackCount += 1;
     this.refreshPriority();
@@ -538,10 +547,12 @@ class BuffStackingGroup<Key extends string> {
   }
 
   private refreshPriority(): void {
+    const enabledLimit =
+      this.stackingType === 'highPriority' ? 1 : Math.max(0, this.#maxStackCount);
     let enabledCount = 0;
     for (const buff of [...this.#buffs].sort(compareBuffPriority)) {
       if (buff.isFinished) continue;
-      if (enabledCount < 1) {
+      if (enabledCount < enabledLimit) {
         enabledCount += 1;
         buff.enable();
       } else {
