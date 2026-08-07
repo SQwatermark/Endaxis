@@ -118,6 +118,7 @@
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -344,6 +345,7 @@
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -675,6 +677,7 @@
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -852,6 +855,7 @@
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
@@ -920,6 +924,7 @@
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [],
       "blackboardKeys": [
         "addition_vertical",
         "atk_scale",
@@ -1061,6 +1066,7 @@
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [
         "atb",
         "atk_scale"
@@ -1165,6 +1171,7 @@
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [],
       "blackboardKeys": [
         "atk_scale",
         "cam_angle",
@@ -1605,6 +1612,7 @@
           ]
         }
       ],
+      "abilityEntityHits": [],
       "blackboardKeys": [
         "owner_mainchar_alpha",
         "owner_mainchar_distance",
@@ -1718,6 +1726,22 @@
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 55,
+          "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
+          "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
+          "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
+          "directDamageHits": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
       "blackboardKeys": [
         "atk_scale",
         "crit",

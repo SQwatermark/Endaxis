@@ -272,6 +272,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -775,6 +776,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -1427,6 +1429,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -1915,6 +1918,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -2351,6 +2355,7 @@ export const perlicaGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -2825,6 +2830,7 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -3273,6 +3279,7 @@ export const perlicaGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -4017,6 +4024,7 @@ export const perlicaGeneratedSource = {
           ]
         }
       ],
+      "abilityEntityHits": [],
       "patch": {
         "levels": [
           1,
@@ -4533,6 +4541,22 @@ export const perlicaGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 55,
+          "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
+          "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
+          "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
+          "directDamageHits": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [],
+          "cycleTruncated": false
+        }
+      ],
       "patch": {
         "levels": [
           1,

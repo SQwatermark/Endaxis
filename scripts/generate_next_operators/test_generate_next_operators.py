@@ -1,6 +1,9 @@
 """验证干员生成器最关键的派生规则和严格校验。"""
 
 import unittest
+import json
+import tempfile
+from pathlib import Path
 from types import SimpleNamespace
 
 from generate_next_operators import (
@@ -13,6 +16,7 @@ from generate_next_operators import (
     parse_inflictions,
     parse_panel_attributes,
     parse_resource_gains,
+    resolve_ability_entity_hits,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -23,6 +27,50 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_ability_entity_child_skill_keeps_spawn_offset_and_combat_details(self) -> None:
+        spawn = {
+            "$type": "Example.SpawnAbilityEntity+Data, Example",
+            "isEnable": True,
+            "abilityEntityId": "ability_entity",
+            "abilityEntitySkillId": "child_skill",
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {"_startFrame": 12, "_endFrame": 12, "_sequenceActionData": spawn}
+                ]
+            }
+        }
+        child = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 3,
+                        "_sequenceActionData": {
+                            "$type": "Example.ObtainCostAction+Data, Example",
+                            "isEnable": True,
+                            "costType": "Atb",
+                            "isPercentValue": False,
+                            "costValue": {"useBlackboardKey": False, "value": 5, "blackboardKey": ""},
+                            "coefficient": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+                        },
+                    }
+                ]
+            }
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            source_dir = Path(directory)
+            (source_dir / "child_skill.json").write_text(json.dumps(child), encoding="utf-8")
+
+            hits = resolve_ability_entity_hits(root, "parent.json", source_dir, base_frame=7)
+
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0].spawnFrame, 19)
+        self.assertEqual(hits[0].skillId, "child_skill")
+        self.assertEqual(hits[0].combatActions, ("ObtainCostAction",))
+        self.assertEqual(hits[0].resourceGains[0].startFrame, 3)
+
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")
 

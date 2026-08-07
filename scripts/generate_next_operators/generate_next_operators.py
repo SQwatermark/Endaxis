@@ -112,6 +112,22 @@ class ProjectileHitSource:
 
 
 @dataclass(frozen=True)
+class AbilityEntityHitSource:
+    spawnFrame: int
+    abilityEntityId: str
+    skillId: str
+    sourceFile: str
+    directDamageHits: tuple[TimedDamageSource, ...]
+    inflictions: tuple[TimedInflictionSource, ...]
+    auxiliaryActions: tuple[AuxiliaryActionSource, ...]
+    resourceGains: tuple[TimedResourceGainSource, ...]
+    projectileHits: tuple[ProjectileHitSource, ...]
+    nestedAbilityEntityHits: tuple["AbilityEntityHitSource", ...]
+    combatActions: tuple[str, ...]
+    cycleTruncated: bool
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -132,6 +148,7 @@ class SkillSource:
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
+    abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     patch: SkillPatchSource
     blackboardKeys: tuple[str, ...]
     unresolvedCombatActions: tuple[str, ...]
@@ -700,6 +717,86 @@ def resolve_projectile_hits(
     return tuple(result)
 
 
+def resolve_ability_entity_hits(
+    root: dict[str, Any],
+    source_name: str,
+    source_dir: Path,
+    base_frame: int = 0,
+    stack: tuple[str, ...] = (),
+    inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
+) -> tuple[AbilityEntityHitSource, ...]:
+    """解析 SpawnAbilityEntity 引用的子技能，并保留父技能中的生成时刻。"""
+    result: list[AbilityEntityHitSource] = []
+    blackboard = inherited_blackboard or {}
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        spawn_frame = base_frame + require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        for action in walk_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "SpawnAbilityEntity" or action.get("isEnable") is False:
+                continue
+            ability_id = action.get("abilityEntityId")
+            skill_id = action.get("abilityEntitySkillId")
+            if not isinstance(ability_id, str) or not ability_id:
+                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntityId")
+            if not isinstance(skill_id, str) or not skill_id:
+                raise ValueError(f"{source_name}.SpawnAbilityEntity: expected non-empty abilityEntitySkillId")
+            child_name = f"{skill_id}.json"
+            child_path = source_dir / child_name
+            if not child_path.is_file():
+                raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
+            child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+            cycle_truncated = skill_id in stack
+            nested = (
+                ()
+                if cycle_truncated
+                else resolve_ability_entity_hits(
+                    child,
+                    child_name,
+                    source_dir,
+                    spawn_frame,
+                    (*stack, skill_id),
+                    blackboard,
+                )
+            )
+            combat_actions = tuple(
+                sorted(
+                    {
+                        action_name(item["$type"])
+                        for item in walk_actions(child.get("actionGroupData"))
+                        if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                    }
+                )
+            )
+            result.append(
+                AbilityEntityHitSource(
+                    spawnFrame=spawn_frame,
+                    abilityEntityId=ability_id,
+                    skillId=skill_id,
+                    sourceFile=child_name,
+                    directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
+                    inflictions=parse_inflictions(child, child_name),
+                    auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
+                    resourceGains=parse_resource_gains(child, child_name, blackboard),
+                    projectileHits=resolve_projectile_hits(
+                        child,
+                        child_name,
+                        source_dir,
+                        spawn_frame,
+                        inherited_blackboard=blackboard,
+                    ),
+                    nestedAbilityEntityHits=nested,
+                    combatActions=combat_actions,
+                    cycleTruncated=cycle_truncated,
+                )
+            )
+    return tuple(result)
+
+
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -832,6 +929,13 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileHits=resolve_projectile_hits(
+            root,
+            source_name,
+            source_dir,
+            stack=(skill_id,),
+            inherited_blackboard=patch.blackboard,
+        ),
+        abilityEntityHits=resolve_ability_entity_hits(
             root,
             source_name,
             source_dir,
@@ -1637,6 +1741,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
+                "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "blackboardKeys": skill.blackboardKeys,
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
