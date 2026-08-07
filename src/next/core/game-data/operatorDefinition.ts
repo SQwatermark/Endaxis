@@ -184,6 +184,10 @@ export const RESOURCE_RECIPIENTS = ['caster', 'team'] as const;
 /** 资源变化步骤当前允许作用的施法者或全队范围。 */
 export type ResourceRecipient = (typeof RESOURCE_RECIPIENTS)[number];
 
+export const SP_GAIN_KINDS = ['gain', 'refund'] as const;
+/** 技力增加是否计入返还技力；返还部分再次被消耗时不会重复转化为终结技能量。 */
+export type SpGainKind = (typeof SP_GAIN_KINDS)[number];
+
 /**
  * 语义战斗状态每层能够贡献的修正。
  * 这些定义由编译器展开，不能携带运行时回调或直接引用 UI 状态。
@@ -237,6 +241,8 @@ export interface CombatStepParameters {
     resource: CombatResource;
     amount: LevelValues;
     recipient: ResourceRecipient;
+    /** 仅对正向技力变化有效；省略时按普通获得处理。 */
+    spGainKind?: SpGainKind;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
   gainFinisherSp: { factor: number; recipient: 'team' };

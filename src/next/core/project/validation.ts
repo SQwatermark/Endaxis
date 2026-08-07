@@ -24,6 +24,7 @@ import {
   INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
   RESOURCE_RECIPIENTS,
+  SP_GAIN_KINDS,
   STATUS_MODIFIER_KINDS,
 } from '../game-data/operatorDefinition';
 import {
@@ -64,6 +65,7 @@ const damageTags = new Set<string>(DAMAGE_TAGS);
 const elementalReactions = new Set<string>(ELEMENTAL_REACTIONS);
 const operatorAttributes = new Set<string>(OPERATOR_ATTRIBUTES);
 const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
+const spGainKinds = new Set<string>(SP_GAIN_KINDS);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
 
@@ -295,6 +297,15 @@ function validateCombatStepParameters(
       requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
       validateLevelValues(parameters.amount, `${path}.amount`, issues);
       requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
+      if (parameters.spGainKind !== undefined) {
+        requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
+        if (parameters.resource !== 'sp') {
+          issues.push({
+            path: `${path}.spGainKind`,
+            message: "is only valid when resource is 'sp'",
+          });
+        }
+      }
       break;
     case 'gainSquadUltimateEnergyFromSkillCost':
       validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);

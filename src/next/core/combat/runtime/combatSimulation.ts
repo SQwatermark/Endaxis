@@ -1,6 +1,7 @@
 /**
  * 一次战斗实例的最小逐帧驱动器。
- * 系统按注册顺序更新；装配层必须依据已确认的原生顺序注册，不能依赖对象遍历偶然排序。
+ * 当前注册顺序与原生同一 TickGroup 的列表顺序一致；跨阶段及跨实体注册来源仍由装配层显式确定。
+ * 调用方不得依赖对象映射或集合的偶然遍历顺序注册系统。
  */
 import { CombatClock } from './combatClock';
 
@@ -9,7 +10,7 @@ export interface FrameRuntime {
   advanceFrame(): void;
 }
 
-/** 先推进共享时钟，再更新已注册的运行时系统。 */
+/** 先推进共享时钟，再按当前显式注册顺序更新运行时系统。 */
 export class CombatSimulation {
   readonly #systems: FrameRuntime[] = [];
 

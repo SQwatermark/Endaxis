@@ -132,6 +132,9 @@ function resolveStep(
             `${path}.parameters.amount`,
           ),
           recipient: step.parameters.recipient,
+          ...(step.parameters.spGainKind === undefined
+            ? {}
+            : { spGainKind: step.parameters.spGainKind }),
         },
       };
     case 'applyStatus':

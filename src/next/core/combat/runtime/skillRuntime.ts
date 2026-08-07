@@ -16,6 +16,8 @@ import type { CombatResources } from './combatResources';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
+/** 当前已闭环、会改变技能结束事实的中断来源。 */
+export type RuntimeSkillInterruptReason = 'castNextSkill';
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationExecutor {
@@ -94,6 +96,10 @@ export class SkillRuntime {
     return this.#state;
   }
 
+  get skillId(): string {
+    return this.#program.skillId;
+  }
+
   get passedFrames(): number {
     return this.#passedFrames;
   }
@@ -158,6 +164,13 @@ export class SkillRuntime {
     this.#timeline?.end(this.#passedFrames, this.#context);
     this.#state = 'ended';
     this.record('SkillEnded');
+  }
+
+  interrupt(reason: RuntimeSkillInterruptReason): void {
+    if (this.#state !== 'casting') return;
+    this.#timeline?.end(this.#passedFrames, this.#context);
+    this.#state = 'ended';
+    this.record('SkillInterrupted', { reason });
   }
 
   createSequence(sequence: ResolvedActionSequence): ActionSequence {

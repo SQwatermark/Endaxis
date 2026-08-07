@@ -21,7 +21,9 @@ function createBattleSkillRuntime(initialSp: number) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
+    maxSp: 300,
     returnedSp: 0,
+    spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
     ultimateEnergySystemUnlocked: true,
     normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
     squad: [
@@ -103,7 +105,7 @@ describe('SkillRuntime', () => {
     expect(fixture.receipt.entries[0]?.event).toBe('SkillCastRejectedByCost');
   });
 
-  it('checks the shared resource again at a delayed cost point', () => {
+  it('continues the native timeline when shared resource is unavailable at the cost point', () => {
     const program = compileSkill({
       operatorId: 'perlica',
       skillGroupKey: 'battleSkill',
@@ -114,26 +116,35 @@ describe('SkillRuntime', () => {
     const clock = new CombatClock();
     const resources = new CombatResources({
       sp: 100,
+      maxSp: 300,
       returnedSp: 0,
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
       squad: [],
     });
     const receipt = new CombatReceiptCollector();
+    const operations: CombatOperationExecutor = {
+      execute: vi.fn(() => true),
+      evaluate: vi.fn(() => true),
+    };
     const runtime = new SkillRuntime(program, {
       clock,
       resources,
       receipt,
-      operations: { execute: () => true, evaluate: () => true },
+      operations,
     });
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);
     expect(runtime.tryStart()).toBe(true);
     expect(resources.pay('other', [{ resource: 'sp', value: 100 }]).paid).toBe(true);
 
-    simulation.advanceFrames(3);
+    simulation.advanceFrames(13);
 
     expect(runtime.appliedCost).toBe(false);
-    expect(receipt.entries.at(-1)?.event).toBe('SkillCostRejected');
+    expect(runtime.state).toBe('casting');
+    expect(operations.execute).toHaveBeenCalledTimes(3);
+    expect(receipt.entries.some(entry => entry.event === 'SkillCostRejected')).toBe(true);
+    expect(receipt.entries.at(-1)?.event).toBe('TimelineActionEnded');
   });
 });

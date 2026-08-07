@@ -3,6 +3,7 @@
  * 技能费用和回复都应通过这里结算，投影层不得另算一份资源曲线作为合法性依据。
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
+import type { SpGainKind } from '../../game-data/operatorDefinition';
 
 const RESOURCE_EPSILON = 0.0001;
 const ULTIMATE_ENERGY_EPSILON = 0.00001;
@@ -23,10 +24,19 @@ export interface NormalSkillUltimateEnergySettings {
   readonly otherGainPerSp: number;
 }
 
+/** 战斗内共享技力自然恢复所需的有效参数与初始计时状态。 */
+export interface SpRecoverySnapshot {
+  readonly valuePerSecond: number;
+  readonly pauseDuration: number;
+  readonly pauseRemaining: number;
+}
+
 /** 创建一次战斗资源账本所需的完整初始状态。 */
 export interface CombatResourceSnapshot {
   readonly sp: number;
+  readonly maxSp: number;
   readonly returnedSp: number;
+  readonly spRecovery: SpRecoverySnapshot;
   readonly ultimateEnergySystemUnlocked: boolean;
   readonly squad: readonly OperatorResourceSnapshot[];
   readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
@@ -36,6 +46,15 @@ export interface CombatResourceSnapshot {
 export interface SkillPaymentResult {
   readonly paid: boolean;
   readonly nonReturnedSpCost: number;
+}
+
+/** 一次共享技力增加的请求值、实际值与前后账本状态。 */
+export interface SpChange {
+  readonly requestedValue: number;
+  readonly actualValue: number;
+  readonly previousValue: number;
+  readonly currentValue: number;
+  readonly gainKind: SpGainKind;
 }
 
 /** 一次终结技能量变化的请求值、实际值和前后状态。 */
@@ -68,7 +87,11 @@ function requireFinite(value: number, path: string): void {
 /** 原生共享技力与按队伍顺序保存的终结技能量状态。 */
 export class CombatResources {
   #sp: number;
+  readonly #maxSp: number;
   #returnedSp: number;
+  readonly #spRecoveryPerSecond: number;
+  readonly #spRecoveryPauseDuration: number;
+  #spRecoveryPauseRemaining: number;
   readonly #ultimateEnergySystemUnlocked: boolean;
   readonly #squad: readonly OperatorResources[];
   readonly #operators = new Map<string, OperatorResources>();
@@ -76,7 +99,17 @@ export class CombatResources {
 
   constructor(snapshot: CombatResourceSnapshot) {
     requireNonNegativeFinite(snapshot.sp, 'sp');
+    requireNonNegativeFinite(snapshot.maxSp, 'maxSp');
     requireNonNegativeFinite(snapshot.returnedSp, 'returnedSp');
+    requireNonNegativeFinite(snapshot.spRecovery.valuePerSecond, 'spRecovery.valuePerSecond');
+    requireNonNegativeFinite(snapshot.spRecovery.pauseDuration, 'spRecovery.pauseDuration');
+    requireNonNegativeFinite(snapshot.spRecovery.pauseRemaining, 'spRecovery.pauseRemaining');
+    if (snapshot.sp > snapshot.maxSp + RESOURCE_EPSILON) {
+      throw new RangeError('sp exceeds its maximum');
+    }
+    if (snapshot.returnedSp > snapshot.sp + RESOURCE_EPSILON) {
+      throw new RangeError('returnedSp exceeds current sp');
+    }
     requireFinite(
       snapshot.normalSkillUltimateEnergy.selfGainPerSp,
       'normalSkillUltimateEnergy.selfGainPerSp',
@@ -86,7 +119,11 @@ export class CombatResources {
       'normalSkillUltimateEnergy.otherGainPerSp',
     );
     this.#sp = snapshot.sp;
+    this.#maxSp = snapshot.maxSp;
     this.#returnedSp = snapshot.returnedSp;
+    this.#spRecoveryPerSecond = snapshot.spRecovery.valuePerSecond;
+    this.#spRecoveryPauseDuration = snapshot.spRecovery.pauseDuration;
+    this.#spRecoveryPauseRemaining = snapshot.spRecovery.pauseRemaining;
     this.#ultimateEnergySystemUnlocked = snapshot.ultimateEnergySystemUnlocked;
     this.#normalSkillUltimateEnergy = snapshot.normalSkillUltimateEnergy;
     this.#squad = snapshot.squad.map((member, index) => {
@@ -119,6 +156,44 @@ export class CombatResources {
     return this.#returnedSp;
   }
 
+  get spRecoveryPauseRemaining(): number {
+    return this.#spRecoveryPauseRemaining;
+  }
+
+  gainSp(value: number, gainKind: SpGainKind = 'gain'): SpChange {
+    requireNonNegativeFinite(value, 'sp gain');
+    const previousValue = this.#sp;
+    this.#sp = Math.min(this.#maxSp, previousValue + value);
+    const actualValue = this.#sp - previousValue;
+    if (gainKind === 'refund') this.#returnedSp += actualValue;
+    return {
+      requestedValue: value,
+      actualValue,
+      previousValue,
+      currentValue: this.#sp,
+      gainKind,
+    };
+  }
+
+  /**
+   * 推进战斗内自然恢复。暂停在本帧开始时仍有效时，整帧都不会恢复技力。
+   */
+  advanceInCombatSpRecovery(deltaSeconds: number): SpChange {
+    requireNonNegativeFinite(deltaSeconds, 'sp recovery delta');
+    if (this.#spRecoveryPauseRemaining > RESOURCE_EPSILON) {
+      this.#spRecoveryPauseRemaining -= deltaSeconds;
+      return this.#unchangedSpChange(0);
+    }
+
+    const requestedValue = this.#spRecoveryPerSecond * deltaSeconds;
+    const change = this.gainSp(requestedValue);
+    const overflow = requestedValue - change.actualValue;
+    if (this.#returnedSp > RESOURCE_EPSILON && overflow > RESOURCE_EPSILON) {
+      this.#returnedSp = Math.max(0, this.#returnedSp - overflow);
+    }
+    return change;
+  }
+
   getUltimateEnergy(operatorId: string): number {
     return this.#requireOperator(operatorId).ultimateEnergy;
   }
@@ -140,6 +215,7 @@ export class CombatResources {
         const consumedReturnedSp = Math.min(this.#returnedSp, cost.value);
         this.#returnedSp -= consumedReturnedSp;
         nonReturnedSpCost = cost.value - consumedReturnedSp;
+        this.#spRecoveryPauseRemaining = this.#spRecoveryPauseDuration;
       } else {
         const operator = this.#requireOperator(operatorId);
         // 原生 `Skill.ApplyCost` 会忽略终结技能量 Setter 的返回值。
@@ -191,6 +267,16 @@ export class CombatResources {
     if (Math.abs(clamped - operator.ultimateEnergy) <= ULTIMATE_ENERGY_EPSILON) return false;
     operator.ultimateEnergy = clamped;
     return true;
+  }
+
+  #unchangedSpChange(requestedValue: number): SpChange {
+    return {
+      requestedValue,
+      actualValue: 0,
+      previousValue: this.#sp,
+      currentValue: this.#sp,
+      gainKind: 'gain',
+    };
   }
 
   #requireOperator(operatorId: string): OperatorResources {

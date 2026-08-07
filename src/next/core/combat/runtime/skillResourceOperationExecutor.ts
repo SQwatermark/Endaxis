@@ -26,6 +26,32 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: SkillResourceOperationDependencies) {}
 
   execute(step: RuntimeOperation): boolean {
+    if (
+      step.kind === 'changeResource' &&
+      step.parameters.resource === 'sp' &&
+      step.parameters.recipient === 'team'
+    ) {
+      const change = this.dependencies.resources.gainSp(
+        step.parameters.amount,
+        step.parameters.spGainKind,
+      );
+      this.dependencies.receipt.record({
+        frame: this.dependencies.clock.frame,
+        time: this.dependencies.clock.time,
+        event: 'SpChanged',
+        sourceId: this.dependencies.sourceOperatorId,
+        data: {
+          skillId: this.dependencies.skillId,
+          requestedValue: change.requestedValue,
+          actualValue: change.actualValue,
+          previousValue: change.previousValue,
+          currentValue: change.currentValue,
+          gainKind: change.gainKind,
+        },
+      });
+      return true;
+    }
+
     if (step.kind !== 'gainSquadUltimateEnergyFromSkillCost') {
       return this.dependencies.delegate.execute(step);
     }

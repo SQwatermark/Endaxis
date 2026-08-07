@@ -304,7 +304,12 @@ const comboSkill = {
             step('consumeStatus', { statusKey: 'comboSusceptibility', target: 'enemy' }),
             step(
               'changeResource',
-              { resource: 'sp', amount: comboSpReturn, recipient: 'team' },
+              {
+                resource: 'sp',
+                amount: comboSpReturn,
+                recipient: 'team',
+                spGainKind: 'refund',
+              },
               'comboSkill.intellectSpReturn',
             ),
             step('applyStatus', {

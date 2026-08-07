@@ -68,6 +68,50 @@ describe('compileSkill', () => {
     expect(JSON.stringify(program)).not.toContain('[0.8,');
   });
 
+  it('preserves the SP refund category while resolving its level value', () => {
+    const skill = {
+      key: 'refund',
+      durationFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          endFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource',
+                parameters: {
+                  resource: 'sp',
+                  amount: [10, 20],
+                  recipient: 'team',
+                  spGainKind: 'refund',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'comboSkill',
+      skillType: 'comboSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'changeResource',
+      parameters: {
+        resource: 'sp',
+        amount: 20,
+        recipient: 'team',
+        spGainKind: 'refund',
+      },
+    });
+  });
+
   it('rejects paid skills whose native cost frame has not been recovered', () => {
     const incomplete = {
       key: 'incomplete',

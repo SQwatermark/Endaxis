@@ -4,7 +4,9 @@ import { CombatResources } from './combatResources';
 function createResources() {
   return new CombatResources({
     sp: 100,
+    maxSp: 300,
     returnedSp: 10,
+    spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
     ultimateEnergySystemUnlocked: true,
     normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
     squad: [
@@ -27,6 +29,25 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('tracks only the applied part of a capped refund as returned SP', () => {
+    const resources = createResources();
+
+    expect(resources.gainSp(250, 'refund')).toEqual({
+      requestedValue: 250,
+      actualValue: 200,
+      previousValue: 100,
+      currentValue: 300,
+      gainKind: 'refund',
+    });
+    expect(resources.returnedSp).toBe(210);
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 220 }])).toEqual({
+      paid: true,
+      nonReturnedSpCost: 10,
+    });
+    expect(resources.returnedSp).toBe(0);
+  });
+
   it('tracks the native non-returned SP portion while paying the full cost', () => {
     const resources = createResources();
 
@@ -36,6 +57,43 @@ describe('CombatResources', () => {
     });
     expect(resources.sp).toBe(60);
     expect(resources.returnedSp).toBe(0);
+  });
+
+  it('pauses combat recovery for whole frames after paying SP', () => {
+    const resources = createResources();
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 40 }]).paid).toBe(true);
+    expect(resources.spRecoveryPauseRemaining).toBe(1);
+
+    expect(resources.advanceInCombatSpRecovery(0.6).actualValue).toBe(0);
+    expect(resources.advanceInCombatSpRecovery(0.5).actualValue).toBe(0);
+    expect(resources.sp).toBe(60);
+    expect(resources.spRecoveryPauseRemaining).toBeCloseTo(-0.1);
+
+    expect(resources.advanceInCombatSpRecovery(0.5).actualValue).toBe(5);
+    expect(resources.sp).toBe(65);
+  });
+
+  it('removes capped natural recovery overflow from the returned SP bucket', () => {
+    const resources = createResources();
+    resources.gainSp(200, 'refund');
+
+    expect(resources.sp).toBe(300);
+    expect(resources.returnedSp).toBe(210);
+    expect(resources.advanceInCombatSpRecovery(0.5)).toMatchObject({
+      requestedValue: 5,
+      actualValue: 0,
+      previousValue: 300,
+      currentValue: 300,
+    });
+    expect(resources.returnedSp).toBe(205);
+  });
+
+  it('does not start the recovery pause when SP payment is rejected', () => {
+    const resources = createResources();
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 200 }]).paid).toBe(false);
+    expect(resources.spRecoveryPauseRemaining).toBe(0);
   });
 
   it('uses squad order, self/other settings, and each target gain multiplier', () => {
@@ -65,7 +123,9 @@ describe('CombatResources', () => {
   it('applies the unlock, gain-permission, maximum, and epsilon gates', () => {
     const resources = new CombatResources({
       sp: 100,
+      maxSp: 300,
       returnedSp: 0,
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 1, otherGainPerSp: 1 },
       squad: [
@@ -95,7 +155,9 @@ describe('CombatResources', () => {
   it('marks ultimate-energy cost as paid when the locked setter rejects the write', () => {
     const resources = new CombatResources({
       sp: 0,
+      maxSp: 300,
       returnedSp: 0,
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: false,
       normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
       squad: [

@@ -19,12 +19,80 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('SkillResourceOperationExecutor', () => {
+  it('records refunded team SP in the returned-SP bucket', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 280,
+      maxSp: 300,
+      returnedSp: 0,
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'arcane',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          canGainUntaggedUltimateEnergy: true,
+        },
+      ],
+    });
+    const delegatedKinds: string[] = [];
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'arcane',
+      skillId: 'comboSkill',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      delegate: {
+        execute: step => {
+          delegatedKinds.push(step.kind);
+          return true;
+        },
+        evaluate: () => true,
+      },
+    });
+
+    expect(
+      operations.execute({
+        kind: 'changeResource',
+        parameters: {
+          resource: 'sp',
+          amount: 30,
+          recipient: 'team',
+          spGainKind: 'refund',
+        },
+      }),
+    ).toBe(true);
+
+    expect(resources.sp).toBe(300);
+    expect(resources.returnedSp).toBe(20);
+    expect(delegatedKinds).toEqual([]);
+    expect(receipt.entries[0]).toMatchObject({
+      event: 'SpChanged',
+      sourceId: 'arcane',
+      data: {
+        skillId: 'comboSkill',
+        requestedValue: 30,
+        actualValue: 20,
+        previousValue: 280,
+        currentValue: 300,
+        gainKind: 'refund',
+      },
+    });
+  });
+
   it('carries a Perlica cast cost into ordered squad ultimate-energy changes', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
     const resources = new CombatResources({
       sp: 100,
+      maxSp: 300,
       returnedSp: 10,
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
       squad: [
