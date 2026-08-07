@@ -7,6 +7,7 @@ import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const emptyEnemyBuffs = {
+  getCountByTags: () => 0,
   findFirstByTags: () => undefined,
   finishByTags: () => 0,
 };

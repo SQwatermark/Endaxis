@@ -123,6 +123,21 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
         requireNonNegativeInteger(value.minimumStacks, `${path}.minimumStacks`, issues);
       }
       break;
+    case 'buffStackCompare':
+      if (value.target !== 'enemy') {
+        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
+      }
+      requireEnum(value.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
+      if (!Array.isArray(value.buffTagIds) || value.buffTagIds.length === 0) {
+        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
+      } else {
+        value.buffTagIds.forEach((tagId, index) =>
+          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
+        );
+      }
+      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
+      requireFiniteNumber(value.value, `${path}.value`, issues);
+      break;
     case 'elementalInflictionPresent': {
       const elements = Array.isArray(value.elements) ? value.elements : [value.elements];
       elements.forEach((element, index) =>

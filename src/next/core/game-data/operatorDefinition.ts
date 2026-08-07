@@ -146,6 +146,15 @@ export type CombatCondition =
   | { kind: 'contextFlagEquals'; flag: string; value: boolean | number | string }
   | { kind: 'statusActive'; statusKey: string; target: CombatTarget; minimumStacks?: number }
   | {
+      /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
+      kind: 'buffStackCompare';
+      target: 'enemy';
+      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      buffTagIds: readonly number[];
+      operator: ComparisonOperator;
+      value: number;
+    }
+  | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
       minimumStacks?: number;
@@ -169,6 +178,7 @@ export const COMBAT_CONDITION_KINDS = [
   'targetStaggered',
   'contextFlagEquals',
   'statusActive',
+  'buffStackCompare',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',

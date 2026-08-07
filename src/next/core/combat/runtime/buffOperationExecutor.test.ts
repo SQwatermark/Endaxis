@@ -12,6 +12,35 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('compares matching buff enhance stacks with the native tolerance', () => {
+    const path = 'buff/status/conduct';
+    const target = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path]),
+    );
+    const definition = {
+      id: 'conduct',
+      stackingType: 'enhance' as const,
+      maxStackCount: 4,
+      applyTags: [gameplayTagIdFromPath(path)],
+    };
+    target.add(definition, 'operator');
+    target.add(definition, 'operator');
+    const executor = new BuffOperationExecutor({ target, delegate });
+    const condition = {
+      kind: 'buffStackCompare' as const,
+      target: 'enemy' as const,
+      tagQueryType: 'hasAny' as const,
+      buffTagIds: [gameplayTagIdFromPath(path)],
+      operator: 'greaterOrEqual' as const,
+      value: 2.000009,
+    };
+
+    expect(executor.evaluate(condition)).toBe(true);
+    expect(executor.evaluate({ ...condition, value: 2.000011 })).toBe(false);
+  });
+
   it('reads the first matching active buff and writes its value to the action blackboard', () => {
     const path = 'buff/status/conduct';
     const target = new CombatBuffContainer(
