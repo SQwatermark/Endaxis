@@ -172,6 +172,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 0.9,
                 "blackboardKey": "atk_scale",
@@ -495,6 +496,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
@@ -529,6 +531,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
@@ -896,6 +899,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
@@ -930,6 +934,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
@@ -964,6 +969,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
@@ -1321,6 +1327,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
@@ -1344,6 +1351,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Physical",
               "attributeType": "Poise",
+              "calculation": "standard",
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": null,
@@ -1779,10 +1787,24 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "breakingAttack",
               "attackScale": {
-                "value": 4.0,
-                "blackboardKey": null,
-                "levelValues": null
+                "value": 5.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "poiseValue": null
             }
@@ -2150,6 +2172,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
@@ -2614,16 +2637,31 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
-                "value": 2.85,
-                "blackboardKey": null,
-                "levelValues": null
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
+                ]
               },
               "poiseValue": null
             },
             {
               "damageType": "Pulse",
               "attributeType": "Poise",
+              "calculation": "standard",
               "attackScale": {
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
@@ -3032,6 +3070,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 2.5,
                 "blackboardKey": "atk_scale",
@@ -3055,6 +3094,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Physical",
               "attributeType": "Poise",
+              "calculation": "standard",
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": null,
@@ -3092,6 +3132,7 @@ export const perlicaGeneratedSource = {
                 {
                   "damageType": "Pulse",
                   "attributeType": "Hp",
+                  "calculation": "standard",
                   "attackScale": {
                     "value": 2.5,
                     "blackboardKey": "atk_scale",
@@ -3115,6 +3156,7 @@ export const perlicaGeneratedSource = {
                 {
                   "damageType": "Physical",
                   "attributeType": "Poise",
+                  "calculation": "standard",
                   "attackScale": {
                     "value": 0.0,
                     "blackboardKey": null,
@@ -3606,6 +3648,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Hp",
+              "calculation": "standard",
               "attackScale": {
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
@@ -3629,6 +3672,7 @@ export const perlicaGeneratedSource = {
             {
               "damageType": "Pulse",
               "attributeType": "Poise",
+              "calculation": "standard",
               "attackScale": {
                 "value": 6.0,
                 "blackboardKey": "atk_scale",

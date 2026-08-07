@@ -51,6 +51,7 @@ class SkillPatchSource:
 class DamageUnitSource:
     damageType: str
     attributeType: str
+    calculation: str
     attackScale: ScalarSource
     poiseValue: ScalarSource | None
 
@@ -208,14 +209,35 @@ def parse_damage_units(
         units = require_list(action.get("damageUnits"), f"{source_name}.DamageAction.damageUnits")
         for index, raw_unit in enumerate(units):
             unit = require_dict(raw_unit, f"{source_name}.DamageAction.damageUnits[{index}]")
+            simple_calculation = unit.get("simpleCalculation")
+            if not isinstance(simple_calculation, bool):
+                raise ValueError(f"{source_name}.DamageAction.damageUnits[{index}].simpleCalculation: expected boolean")
+            attack_scale_source = unit.get("atkScale")
+            calculation = "standard"
+            if not simple_calculation:
+                raw_calculation = require_dict(
+                    unit.get("atkCalculation"),
+                    f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation",
+                )
+                calculation_type = action_name(str(raw_calculation.get("$type", "")))
+                calculation_types = {
+                    "AtkScaleCalculation": "standard",
+                    "BreakingAttackCalculation": "breakingAttack",
+                }
+                if calculation_type not in calculation_types:
+                    raise ValueError(
+                        f"{source_name}.DamageAction.damageUnits[{index}]: unsupported calculation {calculation_type}"
+                    )
+                calculation = calculation_types[calculation_type]
+                attack_scale_source = raw_calculation.get("atkScale")
             poise_value = None
             if unit.get("damageAttributeType") == "Poise":
-                calculation = require_dict(
+                poise_calculation = require_dict(
                     unit.get("poiseCalculation"),
                     f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation",
                 )
                 poise_value = parse_scalar(
-                    calculation.get("value"),
+                    poise_calculation.get("value"),
                     f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation.value",
                     inherited_blackboard,
                 )
@@ -223,8 +245,9 @@ def parse_damage_units(
                 DamageUnitSource(
                     damageType=str(unit.get("damageType", "")),
                     attributeType=str(unit.get("damageAttributeType", "")),
+                    calculation=calculation,
                     attackScale=parse_scalar(
-                        unit.get("atkScale"),
+                        attack_scale_source,
                         f"{source_name}.DamageAction.damageUnits[{index}].atkScale",
                         inherited_blackboard,
                     ),

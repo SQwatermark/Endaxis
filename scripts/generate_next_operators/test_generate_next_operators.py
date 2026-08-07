@@ -7,6 +7,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_direct_damage_hits,
+    parse_damage_units,
     parse_skill_patch,
     percentage_values,
     ts_inline_literal,
@@ -86,6 +87,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         {
                                             "damageType": "Pulse",
                                             "damageAttributeType": "Hp",
+                                            "simpleCalculation": True,
                                             "atkScale": {
                                                 "useBlackboardKey": True,
                                                 "blackboardKey": "atk",
@@ -105,6 +107,40 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual((hits[0].startFrame, hits[0].endFrame, hits[0].actionIndex), (13, 15, 1))
         self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (1.0, 2.0))
+
+    def test_breaking_attack_reads_its_nested_scale(self) -> None:
+        root = {
+            "actionGroupData": {
+                "action": {
+                    "$type": "Example.DamageAction, Example",
+                    "damageUnits": [
+                        {
+                            "damageType": "Pulse",
+                            "damageAttributeType": "Hp",
+                            "simpleCalculation": False,
+                            "atkScale": {
+                                "useBlackboardKey": False,
+                                "blackboardKey": "",
+                                "value": 4,
+                            },
+                            "atkCalculation": {
+                                "$type": "Example.BreakingAttackCalculation, Example",
+                                "atkScale": {
+                                    "useBlackboardKey": True,
+                                    "blackboardKey": "atk_scale",
+                                    "value": 5,
+                                },
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        unit = parse_damage_units(root, "finisher.json", {"atk_scale": (4.0, 9.0)})[0]
+
+        self.assertEqual(unit.calculation, "breakingAttack")
+        self.assertEqual(unit.attackScale.levelValues, (4.0, 9.0))
 
 
 if __name__ == "__main__":

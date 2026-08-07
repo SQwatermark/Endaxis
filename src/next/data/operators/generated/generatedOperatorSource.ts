@@ -28,6 +28,7 @@ export interface GeneratedSkillPatchSource {
 export interface GeneratedDamageUnitSource {
   readonly damageType: string;
   readonly attributeType: string;
+  readonly calculation: 'standard' | 'breakingAttack';
   readonly attackScale: GeneratedScalarSource;
   readonly poiseValue: GeneratedScalarSource | null;
 }
