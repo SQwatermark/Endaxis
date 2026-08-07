@@ -81,6 +81,7 @@ export interface GeneratedTimedResourceGainSource {
 export interface GeneratedProjectileHitSource {
   readonly launchFrame: number;
   /** 暂定为0；后续接入 ProjectileData 飞行时间后替换。 */
+  /** 单敌人必命中模型暂不计算距离、轨迹和范围，命中子技能与发射处于同一帧。 */
   readonly assumedTravelFrames: 0;
   readonly projectileId: string;
   readonly hitSkillId: string;

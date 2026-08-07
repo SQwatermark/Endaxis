@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { perlica } from '../perlica';
-import { perlicaGeneratedSkills } from './perlica.skills.generated';
+import { perlicaGeneratedSkills } from './perlica.operator.generated';
 
 describe('佩丽卡生成 DSL', () => {
   it('保留四段普攻的命中帧和末段语义', () => {

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import textwrap
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -22,6 +23,9 @@ DEFAULT_TABLES = (
     / "TableCfg-1.4.4-8764515-7"
 )
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "generated"
+
+# Endaxis 固定为单敌人且命中必然发生；暂不模拟距离、轨迹和碰撞体。
+ASSUMED_PROJECTILE_TRAVEL_FRAMES = 0
 
 
 @dataclass(frozen=True)
@@ -1143,7 +1147,7 @@ def resolve_projectile_hits(
             result.append(
                 ProjectileHitSource(
                     launchFrame=launch_frame,
-                    assumedTravelFrames=0,
+                    assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
                     projectileId=projectile_id,
                     hitSkillId=hit_skill_id,
                     sourceFile=hit_source_name,
@@ -2220,7 +2224,9 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     return "\n".join(fields)
 
 
-def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
+def compile_skill_entries(
+    operator: dict[str, Any], skills: list[SkillSource]
+) -> tuple[list[str], set[str]]:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     lines: list[str] = []
     damage_type_factories: set[str] = set()
@@ -2251,6 +2257,11 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
             lines.append(compile_resolved_damage_sequence(skill, config))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
+    return lines, damage_type_factories
+
+
+def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
+    lines, damage_type_factories = compile_skill_entries(operator, skills)
     export_name = f"{typescript_identifier(str(operator['slug']))}GeneratedSkills"
     helper_imports = ", ".join(
         (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
@@ -2440,12 +2451,21 @@ def render_talents(
                     raise ValueError(f"{effect_id}: missing dmg blackboard")
                 values.append(float(item["value"]))
             result.append(
-                "{ "
-                f"key: {ts_inline_literal(key)}, levels: {len(entries)}, "
-                "modifiers: [{ kind: 'addConditionalDamage', "
-                "condition: { kind: 'targetStaggered', target: 'enemy' }, "
-                f"values: {ts_inline_literal(values)} }}] "
-                "}"
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  modifiers: [",
+                        "    {",
+                        "      kind: 'addConditionalDamage',",
+                        "      condition: { kind: 'targetStaggered', target: 'enemy' },",
+                        f"      values: {ts_inline_literal(values)},",
+                        "    },",
+                        "  ],",
+                        "}",
+                    ]
+                )
             )
         elif kind == "unmodeledMultiTarget":
             if len(entries) != 1:
@@ -2459,7 +2479,17 @@ def render_talents(
                 or float(modifier.get("floatValue", 0)) != 1
             ):
                 raise ValueError(f"talent {key}: unexpected multi-target modifier source")
-            result.append(f"{{ key: {ts_inline_literal(key)}, levels: 1, modifiers: [] }}")
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        "  levels: 1,",
+                        "  modifiers: [],",
+                        "}",
+                    ]
+                )
+            )
         else:
             raise ValueError(f"talent {key}: unsupported compiler {kind!r}")
     return result
@@ -2497,36 +2527,104 @@ def render_potentials(
             if kind == "multiplyReactionDuration":
                 if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "duration":
                     raise ValueError(f"{effect_id}: unexpected reaction duration modifier target")
-                body = "modifiers: [{ kind: 'multiplyEffectDuration', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"multiplier: {ts_inline_literal(value)} }}]"
+                body = "\n".join(
+                    [
+                        "  modifiers: [",
+                        "    {",
+                        "      kind: 'multiplyEffectDuration',",
+                        "      skillGroupKey: 'comboSkill',",
+                        "      stepKey: 'comboSkill.electrification',",
+                        f"      multiplier: {ts_inline_literal(value)},",
+                        "    },",
+                        "  ],",
+                    ]
+                )
             elif kind == "setReactionEffectiveness":
                 if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "extra_scaling":
                     raise ValueError(f"{effect_id}: unexpected reaction effectiveness modifier target")
-                body = "modifiers: [{ kind: 'setEffectiveness', skillGroupKey: 'comboSkill', stepKey: 'comboSkill.electrification', " f"value: {ts_inline_literal(value)} }}]"
+                body = "\n".join(
+                    [
+                        "  modifiers: [",
+                        "    {",
+                        "      kind: 'setEffectiveness',",
+                        "      skillGroupKey: 'comboSkill',",
+                        "      stepKey: 'comboSkill.electrification',",
+                        f"      value: {ts_inline_literal(value)},",
+                        "    },",
+                        "  ],",
+                    ]
+                )
             else:
                 if modifier.get("skillId") != ultimate_skill_id or modifier.get("bbKey") != "crit":
                     raise ValueError(f"{effect_id}: unexpected ultimate critical-rate modifier target")
-                body = "modifiers: [{ kind: 'addSkillStat', skillGroupKey: 'ultimate', stat: 'criticalRate', " f"value: {ts_inline_literal(value)} }}]"
+                body = "\n".join(
+                    [
+                        "  modifiers: [",
+                        "    {",
+                        "      kind: 'addSkillStat',",
+                        "      skillGroupKey: 'ultimate',",
+                        "      stat: 'criticalRate',",
+                        f"      value: {ts_inline_literal(value)},",
+                        "    },",
+                        "  ],",
+                    ]
+                )
         elif kind == "multiplyUltimateCost":
             modifier = require_dict(data.get("skillParamModifier"), f"{effect_id}.skillParamModifier")
             if modifier.get("skillId") != ultimate_skill_id or modifier.get("paramType") != 1:
                 raise ValueError(f"{effect_id}: unexpected ultimate cost modifier target")
             value = float(modifier["paramValue"])
-            body = "modifiers: [{ kind: 'multiplySkillCost', skillGroupKey: 'ultimate', resource: 'ultimateEnergy', " f"multiplier: {ts_inline_literal(value)} }}]"
+            body = "\n".join(
+                [
+                    "  modifiers: [",
+                    "    {",
+                    "      kind: 'multiplySkillCost',",
+                    "      skillGroupKey: 'ultimate',",
+                    "      resource: 'ultimateEnergy',",
+                    f"      multiplier: {ts_inline_literal(value)},",
+                    "    },",
+                    "  ],",
+                ]
+            )
         elif kind == "attackAfterReaction":
             attach = require_dict(data.get("attachBuff"), f"{effect_id}.attachBuff")
             values = {str(item["key"]): float(item["value"]) for item in require_list(attach.get("blackboard"), "attachBuff.blackboard")}
             buff_id = attach.get("buffId")
             if not isinstance(buff_id, str) or not buff_id or set(values) != {"atk_up", "atk_duration", "max_stack"}:
                 raise ValueError(f"{effect_id}: unexpected reaction attack buff shape")
-            body = (
-                "eventHandlers: [{ event: { kind: 'reactionApplied', reaction: 'electrification' }, "
-                "sequence: sequence(step('applyStatus', { statusKey: 'attackAfterElectrification', target: 'caster', "
-                f"durationFrames: {ts_inline_literal(values['atk_duration'] * 30)}, maxStacks: {ts_inline_literal(values['max_stack'])}, "
-                f"modifiers: [{{ kind: 'attackPercent', value: {ts_inline_literal(values['atk_up'])} }}] }})) }}]"
+            body = "\n".join(
+                [
+                    "  eventHandlers: [",
+                    "    {",
+                    "      event: { kind: 'reactionApplied', reaction: 'electrification' },",
+                    "      sequence: sequence(",
+                    "        step('applyStatus', {",
+                    "          statusKey: 'attackAfterElectrification',",
+                    "          target: 'caster',",
+                    f"          durationFrames: {ts_inline_literal(values['atk_duration'] * 30)},",
+                    f"          maxStacks: {ts_inline_literal(values['max_stack'])},",
+                    "          modifiers: [",
+                    f"            {{ kind: 'attackPercent', value: {ts_inline_literal(values['atk_up'])} }},",
+                    "          ],",
+                    "        }),",
+                    "      ),",
+                    "    },",
+                    "  ],",
+                ]
             )
         else:
             raise ValueError(f"potential {key}: unsupported compiler {kind!r}")
-        result.append(f"{{ key: {ts_inline_literal(key)}, levels: 1, {body} }}")
+        result.append(
+            "\n".join(
+                [
+                    "{",
+                    f"  key: {ts_inline_literal(key)},",
+                    "  levels: 1,",
+                    body,
+                    "}",
+                ]
+            )
+        )
     return result
 
 
@@ -2552,17 +2650,25 @@ def render_operator_definition(
     identifier = typescript_identifier(str(operator["slug"]))
     skills_export_name = f"{identifier}GeneratedSkills"
     operator_export_name = f"{identifier}GeneratedOperator"
+    skill_entries, damage_type_factories = compile_skill_entries(operator, skills)
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(operator, skills, skills_export_name)
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
+    helper_imports = ", ".join(
+        (*sorted(damage_type_factories), "percentages", "scheduled", "sequence", "step")
+    )
     return "\n".join(
         [
             "/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */",
-            "import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';",
-            "import { sequence, step } from '../definitionHelpers';",
-            f"import {{ {skills_export_name} }} from './{operator['slug']}.skills.generated';",
+            "import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';",
+            f"import {{ {helper_imports} }} from '../definitionHelpers';",
+            "",
+            "// prettier-ignore",
+            f"export const {skills_export_name} = [",
+            *skill_entries,
+            "] as const satisfies readonly SkillDefinition[];",
             "",
             f"export const {operator_export_name}: OperatorDefinition = {{",
             f"  slug: {ts_inline_literal(operator['slug'])},",
@@ -2580,10 +2686,10 @@ def render_operator_definition(
             *(f"    {group}," for group in groups),
             "  ],",
             "  talents: [",
-            *(f"    {talent}," for talent in talents),
+            *(textwrap.indent(talent, "    ") + "," for talent in talents),
             "  ],",
             "  potentials: [",
-            *(f"    {potential}," for potential in potentials),
+            *(textwrap.indent(potential, "    ") + "," for potential in potentials),
             "  ],",
             "};",
             "",
@@ -2637,6 +2743,15 @@ def write_or_check(path: Path, content: str, check: bool) -> None:
     path.write_text(content, encoding="utf-8", newline="\n")
 
 
+def remove_obsolete_generated_file(path: Path, check: bool) -> None:
+    """删除已被统一产物取代的旧文件；检查模式下把残留视为过期。"""
+    if not path.exists():
+        return
+    if check:
+        raise RuntimeError(f"obsolete generated output still exists: {path}")
+    path.unlink()
+
+
 def main() -> None:
     args = parse_args()
     manifest = require_dict(json.loads(args.manifest.read_text(encoding="utf-8")), str(args.manifest))
@@ -2680,7 +2795,7 @@ def main() -> None:
             continue
         if output_stage != "complete":
             raise ValueError(f"{slug}.outputStage: expected 'audit' or 'complete'")
-        write_or_check(args.output / f"{slug}.skills.generated.ts", render_compiled_skills(operator, skills), args.check)
+        remove_obsolete_generated_file(args.output / f"{slug}.skills.generated.ts", args.check)
         write_or_check(
             args.output / f"{slug}.operator.generated.ts",
             render_operator_definition(
