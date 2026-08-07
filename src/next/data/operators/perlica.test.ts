@@ -33,6 +33,12 @@ describe('next Perlica definition', () => {
       throw new Error('expected basic attack sequence');
     }
     expect(basicAttackGroup.skills.map(skill => skill.durationFrames)).toEqual([16, 19, 27, 44]);
+    expect(basicAttackGroup.skills.map(skill => skill.naturalEndFrame)).toEqual([
+      166, 168, 173, 269,
+    ]);
+    expect(basicAttackGroup.skills.map(skill => skill.interruptibleAfterFrame)).toEqual([
+      15, 22, 29, 43,
+    ]);
   });
 
   it('marks only the final normal-attack hit as the last combo hit', () => {

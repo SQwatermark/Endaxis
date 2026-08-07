@@ -357,6 +357,8 @@ export interface SkillDefinition {
   durationFrames: number;
   /** 已可靠恢复时填写；对应技能持续时间计时器自然结束的逻辑帧。 */
   naturalEndFrame?: number;
+  /** 当前技能经过该帧后，才允许同级或低级技能中断；对应独占保护边界。 */
+  interruptibleAfterFrame?: number;
   /** 用户尝试释放技能时检查的条件。 */
   availability?: CombatCondition;
   cooldownFrames?: LevelValues;

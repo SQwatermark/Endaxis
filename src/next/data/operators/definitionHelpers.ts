@@ -122,6 +122,8 @@ type DamageOptions = Omit<DealDamageParameters, 'damageType' | 'attackScale' | '
 
 export interface BasicAttackOptions extends DamageOptions {
   availability?: CombatCondition;
+  naturalEndFrame?: number;
+  interruptibleAfterFrame?: number;
   final?: boolean;
   spRecovery?: LevelValues;
   lastHitEndFrame?: number;
@@ -145,7 +147,15 @@ export function basicAttackOfType(damageType: DamageType) {
     attackScale: LevelValues,
     options: BasicAttackOptions = {},
   ): SkillDefinition => {
-    const { availability, final = false, spRecovery, lastHitEndFrame, ...damageOptions } = options;
+    const {
+      availability,
+      naturalEndFrame,
+      interruptibleAfterFrame,
+      final = false,
+      spRecovery,
+      lastHitEndFrame,
+      ...damageOptions
+    } = options;
     const frames = typeof hitFrames === 'number' ? [hitFrames] : hitFrames;
     const tags = final
       ? (['normalAttack', 'normalAttackLastCombo'] as const)
@@ -155,6 +165,8 @@ export function basicAttackOfType(damageType: DamageType) {
       key,
       durationFrames,
       ...(availability ? { availability } : {}),
+      ...(naturalEndFrame === undefined ? {} : { naturalEndFrame }),
+      ...(interruptibleAfterFrame === undefined ? {} : { interruptibleAfterFrame }),
       scheduledSequences: frames.map((frame, index) => {
         const last = index === frames.length - 1;
         return scheduled(

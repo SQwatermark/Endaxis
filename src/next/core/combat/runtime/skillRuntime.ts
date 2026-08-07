@@ -100,6 +100,17 @@ export class SkillRuntime {
     return this.#program.skillId;
   }
 
+  get skillType(): CompiledSkillProgram['skillType'] {
+    return this.#program.skillType;
+  }
+
+  get canInterrupt(): boolean {
+    return (
+      this.#program.interruptibleAfterFrame !== undefined &&
+      this.#passedFrames > this.#program.interruptibleAfterFrame
+    );
+  }
+
   get passedFrames(): number {
     return this.#passedFrames;
   }
@@ -116,9 +127,16 @@ export class SkillRuntime {
     return this.#dependencies.operations;
   }
 
+  canStart(): boolean {
+    return (
+      this.#state !== 'casting' &&
+      this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)
+    );
+  }
+
   tryStart(): boolean {
     if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
-    if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)) {
+    if (!this.canStart()) {
       this.record('SkillCastRejectedByCost');
       return false;
     }

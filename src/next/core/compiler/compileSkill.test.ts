@@ -18,6 +18,7 @@ describe('compileSkill', () => {
       key: 'separate-duration-boundaries',
       durationFrames: 18,
       naturalEndFrame: 30,
+      interruptibleAfterFrame: 12,
       scheduledSequences: [],
     } satisfies SkillDefinition;
 
@@ -31,6 +32,7 @@ describe('compileSkill', () => {
 
     expect(program.durationFrames).toBe(18);
     expect(program.naturalEndFrame).toBe(30);
+    expect(program.interruptibleAfterFrame).toBe(12);
   });
 
   it('compiles Perlica battle skill into a single-level runtime program', () => {

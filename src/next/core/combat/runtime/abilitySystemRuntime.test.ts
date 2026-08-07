@@ -4,11 +4,17 @@ import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRunt
 
 class FixtureRuntime implements AbilitySkillRuntime {
   state: RuntimeSkillState = 'ready';
+  canInterrupt = false;
 
   constructor(
     readonly skillId: string,
     readonly events: string[],
+    readonly skillType: AbilitySkillRuntime['skillType'] = 'battleSkill',
   ) {}
+
+  canStart(): boolean {
+    return this.state !== 'casting';
+  }
 
   tryStart(): boolean {
     this.events.push(`start:${this.skillId}`);
@@ -69,5 +75,32 @@ describe('AbilitySystemRuntime', () => {
     expect(events).toContain('start:third');
     expect(events).not.toContain('start:second');
     expect(ability.currentSkillId).toBe('third');
+  });
+
+  it('uses native priority and interruptible boundaries for direct player input', () => {
+    const events: string[] = [];
+    const basicAttack = new FixtureRuntime('basic', events, 'basicAttack');
+    const equalPriority = new FixtureRuntime('equal', events, 'basicAttack');
+    const ultimate = new FixtureRuntime('ultimate', events, 'ultimate');
+    const ability = new AbilitySystemRuntime({ skills: [basicAttack, equalPriority, ultimate] });
+
+    expect(ability.tryStartSkill('basic')).toBe(true);
+    expect(ability.tryStartSkill('equal')).toBe(false);
+    expect(ability.tryStartSkill('ultimate')).toBe(true);
+    expect(events).toEqual(['start:basic', 'interrupt:basic:castNextSkill', 'start:ultimate']);
+  });
+
+  it('allows an equal-priority skill only after the current skill becomes interruptible', () => {
+    const events: string[] = [];
+    const current = new FixtureRuntime('current', events, 'battleSkill');
+    const next = new FixtureRuntime('next', events, 'battleSkill');
+    const ability = new AbilitySystemRuntime({ skills: [current, next] });
+
+    expect(ability.tryStartSkill('current')).toBe(true);
+    expect(ability.tryStartSkill('next')).toBe(false);
+
+    current.canInterrupt = true;
+    expect(ability.tryStartSkill('next')).toBe(true);
+    expect(events).toEqual(['start:current', 'interrupt:current:castNextSkill', 'start:next']);
   });
 });

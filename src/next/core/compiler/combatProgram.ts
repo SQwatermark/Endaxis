@@ -114,6 +114,7 @@ export interface CompiledSkillProgram {
   readonly skillLevel: number;
   readonly durationFrames: number;
   readonly naturalEndFrame?: number;
+  readonly interruptibleAfterFrame?: number;
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];

@@ -28,16 +28,18 @@
 
 ## 普通攻击
 
-| 配置路径                         | 可信度  | 来源与说明                                                           |
-| -------------------------------- | ------- | -------------------------------------------------------------------- |
-| 各 health unit 的 `damageType`   | exact   | 命中 `DamageUnit.damageType = Pulse`，正式配置映射为 `electric`      |
-| 各 health unit 的 `attackScale`  | exact   | 直接读取各等级 `SkillPatchTable.blackboard.atk_scale`                |
-| `basicAttack1` 发射帧 `8`        | exact   | `chr_0004_pelica_attack1` 时间轴                                     |
-| `basicAttack2` 发射帧 `9/12`     | exact   | `chr_0004_pelica_attack2` 时间轴                                     |
-| `basicAttack3` 发射帧 `16/19/22` | exact   | `chr_0004_pelica_attack3` 时间轴                                     |
-| `basicAttack4` 发射帧 `27`       | exact   | `chr_0004_pelica_attack4` 时间轴                                     |
-| 第四段失衡 `15`、技力恢复 `15`   | exact   | 等级 Patch 的 `poise`、`atb` 与命中序列                              |
-| `durationFrames = 16/19/27/44`   | curated | 与约 3.53 秒录像及较早可衔接边界相符；端点计数和通用选择规则尚未闭环 |
+| 配置路径                                | 可信度  | 来源与说明                                                           |
+| --------------------------------------- | ------- | -------------------------------------------------------------------- |
+| 各 health unit 的 `damageType`          | exact   | 命中 `DamageUnit.damageType = Pulse`，正式配置映射为 `electric`      |
+| 各 health unit 的 `attackScale`         | exact   | 直接读取各等级 `SkillPatchTable.blackboard.atk_scale`                |
+| `basicAttack1` 发射帧 `8`               | exact   | `chr_0004_pelica_attack1` 时间轴                                     |
+| `basicAttack2` 发射帧 `9/12`            | exact   | `chr_0004_pelica_attack2` 时间轴                                     |
+| `basicAttack3` 发射帧 `16/19/22`        | exact   | `chr_0004_pelica_attack3` 时间轴                                     |
+| `basicAttack4` 发射帧 `27`              | exact   | `chr_0004_pelica_attack4` 时间轴                                     |
+| 第四段失衡 `15`、技力恢复 `15`          | exact   | 等级 Patch 的 `poise`、`atb` 与命中序列                              |
+| `durationFrames = 16/19/27/44`          | curated | 与约 3.53 秒录像及较早可衔接边界相符；端点计数和通用选择规则尚未闭环 |
+| `naturalEndFrame = 166/168/173/269`     | exact   | 各 SkillData 的 `durationFrame`；只驱动后台技能自然结束              |
+| `interruptibleAfterFrame = 15/22/29/43` | exact   | 各 SkillData 的 `exclusiveFrame`；使用严格大于比较                   |
 
 普通攻击数据只恢复出了投射物发射帧，尚未闭环飞行时间。正式配置暂时在这些帧直接执行伤害，属于明确标注的近似值；原始投射物 ID 不进入执行树，避免让未实现的投射物节点看起来已经可解析。
 
@@ -58,6 +60,7 @@
 | 配置路径                         | 可信度  | 来源与说明                                                                       |
 | -------------------------------- | ------- | -------------------------------------------------------------------------------- |
 | `durationFrames = 28`            | derived | `AllowNextSkillAction` 从第 28 帧开始                                            |
+| 自然结束/独占保护 `155/30`       | exact   | `normal_skill` 的 `durationFrame/exclusiveFrame`                                 |
 | `costs.sp = 100`                 | exact   | 最终 SkillPatch 的 `costValue`，不是基础 SkillData 中的旧值                      |
 | 第 13 帧命中序列                 | exact   | 本地 `chr_0004_pelica_normal_skill` 时间轴                                       |
 | 附着 → 伤害 → 按技力消耗全队回能 | exact   | 同一命中序列中的原始数组顺序；原始 Buff 经反编译语义还原后不再作为通用 Buff 执行 |
@@ -84,11 +87,13 @@ Next 资源账本已按上述输入建立可执行闭环并生成逐成员 recei
 | 配置路径                                       | 可信度 | 来源与说明                                                      |
 | ---------------------------------------------- | ------ | --------------------------------------------------------------- |
 | 处决 `durationFrames = 59`                     | exact  | `chr_0004_pelica_power_attack` 时间轴边界                       |
+| 处决自然结束/独占保护 `135/50`                 | exact  | 同一 SkillData 的 `durationFrame/exclusiveFrame`                |
 | 第 `35..44` 帧处决伤害                         | exact  | 同一时间段内的 `DamageAction`                                   |
 | 处决使用破防攻击计算                           | exact  | 伤害数据及本地 `PlayerDamageAction` 反编译规格                  |
 | 伤害后恢复团队技力，`factor = 1`               | exact  | 同一原始序列中紧随伤害的 `GainBreakingAttackAtb`                |
 | 实际恢复量读取敌人 `breakingAttackedAtbObtain` | exact  | 敌人属性表；Endaxis 数据层归一化为 `enemy.finisherRecovery`     |
 | 下落攻击落地后第 `3..8` 帧伤害                 | exact  | `chr_0004_pelica_fall_attack`；空中移动时间不属于技能时间轴定义 |
+| 下落攻击自然结束/独占保护 `168/20`             | exact  | `plunging_attack_end` 的 `durationFrame/exclusiveFrame`         |
 
 处决技力恢复不是佩丽卡自身的固定数值。正式配置中的 `gainFinisherSp` 只记录技能侧倍率 `1`，模拟时应读取
 当前敌人的 `finisherRecovery` 并相乘。原始序列先执行伤害，再执行回技力，因此新版配置把这两步放在同一个
@@ -100,6 +105,7 @@ Next 资源账本已按上述输入建立可执行闭环并生成逐成员 recei
 | ------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------- |
 | 第 24 帧发射投射物                   | exact   | `chr_0004_pelica_combo_skill` 时间轴                                                                  |
 | `durationFrames = 25`                | derived | 第 24 帧发射，第 25 帧进入后续输入区间                                                                |
+| 自然结束/独占保护 `115/45`           | exact   | `combo_skill` 的 `durationFrame/exclusiveFrame`                                                       |
 | 投射物与命中技能 ID                  | exact   | `projectile_chr_0004_pelica_combo_skill` → `chr_0004_pelica_combo_skill_projhit`；仅作证据追溯        |
 | 施加导电 → 伤害 → 回能               | exact   | 当前目标的 `combo_skill_projhit` 命中序列；正式配置使用元素反应语义，多敌人弹射、教程和表现动作被省略 |
 | 倍率、失衡 `10`、回能 `10`、冷却数组 | exact   | 最终等级 Patch                                                                                        |
@@ -110,11 +116,12 @@ Next 资源账本已按上述输入建立可执行闭环并生成逐成员 recei
 
 ## 终结技
 
-| 配置路径                                      | 可信度        | 来源与说明                               |
-| --------------------------------------------- | ------------- | ---------------------------------------- |
-| `durationFrames = 63`                         | exact         | 本体时间轴边界                           |
-| 第 58 帧伤害                                  | exact         | 本地终结技时间轴；选敌与打断超出模拟范围 |
-| 倍率、失衡 `20`、能量消耗 `80`、冷却 `300` 帧 | exact/derived | 最终等级 Patch；冷却由 10 秒换算为帧     |
+| 配置路径                                      | 可信度        | 来源与说明                                  |
+| --------------------------------------------- | ------------- | ------------------------------------------- |
+| `durationFrames = 63`                         | exact         | 本体时间轴边界                              |
+| 自然结束/独占保护 `114/85`                    | exact         | SkillData 的 `durationFrame/exclusiveFrame` |
+| 第 58 帧伤害                                  | exact         | 本地终结技时间轴；选敌与打断超出模拟范围    |
+| 倍率、失衡 `20`、能量消耗 `80`、冷却 `300` 帧 | exact/derived | 最终等级 Patch；冷却由 10 秒换算为帧        |
 
 终结技本体在第 `55..58` 帧生成 `abilityentity_chr_0004_pelica_ultimate_skill`，并令该实体运行
 `chr_0004_pelica_ultimate_skill_abilityrange`。后者只有两条特效动作、循环音效和定时结束实体的动作，

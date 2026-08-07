@@ -3,12 +3,16 @@
  * 技能顺序必须由目录编译结果显式传入；该层不负责推断队伍顺序、输入许可或目标选择。
  */
 import type { FrameRuntime } from './combatSimulation';
+import type { SkillType } from '../../game-data/operatorDefinition';
 import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
 
 /** AbilitySystem 编排技能所需的最小生命周期端口。 */
 export interface AbilitySkillRuntime extends FrameRuntime {
   readonly skillId: string;
+  readonly skillType: SkillType;
   readonly state: RuntimeSkillState;
+  readonly canInterrupt: boolean;
+  canStart(): boolean;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
 }
@@ -51,10 +55,16 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   tryStartSkill(skillId: string): boolean {
-    if (this.#currentSkill?.state === 'casting') return false;
     const skill = this.#requireSkill(skillId);
-    if (!skill.tryStart()) return false;
+    if (!skill.canStart()) return false;
+    const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (previousSkill !== null && !canInterruptWith(previousSkill, skill)) return false;
+
     this.#currentSkill = skill;
+    previousSkill?.interrupt('castNextSkill');
+    if (!skill.tryStart()) {
+      throw new Error(`skill '${skillId}' became unavailable during synchronous cast start`);
+    }
     return true;
   }
 
@@ -88,4 +98,22 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (skill === undefined) throw new Error(`unknown ability skill '${skillId}'`);
     return skill;
   }
+}
+
+const skillInterruptPriority: Readonly<Record<SkillType, number>> = {
+  basicAttack: 1,
+  battleSkill: 2,
+  finisher: 2,
+  plungingAttack: 2,
+  comboSkill: 5,
+  ultimate: 7,
+};
+
+function canInterruptWith(current: AbilitySkillRuntime, next: AbilitySkillRuntime): boolean {
+  // 对应原生 CheckCanInterruptCurSkill 的已闭环分支；允许接续包尚无运行时数据入口。
+  return (
+    next.skillType === 'plungingAttack' ||
+    skillInterruptPriority[next.skillType] > skillInterruptPriority[current.skillType] ||
+    current.canInterrupt
+  );
 }
