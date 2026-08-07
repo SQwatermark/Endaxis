@@ -6,6 +6,7 @@ import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { CombatClock } from './combatClock';
+import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
 import { CombatSimulation, type FrameRuntime } from './combatSimulation';
@@ -32,6 +33,7 @@ export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
+  readonly inputs?: readonly ScheduledSkillInput[];
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
    * 共享技力与战技扣费转能由装配器统一包在该执行器外层。
@@ -53,7 +55,6 @@ export class CombatRuntimeAssembly {
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
-    this.simulation.add(new CombatResourceRuntime(this.resources));
 
     for (const operator of options.operators) {
       if (this.#abilitySystems.has(operator.operatorId)) {
@@ -72,9 +73,18 @@ export class CombatRuntimeAssembly {
       );
     }
 
+    this.simulation.add(new CombatResourceRuntime(this.resources));
+    const inputRuntime = new CombatInputRuntime({
+      clock: this.clock,
+      inputs: options.inputs ?? [],
+      receipt: this.receipt,
+      tryStartSkill: (operatorId, skillId) => this.tryStartSkill(operatorId, skillId),
+    });
+    this.simulation.add(inputRuntime);
     for (const operator of options.operators) {
       this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
     }
+    inputRuntime.applyCurrentFrame();
   }
 
   tryStartSkill(operatorId: string, skillId: string): boolean {

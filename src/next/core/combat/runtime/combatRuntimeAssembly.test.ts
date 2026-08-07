@@ -103,4 +103,39 @@ describe('CombatRuntimeAssembly', () => {
       "skill 'skill' belongs to 'other', expected 'operator'",
     );
   });
+
+  it('processes frame input after recovery and before the skill cost tick', () => {
+    const program = skill({ costFrame: 0 });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 99,
+        maxSp: 300,
+        returnedSp: 0,
+        spRecovery: { valuePerSecond: 30, pauseDuration: 1, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      operators: [{ operatorId: 'operator', skills: [program] }],
+      inputs: [{ frame: 1, operatorId: 'operator', skillId: 'skill' }],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    assembly.advanceFrame();
+
+    expect(assembly.resources.sp).toBe(0);
+    expect(assembly.receipt.entries.map(entry => entry.event)).toEqual([
+      'SkillStarted',
+      'SkillCostApplied',
+      'SkillInputProcessed',
+    ]);
+  });
 });
