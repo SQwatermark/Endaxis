@@ -678,13 +678,31 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "blackboardMutation": {
+                "key": "sword_dist",
+                "operation": "Add",
+                "value": {
+                  "value": 3.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             }
           ],
           "failActions": [
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "blackboardMutation": {
+                "key": "sword_dist",
+                "operation": "Assign",
+                "value": {
+                  "value": 14.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             }
           ]
         },
@@ -1386,13 +1404,31 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "blackboardMutation": {
+                "key": "sword_dist",
+                "operation": "Add",
+                "value": {
+                  "value": 3.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             }
           ],
           "failActions": [
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "blackboardMutation": {
+                "key": "sword_dist",
+                "operation": "Assign",
+                "value": {
+                  "value": 14.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             }
           ]
         }
@@ -3215,7 +3251,16 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 1
+                    "actionIndex": 1,
+                    "blackboardMutation": {
+                      "key": "target_in_range",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": [
@@ -3266,7 +3311,16 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 1
+                    "actionIndex": 1,
+                    "blackboardMutation": {
+                      "key": "target_in_range",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ]
               }
@@ -4305,7 +4359,16 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 1
+                    "actionIndex": 1,
+                    "blackboardMutation": {
+                      "key": "target_in_range",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": [
@@ -4356,7 +4419,16 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 1
+                    "actionIndex": 1,
+                    "blackboardMutation": {
+                      "key": "target_in_range",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ]
               }
@@ -6883,7 +6955,21 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "FinishBuffAdvanced",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffFinish": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0030_zhuangfy_normal_skill_trigger_sword"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "finishAll": true,
+                "limitSource": false,
+                "isFinishedEarly": false,
+                "isAbsorbed": false
+              }
             }
           ],
           "failActions": []
@@ -6967,19 +7053,63 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "GetTargetBuffBBAdvanced",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "buffBlackboardRead": {
+                      "outputKey": "conductCnt",
+                      "desiredKey": "count",
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "buffCheckType": "Tag",
+                      "buffIds": [],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [
+                        1466867135
+                      ]
+                    }
                   },
                   {
                     "actionType": "FinishBuffAdvanced",
-                    "actionIndex": 1
+                    "actionIndex": 1,
+                    "buffFinish": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "buffCheckType": "Tag",
+                      "buffIds": [],
+                      "tagQueryType": "hasAny",
+                      "buffTagIds": [
+                        1466867135
+                      ],
+                      "finishAll": true,
+                      "limitSource": false,
+                      "isFinishedEarly": true,
+                      "isAbsorbed": false
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 2
+                    "actionIndex": 2,
+                    "blackboardMutation": {
+                      "key": "sword_gene_num",
+                      "operation": "Add",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": "conductCnt",
+                        "levelValues": null
+                      }
+                    }
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 3
+                    "actionIndex": 3,
+                    "blackboardMutation": {
+                      "key": "sword_gene_num",
+                      "operation": "Add",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   },
                   {
                     "actionType": "IfElseAction",
@@ -7034,7 +7164,29 @@ export const zhuangFangyiGeneratedSource = {
                       "failActions": [
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": "max_conduct_sword",
+                              "levelValues": [
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0,
+                                3.0
+                              ]
+                            }
+                          }
                         }
                       ]
                     }
@@ -7092,7 +7244,16 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         }
                       ],
                       "failActions": []
@@ -7160,7 +7321,16 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         }
                       ],
                       "failActions": []
@@ -7215,7 +7385,16 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         }
                       ],
                       "failActions": []
@@ -7270,19 +7449,83 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "SimpleCalcBBAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "blackboardCalculation": {
+                "key": "swordTriggerInterval",
+                "operation": "Divide",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "EntityBB_SwordNum",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 90.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 1
+              "actionIndex": 1,
+              "blackboardMutation": {
+                "key": "swordTriggerInterval",
+                "operation": "Multiply",
+                "value": {
+                  "value": -1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "SimpleCalcBBAction",
-              "actionIndex": 2
+              "actionIndex": 2,
+              "blackboardCalculation": {
+                "key": "swordTriggerInterval",
+                "operation": "Add",
+                "left": {
+                  "value": 0.3,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 90.0,
+                  "blackboardKey": "swordTriggerInterval",
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "SimpleCalcBBAction",
-              "actionIndex": 3
+              "actionIndex": 3,
+              "blackboardCalculation": {
+                "key": "atk_up_final",
+                "operation": "Multiply",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_up_per_conduct",
+                  "levelValues": [
+                    0.03,
+                    0.04,
+                    0.04,
+                    0.04,
+                    0.05,
+                    0.05,
+                    0.05,
+                    0.06,
+                    0.06,
+                    0.07,
+                    0.08,
+                    0.09
+                  ]
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": "conductCnt",
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "CreateBuffAction",
@@ -9269,7 +9512,21 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
-                          "actionIndex": 3
+                          "actionIndex": 3,
+                          "buffFinish": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "buffCheckType": "Id",
+                            "buffIds": [
+                              "buff_chr_0030_zhuangfy_ult_skill_free"
+                            ],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [],
+                            "finishAll": true,
+                            "limitSource": false,
+                            "isFinishedEarly": false,
+                            "isAbsorbed": false
+                          }
                         }
                       ],
                       "failActions": [
@@ -9279,7 +9536,21 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
-                          "actionIndex": 3
+                          "actionIndex": 3,
+                          "buffFinish": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "buffCheckType": "Id",
+                            "buffIds": [
+                              "buff_chr_0030_zhuangfy_ult_skill_free"
+                            ],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [],
+                            "finishAll": true,
+                            "limitSource": false,
+                            "isFinishedEarly": false,
+                            "isAbsorbed": false
+                          }
                         }
                       ]
                     }
@@ -9335,19 +9606,63 @@ export const zhuangFangyiGeneratedSource = {
                       "succeedActions": [
                         {
                           "actionType": "GetTargetBuffBBAdvanced",
-                          "actionIndex": 0
+                          "actionIndex": 0,
+                          "buffBlackboardRead": {
+                            "outputKey": "conductCnt",
+                            "desiredKey": "count",
+                            "targetSource": "Context",
+                            "targetGroupKey": "smart_target",
+                            "buffCheckType": "Tag",
+                            "buffIds": [],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [
+                              1466867135
+                            ]
+                          }
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
-                          "actionIndex": 1
+                          "actionIndex": 1,
+                          "buffFinish": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "smart_target",
+                            "buffCheckType": "Tag",
+                            "buffIds": [],
+                            "tagQueryType": "hasAny",
+                            "buffTagIds": [
+                              1466867135
+                            ],
+                            "finishAll": true,
+                            "limitSource": false,
+                            "isFinishedEarly": true,
+                            "isAbsorbed": false
+                          }
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 2
+                          "actionIndex": 2,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": "conductCnt",
+                              "levelValues": null
+                            }
+                          }
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
-                          "actionIndex": 3
+                          "actionIndex": 3,
+                          "blackboardMutation": {
+                            "key": "sword_gene_num",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          }
                         },
                         {
                           "actionType": "IfElseAction",
@@ -9405,7 +9720,29 @@ export const zhuangFangyiGeneratedSource = {
                             "failActions": [
                               {
                                 "actionType": "ModifyDynamicBlackboard",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "blackboardMutation": {
+                                  "key": "sword_gene_num",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": "max_conduct_sword",
+                                    "levelValues": [
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0,
+                                      3.0
+                                    ]
+                                  }
+                                }
                               }
                             ]
                           }
@@ -9466,7 +9803,16 @@ export const zhuangFangyiGeneratedSource = {
                             "succeedActions": [
                               {
                                 "actionType": "ModifyDynamicBlackboard",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "blackboardMutation": {
+                                  "key": "sword_gene_num",
+                                  "operation": "Add",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  }
+                                }
                               }
                             ],
                             "failActions": []
@@ -9537,7 +9883,16 @@ export const zhuangFangyiGeneratedSource = {
                             "succeedActions": [
                               {
                                 "actionType": "ModifyDynamicBlackboard",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "blackboardMutation": {
+                                  "key": "sword_gene_num",
+                                  "operation": "Add",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  }
+                                }
                               }
                             ],
                             "failActions": []
@@ -9595,7 +9950,16 @@ export const zhuangFangyiGeneratedSource = {
                             "succeedActions": [
                               {
                                 "actionType": "ModifyDynamicBlackboard",
-                                "actionIndex": 0
+                                "actionIndex": 0,
+                                "blackboardMutation": {
+                                  "key": "sword_gene_num",
+                                  "operation": "Add",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  }
+                                }
                               }
                             ],
                             "failActions": []
@@ -10950,11 +11314,33 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "SaveBuffStackNumAdvanced",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffStackRead": {
+                "outputKey": "inflictCnt",
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  2123008650
+                ],
+                "countType": "BuffCount",
+                "limitSkillCastId": false
+              }
             },
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 1
+              "actionIndex": 1,
+              "blackboardMutation": {
+                "key": "conductCnt",
+                "operation": "Assign",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": "inflictCnt",
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "IfElseAction",
@@ -11002,7 +11388,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "blackboardMutation": {
+                      "key": "conductCnt",
+                      "operation": "Add",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": []
@@ -11044,7 +11439,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "blackboardMutation": {
+                      "key": "conductCnt",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 4.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": []
@@ -11092,7 +11496,34 @@ export const zhuangFangyiGeneratedSource = {
             },
             {
               "actionType": "SimpleCalcBBAction",
-              "actionIndex": 1
+              "actionIndex": 1,
+              "blackboardCalculation": {
+                "key": "usp_extra",
+                "operation": "Multiply",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "usp_extra",
+                  "levelValues": [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                  ]
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": "inflictCnt",
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "ObtainCostAction",
@@ -11900,11 +12331,33 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "SaveBuffStackNumAdvanced",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "buffStackRead": {
+                "outputKey": "inflictCnt",
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "buffCheckType": "Tag",
+                "buffIds": [],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [
+                  2123008650
+                ],
+                "countType": "BuffCount",
+                "limitSkillCastId": false
+              }
             },
             {
               "actionType": "ModifyDynamicBlackboard",
-              "actionIndex": 1
+              "actionIndex": 1,
+              "blackboardMutation": {
+                "key": "conductCnt",
+                "operation": "Assign",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": "inflictCnt",
+                  "levelValues": null
+                }
+              }
             },
             {
               "actionType": "IfElseAction",
@@ -11952,7 +12405,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "blackboardMutation": {
+                      "key": "conductCnt",
+                      "operation": "Add",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": []
@@ -11994,7 +12456,16 @@ export const zhuangFangyiGeneratedSource = {
                 "succeedActions": [
                   {
                     "actionType": "ModifyDynamicBlackboard",
-                    "actionIndex": 0
+                    "actionIndex": 0,
+                    "blackboardMutation": {
+                      "key": "conductCnt",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 4.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
                   }
                 ],
                 "failActions": []

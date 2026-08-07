@@ -193,39 +193,20 @@ export interface GeneratedConditionalActionSource {
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
 }
 
-/** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */
-export interface GeneratedConditionalBranchActionSource {
-  readonly actionType: string;
-  /** 在所属 succeedActions/failActions 原始 actionData 中的下标。 */
-  readonly actionIndex: number;
-  readonly nestedCondition?: GeneratedConditionalActionSource;
-}
-
-export interface GeneratedBlackboardCalculationSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
-  readonly actionIndex: number;
+export interface GeneratedBlackboardCalculationPayload {
   readonly key: string;
   readonly operation: string;
   readonly left: GeneratedScalarSource;
   readonly right: GeneratedScalarSource;
 }
 
-/** 直接修改当前动作黑板的原生运行时操作。 */
-export interface GeneratedBlackboardMutationSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
-  readonly actionIndex: number;
+export interface GeneratedBlackboardMutationPayload {
   readonly key: string;
   readonly operation: string;
   readonly value: GeneratedScalarSource;
 }
 
-/** 从目标 Buff 实例黑板读取数值并写入当前动作黑板。 */
-export interface GeneratedBuffBlackboardReadSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
-  readonly actionIndex: number;
+export interface GeneratedBuffBlackboardReadPayload {
   readonly outputKey: string;
   readonly desiredKey: string;
   readonly targetSource: string;
@@ -237,11 +218,7 @@ export interface GeneratedBuffBlackboardReadSource {
   readonly buffTagIds: readonly number[];
 }
 
-/** 原生 FinishBuffAdvanced 的可审计配置；正式 DSL 只接收已闭环的查询子集。 */
-export interface GeneratedBuffFinishSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
-  readonly actionIndex: number;
+export interface GeneratedBuffFinishPayload {
   readonly targetSource: string;
   readonly targetGroupKey: string;
   readonly buffCheckType: string;
@@ -252,6 +229,59 @@ export interface GeneratedBuffFinishSource {
   readonly limitSource: boolean;
   readonly isFinishedEarly: boolean;
   readonly isAbsorbed: boolean;
+}
+
+export interface GeneratedBuffStackReadPayload {
+  readonly outputKey: string;
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffCheckType: string;
+  readonly buffIds: readonly string[];
+  readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+  readonly buffTagIds: readonly number[];
+  readonly countType: string;
+  readonly limitSkillCastId: boolean;
+}
+
+/** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */
+export interface GeneratedConditionalBranchActionSource {
+  readonly actionType: string;
+  /** 在所属 succeedActions/failActions 原始 actionData 中的下标。 */
+  readonly actionIndex: number;
+  readonly nestedCondition?: GeneratedConditionalActionSource;
+  readonly blackboardCalculation?: GeneratedBlackboardCalculationPayload;
+  readonly blackboardMutation?: GeneratedBlackboardMutationPayload;
+  readonly buffBlackboardRead?: GeneratedBuffBlackboardReadPayload;
+  readonly buffFinish?: GeneratedBuffFinishPayload;
+  readonly buffStackRead?: GeneratedBuffStackReadPayload;
+}
+
+export interface GeneratedBlackboardCalculationSource
+  extends GeneratedBlackboardCalculationPayload {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+}
+
+/** 直接修改当前动作黑板的原生运行时操作。 */
+export interface GeneratedBlackboardMutationSource extends GeneratedBlackboardMutationPayload {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+}
+
+/** 从目标 Buff 实例黑板读取数值并写入当前动作黑板。 */
+export interface GeneratedBuffBlackboardReadSource extends GeneratedBuffBlackboardReadPayload {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+}
+
+/** 原生 FinishBuffAdvanced 的可审计配置；正式 DSL 只接收已闭环的查询子集。 */
+export interface GeneratedBuffFinishSource extends GeneratedBuffFinishPayload {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
 }
 
 /** 黑板键在当前技能中的可追溯来源；外部输入不得由生成器猜值。 */

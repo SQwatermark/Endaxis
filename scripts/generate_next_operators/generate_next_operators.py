@@ -217,10 +217,69 @@ class ConditionSource:
 
 
 @dataclass(frozen=True)
+class BlackboardCalculationPayload:
+    key: str
+    operation: str
+    left: ScalarSource
+    right: ScalarSource
+
+
+@dataclass(frozen=True)
+class BlackboardMutationPayload:
+    key: str
+    operation: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffBlackboardReadPayload:
+    outputKey: str
+    desiredKey: str
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class BuffFinishPayload:
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
+    finishAll: bool
+    limitSource: bool
+    isFinishedEarly: bool
+    isAbsorbed: bool
+
+
+@dataclass(frozen=True)
+class BuffStackReadPayload:
+    outputKey: str
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
+    countType: str
+    limitSkillCastId: bool
+
+
+@dataclass(frozen=True)
 class ConditionalBranchActionSource:
     actionType: str
     actionIndex: int
     nestedCondition: ConditionalActionSource | None = None
+    blackboardCalculation: BlackboardCalculationPayload | None = None
+    blackboardMutation: BlackboardMutationPayload | None = None
+    buffBlackboardRead: BuffBlackboardReadPayload | None = None
+    buffFinish: BuffFinishPayload | None = None
+    buffStackRead: BuffStackReadPayload | None = None
 
 
 @dataclass(frozen=True)
@@ -340,7 +399,20 @@ def serialize_audit_value(value: Any) -> Any:
         return {
             key: serialize_audit_value(item)
             for key, item in value.items()
-            if not (key in {"entityCount", "buffStack", "nestedCondition"} and item is None)
+            if not (
+                key
+                in {
+                    "entityCount",
+                    "buffStack",
+                    "nestedCondition",
+                    "blackboardCalculation",
+                    "blackboardMutation",
+                    "buffBlackboardRead",
+                    "buffFinish",
+                    "buffStackRead",
+                }
+                and item is None
+            )
         }
     if isinstance(value, (list, tuple)):
         return [serialize_audit_value(item) for item in value]
@@ -565,6 +637,117 @@ def parse_scalar(
     )
 
 
+def parse_blackboard_calculation_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> BlackboardCalculationPayload:
+    key = action.get("key")
+    operation = action.get("operation")
+    if not isinstance(key, str) or not key:
+        raise ValueError(f"{path}.key: expected non-empty string")
+    if not isinstance(operation, str) or not operation:
+        raise ValueError(f"{path}.operation: expected non-empty string")
+    return BlackboardCalculationPayload(
+        key=key,
+        operation=operation,
+        left=parse_scalar(action.get("value1"), f"{path}.value1", inherited_blackboard),
+        right=parse_scalar(action.get("value2"), f"{path}.value2", inherited_blackboard),
+    )
+
+
+def parse_blackboard_mutation_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> BlackboardMutationPayload:
+    key = action.get("key")
+    operation = action.get("operation")
+    if not isinstance(key, str) or not key:
+        raise ValueError(f"{path}.key: expected non-empty string")
+    if not isinstance(operation, str) or not operation:
+        raise ValueError(f"{path}.operation: expected non-empty string")
+    if action.get("directValue") is not True:
+        raise ValueError(f"{path}.directValue: unsupported false")
+    return BlackboardMutationPayload(
+        key=key,
+        operation=operation,
+        value=parse_scalar(action.get("value"), f"{path}.value", inherited_blackboard),
+    )
+
+
+def parse_buff_blackboard_read_payload(
+    action: dict[str, Any],
+    path: str,
+) -> BuffBlackboardReadPayload:
+    output_key = action.get("blackboardKey")
+    desired_key = action.get("desiredKey")
+    if not isinstance(output_key, str) or not output_key:
+        raise ValueError(f"{path}.blackboardKey: expected non-empty string")
+    if not isinstance(desired_key, str) or not desired_key:
+        raise ValueError(f"{path}.desiredKey: expected non-empty string")
+    target = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+        action.get("buffSettings"), f"{path}.buffSettings"
+    )
+    return BuffBlackboardReadPayload(
+        outputKey=output_key,
+        desiredKey=desired_key,
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        buffCheckType=check_type,
+        buffIds=buff_ids,
+        tagQueryType=query_type,
+        buffTagIds=tag_ids,
+    )
+
+
+def parse_buff_finish_payload(action: dict[str, Any], path: str) -> BuffFinishPayload:
+    target = require_dict(action.get("buffOwner"), f"{path}.buffOwner")
+    check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+        action.get("buffSettings"), f"{path}.buffSettings"
+    )
+    return BuffFinishPayload(
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        buffCheckType=check_type,
+        buffIds=buff_ids,
+        tagQueryType=query_type,
+        buffTagIds=tag_ids,
+        finishAll=action.get("finishAll") is True,
+        limitSource=action.get("limitSource") is True,
+        isFinishedEarly=action.get("isFinishedEarly") is True,
+        isAbsorbed=action.get("isAbsorbed") is True,
+    )
+
+
+def parse_buff_stack_read_payload(action: dict[str, Any], path: str) -> BuffStackReadPayload:
+    output_key = action.get("key")
+    count_type = action.get("buffStackNumType")
+    limit_skill_cast_id = action.get("limitSkillCastId")
+    if not isinstance(output_key, str) or not output_key:
+        raise ValueError(f"{path}.key: expected non-empty string")
+    if not isinstance(count_type, str) or not count_type:
+        raise ValueError(f"{path}.buffStackNumType: expected non-empty string")
+    if not isinstance(limit_skill_cast_id, bool):
+        raise ValueError(f"{path}.limitSkillCastId: expected boolean")
+    target = require_dict(action.get("checkTarget"), f"{path}.checkTarget")
+    check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+        action.get("buffSettings"), f"{path}.buffSettings"
+    )
+    return BuffStackReadPayload(
+        outputKey=output_key,
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        buffCheckType=check_type,
+        buffIds=buff_ids,
+        tagQueryType=query_type,
+        buffTagIds=tag_ids,
+        countType=count_type,
+        limitSkillCastId=limit_skill_cast_id,
+    )
+
+
 def parse_conditional_actions(
     root: dict[str, Any],
     source_name: str,
@@ -736,8 +919,36 @@ def parse_conditional_actions(
                         )
                     )
             elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES:
+                source_path = f"{source_name}.{'.'.join(action_path)}"
+                calculation = None
+                mutation = None
+                buff_read = None
+                buff_finish = None
+                buff_stack_read = None
+                if action_type == "SimpleCalcBBAction":
+                    calculation = parse_blackboard_calculation_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "ModifyDynamicBlackboard":
+                    mutation = parse_blackboard_mutation_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "GetTargetBuffBBAdvanced":
+                    buff_read = parse_buff_blackboard_read_payload(action, source_path)
+                elif action_type == "FinishBuffAdvanced":
+                    buff_finish = parse_buff_finish_payload(action, source_path)
+                elif action_type == "SaveBuffStackNumAdvanced":
+                    buff_stack_read = parse_buff_stack_read_payload(action, source_path)
                 actions.append(
-                    ConditionalBranchActionSource(actionType=action_type, actionIndex=index)
+                    ConditionalBranchActionSource(
+                        actionType=action_type,
+                        actionIndex=index,
+                        blackboardCalculation=calculation,
+                        blackboardMutation=mutation,
+                        buffBlackboardRead=buff_read,
+                        buffFinish=buff_finish,
+                        buffStackRead=buff_stack_read,
+                    )
                 )
         return tuple(actions)
 
@@ -797,29 +1008,20 @@ def parse_blackboard_calculations(
         for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
             if action_name(action["$type"]) != "SimpleCalcBBAction":
                 continue
-            key = action.get("key")
-            operation = action.get("operation")
-            if not isinstance(key, str) or not key:
-                raise ValueError(f"{source_name}.SimpleCalcBBAction.key: expected non-empty string")
-            if not isinstance(operation, str) or not operation:
-                raise ValueError(f"{source_name}.SimpleCalcBBAction.operation: expected non-empty string")
+            payload = parse_blackboard_calculation_payload(
+                action,
+                f"{source_name}.SimpleCalcBBAction",
+                inherited_blackboard,
+            )
             result.append(
                 BlackboardCalculationSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
                     actionIndex=action_index,
-                    key=key,
-                    operation=operation,
-                    left=parse_scalar(
-                        action.get("value1"),
-                        f"{source_name}.SimpleCalcBBAction.value1",
-                        inherited_blackboard,
-                    ),
-                    right=parse_scalar(
-                        action.get("value2"),
-                        f"{source_name}.SimpleCalcBBAction.value2",
-                        inherited_blackboard,
-                    ),
+                    key=payload.key,
+                    operation=payload.operation,
+                    left=payload.left,
+                    right=payload.right,
                 )
             )
     return tuple(result)
@@ -882,92 +1084,62 @@ def parse_blackboard_runtime_actions(
         for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
             kind = action_name(action["$type"])
             if kind == "ModifyDynamicBlackboard":
-                key = action.get("key")
-                operation = action.get("operation")
-                if not isinstance(key, str) or not key:
-                    raise ValueError(f"{source_name}.ModifyDynamicBlackboard.key: expected non-empty string")
-                if not isinstance(operation, str) or not operation:
-                    raise ValueError(
-                        f"{source_name}.ModifyDynamicBlackboard.operation: expected non-empty string"
-                    )
-                if action.get("directValue") is not True:
-                    raise ValueError(
-                        f"{source_name}.ModifyDynamicBlackboard.directValue: unsupported false"
-                    )
+                payload = parse_blackboard_mutation_payload(
+                    action,
+                    f"{source_name}.ModifyDynamicBlackboard",
+                    inherited_blackboard,
+                )
                 mutations.append(
                     BlackboardMutationSource(
                         startFrame=start_frame,
                         endFrame=end_frame,
                         actionIndex=action_index,
-                        key=key,
-                        operation=operation,
-                        value=parse_scalar(
-                            action.get("value"),
-                            f"{source_name}.ModifyDynamicBlackboard.value",
-                            inherited_blackboard,
-                        ),
+                        key=payload.key,
+                        operation=payload.operation,
+                        value=payload.value,
                     )
                 )
                 continue
             if kind == "FinishBuffAdvanced":
-                target = require_dict(
-                    action.get("buffOwner"), f"{source_name}.FinishBuffAdvanced.buffOwner"
-                )
-                check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
-                    action.get("buffSettings"),
-                    f"{source_name}.FinishBuffAdvanced.buffSettings",
+                payload = parse_buff_finish_payload(
+                    action, f"{source_name}.FinishBuffAdvanced"
                 )
                 finishes.append(
                     BuffFinishSource(
                         startFrame=start_frame,
                         endFrame=end_frame,
                         actionIndex=action_index,
-                        targetSource=str(target.get("targetSource", "")),
-                        targetGroupKey=str(target.get("targetGroupKey", "")),
-                        buffCheckType=check_type,
-                        buffIds=buff_ids,
-                        tagQueryType=query_type,
-                        buffTagIds=tag_ids,
-                        finishAll=action.get("finishAll") is True,
-                        limitSource=action.get("limitSource") is True,
-                        isFinishedEarly=action.get("isFinishedEarly") is True,
-                        isAbsorbed=action.get("isAbsorbed") is True,
+                        targetSource=payload.targetSource,
+                        targetGroupKey=payload.targetGroupKey,
+                        buffCheckType=payload.buffCheckType,
+                        buffIds=payload.buffIds,
+                        tagQueryType=payload.tagQueryType,
+                        buffTagIds=payload.buffTagIds,
+                        finishAll=payload.finishAll,
+                        limitSource=payload.limitSource,
+                        isFinishedEarly=payload.isFinishedEarly,
+                        isAbsorbed=payload.isAbsorbed,
                     )
                 )
                 continue
             if kind != "GetTargetBuffBBAdvanced":
                 continue
-            output_key = action.get("blackboardKey")
-            desired_key = action.get("desiredKey")
-            if not isinstance(output_key, str) or not output_key:
-                raise ValueError(
-                    f"{source_name}.GetTargetBuffBBAdvanced.blackboardKey: expected non-empty string"
-                )
-            if not isinstance(desired_key, str) or not desired_key:
-                raise ValueError(
-                    f"{source_name}.GetTargetBuffBBAdvanced.desiredKey: expected non-empty string"
-                )
-            target = require_dict(
-                action.get("targetSettings"),
-                f"{source_name}.GetTargetBuffBBAdvanced.targetSettings",
-            )
-            check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
-                action.get("buffSettings"),
-                f"{source_name}.GetTargetBuffBBAdvanced.buffSettings",
+            payload = parse_buff_blackboard_read_payload(
+                action, f"{source_name}.GetTargetBuffBBAdvanced"
             )
             reads.append(
                 BuffBlackboardReadSource(
                     startFrame=start_frame,
                     endFrame=end_frame,
                     actionIndex=action_index,
-                    outputKey=output_key,
-                    desiredKey=desired_key,
-                    targetSource=str(target.get("targetSource", "")),
-                    targetGroupKey=str(target.get("targetGroupKey", "")),
-                    buffCheckType=check_type,
-                    buffIds=buff_ids,
-                    tagQueryType=query_type,
-                    buffTagIds=tag_ids,
+                    outputKey=payload.outputKey,
+                    desiredKey=payload.desiredKey,
+                    targetSource=payload.targetSource,
+                    targetGroupKey=payload.targetGroupKey,
+                    buffCheckType=payload.buffCheckType,
+                    buffIds=payload.buffIds,
+                    tagQueryType=payload.tagQueryType,
+                    buffTagIds=payload.buffTagIds,
                 )
             )
     return tuple(mutations), tuple(reads), tuple(finishes)

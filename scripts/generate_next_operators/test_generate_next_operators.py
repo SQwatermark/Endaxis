@@ -283,10 +283,24 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
+                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
                                             {"$type": "Example.DamageAction+Data, Example"},
-                                            {"$type": "Example.SimpleCalcBBAction+Data, Example"},
-                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
+                                            {
+                                                "$type": "Example.SimpleCalcBBAction+Data, Example",
+                                                "key": "result",
+                                                "operation": "Add",
+                                                "value1": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "value2": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "swordIndex",
+                                                },
+                                            },
+                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
                                         ]
                                     },
                                     "failActions": {
@@ -311,10 +325,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             tuple(action.actionType for action in actions[0].succeedActions),
             (
-                "FinishBuffAdvanced",
+                "SpawnAbilityEntity",
                 "DamageAction",
                 "SimpleCalcBBAction",
-                "FinishBuffAdvanced",
+                "SpawnAbilityEntity",
             ),
         )
         self.assertEqual(
@@ -322,6 +336,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("ObtainCostAction",),
         )
         self.assertEqual(actions[0].succeedActions[2].actionIndex, 2)
+        calculation = actions[0].succeedActions[2].blackboardCalculation
+        self.assertEqual(calculation.key, "result")
+        self.assertEqual(calculation.right.blackboardKey, "swordIndex")
 
     def test_conditional_audit_preserves_nested_branch_structure(self) -> None:
         compare = {
@@ -355,7 +372,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         "actionData": [
                                             {"$type": "Example.CreateBuffAction+Data, Example"},
                                             nested,
-                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"},
+                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"},
                                         ]
                                     },
                                     "failActions": {"actionData": []},
@@ -372,7 +389,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(
             tuple(action.actionType for action in actions[0].succeedActions),
-            ("CreateBuffAction", "IfElseAction", "FinishBuffAdvanced"),
+            ("CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"),
         )
         nested_condition = actions[0].succeedActions[1].nestedCondition
         self.assertIsNotNone(nested_condition)
@@ -437,7 +454,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "succeedActions": {
                                         "actionData": [
-                                            {"$type": "Example.FinishBuffAdvanced+Data, Example"}
+                                            {"$type": "Example.SpawnAbilityEntity+Data, Example"}
                                         ]
                                     },
                                     "failActions": {"actionData": []},
