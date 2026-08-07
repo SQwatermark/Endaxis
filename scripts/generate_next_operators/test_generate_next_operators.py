@@ -808,6 +808,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             resourceGains=(SimpleNamespace(amount=ScalarSource(0, "unused", (0, 0))),),
             inflictions=(),
             projectileLaunches=(),
+            conditionalActions=(),
             unresolvedCombatActions=("SpawnAbilityEntity", "CreateBuffAction"),
             skillId="root",
             directDamageHits=(),
@@ -815,9 +816,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=10,
-                    rootActionIndex=0,
+                    actionOrder=(0,),
                     skillId="entity_hit",
-                    directDamageHits=(SimpleNamespace(startFrame=2, damageUnits=(unit,)),),
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=2, actionIndex=0, damageUnits=(unit,)),
+                    ),
                     projectileHits=(),
                     nestedAbilityEntityHits=(),
                 ),
@@ -840,6 +843,72 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("availability: { kind: 'targetStaggered', target: 'enemy' }", source)
         self.assertIn("step('gainFinisherSp', { factor: 1, recipient: 'team' })", source)
 
+    def test_resolved_damage_compiler_interleaves_condition_roots_by_native_order(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        condition = SimpleNamespace(
+            startFrame=12,
+            actionIndex=5,
+            conditions=(
+                SimpleNamespace(
+                    sourceType="CompareFloat",
+                    comparison="Equals",
+                    left=ScalarSource(1, None, None),
+                    right=ScalarSource(1, None, None),
+                ),
+            ),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="ModifyDynamicBlackboard",
+                    nestedCondition=None,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                    blackboardMutation=SimpleNamespace(
+                        key="swordCount",
+                        operation="Add",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+        skill = SimpleNamespace(
+            key="attack",
+            timelineBlockFrames=20,
+            buffBehaviors=(),
+            auxiliaryActions=(),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(condition,),
+            unresolvedCombatActions=("IfElseAction", "SpawnAbilityEntity"),
+            skillId="root",
+            directDamageHits=(),
+            projectileHits=(),
+            abilityEntityHits=(
+                SimpleNamespace(
+                    spawnFrame=12,
+                    actionOrder=(6,),
+                    skillId="entity_hit",
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=(unit,)),
+                    ),
+                    projectileHits=(),
+                    nestedAbilityEntityHits=(),
+                ),
+            ),
+        )
+
+        source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+
+        self.assertLess(source.index("branch("), source.index("step('dealDamage'"))
+
     def test_skill_compiler_rejects_unconsumed_conditional_actions(self) -> None:
         skill = SimpleNamespace(
             key="attack",
@@ -856,7 +925,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "skills": [
                 {
                     "key": "attack",
-                    "compile": {"kind": "resolvedDamageSequence", "tags": ["normalAttack"]},
+                    "compile": {"kind": "directDamage", "tags": ["normalAttack"]},
                 }
             ],
         }
@@ -1039,7 +1108,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0].spawnFrame, 19)
-        self.assertEqual(hits[0].rootActionIndex, 5)
+        self.assertEqual(hits[0].actionOrder, (5,))
         self.assertEqual(hits[0].skillId, "child_skill")
         self.assertEqual(hits[0].combatActions, ("ObtainCostAction",))
         self.assertEqual(hits[0].resourceGains[0].startFrame, 3)
@@ -1054,19 +1123,23 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             projectileHits=(
                 SimpleNamespace(
                     launchFrame=5,
-                    rootActionIndex=1,
+                    actionOrder=(1,),
                     assumedTravelFrames=0,
                     hitSkillId="projectile_hit",
-                    directDamageHits=(SimpleNamespace(startFrame=3, damageUnits=damage_units),),
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=3, actionIndex=0, damageUnits=damage_units),
+                    ),
                     nestedProjectileHits=(),
                 ),
             ),
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=10,
-                    rootActionIndex=2,
+                    actionOrder=(2,),
                     skillId="entity_hit",
-                    directDamageHits=(SimpleNamespace(startFrame=4, damageUnits=damage_units),),
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=4, actionIndex=0, damageUnits=damage_units),
+                    ),
                     projectileHits=(),
                     nestedAbilityEntityHits=(),
                 ),
@@ -1089,19 +1162,23 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             projectileHits=(
                 SimpleNamespace(
                     launchFrame=5,
-                    rootActionIndex=2,
+                    actionOrder=(2,),
                     assumedTravelFrames=0,
                     hitSkillId="projectile_hit",
-                    directDamageHits=(SimpleNamespace(startFrame=0, damageUnits=damage_units),),
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=damage_units),
+                    ),
                     nestedProjectileHits=(),
                 ),
             ),
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=5,
-                    rootActionIndex=5,
+                    actionOrder=(5,),
                     skillId="entity_hit",
-                    directDamageHits=(SimpleNamespace(startFrame=0, damageUnits=damage_units),),
+                    directDamageHits=(
+                        SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=damage_units),
+                    ),
                     projectileHits=(),
                     nestedAbilityEntityHits=(),
                 ),
@@ -1111,7 +1188,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         hits = collect_resolved_damage_hits(skill)
 
         self.assertEqual([hit.frame for hit in hits], [5, 5, 5])
-        self.assertEqual([hit.actionIndex for hit in hits], [2, 5, 8])
+        self.assertEqual([hit.actionOrder for hit in hits], [(2, 0), (5, 0), (8,)])
         self.assertEqual(
             [hit.sourceKind for hit in hits],
             ["projectile", "abilityEntity", "direct"],
@@ -1162,8 +1239,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
             hits = resolve_projectile_hits(parent, "parent.json", source_dir)
 
-        self.assertEqual(hits[0].rootActionIndex, 7)
-        self.assertEqual(hits[0].nestedProjectileHits[0].rootActionIndex, 7)
+        self.assertEqual(hits[0].actionOrder, (7,))
+        self.assertEqual(hits[0].nestedProjectileHits[0].actionOrder, (7, 2))
 
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")

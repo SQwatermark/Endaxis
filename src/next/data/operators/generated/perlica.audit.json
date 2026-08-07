@@ -27,7 +27,9 @@
       "projectileHits": [
         {
           "launchFrame": 8,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack1",
           "hitSkillId": "chr_0004_pelica_attack1_projhit",
@@ -139,7 +141,10 @@
       "resolvedDamageHits": [
         {
           "frame": 8,
-          "actionIndex": 3,
+          "actionOrder": [
+            3,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack1",
@@ -171,6 +176,20 @@
               "calculationMultiplier": null,
               "poiseValue": null
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 8,
+          "actionOrder": [
+            3,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack1",
+            "chr_0004_pelica_attack1_projhit"
           ]
         }
       ],
@@ -230,7 +249,9 @@
       "projectileHits": [
         {
           "launchFrame": 9,
-          "rootActionIndex": 1,
+          "actionOrder": [
+            1
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -338,7 +359,9 @@
         },
         {
           "launchFrame": 12,
-          "rootActionIndex": 2,
+          "actionOrder": [
+            2
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -450,7 +473,10 @@
       "resolvedDamageHits": [
         {
           "frame": 9,
-          "actionIndex": 1,
+          "actionOrder": [
+            1,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack2",
@@ -486,7 +512,10 @@
         },
         {
           "frame": 12,
-          "actionIndex": 2,
+          "actionOrder": [
+            2,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack2",
@@ -518,6 +547,32 @@
               "calculationMultiplier": null,
               "poiseValue": null
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 9,
+          "actionOrder": [
+            1,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
+          ]
+        },
+        {
+          "frame": 12,
+          "actionOrder": [
+            2,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
           ]
         }
       ],
@@ -592,7 +647,9 @@
       "projectileHits": [
         {
           "launchFrame": 16,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -700,7 +757,9 @@
         },
         {
           "launchFrame": 19,
-          "rootActionIndex": 4,
+          "actionOrder": [
+            4
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -808,7 +867,9 @@
         },
         {
           "launchFrame": 22,
-          "rootActionIndex": 5,
+          "actionOrder": [
+            5
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -920,7 +981,10 @@
       "resolvedDamageHits": [
         {
           "frame": 16,
-          "actionIndex": 3,
+          "actionOrder": [
+            3,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -956,7 +1020,10 @@
         },
         {
           "frame": 19,
-          "actionIndex": 4,
+          "actionOrder": [
+            4,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -992,7 +1059,10 @@
         },
         {
           "frame": 22,
-          "actionIndex": 5,
+          "actionOrder": [
+            5,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -1024,6 +1094,44 @@
               "calculationMultiplier": null,
               "poiseValue": null
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 16,
+          "actionOrder": [
+            3,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ]
+        },
+        {
+          "frame": 19,
+          "actionOrder": [
+            4,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ]
+        },
+        {
+          "frame": 22,
+          "actionOrder": [
+            5,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
           ]
         }
       ],
@@ -1086,7 +1194,9 @@
       "projectileHits": [
         {
           "launchFrame": 27,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack4",
           "hitSkillId": "chr_0004_pelica_attack4_projhit",
@@ -1256,7 +1366,10 @@
       "resolvedDamageHits": [
         {
           "frame": 27,
-          "actionIndex": 3,
+          "actionOrder": [
+            3,
+            0
+          ],
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_attack4",
@@ -1317,6 +1430,20 @@
                 ]
               }
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 27,
+          "actionOrder": [
+            3,
+            0
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_attack4",
+            "chr_0004_pelica_attack4_projhit"
           ]
         }
       ],
@@ -1472,7 +1599,9 @@
       "resolvedDamageHits": [
         {
           "frame": 35,
-          "actionIndex": 2,
+          "actionOrder": [
+            2
+          ],
           "sourceKind": "direct",
           "sourcePath": [
             "chr_0004_pelica_power_attack"
@@ -1507,6 +1636,18 @@
               },
               "poiseValue": null
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 35,
+          "actionOrder": [
+            2
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_power_attack"
           ]
         }
       ],
@@ -1693,7 +1834,9 @@
       "projectileHits": [
         {
           "launchFrame": 1,
-          "rootActionIndex": 14,
+          "actionOrder": [
+            14
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -1708,7 +1851,9 @@
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 15,
+          "actionOrder": [
+            15
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -1723,7 +1868,9 @@
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 16,
+          "actionOrder": [
+            16
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -1738,7 +1885,9 @@
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 17,
+          "actionOrder": [
+            17
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -1757,7 +1906,9 @@
       "resolvedDamageHits": [
         {
           "frame": 3,
-          "actionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "sourceKind": "direct",
           "sourcePath": [
             "chr_0004_pelica_plunging_attack_end"
@@ -1788,6 +1939,18 @@
               "calculationMultiplier": null,
               "poiseValue": null
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 3,
+          "actionOrder": [
+            3
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_plunging_attack_end"
           ]
         }
       ],
@@ -1948,7 +2111,9 @@
       "resolvedDamageHits": [
         {
           "frame": 13,
-          "actionIndex": 12,
+          "actionOrder": [
+            12
+          ],
           "sourceKind": "direct",
           "sourcePath": [
             "chr_0004_pelica_normal_skill"
@@ -2021,6 +2186,18 @@
                 ]
               }
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 13,
+          "actionOrder": [
+            12
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_normal_skill"
           ]
         }
       ],
@@ -2144,7 +2321,9 @@
       "projectileHits": [
         {
           "launchFrame": 24,
-          "rootActionIndex": 7,
+          "actionOrder": [
+            7
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_combo_skill",
           "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -2356,7 +2535,10 @@
           "nestedProjectileHits": [
             {
               "launchFrame": 24,
-              "rootActionIndex": 7,
+              "actionOrder": [
+                7,
+                6
+              ],
               "assumedTravelFrames": 0,
               "projectileId": "projectile_chr_0004_pelica_combo_skill",
               "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -2575,72 +2757,11 @@
       "resolvedDamageHits": [
         {
           "frame": 24,
-          "actionIndex": 7,
-          "sourceKind": "projectile",
-          "sourcePath": [
-            "chr_0004_pelica_combo_skill",
-            "chr_0004_pelica_combo_skill_projhit"
+          "actionOrder": [
+            7,
+            6,
+            11
           ],
-          "damageUnits": [
-            {
-              "damageType": "Pulse",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 2.5,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.8,
-                  0.88,
-                  0.96,
-                  1.04,
-                  1.12,
-                  1.2,
-                  1.28,
-                  1.36,
-                  1.44,
-                  1.54,
-                  1.66,
-                  1.8
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null
-            },
-            {
-              "damageType": "Physical",
-              "attributeType": "Poise",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.0,
-                "blackboardKey": null,
-                "levelValues": null
-              },
-              "calculationMultiplier": null,
-              "poiseValue": {
-                "value": 0.0,
-                "blackboardKey": "poise",
-                "levelValues": [
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0,
-                  10.0
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "frame": 24,
-          "actionIndex": 7,
           "sourceKind": "projectile",
           "sourcePath": [
             "chr_0004_pelica_combo_skill",
@@ -2702,6 +2823,102 @@
                 ]
               }
             }
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            11
+          ],
+          "sourceKind": "projectile",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 2.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            6,
+            11
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit",
+            "chr_0004_pelica_combo_skill_projhit"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            11
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit"
           ]
         }
       ],
@@ -2957,7 +3174,9 @@
       "abilityEntityHits": [
         {
           "spawnFrame": 55,
-          "rootActionIndex": 22,
+          "actionOrder": [
+            22
+          ],
           "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
@@ -2996,7 +3215,9 @@
       "resolvedDamageHits": [
         {
           "frame": 58,
-          "actionIndex": 18,
+          "actionOrder": [
+            18
+          ],
           "sourceKind": "direct",
           "sourcePath": [
             "chr_0004_pelica_ultimate_skill"
@@ -3069,6 +3290,18 @@
                 ]
               }
             }
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 58,
+          "actionOrder": [
+            18
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0004_pelica_ultimate_skill"
           ]
         }
       ],

@@ -181,7 +181,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 8,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack1",
           "hitSkillId": "chr_0004_pelica_attack1_projhit",
@@ -623,7 +625,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 9,
-          "rootActionIndex": 1,
+          "actionOrder": [
+            1
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -731,7 +735,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 12,
-          "rootActionIndex": 2,
+          "actionOrder": [
+            2
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "hitSkillId": "chr_0004_pelica_attack2_projhit",
@@ -1232,7 +1238,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 16,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1340,7 +1348,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 19,
-          "rootActionIndex": 4,
+          "actionOrder": [
+            4
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1448,7 +1458,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 22,
-          "rootActionIndex": 5,
+          "actionOrder": [
+            5
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "hitSkillId": "chr_0004_pelica_attack3_projhit",
@@ -1927,7 +1939,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 27,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_normal_attack4",
           "hitSkillId": "chr_0004_pelica_attack4_projhit",
@@ -3127,7 +3141,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 1,
-          "rootActionIndex": 14,
+          "actionOrder": [
+            14
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3142,7 +3158,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 15,
+          "actionOrder": [
+            15
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3157,7 +3175,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 16,
+          "actionOrder": [
+            16
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -3172,7 +3192,9 @@ export const perlicaGeneratedSource = {
         },
         {
           "launchFrame": 1,
-          "rootActionIndex": 17,
+          "actionOrder": [
+            17
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "hitSkillId": "chr_0004_pelica_plunging_attack_projhit",
@@ -4110,7 +4132,9 @@ export const perlicaGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 24,
-          "rootActionIndex": 7,
+          "actionOrder": [
+            7
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0004_pelica_combo_skill",
           "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -4322,7 +4346,10 @@ export const perlicaGeneratedSource = {
           "nestedProjectileHits": [
             {
               "launchFrame": 24,
-              "rootActionIndex": 7,
+              "actionOrder": [
+                7,
+                6
+              ],
               "assumedTravelFrames": 0,
               "projectileId": "projectile_chr_0004_pelica_combo_skill",
               "hitSkillId": "chr_0004_pelica_combo_skill_projhit",
@@ -5193,7 +5220,9 @@ export const perlicaGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 55,
-          "rootActionIndex": 22,
+          "actionOrder": [
+            22
+          ],
           "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",

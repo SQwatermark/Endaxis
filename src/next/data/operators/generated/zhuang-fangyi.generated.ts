@@ -175,7 +175,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 6,
-          "rootActionIndex": 3,
+          "actionOrder": [
+            3
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
@@ -251,7 +253,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 8,
-          "rootActionIndex": 4,
+          "actionOrder": [
+            4
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
@@ -801,7 +805,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 2,
-          "rootActionIndex": 10,
+          "actionOrder": [
+            10
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
@@ -877,7 +883,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 2,
-          "rootActionIndex": 11,
+          "actionOrder": [
+            11
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
@@ -955,7 +963,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 15,
-          "rootActionIndex": 17,
+          "actionOrder": [
+            17
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
@@ -1498,7 +1508,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 14,
-          "rootActionIndex": 10,
+          "actionOrder": [
+            10
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1574,7 +1586,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 14,
-          "rootActionIndex": 11,
+          "actionOrder": [
+            11
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1650,7 +1664,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 16,
-          "rootActionIndex": 12,
+          "actionOrder": [
+            12
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -1726,7 +1742,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "launchFrame": 16,
-          "rootActionIndex": 13,
+          "actionOrder": [
+            13
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
@@ -2162,7 +2180,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 11,
-          "rootActionIndex": 10,
+          "actionOrder": [
+            10
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
@@ -2716,7 +2736,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 20,
-          "rootActionIndex": 14,
+          "actionOrder": [
+            14
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
@@ -3885,7 +3907,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 12,
-          "rootActionIndex": 15,
+          "actionOrder": [
+            15
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
@@ -3936,7 +3960,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 13,
-          "rootActionIndex": 27,
+          "actionOrder": [
+            27
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
@@ -3987,7 +4013,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 14,
-          "rootActionIndex": 37,
+          "actionOrder": [
+            37
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
@@ -4038,7 +4066,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 15,
-          "rootActionIndex": 47,
+          "actionOrder": [
+            47
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
@@ -5073,7 +5103,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 10,
-          "rootActionIndex": 14,
+          "actionOrder": [
+            14
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
@@ -5124,7 +5156,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 11,
-          "rootActionIndex": 26,
+          "actionOrder": [
+            26
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
@@ -5175,7 +5209,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 12,
-          "rootActionIndex": 36,
+          "actionOrder": [
+            36
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
@@ -5226,7 +5262,9 @@ export const zhuangFangyiGeneratedSource = {
         },
         {
           "spawnFrame": 13,
-          "rootActionIndex": 46,
+          "actionOrder": [
+            46
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
           "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
@@ -5731,7 +5769,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 3,
-          "rootActionIndex": 15,
+          "actionOrder": [
+            15
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
           "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
@@ -10973,7 +11013,9 @@ export const zhuangFangyiGeneratedSource = {
       "abilityEntityHits": [
         {
           "spawnFrame": 15,
-          "rootActionIndex": 81,
+          "actionOrder": [
+            81
+          ],
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
           "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_normal_skill_ult_abilityrange.json",
@@ -13286,7 +13328,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [
         {
           "launchFrame": 24,
-          "rootActionIndex": 57,
+          "actionOrder": [
+            57
+          ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
           "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",

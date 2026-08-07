@@ -79,8 +79,8 @@ export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainP
 
 export interface GeneratedProjectileHitSource {
   readonly launchFrame: number;
-  /** 根技能中触发整条投射物链的原生动作顺序。 */
-  readonly rootActionIndex: number;
+  /** 从根技能到当前投射物的分层原生动作顺序。 */
+  readonly actionOrder: readonly number[];
   /** 暂定为0；后续接入 ProjectileData 飞行时间后替换。 */
   /** 单敌人必命中模型暂不计算距离、轨迹和范围，命中子技能与发射处于同一帧。 */
   readonly assumedTravelFrames: 0;
@@ -105,8 +105,8 @@ export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaun
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
 export interface GeneratedAbilityEntityHitSource {
   readonly spawnFrame: number;
-  /** 根技能中触发整条能力实体链的原生动作顺序。 */
-  readonly rootActionIndex: number;
+  /** 从根技能到当前能力实体的分层原生动作顺序。 */
+  readonly actionOrder: readonly number[];
   readonly abilityEntityId: string;
   readonly skillId: string;
   readonly sourceFile: string;

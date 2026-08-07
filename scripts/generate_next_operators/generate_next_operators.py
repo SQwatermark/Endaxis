@@ -103,7 +103,7 @@ class TimedResourceGainSource:
 @dataclass(frozen=True)
 class ProjectileHitSource:
     launchFrame: int
-    rootActionIndex: int
+    actionOrder: tuple[int, ...]
     assumedTravelFrames: int
     projectileId: str
     hitSkillId: str
@@ -128,7 +128,7 @@ class ProjectileLaunchSource:
 @dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
-    rootActionIndex: int
+    actionOrder: tuple[int, ...]
     abilityEntityId: str
     skillId: str
     sourceFile: str
@@ -146,10 +146,21 @@ class AbilityEntityHitSource:
 @dataclass(frozen=True)
 class ResolvedDamageHitSource:
     frame: int
-    actionIndex: int
+    actionOrder: tuple[int, ...]
     sourceKind: str
     sourcePath: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
+
+
+@dataclass(frozen=True)
+class ResolvedScheduleItemSource:
+    """根技能坐标系中的有序战斗项；具体载荷始终只有一种。"""
+
+    frame: int
+    actionOrder: tuple[int, ...]
+    itemType: str
+    damageHit: ResolvedDamageHitSource | None
+    conditionalAction: "ConditionalActionSource | None"
 
 
 @dataclass(frozen=True)
@@ -1674,7 +1685,7 @@ def resolve_projectile_hits(
     base_frame: int = 0,
     stack: tuple[str, ...] = (),
     inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
-    root_action_index: int | None = None,
+    parent_action_order: tuple[int, ...] | None = None,
 ) -> tuple[ProjectileHitSource, ...]:
     result: list[ProjectileHitSource] = []
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -1703,12 +1714,9 @@ def resolve_projectile_hits(
             if not hit_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing projectile hit skill {hit_path}")
             hit_root = require_dict(json.loads(hit_path.read_text(encoding="utf-8")), hit_source_name)
-            current_root_action_index = (
-                root_action_index
-                if root_action_index is not None
-                else require_server_action_index(
-                    action, f"{source_name}.LaunchProjectile"
-                )
+            current_action_order = (
+                *(parent_action_order or ()),
+                require_server_action_index(action, f"{source_name}.LaunchProjectile"),
             )
             cycle_truncated = hit_skill_id in stack
             nested = (
@@ -1721,13 +1729,13 @@ def resolve_projectile_hits(
                     launch_frame,
                     (*stack, hit_skill_id),
                     inherited_blackboard=inherited_blackboard,
-                    root_action_index=current_root_action_index,
+                    parent_action_order=current_action_order,
                 )
             )
             result.append(
                 ProjectileHitSource(
                     launchFrame=launch_frame,
-                    rootActionIndex=current_root_action_index,
+                    actionOrder=current_action_order,
                     assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
                     projectileId=payload.projectileId,
                     hitSkillId=hit_skill_id,
@@ -1807,7 +1815,7 @@ def resolve_ability_entity_hits(
     base_frame: int = 0,
     stack: tuple[str, ...] = (),
     inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
-    root_action_index: int | None = None,
+    parent_action_order: tuple[int, ...] | None = None,
 ) -> tuple[AbilityEntityHitSource, ...]:
     """解析 SpawnAbilityEntity 引用的子技能，并保留父技能中的生成时刻。"""
     result: list[AbilityEntityHitSource] = []
@@ -1834,12 +1842,9 @@ def resolve_ability_entity_hits(
             if not child_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
             child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
-            current_root_action_index = (
-                root_action_index
-                if root_action_index is not None
-                else require_server_action_index(
-                    action, f"{source_name}.SpawnAbilityEntity"
-                )
+            current_action_order = (
+                *(parent_action_order or ()),
+                require_server_action_index(action, f"{source_name}.SpawnAbilityEntity"),
             )
             cycle_truncated = skill_id in stack
             nested = (
@@ -1852,7 +1857,7 @@ def resolve_ability_entity_hits(
                     spawn_frame,
                     (*stack, skill_id),
                     blackboard,
-                    root_action_index=current_root_action_index,
+                    parent_action_order=current_action_order,
                 )
             )
             combat_actions = tuple(
@@ -1867,7 +1872,7 @@ def resolve_ability_entity_hits(
             result.append(
                 AbilityEntityHitSource(
                     spawnFrame=spawn_frame,
-                    rootActionIndex=current_root_action_index,
+                    actionOrder=current_action_order,
                     abilityEntityId=payload.abilityEntityId,
                     skillId=skill_id,
                     sourceFile=child_name,
@@ -1882,7 +1887,7 @@ def resolve_ability_entity_hits(
                         source_dir,
                         spawn_frame,
                         inherited_blackboard=blackboard,
-                        root_action_index=current_root_action_index,
+                        parent_action_order=current_action_order,
                     ),
                     nestedAbilityEntityHits=nested,
                     combatActions=combat_actions,
@@ -1900,7 +1905,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
             result.append(
                 ResolvedDamageHitSource(
                     hit.startFrame,
-                    hit.actionIndex,
+                    (hit.actionIndex,),
                     "direct",
                     (skill.skillId,),
                     hit.damageUnits,
@@ -1914,7 +1919,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 result.append(
                     ResolvedDamageHitSource(
                         hit.launchFrame + hit.assumedTravelFrames + damage.startFrame,
-                        hit.rootActionIndex,
+                        (*hit.actionOrder, damage.actionIndex),
                         "projectile",
                         current_path,
                         damage.damageUnits,
@@ -1930,7 +1935,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 result.append(
                     ResolvedDamageHitSource(
                         hit.spawnFrame + damage.startFrame,
-                        hit.rootActionIndex,
+                        (*hit.actionOrder, damage.actionIndex),
                         "abilityEntity",
                         current_path,
                         damage.damageUnits,
@@ -1946,7 +1951,32 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
         collect_projectile(projectile, root_path)
     for entity in skill.abilityEntityHits:
         collect_entity(entity, root_path)
-    return tuple(sorted(result, key=lambda hit: (hit.frame, hit.actionIndex)))
+    return tuple(sorted(result, key=lambda hit: (hit.frame, hit.actionOrder)))
+
+
+def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemSource, ...]:
+    """归并根技能中的伤害与条件根，不展开条件分支内部的局部顺序。"""
+    result = [
+        ResolvedScheduleItemSource(
+            frame=hit.frame,
+            actionOrder=hit.actionOrder,
+            itemType="damage",
+            damageHit=hit,
+            conditionalAction=None,
+        )
+        for hit in collect_resolved_damage_hits(skill)
+    ]
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="condition",
+            damageHit=None,
+            conditionalAction=action,
+        )
+        for action in skill.conditionalActions
+    )
+    return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
 def resolve_buff_behaviors(
@@ -2976,8 +3006,61 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
     )
 
 
+def compile_resolved_damage_steps(
+    skill: SkillSource,
+    config: dict[str, Any],
+    hit: ResolvedDamageHitSource,
+    index: int,
+    is_last_damage: bool,
+) -> list[str]:
+    """把一个已解析命中编译成同步步骤；收尾效果紧跟最后一次伤害。"""
+    hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
+    poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
+    if (
+        len(hp_units) != 1
+        or len(poise_units) > 1
+        or len(hp_units) + len(poise_units) != len(hit.damageUnits)
+    ):
+        raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported DamageUnit layout")
+    hp = hp_units[0]
+    damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
+    if damage_type is None:
+        raise ValueError(
+            f"{skill.key}.resolvedDamageHits[{index}]: unsupported damage type {hp.damageType}"
+        )
+    tags = require_list(config.get("tags"), f"{skill.key}.compile.tags")
+    fields = [
+        f"damageType: {ts_inline_literal(damage_type)}",
+        "attackScale: percentages("
+        f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.hit[{index}].attackScale')))}"
+        ")",
+        f"tags: {ts_inline_literal(tags)}",
+    ]
+    if hp.calculation != "standard":
+        fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+    if hp.calculationMultiplier is not None:
+        fields.append(
+            "calculationMultiplier: "
+            f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
+        )
+    if poise_units:
+        poise = poise_units[0].poiseValue
+        if poise is None:
+            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: Poise unit has no value")
+        fields.append(
+            "stagger: "
+            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.hit[{index}].stagger')))}"
+        )
+    result = ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+    if is_last_damage and config.get("afterDamage") == "gainFinisherSp":
+        result.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
+    elif is_last_damage and config.get("afterDamage") is not None:
+        raise ValueError(f"{skill.key}.compile.afterDamage: unsupported value")
+    return result
+
+
 def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
-    """将已闭环载体来源的命中统一编译为按绝对帧调度的伤害序列。"""
+    """将已闭环载体命中和条件根统一编译为按原生顺序调度的序列。"""
     effective_resource_gains = [
         gain
         for gain in skill.resourceGains
@@ -3012,6 +3095,8 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
+    if skill.conditionalActions:
+        allowed_actions.add("IfElseAction")
     if ignored_auxiliary_classifications:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains and not effective_resource_gains:
@@ -3021,48 +3106,30 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     hits = collect_resolved_damage_hits(skill)
     if not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
-    tags = require_list(config.get("tags"), f"{skill.key}.compile.tags")
+    schedule = collect_resolved_schedule(skill)
+    damage_indexes = {hit: index for index, hit in enumerate(hits)}
     scheduled_entries: list[str] = []
-    for index, hit in enumerate(hits):
-        hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
-        poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
-        if len(hp_units) != 1 or len(poise_units) > 1 or len(hp_units) + len(poise_units) != len(hit.damageUnits):
-            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported DamageUnit layout")
-        hp = hp_units[0]
-        damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
-        if damage_type is None:
-            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported damage type {hp.damageType}")
-        fields = [
-            f"damageType: {ts_inline_literal(damage_type)}",
-            "attackScale: percentages("
-            f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.hit[{index}].attackScale')))}"
-            ")",
-            f"tags: {ts_inline_literal(tags)}",
-        ]
-        if hp.calculation != "standard":
-            fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
-        if hp.calculationMultiplier is not None:
-            fields.append(
-                "calculationMultiplier: "
-                f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
+    for schedule_index, item in enumerate(schedule):
+        if item.damageHit is not None:
+            index = damage_indexes[item.damageHit]
+            step_lines = compile_resolved_damage_steps(
+                skill,
+                config,
+                item.damageHit,
+                index,
+                index == len(hits) - 1,
             )
-        if poise_units:
-            poise = poise_units[0].poiseValue
-            if poise is None:
-                raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: Poise unit has no value")
-            fields.append(
-                "stagger: "
-                f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.hit[{index}].stagger')))}"
-            )
-        step_lines = ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
-        if index == len(hits) - 1 and config.get("afterDamage") == "gainFinisherSp":
-            step_lines.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
-        elif index == len(hits) - 1 and config.get("afterDamage") is not None:
-            raise ValueError(f"{skill.key}.compile.afterDamage: unsupported value")
+        elif item.conditionalAction is not None:
+            step_lines = compile_conditional_action(
+                item.conditionalAction,
+                f"{skill.key}.schedule[{schedule_index}].conditionalAction",
+            ).splitlines()
+        else:
+            raise AssertionError(f"{skill.key}: schedule item has no payload")
         scheduled_entries.extend(
             [
                 "      scheduled(",
-                f"        {hit.frame},",
+                f"        {item.frame},",
                 "        sequence(",
                 *(f"          {line}," if line.endswith(")") else f"          {line}" for line in step_lines),
                 "        ),",
@@ -3101,11 +3168,11 @@ def compile_skill_entries(
         if config is None:
             continue
         config = require_dict(config, f"{skill.key}.compile")
-        if skill.conditionalActions:
+        kind = config.get("kind")
+        if skill.conditionalActions and kind != "resolvedDamageSequence":
             raise ValueError(
                 f"{skill.key}: compiler must consume conditional actions before emitting DSL"
             )
-        kind = config.get("kind")
         if kind == "basicAttack":
             damage_types = {
                 DAMAGE_TYPE_MAP[unit.damageType]
@@ -3657,6 +3724,19 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
+                "resolvedSchedule": [
+                    {
+                        "frame": item.frame,
+                        "actionOrder": item.actionOrder,
+                        "itemType": item.itemType,
+                        "sourcePath": (
+                            item.damageHit.sourcePath
+                            if item.damageHit is not None
+                            else item.conditionalAction.actionPath
+                        ),
+                    }
+                    for item in collect_resolved_schedule(skill)
+                ],
                 "blackboardKeys": skill.blackboardKeys,
                 "blackboardProvenance": [
                     asdict(provenance) for provenance in skill.blackboardProvenance
