@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
+import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatOperationExecutor } from './skillRuntime';
+
+const emptyEnemyBuffs = {
+  findFirstByTags: () => undefined,
+};
 
 const rejectingExecutor: CombatOperationExecutor = {
   execute: () => false,
@@ -44,6 +51,7 @@ function createAssembly(programs: readonly CompiledSkillProgram[]): CombatRuntim
         },
       ],
     },
+    enemyBuffs: emptyEnemyBuffs,
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
   });
@@ -105,6 +113,84 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
+  it('wires enemy buff blackboard reads into the skill operation chain', () => {
+    const path = 'buff/status/conduct';
+    const enemyBuffs = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path]),
+    );
+    enemyBuffs.add(
+      {
+        id: 'conduct',
+        stackingType: 'unlimited',
+        applyTags: [gameplayTagIdFromPath(path)],
+        blackboard: { count: 4 },
+      },
+      'operator',
+    );
+    let observedValue: number | undefined;
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'readBuffBlackboard',
+                parameters: {
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTagIds: [gameplayTagIdFromPath(path)],
+                  desiredKey: 'count',
+                  outputKey: 'conductCount',
+                },
+              },
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'observed', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      enemyBuffs,
+      operators: [{ operatorId: 'operator', skills: [program] }],
+      createOperationExecutor: () => ({
+        execute: (_step, context) => {
+          observedValue = context?.blackboard.getNumber('conductCount');
+          return true;
+        },
+        evaluate: () => false,
+      }),
+    });
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(observedValue).toBe(4);
+  });
+
   it('processes frame input after recovery and before the skill cost tick', () => {
     const program = skill({ costFrame: 0 });
     const assembly = new CombatRuntimeAssembly({
@@ -126,6 +212,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
+      enemyBuffs: emptyEnemyBuffs,
       operators: [{ operatorId: 'operator', skills: [program] }],
       inputs: [{ frame: 1, operatorId: 'operator', skillId: 'skill' }],
       createOperationExecutor: () => rejectingExecutor,

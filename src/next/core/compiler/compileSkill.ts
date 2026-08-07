@@ -16,6 +16,7 @@ import type {
   ResolvedCombatStep,
   ResolvedStatusModifier,
 } from './combatProgram';
+import { gameplayTagId } from '../combat/tags/gameplayTags';
 
 /** 编译一个技能所需的目录定义、等级和稳定来源身份。 */
 export interface CompileSkillInput {
@@ -188,6 +189,15 @@ function resolveStep(
         ...(step.whenFalse === undefined
           ? {}
           : { whenFalse: resolveSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
+      };
+    case 'readBuffBlackboard':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...step.parameters,
+          buffTagIds: step.parameters.buffTagIds.map(gameplayTagId),
+        },
       };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {

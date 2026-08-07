@@ -241,4 +241,40 @@ describe('compileSkill', () => {
       }),
     ).toThrow("skill 'multiple-costs' has multiple costs, but native CastData has one cost");
   });
+
+  it('rejects invalid native buff tag ids while compiling the catalog', () => {
+    const skill = {
+      key: 'invalid-tag',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'readBuffBlackboard',
+                parameters: {
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTagIds: [0x80000000],
+                  desiredKey: 'count',
+                  outputKey: 'result',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    expect(() =>
+      compileSkill({
+        operatorId: 'fixture',
+        skillGroupKey: 'battleSkill',
+        skillType: 'battleSkill',
+        skillLevel: 1,
+        skill,
+      }),
+    ).toThrow('gameplay tag id must be a signed 32-bit integer');
+  });
 });

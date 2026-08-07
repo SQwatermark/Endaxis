@@ -5,6 +5,10 @@
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
+import {
+  BuffBlackboardOperationExecutor,
+  type BuffBlackboardQueryTarget,
+} from './buffBlackboardOperationExecutor';
 import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatResourceRuntime } from './combatResourceRuntime';
@@ -31,6 +35,8 @@ export interface CombatOperationExecutorContext {
 
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
+  /** 当前单敌人模型中的目标 Buff 查询端口。 */
+  readonly enemyBuffs: BuffBlackboardQueryTarget;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
@@ -51,10 +57,12 @@ export class CombatRuntimeAssembly {
   readonly receipt: CombatReceiptCollector;
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
+  readonly #enemyBuffs: BuffBlackboardQueryTarget;
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.#enemyBuffs = options.enemyBuffs;
 
     for (const operator of options.operators) {
       if (this.#abilitySystems.has(operator.operatorId)) {
@@ -114,11 +122,15 @@ export class CombatRuntimeAssembly {
       );
     }
 
-    const delegate = createDelegate({
+    const baseDelegate = createDelegate({
       program,
       clock: this.clock,
       resources: this.resources,
       receipt: this.receipt,
+    });
+    const delegate = new BuffBlackboardOperationExecutor({
+      target: this.#enemyBuffs,
+      delegate: baseDelegate,
     });
     let runtime: SkillRuntime;
     const operations = new SkillResourceOperationExecutor({

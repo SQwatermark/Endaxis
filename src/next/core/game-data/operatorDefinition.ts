@@ -239,6 +239,14 @@ export interface CombatStepParameters {
     durationSeconds?: number;
     effectiveness?: number;
   };
+  /** 按原生标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
+  readBuffBlackboard: {
+    target: 'enemy';
+    tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+    buffTagIds: readonly number[];
+    desiredKey: string;
+    outputKey: string;
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -275,6 +283,7 @@ export const COMBAT_STEP_KINDS = [
   'consumeElementalReaction',
   'dealDamage',
   'applyBuff',
+  'readBuffBlackboard',
   'changeResource',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
