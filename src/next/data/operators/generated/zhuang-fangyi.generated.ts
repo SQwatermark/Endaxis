@@ -5770,7 +5770,14 @@ export const zhuangFangyiGeneratedSource = {
             "value": 1.0,
             "blackboardKey": null,
             "levelValues": null
-          }
+          },
+          "spGainKind": "gain",
+          "spGainSource": "normalAttack",
+          "onlyMainOperator": true,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false
         }
       ],
       "projectileLaunches": [],
@@ -6569,7 +6576,14 @@ export const zhuangFangyiGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
+                      },
+                      "spGainKind": "refund",
+                      "spGainSource": "default",
+                      "onlyMainOperator": false,
+                      "isPercentValue": false,
+                      "useUltimateRecoveryTag": false,
+                      "ultimateRecoveryTagId": 0,
+                      "ignoreUltimateGainScalar": false
                     }
                   },
                   {
@@ -8361,7 +8375,14 @@ export const zhuangFangyiGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
+                            },
+                            "spGainKind": "refund",
+                            "spGainSource": "default",
+                            "onlyMainOperator": false,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false
                           }
                         },
                         {
@@ -10099,7 +10120,14 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 1.0,
                   "blackboardKey": null,
                   "levelValues": null
-                }
+                },
+                "spGainKind": null,
+                "spGainSource": null,
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
               }
             },
             {
@@ -10160,7 +10188,14 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 1.0,
                   "blackboardKey": null,
                   "levelValues": null
-                }
+                },
+                "spGainKind": null,
+                "spGainSource": null,
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
               }
             }
           ],

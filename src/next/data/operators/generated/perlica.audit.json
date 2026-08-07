@@ -171,7 +171,14 @@
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -430,7 +437,14 @@
                       "value": 0.3333333,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -577,7 +591,14 @@
                       "value": 0.3333333,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -920,7 +941,14 @@
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -1085,7 +1113,14 @@
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -1250,7 +1285,14 @@
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -1690,7 +1732,14 @@
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
@@ -2151,7 +2200,14 @@
             "value": 1.0,
             "blackboardKey": null,
             "levelValues": null
-          }
+          },
+          "spGainKind": "gain",
+          "spGainSource": "normalAttack",
+          "onlyMainOperator": true,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false
         }
       ],
       "projectileLaunches": [
@@ -2978,7 +3034,14 @@
                 "value": 1.0,
                 "blackboardKey": null,
                 "levelValues": null
-              }
+              },
+              "spGainKind": null,
+              "spGainSource": null,
+              "onlyMainOperator": false,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
             }
           ],
           "combatActions": [

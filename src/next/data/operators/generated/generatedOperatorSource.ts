@@ -261,6 +261,16 @@ export interface GeneratedResourceGainPayload {
   readonly resource: 'sp' | 'ultimateEnergy';
   readonly amount: GeneratedScalarSource;
   readonly coefficient: GeneratedScalarSource;
+  /** 仅 SP 使用；分别对应原生 Gain 和 Return。 */
+  readonly spGainKind: 'gain' | 'refund' | null;
+  /** 仅 SP 使用，决定普攻、重击或技能来源倍率。 */
+  readonly spGainSource: 'default' | 'normalAttack' | 'powerAttack' | 'skill' | null;
+  /** 原生 atbOnlyMainChar；当前仅由玩家主动攻击模型满足。 */
+  readonly onlyMainOperator: boolean;
+  readonly isPercentValue: boolean;
+  readonly useUltimateRecoveryTag: boolean;
+  readonly ultimateRecoveryTagId: number;
+  readonly ignoreUltimateGainScalar: boolean;
 }
 
 export interface GeneratedProjectileLaunchPayload {

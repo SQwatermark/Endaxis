@@ -531,7 +531,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                             {
                                                 "$type": "Example.ObtainCostAction+Data, Example",
                                                 "costType": "Atb",
+                                                "atbSourceType": "Skill",
+                                                "atbGainMethod": "Return",
+                                                "atbOnlyMainChar": False,
                                                 "isPercentValue": False,
+                                                "useUspRecoverTag": False,
+                                                "uspRecoverTag": {"tagId": 0},
+                                                "ignoreUspGainScalar": False,
                                                 "costValue": scalar,
                                                 "coefficient": scalar,
                                             },
@@ -1061,6 +1067,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     resource="sp",
                     amount=ScalarSource(5, None, (5,)),
                     coefficient=ScalarSource(1, None, None),
+                    spGainKind="gain",
+                    spGainSource="normalAttack",
+                    onlyMainOperator=True,
+                    isPercentValue=False,
+                    useUltimateRecoveryTag=False,
+                    ultimateRecoveryTagId=0,
+                    ignoreUltimateGainScalar=False,
                 ),
             ),
             inflictions=(),
@@ -1342,7 +1355,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "serverActionIndex": 0,
                             "isEnable": True,
                             "costType": "Atb",
+                            "atbSourceType": "NormalAttack",
+                            "atbGainMethod": "Gain",
+                            "atbOnlyMainChar": True,
                             "isPercentValue": False,
+                            "useUspRecoverTag": False,
+                            "uspRecoverTag": {"tagId": 0},
+                            "ignoreUspGainScalar": False,
                             "costValue": {"useBlackboardKey": False, "value": 5, "blackboardKey": ""},
                             "coefficient": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
                         },
@@ -1362,6 +1381,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(hits[0].skillId, "child_skill")
         self.assertEqual(hits[0].combatActions, ("ObtainCostAction",))
         self.assertEqual(hits[0].resourceGains[0].startFrame, 3)
+        self.assertEqual(hits[0].resourceGains[0].spGainKind, "gain")
+        self.assertEqual(hits[0].resourceGains[0].spGainSource, "normalAttack")
+        self.assertTrue(hits[0].resourceGains[0].onlyMainOperator)
 
     def test_damage_projection_uses_absolute_frames_across_child_skills(self) -> None:
         damage_units = (SimpleNamespace(attributeType="Hp"),)
@@ -1679,7 +1701,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "isEnable": True,
                                     "serverActionIndex": 1,
                                     "costType": "UltimateSp",
+                                    "atbSourceType": "Default",
+                                    "atbGainMethod": "Gain",
+                                    "atbOnlyMainChar": False,
                                     "isPercentValue": False,
+                                    "useUspRecoverTag": False,
+                                    "uspRecoverTag": {"tagId": 0},
+                                    "ignoreUspGainScalar": False,
                                     "costValue": {
                                         "useBlackboardKey": True,
                                         "blackboardKey": "usp",
@@ -1704,6 +1732,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual((gains[0].startFrame, gains[0].actionIndex), (24, 1))
         self.assertEqual(gains[0].resource, "ultimateEnergy")
         self.assertEqual(gains[0].amount.levelValues, (8.0, 10.0))
+        self.assertIsNone(gains[0].spGainKind)
+        self.assertIsNone(gains[0].spGainSource)
+        self.assertFalse(gains[0].useUltimateRecoveryTag)
 
     def test_spell_infliction_keeps_frame_action_order_and_element(self) -> None:
         root = {

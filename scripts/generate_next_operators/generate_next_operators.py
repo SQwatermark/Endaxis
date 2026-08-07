@@ -98,6 +98,13 @@ class TimedResourceGainSource:
     resource: str
     amount: ScalarSource
     coefficient: ScalarSource
+    spGainKind: str | None
+    spGainSource: str | None
+    onlyMainOperator: bool
+    isPercentValue: bool
+    useUltimateRecoveryTag: bool
+    ultimateRecoveryTagId: int
+    ignoreUltimateGainScalar: bool
 
 
 @dataclass(frozen=True)
@@ -322,6 +329,13 @@ class ResourceGainPayload:
     resource: str
     amount: ScalarSource
     coefficient: ScalarSource
+    spGainKind: str | None
+    spGainSource: str | None
+    onlyMainOperator: bool
+    isPercentValue: bool
+    useUltimateRecoveryTag: bool
+    ultimateRecoveryTagId: int
+    ignoreUltimateGainScalar: bool
 
 
 @dataclass(frozen=True)
@@ -577,6 +591,12 @@ def require_list(value: Any, path: str) -> list[Any]:
 def require_non_negative_int(value: Any, path: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool) or value < 0:
         raise ValueError(f"{path}: expected non-negative integer")
+    return value
+
+
+def require_bool(value: Any, path: str) -> bool:
+    if not isinstance(value, bool):
+        raise ValueError(f"{path}: expected boolean")
     return value
 
 
@@ -918,8 +938,21 @@ def parse_resource_gain_payload(
     resource = RESOURCE_TYPE_MAP.get(raw_resource)
     if resource is None:
         raise ValueError(f"{path}.costType: unsupported value {raw_resource!r}")
-    if action.get("isPercentValue") is not False:
-        raise ValueError(f"{path}.isPercentValue: percentage resource gain is not supported")
+    is_percent_value = require_bool(action.get("isPercentValue"), f"{path}.isPercentValue")
+    atb_source_type = action.get("atbSourceType")
+    atb_gain_method = action.get("atbGainMethod")
+    sp_gain_source = {
+        "Default": "default",
+        "NormalAttack": "normalAttack",
+        "PowerAttack": "powerAttack",
+        "Skill": "skill",
+    }.get(atb_source_type)
+    sp_gain_kind = {"Gain": "gain", "Return": "refund"}.get(atb_gain_method)
+    if sp_gain_source is None:
+        raise ValueError(f"{path}.atbSourceType: unsupported value {atb_source_type!r}")
+    if sp_gain_kind is None:
+        raise ValueError(f"{path}.atbGainMethod: unsupported value {atb_gain_method!r}")
+    recovery_tag = require_dict(action.get("uspRecoverTag"), f"{path}.uspRecoverTag")
     return ResourceGainPayload(
         resource=resource,
         amount=parse_scalar(action.get("costValue"), f"{path}.costValue", inherited_blackboard),
@@ -927,6 +960,19 @@ def parse_resource_gain_payload(
             action.get("coefficient"),
             f"{path}.coefficient",
             inherited_blackboard,
+        ),
+        spGainKind=sp_gain_kind if resource == "sp" else None,
+        spGainSource=sp_gain_source if resource == "sp" else None,
+        onlyMainOperator=require_bool(action.get("atbOnlyMainChar"), f"{path}.atbOnlyMainChar"),
+        isPercentValue=is_percent_value,
+        useUltimateRecoveryTag=require_bool(
+            action.get("useUspRecoverTag"), f"{path}.useUspRecoverTag"
+        ),
+        ultimateRecoveryTagId=require_non_negative_int(
+            recovery_tag.get("tagId"), f"{path}.uspRecoverTag.tagId"
+        ),
+        ignoreUltimateGainScalar=require_bool(
+            action.get("ignoreUspGainScalar"), f"{path}.ignoreUspGainScalar"
         ),
     )
 
@@ -1731,6 +1777,13 @@ def parse_resource_gains(
                     resource=payload.resource,
                     amount=payload.amount,
                     coefficient=payload.coefficient,
+                    spGainKind=payload.spGainKind,
+                    spGainSource=payload.spGainSource,
+                    onlyMainOperator=payload.onlyMainOperator,
+                    isPercentValue=payload.isPercentValue,
+                    useUltimateRecoveryTag=payload.useUltimateRecoveryTag,
+                    ultimateRecoveryTagId=payload.ultimateRecoveryTagId,
+                    ignoreUltimateGainScalar=payload.ignoreUltimateGainScalar,
                 )
             )
     return tuple(result)
@@ -2731,11 +2784,27 @@ def compile_resource_gain(gain: TimedResourceGainSource, path: str) -> str:
     if coefficient != 1:
         raise ValueError(f"{path}: resource gain coefficient other than 1 is not supported")
     recipient = resource_recipient(gain.resource)
-    return (
-        "step('changeResource', "
-        f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
-        f"recipient: {ts_inline_literal(recipient)} }})"
-    )
+    if gain.resource == "ultimateEnergy" and (
+        gain.isPercentValue
+        or gain.useUltimateRecoveryTag
+        or gain.ignoreUltimateGainScalar
+    ):
+        raise ValueError(f"{path}: unsupported ultimate-energy recovery options")
+    fields = [
+        f"resource: {ts_inline_literal(gain.resource)}",
+        f"amount: {ts_inline_literal(amount)}",
+        f"recipient: {ts_inline_literal(recipient)}",
+    ]
+    if gain.resource == "sp":
+        if gain.spGainKind is None or gain.spGainSource is None:
+            raise ValueError(f"{path}: missing SP gain method or source")
+        fields.extend(
+            [
+                f"spGainKind: {ts_inline_literal(gain.spGainKind)}",
+                f"spGainSource: {ts_inline_literal(gain.spGainSource)}",
+            ]
+        )
+    return "step('changeResource', { " + ", ".join(fields) + " })"
 
 
 def compile_conditional_branch_action(
@@ -2965,20 +3034,10 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         # 原生数据中存在已启用但全等级数值均为 0 的资源动作；保留在审计层，但不生成无效果步骤。
         if all(value == 0 for value in amount_values):
             continue
-        amount = compact_level_values(amount_values)
-        coefficient = compact_level_values(
-            gain.coefficient.levelValues
-            if gain.coefficient.levelValues is not None
-            else (gain.coefficient.value,)
-        )
-        if coefficient != 1:
-            raise ValueError(f"{skill.key}: resource gain coefficient other than 1 is not supported")
         ordered_steps.append(
             (
                 gain.actionIndex,
-                "step('changeResource', "
-                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
-                f"recipient: {ts_inline_literal(resource_recipient(gain.resource))} }})",
+                compile_resource_gain(gain, f"{skill.key}.resourceGain"),
             )
         )
     after_damage = config.get("afterDamage")
@@ -3127,15 +3186,10 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
             )
         )
     for gain in hit.resourceGains:
-        amount = compact_level_values(require_level_values(gain.amount, f"{skill.key}.resourceGain.amount"))
-        if gain.coefficient.levelValues is not None or gain.coefficient.value != 1:
-            raise ValueError(f"{skill.key}: non-constant resource gain coefficient is not supported")
         ordered_steps.append(
             (
                 gain.actionIndex,
-                "step('changeResource', "
-                f"{{ resource: {ts_inline_literal(gain.resource)}, amount: {ts_inline_literal(amount)}, "
-                f"recipient: {ts_inline_literal(resource_recipient(gain.resource))} }})",
+                compile_resource_gain(gain, f"{skill.key}.resourceGain"),
             )
         )
     rendered_steps = [

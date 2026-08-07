@@ -315,7 +315,14 @@ export const perlicaGeneratedSource = {
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -797,7 +804,14 @@ export const perlicaGeneratedSource = {
                       "value": 0.3333333,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -933,7 +947,14 @@ export const perlicaGeneratedSource = {
                       "value": 0.3333333,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -1491,7 +1512,14 @@ export const perlicaGeneratedSource = {
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -1644,7 +1672,14 @@ export const perlicaGeneratedSource = {
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -1797,7 +1832,14 @@ export const perlicaGeneratedSource = {
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -2391,7 +2433,14 @@ export const perlicaGeneratedSource = {
                       "value": 1.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
+                    },
+                    "spGainKind": "gain",
+                    "spGainSource": "normalAttack",
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": false
                   }
                 }
               ],
@@ -3466,7 +3515,14 @@ export const perlicaGeneratedSource = {
             "value": 1.0,
             "blackboardKey": null,
             "levelValues": null
-          }
+          },
+          "spGainKind": "gain",
+          "spGainSource": "normalAttack",
+          "onlyMainOperator": true,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false
         }
       ],
       "projectileLaunches": [
@@ -4832,7 +4888,14 @@ export const perlicaGeneratedSource = {
                 "value": 1.0,
                 "blackboardKey": null,
                 "levelValues": null
-              }
+              },
+              "spGainKind": null,
+              "spGainSource": null,
+              "onlyMainOperator": false,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
             }
           ],
           "combatActions": [
