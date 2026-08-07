@@ -46,11 +46,18 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         skill = SimpleNamespace(
             key="attack",
             timelineBlockFrames=20,
-            buffBehaviors=(),
+            buffBehaviors=(SimpleNamespace(buffId="input_lock"),),
+            auxiliaryActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    sourceId="input_lock",
+                    classification="inputLock",
+                ),
+            ),
             resourceGains=(SimpleNamespace(amount=ScalarSource(0, "unused", (0, 0))),),
             inflictions=(),
             projectileLaunches=(),
-            unresolvedCombatActions=("SpawnAbilityEntity",),
+            unresolvedCombatActions=("SpawnAbilityEntity", "CreateBuffAction"),
             skillId="root",
             directDamageHits=(),
             projectileHits=(),
@@ -65,11 +72,21 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
-        source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+        source = compile_resolved_damage_sequence(
+            skill,
+            {
+                "tags": ["normalAttack"],
+                "availability": "targetStaggered",
+                "afterDamage": "gainFinisherSp",
+                "ignoreAuxiliaryClassifications": ["inputLock"],
+            },
+        )
 
         self.assertIn("scheduled(\n        12,", source)
         self.assertIn("attackScale: percentages([50, 60])", source)
         self.assertIn("damageType: 'electric'", source)
+        self.assertIn("availability: { kind: 'targetStaggered', target: 'enemy' }", source)
+        self.assertIn("step('gainFinisherSp', { factor: 1, recipient: 'team' })", source)
 
     def test_missing_buff_source_is_explicit_in_the_audit_layer(self) -> None:
         root = {

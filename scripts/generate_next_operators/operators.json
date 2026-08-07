@@ -155,7 +155,18 @@
         { "key": "enhancedBasicAttack1", "skillType": "basicAttack", "source": "chr_0030_zhuangfy_attack1_ult.json", "compile": { "kind": "resolvedDamageSequence", "tags": ["normalAttack"] } },
         { "key": "enhancedBasicAttack2", "skillType": "basicAttack", "source": "chr_0030_zhuangfy_attack2_ult.json", "compile": { "kind": "resolvedDamageSequence", "tags": ["normalAttack"] } },
         { "key": "enhancedBasicAttack3", "skillType": "basicAttack", "source": "chr_0030_zhuangfy_attack3_ult.json" },
-        { "key": "finisher", "skillType": "finisher", "source": "chr_0030_zhuangfy_power_attack.json" },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0030_zhuangfy_power_attack.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack", "powerAttack"],
+            "availability": "targetStaggered",
+            "afterDamage": "gainFinisherSp",
+            "ignoreAuxiliaryClassifications": ["incomingDamageProtection", "inputLock"]
+          }
+        },
         { "key": "plungingAttack", "skillType": "plungingAttack", "source": "chr_0030_zhuangfy_plunging_attack_end.json", "compile": { "kind": "resolvedDamageSequence", "tags": ["normalAttack", "plungingAttack"] } },
         { "key": "battleSkill", "skillType": "battleSkill", "source": "chr_0030_zhuangfy_normal_skill.json" },
         { "key": "enhancedBattleSkill", "skillType": "battleSkill", "source": "chr_0030_zhuangfy_normal_skill_ult.json" },

@@ -1685,11 +1685,37 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         for gain in skill.resourceGains
         if any(value != 0 for value in require_level_values(gain.amount, f"{skill.key}.resourceGain.amount"))
     ]
-    if skill.buffBehaviors or effective_resource_gains or skill.inflictions:
+    ignored_auxiliary_classifications = set(
+        require_list(
+            config.get("ignoreAuxiliaryClassifications", []),
+            f"{skill.key}.compile.ignoreAuxiliaryClassifications",
+        )
+    )
+    combat_auxiliary_actions = [
+        action
+        for action in getattr(skill, "auxiliaryActions", [])
+        if action.actionType == "CreateBuffAction"
+    ]
+    ignored_buff_ids = {
+        action.sourceId
+        for action in combat_auxiliary_actions
+        if action.classification in ignored_auxiliary_classifications
+    }
+    unignored_auxiliary_actions = [
+        action
+        for action in combat_auxiliary_actions
+        if action.classification not in ignored_auxiliary_classifications
+    ]
+    unignored_buff_behaviors = [
+        behavior for behavior in skill.buffBehaviors if behavior.buffId not in ignored_buff_ids
+    ]
+    if unignored_auxiliary_actions or unignored_buff_behaviors or effective_resource_gains or skill.inflictions:
         raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs or resources")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
+    if ignored_auxiliary_classifications:
+        allowed_actions.add("CreateBuffAction")
     if skill.resourceGains and not effective_resource_gains:
         allowed_actions.add("ObtainCostAction")
     if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
@@ -1731,27 +1757,39 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
                 f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.hit[{index}].stagger')))}"
             )
         step_lines = ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+        if index == len(hits) - 1 and config.get("afterDamage") == "gainFinisherSp":
+            step_lines.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
+        elif index == len(hits) - 1 and config.get("afterDamage") is not None:
+            raise ValueError(f"{skill.key}.compile.afterDamage: unsupported value")
         scheduled_entries.extend(
             [
                 "      scheduled(",
                 f"        {hit.frame},",
                 "        sequence(",
-                *(f"          {line}{',' if line == step_lines[-1] else ''}" for line in step_lines),
+                *(f"          {line}," if line.endswith(")") else f"          {line}" for line in step_lines),
                 "        ),",
                 "      ),",
             ]
         )
-    return "\n".join(
-        [
+    fields = [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
+    ]
+    availability = config.get("availability")
+    if availability == "targetStaggered":
+        fields.append("    availability: { kind: 'targetStaggered', target: 'enemy' },")
+    elif availability is not None:
+        raise ValueError(f"{skill.key}.compile.availability: unsupported value")
+    fields.extend(
+        [
             "    scheduledSequences: [",
             *scheduled_entries,
             "    ],",
             "  },",
         ]
     )
+    return "\n".join(fields)
 
 
 def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:

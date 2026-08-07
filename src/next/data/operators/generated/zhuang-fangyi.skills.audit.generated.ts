@@ -258,6 +258,38 @@ export const zhuangFangyiGeneratedSkills = [
     ],
   },
   {
+    key: 'finisher',
+    timelineBlockFrames: 41,
+    availability: { kind: 'targetStaggered', target: 'enemy' },
+    scheduledSequences: [
+      scheduled(
+        11,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+            calculationMultiplier: 0.1,
+          }),
+        ),
+      ),
+      scheduled(
+        40,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
+            tags: ['normalAttack', 'powerAttack'],
+            calculation: 'breakingAttack',
+            calculationMultiplier: 0.9,
+          }),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+        ),
+      ),
+    ],
+  },
+  {
     key: 'plungingAttack',
     timelineBlockFrames: 21,
     scheduledSequences: [
