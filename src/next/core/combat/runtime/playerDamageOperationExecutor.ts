@@ -67,7 +67,7 @@ export interface PlayerDamageOperationDependencies {
   readonly delegate: CombatOperationExecutor;
 }
 
-/** Executes the confirmed standard player-damage path, including both modifier stages. */
+/** 执行已确认的标准玩家伤害路径，包括两个修正阶段。 */
 export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: PlayerDamageOperationDependencies) {}
 

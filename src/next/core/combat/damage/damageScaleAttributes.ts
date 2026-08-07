@@ -125,7 +125,7 @@ const TYPED_ATTRIBUTES: Partial<
   },
 };
 
-/** Applies the recovered attribute-to-zone mapping to an existing accumulator. */
+/** 将已还原的属性到区间映射应用到现有累加器。 */
 export function injectDamageScaleAttributes(
   accumulator: DamageScaleAccumulator,
   input: InjectDamageScaleAttributesInput,
@@ -142,20 +142,12 @@ export function injectDamageScaleAttributes(
     }
     const abnormalAttribute = ABNORMAL_CLASSIFICATION_ATTRIBUTES[classification];
     if (abnormalAttribute !== undefined) {
-      accumulator.modify(
-        'attacker',
-        'abnormalAndBurst',
-        input.attacker[abnormalAttribute],
-      );
+      accumulator.modify('attacker', 'abnormalAndBurst', input.attacker[abnormalAttribute]);
     }
   }
 
   if (input.defenderStaggered) {
-    accumulator.modify(
-      'attacker',
-      'normal',
-      input.attacker.damageToStaggeredEnemyIncrease,
-    );
+    accumulator.modify('attacker', 'normal', input.attacker.damageToStaggeredEnemyIncrease);
   }
   if (typed !== undefined) {
     accumulator.modify('attacker', 'enhanced', input.attacker[typed.enhanced]);
@@ -163,14 +155,20 @@ export function injectDamageScaleAttributes(
   }
 }
 
-/** Converts the active-skill classifications represented by the Next operator DSL. */
-export function classifyDamageTags(tags: readonly DamageTag[]): readonly DamageScaleClassification[] {
+/** 转换新版干员 DSL 表达的主动技能分类。 */
+export function classifyDamageTags(
+  tags: readonly DamageTag[],
+): readonly DamageScaleClassification[] {
   const classifications: DamageScaleClassification[] = [];
   if (
     tags.some(tag =>
-      ['normalAttack', 'normalAttackLastCombo', 'powerAttack', 'plungingAttack', 'dashAttack'].includes(
-        tag,
-      ),
+      [
+        'normalAttack',
+        'normalAttackLastCombo',
+        'powerAttack',
+        'plungingAttack',
+        'dashAttack',
+      ].includes(tag),
     )
   ) {
     classifications.push('normalAttack');
@@ -186,7 +184,7 @@ function getTypedAttributes(damageType: DamageType):
       readonly damageIncrease: DamageScaleAttributeKey;
       readonly enhanced: DamageScaleAttributeKey;
       readonly vulnerability: DamageScaleAttributeKey;
-  }
+    }
   | undefined {
   return TYPED_ATTRIBUTES[damageType];
 }

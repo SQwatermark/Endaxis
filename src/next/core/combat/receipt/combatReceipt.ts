@@ -14,7 +14,7 @@ export interface CombatReceiptSink {
   record(entry: Omit<CombatReceiptEntry, 'sequence'>): void;
 }
 
-/** Stable append-only facts; localization and presentation are projections. */
+/** 稳定且仅追加的事实记录；本地化与展示均属于投影。 */
 export class CombatReceiptCollector implements CombatReceiptSink {
   readonly #entries: CombatReceiptEntry[] = [];
 

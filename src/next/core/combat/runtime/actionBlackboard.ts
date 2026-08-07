@@ -1,6 +1,6 @@
 export type ActionBlackboardValue = string | number | null;
 
-/** Mutable per-runtime-instance values used by data-driven combat actions. */
+/** 数据驱动战斗行为使用的、按运行时实例隔离的可变值。 */
 export class ActionBlackboard {
   readonly #values = new Map<string, ActionBlackboardValue>();
 

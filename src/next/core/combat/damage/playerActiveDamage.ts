@@ -3,7 +3,7 @@ import type { DamageType } from '../../game-data/operatorDefinition';
 const DEFAULT_DEFENSE_EFFICIENCY = 0.01;
 const CRITICAL_PROBABILITY_TOLERANCE = 0.00001;
 
-/** Fully resolved inputs consumed by the recovered player-active damage formula. */
+/** 已还原的玩家主动伤害公式使用的完整解析输入。 */
 export interface PlayerActiveDamageInput {
   readonly finalAttackValue: number;
   readonly damageType: DamageType;
@@ -51,14 +51,12 @@ export function calculatePlayerActiveDamage(
   );
   const weaknessShelterMultiplier =
     input.weaknessDamageMultiplier * (1 - input.shelterDamageMultiplier);
-  const igniteMultiplier = input.appliesIgniteDamageMultiplier
-    ? input.igniteDamageMultiplier
-    : 1;
+  const igniteMultiplier = input.appliesIgniteDamageMultiplier ? input.igniteDamageMultiplier : 1;
   const physicalInflictionMultiplier = input.appliesPhysicalInflictionDamageMultiplier
     ? input.physicalInflictionDamageMultiplier
     : 1;
 
-  // Keep the native multiplication order for later floating-point trace comparison.
+  // 保持原生乘法顺序，便于后续逐项对比浮点轨迹。
   let value = input.weaknessDamageMultiplier * input.finalAttackValue;
   value *= criticalMultiplier;
   value *= defenseMultiplier;

@@ -44,7 +44,7 @@ export function createElementalAttachmentLifecycleActions<Key extends string>(
   };
 }
 
-/** Applies resolved elemental operations to the target's native-style Buff container. */
+/** 将已解析的元素操作应用到目标的原生风格 Buff 容器。 */
 export class ElementalInflictionBuffAdapter<Key extends string> {
   #projectedAttachment: CombatBuff<Key> | null = null;
 

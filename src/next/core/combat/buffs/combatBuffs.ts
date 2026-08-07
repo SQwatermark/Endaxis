@@ -66,7 +66,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly maxStackCount?: number;
-  /** Missing duration is the recovered infinite-lifetime representation. */
+  /** 缺少持续时间表示已还原出的无限生命周期。 */
   readonly durationSeconds?: BuffDuration;
   readonly triggerIntervalSeconds?: BuffDuration;
   readonly waitFirstTriggerInterval?: boolean;
@@ -272,7 +272,7 @@ export class CombatBuff<Key extends string> {
   }
 }
 
-/** Per-entity Buff storage and active DamageModifier registry. */
+/** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
 export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];

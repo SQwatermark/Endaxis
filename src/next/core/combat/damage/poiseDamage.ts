@@ -46,12 +46,12 @@ export interface PoiseDamageExecutionResult {
   readonly currentPoise: number;
 }
 
-/** Recovered poise formula before event listeners modify the final delta. */
+/** 事件监听器修改最终变化量前使用的、已还原的失衡公式。 */
 export function calculatePoiseDamage(input: CalculatePoiseDamageInput): number {
   return input.calculationValue * input.outputMultiplier * input.takenMultiplier;
 }
 
-/** Applies one poise unit in the recovered source/target event order. */
+/** 按已还原的来源方与目标方事件顺序应用一个失衡单元。 */
 export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageExecutionResult {
   const calculatedDamage = calculatePoiseDamage(input);
   const modifier: PoiseDamageModifier = {

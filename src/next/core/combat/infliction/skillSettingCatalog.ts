@@ -22,7 +22,7 @@ export interface SkillSettingCatalogDocument {
   readonly enhanceFormulas: readonly ({ readonly key: string } & InflictionEnhanceFormula)[];
 }
 
-/** Strict boundary for the generated subset of the native SkillSetting asset. */
+/** 原生 `SkillSetting` 资源生成子集进入核心前的严格边界。 */
 export function parseSkillSettingCatalog(input: unknown): SkillSettingCatalogDocument {
   const root = requireObject(input, '$');
   requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'data', 'enhanceFormulas']);

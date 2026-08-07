@@ -61,7 +61,7 @@ export type CatalogActionSource =
 
 export interface CustomActionDefinition {
   kind: 'custom';
-  /** User-defined identity; intentionally open rather than an enum. */
+  /** 用户定义的身份标识，刻意保持开放而不限制为枚举。 */
   actionType: string;
   name: string;
   element?: DamageElement;
@@ -90,28 +90,28 @@ export type EditableSkillCastField = (typeof EDITABLE_SKILL_CAST_FIELDS)[number]
 type CombatStepDocumentForKind<K extends CombatStepKind> = {
   kind: K;
   parameters: CombatStepParameters[K];
-  /** Catalog key retained only for a definition step that supports targeted overrides. */
+  /** 仅对支持定点覆盖的定义步骤保留目录键。 */
   sourceStepKey?: string;
-  /** Parameter keys explicitly changed by the user. */
+  /** 用户显式修改过的参数键。 */
   edited: Extract<keyof CombatStepParameters[K], string>[];
 } & (K extends 'dealDamage' ? { hitId: string } : {}) &
   (K extends 'conditional'
     ? { whenTrue: ActionSequenceDocument; whenFalse?: ActionSequenceDocument }
     : {});
 
-/** A normalized combat operation whose kind determines its payload shape. */
+/** 规范化战斗操作，其 `kind` 决定负载结构。 */
 export type CombatStepDocument = {
   [K in CombatStepKind]: CombatStepDocumentForKind<K>;
 }[CombatStepKind];
 
-/** Children execute synchronously in this exact order. */
+/** 子操作严格按照此顺序同步执行。 */
 export interface ActionSequenceDocument {
   steps: CombatStepDocument[];
 }
 
 /**
- * One scheduled sequence relative to its enclosing skill cast. A point entry
- * has equal start/end frames; a running entry receives updates until endFrame.
+ * 相对于所属技能释放时刻的一段调度序列。点事件的起止帧相同；
+ * 持续事件会在到达 `endFrame` 前不断接收更新。
  */
 export interface ScheduledSequenceDocument {
   id: string;
@@ -134,8 +134,8 @@ export type EnhancementDocument =
   { kind: 'duration'; frames: number } | { kind: 'status'; statusId: string };
 
 /**
- * Complete values exposed by the editor. Values are persisted even when they
- * still equal their catalog defaults, while `edited` records user ownership.
+ * 编辑器暴露的完整取值。即使数值仍等于目录默认值也会持久化，
+ * `edited` 则记录该值是否已由用户接管。
  */
 export interface EditableActionValues {
   durationFrames: number;
@@ -153,15 +153,15 @@ export interface EditableActionValues {
   customBars: EditableBarDocument[];
 }
 
-/** One user-authored skill cast placed on an operator track. */
+/** 用户放置在干员轨道上的一次技能释放。 */
 export interface SkillCastDocument {
   id: string;
   source: SkillCastSource;
   placement: {
-    /** User-authored logical position. Runtime shifts are derived. */
+    /** 用户编辑的逻辑位置；运行时位移属于派生结果。 */
     startFrame: number;
   };
-  /** Present when one library operation placed multiple casts as a sequence. */
+  /** 当一次技能库操作以序列形式放置多次释放时存在。 */
   placementGroup?: {
     id: string;
     skillGroupKey: string;
@@ -232,17 +232,17 @@ export const ENEMY_EDITABLE_FIELDS = [
 export interface EnemyDocument {
   source: { kind: 'catalog'; enemyId: string; level: number } | { kind: 'custom'; level: number };
   editable: EnemyEditableValues;
-  /** Keys in `editable` that the user changed from the captured defaults. */
+  /** `editable` 中被用户改离已捕获默认值的键。 */
   edited: (keyof EnemyEditableValues)[];
 }
 
-/** A user-authored split point from which a follow-up scenario may be created. */
+/** 用户创建的分支点，可从此派生后续场景。 */
 export interface CycleBoundaryDocument {
   id: string;
   frame: number;
 }
 
-/** The track controlled by the player from `frame` onward. */
+/** 从 `frame` 开始由玩家主控的轨道。 */
 export interface ControlSwitchDocument {
   id: string;
   frame: number;
@@ -274,8 +274,8 @@ export interface BattleDocument {
 }
 
 /**
- * A scenario derives its opening runtime state from a source boundary. The
- * resulting resources and effects are intentionally not persisted.
+ * 场景从来源边界派生初始运行时状态。
+ * 由此生成的资源与效果刻意不做持久化。
  */
 export interface ScenarioInheritanceDocument {
   sourceScenarioId: string;
@@ -297,7 +297,7 @@ export interface GlobalOperatorStatModifierDocument {
   kind: 'operatorStat';
   modifier: GlobalOperatorStatModifier;
   value: number;
-  /** Required only when the modifier is limited to one skill type. */
+  /** 仅当修正限定于某一种技能类型时需要。 */
   skillType?: SkillType;
 }
 
@@ -307,7 +307,7 @@ export interface GlobalConfigDocument {
 
 export type MechanicParameterValue = boolean | number | string;
 
-/** One user-owned selection of a catalog mechanic and its explicit parameters. */
+/** 用户选择的一项目录机制及其显式参数。 */
 export interface MechanicSelectionDocument {
   id: string;
   mechanicId: string;

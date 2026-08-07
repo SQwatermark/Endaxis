@@ -1,6 +1,6 @@
 const READY_EPSILON = 0.00001;
 
-/** Native single-period timer state used by cooldown and poise recovery. */
+/** 冷却和失衡恢复使用的原生单周期计时器状态。 */
 export class PeriodicTimer {
   #period = -1;
   #remaining = -1;

@@ -22,7 +22,7 @@ export interface MechanicAdapterInput {
   readonly parameters: Readonly<Record<string, MechanicParameterValue>>;
 }
 
-/** Source-specific code may parse tables, but must return only core primitives. */
+/** 数据源专用代码可以解析原始表，但只能返回核心原语。 */
 export interface MechanicAdapter {
   readonly family: MechanicFamily;
   readonly revision: string;

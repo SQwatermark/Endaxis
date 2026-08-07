@@ -16,7 +16,7 @@ export interface SkillResourceOperationDependencies {
   readonly delegate: CombatOperationExecutor;
 }
 
-/** Handles recovered skill-resource actions and delegates every other operation. */
+/** 处理已还原的技能资源操作，并将其他操作继续委托。 */
 export class SkillResourceOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: SkillResourceOperationDependencies) {}
 

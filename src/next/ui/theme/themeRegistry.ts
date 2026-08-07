@@ -46,7 +46,7 @@ export function validateThemeDefinition(theme: ThemeDefinition): void {
   }
 }
 
-/** Registry for UI chrome themes. Combat-domain colors remain outside this boundary. */
+/** UI 框架主题注册表；战斗领域颜色不进入此边界。 */
 export class ThemeRegistry {
   readonly #themes = new Map<string, ThemeDefinition>();
 

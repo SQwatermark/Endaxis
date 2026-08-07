@@ -13,7 +13,7 @@ export interface CombatExecutionContext {
   sequence?: SequenceExecutionState;
 }
 
-/** One executable operation in a combat sequence. */
+/** 战斗序列中的一个可执行操作。 */
 export abstract class CombatStep {
   createRuntimeInstance(): CombatStep {
     return this;

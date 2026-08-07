@@ -46,7 +46,7 @@ export interface ElementalInflictionOperationDependencies {
   readonly delegate: CombatOperationExecutor;
 }
 
-/** Executes one infliction after target resolution and before the following hit step. */
+/** 在目标解析后、后续命中步骤前执行一次附着。 */
 export class ElementalInflictionOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: ElementalInflictionOperationDependencies) {}
 

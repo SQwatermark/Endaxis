@@ -7,7 +7,7 @@ export type GameLevelEventHandler<Event, Payload = unknown> = (
   context: GameLevelEventContext<Event, Payload>,
 ) => void;
 
-/** Synchronous level-event broadcast in registration order. */
+/** 按注册顺序同步广播关卡事件。 */
 export class GameLevelEventDispatcher<Event, Payload = unknown> {
   readonly #callbacks = new Map<Event, GameLevelEventHandler<Event, Payload>[]>();
 

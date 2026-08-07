@@ -4,7 +4,7 @@ export interface FrameRuntime {
   advanceFrame(): void;
 }
 
-/** Advances the shared clock before ticking registered runtime systems. */
+/** 先推进共享时钟，再更新已注册的运行时系统。 */
 export class CombatSimulation {
   readonly #systems: FrameRuntime[] = [];
 

@@ -15,7 +15,7 @@ import type {
 
 type ImmediateStepKind = Exclude<CombatStepKind, 'conditional'>;
 
-/** Creates one immediate operation while preserving its discriminated-union type. */
+/** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
 export function step<K extends ImmediateStepKind>(
   kind: K,
   parameters: CombatStepParameters[K],
@@ -92,7 +92,7 @@ interface ConditionalCase {
   sequence: ActionSequenceDefinition;
 }
 
-/** Builds an ordered if/else-if chain and executes only the first matching case. */
+/** 构造有序的 if/else-if 条件链，只执行首个匹配分支。 */
 export function firstMatching(
   cases: readonly ConditionalCase[],
   fallback?: ActionSequenceDefinition,
@@ -123,7 +123,7 @@ export interface BasicAttackOptions extends DamageOptions {
   lastHitEndFrame?: number;
 }
 
-/** Binds an operator's damage type while leaving each hit's scale and tags explicit. */
+/** 绑定干员的伤害类型，同时要求每次命中显式配置倍率与标签。 */
 export function damageOfType(damageType: DamageType) {
   return (
     attackScale: DealDamageParameters['attackScale'],
@@ -132,7 +132,7 @@ export function damageOfType(damageType: DamageType) {
   ): DealDamageParameters => ({ damageType, attackScale, tags, ...options });
 }
 
-/** Creates one segment of a normal-attack chain with an explicit damage type. */
+/** 创建普通攻击链的一段，并显式指定伤害类型。 */
 export function basicAttackOfType(damageType: DamageType) {
   return (
     key: string,
@@ -193,7 +193,7 @@ export function scaleDamageByStatusStacks(
   };
 }
 
-/** Creates one damage-only scheduled sequence for each source hit frame. */
+/** 为来源中的每个命中帧创建一段仅造成伤害的调度序列。 */
 export function damageHits(
   frames: readonly number[],
   parameters: DealDamageParameters,
@@ -201,7 +201,7 @@ export function damageHits(
   return frames.map(frame => scheduled(frame, sequence(step('dealDamage', parameters))));
 }
 
-/** Converts percentages copied from source tables into decimal combat multipliers. */
+/** 将来源表中的百分数转换为战斗计算使用的小数倍率。 */
 export function percentages(values: readonly number[]): number[] {
   return values.map(value => value / 100);
 }

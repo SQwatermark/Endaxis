@@ -81,7 +81,7 @@ export function attributeModifierValues(
   return { ...IDENTITY_VALUES, [slot]: value };
 }
 
-/** Attribute aggregation with the recovered native eight-slot formula. */
+/** 使用已还原的原生八槽公式聚合属性。 */
 export class CombatAttributeSet<Key extends string> {
   readonly #rawValues = new Map<Key, number>();
   readonly #definitions = new Map<Key, CombatAttributeDefinition>();

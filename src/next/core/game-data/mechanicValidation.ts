@@ -13,7 +13,7 @@ function matchesParameterType(
   );
 }
 
-/** Validates catalog references after the versioned game-data repository is available. */
+/** 在版本化游戏数据仓库就绪后校验目录引用。 */
 export function validateMechanicSelections(
   mechanics: ScenarioMechanicsDocument,
   repository: MechanicRepository,

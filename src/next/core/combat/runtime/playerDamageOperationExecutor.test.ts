@@ -148,7 +148,7 @@ describe('PlayerDamageOperationExecutor', () => {
       parameters: { ...DAMAGE_STEP.parameters, stagger: undefined },
     });
 
-    // 120 * 4 * 1.5 * 2 * 1.25, then 100 defense halves the result.
+    // 先计算 120 * 4 * 1.5 * 2 * 1.25，再由 100 点防御将结果减半。
     expect(targetVitals.health).toBe(1100);
     expect(order).toEqual([
       'capture',

@@ -13,7 +13,7 @@ export interface CombatVitalsRuntimeDependencies {
   readonly emitOwnerEvent: (event: CombatVitalsEvent) => void;
 }
 
-/** Advances health-adjacent timers and publishes transitions at their native boundaries. */
+/** 推进生命相关计时器，并在原生边界发布状态转换。 */
 export class CombatVitalsRuntime implements FrameRuntime {
   constructor(readonly dependencies: CombatVitalsRuntimeDependencies) {}
 

@@ -20,7 +20,7 @@ export interface MechanicParameterDefinition {
   defaultValue?: boolean | number | string;
 }
 
-/** Catalog metadata only; executable behavior is compiled by a mechanic adapter. */
+/** 这里只保存目录元数据；可执行行为由机制适配器编译。 */
 export interface MechanicDefinitionRef {
   id: string;
   family: MechanicFamily;
@@ -28,7 +28,7 @@ export interface MechanicDefinitionRef {
   parameters: readonly MechanicParameterDefinition[];
 }
 
-/** Read-only game data boundary used by the new core. */
+/** 新核心使用的只读游戏数据边界。 */
 export interface GameDataRepository {
   getOperator(slug: string): OperatorDefinition | null;
   getWeapon(slug: string): WeaponDefinitionRef | null;

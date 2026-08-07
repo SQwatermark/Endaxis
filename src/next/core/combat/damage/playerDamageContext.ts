@@ -52,7 +52,7 @@ interface PlayerDamageContextInput {
   readonly ports: PlayerDamageContextPorts;
 }
 
-/** Mutable per-hit state following the recovered native damage-pack lifecycle. */
+/** 遵循已还原原生伤害包生命周期的单次命中可变状态。 */
 export class PlayerDamageContext {
   readonly sourceId: string;
   readonly targetId: string;

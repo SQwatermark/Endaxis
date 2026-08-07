@@ -34,7 +34,7 @@ function createInitialValues(): Record<DamageScaleZone, number> {
   >;
 }
 
-/** Recovered seven-zone accumulator used before the final damage formula. */
+/** 最终伤害公式前使用的、已还原的七区间累加器。 */
 export class DamageScaleAccumulator {
   readonly #attacker = createInitialValues();
   readonly #defender = createInitialValues();

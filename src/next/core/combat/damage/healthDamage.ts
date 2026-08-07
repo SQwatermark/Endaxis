@@ -30,7 +30,7 @@ export interface ExecuteHealthDamageInput {
   readonly emitSourceEvent: (event: HealthDamageEvent, payload: HealthDamageEventPayload) => void;
 }
 
-/** Applies a resolved player-active damage value at the recovered post-formula boundary. */
+/** 在已还原的公式后边界应用解析完成的玩家主动伤害。 */
 export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDamageResult {
   const payload: HealthDamageEventPayload = {
     sourceId: input.sourceId,

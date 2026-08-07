@@ -6,8 +6,8 @@ export interface BreakingAttackCalculationInput {
 }
 
 /**
- * Reproduces BreakingAttackCalculation before the shared damage formula runs.
- * Each cast marks a native conversion or float multiplication boundary.
+ * 在通用伤害公式运行前复现破防攻击计算。
+ * 每次类型转换都对应一个原生转换或浮点乘法边界。
  */
 export function calculateBreakingAttackValue(input: BreakingAttackCalculationInput): number {
   const scaledAttack = Math.fround(input.attack * input.targetDamageTakenMultiplier);

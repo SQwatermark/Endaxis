@@ -16,7 +16,7 @@ export type ElementalInflictionOperation =
       readonly consumedLayers: number;
     };
 
-/** Resolves the recovered empty, same-type, and different-type attachment branches. */
+/** 解析已还原的空附着、同类附着和异类附着分支。 */
 export function resolveElementalInfliction(
   incomingElement: InflictionElement,
   existingAttachment: ExistingElementalAttachment | null,

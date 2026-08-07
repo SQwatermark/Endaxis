@@ -135,7 +135,7 @@ export class SkillRuntime {
     this.#nonReturnedSpCost = 0;
     this.#state = 'casting';
     this.record('SkillStarted');
-    // Native TryCastSkill performs one immediate OnTick(0, 0).
+    // 原生 `TryCastSkill` 会立即执行一次 `OnTick(0, 0)`。
     this.#tick(0);
     return true;
   }

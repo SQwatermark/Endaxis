@@ -33,8 +33,8 @@ export interface CombatBuffCatalogLifecycleActions {
 }
 
 /**
- * Stable, data-only representation emitted by the game-data extraction boundary.
- * Native table shapes and executable callbacks must not cross this boundary.
+ * 游戏数据提取边界输出的稳定纯数据表示。
+ * 原生表结构和可执行回调不得跨越此边界。
  */
 export interface CombatBuffCatalogEntry {
   readonly id: string;
@@ -63,7 +63,7 @@ export interface CombatBuffCatalogCompilerPorts<Key extends string> {
   ) => void;
 }
 
-/** Compiled lookup used by the elemental-infliction runtime adapter. */
+/** 元素附着运行时适配器使用的已编译索引。 */
 export class CompiledCombatBuffCatalog<
   Key extends string,
 > implements ElementalInflictionBuffCatalog<Key> {
@@ -166,7 +166,7 @@ export function compileCombatBuffCatalog<Key extends string>(
   return new CompiledCombatBuffCatalog(document.revision, document.buffs, ports);
 }
 
-/** Strict JSON boundary for generated or externally stored semantic catalogs. */
+/** 生成或外部存储的语义目录进入核心前的严格 JSON 边界。 */
 export function parseCombatBuffCatalogDocument(input: unknown): CombatBuffCatalogDocument {
   const root = requireObject(input, '$');
   requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'buffs']);

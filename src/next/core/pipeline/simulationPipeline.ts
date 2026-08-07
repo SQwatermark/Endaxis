@@ -7,7 +7,7 @@ export interface PipelineExecutionContext {
   readonly signal?: AbortSignal;
 }
 
-/** A deterministic stage that receives only the preceding stage artifact. */
+/** 确定性流水线阶段，只接收前一阶段的产物。 */
 export interface PipelineStage<Input, Output> {
   readonly id: string;
   readonly revision: string;
@@ -35,7 +35,7 @@ export interface SimulationPipelineResult<ResolvedScenario, CombatProgram, Comba
 }
 
 export interface PipelineCacheOptions {
-  /** Total completed stage results retained across simulation and projection stages. */
+  /** 模拟与投影阶段累计保留的已完成阶段结果数。 */
   readonly maxEntries: number;
 }
 
@@ -82,8 +82,8 @@ class StageResultCache {
 }
 
 /**
- * Runs the pure combat pipeline without depending on Vue, Pinia, or browser
- * state. A worker adapter can call the same asynchronous boundary later.
+ * 运行不依赖 Vue、Pinia 或浏览器状态的纯战斗流水线。
+ * 后续的 Worker 适配器可以复用同一个异步边界。
  */
 export class SimulationPipeline<ProjectInput, ResolvedScenario, CombatProgram, CombatRun> {
   readonly #stages: SimulationPipelineStages<
@@ -116,7 +116,7 @@ export class SimulationPipeline<ProjectInput, ResolvedScenario, CombatProgram, C
     return { resolvedScenario, combatProgram, combatRun };
   }
 
-  /** Projections are lazy and cached independently from the combat run. */
+  /** 投影按需生成，并与战斗运行结果分别缓存。 */
   project<Projection>(
     combatRun: VersionedArtifact<CombatRun>,
     stage: PipelineStage<CombatRun, Projection>,

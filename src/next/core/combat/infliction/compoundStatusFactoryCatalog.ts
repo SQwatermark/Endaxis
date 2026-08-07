@@ -36,7 +36,7 @@ export interface CompoundStatusFactoryCatalogDocument {
   readonly factories: readonly CompoundStatusFactoryEntry[];
 }
 
-/** Strict boundary for generated compound-status recipes. */
+/** 生成复合状态配方进入核心前的严格边界。 */
 export function parseCompoundStatusFactoryCatalog(
   input: unknown,
 ): CompoundStatusFactoryCatalogDocument {

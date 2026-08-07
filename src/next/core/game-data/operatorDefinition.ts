@@ -28,7 +28,7 @@ export type DamageElement = (typeof DAMAGE_ELEMENTS)[number];
 export const INFLICTION_ELEMENTS = ['heat', 'electric', 'cryo', 'nature'] as const;
 export type InflictionElement = (typeof INFLICTION_ELEMENTS)[number];
 
-/** Damage channels used by health-damage calculation. */
+/** 生命伤害计算使用的伤害类型。 */
 export const DAMAGE_TYPES = [
   'physical',
   'true',
@@ -44,7 +44,7 @@ export type DamageType = (typeof DAMAGE_TYPES)[number];
 export const ELEMENTAL_REACTIONS = ['electrification', 'corrosion'] as const;
 export type ElementalReaction = (typeof ELEMENTAL_REACTIONS)[number];
 
-/** Additive classifications carried by a resolved damage hit. */
+/** 已解析伤害命中携带的可叠加分类。 */
 export const DAMAGE_TAGS = [
   'normalAttack',
   'normalAttackLastCombo',
@@ -91,7 +91,7 @@ export const COMPARISON_OPERATORS = [
 ] as const;
 export type ComparisonOperator = (typeof COMPARISON_OPERATORS)[number];
 
-/** A shared value for every level, or one value per level. */
+/** 所有等级共用一个值，或为每个等级分别提供值。 */
 export type LevelValues = number | readonly number[];
 
 export const DAMAGE_CALCULATIONS = ['standard', 'breakingAttack'] as const;
@@ -99,14 +99,14 @@ export type DamageCalculation = (typeof DAMAGE_CALCULATIONS)[number];
 
 export interface DealDamageParameters {
   damageType: DamageType;
-  /** Formula used to produce base damage. Omitted for standard attack scaling. */
+  /** 生成基础伤害所用的公式；标准攻击倍率路径可省略。 */
   calculation?: DamageCalculation;
-  /** Per-hit attack scale as a decimal. */
+  /** 单次命中的攻击倍率，使用小数表示。 */
   attackScale: LevelValues;
   tags: readonly DamageTag[];
-  /** Stagger damage resolved after health damage by the same hit. */
+  /** 同一次命中在生命伤害之后结算的失衡伤害。 */
   stagger?: LevelValues;
-  /** Additive attack scale contributed by each stack of a semantic combat status. */
+  /** 每层语义化战斗状态提供的额外攻击倍率。 */
   attackScalePerStatusStack?: {
     statusKey: string;
     target: CombatTarget;
@@ -243,7 +243,7 @@ export const COMBAT_STEP_KINDS = [
 export type CombatStepKind = (typeof COMBAT_STEP_KINDS)[number];
 
 type CombatStepForKind<K extends CombatStepKind> = {
-  /** Present only when another catalog definition must address this step. */
+  /** 仅当其他目录定义需要引用此步骤时提供。 */
   key?: string;
   kind: K;
   parameters: Readonly<CombatStepParameters[K]>;
@@ -297,11 +297,11 @@ export interface CombatEventHandlerDefinition {
 export interface SkillDefinition {
   key: string;
   durationFrames: number;
-  /** Condition checked when the user attempts to cast this skill. */
+  /** 用户尝试释放技能时检查的条件。 */
   availability?: CombatCondition;
   cooldownFrames?: LevelValues;
   costs?: readonly SkillCostDefinition[];
-  /** Native CastData.startCdFrame; required by the compiler when costs are present. */
+  /** 原生 `CastData.startCdFrame`；配置消耗时编译器要求此字段存在。 */
   costFrame?: number;
   scheduledSequences: readonly ScheduledSequenceDefinition[];
   activationWindow?: {
@@ -313,13 +313,13 @@ export interface SkillDefinition {
 
 export interface SkillGroupDefinition {
   key: string;
-  /** Combat classification shared by the library entry's skills. */
+  /** 技能库条目内各技能共用的战斗分类。 */
   skillType: SkillType;
-  /** One of the four build fields that supplies the selected skill level. */
+  /** 提供当前技能等级的四种养成字段之一。 */
   levelSource: SkillLevelSource;
-  /** A single placed skill, or an ordered chain placed as one library entry. */
+  /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
-  /** UI variants of one stable skill group; they do not create separate cast identities. */
+  /** 同一稳定技能组的 UI 变体，不会产生独立的释放身份。 */
   presentationVariants?: readonly SkillPresentationVariantDefinition[];
 }
 

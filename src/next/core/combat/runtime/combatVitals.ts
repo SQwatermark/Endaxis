@@ -21,7 +21,7 @@ export interface HealthDamageResult {
 
 export type PoiseTimerTransition = 'poiseRecovered' | 'poiseBrokenTagEnded';
 
-/** Health and poise state without skill, event-dispatch, or presentation concerns. */
+/** 不掺杂技能、事件分发或展示职责的生命与失衡状态。 */
 export class CombatVitals {
   #health: number;
   #poise: number;

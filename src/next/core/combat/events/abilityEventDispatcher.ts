@@ -17,8 +17,8 @@ interface RegisteredAction<Event, Payload> {
 }
 
 /**
- * Reproduces the confirmed native dispatch phases. Data actions use descending
- * priority; equal-priority ordering is rejected until the native tie rule is known.
+ * 复现已确认的原生分发阶段。数据行为按优先级降序执行；
+ * 在原生同优先级排序规则确认前，拒绝接受同优先级行为。
  */
 export class AbilityEventDispatcher<Event, Payload = unknown> {
   readonly #callbacks = new Map<Event, AbilityEventHandler<Event, Payload>[]>();

@@ -25,7 +25,7 @@ export type MechanicEventContext<AbilityPayload, LevelPayload> =
       readonly event: GameLevelEventContext<MechanicGameLevelEvent['kind'], LevelPayload>;
     };
 
-/** Executes core sequences; activity adapters never receive this runtime port. */
+/** 执行核心序列；活动适配器不会获得此运行时端口。 */
 export interface MechanicSequenceExecutor<AbilityPayload = unknown, LevelPayload = unknown> {
   execute(
     sequence: ResolvedActionSequence,
@@ -40,7 +40,7 @@ export interface MechanicRuntimeDependencies<AbilityPayload = unknown, LevelPayl
   readonly sequenceExecutor: MechanicSequenceExecutor<AbilityPayload, LevelPayload>;
 }
 
-/** Installs compiled data contributions into the recovered event boundaries. */
+/** 将已编译的数据贡献安装到还原出的事件边界。 */
 export function installMechanicContributions<AbilityPayload = unknown, LevelPayload = unknown>(
   mechanics: CompiledMechanics,
   dependencies: MechanicRuntimeDependencies<AbilityPayload, LevelPayload>,

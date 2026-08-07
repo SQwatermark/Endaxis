@@ -42,7 +42,7 @@ export interface DamageModifierDefinition {
   readonly condition?: DamageModifierCondition;
 }
 
-/** Runtime modifier owned by one enabled Buff instance. */
+/** 由一个已启用 Buff 实例持有的运行时修正。 */
 export class DamageModifier {
   constructor(
     readonly ownerId: string,

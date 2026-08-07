@@ -65,7 +65,7 @@ const finisher = {
 
 const plungingAttack = {
   key: 'plungingAttack',
-  // This definition starts at landing; airborne duration belongs to movement state.
+  // 此定义从落地时刻开始；滞空时长属于移动状态，不在战斗技能中重复建模。
   durationFrames: 20,
   scheduledSequences: [
     scheduled(
@@ -247,7 +247,7 @@ export const perlica: OperatorDefinition = {
     {
       key: 'comboRicochetAgainstBrokenEnemy',
       levels: 1,
-      // Preserve talent order; multi-target ricochet is outside the current combat model.
+      // 保留天赋顺序；多目标弹射超出当前战斗模型的范围。
       modifiers: [],
     },
   ],

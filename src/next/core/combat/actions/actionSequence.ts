@@ -15,7 +15,7 @@ interface StepEntry {
   executeResult: boolean;
 }
 
-/** Executes combat steps synchronously in configured array order. */
+/** 按配置数组的顺序同步执行战斗步骤。 */
 export class ActionSequence extends CombatStep {
   readonly #entries: StepEntry[];
 

@@ -13,7 +13,7 @@ export interface CompoundStatusFactoryResult {
   readonly blackboardValues: Readonly<Record<string, ActionBlackboardValue>>;
 }
 
-/** Reproduces ReadSkillSettingData followed by the factory's CreateBuffAction. */
+/** 复现先读取 `SkillSettingData`、再由工厂创建 Buff 行为的流程。 */
 export function executeCompoundStatusFactory(
   factory: CompoundStatusFactoryEntry,
   inputBlackboard: Readonly<Record<string, ActionBlackboardValue>>,

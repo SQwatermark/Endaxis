@@ -93,7 +93,7 @@ export interface CompiledSkillCost {
   readonly value: number;
 }
 
-/** Complete single-level program consumed by the runtime skill instance. */
+/** 供运行时技能实例使用的完整单等级程序。 */
 export interface CompiledSkillProgram {
   readonly operatorId: string;
   readonly skillGroupKey: string;

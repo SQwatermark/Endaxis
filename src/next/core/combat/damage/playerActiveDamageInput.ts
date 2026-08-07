@@ -27,9 +27,9 @@ export interface PlayerDamageDefenderSnapshot {
 export interface PlayerDamageRuntimeSnapshot {
   readonly criticalSample: number;
   readonly runtimeExtensionMultiplier: number;
-  /** Resolved from the native decorate-mask set by the catalog adapter. */
+  /** 由目录适配器设置的原生修饰掩码解析得到。 */
   readonly appliesIgniteDamageMultiplier: boolean;
-  /** Resolved from the native decorate-mask set by the catalog adapter. */
+  /** 由目录适配器设置的原生修饰掩码解析得到。 */
   readonly appliesPhysicalInflictionDamageMultiplier: boolean;
 }
 
@@ -41,7 +41,7 @@ export interface ResolvePlayerActiveDamageInput {
   readonly runtime: PlayerDamageRuntimeSnapshot;
 }
 
-/** Resolves the recovered standard AtkScale path after all modifier stages have run. */
+/** 在所有修正阶段完成后解析已还原的标准攻击倍率路径。 */
 export function resolvePlayerActiveDamageInput({
   step,
   finalAttackValue,

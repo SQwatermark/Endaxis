@@ -8,7 +8,7 @@ export interface OperatorResourceSnapshot {
   readonly ultimateEnergy: number;
   readonly maxUltimateEnergy: number;
   readonly ultimateEnergyGainMultiplier: number;
-  /** Whether a positive recovery without a recovery tag passes current restrictions. */
+  /** 不带回复标签的正向回复是否能通过当前限制。 */
   readonly canGainUntaggedUltimateEnergy: boolean;
 }
 
@@ -56,7 +56,7 @@ function requireFinite(value: number, path: string): void {
   }
 }
 
-/** Native shared SP and ordered squad ultimate-energy state. */
+/** 原生共享技力与按队伍顺序保存的终结技能量状态。 */
 export class CombatResources {
   #sp: number;
   #returnedSp: number;
@@ -133,7 +133,7 @@ export class CombatResources {
         nonReturnedSpCost = cost.value - consumedReturnedSp;
       } else {
         const operator = this.#requireOperator(operatorId);
-        // Native Skill.ApplyCost ignores the ultimate-energy setter result.
+        // 原生 `Skill.ApplyCost` 会忽略终结技能量 Setter 的返回值。
         this.#trySetUltimateEnergy(operator, operator.ultimateEnergy - cost.value);
       }
     }

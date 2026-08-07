@@ -23,8 +23,8 @@ interface ActiveTimelineAction {
 }
 
 /**
- * Runs fixed-frame action intervals. Pending actions use a cursor so each tick
- * visits only newly started and currently active actions.
+ * 按固定帧运行行为区间。待执行行为使用游标推进，使每个 Tick
+ * 只访问刚开始和当前仍处于活动状态的行为。
  */
 export class TimelineActionProcessor {
   readonly #actions: readonly IndexedTimelineAction[];
@@ -41,8 +41,8 @@ export class TimelineActionProcessor {
         throw new RangeError(`timeline action ${index} ends before it starts`);
       }
     });
-    // The game's equal-start ordering is still unknown; source order is the
-    // explicit deterministic fallback also used by combat-spec.
+    // 游戏内同起始帧行为的排序仍未确认；暂时沿用 combat-spec 使用的来源顺序，
+    // 作为显式且确定性的回退规则。
     this.#actions = actions
       .map((action, sourceIndex) => ({ action, sourceIndex }))
       .sort(

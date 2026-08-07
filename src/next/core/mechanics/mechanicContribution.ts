@@ -1,6 +1,6 @@
 import type { ResolvedActionSequence } from '../compiler/combatProgram';
 
-/** Confirmed native AbilityEvent identities currently exposed to mechanic adapters. */
+/** 当前向机制适配器开放的、已确认的原生 `AbilityEvent` 身份。 */
 export const MECHANIC_ABILITY_EVENTS = [
   'beforeSkillCast',
   'skillEnded',
@@ -11,12 +11,12 @@ export const MECHANIC_ABILITY_EVENTS = [
 ] as const;
 export type MechanicAbilityEvent = (typeof MECHANIC_ABILITY_EVENTS)[number];
 
-/** Level events whose identity and synchronous dispatch boundary are recovered. */
+/** 已还原身份和同步分发边界的关卡事件。 */
 export type MechanicGameLevelEvent = { kind: 'spellInflictionStarted' };
 
 /**
- * First executable mechanic primitives. Adapters return data only; runtime
- * callbacks and arbitrary object patches are deliberately not representable.
+ * 首批可执行的机制原语。适配器只能返回数据，不能表达运行时回调
+ * 或任意对象补丁，以维持明确的执行边界。
  */
 export type MechanicContribution =
   | {
