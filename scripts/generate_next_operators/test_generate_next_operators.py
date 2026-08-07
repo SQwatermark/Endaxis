@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from generate_next_operators import (
     collect_blackboard_keys,
     collect_conditional_blackboard_keys,
+    collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     build_blackboard_provenance,
     compile_skill_entries,
@@ -53,6 +54,36 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
+        root = {
+            "actionGroupData": {
+                "actions": [
+                    {
+                        "$type": "Example.IfElseAction+Data, Example",
+                        "conditionAction": {"actionData": []},
+                        "succeedActions": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CreateBuffAction+Data, Example",
+                                    "buffs": [{"buffId": "buff.branch", "assignItems": []}],
+                                }
+                            ]
+                        },
+                        "failActions": {"actionData": []},
+                    },
+                    {
+                        "$type": "Example.CreateBuffAction+Data, Example",
+                        "buffs": [{"buffId": "buff.root", "assignItems": []}],
+                    },
+                ]
+            }
+        }
+
+        self.assertEqual(
+            collect_referenced_buff_ids(root, "skill.json"),
+            ("buff.branch", "buff.root"),
+        )
+
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
             "actionData": [

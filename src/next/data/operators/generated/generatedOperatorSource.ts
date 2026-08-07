@@ -418,6 +418,8 @@ export interface GeneratedSkillSource {
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
+  /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
+  readonly referencedBuffIds: readonly string[];
   readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;

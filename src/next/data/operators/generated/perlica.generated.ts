@@ -341,6 +341,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -973,6 +974,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -1858,6 +1860,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2459,6 +2462,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2954,6 +2958,10 @@ export const perlicaGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_medium",
+        "buff_common_power_attack_disable_cast_skill"
+      ],
       "buffBehaviors": [
         {
           "applicationFrame": 0,
@@ -3626,6 +3634,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4116,6 +4125,9 @@ export const perlicaGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_obtain_ultimate_sp"
+      ],
       "buffBehaviors": [
         {
           "applicationFrame": 13,
@@ -4910,6 +4922,7 @@ export const perlicaGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -5655,6 +5668,9 @@ export const perlicaGeneratedSource = {
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_ult_skill"
       ],
       "buffBehaviors": [
         {

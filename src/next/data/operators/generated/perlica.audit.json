@@ -200,6 +200,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 8,
@@ -620,6 +621,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 9,
@@ -1314,6 +1316,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 16,
@@ -1761,6 +1764,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 27,
@@ -1993,6 +1997,10 @@
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_medium",
+        "buff_common_power_attack_disable_cast_skill"
       ],
       "resolvedDamageHits": [
         {
@@ -2312,6 +2320,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 3,
@@ -2516,6 +2525,9 @@
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_common_obtain_ultimate_sp"
       ],
       "resolvedDamageHits": [
         {
@@ -3067,6 +3079,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 24,
@@ -3441,6 +3454,9 @@
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_ult_skill"
       ],
       "resolvedDamageHits": [
         {

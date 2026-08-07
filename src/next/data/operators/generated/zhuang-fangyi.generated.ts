@@ -333,6 +333,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -961,6 +962,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -1742,6 +1744,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2104,6 +2107,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2567,6 +2571,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -3521,6 +3526,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4464,6 +4470,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4921,6 +4928,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_attack3_ult_cancel"
+      ],
       "buffBehaviors": [
         {
           "applicationFrame": 3,
@@ -5478,6 +5488,10 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_medium",
+        "buff_common_power_attack_disable_cast_skill"
+      ],
       "buffBehaviors": [
         {
           "applicationFrame": 0,
@@ -5816,6 +5830,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -7224,6 +7239,12 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+        "buff_chr_0030_zhuangfy_talent1",
+        "buff_common_obtain_ultimate_sp"
+      ],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -9110,6 +9131,11 @@ export const zhuangFangyiGeneratedSource = {
           "cycleTruncated": false
         }
       ],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+        "buff_chr_0030_zhuangfy_talent1",
+        "buff_common_obtain_ultimate_sp"
+      ],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -10263,6 +10289,9 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_pulse_pulse_conduct_triggered"
+      ],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -11138,6 +11167,9 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_pulse_pulse_conduct_triggered"
+      ],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -11822,6 +11854,11 @@ export const zhuangFangyiGeneratedSource = {
       "projectileLaunches": [],
       "projectileHits": [],
       "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_potential5_vfx",
+        "buff_chr_0030_zhuangfy_ult_base",
+        "buff_common_damage_immune_ult_skill"
+      ],
       "buffBehaviors": [
         {
           "applicationFrame": 78,

@@ -513,6 +513,7 @@ class SkillSource:
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
     projectileHits: tuple[ProjectileHitSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
+    referencedBuffIds: tuple[str, ...]
     buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
     declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...]
@@ -1674,6 +1675,25 @@ def parse_buff_assignments(
     return result
 
 
+def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
+    """收集整棵动作树直接创建的 Buff；保留定义入口，但不改变条件分支归属。"""
+    result: set[str] = set()
+    for action in walk_actions(root.get("actionGroupData")):
+        if action_name(action["$type"]) != "CreateBuffAction":
+            continue
+        for index, raw_buff in enumerate(
+            require_list(action.get("buffs"), f"{source_name}.CreateBuffAction.buffs")
+        ):
+            buff = require_dict(raw_buff, f"{source_name}.CreateBuffAction.buffs[{index}]")
+            buff_id = buff.get("buffId")
+            if not isinstance(buff_id, str) or not buff_id:
+                raise ValueError(
+                    f"{source_name}.CreateBuffAction.buffs[{index}].buffId: expected string"
+                )
+            result.add(buff_id)
+    return tuple(sorted(result))
+
+
 def parse_buff_lifecycle(
     buff: dict[str, Any],
     source_name: str,
@@ -2584,6 +2604,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             stack=(skill_id,),
             inherited_blackboard=patch.blackboard,
         ),
+        referencedBuffIds=collect_referenced_buff_ids(root, source_name),
         buffBehaviors=resolve_buff_behaviors(
             root,
             source_name,
@@ -4214,6 +4235,7 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
+                "referencedBuffIds": skill.referencedBuffIds,
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "resolvedSchedule": [
                     {

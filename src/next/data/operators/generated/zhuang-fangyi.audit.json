@@ -192,6 +192,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 6,
@@ -641,6 +642,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 2,
@@ -1239,6 +1241,7 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 14,
@@ -1565,6 +1568,7 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -1758,6 +1762,7 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -2404,6 +2409,7 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -3101,6 +3107,7 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -3414,6 +3421,9 @@
           "cycleTruncated": false
         }
       ],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_attack3_ult_cancel"
+      ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -3624,6 +3634,10 @@
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_medium",
+        "buff_common_power_attack_disable_cast_skill"
       ],
       "resolvedDamageHits": [
         {
@@ -3838,6 +3852,7 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [],
       "resolvedDamageHits": [
         {
           "frame": 1,
@@ -4844,6 +4859,12 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+        "buff_chr_0030_zhuangfy_talent1",
+        "buff_common_obtain_ultimate_sp"
+      ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
@@ -6280,6 +6301,11 @@
         }
       ],
       "buffBehaviors": [],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+        "buff_chr_0030_zhuangfy_talent1",
+        "buff_common_obtain_ultimate_sp"
+      ],
       "resolvedDamageHits": [
         {
           "frame": 84,
@@ -7013,6 +7039,9 @@
       "projectileHits": [],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [
+        "buff_common_pulse_pulse_conduct_triggered"
+      ],
       "resolvedDamageHits": [
         {
           "frame": 24,
@@ -7561,6 +7590,9 @@
       ],
       "abilityEntityHits": [],
       "buffBehaviors": [],
+      "referencedBuffIds": [
+        "buff_common_pulse_pulse_conduct_triggered"
+      ],
       "resolvedDamageHits": [
         {
           "frame": 24,
@@ -8377,6 +8409,11 @@
           "combatActions": [],
           "cycleTruncated": false
         }
+      ],
+      "referencedBuffIds": [
+        "buff_chr_0030_zhuangfy_potential5_vfx",
+        "buff_chr_0030_zhuangfy_ult_base",
+        "buff_common_damage_immune_ult_skill"
       ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
