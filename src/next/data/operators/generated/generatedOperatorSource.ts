@@ -172,6 +172,21 @@ export interface GeneratedBuffDefinitionSource {
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly combatActions: readonly string[];
+  /** 数据源中存在但生成器尚未结构化解析的 Buff 根载荷；非空时不得视为完整行为定义。 */
+  readonly unparsedPayloads: readonly GeneratedUnparsedBuffPayloadSource[];
+}
+
+export interface GeneratedUnparsedBuffPayloadSource {
+  readonly field:
+    | 'abilityEventAction'
+    | 'damageModifier'
+    | 'globalModifier'
+    | 'healModifier'
+    | 'igniteEventAction'
+    | 'poiseModifier'
+    | 'shieldConfigs'
+    | 'tagsAfterTriggerExtendBuffAction';
+  readonly entryCount: number;
 }
 
 export interface GeneratedBuffAttributeModifierSource {

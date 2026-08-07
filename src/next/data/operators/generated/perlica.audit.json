@@ -18,7 +18,8 @@
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -36,7 +37,8 @@
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -54,7 +56,8 @@
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -72,7 +75,8 @@
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     }
   ],
   "skills": [

@@ -164,6 +164,64 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].attributeModifiers[0].slot, "BaseMultiplier")
         self.assertEqual(definitions[1].attributeModifiers[0].value.value, 0.5)
         self.assertEqual(definitions[1].combatActions, ())
+        self.assertEqual(definitions[1].unparsedPayloads, ())
+
+    def test_buff_definitions_report_nonempty_unparsed_root_payloads(self) -> None:
+        buff = {
+            "lifeType": "Infinity",
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 0,
+                "blackboardKey": "",
+            },
+            "triggerInterval": {
+                "useBlackboardKey": False,
+                "value": -1,
+                "blackboardKey": "",
+            },
+            "waitFirstTriggerInterval": False,
+            "maxTriggerCnt": {
+                "useBlackboardKey": False,
+                "value": 1,
+                "blackboardKey": "",
+            },
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "Unlimited",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "negatePriority": False,
+                "priority": 0,
+                "useMaxStackCntKey": False,
+                "maxStackCntKey": "",
+                "maxStackCnt": 1,
+                "isNeedStackEffect": False,
+            },
+            "blackboard": [],
+            "attributeModifier": {
+                "isConvertedAttribute": False,
+                "attributeModifiers": [],
+            },
+            "applyTags": [],
+            "timelineActions": [],
+            "buffEventAction": [],
+            "abilityEventAction": [
+                {"abilityEvent": "OnAddedBuff", "actions": []},
+                {"abilityEvent": "OnOwnerHpZero", "actions": []},
+            ],
+            "damageModifier": [],
+            "tagsAfterTriggerExtendBuffAction": [{"tagId": 123}],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            (path / "buff.test.json").write_text(json.dumps(buff), encoding="utf-8")
+            definition = resolve_buff_definitions(("buff.test",), path)[0]
+
+        self.assertEqual(
+            tuple((item.field, item.entryCount) for item in definition.unparsedPayloads),
+            (("abilityEventAction", 2), ("tagsAfterTriggerExtendBuffAction", 1)),
+        )
 
     def test_buff_definitions_follow_event_dependencies_once(self) -> None:
         def buff(buff_id: str, child_id: str | None) -> dict[str, object]:

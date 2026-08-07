@@ -21,7 +21,8 @@ export const perlicaGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -39,7 +40,8 @@ export const perlicaGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -57,7 +59,8 @@ export const perlicaGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -75,7 +78,8 @@ export const perlicaGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [],
       "resourceGains": [],
-      "combatActions": []
+      "combatActions": [],
+      "unparsedPayloads": []
     }
   ],
   "skills": [

@@ -254,6 +254,13 @@ class BuffDefinitionSource:
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
+    unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
+
+
+@dataclass(frozen=True)
+class UnparsedBuffPayloadSource:
+    field: str
+    entryCount: int
 
 
 @dataclass(frozen=True)
@@ -1817,6 +1824,33 @@ def parse_buff_event_actions(
     return tuple(result)
 
 
+UNPARSED_BUFF_PAYLOAD_FIELDS = (
+    "abilityEventAction",
+    "damageModifier",
+    "globalModifier",
+    "healModifier",
+    "igniteEventAction",
+    "poiseModifier",
+    "shieldConfigs",
+    "tagsAfterTriggerExtendBuffAction",
+)
+
+
+def collect_unparsed_buff_payloads(
+    buff: dict[str, Any], source_name: str
+) -> tuple[UnparsedBuffPayloadSource, ...]:
+    """列出尚未结构化解析的非空 Buff 根载荷，防止审计结果静默遗漏行为。"""
+    result: list[UnparsedBuffPayloadSource] = []
+    for field in UNPARSED_BUFF_PAYLOAD_FIELDS:
+        value = buff.get(field)
+        if value is None:
+            continue
+        entries = require_list(value, f"{source_name}.{field}")
+        if entries:
+            result.append(UnparsedBuffPayloadSource(field=field, entryCount=len(entries)))
+    return tuple(result)
+
+
 def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
     buff_source_dir: Path,
@@ -1848,6 +1882,7 @@ def resolve_buff_definitions(
                 eventActions=(),
                 resourceGains=(),
                 combatActions=(),
+                unparsedPayloads=(),
             )
             continue
         buff = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_file)
@@ -1892,6 +1927,7 @@ def resolve_buff_definitions(
                     }
                 )
             ),
+            unparsedPayloads=collect_unparsed_buff_payloads(buff, source_file),
         )
         pending.extend(
             child_id
