@@ -131,8 +131,20 @@ export interface GeneratedBuffLifecycleSource {
   readonly triggerInterval: GeneratedScalarSource;
   readonly waitFirstTriggerInterval: boolean;
   readonly maxTriggerCount: GeneratedScalarSource;
-  readonly stackingIdentifierType: string;
-  readonly stackingType: string;
+  readonly stackingIdentifierType: 'Id' | 'StackingKey';
+  readonly stackingType:
+    | 'Unlimited'
+    | 'HighPriority'
+    | 'Stack'
+    | 'Enhance'
+    | 'Refresh'
+    | 'Extend'
+    | 'Modify'
+    | 'Unique'
+    | 'EnhanceAndRefresh'
+    | 'OverwriteDuration'
+    | 'EnhanceAndOverwriteDuration'
+    | 'HighPriorityWithMaxStack';
   readonly stackingKey: string;
   readonly priority: GeneratedScalarSource;
   readonly negatePriority: boolean;

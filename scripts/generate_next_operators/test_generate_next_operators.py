@@ -31,6 +31,7 @@ from generate_next_operators import (
     parse_panel_attributes,
     parse_declared_blackboard,
     parse_auxiliary_actions,
+    parse_buff_lifecycle,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
     parse_conditional_actions,
@@ -1387,6 +1388,39 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(event.createdBuffBehaviors[0].applicationEvent, "OnBuffTrigger")
         self.assertIsNone(event.createdBuffBehaviors[0].applicationFrame)
         self.assertFalse(event.createdBuffBehaviors[0].sourceAvailable)
+
+    def test_buff_lifecycle_rejects_unknown_stacking_type(self) -> None:
+        buff = {
+            "lifeType": "Infinity",
+            "duration": {"useBlackboardKey": False, "value": 0, "blackboardKey": ""},
+            "triggerInterval": {
+                "useBlackboardKey": False,
+                "value": -1,
+                "blackboardKey": "",
+            },
+            "waitFirstTriggerInterval": False,
+            "maxTriggerCnt": {
+                "useBlackboardKey": False,
+                "value": 1,
+                "blackboardKey": "",
+            },
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "FutureUnknownType",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "negatePriority": False,
+                "priority": 0,
+                "useMaxStackCntKey": False,
+                "maxStackCntKey": "",
+                "maxStackCnt": 1,
+                "isNeedStackEffect": False,
+            },
+        }
+
+        with self.assertRaisesRegex(ValueError, "unsupported value 'FutureUnknownType'"):
+            parse_buff_lifecycle(buff, "unknown_buff.json", {})
 
     def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
         root = {

@@ -27,6 +27,22 @@ DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "gene
 # Endaxis 固定为单敌人且命中必然发生；暂不模拟距离、轨迹和碰撞体。
 ASSUMED_PROJECTILE_TRAVEL_FRAMES = 0
 
+BUFF_STACKING_IDENTIFIER_TYPES = {"Id", "StackingKey"}
+BUFF_STACKING_TYPES = {
+    "Unlimited",
+    "HighPriority",
+    "Stack",
+    "Enhance",
+    "Refresh",
+    "Extend",
+    "Modify",
+    "Unique",
+    "EnhanceAndRefresh",
+    "OverwriteDuration",
+    "EnhanceAndOverwriteDuration",
+    "HighPriorityWithMaxStack",
+}
+
 
 @dataclass(frozen=True)
 class TimelineActionSource:
@@ -1699,12 +1715,20 @@ def parse_buff_lifecycle(
     identifier_type = settings.get("identifierType")
     stacking_type = settings.get("stackingType")
     stacking_key = settings.get("stackingKey")
-    if not isinstance(identifier_type, str) or not identifier_type:
-        raise ValueError(f"{source_name}.stackingSettings.identifierType: expected string")
-    if not isinstance(stacking_type, str) or not stacking_type:
-        raise ValueError(f"{source_name}.stackingSettings.stackingType: expected string")
+    if identifier_type not in BUFF_STACKING_IDENTIFIER_TYPES:
+        raise ValueError(
+            f"{source_name}.stackingSettings.identifierType: unsupported value {identifier_type!r}"
+        )
+    if stacking_type not in BUFF_STACKING_TYPES:
+        raise ValueError(
+            f"{source_name}.stackingSettings.stackingType: unsupported value {stacking_type!r}"
+        )
     if not isinstance(stacking_key, str):
         raise ValueError(f"{source_name}.stackingSettings.stackingKey: expected string")
+    if identifier_type == "StackingKey" and not stacking_key:
+        raise ValueError(
+            f"{source_name}.stackingSettings.stackingKey: StackingKey requires a non-empty key"
+        )
     negate_priority = settings.get("negatePriority")
     has_stack_effects = settings.get("isNeedStackEffect")
     if not isinstance(negate_priority, bool):
