@@ -41,7 +41,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -62,7 +73,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -73,7 +95,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -92,7 +116,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -113,7 +148,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -124,7 +170,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -135,7 +183,10 @@
         {
           "frame": 6,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack1", "chr_0030_zhuangfy_attack1_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1",
+            "chr_0030_zhuangfy_attack1_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -145,7 +196,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -156,7 +218,10 @@
         {
           "frame": 8,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack1", "chr_0030_zhuangfy_attack1_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1",
+            "chr_0030_zhuangfy_attack1_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -166,7 +231,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -176,7 +252,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "basicAttack2",
@@ -194,7 +272,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         }
       ],
       "resourceGains": [],
@@ -228,7 +308,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
                 ]
               },
               "calculationMultiplier": null,
@@ -249,7 +340,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08,
+                      0.08,
+                      0.09,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11
                     ]
                   },
                   "calculationMultiplier": null,
@@ -260,7 +362,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -279,7 +383,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
                 ]
               },
               "calculationMultiplier": null,
@@ -300,7 +415,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08,
+                      0.08,
+                      0.09,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11
                     ]
                   },
                   "calculationMultiplier": null,
@@ -311,7 +437,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -336,7 +464,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
                     ]
                   },
                   "calculationMultiplier": null,
@@ -357,7 +496,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
                     ]
                   },
                   "calculationMultiplier": null,
@@ -372,7 +522,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -381,7 +533,10 @@
         {
           "frame": 2,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack2", "chr_0030_zhuangfy_attack2_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -391,7 +546,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
                 ]
               },
               "calculationMultiplier": null,
@@ -402,7 +568,10 @@
         {
           "frame": 2,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack2", "chr_0030_zhuangfy_attack2_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -412,7 +581,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08,
+                  0.08,
+                  0.09,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11
                 ]
               },
               "calculationMultiplier": null,
@@ -423,7 +603,10 @@
         {
           "frame": 15,
           "sourceKind": "abilityEntity",
-          "sourcePath": ["chr_0030_zhuangfy_attack2", "chr_0030_zhuangfy_attack2_abilityrange"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -433,7 +616,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
                 ]
               },
               "calculationMultiplier": null,
@@ -444,7 +638,10 @@
         {
           "frame": 24,
           "sourceKind": "abilityEntity",
-          "sourcePath": ["chr_0030_zhuangfy_attack2", "chr_0030_zhuangfy_attack2_abilityrange"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -454,7 +651,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
                 ]
               },
               "calculationMultiplier": null,
@@ -463,8 +671,13 @@
           ]
         }
       ],
-      "blackboardKeys": ["sword_dist"],
-      "unresolvedCombatActions": ["LaunchProjectile", "SpawnAbilityEntity"]
+      "blackboardKeys": [
+        "sword_dist"
+      ],
+      "unresolvedCombatActions": [
+        "LaunchProjectile",
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "basicAttack3",
@@ -517,7 +730,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -538,7 +762,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -549,7 +784,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -568,7 +805,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -589,7 +837,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -600,7 +859,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -619,7 +880,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -640,7 +912,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -651,7 +934,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -670,7 +955,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -691,7 +987,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale_sword",
                     "levelValues": [
-                      0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                      0.08,
+                      0.09,
+                      0.1,
+                      0.1,
+                      0.11,
+                      0.12,
+                      0.13,
+                      0.14,
+                      0.14,
+                      0.15,
+                      0.17,
+                      0.18
                     ]
                   },
                   "calculationMultiplier": null,
@@ -702,7 +1009,9 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -713,7 +1022,10 @@
         {
           "frame": 14,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack3", "chr_0030_zhuangfy_attack3_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -723,7 +1035,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -734,7 +1057,10 @@
         {
           "frame": 14,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack3", "chr_0030_zhuangfy_attack3_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -744,7 +1070,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -755,7 +1092,10 @@
         {
           "frame": 16,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack3", "chr_0030_zhuangfy_attack3_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -765,7 +1105,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -776,7 +1127,10 @@
         {
           "frame": 16,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0030_zhuangfy_attack3", "chr_0030_zhuangfy_attack3_sword_projhit"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3",
+            "chr_0030_zhuangfy_attack3_sword_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -786,7 +1140,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale_sword",
                 "levelValues": [
-                  0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18
+                  0.08,
+                  0.09,
+                  0.1,
+                  0.1,
+                  0.11,
+                  0.12,
+                  0.13,
+                  0.14,
+                  0.14,
+                  0.15,
+                  0.17,
+                  0.18
                 ]
               },
               "calculationMultiplier": null,
@@ -795,8 +1160,12 @@
           ]
         }
       ],
-      "blackboardKeys": ["sword_dist"],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "blackboardKeys": [
+        "sword_dist"
+      ],
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "basicAttack4",
@@ -814,7 +1183,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack2:chr_0030_zhuangfy_attack2_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         }
       ],
       "resourceGains": [],
@@ -840,7 +1211,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
                     ]
                   },
                   "calculationMultiplier": null,
@@ -861,7 +1243,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
                     ]
                   },
                   "calculationMultiplier": null,
@@ -876,7 +1269,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -885,7 +1280,10 @@
         {
           "frame": 11,
           "sourceKind": "abilityEntity",
-          "sourcePath": ["chr_0030_zhuangfy_attack4", "chr_0030_zhuangfy_attack2_abilityrange"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -895,7 +1293,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
                 ]
               },
               "calculationMultiplier": null,
@@ -906,7 +1315,10 @@
         {
           "frame": 20,
           "sourceKind": "abilityEntity",
-          "sourcePath": ["chr_0030_zhuangfy_attack4", "chr_0030_zhuangfy_attack2_abilityrange"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -916,7 +1328,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
                 ]
               },
               "calculationMultiplier": null,
@@ -926,7 +1349,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["SpawnAbilityEntity"]
+      "unresolvedCombatActions": [
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "basicAttack5",
@@ -944,7 +1369,10 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack5:chr_0030_zhuangfy_attack5_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction", "ObtainCostAction"]
+          "nestedCombatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ]
         }
       ],
       "resourceGains": [],
@@ -970,7 +1398,18 @@
                     "value": 1.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.48, 0.53, 0.58, 0.62, 0.67, 0.72, 0.77, 0.82, 0.86, 0.92, 1.0, 1.08
+                      0.48,
+                      0.53,
+                      0.58,
+                      0.62,
+                      0.67,
+                      0.72,
+                      0.77,
+                      0.82,
+                      0.86,
+                      0.92,
+                      1.0,
+                      1.08
                     ]
                   },
                   "calculationMultiplier": null,
@@ -990,7 +1429,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
                     ]
                   }
                 }
@@ -1009,7 +1459,18 @@
                 "value": 0.0,
                 "blackboardKey": "atb",
                 "levelValues": [
-                  18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
                 ]
               },
               "coefficient": {
@@ -1027,7 +1488,18 @@
                 "value": 0.0,
                 "blackboardKey": "atb",
                 "levelValues": [
-                  18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
                 ]
               },
               "coefficient": {
@@ -1045,7 +1517,18 @@
                 "value": 0.0,
                 "blackboardKey": "atb",
                 "levelValues": [
-                  18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
                 ]
               },
               "coefficient": {
@@ -1058,7 +1541,10 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -1067,7 +1553,10 @@
         {
           "frame": 20,
           "sourceKind": "abilityEntity",
-          "sourcePath": ["chr_0030_zhuangfy_attack5", "chr_0030_zhuangfy_attack5_abilityrange"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack5",
+            "chr_0030_zhuangfy_attack5_abilityrange"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -1077,7 +1566,18 @@
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.48, 0.53, 0.58, 0.62, 0.67, 0.72, 0.77, 0.82, 0.86, 0.92, 1.0, 1.08
+                  0.48,
+                  0.53,
+                  0.58,
+                  0.62,
+                  0.67,
+                  0.72,
+                  0.77,
+                  0.82,
+                  0.86,
+                  0.92,
+                  1.0,
+                  1.08
                 ]
               },
               "calculationMultiplier": null,
@@ -1097,7 +1597,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
                 ]
               }
             }
@@ -1105,7 +1616,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["SpawnAbilityEntity"]
+      "unresolvedCombatActions": [
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "enhancedBasicAttack1",
@@ -1130,7 +1643,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 13,
@@ -1140,7 +1655,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 14,
@@ -1150,7 +1667,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 15,
@@ -1160,7 +1679,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         }
       ],
       "resourceGains": [],
@@ -1186,7 +1707,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1201,7 +1733,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1223,7 +1757,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1238,7 +1783,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1260,7 +1807,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1275,7 +1833,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1297,7 +1857,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1312,7 +1883,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -1333,7 +1906,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5]
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1355,7 +1941,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5]
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1377,7 +1976,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5]
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1399,7 +2011,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.67, 0.73, 0.8, 0.86, 0.93, 1.0, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5]
+                "levelValues": [
+                  0.67,
+                  0.73,
+                  0.8,
+                  0.86,
+                  0.93,
+                  1.0,
+                  1.06,
+                  1.13,
+                  1.2,
+                  1.28,
+                  1.38,
+                  1.5
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1407,8 +2032,13 @@
           ]
         }
       ],
-      "blackboardKeys": ["target_in_range"],
-      "unresolvedCombatActions": ["DamageAction", "SpawnAbilityEntity"]
+      "blackboardKeys": [
+        "target_in_range"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "enhancedBasicAttack2",
@@ -1433,7 +2063,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_1_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 11,
@@ -1443,7 +2075,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_2_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 12,
@@ -1453,7 +2087,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_3_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         },
         {
           "startFrame": 13,
@@ -1463,7 +2099,9 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack_ult:chr_0030_zhuangfy_attack1_ult_4_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction"]
+          "nestedCombatActions": [
+            "DamageAction"
+          ]
         }
       ],
       "resourceGains": [],
@@ -1489,7 +2127,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1504,7 +2153,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1526,7 +2177,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1541,7 +2203,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1563,7 +2227,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1578,7 +2253,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         },
         {
@@ -1600,7 +2277,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1615,7 +2303,9 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction"],
+          "combatActions": [
+            "DamageAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -1636,7 +2326,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1]
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1658,7 +2361,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1]
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1680,7 +2396,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1]
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1702,7 +2431,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1]
+                "levelValues": [
+                  0.94,
+                  1.03,
+                  1.12,
+                  1.22,
+                  1.31,
+                  1.4,
+                  1.5,
+                  1.59,
+                  1.68,
+                  1.8,
+                  1.94,
+                  2.1
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1710,8 +2452,13 @@
           ]
         }
       ],
-      "blackboardKeys": ["target_in_range"],
-      "unresolvedCombatActions": ["DamageAction", "SpawnAbilityEntity"]
+      "blackboardKeys": [
+        "target_in_range"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "enhancedBasicAttack3",
@@ -1729,7 +2476,10 @@
           "sourceId": "abilityentity_chr_0030_zhuangfy_attack3_ult:chr_0030_zhuangfy_attack3_ult_abilityrange",
           "classification": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": ["DamageAction", "ObtainCostAction"]
+          "nestedCombatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ]
         },
         {
           "startFrame": 3,
@@ -1765,7 +2515,18 @@
                     "value": 0.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      1.34, 1.47, 1.6, 1.74, 1.87, 2.0, 2.14, 2.27, 2.4, 2.57, 2.77, 3.0
+                      1.34,
+                      1.47,
+                      1.6,
+                      1.74,
+                      1.87,
+                      2.0,
+                      2.14,
+                      2.27,
+                      2.4,
+                      2.57,
+                      2.77,
+                      3.0
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1785,7 +2546,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
                     ]
                   }
                 }
@@ -1804,7 +2576,18 @@
                 "value": 0.0,
                 "blackboardKey": "atb",
                 "levelValues": [
-                  20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
                 ]
               },
               "coefficient": {
@@ -1817,7 +2600,10 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["DamageAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -1863,7 +2649,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [1.34, 1.47, 1.6, 1.74, 1.87, 2.0, 2.14, 2.27, 2.4, 2.57, 2.77, 3.0]
+                "levelValues": [
+                  1.34,
+                  1.47,
+                  1.6,
+                  1.74,
+                  1.87,
+                  2.0,
+                  2.14,
+                  2.27,
+                  2.4,
+                  2.57,
+                  2.77,
+                  3.0
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1882,7 +2681,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
                 ]
               }
             }
@@ -1890,7 +2700,10 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["CreateBuffAction", "SpawnAbilityEntity"]
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ]
     },
     {
       "key": "finisher",
@@ -1911,7 +2724,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 0.1,
@@ -1934,7 +2760,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 0.9,
@@ -2010,7 +2849,9 @@
         {
           "frame": 11,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0030_zhuangfy_power_attack"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -2019,7 +2860,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 0.1,
@@ -2033,7 +2887,9 @@
         {
           "frame": 40,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0030_zhuangfy_power_attack"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -2042,7 +2898,20 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 0.9,
@@ -2054,8 +2923,13 @@
           ]
         }
       ],
-      "blackboardKeys": ["atk_scale"],
-      "unresolvedCombatActions": ["CreateBuffAction", "DamageAction"]
+      "blackboardKeys": [
+        "atk_scale"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ]
     },
     {
       "key": "plungingAttack",
@@ -2076,7 +2950,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -2094,7 +2981,20 @@
           "amount": {
             "value": 0.0,
             "blackboardKey": "atb",
-            "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
           },
           "coefficient": {
             "value": 1.0,
@@ -2111,7 +3011,9 @@
         {
           "frame": 1,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0030_zhuangfy_plunging_attack_end"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_plunging_attack_end"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -2120,7 +3022,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -2128,8 +3043,14 @@
           ]
         }
       ],
-      "blackboardKeys": ["atb", "atk_scale"],
-      "unresolvedCombatActions": ["DamageAction", "ObtainCostAction"]
+      "blackboardKeys": [
+        "atb",
+        "atk_scale"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ]
     },
     {
       "key": "battleSkill",
@@ -2196,25 +3117,73 @@
               "value": 0.0,
               "blackboardKey": "sword_range",
               "levelValues": [
-                50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0,
+                50.0
               ]
             },
             "atk_scale": {
               "value": 0.0,
               "blackboardKey": "atk_scale",
-              "levelValues": [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45]
+              "levelValues": [
+                0.2,
+                0.22,
+                0.24,
+                0.26,
+                0.28,
+                0.3,
+                0.32,
+                0.34,
+                0.36,
+                0.39,
+                0.42,
+                0.45
+              ]
             },
             "poise": {
               "value": 0.0,
               "blackboardKey": "poise",
               "levelValues": [
-                15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0
               ]
             },
             "usp_extra": {
               "value": 0.0,
               "blackboardKey": "usp_extra",
-              "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+              "levelValues": [
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0
+              ]
             },
             "atk_up_final": {
               "value": 0.0,
@@ -2224,12 +3193,38 @@
             "remain_sword_limit": {
               "value": 0.0,
               "blackboardKey": "remain_sword_limit",
-              "levelValues": [9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0]
+              "levelValues": [
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0,
+                9.0
+              ]
             },
             "final_rate": {
               "value": 0.0,
               "blackboardKey": "final_rate",
-              "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+              "levelValues": [
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0
+              ]
             }
           },
           "nestedCombatActions": []
@@ -2300,7 +3295,9 @@
             },
             {
               "event": "OnBuffStart",
-              "combatActions": ["SpawnAbilityEntity"],
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
               "damageUnits": [],
               "createdBuffIds": [],
               "createdBuffBehaviors": []
@@ -2363,9 +3360,13 @@
             },
             {
               "event": "OnBuffTrigger",
-              "combatActions": ["CreateBuffAction"],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
               "damageUnits": [],
-              "createdBuffIds": ["buff_chr_0030_zhuangfy_sword_triggerd"],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_sword_triggerd"
+              ],
               "createdBuffBehaviors": [
                 {
                   "applicationFrame": null,
@@ -2388,7 +3389,18 @@
                             "value": 0.0,
                             "blackboardKey": "atk_scale",
                             "levelValues": [
-                              0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45
+                              0.2,
+                              0.22,
+                              0.24,
+                              0.26,
+                              0.28,
+                              0.3,
+                              0.32,
+                              0.34,
+                              0.36,
+                              0.39,
+                              0.42,
+                              0.45
                             ]
                           },
                           "calculationMultiplier": null,
@@ -2409,7 +3421,18 @@
                             "value": 0.0,
                             "blackboardKey": "atk_scale",
                             "levelValues": [
-                              0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45
+                              0.2,
+                              0.22,
+                              0.24,
+                              0.26,
+                              0.28,
+                              0.3,
+                              0.32,
+                              0.34,
+                              0.36,
+                              0.39,
+                              0.42,
+                              0.45
                             ]
                           },
                           "calculationMultiplier": null,
@@ -2448,7 +3471,18 @@
                             "value": 0.0,
                             "blackboardKey": "poise",
                             "levelValues": [
-                              15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0,
+                              15.0
                             ]
                           }
                         }
@@ -2473,7 +3507,9 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "swordIndex",
-                            "levelValues": [0.0]
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
@@ -2483,8 +3519,14 @@
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": ["DamageAction", "ObtainCostAction"],
-                      "failCombatActions": ["DamageAction", "ObtainCostAction"]
+                      "succeedCombatActions": [
+                        "DamageAction",
+                        "ObtainCostAction"
+                      ],
+                      "failCombatActions": [
+                        "DamageAction",
+                        "ObtainCostAction"
+                      ]
                     },
                     {
                       "startFrame": 3,
@@ -2506,19 +3548,34 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "swordIndex",
-                            "levelValues": [0.0]
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
                             "blackboardKey": "remain_sword_limit",
                             "levelValues": [
-                              9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
                             ]
                           },
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": ["ObtainCostAction"],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
                       "failCombatActions": []
                     },
                     {
@@ -2541,19 +3598,34 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "swordIndex",
-                            "levelValues": [0.0]
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
                             "blackboardKey": "remain_sword_limit",
                             "levelValues": [
-                              9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
                             ]
                           },
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": ["ObtainCostAction"],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
                       "failCombatActions": []
                     },
                     {
@@ -2573,19 +3645,34 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "swordIndex",
-                            "levelValues": [0.0]
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
                             "blackboardKey": "remain_sword_limit",
                             "levelValues": [
-                              9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0,
+                              9.0
                             ]
                           },
                           "skillTypes": []
                         }
                       ],
-                      "succeedCombatActions": ["ObtainCostAction"],
+                      "succeedCombatActions": [
+                        "ObtainCostAction"
+                      ],
                       "failCombatActions": []
                     }
                   ],
@@ -2600,13 +3687,37 @@
                         "value": 0.0,
                         "blackboardKey": "atk_scale",
                         "levelValues": [
-                          0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45
+                          0.2,
+                          0.22,
+                          0.24,
+                          0.26,
+                          0.28,
+                          0.3,
+                          0.32,
+                          0.34,
+                          0.36,
+                          0.39,
+                          0.42,
+                          0.45
                         ]
                       },
                       "right": {
                         "value": 3.0,
                         "blackboardKey": "final_rate",
-                        "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
                       }
                     }
                   ],
@@ -2620,7 +3731,20 @@
                       "amount": {
                         "value": 10.0,
                         "blackboardKey": "usp_extra",
-                        "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
                       },
                       "coefficient": {
                         "value": 1.0,
@@ -2636,7 +3760,20 @@
                       "amount": {
                         "value": 10.0,
                         "blackboardKey": "usp_extra",
-                        "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
                       },
                       "coefficient": {
                         "value": 1.0,
@@ -2652,7 +3789,20 @@
                       "amount": {
                         "value": 10.0,
                         "blackboardKey": "usp_extra",
-                        "levelValues": [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
                       },
                       "coefficient": {
                         "value": 1.0,
@@ -2839,7 +3989,20 @@
           "amount": {
             "value": 0.0,
             "blackboardKey": "atb_return",
-            "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
           },
           "coefficient": {
             "value": 1.0,
@@ -2945,7 +4108,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0
                     ]
                   }
                 }
@@ -2987,7 +4161,12 @@
           "projectileLaunches": [],
           "projectileHits": [],
           "nestedAbilityEntityHits": [],
-          "combatActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "SpellInfliction"],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction",
+            "SpellInfliction"
+          ],
           "cycleTruncated": false
         }
       ],
@@ -3012,7 +4191,9 @@
             },
             {
               "event": "OnBuffStart",
-              "combatActions": ["SpawnAbilityEntity"],
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
               "damageUnits": [],
               "createdBuffIds": [],
               "createdBuffBehaviors": []
@@ -3151,7 +4332,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
                 ]
               }
             }
@@ -3196,7 +4388,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6]
+                "levelValues": [
+                  1.6,
+                  1.76,
+                  1.92,
+                  2.08,
+                  2.24,
+                  2.4,
+                  2.56,
+                  2.72,
+                  2.88,
+                  3.08,
+                  3.32,
+                  3.6
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -3215,7 +4420,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -3249,7 +4465,20 @@
           "amount": {
             "value": 0.2,
             "blackboardKey": "usp",
-            "levelValues": [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
           },
           "coefficient": {
             "value": 1.0,
@@ -3265,7 +4494,20 @@
           "amount": {
             "value": 0.2,
             "blackboardKey": "usp_extra",
-            "levelValues": [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+            "levelValues": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
           },
           "coefficient": {
             "value": 1.0,
@@ -3299,7 +4541,9 @@
         {
           "frame": 24,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0030_zhuangfy_combo_skill"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -3308,7 +4552,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6]
+                "levelValues": [
+                  1.6,
+                  1.76,
+                  1.92,
+                  2.08,
+                  2.24,
+                  2.4,
+                  2.56,
+                  2.72,
+                  2.88,
+                  3.08,
+                  3.32,
+                  3.6
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -3327,7 +4584,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -3370,7 +4638,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4]
+                "levelValues": [
+                  2.4,
+                  2.64,
+                  2.88,
+                  3.12,
+                  3.36,
+                  3.6,
+                  3.84,
+                  4.08,
+                  4.32,
+                  4.62,
+                  4.98,
+                  5.4
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -3389,7 +4670,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -3445,14 +4737,36 @@
                   "value": 0.0,
                   "blackboardKey": "atk_scale",
                   "levelValues": [
-                    2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4
+                    2.4,
+                    2.64,
+                    2.88,
+                    3.12,
+                    3.36,
+                    3.6,
+                    3.84,
+                    4.08,
+                    4.32,
+                    4.62,
+                    4.98,
+                    5.4
                   ]
                 },
                 "poise": {
                   "value": 0.0,
                   "blackboardKey": "poise",
                   "levelValues": [
-                    10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
                   ]
                 }
               },
@@ -3460,7 +4774,9 @@
             }
           ],
           "resourceGains": [],
-          "combatActions": ["CreateBuffAction"],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -3488,7 +4804,9 @@
         {
           "frame": 24,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0030_zhuangfy_combo_skill_ult"],
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill_ult"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -3497,7 +4815,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4]
+                "levelValues": [
+                  2.4,
+                  2.64,
+                  2.88,
+                  3.12,
+                  3.36,
+                  3.6,
+                  3.84,
+                  4.08,
+                  4.32,
+                  4.62,
+                  4.98,
+                  5.4
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -3516,7 +4847,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -3588,13 +4930,37 @@
               "value": 60.0,
               "blackboardKey": "duration",
               "levelValues": [
-                25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0,
+                25.0
               ]
             },
             "combo_cd_rate": {
               "value": 0.0,
               "blackboardKey": "combo_cd_rate",
-              "levelValues": [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
+              "levelValues": [
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0
+              ]
             }
           },
           "nestedCombatActions": []
@@ -3659,9 +5025,13 @@
             },
             {
               "event": "DuringBuffEnable",
-              "combatActions": ["CreateBuffAction"],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
               "damageUnits": [],
-              "createdBuffIds": ["buff_chr_0030_zhuangfy_ult_hide_model_holder"],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_hide_model_holder"
+              ],
               "createdBuffBehaviors": [
                 {
                   "applicationFrame": null,
@@ -3676,9 +5046,13 @@
                   "eventActions": [
                     {
                       "event": "OnBuffFinish",
-                      "combatActions": ["CreateBuffAction"],
+                      "combatActions": [
+                        "CreateBuffAction"
+                      ],
                       "damageUnits": [],
-                      "createdBuffIds": ["buff_chr_0030_zhuangfy_ult_hide_model"],
+                      "createdBuffIds": [
+                        "buff_chr_0030_zhuangfy_ult_hide_model"
+                      ],
                       "createdBuffBehaviors": [
                         {
                           "applicationFrame": null,
@@ -3723,7 +5097,9 @@
             },
             {
               "event": "DuringBuffEnable",
-              "combatActions": ["CreateBuffAction"],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
               "damageUnits": [],
               "createdBuffIds": [
                 "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -3789,9 +5165,13 @@
             },
             {
               "event": "OnBuffStart",
-              "combatActions": ["CreateBuffAction"],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
               "damageUnits": [],
-              "createdBuffIds": ["buff_chr_0030_zhuangfy_ult_skill_free"],
+              "createdBuffIds": [
+                "buff_chr_0030_zhuangfy_ult_skill_free"
+              ],
               "createdBuffBehaviors": [
                 {
                   "applicationFrame": null,
@@ -3835,8 +5215,14 @@
         }
       ],
       "resolvedDamageHits": [],
-      "blackboardKeys": ["select_radius"],
-      "unresolvedCombatActions": ["CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"]
+      "blackboardKeys": [
+        "select_radius"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "SpawnAbilityEntity"
+      ]
     }
   ]
 }

@@ -35,7 +35,18 @@
                 "value": 0.9,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57
+                  0.25,
+                  0.28,
+                  0.31,
+                  0.33,
+                  0.36,
+                  0.38,
+                  0.41,
+                  0.43,
+                  0.46,
+                  0.49,
+                  0.53,
+                  0.57
                 ]
               },
               "calculationMultiplier": null,
@@ -56,7 +67,18 @@
                     "value": 0.9,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57
+                      0.25,
+                      0.28,
+                      0.31,
+                      0.33,
+                      0.36,
+                      0.38,
+                      0.41,
+                      0.43,
+                      0.46,
+                      0.49,
+                      0.53,
+                      0.57
                     ]
                   },
                   "calculationMultiplier": null,
@@ -75,7 +97,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 1.0,
@@ -84,7 +119,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -95,7 +134,10 @@
         {
           "frame": 8,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack1", "chr_0004_pelica_attack1_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack1",
+            "chr_0004_pelica_attack1_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -105,7 +147,18 @@
                 "value": 0.9,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57
+                  0.25,
+                  0.28,
+                  0.31,
+                  0.33,
+                  0.36,
+                  0.38,
+                  0.41,
+                  0.43,
+                  0.46,
+                  0.49,
+                  0.53,
+                  0.57
                 ]
               },
               "calculationMultiplier": null,
@@ -115,7 +168,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "basicAttack2",
@@ -156,7 +211,18 @@
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
                 ]
               },
               "calculationMultiplier": null,
@@ -177,7 +243,18 @@
                     "value": 1.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                      0.15,
+                      0.17,
+                      0.18,
+                      0.2,
+                      0.21,
+                      0.23,
+                      0.24,
+                      0.26,
+                      0.27,
+                      0.29,
+                      0.31,
+                      0.34
                     ]
                   },
                   "calculationMultiplier": null,
@@ -196,7 +273,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 0.3333333,
@@ -205,7 +295,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -224,7 +318,18 @@
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
                 ]
               },
               "calculationMultiplier": null,
@@ -245,7 +350,18 @@
                     "value": 1.0,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                      0.15,
+                      0.17,
+                      0.18,
+                      0.2,
+                      0.21,
+                      0.23,
+                      0.24,
+                      0.26,
+                      0.27,
+                      0.29,
+                      0.31,
+                      0.34
                     ]
                   },
                   "calculationMultiplier": null,
@@ -264,7 +380,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 0.3333333,
@@ -273,7 +402,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -284,7 +417,10 @@
         {
           "frame": 9,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack2", "chr_0004_pelica_attack2_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -294,7 +430,18 @@
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
                 ]
               },
               "calculationMultiplier": null,
@@ -305,7 +452,10 @@
         {
           "frame": 12,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack2", "chr_0004_pelica_attack2_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack2",
+            "chr_0004_pelica_attack2_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -315,7 +465,18 @@
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
                 ]
               },
               "calculationMultiplier": null,
@@ -325,7 +486,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "basicAttack3",
@@ -372,7 +535,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -393,7 +567,18 @@
                     "value": 1.1,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
                     ]
                   },
                   "calculationMultiplier": null,
@@ -412,7 +597,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 1.0,
@@ -421,7 +619,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -440,7 +642,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -461,7 +674,18 @@
                     "value": 1.1,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
                     ]
                   },
                   "calculationMultiplier": null,
@@ -480,7 +704,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 1.0,
@@ -489,7 +726,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         },
@@ -508,7 +749,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -529,7 +781,18 @@
                     "value": 1.1,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.19,
+                      0.2,
+                      0.21,
+                      0.22,
+                      0.24,
+                      0.26,
+                      0.28
                     ]
                   },
                   "calculationMultiplier": null,
@@ -548,7 +811,20 @@
               "amount": {
                 "value": 0.0,
                 "blackboardKey": "atb",
-                "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
               },
               "coefficient": {
                 "value": 1.0,
@@ -557,7 +833,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -568,7 +848,10 @@
         {
           "frame": 16,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack3", "chr_0004_pelica_attack3_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -578,7 +861,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -589,7 +883,10 @@
         {
           "frame": 19,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack3", "chr_0004_pelica_attack3_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -599,7 +896,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -610,7 +918,10 @@
         {
           "frame": 22,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack3", "chr_0004_pelica_attack3_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack3",
+            "chr_0004_pelica_attack3_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -620,7 +931,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28
                 ]
               },
               "calculationMultiplier": null,
@@ -630,7 +952,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "basicAttack4",
@@ -665,7 +989,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.57, 0.62, 0.68, 0.73, 0.79, 0.85, 0.9, 0.96, 1.02, 1.09, 1.17, 1.27
+                  0.57,
+                  0.62,
+                  0.68,
+                  0.73,
+                  0.79,
+                  0.85,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.17,
+                  1.27
                 ]
               },
               "calculationMultiplier": null,
@@ -685,7 +1020,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
                 ]
               }
             }
@@ -704,7 +1050,18 @@
                     "value": 1.1,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.57, 0.62, 0.68, 0.73, 0.79, 0.85, 0.9, 0.96, 1.02, 1.09, 1.17, 1.27
+                      0.57,
+                      0.62,
+                      0.68,
+                      0.73,
+                      0.79,
+                      0.85,
+                      0.9,
+                      0.96,
+                      1.02,
+                      1.09,
+                      1.17,
+                      1.27
                     ]
                   },
                   "calculationMultiplier": null,
@@ -724,7 +1081,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0,
+                      15.0
                     ]
                   }
                 }
@@ -742,7 +1110,18 @@
                 "value": 0.0,
                 "blackboardKey": "atb",
                 "levelValues": [
-                  15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
                 ]
               },
               "coefficient": {
@@ -752,7 +1131,11 @@
               }
             }
           ],
-          "combatActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+          "combatActions": [
+            "DamageAction",
+            "IfElseAction",
+            "ObtainCostAction"
+          ],
           "cycleTruncated": false,
           "nestedProjectileHits": []
         }
@@ -763,7 +1146,10 @@
         {
           "frame": 27,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_attack4", "chr_0004_pelica_attack4_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_attack4",
+            "chr_0004_pelica_attack4_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -773,7 +1159,18 @@
                 "value": 1.1,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  0.57, 0.62, 0.68, 0.73, 0.79, 0.85, 0.9, 0.96, 1.02, 1.09, 1.17, 1.27
+                  0.57,
+                  0.62,
+                  0.68,
+                  0.73,
+                  0.79,
+                  0.85,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.17,
+                  1.27
                 ]
               },
               "calculationMultiplier": null,
@@ -793,7 +1190,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0,
+                  15.0
                 ]
               }
             }
@@ -801,7 +1209,9 @@
         }
       ],
       "blackboardKeys": [],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "finisher",
@@ -822,7 +1232,20 @@
               "attackScale": {
                 "value": 5.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 1.0,
@@ -898,7 +1321,9 @@
         {
           "frame": 35,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0004_pelica_power_attack"],
+          "sourcePath": [
+            "chr_0004_pelica_power_attack"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -907,7 +1332,20 @@
               "attackScale": {
                 "value": 5.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.7, 8.3, 9.0]
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
               },
               "calculationMultiplier": {
                 "value": 1.0,
@@ -919,8 +1357,17 @@
           ]
         }
       ],
-      "blackboardKeys": ["addition_vertical", "atk_scale", "cam_angle", "input_angle", "vertical"],
-      "unresolvedCombatActions": ["CreateBuffAction", "DamageAction"]
+      "blackboardKeys": [
+        "addition_vertical",
+        "atk_scale",
+        "cam_angle",
+        "input_angle",
+        "vertical"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ]
     },
     {
       "key": "plungingAttack",
@@ -941,7 +1388,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -959,7 +1419,20 @@
           "amount": {
             "value": 0.0,
             "blackboardKey": "atb",
-            "levelValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            "levelValues": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
           },
           "coefficient": {
             "value": 1.0,
@@ -1058,7 +1531,9 @@
         {
           "frame": 3,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0004_pelica_plunging_attack_end"],
+          "sourcePath": [
+            "chr_0004_pelica_plunging_attack_end"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -1067,7 +1542,20 @@
               "attackScale": {
                 "value": 1.0,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1075,8 +1563,15 @@
           ]
         }
       ],
-      "blackboardKeys": ["atb", "atk_scale"],
-      "unresolvedCombatActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"]
+      "blackboardKeys": [
+        "atb",
+        "atk_scale"
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ]
     },
     {
       "key": "battleSkill",
@@ -1098,7 +1593,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4.0
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1112,7 +1618,18 @@
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4.0
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1120,7 +1637,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -1165,7 +1693,9 @@
         {
           "frame": 13,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0004_pelica_normal_skill"],
+          "sourcePath": [
+            "chr_0004_pelica_normal_skill"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -1175,7 +1705,18 @@
                 "value": 0.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4.0
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1189,7 +1730,18 @@
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4.0
+                  1.78,
+                  1.96,
+                  2.13,
+                  2.31,
+                  2.49,
+                  2.67,
+                  2.85,
+                  3.02,
+                  3.2,
+                  3.42,
+                  3.69,
+                  4.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1197,15 +1749,35 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
           ]
         }
       ],
-      "blackboardKeys": ["atk_scale", "cam_angle", "input_angle", "poise"],
-      "unresolvedCombatActions": ["CreateBuffAction", "DamageAction", "SpellInfliction"]
+      "blackboardKeys": [
+        "atk_scale",
+        "cam_angle",
+        "input_angle",
+        "poise"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpellInfliction"
+      ]
     },
     {
       "key": "comboSkill",
@@ -1239,7 +1811,20 @@
               "attackScale": {
                 "value": 2.5,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1258,7 +1843,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -1277,7 +1873,18 @@
                     "value": 2.5,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8
+                      0.8,
+                      0.88,
+                      0.96,
+                      1.04,
+                      1.12,
+                      1.2,
+                      1.28,
+                      1.36,
+                      1.44,
+                      1.54,
+                      1.66,
+                      1.8
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1297,7 +1904,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
                     ]
                   }
                 }
@@ -1326,7 +1944,20 @@
                 "duration": {
                   "value": 7.5,
                   "blackboardKey": "duration",
-                  "levelValues": [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+                  "levelValues": [
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0
+                  ]
                 },
                 "extra_scaling": {
                   "value": 0.0,
@@ -1347,7 +1978,18 @@
                 "value": 0.2,
                 "blackboardKey": "usp",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               },
               "coefficient": {
@@ -1381,7 +2023,18 @@
                     "value": 2.5,
                     "blackboardKey": "atk_scale",
                     "levelValues": [
-                      0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8
+                      0.8,
+                      0.88,
+                      0.96,
+                      1.04,
+                      1.12,
+                      1.2,
+                      1.28,
+                      1.36,
+                      1.44,
+                      1.54,
+                      1.66,
+                      1.8
                     ]
                   },
                   "calculationMultiplier": null,
@@ -1401,7 +2054,18 @@
                     "value": 0.0,
                     "blackboardKey": "poise",
                     "levelValues": [
-                      10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
                     ]
                   }
                 }
@@ -1420,7 +2084,18 @@
                         "value": 2.5,
                         "blackboardKey": "atk_scale",
                         "levelValues": [
-                          0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8
+                          0.8,
+                          0.88,
+                          0.96,
+                          1.04,
+                          1.12,
+                          1.2,
+                          1.28,
+                          1.36,
+                          1.44,
+                          1.54,
+                          1.66,
+                          1.8
                         ]
                       },
                       "calculationMultiplier": null,
@@ -1440,7 +2115,18 @@
                         "value": 0.0,
                         "blackboardKey": "poise",
                         "levelValues": [
-                          10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0,
+                          10.0
                         ]
                       }
                     }
@@ -1469,7 +2155,20 @@
                     "duration": {
                       "value": 7.5,
                       "blackboardKey": "duration",
-                      "levelValues": [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+                      "levelValues": [
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0,
+                        5.0
+                      ]
                     },
                     "extra_scaling": {
                       "value": 0.0,
@@ -1490,7 +2189,18 @@
                     "value": 0.2,
                     "blackboardKey": "usp",
                     "levelValues": [
-                      10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0,
+                      10.0
                     ]
                   },
                   "coefficient": {
@@ -1519,7 +2229,10 @@
         {
           "frame": 24,
           "sourceKind": "projectile",
-          "sourcePath": ["chr_0004_pelica_combo_skill", "chr_0004_pelica_combo_skill_projhit"],
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -1528,7 +2241,20 @@
               "attackScale": {
                 "value": 2.5,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1547,7 +2273,18 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
@@ -1569,7 +2306,20 @@
               "attackScale": {
                 "value": 2.5,
                 "blackboardKey": "atk_scale",
-                "levelValues": [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8]
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
               },
               "calculationMultiplier": null,
               "poiseValue": null
@@ -1588,15 +2338,32 @@
                 "value": 0.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
                 ]
               }
             }
           ]
         }
       ],
-      "blackboardKeys": ["owner_mainchar_alpha", "owner_mainchar_distance", "select_radius"],
-      "unresolvedCombatActions": ["LaunchProjectile"]
+      "blackboardKeys": [
+        "owner_mainchar_alpha",
+        "owner_mainchar_distance",
+        "select_radius"
+      ],
+      "unresolvedCombatActions": [
+        "LaunchProjectile"
+      ]
     },
     {
       "key": "ultimate",
@@ -1618,7 +2385,18 @@
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8.0, 8.56, 9.23, 10.0
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1632,7 +2410,18 @@
                 "value": 6.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8.0, 8.56, 9.23, 10.0
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1640,7 +2429,18 @@
                 "value": 20.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
                 ]
               }
             }
@@ -1711,7 +2511,9 @@
         {
           "frame": 58,
           "sourceKind": "direct",
-          "sourcePath": ["chr_0004_pelica_ultimate_skill"],
+          "sourcePath": [
+            "chr_0004_pelica_ultimate_skill"
+          ],
           "damageUnits": [
             {
               "damageType": "Pulse",
@@ -1721,7 +2523,18 @@
                 "value": 4.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8.0, 8.56, 9.23, 10.0
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1735,7 +2548,18 @@
                 "value": 6.0,
                 "blackboardKey": "atk_scale",
                 "levelValues": [
-                  4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8.0, 8.56, 9.23, 10.0
+                  4.45,
+                  4.89,
+                  5.34,
+                  5.78,
+                  6.22,
+                  6.67,
+                  7.11,
+                  7.56,
+                  8.0,
+                  8.56,
+                  9.23,
+                  10.0
                 ]
               },
               "calculationMultiplier": null,
@@ -1743,15 +2567,36 @@
                 "value": 20.0,
                 "blackboardKey": "poise",
                 "levelValues": [
-                  20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
                 ]
               }
             }
           ]
         }
       ],
-      "blackboardKeys": ["atk_scale", "crit", "poise", "radius", "select_radius"],
-      "unresolvedCombatActions": ["CreateBuffAction", "DamageAction", "SpawnAbilityEntity"]
+      "blackboardKeys": [
+        "atk_scale",
+        "crit",
+        "poise",
+        "radius",
+        "select_radius"
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ]
     }
   ]
 }
