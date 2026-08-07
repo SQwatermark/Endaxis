@@ -152,6 +152,14 @@ export interface GeneratedBuffLifecycleSource {
   readonly hasStackEffects: boolean;
 }
 
+/** 与应用位置解耦的 Buff 定义头；后续目录编译以 buffId 去重。 */
+export interface GeneratedBuffDefinitionHeaderSource {
+  readonly buffId: string;
+  readonly sourceFile: string;
+  readonly sourceAvailable: boolean;
+  readonly lifecycle: GeneratedBuffLifecycleSource | null;
+}
+
 /** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
 export interface GeneratedBuffBehaviorSource {
   readonly applicationFrame: number | null;
@@ -420,6 +428,7 @@ export interface GeneratedSkillSource {
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
   readonly referencedBuffIds: readonly string[];
+  readonly buffDefinitionHeaders: readonly GeneratedBuffDefinitionHeaderSource[];
   readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;

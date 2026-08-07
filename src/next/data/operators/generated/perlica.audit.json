@@ -201,6 +201,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 8,
@@ -622,6 +623,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 9,
@@ -1317,6 +1319,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 16,
@@ -1765,6 +1768,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 27,
@@ -2001,6 +2005,20 @@
       "referencedBuffIds": [
         "buff_common_damage_immune_medium",
         "buff_common_power_attack_disable_cast_skill"
+      ],
+      "buffDefinitionHeaders": [
+        {
+          "buffId": "buff_common_damage_immune_medium",
+          "sourceFile": "buff_common_damage_immune_medium.json",
+          "sourceAvailable": false,
+          "lifecycle": null
+        },
+        {
+          "buffId": "buff_common_power_attack_disable_cast_skill",
+          "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
+          "sourceAvailable": false,
+          "lifecycle": null
+        }
       ],
       "resolvedDamageHits": [
         {
@@ -2321,6 +2339,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 3,
@@ -2528,6 +2547,14 @@
       ],
       "referencedBuffIds": [
         "buff_common_obtain_ultimate_sp"
+      ],
+      "buffDefinitionHeaders": [
+        {
+          "buffId": "buff_common_obtain_ultimate_sp",
+          "sourceFile": "buff_common_obtain_ultimate_sp.json",
+          "sourceAvailable": false,
+          "lifecycle": null
+        }
       ],
       "resolvedDamageHits": [
         {
@@ -3080,6 +3107,7 @@
       "abilityEntityHits": [],
       "buffBehaviors": [],
       "referencedBuffIds": [],
+      "buffDefinitionHeaders": [],
       "resolvedDamageHits": [
         {
           "frame": 24,
@@ -3457,6 +3485,14 @@
       ],
       "referencedBuffIds": [
         "buff_common_damage_immune_ult_skill"
+      ],
+      "buffDefinitionHeaders": [
+        {
+          "buffId": "buff_common_damage_immune_ult_skill",
+          "sourceFile": "buff_common_damage_immune_ult_skill.json",
+          "sourceAvailable": false,
+          "lifecycle": null
+        }
       ],
       "resolvedDamageHits": [
         {

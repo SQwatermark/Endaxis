@@ -41,6 +41,7 @@ from generate_next_operators import (
     resolve_projectile_hits,
     resolve_ability_entity_hits,
     resolve_buff_behaviors,
+    resolve_buff_definition_headers,
     parse_skill_patch,
     compile_buff_blackboard_read,
     compile_buff_finish,
@@ -83,6 +84,58 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             collect_referenced_buff_ids(root, "skill.json"),
             ("buff.branch", "buff.root"),
         )
+
+    def test_buff_definition_headers_do_not_use_application_overrides(self) -> None:
+        buff = {
+            "lifeType": "Limited",
+            "duration": {
+                "useBlackboardKey": True,
+                "value": 1,
+                "blackboardKey": "duration",
+            },
+            "triggerInterval": {
+                "useBlackboardKey": False,
+                "value": -1,
+                "blackboardKey": "",
+            },
+            "waitFirstTriggerInterval": False,
+            "maxTriggerCnt": {
+                "useBlackboardKey": False,
+                "value": 1,
+                "blackboardKey": "",
+            },
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "Unique",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "negatePriority": False,
+                "priority": 0,
+                "useMaxStackCntKey": False,
+                "maxStackCntKey": "",
+                "maxStackCnt": 1,
+                "isNeedStackEffect": False,
+            },
+            "blackboard": [
+                {
+                    "key": "duration",
+                    "valueDouble": 3,
+                    "valueStr": "",
+                    "isDynamic": True,
+                }
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            (path / "buff.test.json").write_text(json.dumps(buff), encoding="utf-8")
+            headers = resolve_buff_definition_headers(("buff.missing", "buff.test"), path)
+
+        self.assertFalse(headers[0].sourceAvailable)
+        self.assertIsNone(headers[0].lifecycle)
+        self.assertTrue(headers[1].sourceAvailable)
+        assert headers[1].lifecycle is not None
+        self.assertEqual(headers[1].lifecycle.duration.levelValues, (3.0,))
 
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {
