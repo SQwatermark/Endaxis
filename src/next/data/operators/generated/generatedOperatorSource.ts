@@ -134,6 +134,8 @@ export interface GeneratedBuffBehaviorSource {
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   /** 会影响战斗动作集合的原生条件分支；unsupported 条件不得直接编译。 */
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
+  /** 按时间顺序写回 Buff 黑板、供后续动作读取的原生简单计算。 */
+  readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly nestedBuffBehaviors: readonly GeneratedBuffBehaviorSource[];
@@ -158,6 +160,16 @@ export interface GeneratedConditionalActionSource {
   readonly conditions: readonly GeneratedConditionSource[];
   readonly succeedCombatActions: readonly string[];
   readonly failCombatActions: readonly string[];
+}
+
+export interface GeneratedBlackboardCalculationSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly key: string;
+  readonly operation: string;
+  readonly left: GeneratedScalarSource;
+  readonly right: GeneratedScalarSource;
 }
 
 export interface GeneratedBuffEventActionSource {

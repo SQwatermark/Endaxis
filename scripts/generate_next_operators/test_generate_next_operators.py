@@ -20,6 +20,7 @@ from generate_next_operators import (
     parse_inflictions,
     parse_panel_attributes,
     parse_auxiliary_actions,
+    parse_blackboard_calculations,
     parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
@@ -35,6 +36,45 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 9,
+                        "_sequenceActionData": {
+                            "$type": "Example.SimpleCalcBBAction+Data, Example",
+                            "key": "atk_scale_final",
+                            "operation": "Multiply",
+                            "value1": {
+                                "useBlackboardKey": True,
+                                "value": 0,
+                                "blackboardKey": "atk_scale",
+                            },
+                            "value2": {
+                                "useBlackboardKey": True,
+                                "value": 3,
+                                "blackboardKey": "final_rate",
+                            },
+                        },
+                    }
+                ]
+            }
+        }
+
+        calculations = parse_blackboard_calculations(
+            root,
+            "buff.json",
+            {"atk_scale": (0.2, 0.3), "final_rate": (6, 6)},
+        )
+
+        self.assertEqual(len(calculations), 1)
+        self.assertEqual(calculations[0].key, "atk_scale_final")
+        self.assertEqual(calculations[0].operation, "Multiply")
+        self.assertEqual(calculations[0].left.levelValues, (0.2, 0.3))
+        self.assertEqual(calculations[0].right.levelValues, (6, 6))
+
     def test_conditional_audit_preserves_blackboard_comparison_and_branches(self) -> None:
         root = {
             "actionGroupData": {

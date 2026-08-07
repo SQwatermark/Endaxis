@@ -155,6 +155,7 @@ class BuffBehaviorSource:
     lifeType: str
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
+    blackboardCalculations: tuple["BlackboardCalculationSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     nestedBuffBehaviors: tuple["BuffBehaviorSource", ...]
@@ -189,6 +190,17 @@ class ConditionalActionSource:
     conditions: tuple[ConditionSource, ...]
     succeedCombatActions: tuple[str, ...]
     failCombatActions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BlackboardCalculationSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    key: str
+    operation: str
+    left: ScalarSource
+    right: ScalarSource
 
 
 @dataclass(frozen=True)
@@ -486,6 +498,55 @@ def parse_conditional_actions(
             end_frame,
             (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
         )
+    return tuple(result)
+
+
+def parse_blackboard_calculations(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BlackboardCalculationSource, ...]:
+    """读取会为后续动作派生数值的 SimpleCalcBBAction。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[BlackboardCalculationSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        for action_index, action in enumerate(walk_actions(timeline.get("_sequenceActionData"))):
+            if action_name(action["$type"]) != "SimpleCalcBBAction":
+                continue
+            key = action.get("key")
+            operation = action.get("operation")
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"{source_name}.SimpleCalcBBAction.key: expected non-empty string")
+            if not isinstance(operation, str) or not operation:
+                raise ValueError(f"{source_name}.SimpleCalcBBAction.operation: expected non-empty string")
+            result.append(
+                BlackboardCalculationSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    key=key,
+                    operation=operation,
+                    left=parse_scalar(
+                        action.get("value1"),
+                        f"{source_name}.SimpleCalcBBAction.value1",
+                        inherited_blackboard,
+                    ),
+                    right=parse_scalar(
+                        action.get("value2"),
+                        f"{source_name}.SimpleCalcBBAction.value2",
+                        inherited_blackboard,
+                    ),
+                )
+            )
     return tuple(result)
 
 
@@ -1115,6 +1176,7 @@ def resolve_buff_behaviors(
                 lifeType="",
                 directDamageHits=(),
                 conditionalActions=(),
+                blackboardCalculations=(),
                 eventActions=(),
                 resourceGains=(),
                 nestedBuffBehaviors=(),
@@ -1214,6 +1276,9 @@ def resolve_buff_behaviors(
             lifeType=str(buff.get("lifeType", "")),
             directDamageHits=parse_direct_damage_hits(adapted_root, buff_name, child_blackboard),
             conditionalActions=parse_conditional_actions(adapted_root, buff_name, child_blackboard),
+            blackboardCalculations=parse_blackboard_calculations(
+                adapted_root, buff_name, child_blackboard
+            ),
             eventActions=tuple(event_actions),
             resourceGains=parse_resource_gains(adapted_root, buff_name, child_blackboard),
             nestedBuffBehaviors=nested,

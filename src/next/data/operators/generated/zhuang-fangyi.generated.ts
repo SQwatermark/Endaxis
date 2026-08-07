@@ -3890,6 +3890,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Infinity",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "OnBuffFinish",
@@ -4345,6 +4346,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -4360,6 +4362,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5318,6 +5321,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5350,6 +5354,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5365,6 +5370,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -5380,6 +5386,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -5706,6 +5713,51 @@ export const zhuangFangyiGeneratedSource = {
                       "failCombatActions": []
                     }
                   ],
+                  "blackboardCalculations": [
+                    {
+                      "startFrame": 6,
+                      "endFrame": 9,
+                      "actionIndex": 6,
+                      "key": "atk_scale_final",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.2,
+                          0.22,
+                          0.24,
+                          0.26,
+                          0.28,
+                          0.3,
+                          0.32,
+                          0.34,
+                          0.36,
+                          0.39,
+                          0.42,
+                          0.45
+                        ]
+                      },
+                      "right": {
+                        "value": 3.0,
+                        "blackboardKey": "final_rate",
+                        "levelValues": [
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0,
+                          6.0
+                        ]
+                      }
+                    }
+                  ],
                   "eventActions": [],
                   "resourceGains": [
                     {
@@ -5806,6 +5858,7 @@ export const zhuangFangyiGeneratedSource = {
                       "lifeType": "Limited",
                       "directDamageHits": [],
                       "conditionalActions": [],
+                      "blackboardCalculations": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5821,6 +5874,7 @@ export const zhuangFangyiGeneratedSource = {
                       "lifeType": "Limited",
                       "directDamageHits": [],
                       "conditionalActions": [],
+                      "blackboardCalculations": [],
                       "eventActions": [],
                       "resourceGains": [],
                       "nestedBuffBehaviors": [],
@@ -5860,6 +5914,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6641,6 +6696,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "OnBuffStart",
@@ -6673,6 +6729,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6688,6 +6745,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -6703,6 +6761,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -7344,6 +7403,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -7937,6 +7997,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
@@ -8484,6 +8545,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Infinity",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8507,6 +8569,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "Limited",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [
             {
               "event": "DuringBuffEnable",
@@ -8534,6 +8597,7 @@ export const zhuangFangyiGeneratedSource = {
                   "lifeType": "Infinity",
                   "directDamageHits": [],
                   "conditionalActions": [],
+                  "blackboardCalculations": [],
                   "eventActions": [
                     {
                       "event": "OnBuffFinish",
@@ -8554,6 +8618,7 @@ export const zhuangFangyiGeneratedSource = {
                           "lifeType": "Limited",
                           "directDamageHits": [],
                           "conditionalActions": [],
+                          "blackboardCalculations": [],
                           "eventActions": [
                             {
                               "event": "DuringBuffEnable",
@@ -8605,6 +8670,7 @@ export const zhuangFangyiGeneratedSource = {
                   "lifeType": "Infinity",
                   "directDamageHits": [],
                   "conditionalActions": [],
+                  "blackboardCalculations": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8628,6 +8694,7 @@ export const zhuangFangyiGeneratedSource = {
                   "lifeType": "Infinity",
                   "directDamageHits": [],
                   "conditionalActions": [],
+                  "blackboardCalculations": [],
                   "eventActions": [
                     {
                       "event": "DuringBuffEnable",
@@ -8670,6 +8737,7 @@ export const zhuangFangyiGeneratedSource = {
                   "lifeType": "Infinity",
                   "directDamageHits": [],
                   "conditionalActions": [],
+                  "blackboardCalculations": [],
                   "eventActions": [],
                   "resourceGains": [],
                   "nestedBuffBehaviors": [],
@@ -8693,6 +8761,7 @@ export const zhuangFangyiGeneratedSource = {
           "lifeType": "",
           "directDamageHits": [],
           "conditionalActions": [],
+          "blackboardCalculations": [],
           "eventActions": [],
           "resourceGains": [],
           "nestedBuffBehaviors": [],
