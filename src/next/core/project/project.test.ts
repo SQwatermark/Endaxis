@@ -445,6 +445,27 @@ describe('V2 project document', () => {
       );
     }
 
+    const invalidResourceSource = JSON.parse(serializeProjectDocument(project));
+    invalidResourceSource.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
+      {
+        kind: 'changeResource',
+        parameters: {
+          resource: 'ultimateEnergy',
+          amount: 10,
+          recipient: 'caster',
+          spGainSource: 'normalAttack',
+        },
+        edited: [],
+      },
+    );
+    const invalidResourceSourceResult = validateProjectDocument(invalidResourceSource);
+    expect(invalidResourceSourceResult.ok).toBe(false);
+    if (!invalidResourceSourceResult.ok) {
+      expect(invalidResourceSourceResult.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.parameters.spGainSource') }),
+      );
+    }
+
     const invalidHitReference = JSON.parse(serializeProjectDocument(project));
     invalidHitReference.scenarios[0].connections[0].from.hitId = 'missing:hit';
     const invalidHitReferenceResult = validateProjectDocument(invalidHitReference);

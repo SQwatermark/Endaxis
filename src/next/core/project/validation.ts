@@ -27,6 +27,7 @@ import {
   OPERATOR_ATTRIBUTES,
   RESOURCE_RECIPIENTS,
   SP_GAIN_KINDS,
+  SP_GAIN_SOURCES,
   STATUS_MODIFIER_KINDS,
 } from '../game-data/operatorDefinition';
 import {
@@ -68,6 +69,7 @@ const elementalReactions = new Set<string>(ELEMENTAL_REACTIONS);
 const operatorAttributes = new Set<string>(OPERATOR_ATTRIBUTES);
 const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
 const spGainKinds = new Set<string>(SP_GAIN_KINDS);
+const spGainSources = new Set<string>(SP_GAIN_SOURCES);
 const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
 const gameplayTagQueryTypes = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
 const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
@@ -422,6 +424,15 @@ function validateCombatStepParameters(
         if (parameters.resource !== 'sp') {
           issues.push({
             path: `${path}.spGainKind`,
+            message: "is only valid when resource is 'sp'",
+          });
+        }
+      }
+      if (parameters.spGainSource !== undefined) {
+        requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
+        if (parameters.resource !== 'sp') {
+          issues.push({
+            path: `${path}.spGainSource`,
             message: "is only valid when resource is 'sp'",
           });
         }
