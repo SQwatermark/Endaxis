@@ -144,6 +144,13 @@ export type CombatCondition =
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | { kind: 'contextFlagEquals'; flag: string; value: boolean | number | string }
+  | {
+      /** 比较同一技能实例动作黑板中的动态值与常量，或比较两个动态值。 */
+      kind: 'actionValueCompare';
+      left: ActionValueOperand;
+      operator: ComparisonOperator;
+      right: ActionValueOperand;
+    }
   | { kind: 'statusActive'; statusKey: string; target: CombatTarget; minimumStacks?: number }
   | {
       /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
@@ -177,6 +184,7 @@ export const COMBAT_CONDITION_KINDS = [
   'skillBranchEnabled',
   'targetStaggered',
   'contextFlagEquals',
+  'actionValueCompare',
   'statusActive',
   'buffStackCompare',
   'elementalInflictionPresent',
@@ -188,6 +196,10 @@ export const COMBAT_CONDITION_KINDS = [
 ] as const satisfies readonly CombatCondition['kind'][];
 /** 条件构造器和严格解析器使用的可辨识种类。 */
 export type CombatConditionKind = (typeof COMBAT_CONDITION_KINDS)[number];
+
+/** 条件判断读取的动作实例值；黑板键只在当前技能实例生命周期内有效。 */
+export type ActionValueOperand =
+  { kind: 'blackboard'; key: string } | { kind: 'constant'; value: number };
 
 /** 只依赖养成面板、可在战斗开始前决定的条件子集。 */
 export type BuildCondition = Extract<CombatCondition, { kind: 'deckAttributeCompare' }>;

@@ -486,6 +486,14 @@ TAG_QUERY_TYPE_MAP = {
     "ExceptAny": "exceptAny",
     "ExceptAll": "exceptAll",
 }
+COMPARISON_OPERATOR_MAP = {
+    "LT": "less",
+    "LE": "lessOrEqual",
+    "GT": "greater",
+    "GE": "greaterOrEqual",
+    "Equals": "equal",
+    "NotEquals": "notEqual",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -2264,6 +2272,98 @@ def resolved_scalar_values(source: ScalarSource) -> tuple[float, ...]:
 
 def compact_level_values(values: tuple[float, ...]) -> float | tuple[float, ...]:
     return values[0] if all(value == values[0] for value in values) else values
+
+
+def compile_condition_operand(source: ScalarSource, path: str) -> str:
+    """把原生条件操作数收窄为动作黑板键或与等级无关的常量。"""
+    if source.blackboardKey is not None:
+        return (
+            "{ kind: 'blackboard', key: "
+            f"{ts_inline_literal(source.blackboardKey)} }}"
+        )
+    values = source.levelValues
+    if values is not None:
+        if not values or any(value != values[0] for value in values[1:]):
+            raise ValueError(f"{path}: level-dependent condition constants are not supported")
+        value = values[0]
+    else:
+        value = source.value
+    return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
+
+
+def compile_combat_condition(source: ConditionSource, path: str) -> str:
+    """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
+    if source.sourceType == "CompareFloat":
+        if source.left is None or source.right is None or source.comparison is None:
+            raise ValueError(f"{path}: incomplete CompareFloat condition")
+        operator = COMPARISON_OPERATOR_MAP.get(source.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {source.comparison!r}")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'actionValueCompare',",
+                f"  left: {compile_condition_operand(source.left, f'{path}.left')},",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  right: {compile_condition_operand(source.right, f'{path}.right')},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckBuffStackNumAdvanced":
+        buff = source.buffStack
+        if buff is None:
+            raise ValueError(f"{path}: missing Buff stack condition payload")
+        if (
+            buff.targetSource != "Context"
+            or buff.targetGroupKey != "smart_target"
+            or buff.buffCheckType != "Tag"
+            or not buff.buffTagIds
+            or buff.countType != "BuffCount"
+            or buff.limitSkillCastId
+        ):
+            raise ValueError(f"{path}: Buff stack query is outside the single-enemy runtime model")
+        operator = COMPARISON_OPERATOR_MAP.get(buff.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {buff.comparison!r}")
+        value_source = compile_condition_operand(buff.value, f"{path}.value")
+        prefix = "{ kind: 'constant', value: "
+        if not value_source.startswith(prefix):
+            raise ValueError(f"{path}.value: dynamic Buff count thresholds are not supported")
+        value = value_source.removeprefix(prefix).removesuffix(" }")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'buffStackCompare',",
+                "  target: 'enemy',",
+                f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
+                f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {value},",
+                "}",
+            ]
+        )
+    raise ValueError(f"{path}: unsupported condition type {source.sourceType!r}")
+
+
+def compile_combat_condition_group(
+    conditions: tuple[ConditionSource, ...], path: str
+) -> str:
+    """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
+    if not conditions:
+        raise ValueError(f"{path}: empty condition group")
+    compiled = [
+        compile_combat_condition(condition, f"{path}[{index}]")
+        for index, condition in enumerate(conditions)
+    ]
+    if len(compiled) == 1:
+        return compiled[0]
+    lines = ["{", "  kind: 'all',", "  conditions: ["]
+    for condition in compiled:
+        condition_lines = [f"    {line}" for line in condition.splitlines()]
+        condition_lines[-1] += ","
+        lines.extend(condition_lines)
+    lines.extend(["  ],", "}"])
+    return "\n".join(lines)
 
 
 def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:

@@ -11,6 +11,7 @@ from generate_next_operators import (
     collect_resolved_damage_hits,
     build_blackboard_provenance,
     compile_resolved_damage_sequence,
+    compile_combat_condition_group,
     BuffBlackboardReadSource,
     BuffFinishSource,
     DamageUnitSource,
@@ -544,6 +545,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(buff.buffStack.buffTagIds, (1466867135,))
         self.assertEqual(buff.buffStack.countType, "BuffCount")
         self.assertEqual(buff.buffStack.value.value, 1)
+
+    def test_condition_compiler_emits_action_blackboard_and_enemy_buff_conditions(self) -> None:
+        compare = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="LE",
+            left=ScalarSource(0, "swordCount", None),
+            right=ScalarSource(3, None, None),
+            buffStack=None,
+        )
+        buff = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            comparison=None,
+            left=None,
+            right=None,
+            buffStack=SimpleNamespace(
+                targetSource="Context",
+                targetGroupKey="smart_target",
+                buffCheckType="Tag",
+                buffTagIds=(1466867135,),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        result = compile_combat_condition_group((compare, buff), "fixture.conditions")
+
+        self.assertIn("kind: 'all'", result)
+        self.assertIn("kind: 'actionValueCompare'", result)
+        self.assertIn("key: 'swordCount'", result)
+        self.assertIn("kind: 'buffStackCompare'", result)
+        self.assertIn("buffTagIds: [1466867135]", result)
+
+    def test_condition_compiler_rejects_unmodeled_buff_identity_queries(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            comparison=None,
+            left=None,
+            right=None,
+            buffStack=SimpleNamespace(
+                targetSource="Source",
+                targetGroupKey="",
+                buffCheckType="Id",
+                buffTagIds=(),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        with self.assertRaisesRegex(ValueError, "outside the single-enemy runtime model"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
 
     def test_resolved_damage_compiler_is_independent_of_the_hit_carrier(self) -> None:
         unit = DamageUnitSource(

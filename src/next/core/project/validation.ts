@@ -116,6 +116,11 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
         issues.push({ path: `${path}.value`, message: 'expected a boolean, number, or string' });
       }
       break;
+    case 'actionValueCompare':
+      validateActionValueOperand(value.left, `${path}.left`, issues);
+      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
+      validateActionValueOperand(value.right, `${path}.right`, issues);
+      break;
     case 'statusActive':
       requireString(value, 'statusKey', path, issues);
       requireEnum(value.target, combatTargets, `${path}.target`, issues);
@@ -172,6 +177,21 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
       requireEnum(value.right, operatorAttributes, `${path}.right`, issues);
       break;
+  }
+}
+
+function validateActionValueOperand(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isObject(value)) {
+    issues.push({ path, message: 'expected an object' });
+    return;
+  }
+  const kind = requireString(value, 'kind', path, issues);
+  if (kind === 'blackboard') {
+    requireString(value, 'key', path, issues);
+  } else if (kind === 'constant') {
+    requireFiniteNumber(value.value, `${path}.value`, issues);
+  } else if (kind !== null) {
+    issues.push({ path: `${path}.kind`, message: 'unknown action value operand kind' });
   }
 }
 

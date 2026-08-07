@@ -193,6 +193,75 @@ describe('CombatRuntimeAssembly', () => {
     expect(observedValue).toBe(4);
   });
 
+  it('evaluates action blackboard comparisons inside the assembled executor chain', () => {
+    let reachedBranch = false;
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      initialBlackboard: { swordCount: 3 },
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'swordCount' },
+                    operator: 'greaterOrEqual',
+                    right: { kind: 'constant', value: 3 },
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'reached', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      enemyBuffs: emptyEnemyBuffs,
+      operators: [{ operatorId: 'operator', skills: [program] }],
+      createOperationExecutor: () => ({
+        execute: step => {
+          reachedBranch = step.kind === 'setContextFlag';
+          return true;
+        },
+        evaluate: () => false,
+      }),
+    });
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(reachedBranch).toBe(true);
+  });
+
   it('processes frame input after recovery and before the skill cost tick', () => {
     const program = skill({ costFrame: 0 });
     const assembly = new CombatRuntimeAssembly({

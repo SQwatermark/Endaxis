@@ -58,5 +58,6 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 已有反编译闭环，`CheckEntityNum` 仍只保存原始目标集合参数，不会在固定单敌人模型中擅自改写成战斗状态。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。重复动作不会排序或去重。
-- 该条件树仍是审计中间层。当前九类战斗叶子均复用全局严格 parser 并携带 typed payload：黑板计算/修改、Buff 黑板读取、Buff 层数读取、Buff 结束、Buff 创建、资源变化、投射物发射和能力实体生成。投射物与能力实体叶子只保存直接资源身份，子技能内容继续由独立 resolver 解析，避免在条件树中复制整棵子图。下一阶段由编译器关联二者并生成正式 `conditional` sequence。
+- 该条件树仍是审计中间层。当前九类战斗叶子均复用全局严格 parser 并携带 typed payload：黑板计算/修改、Buff 黑板读取、Buff 层数读取、Buff 结束、Buff 创建、资源变化、投射物发射和能力实体生成。投射物与能力实体叶子只保存直接资源身份，子技能内容继续由独立 resolver 解析，避免在条件树中复制整棵子图。
+- 正式条件编译已支持动作黑板浮点比较，以及固定单敌人目标上的 Tag + BuffCount 查询；比较统一使用原生容差。按 Buff ID 查询、实体集合、距离和主控身份等条件仍会明确拒绝，不能因为审计层保存了参数就视为可执行。下一阶段将这组严格条件编译器与叶子步骤编译器组合为正式 `conditional` sequence。
 - 佩丽卡已经完整生成并作为正式数据入口；新增干员前应优先把所需通用语义编译器补齐，避免在清单中复制手写 TS。

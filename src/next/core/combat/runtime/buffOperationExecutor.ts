@@ -3,11 +3,11 @@
  * 这里只暴露动作需要的最小端口；具体 Buff 容器归属仍由战斗装配层决定。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { ComparisonOperator } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
 import type { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { compareCombatNumbers } from './numericComparison';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 
@@ -87,34 +87,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         condition.buffTagIds.map(gameplayTagId),
         condition.tagQueryType,
       );
-      return compareBuffStackCount(count, condition.value, condition.operator);
+      return compareCombatNumbers(count, condition.value, condition.operator);
     }
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
-  }
-}
-
-const BUFF_STACK_COMPARE_TOLERANCE = 1e-5;
-
-/** 保持原生 `MathUtils.CompareFloat` 的边界，不把近似相等改成普通 JS 比较。 */
-function compareBuffStackCount(
-  count: number,
-  value: number,
-  operator: ComparisonOperator,
-): boolean {
-  switch (operator) {
-    case 'less':
-      return count < value - BUFF_STACK_COMPARE_TOLERANCE;
-    case 'lessOrEqual':
-      return count <= value + BUFF_STACK_COMPARE_TOLERANCE;
-    case 'greater':
-      return count > value + BUFF_STACK_COMPARE_TOLERANCE;
-    case 'greaterOrEqual':
-      return count >= value - BUFF_STACK_COMPARE_TOLERANCE;
-    case 'equal':
-      return Math.abs(count - value) <= BUFF_STACK_COMPARE_TOLERANCE;
-    case 'notEqual':
-      return Math.abs(count - value) > BUFF_STACK_COMPARE_TOLERANCE;
   }
 }

@@ -5,6 +5,7 @@
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
+import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { BuffOperationExecutor, type BuffOperationTarget } from './buffOperationExecutor';
 import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
@@ -125,10 +126,11 @@ export class CombatRuntimeAssembly {
       resources: this.resources,
       receipt: this.receipt,
     });
-    const delegate = new BuffOperationExecutor({
+    const buffOperations = new BuffOperationExecutor({
       target: this.#enemyBuffs,
       delegate: baseDelegate,
     });
+    const delegate = new ActionBlackboardOperationExecutor(buffOperations);
     let runtime: SkillRuntime;
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
