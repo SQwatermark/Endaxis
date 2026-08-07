@@ -342,7 +342,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -976,7 +976,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -1863,7 +1863,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2466,7 +2466,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2966,18 +2966,22 @@ export const perlicaGeneratedSource = {
         "buff_common_damage_immune_medium",
         "buff_common_power_attack_disable_cast_skill"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_damage_immune_medium",
           "sourceFile": "buff_common_damage_immune_medium.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_common_power_attack_disable_cast_skill",
           "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [
@@ -3653,7 +3657,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4147,12 +4151,14 @@ export const perlicaGeneratedSource = {
       "referencedBuffIds": [
         "buff_common_obtain_ultimate_sp"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_obtain_ultimate_sp",
           "sourceFile": "buff_common_obtain_ultimate_sp.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [
@@ -4950,7 +4956,7 @@ export const perlicaGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -5700,12 +5706,14 @@ export const perlicaGeneratedSource = {
       "referencedBuffIds": [
         "buff_common_damage_immune_ult_skill"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_damage_immune_ult_skill",
           "sourceFile": "buff_common_damage_immune_ult_skill.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [

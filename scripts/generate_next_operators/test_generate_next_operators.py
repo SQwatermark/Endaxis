@@ -41,7 +41,7 @@ from generate_next_operators import (
     resolve_projectile_hits,
     resolve_ability_entity_hits,
     resolve_buff_behaviors,
-    resolve_buff_definition_headers,
+    resolve_buff_definitions,
     parse_skill_patch,
     compile_buff_blackboard_read,
     compile_buff_finish,
@@ -85,7 +85,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.branch", "buff.root"),
         )
 
-    def test_buff_definition_headers_do_not_use_application_overrides(self) -> None:
+    def test_buff_definitions_do_not_use_application_overrides(self) -> None:
         buff = {
             "lifeType": "Limited",
             "duration": {
@@ -125,19 +125,22 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isDynamic": True,
                 }
             ],
+            "applyTags": [{"tagId": -1486085048}],
         }
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
             (path / "buff.test.json").write_text(json.dumps(buff), encoding="utf-8")
-            headers = resolve_buff_definition_headers(("buff.missing", "buff.test"), path)
+            definitions = resolve_buff_definitions(("buff.missing", "buff.test"), path)
 
-        self.assertFalse(headers[0].sourceAvailable)
-        self.assertIsNone(headers[0].lifecycle)
-        self.assertTrue(headers[1].sourceAvailable)
-        assert headers[1].lifecycle is not None
-        self.assertEqual(headers[1].lifecycle.duration.levelValues, (3.0,))
+        self.assertFalse(definitions[0].sourceAvailable)
+        self.assertIsNone(definitions[0].lifecycle)
+        self.assertTrue(definitions[1].sourceAvailable)
+        assert definitions[1].lifecycle is not None
+        self.assertEqual(definitions[1].lifecycle.duration.levelValues, (3.0,))
+        self.assertEqual(definitions[1].blackboard[0].key, "duration")
+        self.assertEqual(definitions[1].applyTagIds, (-1486085048,))
 
-    def test_buff_definition_headers_follow_event_dependencies_once(self) -> None:
+    def test_buff_definitions_follow_event_dependencies_once(self) -> None:
         def buff(buff_id: str, child_id: str | None) -> dict[str, object]:
             actions = []
             if child_id is not None:
@@ -180,6 +183,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "isNeedStackEffect": False,
                 },
                 "blackboard": [],
+                "applyTags": [],
                 "timelineActions": [],
                 "buffEventAction": [{"buffEvent": "OnBuffStart", "actions": actions}],
             }
@@ -192,9 +196,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (path / "buff.child.json").write_text(
                 json.dumps(buff("buff.child", "buff.parent")), encoding="utf-8"
             )
-            headers = resolve_buff_definition_headers(("buff.parent",), path)
+            definitions = resolve_buff_definitions(("buff.parent",), path)
 
-        self.assertEqual(tuple(header.buffId for header in headers), ("buff.child", "buff.parent"))
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.child", "buff.parent"),
+        )
 
     def test_unconditional_action_walk_does_not_enter_condition_branches(self) -> None:
         sequence = {

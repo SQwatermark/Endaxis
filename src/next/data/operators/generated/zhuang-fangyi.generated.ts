@@ -334,7 +334,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -964,7 +964,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -1747,7 +1747,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2111,7 +2111,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -2576,7 +2576,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -3532,7 +3532,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4477,7 +4477,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -4938,7 +4938,7 @@ export const zhuangFangyiGeneratedSource = {
       "referencedBuffIds": [
         "buff_chr_0030_zhuangfy_attack3_ult_cancel"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
           "sourceFile": "buff_chr_0030_zhuangfy_attack3_ult_cancel.json",
@@ -4976,7 +4976,15 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [
+            {
+              "key": "cancel_mark",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [
@@ -5540,18 +5548,22 @@ export const zhuangFangyiGeneratedSource = {
         "buff_common_damage_immune_medium",
         "buff_common_power_attack_disable_cast_skill"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_damage_immune_medium",
           "sourceFile": "buff_common_damage_immune_medium.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_common_power_attack_disable_cast_skill",
           "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [
@@ -5893,7 +5905,7 @@ export const zhuangFangyiGeneratedSource = {
       "projectileHits": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
-      "buffDefinitionHeaders": [],
+      "buffDefinitions": [],
       "buffBehaviors": [],
       "patch": {
         "levels": [
@@ -7308,7 +7320,7 @@ export const zhuangFangyiGeneratedSource = {
         "buff_chr_0030_zhuangfy_talent1",
         "buff_common_obtain_ultimate_sp"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
           "sourceFile": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword.json",
@@ -7348,7 +7360,72 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [
+            {
+              "key": "atb_return",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "atk_up_final",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "final_rate",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "interval",
+              "value": 0.3,
+              "isDynamic": false
+            },
+            {
+              "key": "isUlt",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "poise",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "remain_sword_limit",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "swordCnt",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "swordIndex",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "sword_range",
+              "value": 20.0,
+              "isDynamic": false
+            },
+            {
+              "key": "usp_extra",
+              "value": 0.0,
+              "isDynamic": false
+            }
+          ],
+          "applyTagIds": [
+            -1486085048
+          ]
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -7387,7 +7464,11 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": [
+            1670936726
+          ]
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -7426,7 +7507,55 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [
+            {
+              "key": "atk_scale",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_final",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "final_rate",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "poise",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "randomVFX",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "remain_sword_limit",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "swordCnt",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "swordIndex",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "usp_extra",
+              "value": 0.0,
+              "isDynamic": false
+            }
+          ],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -7465,7 +7594,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -7504,13 +7635,17 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_common_obtain_ultimate_sp",
           "sourceFile": "buff_common_obtain_ultimate_sp.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [],
@@ -9404,7 +9539,7 @@ export const zhuangFangyiGeneratedSource = {
         "buff_chr_0030_zhuangfy_talent1",
         "buff_common_obtain_ultimate_sp"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
           "sourceFile": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar.json",
@@ -9442,7 +9577,11 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": [
+            1670936726
+          ]
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -9481,13 +9620,17 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_common_obtain_ultimate_sp",
           "sourceFile": "buff_common_obtain_ultimate_sp.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [],
@@ -10646,12 +10789,14 @@ export const zhuangFangyiGeneratedSource = {
       "referencedBuffIds": [
         "buff_common_pulse_pulse_conduct_triggered"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_pulse_pulse_conduct_triggered",
           "sourceFile": "buff_common_pulse_pulse_conduct_triggered.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [],
@@ -11532,12 +11677,14 @@ export const zhuangFangyiGeneratedSource = {
       "referencedBuffIds": [
         "buff_common_pulse_pulse_conduct_triggered"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_common_pulse_pulse_conduct_triggered",
           "sourceFile": "buff_common_pulse_pulse_conduct_triggered.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [],
@@ -12229,7 +12376,7 @@ export const zhuangFangyiGeneratedSource = {
         "buff_chr_0030_zhuangfy_ult_base",
         "buff_common_damage_immune_ult_skill"
       ],
-      "buffDefinitionHeaders": [
+      "buffDefinitions": [
         {
           "buffId": "buff_chr_0030_zhuangfy_dash_hide",
           "sourceFile": "buff_chr_0030_zhuangfy_dash_hide.json",
@@ -12267,7 +12414,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -12306,7 +12455,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -12347,7 +12498,23 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [
+            {
+              "key": "combo_cd_rate",
+              "value": 3.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 10.0,
+              "isDynamic": false
+            }
+          ],
+          "applyTagIds": [
+            -388303696,
+            189882742
+          ]
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -12386,7 +12553,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -12425,7 +12594,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -12464,7 +12635,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -12503,7 +12676,9 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -12542,13 +12717,17 @@ export const zhuangFangyiGeneratedSource = {
               "levelValues": null
             },
             "hasStackEffects": false
-          }
+          },
+          "blackboard": [],
+          "applyTagIds": []
         },
         {
           "buffId": "buff_common_damage_immune_ult_skill",
           "sourceFile": "buff_common_damage_immune_ult_skill.json",
           "sourceAvailable": false,
-          "lifecycle": null
+          "lifecycle": null,
+          "blackboard": [],
+          "applyTagIds": []
         }
       ],
       "buffBehaviors": [

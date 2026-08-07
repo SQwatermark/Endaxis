@@ -226,11 +226,13 @@ class BuffLifecycleSource:
 
 
 @dataclass(frozen=True)
-class BuffDefinitionHeaderSource:
+class BuffDefinitionSource:
     buffId: str
     sourceFile: str
     sourceAvailable: bool
     lifecycle: BuffLifecycleSource | None
+    blackboard: tuple["DeclaredBlackboardValueSource", ...]
+    applyTagIds: tuple[int, ...]
 
 
 @dataclass(frozen=True)
@@ -522,7 +524,7 @@ class SkillSource:
     projectileHits: tuple[ProjectileHitSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     referencedBuffIds: tuple[str, ...]
-    buffDefinitionHeaders: tuple[BuffDefinitionHeaderSource, ...]
+    buffDefinitions: tuple[BuffDefinitionSource, ...]
     buffBehaviors: tuple[BuffBehaviorSource, ...]
     patch: SkillPatchSource
     declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...]
@@ -1708,12 +1710,25 @@ def collect_created_buff_ids(value: Any, source_name: str) -> tuple[str, ...]:
     return tuple(sorted(result))
 
 
-def resolve_buff_definition_headers(
+def parse_buff_apply_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[int, ...]:
+    result: list[int] = []
+    for index, raw_tag in enumerate(require_list(buff.get("applyTags"), f"{source_name}.applyTags")):
+        tag = require_dict(raw_tag, f"{source_name}.applyTags[{index}]")
+        if set(tag) != {"tagId"}:
+            raise ValueError(f"{source_name}.applyTags[{index}]: unexpected fields {sorted(tag)}")
+        tag_id = tag.get("tagId")
+        if not isinstance(tag_id, int) or isinstance(tag_id, bool):
+            raise ValueError(f"{source_name}.applyTags[{index}].tagId: expected integer")
+        result.append(tag_id)
+    return tuple(result)
+
+
+def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
     buff_source_dir: Path,
-) -> tuple[BuffDefinitionHeaderSource, ...]:
-    """解析直接 Buff 依赖的定义头；应用参数不得污染定义自身的黑板默认值。"""
-    result: dict[str, BuffDefinitionHeaderSource] = {}
+) -> tuple[BuffDefinitionSource, ...]:
+    """解析传递 Buff 依赖的定义事实；应用参数不得污染定义自身的黑板默认值。"""
+    result: dict[str, BuffDefinitionSource] = {}
     pending = list(buff_ids)
     while pending:
         buff_id = pending.pop(0)
@@ -1722,18 +1737,18 @@ def resolve_buff_definition_headers(
         source_file = f"{buff_id}.json"
         source_path = buff_source_dir / source_file
         if not source_path.is_file():
-            result[buff_id] = BuffDefinitionHeaderSource(buff_id, source_file, False, None)
+            result[buff_id] = BuffDefinitionSource(buff_id, source_file, False, None, (), ())
             continue
         buff = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_file)
-        blackboard = {
-            entry.key: (entry.value,)
-            for entry in parse_declared_blackboard(buff, source_file)
-        }
-        result[buff_id] = BuffDefinitionHeaderSource(
+        declared_blackboard = parse_declared_blackboard(buff, source_file)
+        blackboard = {entry.key: (entry.value,) for entry in declared_blackboard}
+        result[buff_id] = BuffDefinitionSource(
             buffId=buff_id,
             sourceFile=source_file,
             sourceAvailable=True,
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
+            blackboard=declared_blackboard,
+            applyTagIds=parse_buff_apply_tag_ids(buff, source_file),
         )
         pending.extend(
             child_id
@@ -2655,7 +2670,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             inherited_blackboard=patch.blackboard,
         ),
         referencedBuffIds=referenced_buff_ids,
-        buffDefinitionHeaders=resolve_buff_definition_headers(
+        buffDefinitions=resolve_buff_definitions(
             referenced_buff_ids,
             source_dir.parent / "BuffData",
         ),
@@ -4290,8 +4305,8 @@ def render_report(slug: str, skills: list[SkillSource]) -> str:
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "buffBehaviors": [asdict(buff) for buff in skill.buffBehaviors],
                 "referencedBuffIds": skill.referencedBuffIds,
-                "buffDefinitionHeaders": [
-                    asdict(definition) for definition in skill.buffDefinitionHeaders
+                "buffDefinitions": [
+                    asdict(definition) for definition in skill.buffDefinitions
                 ],
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "resolvedSchedule": [

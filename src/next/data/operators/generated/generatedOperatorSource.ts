@@ -152,12 +152,15 @@ export interface GeneratedBuffLifecycleSource {
   readonly hasStackEffects: boolean;
 }
 
-/** 与应用位置解耦的 Buff 定义头；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
-export interface GeneratedBuffDefinitionHeaderSource {
+/** 与应用位置解耦的 Buff 定义；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
+export interface GeneratedBuffDefinitionSource {
   readonly buffId: string;
   readonly sourceFile: string;
   readonly sourceAvailable: boolean;
   readonly lifecycle: GeneratedBuffLifecycleSource | null;
+  readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
+  /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */
+  readonly applyTagIds: readonly number[];
 }
 
 /** CreateBuffAction 引用的 BuffData 时间轴；触发事件尚未解析前不得直接视为即时效果。 */
@@ -428,8 +431,8 @@ export interface GeneratedSkillSource {
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
   readonly referencedBuffIds: readonly string[];
-  /** 直接 Buff 依赖及其传递创建依赖组成的去重定义头目录。 */
-  readonly buffDefinitionHeaders: readonly GeneratedBuffDefinitionHeaderSource[];
+  /** 直接 Buff 依赖及其传递创建依赖组成的去重定义目录。 */
+  readonly buffDefinitions: readonly GeneratedBuffDefinitionSource[];
   readonly buffBehaviors: readonly GeneratedBuffBehaviorSource[];
   /** 与本技能 SkillData 对应的逐等级补丁数据。 */
   readonly patch: GeneratedSkillPatchSource;
