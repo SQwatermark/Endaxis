@@ -198,6 +198,28 @@ export class CombatResources {
     return this.#requireOperator(operatorId).ultimateEnergy;
   }
 
+  /**
+   * 应用一次以基础值表达的个人终结技能量变化。
+   * 正向变化会经过目标自身的回复倍率与无标签回能许可；负向变化不应用回复倍率。
+   */
+  changeUltimateEnergy(operatorId: string, baseValue: number): UltimateEnergyChange {
+    requireFinite(baseValue, 'ultimate energy base value');
+    const operator = this.#requireOperator(operatorId);
+    const requestedValue =
+      baseValue > 0 ? baseValue * operator.ultimateEnergyGainMultiplier : baseValue;
+    const previousValue = operator.ultimateEnergy;
+    const applied = this.#trySetUltimateEnergy(operator, previousValue + requestedValue);
+    return {
+      operatorId,
+      baseValue,
+      requestedValue,
+      applied,
+      actualValue: operator.ultimateEnergy - previousValue,
+      previousValue,
+      currentValue: operator.ultimateEnergy,
+    };
+  }
+
   canPay(operatorId: string, costs: readonly CompiledSkillCost[]): boolean {
     return costs.every(cost => {
       const available =
@@ -240,19 +262,7 @@ export class CombatResources {
           ? this.#normalSkillUltimateEnergy.selfGainPerSp
           : this.#normalSkillUltimateEnergy.otherGainPerSp;
       const baseValue = coefficient * nonReturnedSpCost * gainPerSp;
-      const requestedValue =
-        baseValue > 0 ? baseValue * member.ultimateEnergyGainMultiplier : baseValue;
-      const previousValue = member.ultimateEnergy;
-      const applied = this.#trySetUltimateEnergy(member, previousValue + requestedValue);
-      return {
-        operatorId: member.operatorId,
-        baseValue,
-        requestedValue,
-        applied,
-        actualValue: member.ultimateEnergy - previousValue,
-        previousValue,
-        currentValue: member.ultimateEnergy,
-      };
+      return this.changeUltimateEnergy(member.operatorId, baseValue);
     });
   }
 

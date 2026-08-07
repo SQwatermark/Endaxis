@@ -52,6 +52,19 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
+    if (
+      step.kind === 'changeResource' &&
+      step.parameters.resource === 'ultimateEnergy' &&
+      step.parameters.recipient === 'caster'
+    ) {
+      const change = this.dependencies.resources.changeUltimateEnergy(
+        this.dependencies.sourceOperatorId,
+        step.parameters.amount,
+      );
+      this.#recordUltimateEnergyChange(change);
+      return true;
+    }
+
     if (step.kind !== 'gainSquadUltimateEnergyFromSkillCost') {
       return this.dependencies.delegate.execute(step);
     }
@@ -61,28 +74,32 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       this.dependencies.getNonReturnedSpCost(),
       step.parameters.coefficient,
     );
-    for (const change of changes) {
-      this.dependencies.receipt.record({
-        frame: this.dependencies.clock.frame,
-        time: this.dependencies.clock.time,
-        event: 'UltimateEnergyChanged',
-        sourceId: this.dependencies.sourceOperatorId,
-        targetId: change.operatorId,
-        data: {
-          skillId: this.dependencies.skillId,
-          baseValue: change.baseValue,
-          requestedValue: change.requestedValue,
-          applied: change.applied,
-          actualValue: change.actualValue,
-          previousValue: change.previousValue,
-          currentValue: change.currentValue,
-        },
-      });
-    }
+    for (const change of changes) this.#recordUltimateEnergyChange(change);
     return true;
   }
 
   evaluate(condition: Parameters<CombatOperationExecutor['evaluate']>[0]): boolean {
     return this.dependencies.delegate.evaluate(condition);
+  }
+
+  #recordUltimateEnergyChange(
+    change: ReturnType<CombatResources['changeUltimateEnergy']>,
+  ): void {
+    this.dependencies.receipt.record({
+      frame: this.dependencies.clock.frame,
+      time: this.dependencies.clock.time,
+      event: 'UltimateEnergyChanged',
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: change.operatorId,
+      data: {
+        skillId: this.dependencies.skillId,
+        baseValue: change.baseValue,
+        requestedValue: change.requestedValue,
+        applied: change.applied,
+        actualValue: change.actualValue,
+        previousValue: change.previousValue,
+        currentValue: change.currentValue,
+      },
+    });
   }
 }

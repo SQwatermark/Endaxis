@@ -19,6 +19,125 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('SkillResourceOperationExecutor', () => {
+  it('applies caster ultimate-energy gain through the native gain multiplier and cap', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'perlica',
+          ultimateEnergy: 90,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1.5,
+          canGainUntaggedUltimateEnergy: true,
+        },
+      ],
+    });
+    const delegate: CombatOperationExecutor = {
+      execute: () => false,
+      evaluate: () => false,
+    };
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'perlica',
+      skillId: 'comboSkill',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      delegate,
+    });
+
+    expect(
+      operations.execute({
+        kind: 'changeResource',
+        parameters: {
+          resource: 'ultimateEnergy',
+          amount: 10,
+          recipient: 'caster',
+        },
+      }),
+    ).toBe(true);
+
+    expect(resources.getUltimateEnergy('perlica')).toBe(100);
+    expect(receipt.entries).toHaveLength(1);
+    expect(receipt.entries[0]).toMatchObject({
+      frame: 0,
+      time: 0,
+      event: 'UltimateEnergyChanged',
+      sourceId: 'perlica',
+      targetId: 'perlica',
+      data: {
+        skillId: 'comboSkill',
+        baseValue: 10,
+        requestedValue: 15,
+        applied: true,
+        actualValue: 10,
+        previousValue: 90,
+        currentValue: 100,
+      },
+    });
+  });
+
+  it('records blocked caster ultimate-energy gain without changing the ledger', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'arcane',
+          ultimateEnergy: 40,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 2,
+          canGainUntaggedUltimateEnergy: false,
+        },
+      ],
+    });
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'arcane',
+      skillId: 'comboSkill',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    operations.execute({
+      kind: 'changeResource',
+      parameters: {
+        resource: 'ultimateEnergy',
+        amount: 10,
+        recipient: 'caster',
+      },
+    });
+
+    expect(resources.getUltimateEnergy('arcane')).toBe(40);
+    expect(receipt.entries[0]).toMatchObject({
+      event: 'UltimateEnergyChanged',
+      targetId: 'arcane',
+      data: {
+        baseValue: 10,
+        requestedValue: 20,
+        applied: false,
+        actualValue: 0,
+        previousValue: 40,
+        currentValue: 40,
+      },
+    });
+  });
+
   it('records refunded team SP in the returned-SP bucket', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
