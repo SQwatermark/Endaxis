@@ -268,6 +268,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'holdBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'createTimedMarker':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'modifyActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':

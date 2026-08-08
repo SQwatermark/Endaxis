@@ -436,6 +436,16 @@ class DistanceConditionSource:
 
 
 @dataclass(frozen=True)
+class TimedMarkerConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    markerId: str
+    blackboardKey: str
+    useBlackboardKey: bool
+    returnTrueIfNotExists: bool
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -450,6 +460,7 @@ class ConditionSource:
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None
+    timedMarker: "TimedMarkerConditionSource | None" = None
 
 
 @dataclass(frozen=True)
@@ -546,6 +557,16 @@ class BuffApplicationPayload:
 
 
 @dataclass(frozen=True)
+class TimedMarkerApplicationPayload:
+    targetSource: str
+    targetGroupKey: str
+    markerId: str
+    duration: ScalarSource
+    autoFinishByAction: bool
+    useTimeDilationDt: bool
+
+
+@dataclass(frozen=True)
 class ResourceGainPayload:
     resource: str
     amount: ScalarSource
@@ -596,6 +617,7 @@ class ConditionalBranchActionSource:
     buffFinish: BuffFinishPayload | None = None
     buffStackRead: BuffStackReadPayload | None = None
     buffApplication: BuffApplicationPayload | None = None
+    timedMarkerApplication: TimedMarkerApplicationPayload | None = None
     resourceGain: ResourceGainPayload | None = None
     infliction: InflictionPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
@@ -772,6 +794,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "targetIdentity",
         "distance",
         "entityTag",
+        "timedMarker",
         "nestedCondition",
         "onceScopeKey",
         "onceActions",
@@ -781,6 +804,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "buffFinish",
         "buffStackRead",
         "buffApplication",
+        "timedMarkerApplication",
         "resourceGain",
         "infliction",
         "projectileLaunch",
@@ -867,6 +891,7 @@ COMBAT_EFFECT_ACTION_NAMES = COMBAT_ACTION_NAMES - {
 
 # 这些运行时动作已单独解析，不进入 unresolvedCombatActions，但必须出现在条件分支审计中。
 CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
+    "CreateTimedMarker",
     "FinishBuffAdvanced",
     "GetTargetBuffBBAdvanced",
     "ModifyDynamicBlackboard",
@@ -2180,6 +2205,42 @@ def parse_conditional_actions(
                     tagIds=tag_ids,
                 ),
             )
+        if condition_type == "CheckTimedMarkerCondition":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            marker_id = condition.get("id")
+            blackboard_key = condition.get("blackboardKey")
+            if not isinstance(marker_id, str):
+                raise ValueError(f"{path}.id: expected string")
+            if not isinstance(blackboard_key, str):
+                raise ValueError(f"{path}.blackboardKey: expected string")
+            use_blackboard_key = require_bool(
+                condition.get("useBlackboardKey"), f"{path}.useBlackboardKey"
+            )
+            return_true_if_missing = require_bool(
+                condition.get("returnTrueIfNotExists"),
+                f"{path}.returnTrueIfNotExists",
+            )
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=(
+                    not use_blackboard_key
+                    and bool(marker_id)
+                    and str(target.get("targetSource", "")) in {"Owner", "Source"}
+                    and not str(target.get("targetGroupKey", ""))
+                ),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                timedMarker=TimedMarkerConditionSource(
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    markerId=marker_id,
+                    blackboardKey=blackboard_key,
+                    useBlackboardKey=use_blackboard_key,
+                    returnTrueIfNotExists=return_true_if_missing,
+                ),
+            )
         if condition_type == "CheckHp":
             target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
             comparison = condition.get("compare")
@@ -2400,6 +2461,7 @@ def parse_conditional_actions(
                 buff_finish = None
                 buff_stack_read = None
                 buff_application = None
+                timed_marker_application = None
                 resource_gain = None
                 infliction = None
                 projectile_launch = None
@@ -2421,6 +2483,10 @@ def parse_conditional_actions(
                     buff_stack_read = parse_buff_stack_read_payload(action, source_path)
                 elif action_type == "CreateBuffAction":
                     buff_application = parse_buff_application_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "CreateTimedMarker":
+                    timed_marker_application = parse_timed_marker_application_payload(
                         action, source_path, inherited_blackboard
                     )
                 elif action_type == "ObtainCostAction":
@@ -2452,6 +2518,7 @@ def parse_conditional_actions(
                         buffFinish=buff_finish,
                         buffStackRead=buff_stack_read,
                         buffApplication=buff_application,
+                        timedMarkerApplication=timed_marker_application,
                         resourceGain=resource_gain,
                         infliction=infliction,
                         projectileLaunch=projectile_launch,
@@ -3024,6 +3091,40 @@ def parse_infliction_payload(action: dict[str, Any], path: str) -> InflictionPay
     if not isinstance(is_extra, bool):
         raise ValueError(f"{path}.isExtra: expected boolean")
     return InflictionPayload(element, is_extra)
+
+
+def parse_timed_marker_application_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> TimedMarkerApplicationPayload:
+    target = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    marker = require_dict(action.get("markerId"), f"{path}.markerId")
+    use_marker_key = require_bool(
+        marker.get("useBlackboardKey"), f"{path}.markerId.useBlackboardKey"
+    )
+    marker_id = marker.get("value")
+    marker_key = marker.get("blackboardKey")
+    if not isinstance(marker_id, str):
+        raise ValueError(f"{path}.markerId.value: expected string")
+    if not isinstance(marker_key, str):
+        raise ValueError(f"{path}.markerId.blackboardKey: expected string")
+    if use_marker_key or not marker_id:
+        raise ValueError(f"{path}.markerId: dynamic or empty marker IDs are not supported")
+    return TimedMarkerApplicationPayload(
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        markerId=marker_id,
+        duration=parse_scalar(
+            action.get("duration"), f"{path}.duration", inherited_blackboard
+        ),
+        autoFinishByAction=require_bool(
+            action.get("autoFinishByAction"), f"{path}.autoFinishByAction"
+        ),
+        useTimeDilationDt=require_bool(
+            action.get("useTimeDilationDt"), f"{path}.useTimeDilationDt"
+        ),
+    )
 
 
 def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInflictionSource, ...]:
@@ -5282,6 +5383,29 @@ def compile_combat_condition(
                 "}",
             ]
         )
+    if source.sourceType == "CheckTimedMarkerCondition":
+        marker = source.timedMarker
+        if marker is None:
+            raise ValueError(f"{path}: missing timed marker condition payload")
+        if marker.useBlackboardKey:
+            raise ValueError(f"{path}: dynamic timed marker IDs are not supported")
+        if not marker.markerId:
+            raise ValueError(f"{path}: timed marker ID is empty")
+        if not (
+            marker.targetSource == "Source"
+            or (root_skill_context and marker.targetSource == "Owner")
+        ) or marker.targetGroupKey:
+            raise ValueError(
+                f"{path}: unsupported timed marker target "
+                f"{marker.targetSource!r}/{marker.targetGroupKey!r}"
+            )
+        condition = (
+            "{ kind: 'timedMarkerPresent', target: 'caster', markerId: "
+            f"{ts_inline_literal(marker.markerId)} }}"
+        )
+        if marker.returnTrueIfNotExists:
+            return f"{{ kind: 'not', condition: {condition} }}"
+        return condition
     if source.sourceType in {
         "CheckBuffStackNum",
         "CheckBuffStackNumAdvanced",
@@ -5704,6 +5828,37 @@ def compile_buff_application(
     )
 
 
+def compile_timed_marker_application(
+    payload: TimedMarkerApplicationPayload,
+    path: str,
+    *,
+    root_skill_context: bool,
+) -> str:
+    """编译固定身份、普通战斗时间增量的原生定时标记创建。"""
+    if payload.useTimeDilationDt:
+        raise ValueError(f"{path}: time-dilated timed markers are not supported")
+    if not (
+        payload.targetSource == "Source"
+        or (root_skill_context and payload.targetSource == "Owner")
+    ) or payload.targetGroupKey:
+        raise ValueError(
+            f"{path}: unsupported timed marker target "
+            f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
+        )
+    return "\n".join(
+        [
+            "step('createTimedMarker', {",
+            "  target: 'caster',",
+            f"  markerId: {ts_inline_literal(payload.markerId)},",
+            "  durationSeconds: "
+            f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
+            "  autoFinishByAction: "
+            f"{ts_inline_literal(payload.autoFinishByAction)},",
+            "})",
+        ]
+    )
+
+
 def compile_buff_stack_read(payload: BuffStackReadPayload, path: str) -> str:
     """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
     if payload.countType != "BuffCount":
@@ -5865,6 +6020,12 @@ def compile_conditional_branch_action(
             action.buffApplication,
             path,
             ignored_buff_ids,
+            root_skill_context=root_skill_context,
+        )
+    if getattr(action, "timedMarkerApplication", None) is not None:
+        return compile_timed_marker_application(
+            action.timedMarkerApplication,
+            path,
             root_skill_context=root_skill_context,
         )
     if getattr(action, "blackboardMutation", None) is not None:
@@ -6195,6 +6356,8 @@ def collect_compilable_conditional_action_types(
                 result.add("SaveBuffStackNumAdvanced")
             if getattr(branch_action, "buffApplication", None) is not None:
                 result.add("CreateBuffAction")
+            if getattr(branch_action, "timedMarkerApplication", None) is not None:
+                result.add("CreateTimedMarker")
             if getattr(branch_action, "blackboardMutation", None) is not None:
                 result.add("ModifyDynamicBlackboard")
             if getattr(branch_action, "blackboardCalculation", None) is not None:

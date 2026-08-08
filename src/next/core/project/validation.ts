@@ -110,6 +110,12 @@ function validateNonEmptyStringArray(
   });
 }
 
+function validateNonEmptyString(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (typeof value !== 'string' || value.length === 0) {
+    issues.push({ path, message: 'expected a non-empty string' });
+  }
+}
+
 function validateCombatCondition(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (!isObject(value)) {
     issues.push({ path, message: 'expected an object' });
@@ -194,6 +200,10 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       } else {
         requireFiniteNumber(value.value, `${path}.value`, issues);
       }
+      break;
+    case 'timedMarkerPresent':
+      requireEnum(value.target, combatTargets, `${path}.target`, issues);
+      validateNonEmptyString(value.markerId, `${path}.markerId`, issues);
       break;
     case 'elementalInflictionPresent': {
       const elements = Array.isArray(value.elements) ? value.elements : [value.elements];
@@ -532,6 +542,12 @@ function validateCombatStepParameters(
         issues.push({ path: `${path}.target`, message: "expected 'caster'" });
       }
       validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
+      break;
+    case 'createTimedMarker':
+      requireEnum(parameters.target, combatTargets, `${path}.target`, issues);
+      validateNonEmptyString(parameters.markerId, `${path}.markerId`, issues);
+      validateActionValueOperand(parameters.durationSeconds, `${path}.durationSeconds`, issues);
+      requireBoolean(parameters.autoFinishByAction, `${path}.autoFinishByAction`, issues);
       break;
     case 'modifyActionValue':
       requireString(parameters, 'key', path, issues);

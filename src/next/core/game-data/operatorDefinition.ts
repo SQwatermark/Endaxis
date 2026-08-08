@@ -191,6 +191,12 @@ export type CombatCondition =
       value: number | ActionValueOperand;
     }
   | {
+      /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
+      kind: 'timedMarkerPresent';
+      target: CombatTarget;
+      markerId: string;
+    }
+  | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
       minimumStacks?: number;
@@ -222,6 +228,7 @@ export const COMBAT_CONDITION_KINDS = [
   'buffStackCompare',
   'entityTagMatch',
   'buffIdStackCompare',
+  'timedMarkerPresent',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',
@@ -365,6 +372,13 @@ export interface CombatStepParameters {
     target: 'caster';
     buffIds: readonly string[];
   };
+  /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
+  createTimedMarker: {
+    target: CombatTarget;
+    markerId: string;
+    durationSeconds: ActionValueOperand;
+    autoFinishByAction: boolean;
+  };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   modifyActionValue: {
     key: string;
@@ -435,6 +449,7 @@ export const COMBAT_STEP_KINDS = [
   'finishBuffsByTag',
   'finishBuffsById',
   'holdBuffsById',
+  'createTimedMarker',
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',

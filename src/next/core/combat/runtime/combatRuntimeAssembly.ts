@@ -23,6 +23,8 @@ import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatStatusRuntime } from './combatStatusRuntime';
 import type { CombatVitals } from './combatVitals';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
+import { TimedMarkerContainer } from './timedMarkers';
+import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -82,6 +84,8 @@ export class CombatRuntimeAssembly {
   readonly #enemyBuffs: BuffOperationTarget;
   readonly #enemyStatuses?: CombatStatusRuntime;
   readonly #operatorStatuses = new Map<string, CombatStatusRuntime>();
+  readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
+  readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #skillCastIds = new SkillCastIdAllocator();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
@@ -98,6 +102,10 @@ export class CombatRuntimeAssembly {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
       const entityBlackboard = operator.buffRuntime?.entityBlackboard ?? new ActionBlackboard();
+      this.#operatorTimedMarkers.set(
+        operator.operatorId,
+        new TimedMarkerContainer(operator.operatorId, this.clock),
+      );
       const statusRuntime =
         operator.statusContainer === undefined
           ? undefined
@@ -220,6 +228,13 @@ export class CombatRuntimeAssembly {
       },
       delegate: buffOperations,
     });
+    const timedMarkerOperations = new TimedMarkerOperationExecutor({
+      resolveTarget: target =>
+        target === 'enemy'
+          ? this.#enemyTimedMarkers
+          : this.#requireTimedMarkerContainer(operatorId),
+      delegate: statusOperations,
+    });
     const vitalsConditions = new CombatVitalsConditionExecutor({
       resolveTarget: target => {
         if (resolveVitals === undefined) {
@@ -227,7 +242,7 @@ export class CombatRuntimeAssembly {
         }
         return resolveVitals(target, operatorId);
       },
-      delegate: statusOperations,
+      delegate: timedMarkerOperations,
     });
     const controlConditions = new OperatorControlConditionExecutor({
       isCasterControlled: () => {
@@ -266,5 +281,13 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' is not configured`);
     }
     return abilitySystem;
+  }
+
+  #requireTimedMarkerContainer(operatorId: string): TimedMarkerContainer {
+    const container = this.#operatorTimedMarkers.get(operatorId);
+    if (container === undefined) {
+      throw new Error(`combat operator '${operatorId}' has no timed marker container`);
+    }
+    return container;
   }
 }

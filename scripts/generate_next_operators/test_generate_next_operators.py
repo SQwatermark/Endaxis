@@ -2629,6 +2629,79 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffIdStackCompare'", compiled)
         self.assertIn("key: 'requiredStacks'", compiled)
 
+    def test_timed_marker_condition_and_creation_preserve_native_polarity(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckTimedMarkerCondition+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "id": "voice-cooldown",
+                                                "blackboardKey": "",
+                                                "useBlackboardKey": False,
+                                                "returnTrueIfNotExists": True,
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CreateTimedMarker+Data, Example",
+                                                "serverActionIndex": 2,
+                                                "targetSettings": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "markerId": {
+                                                    "useBlackboardKey": False,
+                                                    "value": "voice-cooldown",
+                                                    "blackboardKey": "",
+                                                },
+                                                "duration": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 5,
+                                                    "blackboardKey": "",
+                                                },
+                                                "autoFinishByAction": False,
+                                                "useTimeDilationDt": False,
+                                            }
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "fixture.json", {})[0]
+        compiled = compile_conditional_action(
+            action,
+            "fixture.condition",
+            root_skill_context=True,
+        )
+
+        self.assertIn("kind: 'not'", compiled)
+        self.assertIn("kind: 'timedMarkerPresent'", compiled)
+        self.assertIn("step('createTimedMarker'", compiled)
+        self.assertIn("durationSeconds: { kind: 'constant', value: 5 }", compiled)
+        self.assertIn("autoFinishByAction: false", compiled)
+
     def test_root_skill_owner_buff_condition_targets_the_caster(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",
