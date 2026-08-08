@@ -20,6 +20,7 @@ from generate_next_operators import (
     compile_resolved_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
+    compile_damage_units_step,
     collect_compilable_conditional_action_types,
     AuxiliaryActionSource,
     BlackboardCalculationPayload,
@@ -88,6 +89,30 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_damage_compiler_maps_native_element_names(self) -> None:
+        cases = {
+            "Fire": "heat",
+            "Pulse": "electric",
+            "Cryst": "cryo",
+            "Natural": "nature",
+        }
+        for native_type, damage_type in cases.items():
+            with self.subTest(native_type=native_type):
+                unit = DamageUnitSource(
+                    damageType=native_type,
+                    attributeType="Hp",
+                    calculation="standard",
+                    attackScale=ScalarSource(1, None, (1,)),
+                    calculationMultiplier=None,
+                    poiseValue=None,
+                )
+
+                source = compile_damage_units_step(
+                    (unit,), ("normalAttack",), "fixture.damage"
+                )
+
+                self.assertIn(f"  damageType: '{damage_type}',", source)
+
     def test_conditional_projectile_resolution_stays_attached_to_its_branch(self) -> None:
         launch = ProjectileLaunchPayload(
             "projectile_fixture",

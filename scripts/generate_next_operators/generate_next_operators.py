@@ -4069,9 +4069,12 @@ def render_typescript(
 
 DAMAGE_TYPE_MAP = {
     "Physical": "physical",
+    "Fire": "heat",
     "Heat": "heat",
+    "Cryst": "cryo",
     "Cold": "cryo",
     "Pulse": "electric",
+    "Natural": "nature",
     "Nature": "nature",
 }
 
