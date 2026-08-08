@@ -381,6 +381,32 @@ class MainOperatorConditionSource:
 
 
 @dataclass(frozen=True)
+class TargetIdentityReferenceSource:
+    """参与目标身份比较的一个原生目标引用；保留证明单敌人等价性所需的选择器语义。"""
+
+    targetSource: str
+    targetGroupKey: str
+    selectorOwner: str
+    ownerContextKey: str
+    centerType: str
+    centerContextKey: str
+    centerToGround: bool
+    target: str
+    targetContextKey: str
+    enableAdvancedDirection: bool
+    selectorDirection: str
+    finderType: str | None
+    validatorTypes: tuple[str, ...]
+    postProcessorTypes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TargetIdentityConditionSource:
+    first: TargetIdentityReferenceSource
+    second: TargetIdentityReferenceSource
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -391,6 +417,7 @@ class ConditionSource:
     entityCount: EntityCountConditionSource | None = None
     buffStack: BuffStackConditionSource | None = None
     mainOperator: MainOperatorConditionSource | None = None
+    targetIdentity: TargetIdentityConditionSource | None = None
 
 
 @dataclass(frozen=True)
@@ -687,6 +714,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "entityCount",
         "buffStack",
         "mainOperator",
+        "targetIdentity",
         "nestedCondition",
         "blackboardCalculation",
         "blackboardMutation",
@@ -1000,6 +1028,64 @@ def parse_selector_summary(
         finder_check_alive,
         validators,
         post_processors,
+    )
+
+
+def parse_target_identity_reference(
+    value: Any, path: str
+) -> TargetIdentityReferenceSource:
+    """解析身份比较使用的完整目标设置；未知字段必须阻止生成，不能被当作等价目标忽略。"""
+    target = require_dict(value, path)
+    if set(target) != TARGET_GROUP_MERGE_INPUT_FIELDS:
+        raise ValueError(f"{path}: unexpected fields {sorted(target)}")
+    target_source = target.get("targetSource")
+    target_group_key = target.get("targetGroupKey")
+    selector_owner = target.get("selectorOwner")
+    owner_context_key = target.get("ownerContextKey")
+    center_type = target.get("centerType")
+    center_context_key = target.get("centerContextKey")
+    raw_target = target.get("target")
+    target_context_key = target.get("targetContextKey")
+    selector_direction = target.get("selectorDirection")
+    for key, item in (
+        ("targetSource", target_source),
+        ("selectorOwner", selector_owner),
+        ("centerType", center_type),
+        ("target", raw_target),
+        ("selectorDirection", selector_direction),
+    ):
+        if not isinstance(item, str) or not item:
+            raise ValueError(f"{path}.{key}: expected non-empty string")
+    for key, item in (
+        ("targetGroupKey", target_group_key),
+        ("ownerContextKey", owner_context_key),
+        ("centerContextKey", center_context_key),
+        ("targetContextKey", target_context_key),
+    ):
+        if not isinstance(item, str):
+            raise ValueError(f"{path}.{key}: expected string")
+    finder, _, _, _, validators, post_processors = parse_selector_summary(
+        target.get("selectorData"),
+        f"{path}.selectorData",
+        finder_required=target_source == "InstantSearch",
+    )
+    return TargetIdentityReferenceSource(
+        targetSource=target_source,
+        targetGroupKey=target_group_key,
+        selectorOwner=selector_owner,
+        ownerContextKey=owner_context_key,
+        centerType=center_type,
+        centerContextKey=center_context_key,
+        centerToGround=require_bool(target.get("centerToGround"), f"{path}.centerToGround"),
+        target=raw_target,
+        targetContextKey=target_context_key,
+        enableAdvancedDirection=require_bool(
+            target.get("enableAdvancedDirection"), f"{path}.enableAdvancedDirection"
+        ),
+        selectorDirection=selector_direction,
+        finderType=finder,
+        validatorTypes=validators,
+        postProcessorTypes=post_processors,
     )
 
 
@@ -1940,6 +2026,25 @@ def parse_conditional_actions(
                 mainOperator=MainOperatorConditionSource(
                     targetSource=target_source,
                     targetGroupKey=str(target.get("targetGroupKey", "")),
+                ),
+            )
+        if condition_type == "CheckTargetsEqual":
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                targetIdentity=TargetIdentityConditionSource(
+                    first=parse_target_identity_reference(
+                        condition.get("firstTargetSettings"),
+                        f"{path}.firstTargetSettings",
+                    ),
+                    second=parse_target_identity_reference(
+                        condition.get("secondTargetSettings"),
+                        f"{path}.secondTargetSettings",
+                    ),
                 ),
             )
         return ConditionSource(
@@ -5293,6 +5398,34 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
     )
 
 
+def target_identity_reference_guarantees_single_enemy(
+    reference: TargetIdentityReferenceSource,
+) -> bool:
+    """仅接受不带筛选或重定向、且必然指向唯一敌人的目标引用。"""
+    if (
+        reference.targetGroupKey
+        or reference.selectorOwner != "ActionOwner"
+        or reference.ownerContextKey
+        or reference.centerType != "ActionSource"
+        or reference.centerContextKey
+        or reference.centerToGround
+        or reference.target != "ActionSource"
+        or reference.targetContextKey
+        or reference.enableAdvancedDirection
+        or reference.selectorDirection != "SourceForward"
+        or reference.validatorTypes
+        or reference.postProcessorTypes
+    ):
+        return False
+    return (
+        reference.targetSource in {"Target", "MainTarget"}
+        and reference.finderType is None
+    ) or (
+        reference.targetSource == "InstantSearch"
+        and reference.finderType == "MainTargetFinder"
+    )
+
+
 def is_guaranteed_single_enemy_condition(
     condition: ConditionSource,
     *,
@@ -5300,6 +5433,12 @@ def is_guaranteed_single_enemy_condition(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> bool:
     """识别在 Endaxis 固定单个有效敌人模型下恒真的目标数量条件。"""
+    identity = getattr(condition, "targetIdentity", None)
+    if condition.sourceType == "CheckTargetsEqual" and identity is not None:
+        return target_identity_reference_guarantees_single_enemy(
+            identity.first
+        ) and target_identity_reference_guarantees_single_enemy(identity.second)
+
     entity = getattr(condition, "entityCount", None)
     return (
         condition.sourceType == "CheckEntityNum"

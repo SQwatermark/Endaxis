@@ -1891,6 +1891,77 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'casterControlled' }",
         )
 
+    def test_target_equality_between_input_and_main_target_is_guaranteed(self) -> None:
+        def target_settings(target_source: str, *, finder: bool = False) -> dict:
+            selector = {"validatorData": [], "postProcessorData": []}
+            if finder:
+                selector["finderData"] = {
+                    "$type": "Example.Selector+MainTargetFinder+Data, Example"
+                }
+            return {
+                "targetSource": target_source,
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": False,
+                "selectorData": selector,
+                "enableAdvancedDirection": False,
+                "advancedDirection": {},
+                "selectorDirection": "SourceForward",
+                "target": "ActionSource",
+                "targetContextKey": "",
+            }
+
+        condition = {
+            "$type": "Example.CheckTargetsEqual+Data, Example",
+            "firstTargetSettings": target_settings("Target"),
+            "secondTargetSettings": target_settings("InstantSearch", finder=True),
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        self.assertEqual(parsed.sourceType, "CheckTargetsEqual")
+        self.assertTrue(is_guaranteed_single_enemy_condition(parsed))
+        self.assertEqual(
+            compile_combat_condition_group((parsed,), "fixture.conditions"),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
+        condition["secondTargetSettings"]["selectorData"]["validatorData"] = [
+            {"$type": "Example.Selector+TagValidator+Data, Example"}
+        ]
+        filtered = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+        self.assertFalse(is_guaranteed_single_enemy_condition(filtered))
+        with self.assertRaisesRegex(ValueError, "unsupported condition type"):
+            compile_combat_condition_group((filtered,), "fixture.conditions")
+
     def test_direct_main_operator_guard_remains_an_unresolved_root_action(self) -> None:
         root = {
             "actionGroupData": {
