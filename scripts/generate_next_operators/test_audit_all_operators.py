@@ -9,11 +9,54 @@ from audit_all_operators import (
     build_document,
     classify_blocker,
     classify_skill,
+    collect_entity_count_conditions,
     enumerate_skill_entries,
 )
+from generate_next_operators import EntityCountConditionSource
 
 
 class AuditAllOperatorsTests(unittest.TestCase):
+    def test_collects_entity_count_conditions_before_skill_parsing(self) -> None:
+        root = {
+            "actionData": [
+                {
+                    "$type": "Beyond.Gameplay.Core.Conditions.CheckEntityNum+Data, Gameplay.Beyond",
+                    "isEnable": True,
+                    "checkTarget": {"targetSource": "Context", "targetGroupKey": "targets"},
+                    "minNum": 1,
+                    "compareType": "GE",
+                    "containsHittableTarget": False,
+                    "excludeDeadEntity": False,
+                    "storeKey": "",
+                },
+                {
+                    "$type": "Beyond.Gameplay.Core.Conditions.CheckEntityNum+Data, Gameplay.Beyond",
+                    "isEnable": False,
+                    "checkTarget": {"targetSource": "Target", "targetGroupKey": ""},
+                    "minNum": 1,
+                    "compareType": "GE",
+                    "containsHittableTarget": False,
+                    "excludeDeadEntity": False,
+                    "storeKey": "",
+                },
+            ]
+        }
+
+        self.assertEqual(
+            collect_entity_count_conditions(root),
+            (
+                EntityCountConditionSource(
+                    targetSource="Context",
+                    targetGroupKey="targets",
+                    minimumCount=1,
+                    comparison="GE",
+                    containsHittableTarget=False,
+                    excludeDeadEntity=False,
+                    storeKey="",
+                ),
+            ),
+        )
+
     def test_classifies_normal_group_special_entries(self) -> None:
         self.assertEqual(
             classify_skill(0, "chr_test_power_attack"),
@@ -76,6 +119,15 @@ class AuditAllOperatorsTests(unittest.TestCase):
         )
 
     def test_builds_operator_and_blocker_summaries_from_skill_results(self) -> None:
+        entity_count = EntityCountConditionSource(
+            targetSource="Context",
+            targetGroupKey="targets",
+            minimumCount=1,
+            comparison="GE",
+            containsHittableTarget=False,
+            excludeDeadEntity=False,
+            storeKey="",
+        )
         document = build_document(
             [
                 SkillAudit(
@@ -87,6 +139,7 @@ class AuditAllOperatorsTests(unittest.TestCase):
                     None,
                     None,
                     ("DamageAction",),
+                    entityCountConditions=(entity_count, entity_count),
                 ),
                 SkillAudit(
                     "chr_a",
@@ -97,6 +150,7 @@ class AuditAllOperatorsTests(unittest.TestCase):
                     "projectile-child-actions",
                     "blocked",
                     ("LaunchProjectile",),
+                    entityCountConditions=(entity_count,),
                 ),
                 SkillAudit(
                     "chr_b",
@@ -117,6 +171,28 @@ class AuditAllOperatorsTests(unittest.TestCase):
         self.assertEqual(
             document["summary"]["blockerKinds"],
             {"projectile-child-actions": 1, "source-data-missing": 1},
+        )
+        self.assertEqual(document["summary"]["entityCountConditionOccurrenceCount"], 3)
+        self.assertEqual(document["summary"]["entityCountConditionShapeCount"], 1)
+        self.assertEqual(
+            document["entityCountConditionShapes"],
+            [
+                {
+                    "targetSource": "Context",
+                    "targetGroupKey": "targets",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": False,
+                    "excludeDeadEntity": False,
+                    "storeKey": "",
+                    "occurrenceCount": 3,
+                    "skillCount": 2,
+                    "examples": [
+                        {"characterId": "chr_a", "skillId": "a_attack1"},
+                        {"characterId": "chr_a", "skillId": "a_skill"},
+                    ],
+                }
+            ],
         )
 
 

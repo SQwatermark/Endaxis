@@ -41,6 +41,47 @@ class SkillAudit:
     referencedBuffCount: int = 0
     projectileChildCount: int = 0
     abilityEntityCount: int = 0
+    entityCountConditions: tuple[generator.EntityCountConditionSource, ...] = ()
+
+
+def collect_entity_count_conditions(
+    root: Any,
+) -> tuple[generator.EntityCountConditionSource, ...]:
+    """直接从原始 SkillData 递归收集启用的实体数量检查，不受 parser 覆盖率影响。"""
+
+    result: list[generator.EntityCountConditionSource] = []
+
+    def visit(value: Any, path: str) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, f"{path}[{index}]")
+            return
+        if not isinstance(value, dict):
+            return
+        if generator.action_name(str(value.get("$type", ""))) == "CheckEntityNum":
+            if value.get("isEnable") is not False:
+                target = generator.require_dict(value.get("checkTarget"), f"{path}.checkTarget")
+                result.append(
+                    generator.EntityCountConditionSource(
+                        targetSource=str(target.get("targetSource", "")),
+                        targetGroupKey=str(target.get("targetGroupKey", "")),
+                        minimumCount=int(value.get("minNum")),
+                        comparison=str(value.get("compareType", "")),
+                        containsHittableTarget=generator.require_bool(
+                            value.get("containsHittableTarget"),
+                            f"{path}.containsHittableTarget",
+                        ),
+                        excludeDeadEntity=generator.require_bool(
+                            value.get("excludeDeadEntity"), f"{path}.excludeDeadEntity"
+                        ),
+                        storeKey=str(value.get("storeKey", "")),
+                    )
+                )
+        for key, child in value.items():
+            visit(child, f"{path}.{key}")
+
+    visit(root, "$")
+    return tuple(result)
 
 
 def parse_args() -> argparse.Namespace:
@@ -123,6 +164,13 @@ def audit_skill(
         "skillType": skill_type,
         "source": f"{skill_id}.json",
     }
+    source_path = source / entry["source"]
+    raw_entity_count_conditions: tuple[generator.EntityCountConditionSource, ...] = ()
+    if source_path.exists():
+        raw_root = generator.require_dict(
+            json.loads(source_path.read_text(encoding="utf-8")), str(source_path)
+        )
+        raw_entity_count_conditions = collect_entity_count_conditions(raw_root)
     try:
         skill = generator.parse_skill(entry, source, patch_table)
     except Exception as error:
@@ -135,6 +183,7 @@ def audit_skill(
             "source-or-parser-blocked",
             classify_blocker(message),
             message,
+            entityCountConditions=raw_entity_count_conditions,
         )
 
     config = {"kind": "resolvedSequence", "tags": tags}
@@ -165,6 +214,7 @@ def audit_skill(
         len(skill.referencedBuffIds),
         len(skill.projectileTriggeredSkills),
         len(skill.abilityEntityHits),
+        raw_entity_count_conditions,
     )
 
 
@@ -212,6 +262,31 @@ def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
                 ),
             }
         )
+    entity_count_occurrences: Counter[generator.EntityCountConditionSource] = Counter(
+        condition for item in audits for condition in item.entityCountConditions
+    )
+    entity_count_skills: dict[generator.EntityCountConditionSource, list[SkillAudit]] = {
+        condition: [item for item in audits if condition in item.entityCountConditions]
+        for condition in entity_count_occurrences
+    }
+    entity_count_shapes = []
+    for condition, occurrence_count in entity_count_occurrences.most_common():
+        skills = entity_count_skills[condition]
+        entity_count_shapes.append(
+            {
+                **asdict(condition),
+                "occurrenceCount": occurrence_count,
+                "skillCount": len(skills),
+                "examples": [
+                    {
+                        "characterId": item.characterId,
+                        "skillId": item.skillId,
+                    }
+                    for item in skills[:3]
+                ],
+            }
+        )
+
     return {
         "schemaVersion": 1,
         "scope": {
@@ -229,9 +304,19 @@ def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
             "unresolvedActionPresence": dict(
                 Counter(action for item in audits for action in item.unresolvedActions)
             ),
+            "entityCountConditionOccurrenceCount": sum(entity_count_occurrences.values()),
+            "entityCountConditionShapeCount": len(entity_count_occurrences),
         },
+        "entityCountConditionShapes": entity_count_shapes,
         "operators": per_operator,
-        "skills": [asdict(item) for item in audits],
+        "skills": [
+            {
+                key: value
+                for key, value in asdict(item).items()
+                if key != "entityCountConditions"
+            }
+            for item in audits
+        ],
     }
 
 
@@ -298,6 +383,30 @@ def render_markdown(document: dict[str, Any]) -> str:
             "能力实体计数是庄方宜闭环所需能力，却不是全量覆盖率最高的第一批工作。",
             "管理员的 20 个入口源文件当前全部缺失；另外还有一项诀的子能力实体文件名不一致，二者应作为",
             "数据导出问题处理，而不是在生成器中添加回退。",
+            "",
+            "## 实体数量条件形状",
+            "",
+            f"现有原始技能文件中共有 {summary['entityCountConditionOccurrenceCount']} 次启用的实体数量检查，",
+            f"按完整参数区分为 {summary['entityCountConditionShapeCount']} 种形状。",
+            "该统计直接递归读取 SkillData，不受当前 parser 是否能走到相应条件的影响。",
+            "这些条件既包括命中目标是否存在，也包括能力实体、可命中目标和多目标数量；不能仅凭动作名统一折叠。",
+            "",
+            "| 来源 | 上下文键 | 比较 | 可命中目标 | 排除死亡 | 写入键 | 次数 | 技能数 | 示例 |",
+            "| --- | --- | --- | --- | --- | --- | ---: | ---: | --- |",
+        ]
+    )
+    for shape in document["entityCountConditionShapes"]:
+        examples = "<br>".join(f"`{item['skillId']}`" for item in shape["examples"])
+        lines.append(
+            f"| `{shape['targetSource']}` | `{shape['targetGroupKey'] or '(空)'}` | "
+            f"`{shape['comparison']} {shape['minimumCount']}` | "
+            f"{'是' if shape['containsHittableTarget'] else '否'} | "
+            f"{'是' if shape['excludeDeadEntity'] else '否'} | "
+            f"`{shape['storeKey'] or '(空)'}` | {shape['occurrenceCount']} | "
+            f"{shape['skillCount']} | {examples} |"
+        )
+    lines.extend(
+        [
             "",
             "## 根动作覆盖面",
             "",

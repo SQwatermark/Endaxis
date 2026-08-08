@@ -37,8 +37,808 @@
       "SpawnAbilityEntity": 22,
       "IfElseAction": 140,
       "CheckMainCharacterCondition": 1
-    }
+    },
+    "entityCountConditionOccurrenceCount": 570,
+    "entityCountConditionShapeCount": 40
   },
+  "entityCountConditionShapes": [
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 155,
+      "skillCount": 75,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_power_attack"
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_normal_skill"
+        },
+        {
+          "characterId": "chr_0004_pelica",
+          "skillId": "chr_0004_pelica_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 106,
+      "skillCount": 67,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_combo_skill"
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_plunging_attack_end"
+        },
+        {
+          "characterId": "chr_0006_wolfgd",
+          "skillId": "chr_0006_wolfgd_plunging_attack_end"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": true,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 89,
+      "skillCount": 73,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_attack1"
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_attack3"
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_attack4"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 79,
+      "skillCount": 28,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_combo_skill"
+        },
+        {
+          "characterId": "chr_0006_wolfgd",
+          "skillId": "chr_0006_wolfgd_normal_skill"
+        },
+        {
+          "characterId": "chr_0007_ikut",
+          "skillId": "chr_0007_ikut_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "tar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 21,
+      "skillCount": 17,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_power_attack"
+        },
+        {
+          "characterId": "chr_0004_pelica",
+          "skillId": "chr_0004_pelica_power_attack"
+        },
+        {
+          "characterId": "chr_0007_ikut",
+          "skillId": "chr_0007_ikut_attack4"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "targets",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 18,
+      "skillCount": 9,
+      "examples": [
+        {
+          "characterId": "chr_0009_azrila",
+          "skillId": "chr_0009_azrila_combo_skill"
+        },
+        {
+          "characterId": "chr_0009_azrila",
+          "skillId": "chr_0009_azrila_normal_skill"
+        },
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "maintar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 16,
+      "skillCount": 7,
+      "examples": [
+        {
+          "characterId": "chr_0021_whiten",
+          "skillId": "chr_0021_whiten_normal_skill"
+        },
+        {
+          "characterId": "chr_0024_deepfin",
+          "skillId": "chr_0024_deepfin_normal_skill"
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "skillId": "chr_0017_yvonne_ult_attack2_1"
+        }
+      ]
+    },
+    {
+      "targetSource": "InstantSearch",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 11,
+      "skillCount": 11,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_ultimate_skill"
+        },
+        {
+          "characterId": "chr_0004_pelica",
+          "skillId": "chr_0004_pelica_combo_skill"
+        },
+        {
+          "characterId": "chr_0013_aglina",
+          "skillId": "chr_0013_aglina_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 11,
+      "skillCount": 4,
+      "examples": [
+        {
+          "characterId": "chr_0016_laevat",
+          "skillId": "chr_0016_laevat_normal_skill_during_ult"
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "skillId": "chr_0017_yvonne_normal_skill"
+        },
+        {
+          "characterId": "chr_0029_pograni",
+          "skillId": "chr_0029_pograni_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": true,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 9,
+      "skillCount": 5,
+      "examples": [
+        {
+          "characterId": "chr_0007_ikut",
+          "skillId": "chr_0007_ikut_normal_skill"
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "skillId": "chr_0028_wulfa_combo_2_skill"
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "skillId": "chr_0028_wulfa_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "MainTar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 6,
+      "skillCount": 5,
+      "examples": [
+        {
+          "characterId": "chr_0009_azrila",
+          "skillId": "chr_0009_azrila_normal_skill"
+        },
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_ultimate_skill"
+        },
+        {
+          "characterId": "chr_0014_aurora",
+          "skillId": "chr_0014_aurora_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "mainTar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 6,
+      "skillCount": 3,
+      "examples": [
+        {
+          "characterId": "chr_0021_whiten",
+          "skillId": "chr_0021_whiten_normal_skill"
+        },
+        {
+          "characterId": "chr_0019_karin",
+          "skillId": "chr_0019_karin_normal_skill"
+        },
+        {
+          "characterId": "chr_0029_pograni",
+          "skillId": "chr_0029_pograni_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar1",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 5,
+      "skillCount": 4,
+      "examples": [
+        {
+          "characterId": "chr_0007_ikut",
+          "skillId": "chr_0007_ikut_ultimate_skill"
+        },
+        {
+          "characterId": "chr_0015_lifeng",
+          "skillId": "chr_0015_lifeng_ultimate_skill"
+        },
+        {
+          "characterId": "chr_0024_deepfin",
+          "skillId": "chr_0024_deepfin_ultimate_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": true,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 3,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0033_camille",
+          "skillId": "chr_0033_camille_combo_skill_2"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "water",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "InstantSearch",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": true,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0009_azrila",
+          "skillId": "chr_0009_azrila_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "lances",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "MainCharacter",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": true,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 2,
+      "examples": [
+        {
+          "characterId": "chr_0013_aglina",
+          "skillId": "chr_0013_aglina_normal_skill"
+        },
+        {
+          "characterId": "chr_0013_aglina",
+          "skillId": "chr_0013_aglina_ultimate_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar",
+      "minimumCount": 1,
+      "comparison": "LT",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 2,
+      "examples": [
+        {
+          "characterId": "chr_0021_whiten",
+          "skillId": "chr_0021_whiten_attack2"
+        },
+        {
+          "characterId": "chr_0021_whiten",
+          "skillId": "chr_0021_whiten_attack3"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "combo_tar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0024_deepfin",
+          "skillId": "chr_0024_deepfin_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "trigger",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": true,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0032_lizhiyan",
+          "skillId": "chr_0032_lizhiyan_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "MainTar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0028_wulfa",
+          "skillId": "chr_0028_wulfa_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": true,
+      "storeKey": "",
+      "occurrenceCount": 2,
+      "skillCount": 2,
+      "examples": [
+        {
+          "characterId": "chr_0030_zhuangfy",
+          "skillId": "chr_0030_zhuangfy_normal_skill"
+        },
+        {
+          "characterId": "chr_0030_zhuangfy",
+          "skillId": "chr_0030_zhuangfy_normal_skill_ult"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "normalwater_move",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "normalskillwatermove_cnt",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0027_tangtang",
+          "skillId": "chr_0027_tangtang_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "ball",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0011_seraph",
+          "skillId": "chr_0011_seraph_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "ComboLances",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "UltiLances",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "Lances",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0012_avywen",
+          "skillId": "chr_0012_avywen_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar",
+      "minimumCount": 2,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0013_aglina",
+          "skillId": "chr_0013_aglina_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "explo",
+      "minimumCount": 2,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0013_aglina",
+          "skillId": "chr_0013_aglina_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "abepos",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0015_lifeng",
+          "skillId": "chr_0015_lifeng_ultimate_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 0,
+      "comparison": "Equals",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0016_laevat",
+          "skillId": "chr_0016_laevat_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "MainTarget",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0032_lizhiyan",
+          "skillId": "chr_0032_lizhiyan_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "trigger",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0032_lizhiyan",
+          "skillId": "chr_0032_lizhiyan_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar",
+      "minimumCount": 1,
+      "comparison": "Equals",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0018_dapan",
+          "skillId": "chr_0018_dapan_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "tar2",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0028_wulfa",
+          "skillId": "chr_0028_wulfa_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "smart_target",
+      "minimumCount": 1,
+      "comparison": "LT",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0022_bounda",
+          "skillId": "chr_0022_bounda_combo_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "other_cor_tar",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0025_ardelia",
+          "skillId": "chr_0025_ardelia_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Context",
+      "targetGroupKey": "total_tar",
+      "minimumCount": 2,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": false,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0029_pograni",
+          "skillId": "chr_0029_pograni_normal_skill"
+        }
+      ]
+    },
+    {
+      "targetSource": "Target",
+      "targetGroupKey": "",
+      "minimumCount": 1,
+      "comparison": "GE",
+      "containsHittableTarget": false,
+      "excludeDeadEntity": true,
+      "storeKey": "",
+      "occurrenceCount": 1,
+      "skillCount": 1,
+      "examples": [
+        {
+          "characterId": "chr_0031_mifu",
+          "skillId": "chr_0031_mifu_normalskill_1"
+        }
+      ]
+    }
+  ],
   "operators": [
     {
       "characterId": "chr_0027_tangtang",
