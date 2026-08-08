@@ -5967,6 +5967,7 @@ def compile_buff_application_values(
     inherit_source_skill_cast_info: bool,
     root_skill_context: bool,
     path: str,
+    context_target_is_enemy: bool = False,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if count.blackboardKey is not None or count.value != 1:
@@ -5983,6 +5984,8 @@ def compile_buff_application_values(
         # 投射物命中子技能的普通 Target 就是触发该子技能的唯一命中目标。
         target = "enemy"
     elif target_source == "Context" and target_group_key == "smart_target":
+        target = "enemy"
+    elif target_source == "Context" and context_target_is_enemy:
         target = "enemy"
     else:
         raise ValueError(
@@ -6013,6 +6016,7 @@ def compile_buff_application(
     path: str,
     *,
     root_skill_context: bool = True,
+    context_target_is_enemy: bool = False,
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
@@ -6028,6 +6032,7 @@ def compile_buff_application(
         buff_source=action.buffSource,
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
         root_skill_context=root_skill_context,
+        context_target_is_enemy=context_target_is_enemy,
         path=path,
     )
 
@@ -6401,8 +6406,11 @@ def target_group_branch_scopes(path: tuple[str, ...]) -> tuple[tuple[str, ...], 
     )
 
 
-def resolve_latest_target_group_write(
-    action: ConditionalActionSource,
+def resolve_latest_target_group_write_at(
+    *,
+    read_frame: int,
+    read_action_index: int,
+    read_action_path: tuple[str, ...],
     target_group_key: str,
     writes: tuple[TargetGroupWriteSource, ...],
 ) -> TargetGroupWriteSource | None:
@@ -6412,15 +6420,15 @@ def resolve_latest_target_group_write(
         if write.targetGroupKey != target_group_key:
             continue
         if not (
-            write.startFrame < action.startFrame
+            write.startFrame < read_frame
             or (
-                write.startFrame == action.startFrame
-                and write.actionIndex < action.actionIndex
+                write.startFrame == read_frame
+                and write.actionIndex < read_action_index
             )
         ):
             continue
         if any(
-            action.actionPath[: len(scope)] != scope
+            read_action_path[: len(scope)] != scope
             for scope in target_group_branch_scopes(write.actionPath)
         ):
             continue
@@ -6435,10 +6443,25 @@ def resolve_latest_target_group_write(
     ]
     if len(latest) != 1:
         raise ValueError(
-            f"{'.'.join(action.actionPath)}: ambiguous writes for target group "
+            f"{'.'.join(read_action_path) or '<root>'}: ambiguous writes for target group "
             f"{target_group_key!r} at {latest_order}"
         )
     return latest[0]
+
+
+def resolve_latest_target_group_write(
+    action: ConditionalActionSource,
+    target_group_key: str,
+    writes: tuple[TargetGroupWriteSource, ...],
+) -> TargetGroupWriteSource | None:
+    """按条件读取点解析最近的支配写入。"""
+    return resolve_latest_target_group_write_at(
+        read_frame=action.startFrame,
+        read_action_index=action.actionIndex,
+        read_action_path=action.actionPath,
+        target_group_key=target_group_key,
+        writes=writes,
+    )
 
 
 def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) -> bool:
@@ -7386,10 +7409,28 @@ def compile_resolved_sequence(
             step_lines = compile_infliction(payload).splitlines()
         elif item.itemType == "buffApplication":
             payload = cast(AuxiliaryActionSource, item.payload)
+            context_target_is_enemy = False
+            if (
+                item.sourcePath == (skill.skillId,)
+                and payload.targetSource == "Context"
+                and payload.targetGroupKey != "smart_target"
+            ):
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=(),
+                    target_group_key=payload.targetGroupKey,
+                    writes=skill.targetGroupWrites,
+                )
+                context_target_is_enemy = (
+                    write is not None
+                    and target_group_write_guarantees_single_enemy(write)
+                )
             step_lines = compile_buff_application(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffApplication",
                 root_skill_context=item.sourcePath == (skill.skillId,),
+                context_target_is_enemy=context_target_is_enemy,
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")

@@ -15,6 +15,7 @@ from generate_next_operators import (
     collect_resolved_damage_hits,
     collect_resolved_schedule,
     root_target_group_writes_for_condition,
+    resolve_latest_target_group_write_at,
     collect_timed_marker_damage_gates,
     collect_consumed_root_timed_marker_action_ids,
     collect_once_resource_gain_gates,
@@ -194,6 +195,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             root_target_group_writes_for_condition(skill, child_item, condition),
             (),
         )
+
+    def test_root_target_group_read_uses_only_prior_unconditional_write(self) -> None:
+        root_write = SimpleNamespace(
+            startFrame=8,
+            actionIndex=3,
+            actionPath=("timelineActions[1]", "_sequenceActionData", "actionData", "[0]"),
+            targetGroupKey="targets",
+        )
+        branch_write = SimpleNamespace(
+            startFrame=8,
+            actionIndex=4,
+            actionPath=(
+                "timelineActions[1]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]",
+            ),
+            targetGroupKey="targets",
+        )
+
+        resolved = resolve_latest_target_group_write_at(
+            read_frame=9,
+            read_action_index=5,
+            read_action_path=(),
+            target_group_key="targets",
+            writes=(root_write, branch_write),
+        )
+
+        self.assertIs(resolved, root_write)
 
     def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
         find_action = {
@@ -1211,6 +1244,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_buff_application(action, "fixture")
 
         self.assertIn("target: 'caster'", source)
+
+    def test_root_skill_buff_application_accepts_proven_enemy_context(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=9,
+            endFrame=10,
+            actionIndex=5,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Context",
+            targetGroupKey="targets",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionOwner",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
+            compile_buff_application(action, "fixture")
+        source = compile_buff_application(
+            action,
+            "fixture",
+            context_target_is_enemy=True,
+        )
+
+        self.assertIn("target: 'enemy'", source)
 
     def test_conditional_buff_application_does_not_assume_action_owner_is_caster(self) -> None:
         condition = SimpleNamespace(
