@@ -4805,12 +4805,18 @@ def is_guaranteed_single_enemy_condition(condition: ConditionSource) -> bool:
     return (
         condition.sourceType == "CheckEntityNum"
         and entity is not None
-        and entity.targetSource == "Context"
-        and entity.targetGroupKey == "smart_target"
         and entity.minimumCount == 1
         and entity.comparison == "GE"
-        and not entity.containsHittableTarget
         and not entity.storeKey
+        and (
+            # TargetSource.Target 直接读取技能输入目标，targetGroupKey 对该来源无效。
+            entity.targetSource == "Target"
+            or (
+                entity.targetSource == "Context"
+                and entity.targetGroupKey == "smart_target"
+                and not entity.containsHittableTarget
+            )
+        )
     )
 
 

@@ -246,6 +246,48 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertTrue(is_guaranteed_single_enemy_condition(condition))
 
+    def test_single_enemy_input_target_count_ignores_context_key_and_hit_reactions(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Target",
+                targetGroupKey="unused_by_target_source",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=True,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+
+        self.assertTrue(is_guaranteed_single_enemy_condition(condition))
+
+    def test_context_entity_group_is_not_folded_without_provenance(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="ball",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+
+        self.assertFalse(is_guaranteed_single_enemy_condition(condition))
+
     def test_conditional_action_coverage_only_includes_compilable_leaf_payloads(self) -> None:
         condition = ConditionalActionSource(
             0,
