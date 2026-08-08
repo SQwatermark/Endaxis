@@ -111,13 +111,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "selectorOwnerContextKey": "",
             "selectorData": {
                 "finderData": {
-                    "$type": "Beyond.Gameplay.Core.Selector+HitBoxFinder+Data, Gameplay.Beyond"
+                    "$type": "Beyond.Gameplay.Core.Selector+HitBoxFinder+Data, Gameplay.Beyond",
+                    "factionTarget": "Anti",
+                    "targetObjectType": "Normal",
+                    "checkAlive": True,
                 },
-                "validatorData": [
-                    {
-                        "$type": "Beyond.Gameplay.Core.Selector+TagValidator+Data, Gameplay.Beyond"
-                    }
-                ],
+                "validatorData": [],
                 "postProcessorData": [],
             },
             "selectorDirection": "SourceForward",
@@ -176,9 +175,73 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual([write.targetGroupKey for write in writes], ["tar", "total_tar"])
         self.assertEqual(writes[0].finderType, "HitBoxFinder")
-        self.assertEqual(writes[0].validatorTypes, ("TagValidator",))
+        self.assertEqual(writes[0].validatorTypes, ())
         self.assertIn("succeedActions", writes[0].actionPath)
         self.assertEqual(writes[1].inputTargets[0].targetGroupKey, "tar")
+
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="tar",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+        nested_reader = ConditionalActionSource(
+            startFrame=3,
+            endFrame=8,
+            actionIndex=8,
+            actionPath=(
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]",
+            ),
+            conditions=(condition,),
+            succeedActions=(),
+            failActions=(),
+        )
+        outside_reader = ConditionalActionSource(
+            startFrame=3,
+            endFrame=8,
+            actionIndex=8,
+            actionPath=(
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+            ),
+            conditions=(condition,),
+            succeedActions=(),
+            failActions=(),
+        )
+
+        self.assertTrue(
+            is_guaranteed_single_enemy_condition(
+                condition,
+                action=nested_reader,
+                target_group_writes=writes,
+            )
+        )
+        self.assertFalse(
+            is_guaranteed_single_enemy_condition(
+                condition,
+                action=outside_reader,
+                target_group_writes=writes,
+            )
+        )
 
     def test_target_group_writes_reject_unknown_selector_type(self) -> None:
         action = {

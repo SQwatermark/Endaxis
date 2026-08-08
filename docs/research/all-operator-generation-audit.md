@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：126 个。
+- 无角色专用声明即可进入通用 DSL：143 个。
 - 当前整名干员完整直转：0 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -27,26 +27,26 @@
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      3 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |      9 |      6 | 否       |
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      5 | 否       |
-| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      5 | 否       |
-| Avywenna       | `chr_0012_avywen`   |   10 |     10 |      5 | 否       |
+| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      6 | 否       |
+| Avywenna       | `chr_0012_avywen`   |   10 |     10 |      6 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      7 |      5 | 否       |
-| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      2 | 否       |
+| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      4 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      4 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      5 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      5 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      6 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      7 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      4 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      3 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      4 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |      2 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      8 |      4 | 否       |
-| Rossi          | `chr_0028_wulfa`    |   11 |     10 |      3 | 否       |
-| Akekuri        | `chr_0019_karin`    |    9 |      9 |      6 | 否       |
-| Catcher        | `chr_0020_meurs`    |    9 |      9 |      4 | 否       |
-| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      5 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      8 |      6 | 否       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     10 |      4 | 否       |
+| Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
+| Catcher        | `chr_0020_meurs`    |    9 |      9 |      5 | 否       |
+| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      6 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      3 | 否       |
-| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      3 | 否       |
-| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      5 | 否       |
+| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      6 | 否       |
+| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      6 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |      6 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      5 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     10 |      4 | 否       |
@@ -58,20 +58,20 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `other`                     |     30 |
-| `condition-entity-count`    |     25 |
+| `other`                     |     32 |
 | `source-data-missing`       |     21 |
-| `buff-source-or-target`     |     15 |
+| `buff-source-or-target`     |     17 |
 | `dynamic-scalar`            |     14 |
 | `condition-target-identity` |     13 |
 | `parser-channeling`         |     11 |
 | `condition-buff-stack`      |     10 |
 | `projectile-child-actions`  |     10 |
 | `root-action-coverage`      |     10 |
+| `conditional-leaf`          |      6 |
 | `condition-other`           |      5 |
 | `condition-tag`             |      5 |
-| `conditional-leaf`          |      5 |
 | `parser-damage-calculation` |      4 |
+| `condition-entity-count`    |      3 |
 | `parser-tick-interval`      |      2 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |

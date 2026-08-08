@@ -617,6 +617,9 @@ class TargetGroupInputSource:
     targetSource: str
     targetGroupKey: str
     finderType: str | None
+    finderFactionTarget: str | None
+    finderTargetObjectType: str | None
+    finderCheckAlive: bool | None
     validatorTypes: tuple[str, ...]
     postProcessorTypes: tuple[str, ...]
 
@@ -632,6 +635,9 @@ class TargetGroupWriteSource:
     targetGroupKey: str
     producerType: str
     finderType: str | None
+    finderFactionTarget: str | None
+    finderTargetObjectType: str | None
+    finderCheckAlive: bool | None
     validatorTypes: tuple[str, ...]
     postProcessorTypes: tuple[str, ...]
     inputTargets: tuple[TargetGroupInputSource, ...]
@@ -926,7 +932,14 @@ def parse_selector_summary(
     path: str,
     *,
     finder_required: bool,
-) -> tuple[str | None, tuple[str, ...], tuple[str, ...]]:
+) -> tuple[
+    str | None,
+    str | None,
+    str | None,
+    bool | None,
+    tuple[str, ...],
+    tuple[str, ...],
+]:
     """保留决定目标组语义的选择器类型，不复制碰撞体等大体积参数。"""
     selector = require_dict(value, path)
     expected_fields = {"validatorData", "postProcessorData"}
@@ -936,10 +949,26 @@ def parse_selector_summary(
         raise ValueError(f"{path}: unexpected fields {sorted(selector)}")
 
     finder_type: str | None = None
+    finder_faction_target: str | None = None
+    finder_target_object_type: str | None = None
+    finder_check_alive: bool | None = None
     if "finderData" in selector:
-        finder_type = selector_component_name(selector.get("finderData"), f"{path}.finderData")
+        finder_data = require_dict(selector.get("finderData"), f"{path}.finderData")
+        finder_type = selector_component_name(finder_data, f"{path}.finderData")
         if finder_type not in KNOWN_TARGET_FINDER_TYPES:
             raise ValueError(f"{path}.finderData: unsupported finder {finder_type!r}")
+        if finder_type == "HitBoxFinder":
+            finder_faction_target = finder_data.get("factionTarget")
+            finder_target_object_type = finder_data.get("targetObjectType")
+            finder_check_alive = finder_data.get("checkAlive")
+            if not isinstance(finder_faction_target, str) or not finder_faction_target:
+                raise ValueError(f"{path}.finderData.factionTarget: expected non-empty string")
+            if not isinstance(finder_target_object_type, str) or not finder_target_object_type:
+                raise ValueError(
+                    f"{path}.finderData.targetObjectType: expected non-empty string"
+                )
+            if not isinstance(finder_check_alive, bool):
+                raise ValueError(f"{path}.finderData.checkAlive: expected boolean")
     elif finder_required:
         raise ValueError(f"{path}.finderData: expected object")
 
@@ -964,7 +993,14 @@ def parse_selector_summary(
         raise ValueError(
             f"{path}.postProcessorData: unsupported processors {sorted(unknown_post_processors)}"
         )
-    return finder_type, validators, post_processors
+    return (
+        finder_type,
+        finder_faction_target,
+        finder_target_object_type,
+        finder_check_alive,
+        validators,
+        post_processors,
+    )
 
 
 def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
@@ -4146,7 +4182,14 @@ def parse_target_group_writes(
                 raise ValueError(
                     f"{source_name}.{'.'.join(path)}.targetGroupKey: expected non-empty string"
                 )
-            finder, validators, post_processors = parse_selector_summary(
+            (
+                finder,
+                finder_faction_target,
+                finder_target_object_type,
+                finder_check_alive,
+                validators,
+                post_processors,
+            ) = parse_selector_summary(
                 value.get("selectorData"),
                 f"{source_name}.{'.'.join(path)}.selectorData",
                 finder_required=True,
@@ -4174,6 +4217,9 @@ def parse_target_group_writes(
                     targetGroupKey=target_group_key,
                     producerType=producer_type,
                     finderType=finder,
+                    finderFactionTarget=finder_faction_target,
+                    finderTargetObjectType=finder_target_object_type,
+                    finderCheckAlive=finder_check_alive,
                     validatorTypes=validators,
                     postProcessorTypes=post_processors,
                     inputTargets=(),
@@ -4204,7 +4250,14 @@ def parse_target_group_writes(
                     raise ValueError(f"{target_path}.targetSource: expected non-empty string")
                 if not isinstance(input_group_key, str):
                     raise ValueError(f"{target_path}.targetGroupKey: expected string")
-                finder, validators, post_processors = parse_selector_summary(
+                (
+                    finder,
+                    finder_faction_target,
+                    finder_target_object_type,
+                    finder_check_alive,
+                    validators,
+                    post_processors,
+                ) = parse_selector_summary(
                     target.get("selectorData"),
                     f"{target_path}.selectorData",
                     finder_required=target_source == "InstantSearch",
@@ -4214,6 +4267,9 @@ def parse_target_group_writes(
                         targetSource=target_source,
                         targetGroupKey=input_group_key,
                         finderType=finder,
+                        finderFactionTarget=finder_faction_target,
+                        finderTargetObjectType=finder_target_object_type,
+                        finderCheckAlive=finder_check_alive,
                         validatorTypes=validators,
                         postProcessorTypes=post_processors,
                     )
@@ -4229,6 +4285,9 @@ def parse_target_group_writes(
                     targetGroupKey=target_group_key,
                     producerType=producer_type,
                     finderType=None,
+                    finderFactionTarget=None,
+                    finderTargetObjectType=None,
+                    finderCheckAlive=None,
                     validatorTypes=(),
                     postProcessorTypes=(),
                     inputTargets=tuple(input_targets),
@@ -4528,9 +4587,16 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
 
 
-def compile_combat_condition(source: ConditionSource, path: str) -> str:
+def compile_combat_condition(
+    source: ConditionSource,
+    path: str,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
-    if is_guaranteed_single_enemy_condition(source):
+    if is_guaranteed_single_enemy_condition(
+        source, action=action, target_group_writes=target_group_writes
+    ):
         return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
@@ -4616,13 +4682,21 @@ def compile_combat_condition(source: ConditionSource, path: str) -> str:
 
 
 def compile_combat_condition_group(
-    conditions: tuple[ConditionSource, ...], path: str
+    conditions: tuple[ConditionSource, ...],
+    path: str,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
         raise ValueError(f"{path}: empty condition group")
     compiled = [
-        compile_combat_condition(condition, f"{path}[{index}]")
+        compile_combat_condition(
+            condition,
+            f"{path}[{index}]",
+            action,
+            target_group_writes,
+        )
         for index, condition in enumerate(conditions)
     ]
     if len(compiled) == 1:
@@ -4987,6 +5061,7 @@ def compile_conditional_branch_action(
     ignored_buff_ids: frozenset[str] = frozenset(),
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -4996,6 +5071,7 @@ def compile_conditional_branch_action(
             ignored_buff_ids,
             damage_tags,
             runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
         )
     if getattr(action, "damageUnits", None) is not None:
         return "\n".join(
@@ -5033,6 +5109,7 @@ def compile_conditional_branch(
     ignored_buff_ids: frozenset[str] = frozenset(),
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5046,6 +5123,7 @@ def compile_conditional_branch(
             ignored_buff_ids,
             damage_tags,
             runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
         )
         if compiled == "sequence()":
             continue
@@ -5065,15 +5143,22 @@ def compile_conditional_action(
     ignored_buff_ids: frozenset[str] = frozenset(),
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
-    condition = compile_combat_condition_group(action.conditions, f"{path}.conditions")
+    condition = compile_combat_condition_group(
+        action.conditions,
+        f"{path}.conditions",
+        action,
+        target_group_writes,
+    )
     succeed = compile_conditional_branch(
         action.succeedActions,
         f"{path}.succeedActions",
         ignored_buff_ids,
         damage_tags,
         runtime_blackboard_keys,
+        target_group_writes=target_group_writes,
     )
     fail = (
         compile_conditional_branch(
@@ -5082,6 +5167,7 @@ def compile_conditional_action(
             ignored_buff_ids,
             damage_tags,
             runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
         )
         if action.failActions
         else None
@@ -5103,7 +5189,76 @@ def compile_conditional_action(
     return "\n".join(lines)
 
 
-def is_guaranteed_single_enemy_condition(condition: ConditionSource) -> bool:
+def target_group_branch_scopes(path: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
+    """返回动作所在的条件分支作用域；分支内写入不能解释分支外读取。"""
+    return tuple(
+        path[: index + 1]
+        for index, segment in enumerate(path)
+        if segment in {"succeedActions", "failActions"}
+    )
+
+
+def resolve_latest_target_group_write(
+    action: ConditionalActionSource,
+    target_group_key: str,
+    writes: tuple[TargetGroupWriteSource, ...],
+) -> TargetGroupWriteSource | None:
+    """选择读取点之前、且其分支作用域支配读取点的最后一次目标组写入。"""
+    candidates: list[TargetGroupWriteSource] = []
+    for write in writes:
+        if write.targetGroupKey != target_group_key:
+            continue
+        if not (
+            write.startFrame < action.startFrame
+            or (
+                write.startFrame == action.startFrame
+                and write.actionIndex < action.actionIndex
+            )
+        ):
+            continue
+        if any(
+            action.actionPath[: len(scope)] != scope
+            for scope in target_group_branch_scopes(write.actionPath)
+        ):
+            continue
+        candidates.append(write)
+    if not candidates:
+        return None
+    latest_order = max((write.startFrame, write.actionIndex) for write in candidates)
+    latest = [
+        write
+        for write in candidates
+        if (write.startFrame, write.actionIndex) == latest_order
+    ]
+    if len(latest) != 1:
+        raise ValueError(
+            f"{'.'.join(action.actionPath)}: ambiguous writes for target group "
+            f"{target_group_key!r} at {latest_order}"
+        )
+    return latest[0]
+
+
+def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) -> bool:
+    """只接受已能在固定单敌人模型下闭环的目标查找形状。"""
+    if write.validatorTypes or write.postProcessorTypes:
+        return False
+    if write.finderType == "MainTargetFinder":
+        return True
+    return (
+        write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
+        and write.finderType == "HitBoxFinder"
+        and write.finderFactionTarget == "Anti"
+        and write.finderTargetObjectType == "Normal"
+        and write.finderCheckAlive is True
+    )
+
+
+def is_guaranteed_single_enemy_condition(
+    condition: ConditionSource,
+    *,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+) -> bool:
     """识别在 Endaxis 固定单个有效敌人模型下恒真的目标数量条件。"""
     entity = getattr(condition, "entityCount", None)
     return (
@@ -5119,6 +5274,18 @@ def is_guaranteed_single_enemy_condition(condition: ConditionSource) -> bool:
                 entity.targetSource == "Context"
                 and entity.targetGroupKey == "smart_target"
                 and not entity.containsHittableTarget
+            )
+            or (
+                entity.targetSource == "Context"
+                and not entity.containsHittableTarget
+                and action is not None
+                and (
+                    write := resolve_latest_target_group_write(
+                        action, entity.targetGroupKey, target_group_writes
+                    )
+                )
+                is not None
+                and target_group_write_guarantees_single_enemy(write)
             )
         )
     )
@@ -5794,6 +5961,7 @@ def compile_resolved_sequence(
                 ignored_buff_ids,
                 damage_tags,
                 runtime_blackboard_keys,
+                target_group_writes=getattr(skill, "targetGroupWrites", ()),
             )
             if compiled_condition == "sequence()":
                 continue

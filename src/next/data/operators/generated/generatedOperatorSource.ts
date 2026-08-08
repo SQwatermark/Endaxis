@@ -502,6 +502,9 @@ export interface GeneratedTargetGroupInputSource {
   readonly targetSource: string;
   readonly targetGroupKey: string;
   readonly finderType: string | null;
+  readonly finderFactionTarget: string | null;
+  readonly finderTargetObjectType: string | null;
+  readonly finderCheckAlive: boolean | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
 }
@@ -515,6 +518,9 @@ export interface GeneratedTargetGroupWriteSource {
   readonly targetGroupKey: string;
   readonly producerType: 'FindTargetAction' | 'ContinuousFindTargetAction' | 'MergeTargetAction';
   readonly finderType: string | null;
+  readonly finderFactionTarget: string | null;
+  readonly finderTargetObjectType: string | null;
+  readonly finderCheckAlive: boolean | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly inputTargets: readonly GeneratedTargetGroupInputSource[];
