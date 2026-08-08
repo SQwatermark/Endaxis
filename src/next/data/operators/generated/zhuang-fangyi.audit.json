@@ -2221,7 +2221,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 8,
@@ -2307,7 +2308,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -2768,7 +2770,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 2,
@@ -2854,7 +2857,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [
@@ -3097,7 +3101,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -3901,7 +3906,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 14,
@@ -3987,7 +3993,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 16,
@@ -4073,7 +4080,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 16,
@@ -4159,7 +4167,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -4833,7 +4842,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -5734,7 +5744,8 @@
             }
           ],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -7283,7 +7294,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 13,
@@ -7378,7 +7390,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 14,
@@ -7473,7 +7486,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 15,
@@ -7568,7 +7582,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -8922,7 +8937,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 11,
@@ -9017,7 +9033,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 12,
@@ -9112,7 +9129,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 13,
@@ -9207,7 +9225,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -9830,7 +9849,8 @@
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [
@@ -11374,9 +11394,11 @@
                             "blackboardCalculations": [],
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
-                            "buffFinishes": []
+                            "buffFinishes": [],
+                            "auraActions": []
                           }
-                        ]
+                        ],
+                        "auraActions": []
                       }
                     ]
                   },
@@ -11979,9 +12001,11 @@
                             "blackboardCalculations": [],
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
-                            "buffFinishes": []
+                            "buffFinishes": [],
+                            "auraActions": []
                           }
-                        ]
+                        ],
+                        "auraActions": []
                       }
                     ]
                   },
@@ -13362,9 +13386,11 @@
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -13833,9 +13859,11 @@
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -14604,9 +14632,11 @@
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -15219,9 +15249,11 @@
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -15987,7 +16019,8 @@
           ],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [
@@ -17942,7 +17975,8 @@
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],

@@ -75,6 +75,7 @@ from generate_next_operators import (
     parse_inflictions,
     parse_panel_attributes,
     parse_declared_blackboard,
+    parse_aura_actions,
     parse_auxiliary_actions,
     parse_buff_attribute_modifiers,
     parse_buff_application_payload,
@@ -151,6 +152,85 @@ def target_settings_fixture(
         "selectorDirection": "SourceForward",
         "target": "ActionSource",
         "targetContextKey": "",
+    }
+
+
+def aura_action_fixture() -> dict:
+    return {
+        "$type": "Example.AuraAction+Data, Example",
+        "isEnable": True,
+        "priorityLevel": "Default",
+        "priorityOffset": 0,
+        "serverActionIndex": 7,
+        "auraDebugName": "fixture",
+        "auraType": "RangedAura",
+        "auraRoot": target_settings_fixture("Owner"),
+        "fixedWhenStart": False,
+        "shapeData": {
+            "_shape": "Sphere",
+            "_rotationOffset": {"x": 0, "y": 0, "z": 0},
+            "_useExtentKey": False,
+            "_extent": {"x": 0, "y": 0, "z": 0},
+            "_extentXKey": "",
+            "_extentYKey": "",
+            "_extentZKey": "",
+            "_useCenterKey": False,
+            "_center": {"x": 0, "y": 0, "z": 0},
+            "_centerXKey": "",
+            "_centerYKey": "",
+            "_centerZKey": "",
+            "_heightKey": "",
+            "_height": 0,
+            "_radiusKey": "",
+            "_radius": 3,
+        },
+        "excludeColliderOptions": 0,
+        "targetObjectType": 0,
+        "targetFilter": {
+            "checkAlive": True,
+            "autoSetTargetFaction": True,
+            "factionTarget": "Anti",
+            "targetFactionType": 0,
+            "filterObjectType": False,
+            "objectType": "All",
+            "filterSlot": False,
+            "slotIndex": 0,
+            "filterGameplayTag": False,
+            "tagQuery": {"queryType": "HasAny", "tags": []},
+        },
+        "excludeOwner": True,
+        "includeUnmarkable": False,
+        "limitInfluenceCountPerTarget": False,
+        "maxInfluenceCountPerTarget": 1,
+        "buffSource": "ActionSource",
+        "buffInput": [
+            {
+                "buffId": "buff.fixture",
+                "assignBlackboard": False,
+                "assignItems": [],
+            }
+        ],
+        "overrideBuffIconDuration": False,
+        "buffIconDurationSource": {
+            "durationSourceType": "AbilityEntity",
+            "timedMarkerId": "",
+        },
+        "inheritSourceSkillCastId": True,
+        "actionInAura": {
+            "actionData": [
+                {
+                    "$type": "Example.DamageAction+Data, Example",
+                    "isEnable": True,
+                }
+            ],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        },
+        "actionWhenExitAura": {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        },
     }
 
 
@@ -4294,6 +4374,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "AuraAction",
             collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
         )
+
+    def test_aura_action_preserves_region_buff_and_nested_combat_facts(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 4,
+                        "_endFrame": 40,
+                        "_sequenceActionData": {
+                            "actionData": [aura_action_fixture()],
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_aura_actions(root, "fixture.json", {})
+
+        self.assertEqual(len(actions), 1)
+        aura = actions[0]
+        self.assertEqual((aura.startFrame, aura.endFrame, aura.actionIndex), (4, 40, 7))
+        self.assertEqual(aura.sourceFile, "fixture.json")
+        self.assertEqual(aura.shape.shapeType, "Sphere")
+        self.assertEqual(aura.shape.radius, 3)
+        self.assertEqual(aura.targetFilter.factionTarget, "Anti")
+        self.assertEqual([buff.buffId for buff in aura.buffs], ["buff.fixture"])
+        self.assertEqual(aura.actionInAuraTypes, ("DamageAction",))
+        self.assertEqual(aura.nestedCombatActions, ("DamageAction",))
+
+    def test_aura_action_rejects_unknown_fields(self) -> None:
+        action = aura_action_fixture()
+        action["unexpected"] = True
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "unexpected fields"):
+            parse_aura_actions(root, "fixture.json", {})
 
     def test_condition_compiler_rejects_enemy_main_operator_checks(self) -> None:
         condition = ConditionSource(

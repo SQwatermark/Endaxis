@@ -39,7 +39,8 @@
       "AddGlobalCDTimer": 1
     },
     "entityCountConditionOccurrenceCount": 570,
-    "entityCountConditionShapeCount": 40
+    "entityCountConditionShapeCount": 40,
+    "auraActionReferenceCount": 15
   },
   "entityCountConditionShapes": [
     {
@@ -1177,7 +1178,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1191,7 +1193,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1205,7 +1208,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1219,7 +1223,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1233,7 +1238,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1247,7 +1253,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1261,7 +1268,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1275,7 +1283,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1296,7 +1305,8 @@
       "conditionCount": 6,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1310,7 +1320,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1324,7 +1335,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 4
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1338,7 +1350,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1352,7 +1365,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1366,7 +1380,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1380,7 +1395,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1394,7 +1410,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1408,7 +1425,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1422,7 +1440,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1436,7 +1455,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1450,7 +1470,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1464,7 +1485,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 1
     },
     {
       "characterId": "chr_0005_chen",
@@ -1478,7 +1500,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1492,7 +1515,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1506,7 +1530,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1520,7 +1545,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1534,7 +1560,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1548,7 +1575,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1562,7 +1590,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1576,7 +1605,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0005_chen",
@@ -1590,7 +1620,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1604,7 +1635,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1618,7 +1650,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1632,7 +1665,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1646,7 +1680,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1660,7 +1695,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1674,7 +1710,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1688,7 +1725,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1702,7 +1740,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -1716,7 +1755,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1730,7 +1770,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1744,7 +1785,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1758,7 +1800,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1772,7 +1815,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1786,7 +1830,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1800,7 +1845,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1814,7 +1860,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1828,7 +1875,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1842,7 +1890,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0007_ikut",
@@ -1856,7 +1905,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1870,7 +1920,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1884,7 +1935,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1898,7 +1950,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1912,7 +1965,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1926,7 +1980,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1940,7 +1995,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1954,7 +2010,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1968,7 +2025,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1982,7 +2040,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -1996,7 +2055,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2010,7 +2070,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2024,7 +2085,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2038,7 +2100,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2052,7 +2115,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2066,7 +2130,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2080,7 +2145,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2094,7 +2160,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2108,7 +2175,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0011_seraph",
@@ -2122,7 +2190,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2136,7 +2205,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2150,7 +2220,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2164,7 +2235,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2178,7 +2250,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2192,7 +2265,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2206,7 +2280,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2220,7 +2295,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2234,7 +2310,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2253,7 +2330,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0012_avywen",
@@ -2273,7 +2351,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2287,7 +2366,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2301,7 +2381,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2315,7 +2396,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2329,7 +2411,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2343,7 +2426,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2357,7 +2441,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2371,7 +2456,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2390,7 +2476,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0013_aglina",
@@ -2409,7 +2496,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 1
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2423,7 +2511,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 2
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2437,7 +2526,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2451,7 +2541,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2465,7 +2556,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2479,7 +2571,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2493,7 +2586,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2512,9 +2606,10 @@
         "SpellInfliction"
       ],
       "conditionCount": 4,
-      "referencedBuffCount": 2,
+      "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 3
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2533,7 +2628,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2547,7 +2643,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2561,7 +2658,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2575,7 +2673,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2589,7 +2688,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2603,7 +2703,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2617,7 +2718,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2631,7 +2733,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2645,7 +2748,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -2659,7 +2763,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2679,7 +2784,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2693,7 +2799,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2707,7 +2814,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2721,7 +2829,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2735,7 +2844,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2749,7 +2859,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 6,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2763,7 +2874,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2777,7 +2889,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0023_antal",
@@ -2791,7 +2904,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2805,7 +2919,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2819,7 +2934,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2833,7 +2949,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2847,7 +2964,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2861,7 +2979,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2875,7 +2994,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2889,7 +3009,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2903,7 +3024,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2923,7 +3045,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2937,7 +3060,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2951,7 +3075,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2965,7 +3090,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2979,7 +3105,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2993,7 +3120,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0016_laevat",
@@ -3012,7 +3140,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3026,7 +3155,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3040,7 +3170,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3054,7 +3185,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3068,7 +3200,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3082,7 +3215,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3096,7 +3230,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3110,7 +3245,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3124,7 +3260,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0021_whiten",
@@ -3138,7 +3275,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3152,7 +3290,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3166,7 +3305,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3180,7 +3320,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3194,7 +3335,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3208,7 +3350,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3222,7 +3365,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3236,7 +3380,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3250,7 +3395,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3270,7 +3416,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -3290,7 +3437,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3304,7 +3452,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3318,7 +3467,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3332,7 +3482,8 @@
       "conditionCount": 5,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3346,7 +3497,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3360,7 +3512,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3379,7 +3532,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3393,7 +3547,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3407,7 +3562,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3421,7 +3577,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3441,7 +3598,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 2
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -3455,7 +3613,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3469,7 +3628,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3483,7 +3643,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3497,7 +3658,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3511,7 +3673,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3525,7 +3688,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3539,7 +3703,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3553,7 +3718,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3567,7 +3733,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3581,7 +3748,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3595,7 +3763,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 3
+      "abilityEntityCount": 3,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3609,7 +3778,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 5,
       "projectileChildCount": 3,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3623,7 +3793,8 @@
       "conditionCount": 11,
       "referencedBuffCount": 6,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3637,7 +3808,8 @@
       "conditionCount": 9,
       "referencedBuffCount": 6,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3656,7 +3828,8 @@
       "conditionCount": 10,
       "referencedBuffCount": 8,
       "projectileChildCount": 8,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3675,7 +3848,8 @@
       "conditionCount": 10,
       "referencedBuffCount": 8,
       "projectileChildCount": 8,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0017_yvonne",
@@ -3689,7 +3863,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3703,7 +3878,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3717,7 +3893,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3731,7 +3908,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3745,7 +3923,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3759,7 +3938,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3773,7 +3953,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3787,7 +3968,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3806,7 +3988,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0018_dapan",
@@ -3820,7 +4003,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3834,7 +4018,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 6,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3848,7 +4033,8 @@
       "conditionCount": 9,
       "referencedBuffCount": 10,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3862,7 +4048,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3876,7 +4063,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3890,7 +4078,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3904,7 +4093,8 @@
       "conditionCount": 10,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3918,7 +4108,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3932,7 +4123,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3946,7 +4138,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3960,7 +4153,8 @@
       "conditionCount": 5,
       "referencedBuffCount": 4,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -3974,7 +4168,8 @@
       "conditionCount": 30,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -3988,7 +4183,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4002,7 +4198,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4016,7 +4213,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4030,7 +4228,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4044,7 +4243,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4058,7 +4258,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4072,7 +4273,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4086,7 +4288,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0019_karin",
@@ -4100,7 +4303,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4114,7 +4318,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4128,7 +4333,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4142,7 +4348,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4156,7 +4363,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4170,7 +4378,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4184,7 +4393,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4198,7 +4408,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4210,9 +4421,10 @@
       "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
       "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
-      "referencedBuffCount": 2,
+      "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 1
     },
     {
       "characterId": "chr_0020_meurs",
@@ -4231,7 +4443,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4252,7 +4465,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4266,7 +4480,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4280,7 +4495,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4294,7 +4510,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4308,7 +4525,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4322,7 +4540,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4336,7 +4555,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4350,7 +4570,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4364,7 +4585,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0022_bounda",
@@ -4378,7 +4600,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4392,7 +4615,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4406,7 +4630,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4420,7 +4645,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4434,7 +4660,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4448,7 +4675,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4462,7 +4690,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4476,7 +4705,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4490,7 +4720,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4504,7 +4735,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4518,7 +4750,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4532,7 +4765,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4546,7 +4780,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4560,7 +4795,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4574,7 +4810,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4588,7 +4825,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4602,7 +4840,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4616,7 +4855,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4630,7 +4870,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4644,7 +4885,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_9000_endmin",
@@ -4658,7 +4900,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4672,7 +4915,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4686,7 +4930,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4700,7 +4945,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4714,7 +4960,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 15,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4728,7 +4975,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4742,7 +4990,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4756,7 +5005,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4777,7 +5027,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 2,
-      "abilityEntityCount": 2
+      "abilityEntityCount": 2,
+      "auraActionCount": 1
     },
     {
       "characterId": "chr_0025_ardelia",
@@ -4791,7 +5042,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4805,7 +5057,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4819,7 +5072,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4833,7 +5087,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4847,7 +5102,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4861,7 +5117,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4875,7 +5132,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4889,7 +5147,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4903,7 +5162,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -4917,7 +5177,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -4931,7 +5192,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -4945,7 +5207,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -4959,7 +5222,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -4973,7 +5237,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -4987,7 +5252,8 @@
       "conditionCount": 6,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5001,7 +5267,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5015,7 +5282,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5029,7 +5297,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5050,7 +5319,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5064,7 +5334,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 4
+      "abilityEntityCount": 4,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5078,7 +5349,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5092,7 +5364,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5106,7 +5379,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5120,7 +5394,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5134,7 +5409,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5148,7 +5424,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5162,7 +5439,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5176,7 +5454,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5190,7 +5469,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5210,7 +5490,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5230,7 +5511,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5244,7 +5526,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5258,7 +5541,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 4
+      "abilityEntityCount": 4,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5272,7 +5556,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 4
+      "abilityEntityCount": 4,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0030_zhuangfy",
@@ -5286,7 +5571,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1
+      "abilityEntityCount": 1,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5306,7 +5592,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5320,7 +5607,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5334,7 +5622,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5348,7 +5637,8 @@
       "conditionCount": 12,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5362,7 +5652,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5376,7 +5667,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5390,7 +5682,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5404,7 +5697,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5418,7 +5712,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5432,7 +5727,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0031_mifu",
@@ -5446,7 +5742,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5460,7 +5757,8 @@
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5474,7 +5772,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5488,7 +5787,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5502,7 +5802,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5516,7 +5817,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5530,7 +5832,8 @@
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5544,7 +5847,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5558,7 +5862,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5572,7 +5877,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 7,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5586,7 +5892,8 @@
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5600,7 +5907,8 @@
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     },
     {
       "characterId": "chr_0033_camille",
@@ -5620,7 +5928,8 @@
       "conditionCount": 2,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 0,
+      "auraActionCount": 0
     }
   ]
 }

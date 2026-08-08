@@ -2179,7 +2179,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 8,
@@ -2265,7 +2266,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -2432,7 +2434,8 @@ export const zhuangFangyiGeneratedSource = {
         "LaunchProjectile"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "basicAttack2",
@@ -2903,7 +2906,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 2,
@@ -2989,7 +2993,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [
@@ -3232,7 +3237,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -3546,7 +3552,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "basicAttack3",
@@ -3989,7 +3996,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 14,
@@ -4075,7 +4083,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 16,
@@ -4161,7 +4170,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 16,
@@ -4247,7 +4257,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -4451,7 +4462,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "basicAttack4",
@@ -4953,7 +4965,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -5174,7 +5187,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "basicAttack5",
@@ -5895,7 +5909,8 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -6275,7 +6290,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "enhancedBasicAttack1",
@@ -7604,7 +7620,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 13,
@@ -7699,7 +7716,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 14,
@@ -7794,7 +7812,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 15,
@@ -7889,7 +7908,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -8094,7 +8114,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "enhancedBasicAttack2",
@@ -9423,7 +9444,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 11,
@@ -9518,7 +9540,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 12,
@@ -9613,7 +9636,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         },
         {
           "spawnFrame": 13,
@@ -9708,7 +9732,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [],
@@ -9899,7 +9924,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "enhancedBasicAttack3",
@@ -10471,7 +10497,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [
@@ -10659,7 +10686,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffTagIds": []
         }
       ],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "finisher",
@@ -11116,7 +11144,8 @@ export const zhuangFangyiGeneratedSource = {
         "DamageAction"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "plungingAttack",
@@ -11497,7 +11526,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "battleSkill",
@@ -12698,9 +12728,11 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardCalculations": [],
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
-                            "buffFinishes": []
+                            "buffFinishes": [],
+                            "auraActions": []
                           }
-                        ]
+                        ],
+                        "auraActions": []
                       }
                     ]
                   },
@@ -13303,9 +13335,11 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardCalculations": [],
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
-                            "buffFinishes": []
+                            "buffFinishes": [],
+                            "auraActions": []
                           }
-                        ]
+                        ],
+                        "auraActions": []
                       }
                     ]
                   },
@@ -14332,7 +14366,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "enhancedBattleSkill",
@@ -15197,9 +15232,11 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -15668,9 +15705,11 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -16439,9 +16478,11 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -17054,9 +17095,11 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardCalculations": [],
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
-                                  "buffFinishes": []
+                                  "buffFinishes": [],
+                                  "auraActions": []
                                 }
-                              ]
+                              ],
+                              "auraActions": []
                             }
                           ]
                         },
@@ -17808,7 +17851,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [
@@ -18480,7 +18524,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "comboSkill",
@@ -19504,7 +19549,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "enhancedComboSkill",
@@ -20134,7 +20180,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -20408,7 +20455,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "ultimate",
@@ -21139,7 +21187,8 @@ export const zhuangFangyiGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

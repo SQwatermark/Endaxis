@@ -41,6 +41,7 @@ class SkillAudit:
     referencedBuffCount: int = 0
     projectileChildCount: int = 0
     abilityEntityCount: int = 0
+    auraActionCount: int = 0
     entityCountConditions: tuple[generator.EntityCountConditionSource, ...] = ()
 
 
@@ -151,6 +152,47 @@ def sanitize_error(message: str, source: Path) -> str:
     return message.replace(str(source), "<skill-data>")
 
 
+AuraActionIdentity = tuple[str, tuple[str, ...], int]
+
+
+def aura_action_identities(
+    actions: tuple[generator.AuraActionSource, ...],
+) -> set[AuraActionIdentity]:
+    return {(item.sourceFile, item.actionPath, item.actionIndex) for item in actions}
+
+
+def collect_projectile_aura_actions(
+    source: generator.ProjectileTriggeredSkillSource,
+) -> set[AuraActionIdentity]:
+    result = aura_action_identities(source.auraActions)
+    for item in source.nestedProjectileTriggeredSkills:
+        result.update(collect_projectile_aura_actions(item))
+    for item in source.abilityEntityHits:
+        result.update(collect_ability_entity_aura_actions(item))
+    return result
+
+
+def collect_ability_entity_aura_actions(
+    source: generator.AbilityEntityHitSource,
+) -> set[AuraActionIdentity]:
+    result = aura_action_identities(source.auraActions)
+    for item in source.projectileTriggeredSkills:
+        result.update(collect_projectile_aura_actions(item))
+    for item in source.nestedAbilityEntityHits:
+        result.update(collect_ability_entity_aura_actions(item))
+    return result
+
+
+def count_skill_aura_actions(source: generator.SkillSource) -> int:
+    """统计根技能及递归投射物、能力实体调用图中的区域动作。"""
+    result = aura_action_identities(source.auraActions)
+    for item in source.projectileTriggeredSkills:
+        result.update(collect_projectile_aura_actions(item))
+    for item in source.abilityEntityHits:
+        result.update(collect_ability_entity_aura_actions(item))
+    return len(result)
+
+
 def audit_skill(
     character_id: str,
     operator_name: str,
@@ -215,6 +257,7 @@ def audit_skill(
         len(skill.referencedBuffIds),
         len(skill.projectileTriggeredSkills),
         len(skill.abilityEntityHits),
+        count_skill_aura_actions(skill),
         raw_entity_count_conditions,
     )
 
@@ -307,6 +350,7 @@ def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
             ),
             "entityCountConditionOccurrenceCount": sum(entity_count_occurrences.values()),
             "entityCountConditionShapeCount": len(entity_count_occurrences),
+            "auraActionReferenceCount": sum(item.auraActionCount for item in audits),
         },
         "entityCountConditionShapes": entity_count_shapes,
         "operators": per_operator,
@@ -340,6 +384,7 @@ def render_markdown(document: dict[str, Any]) -> str:
         f"- 进入严格中间层：{summary['parsedCount']} 个。",
         f"- 无角色专用声明即可进入通用 DSL：{summary['compiledCount']} 个。",
         f"- 当前整名干员完整直转：{summary['completeOperatorCount']} 名。",
+        f"- 当前技能入口调用图中已结构化的区域持续动作引用：{summary['auraActionReferenceCount']} 个。",
         "",
         "这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。",
         "佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。",

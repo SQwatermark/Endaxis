@@ -436,7 +436,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -566,7 +567,8 @@ export const perlicaGeneratedSource = {
         "LaunchProjectile"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "basicAttack2",
@@ -950,7 +952,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 12,
@@ -1104,7 +1107,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -1257,7 +1261,8 @@ export const perlicaGeneratedSource = {
         "LaunchProjectile"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "basicAttack3",
@@ -1700,7 +1705,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 19,
@@ -1871,7 +1877,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 22,
@@ -2042,7 +2049,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -2195,7 +2203,8 @@ export const perlicaGeneratedSource = {
         "LaunchProjectile"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "basicAttack4",
@@ -2664,7 +2673,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -2822,7 +2832,8 @@ export const perlicaGeneratedSource = {
         "LaunchProjectile"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "finisher",
@@ -3379,7 +3390,8 @@ export const perlicaGeneratedSource = {
         "DamageAction"
       ],
       "buffHolds": [],
-      "targetGroupWrites": []
+      "targetGroupWrites": [],
+      "auraActions": []
     },
     {
       "key": "plungingAttack",
@@ -3798,7 +3810,8 @@ export const perlicaGeneratedSource = {
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 1,
@@ -3820,7 +3833,8 @@ export const perlicaGeneratedSource = {
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 1,
@@ -3842,7 +3856,8 @@ export const perlicaGeneratedSource = {
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         },
         {
           "launchFrame": 1,
@@ -3864,7 +3879,8 @@ export const perlicaGeneratedSource = {
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -4105,7 +4121,8 @@ export const perlicaGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "battleSkill",
@@ -4778,7 +4795,8 @@ export const perlicaGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "comboSkill",
@@ -5653,7 +5671,8 @@ export const perlicaGeneratedSource = {
                       ],
                       "cycleTruncated": true,
                       "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": []
+                      "abilityEntityHits": [],
+                      "auraActions": []
                     }
                   ]
                 }
@@ -5789,7 +5808,8 @@ export const perlicaGeneratedSource = {
           ],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": []
+          "abilityEntityHits": [],
+          "auraActions": []
         }
       ],
       "abilityEntityHits": [],
@@ -6172,7 +6192,8 @@ export const perlicaGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     },
     {
       "key": "ultimate",
@@ -6618,7 +6639,8 @@ export const perlicaGeneratedSource = {
           "blackboardCalculations": [],
           "blackboardMutations": [],
           "buffBlackboardReads": [],
-          "buffFinishes": []
+          "buffFinishes": [],
+          "auraActions": []
         }
       ],
       "referencedBuffIds": [
@@ -6879,7 +6901,8 @@ export const perlicaGeneratedSource = {
           "inputTargets": [],
           "intervalSeconds": null
         }
-      ]
+      ],
+      "auraActions": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

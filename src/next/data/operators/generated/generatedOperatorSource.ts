@@ -143,6 +143,7 @@ export interface GeneratedProjectileTriggeredSkillSource {
   readonly cycleTruncated: boolean;
   readonly nestedProjectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
+  readonly auraActions: readonly GeneratedAuraActionSource[];
 }
 
 export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
@@ -189,6 +190,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
+  readonly auraActions: readonly GeneratedAuraActionSource[];
 }
 
 /** BuffData 自身的计时与叠加事实。 */
@@ -335,6 +337,77 @@ export interface GeneratedTargetReferenceSource {
   readonly finderType: string | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+}
+
+export interface GeneratedVector3Source {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+}
+
+export interface GeneratedAuraShapeSource {
+  readonly shapeType: string;
+  readonly rotationOffset: GeneratedVector3Source;
+  readonly useExtentKeys: boolean;
+  readonly extent: GeneratedVector3Source;
+  readonly extentKeys: readonly [string, string, string];
+  readonly useCenterKeys: boolean;
+  readonly center: GeneratedVector3Source;
+  readonly centerKeys: readonly [string, string, string];
+  readonly height: number;
+  readonly heightKey: string;
+  readonly radius: number;
+  readonly radiusKey: string;
+}
+
+export interface GeneratedAuraTargetFilterSource {
+  readonly checkAlive: boolean;
+  readonly autoSetTargetFaction: boolean;
+  readonly factionTarget: string;
+  readonly factionTargetType: string | number;
+  readonly filterObjectType: boolean;
+  readonly objectType: string;
+  readonly filterSlot: boolean;
+  readonly slotIndex: number;
+  readonly filterGameplayTag: boolean;
+  readonly tagQueryType: string;
+  readonly tagIds: readonly number[];
+}
+
+/** 区域持续动作的审计事实；生命周期闭环前不得直接近似成一次 Buff 应用。 */
+export interface GeneratedAuraActionSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly sourceFile: string;
+  readonly actionPath: readonly string[];
+  readonly priorityLevel: string;
+  readonly priorityOffset: number;
+  readonly debugName: string;
+  readonly auraType: string;
+  readonly root: GeneratedTargetReferenceSource;
+  readonly fixedWhenStart: boolean;
+  readonly shape: GeneratedAuraShapeSource;
+  readonly excludeColliderOptions: number;
+  readonly targetObjectType: string | number;
+  readonly targetFilter: GeneratedAuraTargetFilterSource;
+  readonly excludeOwner: boolean;
+  readonly includeUnmarkable: boolean;
+  readonly limitInfluenceCountPerTarget: boolean;
+  readonly maxInfluenceCountPerTarget: number;
+  readonly buffSource: string;
+  readonly buffs: readonly GeneratedBuffApplicationEntryPayload[];
+  readonly overrideBuffIconDuration: boolean;
+  readonly buffIconDurationSourceType: string;
+  readonly buffIconDurationTimedMarkerId: string;
+  readonly inheritSourceSkillCastId: boolean;
+  readonly actionInAuraOnlyMainOperator: boolean;
+  readonly actionInAuraOnlyGuard: boolean;
+  readonly actionInAuraTypes: readonly string[];
+  readonly actionWhenExitAuraOnlyMainOperator: boolean;
+  readonly actionWhenExitAuraOnlyGuard: boolean;
+  readonly actionWhenExitAuraTypes: readonly string[];
+  readonly nestedCombatActions: readonly string[];
 }
 
 export interface GeneratedTargetIdentityConditionSource {
@@ -693,6 +766,8 @@ export interface GeneratedSkillSource {
   readonly blackboardProvenance: readonly GeneratedBlackboardKeyProvenanceSource[];
   /** 条件读取命名目标组前，用于证明该组由哪个动作和分支产生。 */
   readonly targetGroupWrites: readonly GeneratedTargetGroupWriteSource[];
+  /** 原生区域持续动作；当前保留完整审计结构，由后续专用运行时消费。 */
+  readonly auraActions: readonly GeneratedAuraActionSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

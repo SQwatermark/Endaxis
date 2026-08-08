@@ -196,6 +196,7 @@ class ProjectileTriggeredSkillSource:
     cycleTruncated: bool
     nestedProjectileTriggeredSkills: tuple["ProjectileTriggeredSkillSource", ...]
     abilityEntityHits: tuple["AbilityEntityHitSource", ...] = ()
+    auraActions: tuple["AuraActionSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -245,6 +246,7 @@ class AbilityEntityHitSource:
     blackboardMutations: tuple[BlackboardMutationSource, ...] = ()
     buffBlackboardReads: tuple[BuffBlackboardReadSource, ...] = ()
     buffFinishes: tuple[BuffFinishSource, ...] = ()
+    auraActions: tuple["AuraActionSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -576,6 +578,82 @@ class BuffApplicationPayload:
 
 
 @dataclass(frozen=True)
+class Vector3Source:
+    x: float
+    y: float
+    z: float
+
+
+@dataclass(frozen=True)
+class AuraShapeSource:
+    shapeType: str
+    rotationOffset: Vector3Source
+    useExtentKeys: bool
+    extent: Vector3Source
+    extentKeys: tuple[str, str, str]
+    useCenterKeys: bool
+    center: Vector3Source
+    centerKeys: tuple[str, str, str]
+    height: float
+    heightKey: str
+    radius: float
+    radiusKey: str
+
+
+@dataclass(frozen=True)
+class AuraTargetFilterSource:
+    checkAlive: bool
+    autoSetTargetFaction: bool
+    factionTarget: str
+    factionTargetType: str | int
+    filterObjectType: bool
+    objectType: str
+    filterSlot: bool
+    slotIndex: int
+    filterGameplayTag: bool
+    tagQueryType: str
+    tagIds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class AuraActionSource:
+    """区域持续动作的审计事实；在生命周期语义闭环前不直接生成 DSL。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    sourceFile: str
+    actionPath: tuple[str, ...]
+    priorityLevel: str
+    priorityOffset: int
+    debugName: str
+    auraType: str
+    root: TargetReferenceSource
+    fixedWhenStart: bool
+    shape: AuraShapeSource
+    excludeColliderOptions: int
+    targetObjectType: str | int
+    targetFilter: AuraTargetFilterSource
+    excludeOwner: bool
+    includeUnmarkable: bool
+    limitInfluenceCountPerTarget: bool
+    maxInfluenceCountPerTarget: int
+    buffSource: str
+    buffs: tuple[BuffApplicationEntryPayload, ...]
+    overrideBuffIconDuration: bool
+    buffIconDurationSourceType: str
+    buffIconDurationTimedMarkerId: str
+    inheritSourceSkillCastId: bool
+    actionInAuraOnlyMainOperator: bool
+    actionInAuraOnlyGuard: bool
+    actionInAuraTypes: tuple[str, ...]
+    actionWhenExitAuraOnlyMainOperator: bool
+    actionWhenExitAuraOnlyGuard: bool
+    actionWhenExitAuraTypes: tuple[str, ...]
+    nestedCombatActions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class TimedMarkerApplicationPayload:
     targetSource: str
     targetGroupKey: str
@@ -835,6 +913,7 @@ class SkillSource:
     unresolvedCombatActions: tuple[str, ...]
     buffHolds: tuple[BuffHoldSource, ...] = ()
     targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
+    auraActions: tuple[AuraActionSource, ...] = ()
 
 
 OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
@@ -1033,6 +1112,23 @@ def require_bool(value: Any, path: str) -> bool:
     return value
 
 
+def require_number(value: Any, path: str) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"{path}: expected number")
+    return float(value)
+
+
+def parse_vector3(value: Any, path: str) -> Vector3Source:
+    vector = require_dict(value, path)
+    if set(vector) != {"x", "y", "z"}:
+        raise ValueError(f"{path}: unexpected fields {sorted(vector)}")
+    return Vector3Source(
+        x=require_number(vector.get("x"), f"{path}.x"),
+        y=require_number(vector.get("y"), f"{path}.y"),
+        z=require_number(vector.get("z"), f"{path}.z"),
+    )
+
+
 def require_server_action_index(action: dict[str, Any], path: str) -> int:
     """读取原生动作顺序；该值用于归并同帧动作，不能用遍历序号代替。"""
     return require_non_negative_int(action.get("serverActionIndex"), f"{path}.serverActionIndex")
@@ -1087,6 +1183,67 @@ TARGET_GROUP_MERGE_INPUT_FIELDS = {
     "targetContextKey",
     "targetGroupKey",
     "targetSource",
+}
+AURA_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "auraDebugName",
+    "auraType",
+    "auraRoot",
+    "fixedWhenStart",
+    "shapeData",
+    "excludeColliderOptions",
+    "targetObjectType",
+    "targetFilter",
+    "excludeOwner",
+    "includeUnmarkable",
+    "limitInfluenceCountPerTarget",
+    "maxInfluenceCountPerTarget",
+    "buffSource",
+    "buffInput",
+    "overrideBuffIconDuration",
+    "buffIconDurationSource",
+    "inheritSourceSkillCastId",
+    "actionInAura",
+    "actionWhenExitAura",
+}
+AURA_SHAPE_FIELDS = {
+    "_shape",
+    "_rotationOffset",
+    "_useExtentKey",
+    "_extent",
+    "_extentXKey",
+    "_extentYKey",
+    "_extentZKey",
+    "_useCenterKey",
+    "_center",
+    "_centerXKey",
+    "_centerYKey",
+    "_centerZKey",
+    "_heightKey",
+    "_height",
+    "_radiusKey",
+    "_radius",
+}
+AURA_TARGET_FILTER_FIELDS = {
+    "checkAlive",
+    "autoSetTargetFaction",
+    "factionTarget",
+    "targetFactionType",
+    "filterObjectType",
+    "objectType",
+    "filterSlot",
+    "slotIndex",
+    "filterGameplayTag",
+    "tagQuery",
+}
+AURA_SEQUENCE_FIELDS = {
+    "actionData",
+    "onlyExecuteWhenSourceIsMainChar",
+    "onlyExecuteWhenSourceIsGuard",
 }
 KNOWN_TARGET_FINDER_TYPES = {
     "CharacterTeamFinder",
@@ -2005,23 +2162,14 @@ def parse_buff_stack_read_payload(action: dict[str, Any], path: str) -> BuffStac
     )
 
 
-def parse_buff_application_payload(
-    action: dict[str, Any],
+def parse_buff_application_entries(
+    value: Any,
     path: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
-) -> BuffApplicationPayload:
-    target_settings = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
-    buff_source = action.get("buffSource")
-    if not isinstance(buff_source, str) or not buff_source:
-        raise ValueError(f"{path}.buffSource: expected non-empty string")
-    context_key = action.get("contextKey", "")
-    if not isinstance(context_key, str):
-        raise ValueError(f"{path}.contextKey: expected string")
-    if buff_source == "ContextTarget" and not context_key:
-        raise ValueError(f"{path}.contextKey: ContextTarget requires a non-empty key")
+) -> tuple[BuffApplicationEntryPayload, ...]:
     buffs: list[BuffApplicationEntryPayload] = []
-    for index, raw_buff in enumerate(require_list(action.get("buffs"), f"{path}.buffs")):
-        buff_path = f"{path}.buffs[{index}]"
+    for index, raw_buff in enumerate(require_list(value, path)):
+        buff_path = f"{path}[{index}]"
         buff = require_dict(raw_buff, buff_path)
         buff_id = buff.get("buffId")
         if not isinstance(buff_id, str) or not buff_id:
@@ -2037,8 +2185,27 @@ def parse_buff_application_payload(
                 ),
             )
         )
+    return tuple(buffs)
+
+
+def parse_buff_application_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> BuffApplicationPayload:
+    target_settings = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    buff_source = action.get("buffSource")
+    if not isinstance(buff_source, str) or not buff_source:
+        raise ValueError(f"{path}.buffSource: expected non-empty string")
+    context_key = action.get("contextKey", "")
+    if not isinstance(context_key, str):
+        raise ValueError(f"{path}.contextKey: expected string")
+    if buff_source == "ContextTarget" and not context_key:
+        raise ValueError(f"{path}.contextKey: ContextTarget requires a non-empty key")
     return BuffApplicationPayload(
-        buffs=tuple(buffs),
+        buffs=parse_buff_application_entries(
+            action.get("buffs"), f"{path}.buffs", inherited_blackboard
+        ),
         targetSource=str(target_settings.get("targetSource", "")),
         targetGroupKey=str(target_settings.get("targetGroupKey", "")),
         count=parse_scalar(action.get("count"), f"{path}.count", inherited_blackboard),
@@ -3835,24 +4002,26 @@ def parse_buff_assignments(
 
 
 def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
-    """收集整棵动作树直接创建的 Buff；保留定义入口，但不改变条件分支归属。"""
+    """收集整棵动作树直接创建或由光环维持的 Buff；不改变其控制流归属。"""
     return collect_created_buff_ids(root.get("actionGroupData"), source_name)
 
 
 def collect_created_buff_ids(value: Any, source_name: str) -> tuple[str, ...]:
-    """从任意动作容器收集 CreateBuffAction 引用，供技能与 Buff 定义共同使用。"""
+    """从任意动作容器收集 Buff 引用，供技能与 Buff 定义共同使用。"""
     result: set[str] = set()
     for action in walk_actions(value):
-        if action_name(action["$type"]) != "CreateBuffAction":
+        name = action_name(action["$type"])
+        if name not in {"CreateBuffAction", "AuraAction"}:
             continue
+        field = "buffs" if name == "CreateBuffAction" else "buffInput"
         for index, raw_buff in enumerate(
-            require_list(action.get("buffs"), f"{source_name}.CreateBuffAction.buffs")
+            require_list(action.get(field), f"{source_name}.{name}.{field}")
         ):
-            buff = require_dict(raw_buff, f"{source_name}.CreateBuffAction.buffs[{index}]")
+            buff = require_dict(raw_buff, f"{source_name}.{name}.{field}[{index}]")
             buff_id = buff.get("buffId")
             if not isinstance(buff_id, str) or not buff_id:
                 raise ValueError(
-                    f"{source_name}.CreateBuffAction.buffs[{index}].buffId: expected string"
+                    f"{source_name}.{name}.{field}[{index}].buffId: expected string"
                 )
             result.add(buff_id)
     return tuple(sorted(result))
@@ -4207,6 +4376,307 @@ def parse_buff_lifecycle(
     )
 
 
+def parse_aura_actions(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[AuraActionSource, ...]:
+    """严格读取区域动作；当前只形成审计事实，不提前近似其持续生命周期。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[AuraActionSource] = []
+
+    def parse_sequence(value: Any, path: str) -> tuple[dict[str, Any], tuple[str, ...]]:
+        sequence = require_dict(value, path)
+        if set(sequence) != AURA_SEQUENCE_FIELDS:
+            raise ValueError(f"{path}: unexpected fields {sorted(sequence)}")
+        actions = tuple(
+            require_dict(item, f"{path}.actionData[{index}]")
+            for index, item in enumerate(
+                require_list(sequence.get("actionData"), f"{path}.actionData")
+            )
+        )
+        for index, action in enumerate(actions):
+            if not isinstance(action.get("$type"), str):
+                raise ValueError(f"{path}.actionData[{index}].$type: expected string")
+        return sequence, tuple(
+            action_name(str(action["$type"]))
+            for action in actions
+            if action.get("isEnable") is not False
+        )
+
+    def visit(
+        value: Any,
+        start_frame: int,
+        end_frame: int,
+        path: tuple[str, ...],
+    ) -> None:
+        if isinstance(value, list):
+            for index, child in enumerate(value):
+                visit(child, start_frame, end_frame, (*path, f"[{index}]"))
+            return
+        if not isinstance(value, dict) or value.get("isEnable") is False:
+            return
+        if action_name(str(value.get("$type", ""))) == "AuraAction":
+            action_path = f"{source_name}.{'.'.join(path)}"
+            if set(value) != AURA_ACTION_FIELDS:
+                raise ValueError(f"{action_path}: unexpected fields {sorted(value)}")
+
+            shape_path = f"{action_path}.shapeData"
+            shape = require_dict(value.get("shapeData"), shape_path)
+            if set(shape) != AURA_SHAPE_FIELDS:
+                raise ValueError(f"{shape_path}: unexpected fields {sorted(shape)}")
+            shape_type = shape.get("_shape")
+            if not isinstance(shape_type, str) or not shape_type:
+                raise ValueError(f"{shape_path}._shape: expected non-empty string")
+            shape_keys = (
+                "_extentXKey",
+                "_extentYKey",
+                "_extentZKey",
+                "_centerXKey",
+                "_centerYKey",
+                "_centerZKey",
+                "_heightKey",
+                "_radiusKey",
+            )
+            for key in shape_keys:
+                if not isinstance(shape.get(key), str):
+                    raise ValueError(f"{shape_path}.{key}: expected string")
+
+            filter_path = f"{action_path}.targetFilter"
+            target_filter = require_dict(value.get("targetFilter"), filter_path)
+            if set(target_filter) != AURA_TARGET_FILTER_FIELDS:
+                raise ValueError(f"{filter_path}: unexpected fields {sorted(target_filter)}")
+            faction_target = target_filter.get("factionTarget")
+            faction_target_type = target_filter.get("targetFactionType")
+            object_type = target_filter.get("objectType")
+            if not isinstance(faction_target, str) or not faction_target:
+                raise ValueError(f"{filter_path}.factionTarget: expected non-empty string")
+            if not isinstance(faction_target_type, (str, int)) or isinstance(
+                faction_target_type, bool
+            ):
+                raise ValueError(f"{filter_path}.targetFactionType: expected string or integer")
+            if not isinstance(object_type, str) or not object_type:
+                raise ValueError(f"{filter_path}.objectType: expected non-empty string")
+            tag_query = require_dict(
+                target_filter.get("tagQuery"), f"{filter_path}.tagQuery"
+            )
+            if set(tag_query) != {"queryType", "tags"}:
+                raise ValueError(
+                    f"{filter_path}.tagQuery: unexpected fields {sorted(tag_query)}"
+                )
+            tag_query_type = tag_query.get("queryType")
+            if not isinstance(tag_query_type, str) or not tag_query_type:
+                raise ValueError(
+                    f"{filter_path}.tagQuery.queryType: expected non-empty string"
+                )
+            tag_ids = tuple(
+                require_non_negative_int(item, f"{filter_path}.tagQuery.tags[{index}]")
+                for index, item in enumerate(
+                    require_list(tag_query.get("tags"), f"{filter_path}.tagQuery.tags")
+                )
+            )
+
+            icon_path = f"{action_path}.buffIconDurationSource"
+            icon_duration = require_dict(value.get("buffIconDurationSource"), icon_path)
+            if set(icon_duration) != {"durationSourceType", "timedMarkerId"}:
+                raise ValueError(f"{icon_path}: unexpected fields {sorted(icon_duration)}")
+            duration_source_type = icon_duration.get("durationSourceType")
+            timed_marker_id = icon_duration.get("timedMarkerId")
+            if not isinstance(duration_source_type, str) or not duration_source_type:
+                raise ValueError(f"{icon_path}.durationSourceType: expected non-empty string")
+            if not isinstance(timed_marker_id, str):
+                raise ValueError(f"{icon_path}.timedMarkerId: expected string")
+
+            in_sequence, in_types = parse_sequence(
+                value.get("actionInAura"), f"{action_path}.actionInAura"
+            )
+            exit_sequence, exit_types = parse_sequence(
+                value.get("actionWhenExitAura"), f"{action_path}.actionWhenExitAura"
+            )
+            nested_combat_actions = tuple(
+                sorted(
+                    {
+                        action_name(str(action["$type"]))
+                        for sequence in (in_sequence, exit_sequence)
+                        for action in walk_actions(sequence)
+                        if action_name(str(action["$type"]))
+                        in AUDITED_COMBAT_ACTION_NAMES
+                    }
+                )
+            )
+
+            priority_level = value.get("priorityLevel")
+            priority_offset = value.get("priorityOffset")
+            debug_name = value.get("auraDebugName")
+            aura_type = value.get("auraType")
+            buff_source = value.get("buffSource")
+            target_object_type = value.get("targetObjectType")
+            for key, item in (
+                ("priorityLevel", priority_level),
+                ("auraDebugName", debug_name),
+                ("auraType", aura_type),
+                ("buffSource", buff_source),
+            ):
+                if not isinstance(item, str) or (key != "auraDebugName" and not item):
+                    raise ValueError(f"{action_path}.{key}: expected string")
+            if not isinstance(priority_offset, int) or isinstance(priority_offset, bool):
+                raise ValueError(f"{action_path}.priorityOffset: expected integer")
+            if not isinstance(target_object_type, (str, int)) or isinstance(
+                target_object_type, bool
+            ):
+                raise ValueError(f"{action_path}.targetObjectType: expected string or integer")
+
+            result.append(
+                AuraActionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(value, action_path),
+                    sourceFile=source_name,
+                    actionPath=path,
+                    priorityLevel=priority_level,
+                    priorityOffset=priority_offset,
+                    debugName=debug_name,
+                    auraType=aura_type,
+                    root=parse_target_reference(value.get("auraRoot"), f"{action_path}.auraRoot"),
+                    fixedWhenStart=require_bool(
+                        value.get("fixedWhenStart"), f"{action_path}.fixedWhenStart"
+                    ),
+                    shape=AuraShapeSource(
+                        shapeType=shape_type,
+                        rotationOffset=parse_vector3(
+                            shape.get("_rotationOffset"), f"{shape_path}._rotationOffset"
+                        ),
+                        useExtentKeys=require_bool(
+                            shape.get("_useExtentKey"), f"{shape_path}._useExtentKey"
+                        ),
+                        extent=parse_vector3(shape.get("_extent"), f"{shape_path}._extent"),
+                        extentKeys=(
+                            shape["_extentXKey"],
+                            shape["_extentYKey"],
+                            shape["_extentZKey"],
+                        ),
+                        useCenterKeys=require_bool(
+                            shape.get("_useCenterKey"), f"{shape_path}._useCenterKey"
+                        ),
+                        center=parse_vector3(shape.get("_center"), f"{shape_path}._center"),
+                        centerKeys=(
+                            shape["_centerXKey"],
+                            shape["_centerYKey"],
+                            shape["_centerZKey"],
+                        ),
+                        height=require_number(shape.get("_height"), f"{shape_path}._height"),
+                        heightKey=shape["_heightKey"],
+                        radius=require_number(shape.get("_radius"), f"{shape_path}._radius"),
+                        radiusKey=shape["_radiusKey"],
+                    ),
+                    excludeColliderOptions=require_non_negative_int(
+                        value.get("excludeColliderOptions"),
+                        f"{action_path}.excludeColliderOptions",
+                    ),
+                    targetObjectType=target_object_type,
+                    targetFilter=AuraTargetFilterSource(
+                        checkAlive=require_bool(
+                            target_filter.get("checkAlive"), f"{filter_path}.checkAlive"
+                        ),
+                        autoSetTargetFaction=require_bool(
+                            target_filter.get("autoSetTargetFaction"),
+                            f"{filter_path}.autoSetTargetFaction",
+                        ),
+                        factionTarget=faction_target,
+                        factionTargetType=faction_target_type,
+                        filterObjectType=require_bool(
+                            target_filter.get("filterObjectType"),
+                            f"{filter_path}.filterObjectType",
+                        ),
+                        objectType=object_type,
+                        filterSlot=require_bool(
+                            target_filter.get("filterSlot"), f"{filter_path}.filterSlot"
+                        ),
+                        slotIndex=require_non_negative_int(
+                            target_filter.get("slotIndex"), f"{filter_path}.slotIndex"
+                        ),
+                        filterGameplayTag=require_bool(
+                            target_filter.get("filterGameplayTag"),
+                            f"{filter_path}.filterGameplayTag",
+                        ),
+                        tagQueryType=tag_query_type,
+                        tagIds=tag_ids,
+                    ),
+                    excludeOwner=require_bool(
+                        value.get("excludeOwner"), f"{action_path}.excludeOwner"
+                    ),
+                    includeUnmarkable=require_bool(
+                        value.get("includeUnmarkable"), f"{action_path}.includeUnmarkable"
+                    ),
+                    limitInfluenceCountPerTarget=require_bool(
+                        value.get("limitInfluenceCountPerTarget"),
+                        f"{action_path}.limitInfluenceCountPerTarget",
+                    ),
+                    maxInfluenceCountPerTarget=require_non_negative_int(
+                        value.get("maxInfluenceCountPerTarget"),
+                        f"{action_path}.maxInfluenceCountPerTarget",
+                    ),
+                    buffSource=buff_source,
+                    buffs=parse_buff_application_entries(
+                        value.get("buffInput"),
+                        f"{action_path}.buffInput",
+                        inherited_blackboard,
+                    ),
+                    overrideBuffIconDuration=require_bool(
+                        value.get("overrideBuffIconDuration"),
+                        f"{action_path}.overrideBuffIconDuration",
+                    ),
+                    buffIconDurationSourceType=duration_source_type,
+                    buffIconDurationTimedMarkerId=timed_marker_id,
+                    inheritSourceSkillCastId=require_bool(
+                        value.get("inheritSourceSkillCastId"),
+                        f"{action_path}.inheritSourceSkillCastId",
+                    ),
+                    actionInAuraOnlyMainOperator=require_bool(
+                        in_sequence.get("onlyExecuteWhenSourceIsMainChar"),
+                        f"{action_path}.actionInAura.onlyExecuteWhenSourceIsMainChar",
+                    ),
+                    actionInAuraOnlyGuard=require_bool(
+                        in_sequence.get("onlyExecuteWhenSourceIsGuard"),
+                        f"{action_path}.actionInAura.onlyExecuteWhenSourceIsGuard",
+                    ),
+                    actionInAuraTypes=in_types,
+                    actionWhenExitAuraOnlyMainOperator=require_bool(
+                        exit_sequence.get("onlyExecuteWhenSourceIsMainChar"),
+                        f"{action_path}.actionWhenExitAura.onlyExecuteWhenSourceIsMainChar",
+                    ),
+                    actionWhenExitAuraOnlyGuard=require_bool(
+                        exit_sequence.get("onlyExecuteWhenSourceIsGuard"),
+                        f"{action_path}.actionWhenExitAura.onlyExecuteWhenSourceIsGuard",
+                    ),
+                    actionWhenExitAuraTypes=exit_types,
+                    nestedCombatActions=nested_combat_actions,
+                )
+            )
+
+        for key, child in value.items():
+            visit(child, start_frame, end_frame, (*path, key))
+
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        visit(
+            timeline.get("_sequenceActionData"),
+            start_frame,
+            end_frame,
+            (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
+        )
+    return tuple(result)
+
+
 def parse_auxiliary_actions(
     root: dict[str, Any],
     source_name: str,
@@ -4548,6 +5018,9 @@ def resolve_projectile_payload_triggers(
                 cycleTruncated=cycle_truncated,
                 nestedProjectileTriggeredSkills=nested,
                 abilityEntityHits=ability_entities,
+                auraActions=parse_aura_actions(
+                    trigger_root, trigger_source_name, trigger_blackboard
+                ),
             )
         )
     return tuple(result)
@@ -4864,6 +5337,7 @@ def resolve_ability_entity_payload(
         blackboardMutations=child_mutations,
         buffBlackboardReads=child_reads,
         buffFinishes=child_finishes,
+        auraActions=parse_aura_actions(child, child_name, child_blackboard),
     )
 
 
@@ -5991,6 +6465,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         unresolvedCombatActions=unresolved,
         buffHolds=parse_buff_hold_actions(root, source_name),
         targetGroupWrites=parse_target_group_writes(root, source_name),
+        auraActions=parse_aura_actions(root, source_name, resolved_blackboard),
     )
 
 
