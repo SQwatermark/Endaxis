@@ -9,6 +9,7 @@ const POISE_EPSILON = 0.00001;
 /** 创建一个实体生命与失衡账本所需的完整初始状态。 */
 export interface CombatVitalsSnapshot {
   readonly health: number;
+  readonly maxHealth: number;
   readonly maxPoise: number;
   readonly poise: number;
   readonly poiseRecoveryTime: number;
@@ -36,6 +37,7 @@ export class CombatVitals {
   #stopPoiseRecovery = false;
   #hasPoiseBrokenTag = false;
   readonly #maxPoise: number;
+  readonly #maxHealth: number;
   readonly #poiseRecoveryTime: number;
   readonly #poiseRecoveryTimeMultiplier: number;
   readonly #poiseBrokenEndTime: number;
@@ -51,7 +53,10 @@ export class CombatVitals {
     if (snapshot.poise > snapshot.maxPoise + POISE_EPSILON) {
       throw new RangeError('poise exceeds maxPoise');
     }
+    if (snapshot.maxHealth <= 0) throw new RangeError('maxHealth must be positive');
+    if (snapshot.health > snapshot.maxHealth) throw new RangeError('health exceeds maxHealth');
     this.#health = snapshot.health;
+    this.#maxHealth = snapshot.maxHealth;
     this.#maxPoise = snapshot.maxPoise;
     this.#poise = snapshot.poise;
     this.#poiseRecoveryTime = snapshot.poiseRecoveryTime;
@@ -62,6 +67,9 @@ export class CombatVitals {
 
   get health(): number {
     return this.#health;
+  }
+  get maxHealth(): number {
+    return this.#maxHealth;
   }
   get poise(): number {
     return this.#poise;

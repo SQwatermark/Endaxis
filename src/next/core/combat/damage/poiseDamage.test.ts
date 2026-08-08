@@ -7,6 +7,7 @@ import { calculatePoiseDamage, executePoiseDamage } from './poiseDamage';
 function createTarget(overrides: Partial<ConstructorParameters<typeof CombatVitals>[0]> = {}) {
   return new CombatVitals({
     health: 1000,
+    maxHealth: 1000,
     maxPoise: 100,
     poise: 100,
     poiseRecoveryTime: 1,

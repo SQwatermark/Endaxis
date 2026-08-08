@@ -5,6 +5,7 @@ import { CombatVitals } from './combatVitals';
 function createVitals(overrides: Partial<ConstructorParameters<typeof CombatVitals>[0]> = {}) {
   return new CombatVitals({
     health: 1000,
+    maxHealth: 1000,
     maxPoise: 100,
     poise: 100,
     poiseRecoveryTime: 1,
@@ -16,6 +17,11 @@ function createVitals(overrides: Partial<ConstructorParameters<typeof CombatVita
 }
 
 describe('CombatVitals', () => {
+  it('requires a positive maximum health that covers current health', () => {
+    expect(() => createVitals({ maxHealth: 0 })).toThrow('maxHealth must be positive');
+    expect(() => createVitals({ health: 1001 })).toThrow('health exceeds maxHealth');
+  });
+
   it('clamps health damage to zero and reports actual damage', () => {
     const vitals = createVitals({ health: 100 });
     expect(vitals.takeDamage(150)).toEqual({

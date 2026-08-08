@@ -57,6 +57,7 @@ describe('PlayerDamageOperationExecutor', () => {
     const healthEvents: string[] = [];
     const targetVitals = new CombatVitals({
       health: 1000,
+      maxHealth: 1000,
       maxPoise: 100,
       poise: 100,
       poiseRecoveryTime: 1,
@@ -118,6 +119,7 @@ describe('PlayerDamageOperationExecutor', () => {
   it('executes a standalone stagger step without entering the health damage path', () => {
     const targetVitals = new CombatVitals({
       health: 1000,
+      maxHealth: 1000,
       maxPoise: 100,
       poise: 100,
       poiseRecoveryTime: 1,
@@ -159,6 +161,7 @@ describe('PlayerDamageOperationExecutor', () => {
   it('resolves dynamic stagger from the current action blackboard', () => {
     const targetVitals = new CombatVitals({
       health: 1000,
+      maxHealth: 1000,
       maxPoise: 100,
       poise: 100,
       poiseRecoveryTime: 1,
@@ -203,6 +206,7 @@ describe('PlayerDamageOperationExecutor', () => {
     let defense = 0;
     const targetVitals = new CombatVitals({
       health: 2000,
+      maxHealth: 2000,
       maxPoise: 0,
       poise: 0,
       poiseRecoveryTime: 0,
@@ -276,6 +280,7 @@ describe('PlayerDamageOperationExecutor', () => {
   it('uses the enemy and per-hit multipliers for breaking-attack base damage', () => {
     const targetVitals = new CombatVitals({
       health: 2000,
+      maxHealth: 2000,
       maxPoise: 0,
       poise: 0,
       poiseRecoveryTime: 0,
@@ -336,6 +341,7 @@ describe('PlayerDamageOperationExecutor', () => {
       targetId: 'enemy',
       targetVitals: new CombatVitals({
         health: 1,
+        maxHealth: 1,
         maxPoise: 0,
         poise: 0,
         poiseRecoveryTime: 0,

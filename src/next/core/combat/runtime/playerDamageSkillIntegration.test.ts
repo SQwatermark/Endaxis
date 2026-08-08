@@ -50,6 +50,7 @@ describe('Perlica standard damage slice', () => {
     });
     const targetVitals = new CombatVitals({
       health: 1000,
+      maxHealth: 1000,
       maxPoise: 100,
       poise: 100,
       poiseRecoveryTime: 1,

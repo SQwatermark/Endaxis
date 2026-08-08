@@ -2211,6 +2211,84 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(buff.buffStack.countType, "BuffCount")
         self.assertEqual(buff.buffStack.value.value, 1)
 
+    def test_health_condition_parser_and_compiler_preserve_native_semantics(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 8,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckHp+Data, Example",
+                                                "hpOwner": {
+                                                    "targetSource": "Context",
+                                                    "targetGroupKey": "smart_target",
+                                                },
+                                                "compare": "GT",
+                                                "isRatio": True,
+                                                "value": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "healthThreshold",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(
+            root,
+            "skill.json",
+            {"healthThreshold": (0.25,) * 12},
+        )[0].conditions[0]
+
+        self.assertTrue(condition.supported)
+        self.assertEqual(condition.health.targetSource, "Context")
+        self.assertEqual(condition.health.targetGroupKey, "smart_target")
+        self.assertEqual(condition.health.comparison, "GT")
+        self.assertTrue(condition.health.isRatio)
+        self.assertEqual(condition.health.value.blackboardKey, "healthThreshold")
+        compiled = compile_combat_condition_group((condition,), "fixture.conditions")
+        self.assertIn("kind: 'healthCompare'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("valueType: 'ratio'", compiled)
+        self.assertIn("operator: 'greater'", compiled)
+        self.assertIn("key: 'healthThreshold'", compiled)
+
+    def test_health_condition_compiler_rejects_unmodeled_target_groups(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckHp",
+            health=SimpleNamespace(
+                targetSource="InstantSearch",
+                targetGroupKey="CureTarget",
+                comparison="LT",
+                isRatio=True,
+                value=ScalarSource(0.99, None, None),
+            ),
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported health target"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
+
     def test_condition_compiler_emits_action_blackboard_and_enemy_buff_conditions(self) -> None:
         compare = SimpleNamespace(
             sourceType="CompareFloat",

@@ -27,6 +27,7 @@ describe('executeHealthDamage', () => {
     };
     const target = new CombatVitals({
       health: 100,
+      maxHealth: 100,
       maxPoise: 0,
       poise: 0,
       poiseRecoveryTime: 0,

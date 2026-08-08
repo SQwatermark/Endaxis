@@ -11,6 +11,7 @@ describe('CombatVitalsRuntime', () => {
     const receipt = new CombatReceiptCollector();
     const vitals = new CombatVitals({
       health: 1,
+      maxHealth: 1,
       maxPoise: 100,
       poise: 100,
       poiseRecoveryTime: 1 / 30,

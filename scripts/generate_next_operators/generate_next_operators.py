@@ -382,6 +382,15 @@ class BuffStackConditionSource:
 
 
 @dataclass(frozen=True)
+class HealthConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    comparison: str
+    isRatio: bool
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
 class MainOperatorConditionSource:
     targetSource: str
     targetGroupKey: str
@@ -433,6 +442,7 @@ class ConditionSource:
     skillTypes: tuple[str, ...]
     entityCount: EntityCountConditionSource | None = None
     buffStack: BuffStackConditionSource | None = None
+    health: HealthConditionSource | None = None
     mainOperator: MainOperatorConditionSource | None = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
@@ -744,6 +754,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
     {
         "entityCount",
         "buffStack",
+        "health",
         "mainOperator",
         "targetIdentity",
         "distance",
@@ -2058,6 +2069,38 @@ def parse_conditional_actions(
                     comparison=str(condition.get("compareType", "")),
                     value=parse_scalar(condition.get("value"), f"{path}.value", inherited_blackboard),
                     limitSkillCastId=limit_skill_cast_id,
+                ),
+            )
+        if condition_type == "CheckHp":
+            target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
+            comparison = condition.get("compare")
+            is_ratio = condition.get("isRatio")
+            if not isinstance(comparison, str) or not comparison:
+                raise ValueError(f"{path}.compare: expected string")
+            if not isinstance(is_ratio, bool):
+                raise ValueError(f"{path}.isRatio: expected boolean")
+            target_source = str(target.get("targetSource", ""))
+            target_group_key = str(target.get("targetGroupKey", ""))
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=(
+                    target_source == "Context"
+                    and target_group_key == "smart_target"
+                ),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                health=HealthConditionSource(
+                    targetSource=target_source,
+                    targetGroupKey=target_group_key,
+                    comparison=comparison,
+                    isRatio=is_ratio,
+                    value=parse_scalar(
+                        condition.get("value"),
+                        f"{path}.value",
+                        inherited_blackboard,
+                    ),
                 ),
             )
         if condition_type == "CheckMainCharacterCondition":
@@ -5047,6 +5090,29 @@ def compile_combat_condition(
                 f"  left: {compile_condition_operand(source.left, f'{path}.left')},",
                 f"  operator: {ts_inline_literal(operator)},",
                 f"  right: {compile_condition_operand(source.right, f'{path}.right')},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckHp":
+        health = source.health
+        if health is None:
+            raise ValueError(f"{path}: missing health condition payload")
+        operator = COMPARISON_OPERATOR_MAP.get(health.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {health.comparison!r}")
+        if health.targetSource != "Context" or health.targetGroupKey != "smart_target":
+            raise ValueError(
+                f"{path}: unsupported health target "
+                f"{health.targetSource!r}/{health.targetGroupKey!r}"
+            )
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'healthCompare',",
+                "  target: 'enemy',",
+                f"  valueType: {ts_inline_literal('ratio' if health.isRatio else 'current')},",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {compile_condition_operand(health.value, f'{path}.value')},",
                 "}",
             ]
         )

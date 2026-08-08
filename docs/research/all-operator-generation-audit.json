@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 203,
+    "compiledCount": 204,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -16,7 +16,7 @@
       "projectile-child-actions": 2,
       "condition-tag": 6,
       "projectile-data": 1,
-      "condition-other": 8,
+      "condition-other": 7,
       "buff-source-or-target": 18,
       "condition-buff-stack": 11,
       "root-action-coverage": 8,
@@ -1066,10 +1066,9 @@
       "operatorName": "Rossi",
       "skillCount": 11,
       "parsedCount": 10,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "condition-other": 1,
         "condition-buff-stack": 1,
         "condition-tag": 1,
         "parser-channeling": 1
@@ -3801,9 +3800,9 @@
       "operatorName": "Rossi",
       "skillId": "chr_0028_wulfa_combo_2_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "combo_2_skill.schedule[19].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckHp'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 4,
       "referencedBuffCount": 6,

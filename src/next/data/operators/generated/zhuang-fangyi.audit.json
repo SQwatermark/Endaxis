@@ -708,6 +708,7 @@
               "skillTypes": [],
               "entityCount": null,
               "buffStack": null,
+              "health": null,
               "mainOperator": null,
               "targetIdentity": null,
               "distance": null
@@ -786,6 +787,7 @@
                     "skillTypes": [],
                     "entityCount": null,
                     "buffStack": null,
+                    "health": null,
                     "mainOperator": null,
                     "targetIdentity": null,
                     "distance": null
@@ -927,6 +929,7 @@
                     "skillTypes": [],
                     "entityCount": null,
                     "buffStack": null,
+                    "health": null,
                     "mainOperator": null,
                     "targetIdentity": null,
                     "distance": null
@@ -1031,6 +1034,7 @@
               "skillTypes": [],
               "entityCount": null,
               "buffStack": null,
+              "health": null,
               "mainOperator": null,
               "targetIdentity": null,
               "distance": null

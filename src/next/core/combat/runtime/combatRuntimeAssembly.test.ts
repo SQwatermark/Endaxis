@@ -6,6 +6,7 @@ import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
+import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const emptyEnemyBuffs = {
@@ -58,6 +59,7 @@ function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProg
 function createAssembly(
   programs: readonly CompiledSkillProgram[],
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
+  resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     resources: {
@@ -82,10 +84,63 @@ function createAssembly(
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
+    ...(resolveVitals === undefined ? {} : { resolveVitals }),
   });
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('evaluates health conditions against the current combat vitals', () => {
+    const enemyVitals = new CombatVitals({
+      health: 400,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const program = skill({
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'healthCompare',
+                    target: 'enemy',
+                    valueType: 'ratio',
+                    operator: 'less',
+                    value: { kind: 'constant', value: 0.5 },
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'changeResource',
+                      parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly([program], undefined, target => {
+      expect(target).toBe('enemy');
+      return enemyVitals;
+    });
+
+    assembly.tryStartSkill('operator', 'skill');
+
+    expect(assembly.resources.sp).toBe(120);
+  });
+
   it('routes semantic status actions and conditions through one frame-driven owner', () => {
     const receipt = new CombatReceiptCollector();
     const program = skill({

@@ -149,6 +149,14 @@ export type CombatCondition =
   | { kind: 'casterControlled' }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
+  | {
+      /** 比较目标当前生命值或当前/最大生命比例。 */
+      kind: 'healthCompare';
+      target: CombatTarget;
+      valueType: 'current' | 'ratio';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
   | { kind: 'contextFlagEquals'; flag: string; value: boolean | number | string }
   | {
       /** 比较同一技能实例动作黑板中的动态值与常量，或比较两个动态值。 */
@@ -200,6 +208,7 @@ export const COMBAT_CONDITION_KINDS = [
   'casterControlled',
   'skillBranchEnabled',
   'targetStaggered',
+  'healthCompare',
   'contextFlagEquals',
   'actionValueCompare',
   'statusActive',

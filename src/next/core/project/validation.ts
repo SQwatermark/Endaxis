@@ -76,6 +76,7 @@ const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
 const actionValueOperations = new Set<string>(ACTION_VALUE_OPERATIONS);
 const actionValueCalculationOperations = new Set<string>(ACTION_VALUE_CALCULATION_OPERATIONS);
 const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
+const healthValueTypes = new Set<string>(['current', 'ratio']);
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
 export type ValidationResult =
@@ -131,6 +132,12 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       break;
     case 'targetStaggered':
       requireEnum(value.target, combatTargets, `${path}.target`, issues);
+      break;
+    case 'healthCompare':
+      requireEnum(value.target, combatTargets, `${path}.target`, issues);
+      requireEnum(value.valueType, healthValueTypes, `${path}.valueType`, issues);
+      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
+      validateActionValueOperand(value.value, `${path}.value`, issues);
       break;
     case 'contextFlagEquals':
       requireString(value, 'flag', path, issues);

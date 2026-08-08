@@ -3,6 +3,7 @@
  * 本层只负责依赖接线与原生阶段顺序，不解析项目文档，也不为尚未闭环的战斗操作提供默认行为。
  */
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import type { CombatTarget } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
@@ -20,6 +21,8 @@ import { OperatorControlConditionExecutor } from './operatorControlConditionExec
 import { StatusOperationExecutor } from './statusOperationExecutor';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatStatusRuntime } from './combatStatusRuntime';
+import type { CombatVitals } from './combatVitals';
+import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -54,6 +57,11 @@ export interface CombatRuntimeAssemblyOptions {
    * 项目编译层必须依据控制切换时间线提供实现，装配层不会猜测初始主控。
    */
   readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
+  /**
+   * 返回本次模拟中的生命账本。只有技能包含生命条件时才会调用；
+   * `operatorId` 用于解析 caster，enemy 则指向当前单敌人。
+   */
+  readonly resolveVitals?: (target: CombatTarget, operatorId: string) => CombatVitals;
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
    * 共享技力与战技扣费转能由装配器统一包在该执行器外层。
@@ -113,6 +121,7 @@ export class CombatRuntimeAssembly {
           statusRuntime,
           options.createOperationExecutor,
           options.isOperatorControlled,
+          options.resolveVitals,
         ),
       );
       this.#abilitySystems.set(
@@ -168,6 +177,7 @@ export class CombatRuntimeAssembly {
     statusRuntime: CombatStatusRuntime | undefined,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
+    resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'],
   ): SkillRuntime {
     const operatorId = operator.operatorId;
     if (program.operatorId !== operatorId) {
@@ -210,6 +220,15 @@ export class CombatRuntimeAssembly {
       },
       delegate: buffOperations,
     });
+    const vitalsConditions = new CombatVitalsConditionExecutor({
+      resolveTarget: target => {
+        if (resolveVitals === undefined) {
+          throw new Error(`skill '${program.skillId}' requires a combat vitals resolver`);
+        }
+        return resolveVitals(target, operatorId);
+      },
+      delegate: statusOperations,
+    });
     const controlConditions = new OperatorControlConditionExecutor({
       isCasterControlled: () => {
         if (isOperatorControlled === undefined) {
@@ -217,7 +236,7 @@ export class CombatRuntimeAssembly {
         }
         return isOperatorControlled(operatorId, this.clock.frame);
       },
-      delegate: statusOperations,
+      delegate: vitalsConditions,
     });
     const delegate = new ActionBlackboardOperationExecutor(controlConditions);
     let runtime: SkillRuntime;

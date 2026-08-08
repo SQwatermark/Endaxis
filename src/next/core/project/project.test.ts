@@ -446,6 +446,23 @@ describe('V2 project document', () => {
       );
     }
 
+    const invalidHealthCondition = JSON.parse(serializeProjectDocument(project));
+    invalidHealthCondition.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[3].parameters.condition =
+      {
+        kind: 'healthCompare',
+        target: 'enemy',
+        valueType: 'percentage',
+        operator: 'greater',
+        value: { kind: 'constant', value: 0 },
+      };
+    const invalidHealthConditionResult = validateProjectDocument(invalidHealthCondition);
+    expect(invalidHealthConditionResult.ok).toBe(false);
+    if (!invalidHealthConditionResult.ok) {
+      expect(invalidHealthConditionResult.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.condition.valueType') }),
+      );
+    }
+
     const invalidCalculation = JSON.parse(serializeProjectDocument(project));
     invalidCalculation.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[1].parameters.operation =
       'floor';
