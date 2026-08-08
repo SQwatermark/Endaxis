@@ -300,6 +300,36 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
           }),
         ),
       ),
+      scheduled(
+        20,
+        sequence(
+          step('modifyActionValue', {
+            key: 'hasGainAtb',
+            operation: 'assign',
+            value: { kind: 'constant', value: 1 },
+          }),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('modifyActionValue', {
+            key: 'hasGainAtb',
+            operation: 'assign',
+            value: { kind: 'constant', value: 1 },
+          }),
+        ),
+      ),
+      scheduled(
+        28,
+        sequence(
+          step('modifyActionValue', {
+            key: 'hasGainAtb',
+            operation: 'assign',
+            value: { kind: 'constant', value: 1 },
+          }),
+        ),
+      ),
     ],
   },
   {

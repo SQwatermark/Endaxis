@@ -2613,7 +2613,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ],
@@ -2624,7 +2625,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ]
@@ -2990,7 +2992,24 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [],
@@ -4141,7 +4160,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ],
@@ -4152,7 +4172,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ]
@@ -4332,7 +4353,24 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [],
@@ -4748,7 +4786,8 @@ export const zhuangFangyiGeneratedSource = {
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "assignBlackboard": true
                           }
                         }
                       ],
@@ -4759,7 +4798,8 @@ export const zhuangFangyiGeneratedSource = {
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "assignBlackboard": true
                           }
                         }
                       ]
@@ -4773,7 +4813,8 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -4787,7 +4828,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ]
@@ -5001,7 +5043,76 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction",
             "ObtainCostAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atb",
+              "value": 20.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "effectZ",
+              "value": 2.0,
+              "isDynamic": true
+            },
+            {
+              "key": "hasGainAtb",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "poise",
+              "value": 15.0,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [
+            {
+              "startFrame": 0,
+              "endFrame": 2,
+              "actionIndex": 18,
+              "key": "hasGainAtb",
+              "operation": "Assign",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            },
+            {
+              "startFrame": 4,
+              "endFrame": 6,
+              "actionIndex": 22,
+              "key": "hasGainAtb",
+              "operation": "Assign",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            },
+            {
+              "startFrame": 8,
+              "endFrame": 10,
+              "actionIndex": 26,
+              "key": "hasGainAtb",
+              "operation": "Assign",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [],
@@ -5451,7 +5562,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   },
                   {
@@ -5484,7 +5596,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -5534,7 +5647,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -5554,7 +5668,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   },
                   {
@@ -5655,7 +5770,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -5675,7 +5791,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -5725,7 +5842,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -5745,7 +5863,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -5833,7 +5952,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -5853,7 +5973,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -5903,7 +6024,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -5923,7 +6045,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -6011,7 +6134,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -6031,7 +6155,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -6081,7 +6206,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -6101,7 +6227,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -6189,7 +6316,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 13,
@@ -6260,7 +6409,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 14,
@@ -6331,7 +6502,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 15,
@@ -6402,7 +6595,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [],
@@ -6855,7 +7070,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   },
                   {
@@ -6888,7 +7104,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -6938,7 +7155,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -6958,7 +7176,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   },
                   {
@@ -7059,7 +7278,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7079,7 +7299,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7129,7 +7350,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7149,7 +7371,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7237,7 +7460,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7257,7 +7481,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7307,7 +7532,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7327,7 +7553,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7415,7 +7642,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7435,7 +7663,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7485,7 +7714,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -7505,7 +7735,8 @@ export const zhuangFangyiGeneratedSource = {
                           "useDirectValue": true,
                           "inputValueKey": ""
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -7593,7 +7824,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 11,
@@ -7664,7 +7917,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 12,
@@ -7735,7 +8010,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         },
         {
           "spawnFrame": 13,
@@ -7806,7 +8103,29 @@ export const zhuangFangyiGeneratedSource = {
           "combatActions": [
             "DamageAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [],
@@ -8192,7 +8511,8 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -8203,7 +8523,8 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -8244,7 +8565,8 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "assignBlackboard": true
                     }
                   }
                 ],
@@ -8255,7 +8577,8 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "assignBlackboard": true
                     }
                   }
                 ]
@@ -8418,7 +8741,39 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction",
             "ObtainCostAction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atb",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale",
+              "value": 0.2,
+              "isDynamic": false
+            },
+            {
+              "key": "poise",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "randomRotate",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "thunderPosIndex",
+              "value": 0.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [
@@ -10353,7 +10708,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ]
@@ -12241,7 +12597,8 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true
               }
             }
           ]
@@ -12467,7 +12824,9 @@ export const zhuangFangyiGeneratedSource = {
                   "attackScale": {
                     "value": 0.0,
                     "blackboardKey": "atk_scale_final",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null
@@ -12528,7 +12887,9 @@ export const zhuangFangyiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "tick_index",
-                    "levelValues": null
+                    "levelValues": [
+                      1.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,
@@ -12588,7 +12949,9 @@ export const zhuangFangyiGeneratedSource = {
                         "left": {
                           "value": 0.0,
                           "blackboardKey": "tick_index",
-                          "levelValues": null
+                          "levelValues": [
+                            1.0
+                          ]
                         },
                         "right": {
                           "value": 1.0,
@@ -12671,7 +13034,9 @@ export const zhuangFangyiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "sword_index",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,
@@ -12750,7 +13115,124 @@ export const zhuangFangyiGeneratedSource = {
             "IfElseAction",
             "SpellInfliction"
           ],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_final",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "atk_up_final",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "final_rate",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "poise",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "randomVFX",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "sword_index",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "sword_range",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "tick_index",
+              "value": 1.0,
+              "isDynamic": true
+            }
+          ],
+          "blackboardCalculations": [
+            {
+              "startFrame": 0,
+              "endFrame": 12,
+              "actionIndex": 0,
+              "key": "atk_scale_final",
+              "operation": "Add",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.36,
+                  0.4,
+                  0.43,
+                  0.47,
+                  0.5,
+                  0.54,
+                  0.58,
+                  0.61,
+                  0.65,
+                  0.69,
+                  0.75,
+                  0.81
+                ]
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": "atk_up_final",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            },
+            {
+              "startFrame": 69,
+              "endFrame": 70,
+              "actionIndex": 25,
+              "key": "atk_scale_final",
+              "operation": "Multiply",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_final",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "right": {
+                "value": 18.0,
+                "blackboardKey": "final_rate",
+                "levelValues": [
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0
+                ]
+              }
+            }
+          ],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [

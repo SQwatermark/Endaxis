@@ -1190,6 +1190,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                 "$type": "Example.SpawnAbilityEntity+Data, Example",
                                                 "abilityEntityId": "entity.test",
                                                 "abilityEntitySkillId": "skill.entity.hit",
+                                                "assignBlackboard": False,
                                             },
                                         ]
                                     },
@@ -2384,6 +2385,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "isEnable": True,
                             "abilityEntityId": "fake_target",
                             "abilityEntitySkillId": "",
+                            "assignBlackboard": False,
                         },
                     }
                 ]
@@ -2403,6 +2405,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "isEnable": True,
             "abilityEntityId": "ability_entity",
             "abilityEntitySkillId": "child_skill",
+            "assignBlackboard": False,
         }
         root = {
             "actionGroupData": {
@@ -2412,6 +2415,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
         child = {
+            "blackboard": [],
             "actionGroupData": {
                 "timelineActions": [
                     {
@@ -2451,6 +2455,81 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(hits[0].resourceGains[0].spGainKind, "gain")
         self.assertEqual(hits[0].resourceGains[0].spGainSource, "normalAttack")
         self.assertTrue(hits[0].resourceGains[0].onlyMainOperator)
+
+    def test_ability_entity_inherits_parent_blackboard_before_parsing_child_actions(self) -> None:
+        spawn = {
+            "$type": "Example.SpawnAbilityEntity+Data, Example",
+            "serverActionIndex": 5,
+            "isEnable": True,
+            "abilityEntityId": "ability_entity",
+            "abilityEntitySkillId": "child_skill",
+            "assignEntityBlackboard": True,
+            "assignPairs": [
+                {
+                    "targetKey": "count",
+                    "inputValueKey": "source_count",
+                    "useDirectValue": False,
+                    "directValueType": "Numeric",
+                    "numericValue": 0,
+                    "stringValue": "",
+                }
+            ],
+            "assignBlackboard": True,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {"_startFrame": 4, "_endFrame": 5, "_sequenceActionData": spawn}
+                ]
+            }
+        }
+        child = {
+            "blackboard": [
+                {"key": "attack", "valueDouble": 0, "valueStr": "", "isDynamic": False},
+                {"key": "count", "valueDouble": 1, "valueStr": "", "isDynamic": True},
+            ],
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "$type": "Example.SimpleCalcBBAction+Data, Example",
+                            "serverActionIndex": 0,
+                            "isEnable": True,
+                            "key": "result",
+                            "operation": "Add",
+                            "value1": {
+                                "useBlackboardKey": True,
+                                "value": 0,
+                                "blackboardKey": "attack",
+                            },
+                            "value2": {
+                                "useBlackboardKey": True,
+                                "value": 0,
+                                "blackboardKey": "count",
+                            },
+                        },
+                    }
+                ]
+            },
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            source_dir = Path(directory)
+            (source_dir / "child_skill.json").write_text(json.dumps(child), encoding="utf-8")
+
+            hits = resolve_ability_entity_hits(
+                root,
+                "parent.json",
+                source_dir,
+                inherited_blackboard={"attack": (2.0, 3.0), "source_count": (4.0, 5.0)},
+            )
+
+        hit = hits[0]
+        self.assertTrue(hit.inheritsSourceBlackboard)
+        self.assertEqual([item.key for item in hit.declaredBlackboard], ["attack", "count"])
+        self.assertEqual(hit.blackboardCalculations[0].left.levelValues, (2.0, 3.0))
+        self.assertEqual(hit.blackboardCalculations[0].right.levelValues, (4.0, 5.0))
 
     def test_damage_projection_uses_absolute_frames_across_child_skills(self) -> None:
         damage_units = (SimpleNamespace(attributeType="Hp"),)
@@ -2637,6 +2716,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "serverActionIndex": server_index,
             "abilityEntityId": "entity",
             "abilityEntitySkillId": "hit_skill",
+            "assignBlackboard": False,
         }
         root = {
             "$type": "Example.IfElseAction+Data, Example",

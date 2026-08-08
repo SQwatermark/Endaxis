@@ -225,6 +225,12 @@ class AbilityEntityHitSource:
     nestedAbilityEntityHits: tuple["AbilityEntityHitSource", ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
+    inheritsSourceBlackboard: bool = False
+    declaredBlackboard: tuple[DeclaredBlackboardValueSource, ...] = ()
+    blackboardCalculations: tuple[BlackboardCalculationSource, ...] = ()
+    blackboardMutations: tuple[BlackboardMutationSource, ...] = ()
+    buffBlackboardReads: tuple[BuffBlackboardReadSource, ...] = ()
+    buffFinishes: tuple[BuffFinishSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -486,6 +492,7 @@ class AbilityEntitySpawnPayload:
     abilityEntityId: str
     skillId: str | None
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
+    assignBlackboard: bool = False
 
 
 @dataclass(frozen=True)
@@ -1484,6 +1491,9 @@ def parse_ability_entity_spawn_payload(
         raise ValueError(f"{path}.abilityEntityId: expected non-empty string")
     if not isinstance(skill_id, str):
         raise ValueError(f"{path}.abilityEntitySkillId: expected string")
+    assign_blackboard = action.get("assignBlackboard")
+    if not isinstance(assign_blackboard, bool):
+        raise ValueError(f"{path}.assignBlackboard: expected boolean")
     assignments: list[EntityBlackboardAssignmentSource] = []
     if action.get("assignEntityBlackboard") is True:
         for index, raw_assignment in enumerate(
@@ -1528,6 +1538,7 @@ def parse_ability_entity_spawn_payload(
         abilityEntityId=ability_id,
         skillId=skill_id or None,
         entityBlackboardAssignments=tuple(assignments),
+        assignBlackboard=assign_blackboard,
     )
 
 
@@ -3177,8 +3188,26 @@ def resolve_ability_entity_payload(
     skill_id = payload.skillId
     if skill_id is None:
         raise AssertionError("combat ability entity payload must expose skillId")
+    declared_blackboard = parse_declared_blackboard(child, child_name)
+    child_blackboard = {item.key: (item.value,) for item in declared_blackboard}
+    if payload.assignBlackboard:
+        child_blackboard.update(blackboard)
+    for assignment in payload.entityBlackboardAssignments:
+        if assignment.valueType != "Numeric":
+            continue
+        if assignment.useDirectValue:
+            child_blackboard[assignment.targetKey] = (assignment.numericValue,)
+            continue
+        inherited_value = blackboard.get(assignment.inputValueKey)
+        if inherited_value is not None:
+            child_blackboard[assignment.targetKey] = inherited_value
+
     cycle_truncated = skill_id in stack
-    child_conditions = parse_conditional_actions(child, child_name, blackboard)
+    child_conditions = parse_conditional_actions(child, child_name, child_blackboard)
+    child_calculations = parse_blackboard_calculations(child, child_name, child_blackboard)
+    child_mutations, child_reads, child_finishes = parse_blackboard_runtime_actions(
+        child, child_name, child_blackboard
+    )
     nested = ()
     if not cycle_truncated:
         child_stack = (*stack, skill_id)
@@ -3189,7 +3218,7 @@ def resolve_ability_entity_payload(
                 source_dir,
                 spawn_frame,
                 child_stack,
-                blackboard,
+                child_blackboard,
                 parent_action_order=action_order,
             ),
             *resolve_guaranteed_conditional_ability_entity_hits(
@@ -3198,7 +3227,7 @@ def resolve_ability_entity_payload(
                 source_dir,
                 spawn_frame,
                 child_stack,
-                blackboard,
+                child_blackboard,
                 action_order,
             ),
         )
@@ -3218,24 +3247,30 @@ def resolve_ability_entity_payload(
         skillId=skill_id,
         sourceFile=child_name,
         entityBlackboardAssignments=payload.entityBlackboardAssignments,
-        directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
-        intervalDamageHits=parse_interval_damage_hits(child, child_name, blackboard),
+        directDamageHits=parse_direct_damage_hits(child, child_name, child_blackboard),
+        intervalDamageHits=parse_interval_damage_hits(child, child_name, child_blackboard),
         conditionalActions=child_conditions,
         inflictions=parse_inflictions(child, child_name),
-        auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
-        resourceGains=parse_resource_gains(child, child_name, blackboard),
+        auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, child_blackboard),
+        resourceGains=parse_resource_gains(child, child_name, child_blackboard),
         projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
         projectileTriggeredSkills=resolve_projectile_triggered_skills(
             child,
             child_name,
             source_dir,
             spawn_frame,
-            inherited_blackboard=blackboard,
+            inherited_blackboard=child_blackboard,
             parent_action_order=action_order,
         ),
         nestedAbilityEntityHits=nested,
         combatActions=combat_actions,
         cycleTruncated=cycle_truncated,
+        inheritsSourceBlackboard=payload.assignBlackboard,
+        declaredBlackboard=declared_blackboard,
+        blackboardCalculations=child_calculations,
+        blackboardMutations=child_mutations,
+        buffBlackboardReads=child_reads,
+        buffFinishes=child_finishes,
     )
 
 
@@ -3561,6 +3596,22 @@ def collect_ability_entity_schedule(
     projected_interval_frames = {
         interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
     }
+    for item_type, actions in (
+        ("blackboardCalculation", getattr(hit, "blackboardCalculations", ())),
+        ("blackboardMutation", getattr(hit, "blackboardMutations", ())),
+        ("buffBlackboardRead", getattr(hit, "buffBlackboardReads", ())),
+        ("buffFinish", getattr(hit, "buffFinishes", ())),
+    ):
+        result.extend(
+            ResolvedScheduleItemSource(
+                frame=hit.spawnFrame + action.startFrame,
+                actionOrder=(*hit.actionOrder, action.actionIndex),
+                itemType=cast(ResolvedScheduleItemType, item_type),
+                sourcePath=source_path,
+                payload=action,
+            )
+            for action in actions
+        )
     result.extend(
         ResolvedScheduleItemSource(
             frame=hit.spawnFrame + frame,

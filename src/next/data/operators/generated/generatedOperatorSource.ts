@@ -173,6 +173,13 @@ export interface GeneratedAbilityEntityHitSource {
   readonly nestedAbilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   readonly combatActions: readonly string[];
   readonly cycleTruncated: boolean;
+  /** 原生生成动作是否先把来源动作黑板复制给能力实体。 */
+  readonly inheritsSourceBlackboard: boolean;
+  readonly declaredBlackboard: readonly GeneratedDeclaredBlackboardValueSource[];
+  readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
+  readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
+  readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
+  readonly buffFinishes: readonly GeneratedBuffFinishSource[];
 }
 
 /** BuffData 自身的计时与叠加事实。 */
@@ -401,6 +408,7 @@ export interface GeneratedAbilityEntitySpawnPayload {
   readonly abilityEntityId: string;
   readonly skillId: string | null;
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
+  readonly assignBlackboard: boolean;
 }
 
 /** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */

@@ -5840,7 +5840,13 @@ export const perlicaGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [],
-          "cycleTruncated": false
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": []
         }
       ],
       "referencedBuffIds": [
