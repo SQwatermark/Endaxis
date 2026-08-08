@@ -1650,6 +1650,49 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("target: 'caster'", source)
 
+    def test_fixed_buff_target_ignores_unused_group_key(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Source",
+            targetGroupKey="unused_team_group",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("target: 'caster'", source)
+
+    def test_root_skill_buff_application_resolves_input_target_source_as_enemy(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="InputTarget",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("target: 'caster'", source)
+        self.assertIn("source: 'enemy'", source)
+
     def test_root_skill_buff_application_accepts_proven_enemy_context(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=9,

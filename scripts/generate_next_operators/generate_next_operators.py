@@ -6751,9 +6751,10 @@ def resolve_fixed_combat_target(
     context_target_is_enemy: bool = False,
 ) -> Literal["caster", "enemy"] | None:
     """把原生目标引用归约为 Next 固定施法者/单敌人身份；无法证明时返回空。"""
-    if target_source == "Source" and not target_group_key:
+    # 原生只有 Context 分支读取 targetGroupKey；其他固定来源中的同名字段是无效残留。
+    if target_source == "Source":
         return "caster"
-    if root_skill_context and target_source == "Owner" and not target_group_key:
+    if root_skill_context and target_source == "Owner":
         return "caster"
     if target_source == "Target" and input_target == "enemy":
         # 原生 Target 直接读取动作输入目标，命名目标组对该来源没有作用。
@@ -7292,7 +7293,10 @@ def compile_buff_application_values(
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
     # 根 SkillData 中 ActionSource 与 ActionOwner 都是施法干员；嵌套动作尚不能做相同假设。
     supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
-    if buff_source not in supported_sources:
+    source = None
+    if buff_source == "InputTarget" and (root_skill_context or input_target == "enemy"):
+        source = "enemy"
+    elif buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
     target = (
         context_application_target
@@ -7316,6 +7320,8 @@ def compile_buff_application_values(
         "  inheritSourceSkillCastInfo: "
         f"{ts_inline_literal(inherit_source_skill_cast_info)},",
     ]
+    if source is not None:
+        lines.append(f"  source: {ts_inline_literal(source)},")
     if count.blackboardKey is not None or count.value != 1:
         lines.append(f"  count: {compile_condition_operand(count, f'{path}.count')},")
     if blackboard_assignments:

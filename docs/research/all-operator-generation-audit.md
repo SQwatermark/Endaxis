@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：247 个。
+- 无角色专用声明即可进入通用 DSL：248 个。
 - 当前整名干员完整直转：6 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
 
@@ -33,7 +33,7 @@
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Antal          | `chr_0023_antal`    |    9 |      9 |      7 | 否       |
+| Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     14 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
@@ -60,10 +60,10 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `source-data-missing`      |     21 |
-| `buff-source-or-target`    |     14 |
+| `buff-source-or-target`    |     12 |
 | `condition-other`          |      6 |
 | `root-action-coverage`     |      6 |
-| `other`                    |      4 |
+| `other`                    |      5 |
 | `conditional-leaf`         |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |

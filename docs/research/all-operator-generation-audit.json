@@ -7,15 +7,15 @@
   },
   "summary": {
     "parsedCount": 283,
-    "compiledCount": 247,
+    "compiledCount": 248,
     "completeOperatorCount": 6,
     "blockerKinds": {
-      "other": 4,
+      "other": 5,
       "parser-tick-interval": 2,
       "condition-entity-count": 1,
       "projectile-child-actions": 2,
       "root-action-coverage": 6,
-      "buff-source-or-target": 14,
+      "buff-source-or-target": 12,
       "projectile-data": 1,
       "condition-distance": 1,
       "conditional-leaf": 3,
@@ -965,11 +965,10 @@
       "operatorName": "Antal",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 1,
-        "buff-source-or-target": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -1114,8 +1113,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "other": 1,
-        "buff-source-or-target": 1
+        "other": 2
       }
     },
     {
@@ -2881,9 +2879,9 @@
       "operatorName": "Antal",
       "skillId": "chr_0023_antal_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[0].buffApplication: unsupported Buff source 'InputTarget'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction"],
       "conditionCount": 0,
       "referencedBuffCount": 2,
@@ -5155,8 +5153,8 @@
       "skillId": "chr_0026_lastrite_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[5].buffApplication: unsupported Buff target 'Source'/'team'",
+      "blockerKind": "other",
+      "blocker": "normal_skill.schedule[7].resourceGain: unsupported ultimate-energy recovery options",
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 3,
