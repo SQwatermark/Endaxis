@@ -5150,6 +5150,26 @@ def compile_combat_condition(
                 ]
             )
         if (
+            not root_skill_context
+            and buff.targetSource == "Target"
+            and not buff.targetGroupKey
+            and buff.buffCheckType == "Tag"
+            and buff.buffTagIds
+            and not buff.buffIds
+        ):
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'buffStackCompare',",
+                    "  target: 'enemy',",
+                    f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
+                    f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {value},",
+                    "}",
+                ]
+            )
+        if (
             (
                 buff.targetSource == "Source"
                 or (root_skill_context and buff.targetSource == "Owner")

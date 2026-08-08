@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：205 个。
+- 无角色专用声明即可进入通用 DSL：206 个。
 - 当前整名干员完整直转：1 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -42,7 +42,7 @@
 | Rossi          | `chr_0028_wulfa`    |   11 |     10 |      8 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      6 | 否       |
-| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      8 | 否       |
+| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      4 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
@@ -66,10 +66,10 @@
 | `condition-other`           |      7 |
 | `condition-tag`             |      6 |
 | `conditional-leaf`          |      5 |
-| `other`                     |      3 |
 | `parser-damage-calculation` |      3 |
 | `condition-distance`        |      2 |
 | `condition-entity-count`    |      2 |
+| `other`                     |      2 |
 | `projectile-child-actions`  |      2 |
 | `condition-main-operator`   |      1 |
 | `parser-assignment-shape`   |      1 |

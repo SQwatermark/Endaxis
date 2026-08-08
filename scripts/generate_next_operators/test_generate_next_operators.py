@@ -2314,6 +2314,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 root_skill_context=True,
             )
 
+    def test_projectile_child_buff_condition_reads_the_hit_enemy(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            buffStack=SimpleNamespace(
+                targetSource="Target",
+                targetGroupKey="",
+                buffCheckType="Tag",
+                buffIds=(),
+                buffTagIds=(-1411846745,),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(2, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            root_skill_context=False,
+        )
+
+        self.assertIn("kind: 'buffStackCompare'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+        with self.assertRaisesRegex(ValueError, "unsupported Buff stack query"):
+            compile_combat_condition_group(
+                (condition,),
+                "fixture.conditions",
+                root_skill_context=True,
+            )
+
     def test_condition_compiler_emits_action_blackboard_and_enemy_buff_conditions(self) -> None:
         compare = SimpleNamespace(
             sourceType="CompareFloat",

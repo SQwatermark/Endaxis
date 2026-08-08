@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 205,
+    "compiledCount": 206,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -25,7 +25,7 @@
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
-      "other": 3,
+      "other": 2,
       "source-data-missing": 21
     },
     "unresolvedActionPresence": {
@@ -1102,11 +1102,10 @@
       "operatorName": "Fluorite",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 1,
-        "other": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -4343,9 +4342,9 @@
       "operatorName": "Fluorite",
       "skillId": "chr_0022_bounda_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "ultimate_skill.schedule[7].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 1,
