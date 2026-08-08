@@ -7830,7 +7830,16 @@ export const zhuangFangyiGeneratedSource = {
                     "classification": null,
                     "blackboardAssignments": {}
                   }
-                ]
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             },
             {
@@ -8127,7 +8136,16 @@ export const zhuangFangyiGeneratedSource = {
                           "classification": "skillCostUltimateEnergyGain",
                           "blackboardAssignments": {}
                         }
-                      ]
+                      ],
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "buffSource": "ActionSource",
+                      "inheritSourceSkillCastInfo": true
                     }
                   }
                 ],
@@ -8284,7 +8302,16 @@ export const zhuangFangyiGeneratedSource = {
                           "classification": "skillCostUltimateEnergyGain",
                           "blackboardAssignments": {}
                         }
-                      ]
+                      ],
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "buffSource": "ActionSource",
+                      "inheritSourceSkillCastInfo": true
                     }
                   }
                 ]
@@ -8540,7 +8567,16 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     }
                   }
-                ]
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "smart_target",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],
@@ -8577,7 +8613,16 @@ export const zhuangFangyiGeneratedSource = {
                     "classification": null,
                     "blackboardAssignments": {}
                   }
-                ]
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],
@@ -8628,7 +8673,16 @@ export const zhuangFangyiGeneratedSource = {
                           "classification": null,
                           "blackboardAssignments": {}
                         }
-                      ]
+                      ],
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "buffSource": "ActionSource",
+                      "inheritSourceSkillCastInfo": true
                     }
                   }
                 ],
@@ -9461,7 +9515,16 @@ export const zhuangFangyiGeneratedSource = {
                     "classification": null,
                     "blackboardAssignments": {}
                   }
-                ]
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             },
             {
@@ -9934,7 +9997,16 @@ export const zhuangFangyiGeneratedSource = {
                                 "classification": "skillCostUltimateEnergyGain",
                                 "blackboardAssignments": {}
                               }
-                            ]
+                            ],
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "count": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "buffSource": "ActionSource",
+                            "inheritSourceSkillCastInfo": true
                           }
                         }
                       ],
@@ -10097,7 +10169,16 @@ export const zhuangFangyiGeneratedSource = {
                                 "classification": "skillCostUltimateEnergyGain",
                                 "blackboardAssignments": {}
                               }
-                            ]
+                            ],
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "count": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "buffSource": "ActionSource",
+                            "inheritSourceSkillCastInfo": true
                           }
                         }
                       ]
@@ -10149,7 +10230,16 @@ export const zhuangFangyiGeneratedSource = {
                     "classification": null,
                     "blackboardAssignments": {}
                   }
-                ]
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],
@@ -10200,7 +10290,16 @@ export const zhuangFangyiGeneratedSource = {
                           "classification": null,
                           "blackboardAssignments": {}
                         }
-                      ]
+                      ],
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "buffSource": "ActionSource",
+                      "inheritSourceSkillCastInfo": true
                     }
                   }
                 ],
@@ -10391,7 +10490,16 @@ export const zhuangFangyiGeneratedSource = {
                         "classification": null,
                         "blackboardAssignments": {}
                       }
-                    ]
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "inheritSourceSkillCastInfo": true
                   }
                 },
                 {
@@ -11537,7 +11645,16 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     }
                   }
-                ]
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],
@@ -12524,7 +12641,16 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     }
                   }
-                ]
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "smart_target",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],
@@ -13178,7 +13304,16 @@ export const zhuangFangyiGeneratedSource = {
                     "classification": null,
                     "blackboardAssignments": {}
                   }
-                ]
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "ult_postmodel_mirror",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
               }
             }
           ],

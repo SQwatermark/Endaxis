@@ -386,6 +386,11 @@ class BuffApplicationEntryPayload:
 @dataclass(frozen=True)
 class BuffApplicationPayload:
     buffs: tuple[BuffApplicationEntryPayload, ...]
+    targetSource: str
+    targetGroupKey: str
+    count: ScalarSource
+    buffSource: str
+    inheritSourceSkillCastInfo: bool
 
 
 @dataclass(frozen=True)
@@ -972,6 +977,10 @@ def parse_buff_application_payload(
     path: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> BuffApplicationPayload:
+    target_settings = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    buff_source = action.get("buffSource")
+    if not isinstance(buff_source, str) or not buff_source:
+        raise ValueError(f"{path}.buffSource: expected non-empty string")
     buffs: list[BuffApplicationEntryPayload] = []
     for index, raw_buff in enumerate(require_list(action.get("buffs"), f"{path}.buffs")):
         buff_path = f"{path}.buffs[{index}]"
@@ -990,7 +999,17 @@ def parse_buff_application_payload(
                 ),
             )
         )
-    return BuffApplicationPayload(buffs=tuple(buffs))
+    return BuffApplicationPayload(
+        buffs=tuple(buffs),
+        targetSource=str(target_settings.get("targetSource", "")),
+        targetGroupKey=str(target_settings.get("targetGroupKey", "")),
+        count=parse_scalar(action.get("count"), f"{path}.count", inherited_blackboard),
+        buffSource=buff_source,
+        inheritSourceSkillCastInfo=require_bool(
+            action.get("inheritSourceSkillCastInfo"),
+            f"{path}.inheritSourceSkillCastInfo",
+        ),
+    )
 
 
 def parse_resource_gain_payload(
@@ -2062,28 +2081,10 @@ def parse_auxiliary_actions(
                 continue
             name = action_name(action["$type"])
             if name == "CreateBuffAction":
-                target_settings = require_dict(
-                    action.get("targetSettings"),
-                    f"{source_name}.CreateBuffAction.targetSettings",
-                )
                 payload = parse_buff_application_payload(
                     action,
                     f"{source_name}.CreateBuffAction",
                     inherited_blackboard,
-                )
-                count = parse_scalar(
-                    action.get("count"),
-                    f"{source_name}.CreateBuffAction.count",
-                    inherited_blackboard,
-                )
-                buff_source = action.get("buffSource")
-                if not isinstance(buff_source, str) or not buff_source:
-                    raise ValueError(
-                        f"{source_name}.CreateBuffAction.buffSource: expected non-empty string"
-                    )
-                inherit_skill_cast_info = require_bool(
-                    action.get("inheritSourceSkillCastInfo"),
-                    f"{source_name}.CreateBuffAction.inheritSourceSkillCastInfo",
                 )
                 for buff in payload.buffs:
                     result.append(
@@ -2096,11 +2097,11 @@ def parse_auxiliary_actions(
                             actionType=name,
                             sourceId=buff.buffId,
                             classification=buff.classification,
-                            targetSource=str(target_settings.get("targetSource", "")),
-                            targetGroupKey=str(target_settings.get("targetGroupKey", "")),
-                            count=count,
-                            buffSource=buff_source,
-                            inheritSourceSkillCastInfo=inherit_skill_cast_info,
+                            targetSource=payload.targetSource,
+                            targetGroupKey=payload.targetGroupKey,
+                            count=payload.count,
+                            buffSource=payload.buffSource,
+                            inheritSourceSkillCastInfo=payload.inheritSourceSkillCastInfo,
                             blackboardAssignments=buff.blackboardAssignments,
                             nestedCombatActions=(),
                         )
@@ -3121,35 +3122,41 @@ def compile_infliction(infliction: TimedInflictionSource) -> str:
     )
 
 
-def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
-    """编译已闭环的单实例施加；目标、次数与来源不满足证据子集时明确拒绝。"""
-    if action.actionType != "CreateBuffAction" or action.count is None:
-        raise ValueError(f"{path}: expected parsed CreateBuffAction")
-    if action.count.blackboardKey is not None or action.count.value != 1:
+def compile_buff_application_values(
+    *,
+    buff_id: str,
+    blackboard_assignments: dict[str, ScalarSource],
+    target_source: str,
+    target_group_key: str,
+    count: ScalarSource,
+    buff_source: str,
+    inherit_source_skill_cast_info: bool,
+    path: str,
+) -> str:
+    """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
+    if count.blackboardKey is not None or count.value != 1:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
-    if action.buffSource != "ActionSource":
-        raise ValueError(f"{path}: unsupported Buff source {action.buffSource!r}")
-    if action.inheritSourceSkillCastInfo is None:
-        raise ValueError(f"{path}: missing inherited skill-cast identity flag")
-    if action.targetSource == "Source" and not action.targetGroupKey:
+    if buff_source != "ActionSource":
+        raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
+    if target_source == "Source" and not target_group_key:
         target = "caster"
-    elif action.targetSource == "Context" and action.targetGroupKey == "smart_target":
+    elif target_source == "Context" and target_group_key == "smart_target":
         target = "enemy"
     else:
         raise ValueError(
             f"{path}: unsupported Buff target "
-            f"{action.targetSource!r}/{action.targetGroupKey!r}"
+            f"{target_source!r}/{target_group_key!r}"
         )
     lines = [
         "step('applyBuff', {",
-        f"  buffId: {ts_inline_literal(action.sourceId)},",
+        f"  buffId: {ts_inline_literal(buff_id)},",
         f"  target: {ts_inline_literal(target)},",
         "  inheritSourceSkillCastInfo: "
-        f"{ts_inline_literal(action.inheritSourceSkillCastInfo)},",
+        f"{ts_inline_literal(inherit_source_skill_cast_info)},",
     ]
-    if action.blackboardAssignments:
+    if blackboard_assignments:
         lines.append("  blackboardAssignments: {")
-        for key, value in action.blackboardAssignments.items():
+        for key, value in blackboard_assignments.items():
             lines.append(
                 f"    {ts_inline_literal(key)}: "
                 f"{compile_condition_operand(value, f'{path}.blackboardAssignments.{key}')},"
@@ -3159,50 +3166,139 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
     return "\n".join(lines)
 
 
+def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
+    """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
+    if action.actionType != "CreateBuffAction" or action.count is None:
+        raise ValueError(f"{path}: expected parsed CreateBuffAction")
+    if action.buffSource is None or action.inheritSourceSkillCastInfo is None:
+        raise ValueError(f"{path}: incomplete CreateBuffAction source facts")
+    return compile_buff_application_values(
+        buff_id=action.sourceId,
+        blackboard_assignments=action.blackboardAssignments,
+        target_source=action.targetSource,
+        target_group_key=action.targetGroupKey,
+        count=action.count,
+        buff_source=action.buffSource,
+        inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
+        path=path,
+    )
+
+
+def compile_conditional_buff_application(
+    payload: BuffApplicationPayload,
+    path: str,
+    ignored_buff_ids: frozenset[str],
+) -> str:
+    """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
+    compiled = [
+        compile_buff_application_values(
+            buff_id=buff.buffId,
+            blackboard_assignments=buff.blackboardAssignments,
+            target_source=payload.targetSource,
+            target_group_key=payload.targetGroupKey,
+            count=payload.count,
+            buff_source=payload.buffSource,
+            inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
+            path=f"{path}.buffs[{index}]",
+        )
+        for index, buff in enumerate(payload.buffs)
+        if buff.buffId not in ignored_buff_ids
+    ]
+    if not compiled:
+        return "sequence()"
+    if len(compiled) == 1:
+        return compiled[0]
+    lines = ["sequence("]
+    for source in compiled:
+        item_lines = indent_source(source, 2)
+        item_lines[-1] += ","
+        lines.extend(item_lines)
+    lines.append(")")
+    return "\n".join(lines)
+
+
 def compile_conditional_branch_action(
-    action: ConditionalBranchActionSource, path: str
+    action: ConditionalBranchActionSource,
+    path: str,
+    ignored_buff_ids: frozenset[str] = frozenset(),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
-    if action.nestedCondition is not None:
-        return compile_conditional_action(action.nestedCondition, f"{path}.nestedCondition")
-    if action.buffBlackboardRead is not None:
+    if getattr(action, "nestedCondition", None) is not None:
+        return compile_conditional_action(
+            action.nestedCondition,
+            f"{path}.nestedCondition",
+            ignored_buff_ids,
+        )
+    if getattr(action, "buffBlackboardRead", None) is not None:
         return compile_buff_blackboard_read(action.buffBlackboardRead, path)
-    if action.buffFinish is not None:
+    if getattr(action, "buffFinish", None) is not None:
         return compile_buff_finish(action.buffFinish, path)
-    if action.blackboardMutation is not None:
+    if getattr(action, "buffApplication", None) is not None:
+        return compile_conditional_buff_application(
+            action.buffApplication,
+            path,
+            ignored_buff_ids,
+        )
+    if getattr(action, "blackboardMutation", None) is not None:
         return compile_blackboard_mutation(action.blackboardMutation, path)
-    if action.blackboardCalculation is not None:
+    if getattr(action, "blackboardCalculation", None) is not None:
         return compile_blackboard_calculation(action.blackboardCalculation, path)
-    if action.resourceGain is not None:
+    if getattr(action, "resourceGain", None) is not None:
         return compile_resource_gain(action.resourceGain, path)
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 
 def compile_conditional_branch(
-    actions: tuple[ConditionalBranchActionSource, ...], path: str
+    actions: tuple[ConditionalBranchActionSource, ...],
+    path: str,
+    ignored_buff_ids: frozenset[str] = frozenset(),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
         return "sequence()"
     lines = ["sequence("]
+    compiled_count = 0
     for index, action in enumerate(actions):
-        compiled = compile_conditional_branch_action(action, f"{path}[{index}]")
+        compiled = compile_conditional_branch_action(
+            action,
+            f"{path}[{index}]",
+            ignored_buff_ids,
+        )
+        if compiled == "sequence()":
+            continue
+        compiled_count += 1
         action_lines = indent_source(compiled, 2)
         action_lines[-1] += ","
         lines.extend(action_lines)
+    if compiled_count == 0:
+        return "sequence()"
     lines.append(")")
     return "\n".join(lines)
 
 
-def compile_conditional_action(action: ConditionalActionSource, path: str) -> str:
+def compile_conditional_action(
+    action: ConditionalActionSource,
+    path: str,
+    ignored_buff_ids: frozenset[str] = frozenset(),
+) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     condition = compile_combat_condition_group(action.conditions, f"{path}.conditions")
-    succeed = compile_conditional_branch(action.succeedActions, f"{path}.succeedActions")
+    succeed = compile_conditional_branch(
+        action.succeedActions,
+        f"{path}.succeedActions",
+        ignored_buff_ids,
+    )
     fail = (
-        compile_conditional_branch(action.failActions, f"{path}.failActions")
+        compile_conditional_branch(
+            action.failActions,
+            f"{path}.failActions",
+            ignored_buff_ids,
+        )
         if action.failActions
         else None
     )
+    if succeed == "sequence()" and (fail is None or fail == "sequence()"):
+        return "sequence()"
     lines = ["branch("]
     condition_lines = indent_source(condition, 2)
     condition_lines[-1] += ","
@@ -3669,13 +3765,21 @@ def compile_resolved_damage_steps(
     return result
 
 
-def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
-    """将已闭环载体命中和条件根统一编译为按原生顺序调度的序列。"""
+def compile_resolved_sequence(
+    skill: SkillSource,
+    config: dict[str, Any],
+    *,
+    require_damage: bool,
+) -> str:
+    """将已闭环根动作统一编译为按原生顺序调度的序列。"""
     ignored_auxiliary_classifications = set(
         require_list(
             config.get("ignoreAuxiliaryClassifications", []),
             f"{skill.key}.compile.ignoreAuxiliaryClassifications",
         )
+    )
+    ignored_buff_ids = frozenset(
+        require_list(config.get("ignoreBuffIds", []), f"{skill.key}.compile.ignoreBuffIds")
     )
     combat_auxiliary_actions = [
         action
@@ -3704,7 +3808,7 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
         raise ValueError(f"{skill.key}: unresolved combat actions are not covered by resolved damage compiler")
     hits = collect_resolved_damage_hits(skill)
-    if not hits:
+    if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
     schedule = tuple(
         item
@@ -3730,10 +3834,14 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
             )
         elif item.itemType == "condition":
             payload = cast(ConditionalActionSource, item.payload)
-            step_lines = compile_conditional_action(
+            compiled_condition = compile_conditional_action(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
-            ).splitlines()
+                ignored_buff_ids,
+            )
+            if compiled_condition == "sequence()":
+                continue
+            step_lines = compiled_condition.splitlines()
         elif item.itemType == "blackboardCalculation":
             payload = cast(BlackboardCalculationSource, item.payload)
             step_lines = compile_blackboard_calculation(
@@ -3795,6 +3903,26 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         fields.append("    availability: { kind: 'targetStaggered', target: 'enemy' },")
     elif availability is not None:
         raise ValueError(f"{skill.key}.compile.availability: unsupported value")
+    if config.get("usePatchCooldown") is True:
+        cooldown_frames = tuple(
+            round(value * 30, 8) for value in skill.patch.cooldownSeconds
+        )
+        fields.append(
+            "    cooldownFrames: "
+            f"{ts_inline_literal(compact_level_values(cooldown_frames))},"
+        )
+    elif config.get("usePatchCooldown") is not None:
+        raise ValueError(f"{skill.key}.compile.usePatchCooldown: expected true")
+    cost_resource = config.get("costResource")
+    if cost_resource is not None:
+        if not isinstance(cost_resource, str) or not cost_resource:
+            raise ValueError(f"{skill.key}.compile.costResource: expected non-empty string")
+        fields.append(
+            "    costs: [{ resource: "
+            f"{ts_inline_literal(cost_resource)}, value: "
+            f"{ts_inline_literal(compact_level_values(skill.patch.costValues))} }}],"
+        )
+        fields.append(f"    costFrame: {skill.costFrame},")
     fields.extend(
         [
             "    scheduledSequences: [",
@@ -3804,6 +3932,11 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         ]
     )
     return "\n".join(fields)
+
+
+def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
+    """兼容要求至少一个伤害命中的严格入口。"""
+    return compile_resolved_sequence(skill, config, require_damage=True)
 
 
 def compile_skill_entries(
@@ -3818,7 +3951,10 @@ def compile_skill_entries(
             continue
         config = require_dict(config, f"{skill.key}.compile")
         kind = config.get("kind")
-        if skill.conditionalActions and kind != "resolvedDamageSequence":
+        if skill.conditionalActions and kind not in {
+            "resolvedDamageSequence",
+            "resolvedSequence",
+        }:
             raise ValueError(
                 f"{skill.key}: compiler must consume conditional actions before emitting DSL"
             )
@@ -3841,6 +3977,10 @@ def compile_skill_entries(
             compiled.append((skill, compile_projectile_damage(skill, config)))
         elif kind == "resolvedDamageSequence":
             compiled.append((skill, compile_resolved_damage_sequence(skill, config)))
+        elif kind == "resolvedSequence":
+            compiled.append(
+                (skill, compile_resolved_sequence(skill, config, require_damage=False))
+            )
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     return compiled, damage_type_factories

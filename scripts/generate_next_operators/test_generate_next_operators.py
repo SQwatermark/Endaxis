@@ -14,6 +14,7 @@ from generate_next_operators import (
     build_blackboard_provenance,
     compile_skill_entries,
     compile_resolved_damage_sequence,
+    compile_resolved_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
     AuxiliaryActionSource,
@@ -827,6 +828,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         "actionData": [
                                             {
                                                 "$type": "Example.CreateBuffAction+Data, Example",
+                                                "targetSettings": {
+                                                    "targetSource": "Source",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "count": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "buffSource": "ActionSource",
+                                                "inheritSourceSkillCastInfo": True,
                                                 "buffs": [
                                                     {
                                                         "buffId": "buff.test",
@@ -872,6 +884,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         actions = parse_conditional_actions(root, "effects.json", {})[0].succeedActions
 
         self.assertEqual(actions[0].buffApplication.buffs[0].buffId, "buff.test")
+        self.assertEqual(actions[0].buffApplication.targetSource, "Source")
+        self.assertEqual(actions[0].buffApplication.count.value, 1)
+        self.assertTrue(actions[0].buffApplication.inheritSourceSkillCastInfo)
         self.assertEqual(actions[1].resourceGain.resource, "sp")
         self.assertEqual(actions[1].resourceGain.amount.value, 2)
         self.assertEqual(actions[2].projectileLaunch.hitSkillId, "skill.projectile.hit")
@@ -1121,6 +1136,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
 
+    def test_conditional_action_compiler_omits_fully_ignored_buff_branch(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        buff = SimpleNamespace(buffId="buff.visual", blackboardAssignments={})
+        application = SimpleNamespace(
+            buffs=(buff,),
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    nestedCondition=None,
+                    buffApplication=application,
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(
+            action,
+            "fixture.condition",
+            frozenset({"buff.visual"}),
+        )
+
+        self.assertEqual(result, "sequence()")
+
     def test_conditional_action_compiler_emits_action_blackboard_mutation(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",
@@ -1330,6 +1382,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("damageType: 'electric'", source)
         self.assertIn("availability: { kind: 'targetStaggered', target: 'enemy' }", source)
         self.assertIn("step('gainFinisherSp', { factor: 1, recipient: 'team' })", source)
+
+    def test_resolved_sequence_compiles_non_damage_skill_cost_and_cooldown(self) -> None:
+        skill = SimpleNamespace(
+            key="ultimate",
+            timelineBlockFrames=20,
+            patch=SimpleNamespace(
+                cooldownSeconds=(15,) * 12,
+                costValues=(240,) * 12,
+            ),
+            costFrame=2,
+            auxiliaryActions=(
+                AuxiliaryActionSource(
+                    startFrame=3,
+                    endFrame=3,
+                    actionIndex=0,
+                    actionType="CreateBuffAction",
+                    sourceId="buff.fixture.ultimate",
+                    classification=None,
+                    targetSource="Source",
+                    targetGroupKey="",
+                    count=ScalarSource(1, None, None),
+                    buffSource="ActionSource",
+                    inheritSourceSkillCastInfo=True,
+                    blackboardAssignments={},
+                    nestedCombatActions=(),
+                ),
+            ),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            unresolvedCombatActions=("CreateBuffAction",),
+            skillId="fixture.ultimate",
+            directDamageHits=(),
+            projectileHits=(),
+            abilityEntityHits=(),
+        )
+
+        source = compile_resolved_sequence(
+            skill,
+            {
+                "usePatchCooldown": True,
+                "costResource": "ultimateEnergy",
+            },
+            require_damage=False,
+        )
+
+        self.assertIn("cooldownFrames: 450", source)
+        self.assertIn("costs: [{ resource: 'ultimateEnergy', value: 240 }]", source)
+        self.assertIn("costFrame: 2", source)
+        self.assertIn("scheduled(\n        3,", source)
+        self.assertIn("buffId: 'buff.fixture.ultimate'", source)
 
     def test_resolved_damage_compiler_interleaves_condition_roots_by_native_order(self) -> None:
         unit = DamageUnitSource(

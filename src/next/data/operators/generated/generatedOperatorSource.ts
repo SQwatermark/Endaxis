@@ -320,6 +320,16 @@ export interface GeneratedBuffApplicationEntryPayload {
 
 export interface GeneratedBuffApplicationPayload {
   readonly buffs: readonly GeneratedBuffApplicationEntryPayload[];
+  /** 创建动作的原生目标来源；与每个 Buff 条目共享。 */
+  readonly targetSource: string;
+  /** Context 等目标来源使用的原生目标组。 */
+  readonly targetGroupKey: string;
+  /** 每个目标上的创建次数。 */
+  readonly count: GeneratedScalarSource;
+  /** 新 Buff 的原生来源解析方式。 */
+  readonly buffSource: string;
+  /** 是否把当前技能施法身份复制给新 Buff。 */
+  readonly inheritSourceSkillCastInfo: boolean;
 }
 
 export interface GeneratedResourceGainPayload {

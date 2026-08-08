@@ -177,3 +177,34 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
     'atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
   },
 );
+
+export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'ultimate',
+    timelineBlockFrames: 91,
+    cooldownFrames: 450,
+    costs: [{ resource: 'ultimateEnergy', value: 240 }],
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        78,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0030_zhuangfy_ult_base',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'duration': { kind: 'blackboard', key: 'duration' },
+              'combo_cd_rate': { kind: 'blackboard', key: 'combo_cd_rate' },
+            },
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'combo_cd_rate': 4,
+    'duration': 25,
+    'duration_extra': 1,
+  },
+);
