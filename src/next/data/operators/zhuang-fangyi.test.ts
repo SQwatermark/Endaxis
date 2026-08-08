@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  zhuangFangyiBasicAttack2 as generatedBasicAttack2,
   zhuangFangyiBasicAttack4 as generatedBasicAttack4,
   zhuangFangyiBasicAttack5 as generatedBasicAttack5,
 } from './generated/zhuang-fangyi.skills.audit.generated';
@@ -9,6 +10,44 @@ import { zhuangFangyi } from './zhuang-fangyi';
 const getSkill = (key: string) => findSkill(zhuangFangyi, key);
 
 describe('next Zhuang Fangyi definition', () => {
+  it('uses per-hit second-attack scales instead of the separate display total', () => {
+    const damageSteps = generatedBasicAttack2.scheduledSequences.flatMap(item =>
+      collectSteps(item.sequence).filter(step => step.kind === 'dealDamage'),
+    );
+    expect(
+      generatedBasicAttack2.scheduledSequences
+        .filter(item => collectSteps(item.sequence).some(step => step.kind === 'dealDamage'))
+        .map(item => item.startFrame),
+    ).toEqual([2, 2, 15, 24, 27, 30]);
+
+    const currentDamage = collectSteps(
+      getSkill('basicAttack2').scheduledSequences[0]!.sequence,
+    ).find(step => step.kind === 'dealDamage');
+    if (!currentDamage || currentDamage.kind !== 'dealDamage') {
+      throw new Error('missing current basic attack damage');
+    }
+    const expected = currentDamage.parameters.attackScale;
+    if (!Array.isArray(expected)) throw new Error('expected per-level current attack scale');
+    const actual = expected.map((_, level) =>
+      Number(
+        damageSteps
+          .reduce((sum, step) => {
+            if (step.kind !== 'dealDamage') return sum;
+            const scale = step.parameters.attackScale;
+            if (!Array.isArray(scale)) {
+              throw new Error('expected per-level generated attack scale');
+            }
+            return sum + scale[level]!;
+          }, 0)
+          .toFixed(10),
+      ),
+    );
+    expect(actual).toEqual([0.26, 0.28, 0.28, 0.34, 0.34, 0.36, 0.4, 0.42, 0.42, 0.48, 0.48, 0.54]);
+    expect(expected).toEqual([
+      0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54,
+    ]);
+  });
+
   it('keeps all four fourth-attack hits and restores their interval timing', () => {
     const current = getSkill(generatedBasicAttack4.key);
     expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);

@@ -4583,17 +4583,8 @@ def compile_resolved_sequence(
         for condition in skill.conditionalActions
         if is_single_enemy_ability_entity_projection(condition)
     )
-    if collapse_single_enemy_entity_branches:
-        unsupported_conditions = [
-            condition.actionPath
-            for condition in skill.conditionalActions
-            if condition.actionPath not in projected_condition_paths
-        ]
-        if unsupported_conditions:
-            raise ValueError(
-                f"{skill.key}: single-enemy ability entity projection does not cover "
-                f"conditions {unsupported_conditions}"
-            )
+    if collapse_single_enemy_entity_branches and not projected_condition_paths:
+        raise ValueError(f"{skill.key}: no single-enemy ability entity branch can be projected")
     combat_auxiliary_actions = [
         action
         for action in getattr(skill, "auxiliaryActions", [])
