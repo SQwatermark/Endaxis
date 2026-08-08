@@ -2238,14 +2238,24 @@ def parse_entity_blackboard_assignments(
     action: dict[str, Any],
     path: str,
 ) -> tuple[EntityBlackboardAssignmentSource, ...]:
-    """严格解析动作写入新实体黑板的显式赋值；未启用时必须为空。"""
+    """严格解析动作写入新实体黑板的显式赋值，并识别编辑器的关闭态空占位。"""
     assign_entity_blackboard = require_bool(
         action.get("assignEntityBlackboard"),
         f"{path}.assignEntityBlackboard",
     )
     raw_assignments = require_list(action.get("assignPairs"), f"{path}.assignPairs")
     if not assign_entity_blackboard:
-        if raw_assignments:
+        disabled_placeholder = [
+            {
+                "targetKey": "",
+                "inputValueKey": "",
+                "useDirectValue": False,
+                "directValueType": "Numeric",
+                "numericValue": 0.0,
+                "stringValue": "",
+            }
+        ]
+        if raw_assignments and raw_assignments != disabled_placeholder:
             raise ValueError(f"{path}.assignPairs: expected empty when assignment is disabled")
         return ()
     assignments: list[EntityBlackboardAssignmentSource] = []

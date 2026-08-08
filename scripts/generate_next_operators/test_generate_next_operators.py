@@ -69,6 +69,7 @@ from generate_next_operators import (
     parse_timeline,
     parse_target_group_writes,
     parse_direct_damage_hits,
+    parse_entity_blackboard_assignments,
     parse_interval_damage_hits,
     parse_damage_units,
     parse_inflictions,
@@ -5545,6 +5546,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0].sourceId, "fake_target")
         self.assertEqual(actions[0].classification, "nonCombatAbilityEntity")
+
+    def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
+        placeholder = {
+            "targetKey": "",
+            "inputValueKey": "",
+            "useDirectValue": False,
+            "directValueType": "Numeric",
+            "numericValue": 0.0,
+            "stringValue": "",
+        }
+        action = {
+            "assignEntityBlackboard": False,
+            "assignPairs": [placeholder],
+        }
+
+        self.assertEqual(parse_entity_blackboard_assignments(action, "fixture"), ())
+
+        action["assignPairs"] = [{**placeholder, "targetKey": "meaningful"}]
+        with self.assertRaisesRegex(ValueError, "expected empty when assignment is disabled"):
+            parse_entity_blackboard_assignments(action, "fixture")
 
     def test_ability_entity_child_skill_keeps_spawn_offset_and_combat_details(self) -> None:
         spawn = {

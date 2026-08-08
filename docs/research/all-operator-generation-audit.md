@@ -10,7 +10,7 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：282 个。
+- 进入严格中间层：283 个。
 - 无角色专用声明即可进入通用 DSL：245 个。
 - 当前整名干员完整直转：6 名。
 
@@ -21,7 +21,7 @@
 
 | 干员           | 角色 ID             | 入口 | 已解析 | 已编译 | 完整直转 |
 | -------------- | ------------------- | ---: | -----: | -----: | -------- |
-| Tangtang       | `chr_0027_tangtang` |   11 |      9 |      8 | 否       |
+| Tangtang       | `chr_0027_tangtang` |   11 |     10 |      8 | 否       |
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |     10 | 是       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
@@ -61,14 +61,13 @@
 | `source-data-missing`      |     21 |
 | `buff-source-or-target`    |     17 |
 | `condition-other`          |      6 |
+| `other`                    |      4 |
 | `condition-distance`       |      3 |
 | `conditional-leaf`         |      3 |
-| `other`                    |      3 |
 | `root-action-coverage`     |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
 | `condition-entity-count`   |      1 |
-| `parser-assignment-shape`  |      1 |
 | `projectile-data`          |      1 |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
@@ -145,11 +144,11 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                          | 涉及技能数 |
 | ----------------------------- | ---------: |
-| `DamageAction`                |        206 |
-| `IfElseAction`                |        150 |
-| `ObtainCostAction`            |        145 |
+| `DamageAction`                |        207 |
+| `IfElseAction`                |        151 |
+| `ObtainCostAction`            |        146 |
 | `CreateBuffAction`            |        115 |
-| `LaunchProjectile`            |         70 |
+| `LaunchProjectile`            |         71 |
 | `SpawnAbilityEntity`          |         27 |
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
