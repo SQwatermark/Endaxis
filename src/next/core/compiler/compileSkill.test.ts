@@ -193,6 +193,7 @@ describe('compileSkill', () => {
                 parameters: {
                   resource: 'sp',
                   amount: [10, 20],
+                  coefficient: [0.5, 0.25],
                   recipient: 'team',
                   spGainKind: 'refund',
                 },
@@ -216,6 +217,7 @@ describe('compileSkill', () => {
       parameters: {
         resource: 'sp',
         amount: 20,
+        coefficient: 0.25,
         recipient: 'team',
         spGainKind: 'refund',
       },

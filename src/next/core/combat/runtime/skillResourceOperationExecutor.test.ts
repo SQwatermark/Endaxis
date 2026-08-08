@@ -246,6 +246,7 @@ describe('SkillResourceOperationExecutor', () => {
           parameters: {
             resource: 'sp',
             amount: { kind: 'blackboard', key: 'atbReturn' },
+            coefficient: 0.5,
             recipient: 'team',
             spGainKind: 'refund',
             spGainSource: 'default',
@@ -255,11 +256,11 @@ describe('SkillResourceOperationExecutor', () => {
       ),
     ).toBe(true);
 
-    expect(resources.sp).toBe(280);
-    expect(resources.returnedSp).toBe(30);
+    expect(resources.sp).toBe(265);
+    expect(resources.returnedSp).toBe(15);
     expect(receipt.entries[0]).toMatchObject({
       event: 'SpChanged',
-      data: { baseValue: 30, gainKind: 'refund' },
+      data: { baseValue: 15, gainKind: 'refund' },
     });
   });
 

@@ -512,10 +512,16 @@ function validateCombatStepParameters(
       break;
     case 'changeResource':
       validateLevelValues(parameters.amount, `${path}.amount`, issues);
+      if (parameters.coefficient !== undefined) {
+        validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
+      }
       validateResourceChangeMetadata(parameters, path, issues);
       break;
     case 'changeResourceByActionValue':
       validateActionValueOperand(parameters.amount, `${path}.amount`, issues);
+      if (parameters.coefficient !== undefined) {
+        validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
+      }
       validateResourceChangeMetadata(parameters, path, issues);
       break;
     case 'gainSquadUltimateEnergyFromSkillCost':

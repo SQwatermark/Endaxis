@@ -2207,7 +2207,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     resourceGain=ResourceGainPayload(
                         resource="sp",
                         amount=ScalarSource(None, "atbReturn", None),
-                        coefficient=ScalarSource(1, None, None),
+                        coefficient=ScalarSource(0.5, None, None),
                         spGainKind="refund",
                         spGainSource="skill",
                         onlyMainOperator=False,
@@ -2225,6 +2225,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("changeResourceByActionValue", result)
         self.assertIn("amount: { kind: 'blackboard', key: 'atbReturn' }", result)
+        self.assertIn("coefficient: 0.5", result)
         self.assertIn("spGainKind: 'refund'", result)
         self.assertIn("spGainSource: 'skill'", result)
 

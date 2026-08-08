@@ -52,8 +52,9 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       step.parameters.resource === 'sp' &&
       step.parameters.recipient === 'team'
     ) {
+      const amount = Math.fround(step.parameters.amount * (step.parameters.coefficient ?? 1));
       const change = this.dependencies.resources.gainSp(
-        step.parameters.amount,
+        amount,
         step.parameters.spGainKind,
         step.parameters.spGainSource ?? 'default',
       );
@@ -80,9 +81,10 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       step.parameters.resource === 'ultimateEnergy' &&
       step.parameters.recipient === 'caster'
     ) {
+      const amount = Math.fround(step.parameters.amount * (step.parameters.coefficient ?? 1));
       const change = this.dependencies.resources.changeUltimateEnergy(
         this.dependencies.sourceOperatorId,
-        step.parameters.amount,
+        amount,
       );
       this.#recordUltimateEnergyChange(change);
       return true;

@@ -4912,8 +4912,6 @@ def compile_resource_gain(
         if gain.coefficient.levelValues is not None
         else (gain.coefficient.value,)
     )
-    if coefficient != 1:
-        raise ValueError(f"{path}: resource gain coefficient other than 1 is not supported")
     recipient = resource_recipient(gain.resource)
     if gain.resource == "ultimateEnergy" and (
         gain.isPercentValue
@@ -4925,6 +4923,8 @@ def compile_resource_gain(
         f"resource: {ts_inline_literal(gain.resource)}",
         f"recipient: {ts_inline_literal(recipient)}",
     ]
+    if coefficient != 1:
+        fields.insert(1, f"coefficient: {ts_inline_literal(coefficient)}")
     if gain.resource == "sp":
         if gain.spGainKind is None or gain.spGainSource is None:
             raise ValueError(f"{path}: missing SP gain method or source")

@@ -357,6 +357,8 @@ export interface CombatStepParameters {
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
+    /** 原生 ObtainCostAction 在资源效率链之前乘到 amount 上；省略时为 1。 */
+    coefficient?: LevelValues;
     recipient: ResourceRecipient;
     /** 仅对正向技力变化有效；省略时按普通获得处理。 */
     spGainKind?: SpGainKind;
@@ -366,6 +368,8 @@ export interface CombatStepParameters {
   changeResourceByActionValue: {
     resource: CombatResource;
     amount: ActionValueOperand;
+    /** 原生 ObtainCostAction 在资源效率链之前乘到动态 amount 上；省略时为 1。 */
+    coefficient?: LevelValues;
     recipient: ResourceRecipient;
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;

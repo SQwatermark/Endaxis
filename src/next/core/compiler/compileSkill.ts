@@ -151,6 +151,15 @@ function resolveStep(
             skillLevel,
             `${path}.parameters.amount`,
           ),
+          ...(step.parameters.coefficient === undefined
+            ? {}
+            : {
+                coefficient: resolveLevelValue(
+                  step.parameters.coefficient,
+                  skillLevel,
+                  `${path}.parameters.coefficient`,
+                ),
+              }),
           recipient: step.parameters.recipient,
           ...(step.parameters.spGainKind === undefined
             ? {}
@@ -244,8 +253,25 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'changeResourceByActionValue':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'changeResourceByActionValue': {
+      const { coefficient, ...parameters } = step.parameters;
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...parameters,
+          ...(coefficient === undefined
+            ? {}
+            : {
+                coefficient: resolveLevelValue(
+                  coefficient,
+                  skillLevel,
+                  `${path}.parameters.coefficient`,
+                ),
+              }),
+        },
+      };
+    }
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,
