@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 234,
+    "compiledCount": 235,
     "completeOperatorCount": 3,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -18,7 +18,7 @@
       "projectile-data": 1,
       "conditional-leaf": 3,
       "condition-entity-count": 1,
-      "root-action-coverage": 10,
+      "root-action-coverage": 9,
       "other": 3,
       "condition-main-operator": 1,
       "condition-other": 6,
@@ -1166,11 +1166,10 @@
       "operatorName": "Camille",
       "skillCount": 12,
       "parsedCount": 12,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 3,
-        "root-action-coverage": 1
+        "buff-source-or-target": 3
       }
     }
   ],
@@ -1303,7 +1302,7 @@
         "ObtainCostAction",
         "SpawnAbilityEntity"
       ],
-      "conditionCount": 1,
+      "conditionCount": 6,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
       "abilityEntityCount": 1
@@ -2520,7 +2519,7 @@
         "ObtainCostAction",
         "SpellInfliction"
       ],
-      "conditionCount": 2,
+      "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -4218,7 +4217,7 @@
       "blockerKind": "condition-distance",
       "blocker": "normal_skill.schedule[3].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
-      "conditionCount": 1,
+      "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5466,7 +5465,7 @@
       "blockerKind": "buff-source-or-target",
       "blocker": "combo_skill.schedule[2].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 2,
+      "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5478,9 +5477,9 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill_2.schedule[4].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
+      "blocker": "combo_skill_2.schedule[5].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 2,
+      "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5616,9 +5615,9 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5626,7 +5625,7 @@
         "ObtainCostAction",
         "SpellInfliction"
       ],
-      "conditionCount": 1,
+      "conditionCount": 2,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
       "abilityEntityCount": 0

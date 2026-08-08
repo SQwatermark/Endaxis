@@ -2669,6 +2669,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("'do-once:", compiled)
         self.assertIn("step('changeResource'", compiled)
 
+    def test_root_do_once_reuses_scope_across_projected_frames(self) -> None:
+        gain = {
+            "$type": "Example.ObtainCostAction+Data, Example",
+            "serverActionIndex": 4,
+            "costType": "Atb",
+            "isPercentValue": False,
+            "useUspRecoverTag": False,
+            "uspRecoverTag": {"tagId": 0},
+            "ignoreUspGainScalar": False,
+            "atbSourceType": "Skill",
+            "atbGainMethod": "Gain",
+            "costValue": {"useBlackboardKey": False, "value": 8, "blackboardKey": ""},
+            "coefficient": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "atbOnlyMainChar": False,
+        }
+        shared_once = {
+            "$type": "Example.DoOnceAction+Data, Example",
+            "serverActionIndex": 3,
+            "sequenceActionData": {"actionData": [gain]},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": frame,
+                        "_endFrame": frame,
+                        "_sequenceActionData": {"actionData": [shared_once]},
+                    }
+                    for frame in (2, 5)
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "root-once.json", {})
+
+        self.assertEqual([action.startFrame for action in actions], [2, 5])
+        self.assertEqual(actions[0].onceScopeKey, actions[1].onceScopeKey)
+        self.assertEqual(
+            collect_compilable_conditional_action_types(actions),
+            {"DoOnceAction", "ObtainCostAction"},
+        )
+        self.assertTrue(
+            compile_conditional_action(actions[0], "root-once.action").startswith("once(\n")
+        )
+
     def test_conditional_audit_parses_effect_leaf_payloads(self) -> None:
         scalar = {"useBlackboardKey": False, "value": 2, "blackboardKey": ""}
         condition = {

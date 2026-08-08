@@ -676,6 +676,13 @@ class SwitchActionSource(ConditionalActionSource):
 
 
 @dataclass(frozen=True)
+class DoOnceActionSource(ConditionalActionSource):
+    """根时间轴中的一次性动作；同一技能释放内共享作用域。"""
+
+    onceScopeKey: str = ""
+
+
+@dataclass(frozen=True)
 class BlackboardCalculationSource:
     startFrame: int
     endFrame: int
@@ -2298,6 +2305,7 @@ def parse_conditional_actions(
     """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[ConditionalActionSource] = []
+    once_scope_keys: dict[int, str] = {}
 
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
@@ -3000,6 +3008,39 @@ def parse_conditional_actions(
             if conditional is not None:
                 result.append(conditional)
             # Switch 选项已被保存为嵌套条件链，不能再把内部动作提升到根调度。
+            return
+        if action_type == "DoOnceAction":
+            action_path = f"{source_name}.{'.'.join(path)}"
+            once_actions = parse_branch(
+                value.get("sequenceActionData"),
+                start_frame,
+                end_frame,
+                (*path, "sequenceActionData"),
+                execution_frames,
+            )
+            if once_actions:
+                # ChannelingAction 投影会让多个时间点共享同一个 actionOnTick 对象；
+                # 首次遇到时生成稳定作用域，后续投影必须沿用它。
+                scope_key = once_scope_keys.setdefault(
+                    id(value), "do-once:" + ".".join(path)
+                )
+                result.append(
+                    DoOnceActionSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=require_non_negative_int(
+                            value.get("serverActionIndex"),
+                            f"{action_path}.serverActionIndex",
+                        ),
+                        actionPath=path,
+                        conditions=(),
+                        succeedActions=once_actions,
+                        failActions=(),
+                        executionFrames=execution_frames,
+                        onceScopeKey=scope_key,
+                    )
+                )
+            # 内部动作已保存在一次性节点中，不能再提升到根调度。
             return
         for key, child in value.items():
             visit(child, start_frame, end_frame, (*path, key), execution_frames)
@@ -7030,6 +7071,32 @@ def compile_conditional_action(
     skill_has_output_damage: bool = False,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
+    if isinstance(action, DoOnceActionSource):
+        body = compile_conditional_branch(
+            action.succeedActions,
+            f"{path}.succeedActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
+            projected_projectile_launches=action.projectedProjectileLaunches,
+            context_action=action,
+        )
+        if body == "sequence()":
+            return body
+        body_lines = indent_source(body, 2)
+        body_lines[-1] += ","
+        return "\n".join(
+            [
+                "once(",
+                f"  {ts_inline_literal(action.onceScopeKey)},",
+                *body_lines,
+                ")",
+            ]
+        )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
     projected_ability_entity_spawns = getattr(
@@ -7342,9 +7409,12 @@ def collect_compilable_conditional_action_types(
                 result.add("LaunchProjectile")
 
     def visit(action: ConditionalActionSource) -> None:
-        result.add(
-            "SwitchAction" if isinstance(action, SwitchActionSource) else "IfElseAction"
-        )
+        if isinstance(action, DoOnceActionSource):
+            result.add("DoOnceAction")
+        else:
+            result.add(
+                "SwitchAction" if isinstance(action, SwitchActionSource) else "IfElseAction"
+            )
         result.update(condition.sourceType for condition in action.conditions)
         projected_spawns = getattr(action, "projectedAbilityEntitySpawns", ())
         projected_launches = getattr(action, "projectedProjectileLaunches", ())
