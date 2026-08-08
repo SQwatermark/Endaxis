@@ -5450,16 +5450,20 @@ def parse_timeline(
     for index, raw in enumerate(timeline):
         item = require_dict(raw, f"{source_name}.timelineActions[{index}]")
         sequence = require_dict(item.get("_sequenceActionData"), f"{source_name}.timelineActions[{index}]._sequenceActionData")
-        types = tuple(
-            action_name(action["$type"])
-            for action in walk_actions(sequence)
-            if id(action) not in consumed_action_ids
-        )
+        types: list[str] = []
+        for action in walk_actions(sequence):
+            if id(action) in consumed_action_ids:
+                continue
+            name = action_name(action["$type"])
+            # Switch 只是控制流容器；纯镜头、停帧等选项不属于战斗模拟缺口。
+            if name == "SwitchAction" and not contains_combat_effect(action):
+                continue
+            types.append(name)
         result.append(
             TimelineActionSource(
                 startFrame=require_non_negative_int(item.get("_startFrame"), f"{source_name}.timelineActions[{index}]._startFrame"),
                 endFrame=require_non_negative_int(item.get("_endFrame"), f"{source_name}.timelineActions[{index}]._endFrame"),
-                actionTypes=types,
+                actionTypes=tuple(types),
             )
         )
     return tuple(result)
@@ -8035,8 +8039,12 @@ def compile_resolved_sequence(
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
         allowed_actions.add("ObtainCostAction")
-    if not set(skill.unresolvedCombatActions).issubset(allowed_actions):
-        raise ValueError(f"{skill.key}: unresolved combat actions are not covered by resolved damage compiler")
+    uncovered_actions = sorted(set(skill.unresolvedCombatActions) - allowed_actions)
+    if uncovered_actions:
+        raise ValueError(
+            f"{skill.key}: unresolved combat actions are not covered by resolved damage "
+            f"compiler: {uncovered_actions}"
+        )
     hits = collect_resolved_damage_hits(skill)
     if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")

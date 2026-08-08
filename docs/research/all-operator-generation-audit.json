@@ -7,22 +7,22 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 230,
+    "compiledCount": 232,
     "completeOperatorCount": 3,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-tick-interval": 2,
-      "root-action-coverage": 17,
+      "condition-distance": 6,
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
-      "condition-distance": 4,
+      "root-action-coverage": 12,
       "conditional-leaf": 3,
       "condition-entity-count": 1,
       "other": 3,
       "condition-main-operator": 1,
-      "source-data-missing": 21,
-      "condition-other": 5
+      "condition-other": 6,
+      "source-data-missing": 21
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 70,
@@ -34,7 +34,7 @@
       "SpawnAbilityEntity": 27,
       "SpellInfliction": 12,
       "FractureAction": 2,
-      "SwitchAction": 7,
+      "SwitchAction": 4,
       "CheckMainCharacterCondition": 1,
       "CreateTimedMarker": 7,
       "AddGlobalCDTimer": 1
@@ -851,7 +851,7 @@
       "blockerKinds": {
         "parser-assignment-shape": 1,
         "parser-tick-interval": 1,
-        "root-action-coverage": 1
+        "condition-distance": 1
       }
     },
     {
@@ -928,7 +928,8 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 3
+        "root-action-coverage": 2,
+        "condition-distance": 1
       }
     },
     {
@@ -1006,7 +1007,7 @@
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "root-action-coverage": 1
+        "condition-other": 1
       }
     },
     {
@@ -1155,10 +1156,9 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 7,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 2,
         "condition-other": 2
       }
     },
@@ -1294,8 +1294,8 @@
       "skillId": "chr_0027_tangtang_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blockerKind": "condition-distance",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",
@@ -2142,7 +2142,7 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
       "unresolvedActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -2253,8 +2253,8 @@
       "skillId": "chr_0012_avywen_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blockerKind": "condition-distance",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",
@@ -2273,7 +2273,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -2678,7 +2678,7 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['FractureAction']",
       "unresolvedActions": [
         "DamageAction",
         "FractureAction",
@@ -3240,15 +3240,9 @@
       "skillId": "chr_0024_deepfin_power_attack",
       "skillType": "finisher",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler",
-      "unresolvedActions": [
-        "CreateBuffAction",
-        "DamageAction",
-        "IfElseAction",
-        "ObtainCostAction",
-        "SwitchAction"
-      ],
+      "blockerKind": "condition-other",
+      "blocker": "power_attack.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3371,7 +3365,7 @@
       "skillType": "basicAttack",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "attack4: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "attack4: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
       "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
       "conditionCount": 0,
       "referencedBuffCount": 1,
@@ -3385,7 +3379,7 @@
       "skillType": "basicAttack",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "attack5: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "attack5: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
       "unresolvedActions": [
         "CreateTimedMarker",
         "DamageAction",
@@ -3404,7 +3398,7 @@
       "skillType": "finisher",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
       "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
       "conditionCount": 0,
       "referencedBuffCount": 2,
@@ -3446,7 +3440,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['SpellInfliction']",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3831,7 +3825,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['IfElseAction']",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 0,
       "referencedBuffCount": 3,
@@ -4256,7 +4250,7 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['CreateBuffAction']",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4781,7 +4775,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
       "unresolvedActions": [
         "CreateBuffAction",
         "CreateTimedMarker",
@@ -5054,7 +5048,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['FractureAction']",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5329,10 +5323,10 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_attack1",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack1: unresolved combat actions are not covered by resolved damage compiler",
-      "unresolvedActions": ["DamageAction", "IfElseAction", "SwitchAction"],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction", "IfElseAction"],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5357,10 +5351,10 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_attack3",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack3: unresolved combat actions are not covered by resolved damage compiler",
-      "unresolvedActions": ["DamageAction", "IfElseAction", "SwitchAction"],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction", "IfElseAction"],
       "conditionCount": 12,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5625,7 +5619,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",

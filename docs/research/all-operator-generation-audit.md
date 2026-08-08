@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：282 个。
-- 无角色专用声明即可进入通用 DSL：230 个。
+- 无角色专用声明即可进入通用 DSL：232 个。
 - 当前整名干员完整直转：3 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -48,7 +48,7 @@
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      7 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     12 |      8 | 否       |
 
 ## 共通阻塞簇
@@ -60,9 +60,9 @@
 | -------------------------- | -----: |
 | `source-data-missing`      |     21 |
 | `buff-source-or-target`    |     17 |
-| `root-action-coverage`     |     17 |
-| `condition-other`          |      5 |
-| `condition-distance`       |      4 |
+| `root-action-coverage`     |     12 |
+| `condition-distance`       |      6 |
+| `condition-other`          |      6 |
 | `conditional-leaf`         |      3 |
 | `other`                    |      3 |
 | `parser-tick-interval`     |      2 |
@@ -154,7 +154,7 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `SpawnAbilityEntity`          |         27 |
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
-| `SwitchAction`                |          7 |
+| `SwitchAction`                |          4 |
 | `CheckDistanceCondition`      |          2 |
 | `FractureAction`              |          2 |
 | `AddGlobalCDTimer`            |          1 |

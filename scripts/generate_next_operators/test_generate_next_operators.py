@@ -3988,6 +3988,50 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
         )
 
+    def test_presentation_only_switch_is_not_a_combat_coverage_gap(self) -> None:
+        switch = {
+            "$type": "Example.SwitchAction+Data, Example",
+            "isEnable": True,
+            "serverActionIndex": 1,
+            "options": [
+                {
+                    "actionData": {
+                        "actionData": [
+                            {
+                                "$type": "Example.HitStopAction+Data, Example",
+                                "isEnable": True,
+                            },
+                            {
+                                "$type": "Example.CameraImpulseAction+Data, Example",
+                                "isEnable": True,
+                            },
+                        ]
+                    }
+                }
+            ],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {"actionData": [switch]},
+                    }
+                ]
+            }
+        }
+
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertNotIn("SwitchAction", unresolved)
+
+        switch["options"][0]["actionData"]["actionData"].append(
+            {"$type": "Example.DamageAction+Data, Example", "isEnable": True}
+        )
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertIn("SwitchAction", unresolved)
+        self.assertIn("DamageAction", unresolved)
+
     def test_condition_compiler_rejects_enemy_main_operator_checks(self) -> None:
         condition = ConditionSource(
             sourceType="CheckMainCharacterCondition",
