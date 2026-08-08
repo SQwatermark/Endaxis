@@ -455,6 +455,11 @@ class GlobalCooldownConditionSource:
 
 
 @dataclass(frozen=True)
+class SkillHasHitConditionSource:
+    """原生条件读取当前技能实例是否已经对战斗目标输出过伤害。"""
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -471,6 +476,7 @@ class ConditionSource:
     entityTag: "EntityTagConditionSource | None" = None
     timedMarker: "TimedMarkerConditionSource | None" = None
     globalCooldown: "GlobalCooldownConditionSource | None" = None
+    skillHasHit: "SkillHasHitConditionSource | None" = None
 
 
 @dataclass(frozen=True)
@@ -817,6 +823,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "entityTag",
         "timedMarker",
         "globalCooldown",
+        "skillHasHit",
         "nestedCondition",
         "onceScopeKey",
         "onceActions",
@@ -2302,6 +2309,16 @@ def parse_conditional_actions(
                     targetGroupKey=target_group_key,
                     buffId=buff_id,
                 ),
+            )
+        if condition_type == "CheckSkillHasHit":
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                skillHasHit=SkillHasHitConditionSource(),
             )
         if condition_type == "CheckHp":
             target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
@@ -4817,6 +4834,22 @@ def resource_gain_can_change_value(
     return any(value != 0 for value in require_level_values(gain.amount, path))
 
 
+def root_skill_has_output_damage_before(
+    schedule: tuple[ResolvedScheduleItemSource, ...],
+    current_index: int,
+    skill_id: str,
+) -> bool:
+    """判断当前调度项之前，根技能是否已经执行过必然命中的伤害。"""
+    current = schedule[current_index]
+    current_order = (current.frame, current.actionOrder)
+    return any(
+        item.itemType == "damage"
+        and item.sourcePath == (skill_id,)
+        and (item.frame, item.actionOrder) < current_order
+        for item in schedule
+    )
+
+
 def collect_projectile_schedule(
     hit: ProjectileTriggeredSkillSource,
     result: list[ResolvedScheduleItemSource],
@@ -5453,6 +5486,7 @@ def compile_combat_condition(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
+    skill_has_output_damage: bool = False,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
     if is_guaranteed_single_enemy_condition(
@@ -5610,6 +5644,15 @@ def compile_combat_condition(
             f"{ts_inline_literal(cooldown.buffId)} }}"
         )
         return f"{{ kind: 'not', condition: {present} }}"
+    if source.sourceType == "CheckSkillHasHit":
+        if source.skillHasHit is None:
+            raise ValueError(f"{path}: missing skill hit condition payload")
+        if not root_skill_context:
+            raise ValueError(f"{path}: child skill hit state is not projected")
+        if not skill_has_output_damage:
+            raise ValueError(f"{path}: no prior guaranteed damage from the current skill")
+        # Next 固定单敌人且伤害必然命中；调度器已证明当前技能此前输出过伤害。
+        return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType in {
         "CheckBuffStackNum",
         "CheckBuffStackNumAdvanced",
@@ -5715,6 +5758,7 @@ def compile_combat_condition_group(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
+    skill_has_output_damage: bool = False,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
@@ -5727,6 +5771,7 @@ def compile_combat_condition_group(
             target_group_writes,
             root_skill_context,
             input_target,
+            skill_has_output_damage,
         )
         for index, condition in enumerate(conditions)
     ]
@@ -6338,6 +6383,7 @@ def compile_conditional_action(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
+    skill_has_output_damage: bool = False,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     projected_ability_entity_spawns = getattr(
@@ -6351,6 +6397,7 @@ def compile_conditional_action(
         target_group_writes,
         root_skill_context,
         input_target,
+        skill_has_output_damage,
     )
     succeed = compile_conditional_branch(
         action.succeedActions,
@@ -7363,6 +7410,9 @@ def compile_resolved_sequence(
                 target_group_writes=target_group_writes,
                 root_skill_context=item.sourcePath == payload.actionPath,
                 input_target=item.inputTarget,
+                skill_has_output_damage=root_skill_has_output_damage_before(
+                    schedule, schedule_index, skill.skillId
+                ),
             )
             if compiled_condition == "sequence()":
                 continue

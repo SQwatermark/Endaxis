@@ -350,6 +350,9 @@ export interface GeneratedDistanceConditionSource {
   readonly containsHittableObject: boolean;
 }
 
+/** 当前技能实例是否已经对战斗目标输出过伤害；该原生条件没有额外配置字段。 */
+export type GeneratedSkillHasHitConditionSource = Readonly<Record<string, never>>;
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -364,6 +367,7 @@ export interface GeneratedConditionSource {
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
   readonly entityTag?: GeneratedEntityTagConditionSource;
+  readonly skillHasHit?: GeneratedSkillHasHitConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {

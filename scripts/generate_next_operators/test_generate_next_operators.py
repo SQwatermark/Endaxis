@@ -14,6 +14,7 @@ from generate_next_operators import (
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_resolved_schedule,
+    root_skill_has_output_damage_before,
     root_target_group_writes_for_condition,
     resolve_latest_target_group_write_at,
     collect_timed_marker_damage_gates,
@@ -38,6 +39,7 @@ from generate_next_operators import (
     BuffHoldSource,
     BuffStackReadPayload,
     DamageUnitSource,
+    ResolvedScheduleItemSource,
     EntityBlackboardAssignmentSource,
     ProjectileLaunchPayload,
     ProjectileSkillTriggerSource,
@@ -53,6 +55,7 @@ from generate_next_operators import (
     ConditionSource,
     EntityCountConditionSource,
     MainOperatorConditionSource,
+    SkillHasHitConditionSource,
     InflictionPayload,
     classify_buff,
     derive_timeline_block,
@@ -2434,6 +2437,84 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("valueType: 'ratio'", compiled)
         self.assertIn("operator: 'greater'", compiled)
         self.assertIn("key: 'healthThreshold'", compiled)
+
+    def test_skill_has_hit_requires_prior_root_skill_damage(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 31,
+                        "_endFrame": 31,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 72,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckSkillHasHit+Data, Example",
+                                                "serverActionIndex": 73,
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+        condition = parse_conditional_actions(root, "skill.json", {})[0].conditions[0]
+
+        self.assertTrue(condition.supported)
+        self.assertIsInstance(condition.skillHasHit, SkillHasHitConditionSource)
+        with self.assertRaisesRegex(ValueError, "no prior guaranteed damage"):
+            compile_combat_condition_group(
+                (condition,), "fixture.conditions", root_skill_context=True
+            )
+        self.assertEqual(
+            compile_combat_condition_group(
+                (condition,),
+                "fixture.conditions",
+                root_skill_context=True,
+                skill_has_output_damage=True,
+            ),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
+        schedule = (
+            ResolvedScheduleItemSource(
+                frame=31,
+                actionOrder=(71,),
+                itemType="damage",
+                sourcePath=("root_skill",),
+                payload=SimpleNamespace(),
+            ),
+            ResolvedScheduleItemSource(
+                frame=31,
+                actionOrder=(72,),
+                itemType="condition",
+                sourcePath=("timeline",),
+                payload=SimpleNamespace(),
+            ),
+            ResolvedScheduleItemSource(
+                frame=31,
+                actionOrder=(74,),
+                itemType="damage",
+                sourcePath=("root_skill",),
+                payload=SimpleNamespace(),
+            ),
+        )
+        self.assertTrue(root_skill_has_output_damage_before(schedule, 1, "root_skill"))
+        self.assertFalse(root_skill_has_output_damage_before(schedule, 0, "root_skill"))
+        self.assertFalse(root_skill_has_output_damage_before(schedule, 1, "child_skill"))
 
     def test_health_condition_compiler_rejects_unmodeled_target_groups(self) -> None:
         condition = SimpleNamespace(
