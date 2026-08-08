@@ -1026,7 +1026,8 @@ export const zhuangFangyiGeneratedSource = {
         "CreateTimedMarker",
         "DamageAction",
         "IfElseAction",
-        "ObtainCostAction"
+        "ObtainCostAction",
+        "SwitchAction"
       ],
       "unparsedPayloads": []
     },
@@ -17203,7 +17204,8 @@ export const zhuangFangyiGeneratedSource = {
             "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
-            "SpellInfliction"
+            "SpellInfliction",
+            "SwitchAction"
           ],
           "buffSourceContextKey": null
         }
@@ -17624,7 +17626,8 @@ export const zhuangFangyiGeneratedSource = {
             "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
-            "SpellInfliction"
+            "SpellInfliction",
+            "SwitchAction"
           ],
           "cycleTruncated": false,
           "inheritsSourceBlackboard": true,

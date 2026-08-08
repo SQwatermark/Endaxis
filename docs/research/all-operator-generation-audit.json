@@ -7,32 +7,34 @@
   },
   "summary": {
     "parsedCount": 281,
-    "compiledCount": 230,
+    "compiledCount": 229,
     "completeOperatorCount": 2,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-tick-interval": 2,
-      "root-action-coverage": 14,
+      "root-action-coverage": 17,
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
       "condition-distance": 4,
       "other": 4,
       "conditional-leaf": 3,
-      "condition-entity-count": 2,
+      "condition-entity-count": 1,
       "condition-main-operator": 1,
-      "condition-other": 6,
-      "source-data-missing": 21
+      "source-data-missing": 21,
+      "condition-other": 5
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 69,
       "DamageAction": 206,
       "CreateBuffAction": 115,
       "CheckDistanceCondition": 2,
-      "IfElseAction": 148,
+      "IfElseAction": 150,
       "ObtainCostAction": 145,
       "SpawnAbilityEntity": 27,
       "SpellInfliction": 12,
+      "FractureAction": 2,
+      "SwitchAction": 7,
       "CheckMainCharacterCondition": 1,
       "CreateTimedMarker": 7,
       "AddGlobalCDTimer": 1
@@ -1002,11 +1004,10 @@
       "operatorName": "Alesh",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "condition-other": 1,
         "root-action-coverage": 1
       }
     },
@@ -1136,7 +1137,7 @@
       "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "condition-entity-count": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -1156,9 +1157,10 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 9,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
+        "root-action-coverage": 2,
         "condition-other": 2
       }
     },
@@ -2679,8 +2681,14 @@
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
       "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler",
-      "unresolvedActions": ["DamageAction", "ObtainCostAction", "SpellInfliction"],
-      "conditionCount": 0,
+      "unresolvedActions": [
+        "DamageAction",
+        "FractureAction",
+        "ObtainCostAction",
+        "SpellInfliction",
+        "SwitchAction"
+      ],
+      "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -3234,9 +3242,15 @@
       "skillId": "chr_0024_deepfin_power_attack",
       "skillType": "finisher",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "power_attack.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "blockerKind": "root-action-coverage",
+      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SwitchAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3261,10 +3275,16 @@
       "operatorName": "Alesh",
       "skillId": "chr_0024_deepfin_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SwitchAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -4244,9 +4264,10 @@
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction",
-        "SpellInfliction"
+        "SpellInfliction",
+        "SwitchAction"
       ],
-      "conditionCount": 1,
+      "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5034,10 +5055,17 @@
       "skillId": "chr_0029_pograni_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-entity-count",
-      "blocker": "normal_skill.schedule[2].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 3,
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "FractureAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SwitchAction"
+      ],
+      "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5303,10 +5331,10 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_attack1",
       "skillType": "basicAttack",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "attack1: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": ["DamageAction", "IfElseAction", "SwitchAction"],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5331,10 +5359,10 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_attack3",
       "skillType": "basicAttack",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "attack3: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": ["DamageAction", "IfElseAction", "SwitchAction"],
       "conditionCount": 12,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,

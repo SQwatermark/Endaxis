@@ -2444,6 +2444,164 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("DamageAction",),
         )
 
+    def test_conditional_audit_expands_switch_in_first_match_order(self) -> None:
+        def scalar(value: int, key: str = "") -> dict[str, object]:
+            return {
+                "useBlackboardKey": bool(key),
+                "value": value,
+                "blackboardKey": key,
+            }
+
+        def infliction(element: str) -> dict[str, object]:
+            return {
+                "$type": "Example.SpellInfliction+Data, Example",
+                "inflictionType": element,
+                "isExtra": False,
+            }
+
+        switch = {
+            "$type": "Example.SwitchAction+Data, Example",
+            "serverActionIndex": 4,
+            "alwaysNext": True,
+            "choice": scalar(0, "mode"),
+            "options": [
+                {"value": scalar(0), "actionData": {"actionData": []}},
+                {
+                    "value": scalar(1),
+                    "actionData": {"actionData": [infliction("Pulse")]},
+                },
+                {
+                    "value": scalar(1),
+                    "actionData": {"actionData": [infliction("Natural")]},
+                },
+            ],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 3,
+                        "_sequenceActionData": {"actionData": [switch]},
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "switch.json", {})[0]
+
+        self.assertEqual(action.conditions[0].left.blackboardKey, "mode")
+        self.assertEqual(action.conditions[0].right.value, 0)
+        self.assertEqual(action.succeedActions, ())
+        second = action.failActions[0].nestedCondition
+        self.assertEqual(second.conditions[0].right.value, 1)
+        self.assertEqual(second.succeedActions[0].infliction.element, "electric")
+        third = second.failActions[0].nestedCondition
+        self.assertEqual(third.succeedActions[0].infliction.element, "nature")
+        self.assertEqual(
+            collect_compilable_conditional_action_types((action,)),
+            {"SwitchAction", "CompareFloat", "SpellInfliction"},
+        )
+        compiled = compile_conditional_action(action, "switch.condition")
+        self.assertIn("kind: 'actionValueCompare'", compiled)
+        self.assertLess(
+            compiled.index("element: 'electric'"),
+            compiled.index("element: 'nature'"),
+        )
+
+    def test_conditional_audit_rejects_unsupported_switch_shapes(self) -> None:
+        scalar = {"useBlackboardKey": False, "value": 0, "blackboardKey": ""}
+        base_switch = {
+            "$type": "Example.SwitchAction+Data, Example",
+            "serverActionIndex": 1,
+            "alwaysNext": True,
+            "choice": {"useBlackboardKey": True, "value": 0, "blackboardKey": "mode"},
+            "options": [{"value": scalar, "actionData": {"actionData": []}}],
+        }
+
+        for field, value, message in (
+            ("alwaysNext", False, "only true is supported"),
+            ("choice", scalar, "expected Blackboard value"),
+            (
+                "options",
+                [
+                    {
+                        "value": {
+                            "useBlackboardKey": False,
+                            "value": 0.5,
+                            "blackboardKey": "",
+                        },
+                        "actionData": {"actionData": []},
+                    }
+                ],
+                "expected literal integer",
+            ),
+        ):
+            switch = dict(base_switch)
+            switch[field] = value
+            root = {
+                "actionGroupData": {
+                    "timelineActions": [
+                        {
+                            "_startFrame": 0,
+                            "_endFrame": 1,
+                            "_sequenceActionData": {"actionData": [switch]},
+                        }
+                    ]
+                }
+            }
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, message):
+                parse_conditional_actions(root, "switch.json", {})
+
+    def test_conditional_audit_does_not_silently_drop_fracture_action(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CompareFloat+Data, Example",
+                                                "valueA": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "compare": "Equals",
+                                                "valueB": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.FractureAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "fracture.json", {})[0]
+        self.assertEqual(action.succeedActions[0].actionType, "FractureAction")
+        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'FractureAction'"):
+            compile_conditional_action(action, "fracture.condition")
+
     def test_conditional_audit_preserves_do_once_resource_gain(self) -> None:
         compare = {
             "$type": "Example.CompareFloat+Data, Example",

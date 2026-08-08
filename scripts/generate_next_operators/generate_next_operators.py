@@ -671,6 +671,11 @@ class ConditionalActionSource:
 
 
 @dataclass(frozen=True)
+class SwitchActionSource(ConditionalActionSource):
+    """由原生 SwitchAction 展开的首项匹配条件链。"""
+
+
+@dataclass(frozen=True)
 class BlackboardCalculationSource:
     startFrame: int
     endFrame: int
@@ -912,6 +917,8 @@ COMBAT_ACTION_NAMES = {
     "SpellInfliction",
     "ObtainCostAction",
     "IfElseAction",
+    "SwitchAction",
+    "FractureAction",
     # 条件直接位于 SequenceAction 时会以 false 截断后续动作；在保留序列边界前必须视为战斗动作。
     *SEQUENCE_GUARD_ACTION_NAMES,
 }
@@ -928,9 +935,10 @@ CONSUMED_ROOT_TIMED_MARKERS = {
     ),
 }
 
-# IfElse 与序列守卫本身只组织控制流；是否影响战斗取决于其子树中的实际效果动作。
+# 分支动作与序列守卫本身只组织控制流；是否影响战斗取决于其子树中的实际效果动作。
 COMBAT_EFFECT_ACTION_NAMES = COMBAT_ACTION_NAMES - {
     "IfElseAction",
+    "SwitchAction",
     *SEQUENCE_GUARD_ACTION_NAMES,
 }
 AUDITED_COMBAT_EFFECT_ACTION_NAMES = (
@@ -2690,6 +2698,85 @@ def parse_conditional_actions(
             executionFrames=execution_frames,
         )
 
+    def parse_switch(
+        value: dict[str, Any],
+        start_frame: int,
+        end_frame: int,
+        path: tuple[str, ...],
+        execution_frames: tuple[int, ...],
+    ) -> ConditionalActionSource | None:
+        """把当前真实数据中的 Blackboard 整数 Switch 展开为首个匹配的条件链。"""
+        source_path = f"{source_name}.{'.'.join(path)}"
+        if value.get("alwaysNext") is not True:
+            raise ValueError(f"{source_path}.alwaysNext: only true is supported")
+        choice = parse_scalar(
+            value.get("choice"), f"{source_path}.choice", inherited_blackboard
+        )
+        if choice.blackboardKey is None:
+            raise ValueError(f"{source_path}.choice: expected Blackboard value")
+        options = require_list(value.get("options"), f"{source_path}.options")
+        nested: ConditionalActionSource | None = None
+        has_combat_actions = False
+        for option_index in range(len(options) - 1, -1, -1):
+            option = require_dict(
+                options[option_index], f"{source_path}.options[{option_index}]"
+            )
+            option_value = parse_scalar(
+                option.get("value"),
+                f"{source_path}.options[{option_index}].value",
+                inherited_blackboard,
+            )
+            if (
+                option_value.blackboardKey is not None
+                or not float(option_value.value).is_integer()
+            ):
+                raise ValueError(
+                    f"{source_path}.options[{option_index}].value: "
+                    "expected literal integer"
+                )
+            actions = parse_branch(
+                option.get("actionData"),
+                start_frame,
+                end_frame,
+                (*path, "options", f"[{option_index}]", "actionData"),
+                execution_frames,
+            )
+            has_combat_actions = has_combat_actions or bool(actions)
+            fail_actions = (
+                ()
+                if nested is None
+                else (
+                    ConditionalBranchActionSource(
+                        actionType="SwitchAction",
+                        actionIndex=option_index,
+                        nestedCondition=nested,
+                    ),
+                )
+            )
+            nested = SwitchActionSource(
+                startFrame=start_frame,
+                endFrame=end_frame,
+                actionIndex=require_non_negative_int(
+                    value.get("serverActionIndex"),
+                    f"{source_path}.serverActionIndex",
+                ),
+                actionPath=(*path, "options", f"[{option_index}]"),
+                conditions=(
+                    ConditionSource(
+                        sourceType="CompareFloat",
+                        supported=True,
+                        comparison="Equals",
+                        left=choice,
+                        right=option_value,
+                        skillTypes=(),
+                    ),
+                ),
+                succeedActions=actions,
+                failActions=fail_actions,
+                executionFrames=execution_frames,
+            )
+        return nested if has_combat_actions else None
+
     def parse_branch(
         value: Any,
         start_frame: int,
@@ -2718,6 +2805,22 @@ def parse_conditional_actions(
                 continue
             if action_type == "IfElseAction":
                 nested = parse_if_else(
+                    action,
+                    start_frame,
+                    end_frame,
+                    action_path,
+                    execution_frames,
+                )
+                if nested is not None:
+                    actions.append(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=index,
+                            nestedCondition=nested,
+                        )
+                    )
+            elif action_type == "SwitchAction":
+                nested = parse_switch(
                     action,
                     start_frame,
                     end_frame,
@@ -2885,6 +2988,18 @@ def parse_conditional_actions(
             if conditional is not None:
                 result.append(conditional)
             # 嵌套 IfElse 已由分支节点递归保存，不能再提升为并列的顶层条件。
+            return
+        if action_type == "SwitchAction":
+            conditional = parse_switch(
+                value,
+                start_frame,
+                end_frame,
+                path,
+                execution_frames,
+            )
+            if conditional is not None:
+                result.append(conditional)
+            # Switch 选项已被保存为嵌套条件链，不能再把内部动作提升到根调度。
             return
         for key, child in value.items():
             visit(child, start_frame, end_frame, (*path, key), execution_frames)
@@ -7140,7 +7255,7 @@ def collect_compilable_conditional_action_types(
     actions: tuple[ConditionalActionSource, ...],
 ) -> set[str]:
     """返回条件树中已由 DSL 编译器完整消费的原生动作类型。"""
-    result = {"IfElseAction"} if actions else set()
+    result: set[str] = set()
 
     def visit_branch_actions(
         branch_actions: tuple[ConditionalBranchActionSource, ...],
@@ -7156,7 +7271,6 @@ def collect_compilable_conditional_action_types(
                     projected_launches,
                 )
             if getattr(branch_action, "nestedCondition", None) is not None:
-                result.add("IfElseAction")
                 visit(branch_action.nestedCondition)
             if getattr(branch_action, "buffBlackboardRead", None) is not None:
                 result.add("GetTargetBuffBBAdvanced")
@@ -7197,6 +7311,9 @@ def collect_compilable_conditional_action_types(
                 result.add("LaunchProjectile")
 
     def visit(action: ConditionalActionSource) -> None:
+        result.add(
+            "SwitchAction" if isinstance(action, SwitchActionSource) else "IfElseAction"
+        )
         result.update(condition.sourceType for condition in action.conditions)
         projected_spawns = getattr(action, "projectedAbilityEntitySpawns", ())
         projected_launches = getattr(action, "projectedProjectileLaunches", ())
