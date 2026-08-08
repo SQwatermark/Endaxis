@@ -671,6 +671,11 @@ class ConditionalActionSource:
 
 
 @dataclass(frozen=True)
+class SequenceGuardActionSource(ConditionalActionSource):
+    """保留 SequenceAction 条件失败时截断后续兄弟动作的控制流。"""
+
+
+@dataclass(frozen=True)
 class SwitchActionSource(ConditionalActionSource):
     """由原生 SwitchAction 展开的首项匹配条件链。"""
 
@@ -2797,26 +2802,61 @@ def parse_conditional_actions(
         end_frame: int,
         path: tuple[str, ...],
         execution_frames: tuple[int, ...],
+        first_action_index: int = 0,
     ) -> tuple[ConditionalBranchActionSource, ...]:
         branch = require_dict(value, f"{source_name}.{'.'.join(path)}")
         actions: list[ConditionalBranchActionSource] = []
         raw_actions = require_list(
             branch.get("actionData"), f"{source_name}.{'.'.join(path)}.actionData"
         )
-        for index, raw_action in enumerate(raw_actions):
+        for index in range(first_action_index, len(raw_actions)):
+            raw_action = raw_actions[index]
             action = require_dict(raw_action, f"{source_name}.{'.'.join(path)}.actionData[{index}]")
             if action.get("isEnable") is False:
                 continue
             action_type = action_name(str(action.get("$type", "")))
             action_path = (*path, "actionData", f"[{index}]")
-            if (
-                action_type in SEQUENCE_GUARD_ACTION_NAMES
-                and not any(
+            if action_type in SEQUENCE_GUARD_ACTION_NAMES:
+                if not any(
                     contains_combat_effect(item)
                     for item in raw_actions[index + 1 :]
+                ):
+                    continue
+                guarded_actions = parse_branch(
+                    value,
+                    start_frame,
+                    end_frame,
+                    path,
+                    execution_frames,
+                    index + 1,
                 )
-            ):
-                continue
+                if guarded_actions:
+                    actions.append(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=index,
+                            nestedCondition=SequenceGuardActionSource(
+                                startFrame=start_frame,
+                                endFrame=end_frame,
+                                actionIndex=require_non_negative_int(
+                                    action.get("serverActionIndex"),
+                                    f"{source_name}.{'.'.join(action_path)}.serverActionIndex",
+                                ),
+                                actionPath=action_path,
+                                conditions=(
+                                    parse_condition(
+                                        action,
+                                        f"{source_name}.{'.'.join(action_path)}",
+                                    ),
+                                ),
+                                succeedActions=guarded_actions,
+                                failActions=(),
+                                executionFrames=execution_frames,
+                            ),
+                        )
+                    )
+                # 守卫已经接管全部后续兄弟动作，外层不能再次追加同一批动作。
+                break
             if action_type == "IfElseAction":
                 nested = parse_if_else(
                     action,
@@ -7506,7 +7546,7 @@ def collect_compilable_conditional_action_types(
     def visit(action: ConditionalActionSource) -> None:
         if isinstance(action, DoOnceActionSource):
             result.add("DoOnceAction")
-        elif isinstance(action, UnconditionalActionSource):
+        elif isinstance(action, (UnconditionalActionSource, SequenceGuardActionSource)):
             pass
         else:
             result.add(

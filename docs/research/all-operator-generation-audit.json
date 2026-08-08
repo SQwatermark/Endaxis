@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 244,
+    "compiledCount": 245,
     "completeOperatorCount": 6,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -20,7 +20,6 @@
       "conditional-leaf": 3,
       "root-action-coverage": 3,
       "other": 3,
-      "condition-main-operator": 1,
       "condition-other": 6,
       "source-data-missing": 21
     },
@@ -976,11 +975,10 @@
       "operatorName": "Laevatain",
       "skillCount": 15,
       "parsedCount": 14,
-      "compiledCount": 13,
+      "compiledCount": 14,
       "complete": false,
       "blockerKinds": {
-        "other": 1,
-        "condition-main-operator": 1
+        "other": 1
       }
     },
     {
@@ -2999,9 +2997,9 @@
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack4",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-main-operator",
-      "blocker": "ult_attack4.schedule[6].conditionalAction.succeedActions[1]: unsupported conditional leaf 'CheckMainCharacterCondition'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CheckMainCharacterCondition",
         "DamageAction",

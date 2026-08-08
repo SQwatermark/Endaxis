@@ -57,6 +57,7 @@ from generate_next_operators import (
     TargetGroupWriteSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    SequenceGuardActionSource,
     ConditionSource,
     EntityCountConditionSource,
     MainOperatorConditionSource,
@@ -4146,6 +4147,86 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertNotIn(
             "CheckMainCharacterCondition",
             collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
+    def test_branch_sequence_guard_short_circuits_remaining_actions(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CompareFloat+Data, Example",
+                                                "valueA": {
+                                                    "useBlackboardKey": False,
+                                                    "blackboardKey": "",
+                                                    "value": 1,
+                                                },
+                                                "valueB": {
+                                                    "useBlackboardKey": False,
+                                                    "blackboardKey": "",
+                                                    "value": 1,
+                                                },
+                                                "compare": "Equals",
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckMainCharacterCondition+Data, Example",
+                                                "serverActionIndex": 2,
+                                                "checkTarget": {
+                                                    "targetSource": "Source",
+                                                    "targetGroupKey": "",
+                                                },
+                                            },
+                                            {
+                                                "$type": "Example.SpellInfliction+Data, Example",
+                                                "serverActionIndex": 3,
+                                                "inflictionType": "Fire",
+                                                "isExtra": False,
+                                            },
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(len(parsed.succeedActions), 1)
+        guarded = parsed.succeedActions[0].nestedCondition
+        self.assertIsInstance(guarded, SequenceGuardActionSource)
+        self.assertEqual(guarded.actionIndex, 2)
+        self.assertEqual(
+            tuple(action.actionType for action in guarded.succeedActions),
+            ("SpellInfliction",),
+        )
+        compiled = compile_conditional_action(parsed, "fixture.condition")
+        self.assertEqual(compiled.count("applyElementalInfliction"), 1)
+        self.assertIn("kind: 'casterControlled'", compiled)
+        self.assertEqual(
+            collect_compilable_conditional_action_types((parsed,)),
+            {
+                "IfElseAction",
+                "CompareFloat",
+                "CheckMainCharacterCondition",
+                "SpellInfliction",
+            },
         )
 
     def test_presentation_only_switch_is_not_a_combat_coverage_gap(self) -> None:
