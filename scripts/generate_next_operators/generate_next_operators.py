@@ -8,7 +8,7 @@ import math
 import struct
 import textwrap
 from collections import Counter
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass, fields, is_dataclass, replace
 from pathlib import Path
 from typing import Any, Iterable, Literal, cast
 
@@ -734,6 +734,7 @@ class ConditionalBranchActionSource:
     projectileLaunch: ProjectileLaunchPayload | None = None
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
+    auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
 
 
@@ -947,6 +948,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "projectileLaunch",
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
+        "auraAbilityEntityHits",
         "damageUnits",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
@@ -4988,6 +4990,15 @@ def resolve_projectile_payload_triggers(
             )
         )
         if not cycle_truncated:
+            trigger_conditions = resolve_conditional_aura_ability_entity_children(
+                trigger_conditions,
+                trigger_source_name,
+                source_dir,
+                launch_frame,
+                child_stack,
+                trigger_blackboard,
+                action_order,
+            )
             trigger_conditions = mark_projected_conditional_children(
                 trigger_conditions
             )
@@ -5215,6 +5226,107 @@ def resolve_conditional_projectile_triggers(
     )
 
 
+def contains_structured_aura(value: Any) -> bool:
+    """判断已解析调用子树中是否存在 AuraAction，供条件分支审计裁剪体积。"""
+    if isinstance(value, AuraActionSource):
+        return True
+    if is_dataclass(value) and not isinstance(value, type):
+        return any(contains_structured_aura(getattr(value, field.name)) for field in fields(value))
+    if isinstance(value, dict):
+        return any(contains_structured_aura(item) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return any(contains_structured_aura(item) for item in value)
+    return False
+
+
+def resolve_conditional_aura_ability_entity_children(
+    conditions: tuple[ConditionalActionSource, ...],
+    source_name: str,
+    source_dir: Path,
+    base_frame: int,
+    stack: tuple[str, ...],
+    inherited_blackboard: dict[str, tuple[float, ...]],
+    parent_action_order: tuple[int, ...] = (),
+) -> tuple[ConditionalActionSource, ...]:
+    """解析条件分支专属的能力实体子技能，但不把它提升为必然发生的根调度。"""
+
+    def resolve_branch_action(
+        condition: ConditionalActionSource,
+        action: ConditionalBranchActionSource,
+        nested_order: tuple[int, ...] = (),
+    ) -> ConditionalBranchActionSource:
+        action_order = (
+            *parent_action_order,
+            condition.actionIndex,
+            *nested_order,
+            action.actionIndex,
+        )
+        nested = action.nestedCondition
+        if nested is not None:
+            nested = resolve_conditional_aura_ability_entity_children(
+                (nested,),
+                source_name,
+                source_dir,
+                base_frame,
+                stack,
+                inherited_blackboard,
+                action_order,
+            )[0]
+        once_actions = action.onceActions
+        if once_actions is not None:
+            once_actions = tuple(
+                resolve_branch_action(
+                    condition,
+                    nested_action,
+                    (*nested_order, action.actionIndex),
+                )
+                for nested_action in once_actions
+            )
+
+        hits = action.auraAbilityEntityHits
+        payload = action.abilityEntitySpawn
+        if payload is not None and payload.skillId is not None:
+            child_name = f"{payload.skillId}.json"
+            child_path = source_dir / child_name
+            if not child_path.is_file():
+                raise FileNotFoundError(
+                    f"{source_name}: missing conditional ability entity skill {child_path}"
+                )
+            child = load_projected_skill_data(child_path, child_name)
+            resolved_hit = resolve_ability_entity_payload(
+                    payload,
+                    child,
+                    child_name,
+                    source_dir,
+                    base_frame + condition.startFrame,
+                    stack,
+                    inherited_blackboard,
+                    action_order,
+                )
+            hits = (resolved_hit,) if contains_structured_aura(resolved_hit) else None
+        return replace(
+            action,
+            nestedCondition=nested,
+            onceActions=once_actions,
+            auraAbilityEntityHits=hits,
+        )
+
+    return tuple(
+        replace(
+            condition,
+            succeedActions=tuple(
+                resolve_branch_action(condition, action)
+                for action in condition.succeedActions
+            ),
+            failActions=tuple(
+                resolve_branch_action(condition, action)
+                for action in condition.failActions
+            ),
+        )
+        for condition in conditions
+    )
+
+
 def parse_projectile_launches(
     root: dict[str, Any],
     source_name: str,
@@ -5336,8 +5448,8 @@ def resolve_ability_entity_payload(
     )
     nested = ()
     if not cycle_truncated:
-        child_conditions = mark_projected_conditional_children(child_conditions)
         child_stack = (*stack, skill_id)
+        child_conditions = mark_projected_conditional_children(child_conditions)
         nested = (
             *resolve_ability_entity_hits(
                 child,
@@ -6440,15 +6552,23 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     blackboard_calculations = parse_blackboard_calculations(
         root, source_name, resolved_blackboard
     )
-    conditional_actions = mark_projected_conditional_children(
-        resolve_conditional_projectile_triggers(
-            parse_conditional_actions(
-                root,
-                source_name,
-                resolved_blackboard,
-                consumed_root_timed_markers,
-            ),
+    conditional_actions = resolve_conditional_projectile_triggers(
+        parse_conditional_actions(
             root,
+            source_name,
+            resolved_blackboard,
+            consumed_root_timed_markers,
+        ),
+        root,
+        source_name,
+        source_dir,
+        0,
+        (skill_id,),
+        resolved_blackboard,
+    )
+    conditional_actions = mark_projected_conditional_children(
+        resolve_conditional_aura_ability_entity_children(
+            conditional_actions,
             source_name,
             source_dir,
             0,

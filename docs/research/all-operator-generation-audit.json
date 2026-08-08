@@ -40,7 +40,7 @@
     },
     "entityCountConditionOccurrenceCount": 570,
     "entityCountConditionShapeCount": 40,
-    "auraActionReferenceCount": 15
+    "auraActionReferenceCount": 19
   },
   "entityCountConditionShapes": [
     {
@@ -1179,7 +1179,7 @@
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
-      "auraActionCount": 0
+      "auraActionCount": 2
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -2629,7 +2629,7 @@
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
-      "auraActionCount": 0
+      "auraActionCount": 2
     },
     {
       "characterId": "chr_0015_lifeng",

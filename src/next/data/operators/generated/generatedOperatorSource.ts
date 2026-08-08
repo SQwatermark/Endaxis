@@ -615,6 +615,8 @@ export interface GeneratedConditionalBranchActionSource {
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
+  /** 仅当所属条件分支被选中时才会执行、且子调用中含 Aura 的能力实体。 */
+  readonly auraAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
 }
 

@@ -96,6 +96,7 @@ from generate_next_operators import (
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
     resolve_conditional_projectile_triggers,
+    resolve_conditional_aura_ability_entity_children,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
     mark_projected_conditional_children,
@@ -742,6 +743,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (1, 3, 7),
             ("fixture_root",),
             {},
+        )
+
+    def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
+        spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
+        branch = ConditionalBranchActionSource(
+            "SpawnAbilityEntity",
+            7,
+            abilityEntitySpawn=spawn,
+        )
+        condition = ConditionalActionSource(
+            5,
+            6,
+            3,
+            ("condition",),
+            (),
+            (branch,),
+            (),
+        )
+        resolved_hit = SimpleNamespace(skillId="fixture_child")
+
+        with tempfile.TemporaryDirectory() as directory:
+            source_dir = Path(directory)
+            child_path = source_dir / "fixture_child.json"
+            child_path.write_text("{}", encoding="utf-8")
+            with (
+                patch(
+                    "generate_next_operators.load_projected_skill_data",
+                    return_value={},
+                ),
+                patch(
+                    "generate_next_operators.resolve_ability_entity_payload",
+                    return_value=resolved_hit,
+                ) as resolver,
+                patch("generate_next_operators.contains_structured_aura", return_value=True),
+            ):
+                result = resolve_conditional_aura_ability_entity_children(
+                    (condition,),
+                    "fixture.json",
+                    source_dir,
+                    10,
+                    ("fixture_root",),
+                    {},
+                    (1,),
+                )
+
+        resolved_branch = result[0].succeedActions[0]
+        self.assertEqual(resolved_branch.auraAbilityEntityHits, (resolved_hit,))
+        resolver.assert_called_once_with(
+            spawn,
+            {},
+            "fixture_child.json",
+            source_dir,
+            15,
+            ("fixture_root",),
+            {},
+            (1, 3, 7),
         )
 
     def test_single_enemy_smart_target_count_is_guaranteed(self) -> None:

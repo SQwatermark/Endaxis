@@ -165,6 +165,7 @@ def collect_projectile_aura_actions(
     source: generator.ProjectileTriggeredSkillSource,
 ) -> set[AuraActionIdentity]:
     result = aura_action_identities(source.auraActions)
+    result.update(collect_conditional_aura_actions(source.conditionalActions))
     for item in source.nestedProjectileTriggeredSkills:
         result.update(collect_projectile_aura_actions(item))
     for item in source.abilityEntityHits:
@@ -176,6 +177,7 @@ def collect_ability_entity_aura_actions(
     source: generator.AbilityEntityHitSource,
 ) -> set[AuraActionIdentity]:
     result = aura_action_identities(source.auraActions)
+    result.update(collect_conditional_aura_actions(source.conditionalActions))
     for item in source.projectileTriggeredSkills:
         result.update(collect_projectile_aura_actions(item))
     for item in source.nestedAbilityEntityHits:
@@ -183,9 +185,37 @@ def collect_ability_entity_aura_actions(
     return result
 
 
+def collect_conditional_aura_actions(
+    conditions: tuple[generator.ConditionalActionSource, ...],
+) -> set[AuraActionIdentity]:
+    """统计条件分支内保留身份的投射物和能力实体子调用。"""
+
+    def collect_branch(
+        actions: tuple[generator.ConditionalBranchActionSource, ...],
+    ) -> set[AuraActionIdentity]:
+        result: set[AuraActionIdentity] = set()
+        for action in actions:
+            for item in action.projectileTriggeredSkills or ():
+                result.update(collect_projectile_aura_actions(item))
+            for item in action.auraAbilityEntityHits or ():
+                result.update(collect_ability_entity_aura_actions(item))
+            if action.nestedCondition is not None:
+                result.update(collect_conditional_aura_actions((action.nestedCondition,)))
+            if action.onceActions is not None:
+                result.update(collect_branch(action.onceActions))
+        return result
+
+    result: set[AuraActionIdentity] = set()
+    for condition in conditions:
+        result.update(collect_branch(condition.succeedActions))
+        result.update(collect_branch(condition.failActions))
+    return result
+
+
 def count_skill_aura_actions(source: generator.SkillSource) -> int:
     """统计根技能及递归投射物、能力实体调用图中的区域动作。"""
     result = aura_action_identities(source.auraActions)
+    result.update(collect_conditional_aura_actions(source.conditionalActions))
     for item in source.projectileTriggeredSkills:
         result.update(collect_projectile_aura_actions(item))
     for item in source.abilityEntityHits:
