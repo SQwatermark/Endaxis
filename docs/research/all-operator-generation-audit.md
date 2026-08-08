@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：278 个。
-- 无角色专用声明即可进入通用 DSL：216 个。
+- 无角色专用声明即可进入通用 DSL：221 个。
 - 当前整名干员完整直转：1 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -31,15 +31,15 @@
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      7 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      8 |      8 | 否       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      5 | 否       |
-| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      6 | 否       |
+| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      7 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     14 |     11 | 否       |
-| Estella        | `chr_0021_whiten`   |    9 |      9 |      7 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     14 |     12 | 否       |
+| Estella        | `chr_0021_whiten`   |    9 |      9 |      8 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      7 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |      8 |      5 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     11 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      7 | 否       |
-| Rossi          | `chr_0028_wulfa`    |   11 |     10 |      7 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     10 |      8 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
@@ -58,10 +58,10 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `buff-source-or-target`     |     22 |
 | `source-data-missing`       |     21 |
+| `buff-source-or-target`     |     16 |
 | `root-action-coverage`      |     13 |
-| `other`                     |      8 |
+| `other`                     |      9 |
 | `conditional-leaf`          |      6 |
 | `condition-other`           |      5 |
 | `condition-distance`        |      4 |
@@ -83,8 +83,12 @@
 将其在固定单敌人、技能必有输入目标的模型下归约，入口增至 126 个；Context 命名目标组仍需先完成
 生产者数据流分析。剩余实体数量、Buff 上下文目标和复杂投射物子行为继续严格阻塞。
 近期补齐的 `CheckHp` 会在动作帧读取当前生命账本，不能在生成时读取面板快照；目前只编译
-已确认指向唯一敌人的 `Context/smart_target`。投射物命中子技能中的空组 `Target` 同样由
-其父级命中上下文确定为唯一敌人，但根技能和命名目标组不会沿用这一归约。
+已确认指向唯一敌人的 `Context/smart_target`。原生 `TargetSource.Target` 直接读取动作输入目标并
+忽略命名目标组，因此根技能和投射物命中子技能都可在固定单敌人模型下归约为唯一敌人。
+`Context` 仍会沿动作顺序查找最近且支配读取点的目标组写入，只有生产者明确为主目标或无额外
+校验/后处理的敌方存活 HitBox 查找时才归约；队友、召唤实体和合并目标继续严格阻塞。
+引导动作现已按原生 float32 计时、全局扫描和逐目标冷却语义投影到统一时间轴，相关 parser 阻塞
+已经清零；直接位于根技能且目标身份可证明的引导动作会拆成同帧的一次性动作供所有语义解析器复用。
 能力实体计数是庄方宜闭环所需能力，却不是全量覆盖率最高的第一批工作。
 管理员的 20 个入口源文件当前全部缺失；另外还有一项诀的子能力实体文件名不一致，二者应作为
 数据导出问题处理，而不是在生成器中添加回退。

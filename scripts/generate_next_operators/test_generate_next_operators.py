@@ -51,6 +51,7 @@ from generate_next_operators import (
     TimedInflictionSource,
     TimedMarkerGateSource,
     TimedResourceGainSource,
+    TargetGroupWriteSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
     ConditionSource,
@@ -2746,7 +2747,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported Buff stack query target"):
             compile_combat_condition_group((condition,), "fixture.conditions")
 
-    def test_projectile_child_buff_target_resolves_to_the_hit_enemy(self) -> None:
+    def test_buff_target_uses_the_input_enemy_and_ignores_root_group_key(self) -> None:
         arguments = {
             "buff_id": "buff.example",
             "blackboard_assignments": {},
@@ -2764,11 +2765,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertIn("target: 'enemy'", compiled)
-        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
-            compile_buff_application_values(
-                **arguments,
-                root_skill_context=True,
-            )
+        root_arguments = {**arguments, "target_group_key": "ignored_by_native_action"}
+        root_compiled = compile_buff_application_values(
+            **root_arguments,
+            root_skill_context=True,
+        )
+        self.assertIn("target: 'enemy'", root_compiled)
 
     def test_entity_tag_condition_preserves_query_and_requires_target_provenance(self) -> None:
         root = {
@@ -3715,6 +3717,133 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertEqual(result, "sequence()")
+
+    def test_conditional_buff_context_resolves_prior_enemy_target_group(self) -> None:
+        condition = SimpleNamespace(
+            startFrame=3,
+            actionIndex=2,
+            actionPath=("timelineActions", "0", "actionData", "1"),
+            conditions=(
+                SimpleNamespace(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="Equals",
+                    left=ScalarSource(1, None, None),
+                    right=ScalarSource(1, None, None),
+                ),
+            ),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    nestedCondition=None,
+                    buffApplication=SimpleNamespace(
+                        buffs=(
+                            SimpleNamespace(
+                                buffId="buff.example.enemy",
+                                blackboardAssignments={},
+                            ),
+                        ),
+                        targetSource="Context",
+                        targetGroupKey="tar",
+                        count=ScalarSource(1, None, None),
+                        buffSource="ActionSource",
+                        inheritSourceSkillCastInfo=True,
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+        enemy_write = TargetGroupWriteSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=1,
+            actionPath=("timelineActions", "0", "actionData", "0"),
+            targetGroupKey="tar",
+            producerType="FindTargetAction",
+            finderType="HitBoxFinder",
+            finderFactionTarget="Anti",
+            finderTargetObjectType="Normal",
+            finderCheckAlive=True,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        result = compile_conditional_action(
+            condition,
+            "fixture.condition",
+            target_group_writes=(enemy_write,),
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertIn("step('applyBuff'", result)
+        self.assertIn("target: 'enemy'", result)
+
+    def test_conditional_buff_context_rejects_prior_teammate_target_group(self) -> None:
+        condition = SimpleNamespace(
+            startFrame=3,
+            actionIndex=2,
+            actionPath=("timelineActions", "0", "actionData", "1"),
+            conditions=(
+                SimpleNamespace(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="Equals",
+                    left=ScalarSource(1, None, None),
+                    right=ScalarSource(1, None, None),
+                ),
+            ),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    nestedCondition=None,
+                    buffApplication=SimpleNamespace(
+                        buffs=(
+                            SimpleNamespace(
+                                buffId="buff.example.teammate",
+                                blackboardAssignments={},
+                            ),
+                        ),
+                        targetSource="Context",
+                        targetGroupKey="team",
+                        count=ScalarSource(1, None, None),
+                        buffSource="ActionSource",
+                        inheritSourceSkillCastInfo=True,
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+        teammate_write = TargetGroupWriteSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=1,
+            actionPath=("timelineActions", "0", "actionData", "0"),
+            targetGroupKey="team",
+            producerType="FindTargetAction",
+            finderType="CharacterTeamFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"unsupported Buff target 'Context'/'team'",
+        ):
+            compile_conditional_action(
+                condition,
+                "fixture.condition",
+                target_group_writes=(teammate_write,),
+                root_skill_context=True,
+                input_target="enemy",
+            )
 
     def test_conditional_action_compiler_emits_action_blackboard_mutation(self) -> None:
         condition = SimpleNamespace(

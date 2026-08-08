@@ -6238,8 +6238,11 @@ def compile_buff_application_values(
         target = "caster"
     elif root_skill_context and target_source == "Owner" and not target_group_key:
         target = "caster"
-    elif not root_skill_context and target_source == "Target" and not target_group_key:
-        # 投射物命中子技能的普通 Target 就是触发该子技能的唯一命中目标。
+    elif target_source == "Target" and (
+        root_skill_context or not target_group_key
+    ):
+        # 原生 Target 直接读取动作输入目标并忽略 group key。根技能输入目标和投射物
+        # 命中子技能的输入目标在 Endaxis 固定单敌人模型中都是唯一敌人。
         target = "enemy"
     elif target_source == "Context" and target_group_key == "smart_target":
         target = "enemy"
@@ -6396,6 +6399,7 @@ def compile_conditional_buff_application(
     ignored_buff_ids: frozenset[str],
     *,
     root_skill_context: bool = False,
+    context_target_is_enemy: bool = False,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     compiled = [
@@ -6408,6 +6412,7 @@ def compile_conditional_buff_application(
             buff_source=payload.buffSource,
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
             root_skill_context=root_skill_context,
+            context_target_is_enemy=context_target_is_enemy,
             path=f"{path}.buffs[{index}]",
         )
         for index, buff in enumerate(payload.buffs)
@@ -6437,6 +6442,7 @@ def compile_conditional_branch_action(
     input_target: Literal["enemy"] | None = None,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
+    context_action: ConditionalActionSource | None = None,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -6466,6 +6472,7 @@ def compile_conditional_branch_action(
             input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
+            context_action=context_action,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -6511,11 +6518,27 @@ def compile_conditional_branch_action(
     if getattr(action, "buffStackRead", None) is not None:
         return compile_buff_stack_read(action.buffStackRead, path)
     if getattr(action, "buffApplication", None) is not None:
+        buff_application = action.buffApplication
+        context_target_is_enemy = False
+        if (
+            buff_application.targetSource == "Context"
+            and context_action is not None
+        ):
+            write = resolve_latest_target_group_write(
+                context_action,
+                buff_application.targetGroupKey,
+                target_group_writes,
+            )
+            context_target_is_enemy = (
+                write is not None
+                and target_group_write_guarantees_single_enemy(write)
+            )
         return compile_conditional_buff_application(
-            action.buffApplication,
+            buff_application,
             path,
             ignored_buff_ids,
             root_skill_context=root_skill_context,
+            context_target_is_enemy=context_target_is_enemy,
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
         return compile_timed_marker_application(
@@ -6556,6 +6579,7 @@ def compile_conditional_branch(
     input_target: Literal["enemy"] | None = None,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
+    context_action: ConditionalActionSource | None = None,
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -6574,6 +6598,7 @@ def compile_conditional_branch(
             input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
+            context_action=context_action,
         )
         if compiled == "sequence()":
             continue
@@ -6651,6 +6676,7 @@ def compile_conditional_action(
         input_target=input_target,
         projected_ability_entity_spawns=projected_ability_entity_spawns,
         projected_projectile_launches=projected_projectile_launches,
+        context_action=action,
     )
     fail = (
         compile_conditional_branch(
@@ -6664,6 +6690,7 @@ def compile_conditional_action(
             input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
+            context_action=action,
         )
         if action.failActions
         else None
