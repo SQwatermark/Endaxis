@@ -60,6 +60,7 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 - 条件分支中的 `CheckTimedMarkerCondition` 与 `CreateTimedMarker` 会保留固定标记 ID、目标、持续时间、检查极性和动作结束清理语义。Next 允许同一实体持有多个同 ID 标记，并按共享战斗时钟判断有效性；动态字符串 ID 与 `useTimeDilationDt=true` 在对应运行时能力闭环前继续报错。
 - `CheckGlobalCDTimerAction` 与 `AddGlobalCDTimer` 在审计层保留为独立的原生全局冷却事实；根技能中目标为当前干员、ID 固定且时长可解析时，按 `(buffId, 当前干员)` 映射为施法者定时标记。Buff 事件中的同类动作和 `ModifyGlobalCDTimer` 尚未闭环，仍会阻止完整生成。
 - `CheckSkillHasHit` 读取当前技能实例的 `hasOutputDamageBattle`，不是静态检查 SkillData 是否包含伤害。生成器只会在统一调度中证明同一根技能已有严格早于条件的必然命中伤害时，将它按固定单敌人模型折叠；同帧使用 `serverActionIndex` 区分先后，晚于条件或来自子技能的伤害都不能作为证明。
+- `CheckSkillCameraMotionFree` 不会被编译成战斗条件。只有条件分支在过滤镜头、特效等表现动作后为空，或仅把字面量 `1` 写入已逐消费者审计的 `isWall` / `camera_blocked` 时，生成器才会省略整棵纯表现条件树；出现新的黑板键、运算、动态值或战斗叶子时仍会 fail-closed。
 - 命名目标组不会按 `tar`、`smart_target` 等字符串猜测语义。生成中间层会严格记录 `FindTargetAction`、`ContinuousFindTargetAction` 和 `MergeTargetAction` 的帧区间、原生动作顺序、分支路径、选择器类型及合并输入；新增查找器、校验器、后处理器或字段形状会立即报错。只有能够证明写入动作在读取前发生、控制流支配读取点且选择器在固定单敌人模型下必然得到敌人时，才允许把 `Context` 实体数量条件或根级 Buff 目标归约为唯一敌人；分支内写入不会泄漏给根动作。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。

@@ -15,6 +15,7 @@ from generate_next_operators import (
     collect_resolved_damage_hits,
     collect_resolved_schedule,
     root_skill_has_output_damage_before,
+    is_presentation_only_camera_condition,
     root_target_group_writes_for_condition,
     resolve_latest_target_group_write_at,
     collect_timed_marker_damage_gates,
@@ -2993,6 +2994,130 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('createTimedMarker'", compiled)
         self.assertIn("key: 'cooldown'", compiled)
         self.assertIn("autoFinishByAction: false", compiled)
+
+    def test_camera_condition_with_audited_presentation_write_is_omitted(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckSkillCameraMotionFree",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+        )
+        mutation = BlackboardMutationPayload(
+            key="isWall",
+            operation="Assign",
+            value=ScalarSource(1, None, None),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=20,
+            actionPath=("timelineActions", "[3]"),
+            conditions=(condition,),
+            succeedActions=(),
+            failActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=mutation,
+                ),
+            ),
+        )
+
+        self.assertTrue(is_presentation_only_camera_condition(action))
+        self.assertEqual(compile_conditional_action(action, "fixture.condition"), "sequence()")
+
+    def test_camera_condition_with_unexpected_blackboard_key_is_not_omitted(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckSkillCameraMotionFree",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=20,
+            actionPath=("timelineActions", "[3]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="damageScale",
+                        operation="Assign",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertFalse(is_presentation_only_camera_condition(action))
+        with self.assertRaisesRegex(ValueError, "CheckSkillCameraMotionFree"):
+            compile_conditional_action(action, "fixture.condition")
+
+    def test_camera_condition_with_combat_leaf_is_not_omitted(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckSkillCameraMotionFree",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=20,
+            actionPath=("timelineActions", "[3]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="DamageAction",
+                    actionIndex=0,
+                    damageUnits=(),
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertFalse(is_presentation_only_camera_condition(action))
+
+    def test_blackboard_write_without_camera_condition_is_not_omitted(self) -> None:
+        condition = ConditionSource(
+            sourceType="CompareFloat",
+            supported=True,
+            comparison="Equals",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            skillTypes=(),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=20,
+            actionPath=("timelineActions", "[3]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="isWall",
+                        operation="Assign",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertFalse(is_presentation_only_camera_condition(action))
 
     def test_root_skill_owner_buff_condition_targets_the_caster(self) -> None:
         condition = SimpleNamespace(

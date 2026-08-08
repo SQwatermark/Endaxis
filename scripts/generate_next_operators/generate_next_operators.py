@@ -6374,6 +6374,32 @@ def compile_conditional_branch(
     return "\n".join(lines)
 
 
+PRESENTATION_CAMERA_BLACKBOARD_KEYS = frozenset({"isWall", "camera_blocked"})
+
+
+def is_presentation_only_camera_condition(action: ConditionalActionSource) -> bool:
+    """确认条件树只传递已审计的镜头状态，不把镜头条件伪装成战斗条件。"""
+
+    if not any(
+        condition.sourceType == "CheckSkillCameraMotionFree"
+        for condition in action.conditions
+    ):
+        return False
+
+    for branch_action in (*action.succeedActions, *action.failActions):
+        mutation = branch_action.blackboardMutation
+        if (
+            mutation is None
+            or mutation.key not in PRESENTATION_CAMERA_BLACKBOARD_KEYS
+            or mutation.operation != "Assign"
+            or mutation.value.value != 1
+            or mutation.value.blackboardKey is not None
+            or mutation.value.levelValues is not None
+        ):
+            return False
+    return True
+
+
 def compile_conditional_action(
     action: ConditionalActionSource,
     path: str,
@@ -6386,6 +6412,8 @@ def compile_conditional_action(
     skill_has_output_damage: bool = False,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
+    if is_presentation_only_camera_condition(action):
+        return "sequence()"
     projected_ability_entity_spawns = getattr(
         action, "projectedAbilityEntitySpawns", ()
     )
