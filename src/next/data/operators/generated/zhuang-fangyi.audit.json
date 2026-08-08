@@ -802,7 +802,8 @@
                     "abilityEntitySpawn": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "executionFrames": []
               },
               "blackboardCalculation": null,
               "blackboardMutation": null,
@@ -907,7 +908,8 @@
                     "abilityEntitySpawn": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "executionFrames": []
               },
               "blackboardCalculation": null,
               "blackboardMutation": null,
@@ -919,7 +921,8 @@
               "projectileLaunch": null,
               "abilityEntitySpawn": null
             }
-          ]
+          ],
+          "executionFrames": []
         },
         {
           "startFrame": 6,
@@ -992,7 +995,8 @@
               "abilityEntitySpawn": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "executionFrames": []
         }
       ],
       "blackboardCalculations": [
@@ -2766,6 +2770,11 @@
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
                 }
+              ],
+              "executionFrames": [
+                9,
+                12,
+                15
               ]
             }
           ],
@@ -4148,6 +4157,11 @@
                   "projectileLaunch": null,
                   "abilityEntitySpawn": null
                 }
+              ],
+              "executionFrames": [
+                9,
+                12,
+                15
               ]
             }
           ],
@@ -10714,6 +10728,17 @@
                         "projectileLaunch": null,
                         "abilityEntitySpawn": null
                       }
+                    ],
+                    "executionFrames": [
+                      12,
+                      18,
+                      24,
+                      30,
+                      36,
+                      42,
+                      48,
+                      54,
+                      60
                     ]
                   },
                   "blackboardCalculation": null,
@@ -10749,7 +10774,18 @@
                   "abilityEntitySpawn": null
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "executionFrames": [
+                12,
+                18,
+                24,
+                30,
+                36,
+                42,
+                48,
+                54,
+                60
+              ]
             },
             {
               "startFrame": 12,
@@ -10808,7 +10844,18 @@
                   "abilityEntitySpawn": null
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "executionFrames": [
+                12,
+                18,
+                24,
+                30,
+                36,
+                42,
+                48,
+                54,
+                60
+              ]
             }
           ],
           "inflictions": [
@@ -10961,6 +11008,330 @@
           "itemType": "blackboardCalculation",
           "sourcePath": [
             "chr_0030_zhuangfy_normal_skill_ult"
+          ]
+        },
+        {
+          "frame": 27,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 27,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 33,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 33,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 39,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 39,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 45,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 45,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 51,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 51,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 57,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 57,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 63,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 63,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 69,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 69,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 75,
+          "actionOrder": [
+            81,
+            11
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 75,
+          "actionOrder": [
+            81,
+            37
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "actionOnTick",
+            "actionData",
+            "[0]"
           ]
         },
         {

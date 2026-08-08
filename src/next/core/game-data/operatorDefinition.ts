@@ -141,6 +141,8 @@ export interface DealDamageParameters {
  * 新条件必须能由运行时统一求值，不能在干员文件中嵌入函数。
  */
 export type CombatCondition =
+  /** 时间轴模拟始终处于战斗阶段，用于承接原生的队伍战斗状态检查。 */
+  | { kind: 'combatActive' }
   /** Endaxis 固定单敌人场景中，表示原生智能目标数量检查已被模型保证。 */
   | { kind: 'singleEnemyPresent' }
   | { kind: 'skillBranchEnabled'; branchKey: string }
@@ -191,6 +193,7 @@ export type CombatCondition =
       right: OperatorAttribute;
     };
 export const COMBAT_CONDITION_KINDS = [
+  'combatActive',
   'singleEnemyPresent',
   'skillBranchEnabled',
   'targetStaggered',

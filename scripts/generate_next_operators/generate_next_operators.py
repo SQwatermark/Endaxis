@@ -513,6 +513,7 @@ class ConditionalActionSource:
     conditions: tuple[ConditionSource, ...]
     succeedActions: tuple[ConditionalBranchActionSource, ...]
     failActions: tuple[ConditionalBranchActionSource, ...]
+    executionFrames: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -634,6 +635,8 @@ def serialize_audit_value(value: Any) -> Any:
             key: serialize_audit_value(item)
             for key, item in value.items()
             if not (
+                (key == "executionFrames" and not item)
+                or
                 key
                 in {
                     "entityCount",
@@ -654,6 +657,21 @@ def serialize_audit_value(value: Any) -> Any:
         }
     if isinstance(value, (list, tuple)):
         return [serialize_audit_value(item) for item in value]
+    return value
+
+
+def omit_empty_execution_frames(value: Any) -> Any:
+    """保留旧审计结构，只省略没有重复执行语义的空帧列表。"""
+    if hasattr(value, "__dataclass_fields__"):
+        return omit_empty_execution_frames(asdict(value))
+    if isinstance(value, dict):
+        return {
+            key: omit_empty_execution_frames(item)
+            for key, item in value.items()
+            if key != "executionFrames" or item
+        }
+    if isinstance(value, (list, tuple)):
+        return [omit_empty_execution_frames(item) for item in value]
     return value
 
 
@@ -1627,6 +1645,7 @@ def parse_conditional_actions(
         start_frame: int,
         end_frame: int,
         path: tuple[str, ...],
+        execution_frames: tuple[int, ...],
     ) -> ConditionalActionSource | None:
         source_path = f"{source_name}.{'.'.join(path)}"
         condition_group = require_dict(
@@ -1645,9 +1664,19 @@ def parse_conditional_actions(
             )
         )
         succeed = parse_branch(
-            value.get("succeedActions"), start_frame, end_frame, (*path, "succeedActions")
+            value.get("succeedActions"),
+            start_frame,
+            end_frame,
+            (*path, "succeedActions"),
+            execution_frames,
         )
-        fail = parse_branch(value.get("failActions"), start_frame, end_frame, (*path, "failActions"))
+        fail = parse_branch(
+            value.get("failActions"),
+            start_frame,
+            end_frame,
+            (*path, "failActions"),
+            execution_frames,
+        )
         if not succeed and not fail:
             return None
         return ConditionalActionSource(
@@ -1660,6 +1689,7 @@ def parse_conditional_actions(
             conditions=conditions,
             succeedActions=succeed,
             failActions=fail,
+            executionFrames=execution_frames,
         )
 
     def parse_branch(
@@ -1667,6 +1697,7 @@ def parse_conditional_actions(
         start_frame: int,
         end_frame: int,
         path: tuple[str, ...],
+        execution_frames: tuple[int, ...],
     ) -> tuple[ConditionalBranchActionSource, ...]:
         branch = require_dict(value, f"{source_name}.{'.'.join(path)}")
         actions: list[ConditionalBranchActionSource] = []
@@ -1679,7 +1710,13 @@ def parse_conditional_actions(
             action_type = action_name(str(action.get("$type", "")))
             action_path = (*path, "actionData", f"[{index}]")
             if action_type == "IfElseAction":
-                nested = parse_if_else(action, start_frame, end_frame, action_path)
+                nested = parse_if_else(
+                    action,
+                    start_frame,
+                    end_frame,
+                    action_path,
+                    execution_frames,
+                )
                 if nested is not None:
                     actions.append(
                         ConditionalBranchActionSource(
@@ -1744,21 +1781,64 @@ def parse_conditional_actions(
                 )
         return tuple(actions)
 
-    def visit(value: Any, start_frame: int, end_frame: int, path: tuple[str, ...]) -> None:
+    def visit(
+        value: Any,
+        start_frame: int,
+        end_frame: int,
+        path: tuple[str, ...],
+        execution_frames: tuple[int, ...],
+    ) -> None:
         if isinstance(value, list):
             for index, child in enumerate(value):
-                visit(child, start_frame, end_frame, (*path, f"[{index}]"))
+                visit(child, start_frame, end_frame, (*path, f"[{index}]"), execution_frames)
             return
         if not isinstance(value, dict):
             return
-        if action_name(str(value.get("$type", ""))) == "IfElseAction":
-            conditional = parse_if_else(value, start_frame, end_frame, path)
+        action_type = action_name(str(value.get("$type", "")))
+        if action_type == "TickIntervalAction":
+            action_path = f"{source_name}.{'.'.join(path)}"
+            if (
+                value.get("executeEachFrame") is not False
+                or value.get("useTickIntervalBlackboardKey") is not False
+                or value.get("tickIntervalBlackboardKey") != ""
+            ):
+                raise ValueError(f"{action_path}: only a fixed literal interval is supported")
+            interval_seconds = value.get("tickInterval")
+            if (
+                not isinstance(interval_seconds, (int, float))
+                or isinstance(interval_seconds, bool)
+                or interval_seconds <= 0
+            ):
+                raise ValueError(f"{action_path}.tickInterval: expected positive number")
+            interval_frames_float = float(interval_seconds) * 30
+            interval_frames = round(interval_frames_float)
+            if interval_frames <= 0 or abs(interval_frames_float - interval_frames) > 1e-6:
+                raise ValueError(f"{action_path}.tickInterval: does not align to combat frames")
+            tick_frames = tuple(range(start_frame, end_frame, interval_frames))
+            if not tick_frames:
+                raise ValueError(f"{action_path}: interval produces no ticks")
+            visit(
+                value.get("actionOnTick"),
+                start_frame,
+                end_frame,
+                (*path, "actionOnTick"),
+                tick_frames,
+            )
+            return
+        if action_type == "IfElseAction":
+            conditional = parse_if_else(
+                value,
+                start_frame,
+                end_frame,
+                path,
+                execution_frames,
+            )
             if conditional is not None:
                 result.append(conditional)
             # 嵌套 IfElse 已由分支节点递归保存，不能再提升为并列的顶层条件。
             return
         for key, child in value.items():
-            visit(child, start_frame, end_frame, (*path, key))
+            visit(child, start_frame, end_frame, (*path, key), execution_frames)
 
     for timeline_index, raw_timeline in enumerate(
         require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -1775,6 +1855,7 @@ def parse_conditional_actions(
             start_frame,
             end_frame,
             (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
+            (),
         )
     return tuple(result)
 
@@ -3408,13 +3489,14 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
     )
     result.extend(
         ResolvedScheduleItemSource(
-            frame=action.startFrame,
+            frame=frame,
             actionOrder=(action.actionIndex,),
             itemType="condition",
             sourcePath=action.actionPath,
             payload=action,
         )
         for action in skill.conditionalActions
+        for frame in (getattr(action, "executionFrames", ()) or (action.startFrame,))
     )
     result.extend(
         ResolvedScheduleItemSource(
@@ -3476,6 +3558,25 @@ def collect_ability_entity_schedule(
 ) -> None:
     """把能力实体子技能中的非伤害动作换算到根技能帧坐标。"""
     source_path = (hit.skillId,)
+    projected_interval_frames = {
+        interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
+    }
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit.spawnFrame + frame,
+            actionOrder=(*hit.actionOrder, condition.actionIndex),
+            itemType="condition",
+            sourcePath=(*source_path, *condition.actionPath),
+            payload=condition,
+        )
+        for condition in getattr(hit, "conditionalActions", ())
+        for frame in (
+            getattr(condition, "executionFrames", ()) or (condition.startFrame,)
+        )
+        # 两个分支伤害等价时，周期伤害解析器已将其投影为确定伤害；这里不能重复排入。
+        if getattr(condition, "executionFrames", ()) not in projected_interval_frames
+        if len(getattr(condition, "executionFrames", ())) > 1
+    )
     resource_gains = sorted(
         getattr(hit, "resourceGains", ()), key=lambda item: (item.startFrame, item.actionIndex)
     )
@@ -3778,6 +3879,8 @@ def compile_combat_condition(source: ConditionSource, path: str) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
     if is_guaranteed_single_enemy_condition(source):
         return "{ kind: 'singleEnemyPresent' }"
+    if source.sourceType == "CheckSquadInFight":
+        return "{ kind: 'combatActive' }"
     if source.sourceType == "CompareFloat":
         if source.left is None or source.right is None or source.comparison is None:
             raise ValueError(f"{path}: incomplete CompareFloat condition")
@@ -4318,7 +4421,6 @@ def is_guaranteed_single_enemy_condition(condition: ConditionSource) -> bool:
         and entity.minimumCount == 1
         and entity.comparison == "GE"
         and not entity.containsHittableTarget
-        and not entity.excludeDeadEntity
         and not entity.storeKey
     )
 
@@ -5641,8 +5743,12 @@ def render_report(
                 "buffHolds": [asdict(hold) for hold in skill.buffHolds],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
-                "projectileTriggeredSkills": [asdict(hit) for hit in skill.projectileTriggeredSkills],
-                "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
+                "projectileTriggeredSkills": [
+                    omit_empty_execution_frames(hit) for hit in skill.projectileTriggeredSkills
+                ],
+                "abilityEntityHits": [
+                    omit_empty_execution_frames(hit) for hit in skill.abilityEntityHits
+                ],
                 "referencedBuffIds": skill.referencedBuffIds,
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],
                 "resolvedSchedule": [

@@ -122,6 +122,7 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
   }
 
   switch (kind) {
+    case 'combatActive':
     case 'singleEnemyPresent':
       break;
     case 'skillBranchEnabled':

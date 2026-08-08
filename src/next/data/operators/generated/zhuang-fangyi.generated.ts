@@ -2973,6 +2973,11 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 }
+              ],
+              "executionFrames": [
+                9,
+                12,
+                15
               ]
             }
           ],
@@ -4310,6 +4315,11 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 }
+              ],
+              "executionFrames": [
+                9,
+                12,
+                15
               ]
             }
           ],
@@ -12599,6 +12609,17 @@ export const zhuangFangyiGeneratedSource = {
                         "actionType": "DamageAction",
                         "actionIndex": 0
                       }
+                    ],
+                    "executionFrames": [
+                      12,
+                      18,
+                      24,
+                      30,
+                      36,
+                      42,
+                      48,
+                      54,
+                      60
                     ]
                   }
                 },
@@ -12616,7 +12637,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "executionFrames": [
+                12,
+                18,
+                24,
+                30,
+                36,
+                42,
+                48,
+                54,
+                60
+              ]
             },
             {
               "startFrame": 12,
@@ -12664,7 +12696,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "executionFrames": [
+                12,
+                18,
+                24,
+                30,
+                36,
+                42,
+                48,
+                54,
+                60
+              ]
             }
           ],
           "inflictions": [

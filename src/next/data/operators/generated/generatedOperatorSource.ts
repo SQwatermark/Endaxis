@@ -301,6 +301,8 @@ export interface GeneratedConditionalActionSource {
   readonly conditions: readonly GeneratedConditionSource[];
   readonly succeedActions: readonly GeneratedConditionalBranchActionSource[];
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
+  /** 固定间隔动作会在多个帧重复执行同一条件树；普通条件仅含 startFrame。 */
+  readonly executionFrames?: readonly number[];
 }
 
 export interface GeneratedBlackboardCalculationPayload {

@@ -2992,6 +2992,69 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(hits[0].intervalFrames, 3)
         self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (0.11, 0.25))
 
+    def test_conditional_inside_fixed_interval_preserves_every_execution_frame(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 12,
+                        "_endFrame": 31,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.TickIntervalAction+Data, Example",
+                                    "executeEachFrame": False,
+                                    "tickInterval": 0.2,
+                                    "tickIntervalBlackboardKey": "",
+                                    "useTickIntervalBlackboardKey": False,
+                                    "actionOnTick": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.IfElseAction+Data, Example",
+                                                "serverActionIndex": 7,
+                                                "conditionAction": {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.CompareFloat+Data, Example",
+                                                            "valueA": {
+                                                                "useBlackboardKey": True,
+                                                                "value": 0,
+                                                                "blackboardKey": "index",
+                                                            },
+                                                            "compare": "LT",
+                                                            "valueB": {
+                                                                "useBlackboardKey": False,
+                                                                "value": 3,
+                                                                "blackboardKey": "",
+                                                            },
+                                                        }
+                                                    ]
+                                                },
+                                                "succeedActions": {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.DamageAction+Data, Example",
+                                                            "serverActionIndex": 8,
+                                                        }
+                                                    ]
+                                                },
+                                                "failActions": {"actionData": []},
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        conditions = parse_conditional_actions(root, "skill.json", {})
+
+        self.assertEqual(len(conditions), 1)
+        self.assertEqual(conditions[0].executionFrames, (12, 18, 24, 30))
+
     def test_direct_damage_does_not_project_conditional_branch_hits(self) -> None:
         damage = {
             "$type": "Example.DamageAction+Data, Example",

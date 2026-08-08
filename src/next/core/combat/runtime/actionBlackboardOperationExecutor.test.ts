@@ -8,6 +8,15 @@ const delegate = {
 };
 
 describe('ActionBlackboardOperationExecutor', () => {
+  it.each(['combatActive', 'singleEnemyPresent'] as const)(
+    'treats the fixed Endaxis %s invariant as satisfied',
+    kind => {
+      const executor = new ActionBlackboardOperationExecutor(delegate);
+
+      expect(executor.evaluate({ kind })).toBe(true);
+    },
+  );
+
   it.each([
     ['assign', 9, 3, 3],
     ['add', 9, 3, 12],
