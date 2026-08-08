@@ -428,6 +428,12 @@ function validateCombatStepParameters(
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);
       requireTarget();
+      if (parameters.source !== undefined && !combatTargets.has(String(parameters.source))) {
+        issues.push({
+          path: `${path}.source`,
+          message: `expected one of ${COMBAT_TARGETS.join(', ')}`,
+        });
+      }
       if (parameters.blackboardAssignments !== undefined) {
         if (!isObject(parameters.blackboardAssignments)) {
           issues.push({

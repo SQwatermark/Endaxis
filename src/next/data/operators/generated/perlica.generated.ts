@@ -3138,7 +3138,8 @@ export const perlicaGeneratedSource = {
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -3157,7 +3158,8 @@ export const perlicaGeneratedSource = {
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -4445,7 +4447,8 @@ export const perlicaGeneratedSource = {
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -5512,7 +5515,8 @@ export const perlicaGeneratedSource = {
                           "buffSource": "ActionSource",
                           "inheritSourceSkillCastInfo": true,
                           "blackboardAssignments": {},
-                          "nestedCombatActions": []
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": ""
                         },
                         {
                           "startFrame": 0,
@@ -5568,7 +5572,8 @@ export const perlicaGeneratedSource = {
                               ]
                             }
                           },
-                          "nestedCombatActions": []
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": ""
                         }
                       ],
                       "resourceGains": [
@@ -5646,7 +5651,8 @@ export const perlicaGeneratedSource = {
               "buffSource": "ActionSource",
               "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             },
             {
               "startFrame": 0,
@@ -5702,7 +5708,8 @@ export const perlicaGeneratedSource = {
                   ]
                 }
               },
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             }
           ],
           "resourceGains": [
@@ -6528,7 +6535,8 @@ export const perlicaGeneratedSource = {
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 55,
@@ -6543,7 +6551,8 @@ export const perlicaGeneratedSource = {
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         }
       ],
       "blackboardCalculations": [],

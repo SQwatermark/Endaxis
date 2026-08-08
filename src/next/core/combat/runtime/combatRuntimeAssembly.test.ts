@@ -10,6 +10,7 @@ import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const emptyEnemyBuffs = {
+  ownerId: 'enemy',
   getCountByIds: () => 0,
   finishByIds: () => 0,
   holdByIds: () => ({ release: () => undefined }),
@@ -26,6 +27,7 @@ const rejectingExecutor: CombatOperationExecutor = {
 
 function asBuffRuntime(container: CombatBuffContainer<string>) {
   return {
+    ownerId: container.ownerId,
     entityBlackboard: container.entityBlackboard,
     advanceFrame: () => undefined,
     getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),

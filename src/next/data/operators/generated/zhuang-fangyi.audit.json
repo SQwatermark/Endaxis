@@ -360,6 +360,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1392,6 +1393,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1446,6 +1448,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1499,6 +1502,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1606,6 +1610,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1828,6 +1833,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": false
               }
             }
@@ -9495,7 +9501,8 @@
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -9960,7 +9967,8 @@
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -9979,7 +9987,8 @@
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -10478,6 +10487,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             },
@@ -11235,6 +11245,7 @@
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -11839,6 +11850,7 @@
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -12106,6 +12118,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -12152,6 +12165,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -12212,6 +12226,7 @@
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -12651,6 +12666,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             },
@@ -14910,6 +14926,7 @@
                               "levelValues": null
                             },
                             "buffSource": "ActionSource",
+                            "buffSourceContextKey": "",
                             "inheritSourceSkillCastInfo": true
                           }
                         }
@@ -15524,6 +15541,7 @@
                               "levelValues": null
                             },
                             "buffSource": "ActionSource",
+                            "buffSourceContextKey": "",
                             "inheritSourceSkillCastInfo": true
                           }
                         }
@@ -15587,6 +15605,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -15647,6 +15666,7 @@
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -15676,7 +15696,8 @@
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"
-          ]
+          ],
+          "buffSourceContextKey": null
         }
       ],
       "blackboardCalculations": [
@@ -15877,6 +15898,7 @@
                       "levelValues": null
                     },
                     "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
                     "inheritSourceSkillCastInfo": true
                   }
                 },
@@ -16092,7 +16114,8 @@
               "buffSource": "ActionSource",
               "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             }
           ],
           "resourceGains": [],
@@ -17364,6 +17387,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -18084,6 +18108,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -18482,6 +18507,7 @@
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -18503,7 +18529,8 @@
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         },
         {
           "startFrame": 0,
@@ -18518,7 +18545,8 @@
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         },
         {
           "startFrame": 78,
@@ -18574,7 +18602,8 @@
               ]
             }
           },
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -18593,7 +18622,8 @@
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],

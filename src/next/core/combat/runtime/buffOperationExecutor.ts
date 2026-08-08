@@ -20,6 +20,8 @@ export interface BuffQueryResult {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
+  readonly ownerId: string;
   apply?(request: BuffApplicationRequest): boolean;
   getCountByIds(ids: readonly string[]): number;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
@@ -94,7 +96,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       return target.apply({
         buffId: step.parameters.buffId,
-        sourceId: this.dependencies.sourceId,
+        sourceId:
+          step.parameters.source === undefined
+            ? this.dependencies.sourceId
+            : this.dependencies.resolveTarget(step.parameters.source).ownerId,
         blackboardValues: Object.fromEntries(
           Object.entries(assignments).map(([key, operand]) => [
             key,

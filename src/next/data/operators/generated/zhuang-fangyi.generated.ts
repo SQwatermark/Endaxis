@@ -363,6 +363,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1257,6 +1258,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1311,6 +1313,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1364,6 +1367,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1471,6 +1475,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -1693,6 +1698,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": false
               }
             }
@@ -10216,7 +10222,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -10890,7 +10897,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -10909,7 +10917,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -11872,6 +11881,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             },
@@ -12629,6 +12639,7 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -13233,6 +13244,7 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -13500,6 +13512,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -13546,6 +13559,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -13606,6 +13620,7 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -14556,6 +14571,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             },
@@ -16815,6 +16831,7 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "buffSource": "ActionSource",
+                            "buffSourceContextKey": "",
                             "inheritSourceSkillCastInfo": true
                           }
                         }
@@ -17429,6 +17446,7 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "buffSource": "ActionSource",
+                            "buffSourceContextKey": "",
                             "inheritSourceSkillCastInfo": true
                           }
                         }
@@ -17492,6 +17510,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -17552,6 +17571,7 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
                       "inheritSourceSkillCastInfo": true
                     }
                   }
@@ -17582,7 +17602,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"
-          ]
+          ],
+          "buffSourceContextKey": null
         }
       ],
       "blackboardCalculations": [
@@ -17768,6 +17789,7 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
                     "inheritSourceSkillCastInfo": true
                   }
                 },
@@ -17983,7 +18005,8 @@ export const zhuangFangyiGeneratedSource = {
               "buffSource": "ActionSource",
               "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             }
           ],
           "resourceGains": [],
@@ -19319,6 +19342,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -20365,6 +20389,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -21102,6 +21127,7 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
                 "inheritSourceSkillCastInfo": true
               }
             }
@@ -21124,7 +21150,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         },
         {
           "startFrame": 0,
@@ -21139,7 +21166,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         },
         {
           "startFrame": 78,
@@ -21195,7 +21223,8 @@ export const zhuangFangyiGeneratedSource = {
               ]
             }
           },
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -21214,7 +21243,8 @@ export const zhuangFangyiGeneratedSource = {
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],

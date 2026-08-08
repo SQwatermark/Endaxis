@@ -17,6 +17,7 @@ describe('BuffOperationExecutor', () => {
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => ({
+        ownerId: 'enemy',
         getCountByIds: () => 3,
         finishByIds: () => 0,
         holdByIds: () => ({ release: () => undefined }),
@@ -51,6 +52,7 @@ describe('BuffOperationExecutor', () => {
   it('resolves action-blackboard assignments before applying a catalog buff', () => {
     const applied: unknown[] = [];
     const target = {
+      ownerId: 'caster',
       apply: (request: unknown) => {
         applied.push(request);
         return true;
@@ -95,9 +97,63 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('uses an explicitly selected entity as the Buff source', () => {
+    const applied: unknown[] = [];
+    const targets = {
+      caster: {
+        ownerId: 'operator',
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      },
+      enemy: {
+        ownerId: 'enemy-1',
+        apply: (request: unknown) => {
+          applied.push(request);
+          return true;
+        },
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      },
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: target => targets[target],
+      delegate,
+    });
+
+    expect(
+      executor.execute({
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'mark',
+          target: 'enemy',
+          source: 'enemy',
+        },
+      }),
+    ).toBe(true);
+    expect(applied).toEqual([
+      {
+        buffId: 'mark',
+        sourceId: 'enemy-1',
+        blackboardValues: {},
+      },
+    ]);
+  });
+
   it('forwards the current skill-cast snapshot only when the action requests it', () => {
     const applied: unknown[] = [];
     const target = {
+      ownerId: 'caster',
       apply: (request: unknown) => {
         applied.push(request);
         return true;
@@ -149,6 +205,7 @@ describe('BuffOperationExecutor', () => {
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => ({
+        ownerId: 'enemy',
         apply: () => {
           calls.push('catalog');
           return true;

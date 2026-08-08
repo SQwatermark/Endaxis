@@ -2161,7 +2161,8 @@
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 0,
@@ -2180,7 +2181,8 @@
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -2868,7 +2870,8 @@
           "buffSource": "ActionSource",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         }
       ],
       "blackboardCalculations": [],
@@ -3698,7 +3701,8 @@
                           "buffSource": "ActionSource",
                           "inheritSourceSkillCastInfo": true,
                           "blackboardAssignments": {},
-                          "nestedCombatActions": []
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": ""
                         },
                         {
                           "startFrame": 0,
@@ -3754,7 +3758,8 @@
                               ]
                             }
                           },
-                          "nestedCombatActions": []
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": ""
                         }
                       ],
                       "resourceGains": [
@@ -3832,7 +3837,8 @@
               "buffSource": "ActionSource",
               "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             },
             {
               "startFrame": 0,
@@ -3888,7 +3894,8 @@
                   ]
                 }
               },
-              "nestedCombatActions": []
+              "nestedCombatActions": [],
+              "buffSourceContextKey": ""
             }
           ],
           "resourceGains": [
@@ -4370,7 +4377,8 @@
           "buffSource": "ActionOwner",
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": ""
         },
         {
           "startFrame": 55,
@@ -4385,7 +4393,8 @@
           "buffSource": null,
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
-          "nestedCombatActions": []
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null
         }
       ],
       "blackboardCalculations": [],

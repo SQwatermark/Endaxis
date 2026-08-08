@@ -28,6 +28,10 @@ export class CatalogBuffOperationTarget<Key extends string>
     readonly definitions: CombatBuffDefinitionResolver<Key>,
   ) {}
 
+  get ownerId(): string {
+    return this.container.ownerId;
+  }
+
   get entityBlackboard() {
     return this.container.entityBlackboard;
   }

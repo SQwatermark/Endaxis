@@ -131,6 +131,7 @@ class AuxiliaryActionSource:
     inheritSourceSkillCastInfo: bool | None
     blackboardAssignments: dict[str, ScalarSource]
     nestedCombatActions: tuple[str, ...]
+    buffSourceContextKey: str | None = None
 
 
 @dataclass(frozen=True)
@@ -540,6 +541,7 @@ class BuffApplicationPayload:
     targetGroupKey: str
     count: ScalarSource
     buffSource: str
+    buffSourceContextKey: str
     inheritSourceSkillCastInfo: bool
 
 
@@ -1695,6 +1697,11 @@ def parse_buff_application_payload(
     buff_source = action.get("buffSource")
     if not isinstance(buff_source, str) or not buff_source:
         raise ValueError(f"{path}.buffSource: expected non-empty string")
+    context_key = action.get("contextKey", "")
+    if not isinstance(context_key, str):
+        raise ValueError(f"{path}.contextKey: expected string")
+    if buff_source == "ContextTarget" and not context_key:
+        raise ValueError(f"{path}.contextKey: ContextTarget requires a non-empty key")
     buffs: list[BuffApplicationEntryPayload] = []
     for index, raw_buff in enumerate(require_list(action.get("buffs"), f"{path}.buffs")):
         buff_path = f"{path}.buffs[{index}]"
@@ -1719,6 +1726,7 @@ def parse_buff_application_payload(
         targetGroupKey=str(target_settings.get("targetGroupKey", "")),
         count=parse_scalar(action.get("count"), f"{path}.count", inherited_blackboard),
         buffSource=buff_source,
+        buffSourceContextKey=context_key,
         inheritSourceSkillCastInfo=require_bool(
             action.get("inheritSourceSkillCastInfo"),
             f"{path}.inheritSourceSkillCastInfo",
@@ -3471,6 +3479,7 @@ def parse_auxiliary_actions(
                             targetGroupKey=payload.targetGroupKey,
                             count=payload.count,
                             buffSource=payload.buffSource,
+                            buffSourceContextKey=payload.buffSourceContextKey,
                             inheritSourceSkillCastInfo=payload.inheritSourceSkillCastInfo,
                             blackboardAssignments=buff.blackboardAssignments,
                             nestedCombatActions=(),
@@ -3495,6 +3504,7 @@ def parse_auxiliary_actions(
                             targetGroupKey="",
                             count=None,
                             buffSource=None,
+                            buffSourceContextKey=None,
                             inheritSourceSkillCastInfo=None,
                             blackboardAssignments={},
                             nestedCombatActions=(),
@@ -3530,6 +3540,7 @@ def parse_auxiliary_actions(
                         targetGroupKey="",
                         count=None,
                         buffSource=None,
+                        buffSourceContextKey=None,
                         inheritSourceSkillCastInfo=None,
                         blackboardAssignments={},
                         nestedCombatActions=nested,

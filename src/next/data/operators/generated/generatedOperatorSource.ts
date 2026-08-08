@@ -84,6 +84,8 @@ export interface GeneratedAuxiliaryActionSource {
   readonly count: GeneratedScalarSource | null;
   /** 新 Buff 的原生来源解析方式；不适用于能力实体时为 null。 */
   readonly buffSource: string | null;
+  /** `ContextTarget` 读取来源实体时使用的上下文目标组键；其他来源通常为空。 */
+  readonly buffSourceContextKey: string | null;
   /** 是否把本次施法身份传给新 Buff；不适用于能力实体时为 null。 */
   readonly inheritSourceSkillCastInfo: boolean | null;
   readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
@@ -448,6 +450,8 @@ export interface GeneratedBuffApplicationPayload {
   readonly count: GeneratedScalarSource;
   /** 新 Buff 的原生来源解析方式。 */
   readonly buffSource: string;
+  /** `ContextTarget` 读取来源实体时使用的上下文目标组键。 */
+  readonly buffSourceContextKey: string;
   /** 是否把当前技能施法身份复制给新 Buff。 */
   readonly inheritSourceSkillCastInfo: boolean;
 }

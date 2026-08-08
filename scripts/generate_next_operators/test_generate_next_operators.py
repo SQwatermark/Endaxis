@@ -65,6 +65,7 @@ from generate_next_operators import (
     parse_declared_blackboard,
     parse_auxiliary_actions,
     parse_buff_attribute_modifiers,
+    parse_buff_application_payload,
     parse_buff_lifecycle,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
@@ -1069,6 +1070,27 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
         self.assertIn("holdBuffsById", compile_buff_hold(holds[0], "fixture.hold"))
+
+    def test_buff_application_preserves_context_source_key(self) -> None:
+        payload = parse_buff_application_payload(
+            {
+                "buffs": [{"buffId": "buff.fixture", "assignItems": []}],
+                "targetSettings": {"targetSource": "Source", "targetGroupKey": ""},
+                "count": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "buffSource": "ContextTarget",
+                "contextKey": "smart_target",
+                "inheritSourceSkillCastInfo": False,
+            },
+            "fixture.CreateBuffAction",
+            {},
+        )
+
+        self.assertEqual(payload.buffSource, "ContextTarget")
+        self.assertEqual(payload.buffSourceContextKey, "smart_target")
 
     def test_buff_application_compiler_preserves_inherited_cast_identity(self) -> None:
         action = AuxiliaryActionSource(

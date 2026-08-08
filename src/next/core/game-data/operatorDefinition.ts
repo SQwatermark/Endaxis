@@ -315,6 +315,11 @@ export interface CombatStepParameters {
   applyBuff: {
     buffId: string;
     target: CombatTarget;
+    /**
+     * Buff 的来源实体；省略时沿用当前动作来源。
+     * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
+     */
+    source?: CombatTarget;
     /** 在施加时从当前技能动作黑板求值，并覆盖 Buff 定义黑板的同名默认值。 */
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
