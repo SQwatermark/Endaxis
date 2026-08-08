@@ -40,6 +40,7 @@ from generate_next_operators import (
     ProjectileSkillTriggerSource,
     ResourceGainPayload,
     ScalarSource,
+    SkillPatchSource,
     TimedDamageSource,
     TimedMarkerGateSource,
     TimedResourceGainSource,
@@ -70,6 +71,7 @@ from generate_next_operators import (
     parse_projectile_launches,
     parse_resource_gains,
     require_level_values,
+    resolve_skill_blackboard,
     resource_gain_can_change_value,
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
@@ -97,6 +99,27 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_skill_blackboard_uses_static_defaults_and_patch_overrides(self) -> None:
+        root = {
+            "blackboard": [
+                {"key": "static", "valueDouble": 3, "valueStr": "", "isDynamic": False},
+                {"key": "dynamic", "valueDouble": 4, "valueStr": "", "isDynamic": True},
+                {"key": "patched", "valueDouble": 5, "valueStr": "", "isDynamic": False},
+            ]
+        }
+        patch = SkillPatchSource(
+            levels=(1, 2),
+            blackboard={"patched": (7, 8), "dynamic": (9, 10)},
+            cooldownSeconds=(0, 0),
+            costTypes=(0, 0),
+            costValues=(0, 0),
+        )
+
+        self.assertEqual(
+            resolve_skill_blackboard(root, "fixture", patch),
+            {"static": (3, 3), "patched": (7, 8), "dynamic": (9, 10)},
+        )
+
     def test_dynamic_resource_gain_reaches_runtime_compiler(self) -> None:
         dynamic = SimpleNamespace(amount=ScalarSource(0, "calculated_atb", None))
         zero = SimpleNamespace(amount=ScalarSource(0, None, None))

@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：151 个。
+- 无角色专用声明即可进入通用 DSL：152 个。
 - 当前整名干员完整直转：0 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -33,7 +33,7 @@
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      4 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      4 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      5 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      7 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      8 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      7 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      5 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      4 | 否       |
@@ -58,7 +58,7 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `other`                     |     33 |
+| `other`                     |     35 |
 | `source-data-missing`       |     21 |
 | `buff-source-or-target`     |     17 |
 | `condition-target-identity` |     13 |
@@ -71,7 +71,6 @@
 | `condition-tag`             |      5 |
 | `parser-damage-calculation` |      4 |
 | `condition-entity-count`    |      3 |
-| `dynamic-scalar`            |      3 |
 | `parser-tick-interval`      |      2 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |

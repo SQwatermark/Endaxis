@@ -5142,6 +5142,17 @@ export const perlicaGeneratedSource = {
                     "value": 0.0,
                     "blackboardKey": "talent2",
                     "levelValues": [
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
                       0.0
                     ]
                   },
@@ -5368,6 +5379,17 @@ export const perlicaGeneratedSource = {
                                 "value": 0.0,
                                 "blackboardKey": "talent2",
                                 "levelValues": [
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  0.0,
                                   0.0
                                 ]
                               },
@@ -5504,6 +5526,17 @@ export const perlicaGeneratedSource = {
                               "value": 0.0,
                               "blackboardKey": "extra_scaling",
                               "levelValues": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0,
                                 1.0
                               ]
                             }
@@ -5626,6 +5659,17 @@ export const perlicaGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "extra_scaling",
                   "levelValues": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
                     1.0
                   ]
                 }

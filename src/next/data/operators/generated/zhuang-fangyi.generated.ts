@@ -11323,7 +11323,20 @@ export const zhuangFangyiGeneratedSource = {
                       "amount": {
                         "value": 0.0,
                         "blackboardKey": "atb_return",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
                       },
                       "coefficient": {
                         "value": 1.0,

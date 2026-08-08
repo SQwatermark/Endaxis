@@ -1404,6 +1404,21 @@ def parse_scalar(
     )
 
 
+def resolve_skill_blackboard(
+    root: dict[str, Any],
+    source_name: str,
+    patch: SkillPatchSource,
+) -> dict[str, tuple[float, ...]]:
+    """合并技能静态默认值与逐等级补丁；动态声明不能在导入时冻结。"""
+    resolved = {
+        item.key: (item.value,) * len(patch.levels)
+        for item in parse_declared_blackboard(root, source_name)
+        if not item.isDynamic
+    }
+    resolved.update(patch.blackboard)
+    return resolved
+
+
 def parse_blackboard_calculation_payload(
     action: dict[str, Any],
     path: str,
@@ -4432,6 +4447,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     if skill_id not in patch_table:
         raise ValueError(f"SkillPatchTable: missing {skill_id}")
     patch = parse_skill_patch(patch_table[skill_id], skill_id)
+    resolved_blackboard = resolve_skill_blackboard(root, source_name, patch)
     cast = require_dict(root.get("castData"), f"{source_name}.castData")
     cost = require_dict(cast.get("costData"), f"{source_name}.castData.costData")
     timeline = parse_timeline(root, source_name)
@@ -4439,18 +4455,20 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     exclusive = require_non_negative_int(root.get("exclusiveFrame"), f"{source_name}.exclusiveFrame")
     block_frame, block_source = derive_timeline_block(exclusive, allows)
     unresolved = collect_unresolved_combat_actions(timeline)
-    blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
+    blackboard_calculations = parse_blackboard_calculations(
+        root, source_name, resolved_blackboard
+    )
     conditional_actions = resolve_conditional_projectile_triggers(
-        parse_conditional_actions(root, source_name, patch.blackboard),
+        parse_conditional_actions(root, source_name, resolved_blackboard),
         root,
         source_name,
         source_dir,
         0,
         (skill_id,),
-        patch.blackboard,
+        resolved_blackboard,
     )
     blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
-        root, source_name, patch.blackboard
+        root, source_name, resolved_blackboard
     )
     referenced_buff_ids = collect_referenced_buff_ids(root, source_name)
     return SkillSource(
@@ -4468,22 +4486,24 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         allowNextWindows=allows,
         inputCacheWindows=caches,
         timelineActions=timeline,
-        directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
+        directDamageHits=parse_direct_damage_hits(root, source_name, resolved_blackboard),
         conditionalActions=conditional_actions,
         inflictions=parse_inflictions(root, source_name),
-        auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
+        auxiliaryActions=parse_auxiliary_actions(
+            root, source_name, source_dir, resolved_blackboard
+        ),
         blackboardCalculations=blackboard_calculations,
         blackboardMutations=blackboard_mutations,
         buffBlackboardReads=buff_blackboard_reads,
         buffFinishes=buff_finishes,
-        resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
+        resourceGains=parse_resource_gains(root, source_name, resolved_blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
         projectileTriggeredSkills=resolve_projectile_triggered_skills(
             root,
             source_name,
             source_dir,
             stack=(skill_id,),
-            inherited_blackboard=patch.blackboard,
+            inherited_blackboard=resolved_blackboard,
         ),
         abilityEntityHits=(
             *resolve_ability_entity_hits(
@@ -4491,7 +4511,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
                 source_name,
                 source_dir,
                 stack=(skill_id,),
-                inherited_blackboard=patch.blackboard,
+                inherited_blackboard=resolved_blackboard,
             ),
             *resolve_guaranteed_conditional_ability_entity_hits(
                 conditional_actions,
@@ -4499,7 +4519,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
                 source_dir,
                 0,
                 (skill_id,),
-                patch.blackboard,
+                resolved_blackboard,
             ),
         ),
         referencedBuffIds=referenced_buff_ids,
