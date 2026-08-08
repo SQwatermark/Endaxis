@@ -315,6 +315,11 @@ export interface CombatStepParameters {
     buffIds: readonly string[];
     reason: 'early' | 'absorbed' | 'other';
   };
+  /** 在当前调度区间存续期间禁止施法者身上已匹配的 Buff 结束。 */
+  holdBuffsById: {
+    target: 'caster';
+    buffIds: readonly string[];
+  };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   modifyActionValue: {
     key: string;
@@ -376,6 +381,7 @@ export const COMBAT_STEP_KINDS = [
   'readBuffBlackboard',
   'finishBuffsByTag',
   'finishBuffsById',
+  'holdBuffsById',
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',
@@ -412,6 +418,8 @@ export interface ActionSequenceDefinition {
 /** 相对技能释放帧调度的点事件或持续序列。 */
 export interface ScheduledSequenceDefinition {
   startFrame: number;
+  /** 仅有状态动作需要；到达该帧时对已经开始的序列调用结束生命周期。 */
+  endFrame?: number;
   sequence: ActionSequenceDefinition;
 }
 

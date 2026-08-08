@@ -23,10 +23,18 @@ describe('adaptGeneratedBuffDefinition', () => {
     ]);
   });
 
-  it('rejects generated definitions with unparsed root payloads', () => {
+  it('preserves extend tags in the stable Buff catalog shape', () => {
+    const source = requireBuff('buff_chr_0030_zhuangfy_ult_skill_free');
+    expect(
+      adaptGeneratedBuffDefinition({ ...source, extendTagIds: [123] }).extendTagIds,
+    ).toEqual([123]);
+  });
+
+  it('recognizes extend tags but still rejects other unsupported behavior', () => {
+    expect(requireBuff('buff_chr_0030_zhuangfy_ult_base').extendTagIds).not.toEqual([]);
     expect(() =>
       adaptGeneratedBuffDefinition(requireBuff('buff_chr_0030_zhuangfy_ult_base')),
-    ).toThrow('tagsAfterTriggerExtendBuffAction');
+    ).toThrow('eventActions');
   });
 
   it('rejects missing shared definitions instead of manufacturing empty buffs', () => {

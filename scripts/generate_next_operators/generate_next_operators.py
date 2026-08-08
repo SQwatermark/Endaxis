@@ -200,6 +200,7 @@ ResolvedScheduleItemType = Literal[
     "blackboardMutation",
     "buffBlackboardRead",
     "buffFinish",
+    "buffHold",
     "resourceGain",
     "infliction",
     "buffApplication",
@@ -221,6 +222,7 @@ class ResolvedScheduleItemSource:
         " | BlackboardMutationSource"
         " | BuffBlackboardReadSource"
         " | BuffFinishSource"
+        " | BuffHoldSource"
         " | TimedResourceGainSource"
         " | TimedInflictionSource"
     )
@@ -250,6 +252,7 @@ class BuffDefinitionSource:
     lifecycle: BuffLifecycleSource | None
     blackboard: tuple["DeclaredBlackboardValueSource", ...]
     applyTagIds: tuple[int, ...]
+    extendTagIds: tuple[int, ...]
     attributeModifiers: tuple["BuffAttributeModifierSource", ...]
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
@@ -361,6 +364,19 @@ class BuffFinishPayload:
     limitSource: bool
     isFinishedEarly: bool
     isAbsorbed: bool
+
+
+@dataclass(frozen=True)
+class BuffHoldSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    targetSource: str
+    targetGroupKey: str
+    buffCheckType: str
+    buffIds: tuple[str, ...]
+    tagQueryType: str
+    buffTagIds: tuple[int, ...]
 
 
 @dataclass(frozen=True)
@@ -554,6 +570,7 @@ class SkillSource:
     blackboardKeys: tuple[str, ...]
     blackboardProvenance: tuple[BlackboardKeyProvenanceSource, ...]
     unresolvedCombatActions: tuple[str, ...]
+    buffHolds: tuple[BuffHoldSource, ...] = ()
 
 
 def serialize_audit_value(value: Any) -> Any:
@@ -1526,6 +1543,61 @@ def parse_blackboard_runtime_actions(
     return tuple(mutations), tuple(reads), tuple(finishes)
 
 
+def parse_buff_hold_actions(
+    root: dict[str, Any], source_name: str
+) -> tuple[BuffHoldSource, ...]:
+    """读取 ExtendBuffAction 的固定实例保护区间；当前只保留原生查询事实。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[BuffHoldSource] = []
+    timelines = require_list(
+        group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
+    )
+    expected_action_fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "buffOwner",
+        "buffSettings",
+    }
+    for timeline_index, raw_timeline in enumerate(timelines):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "ExtendBuffAction":
+                continue
+            action_path = f"{timeline_path}.ExtendBuffAction"
+            if set(action) != expected_action_fields:
+                raise ValueError(f"{action_path}: unexpected fields {sorted(action)}")
+            if action.get("isEnable") is not True:
+                raise ValueError(f"{action_path}.isEnable: expected true")
+            target = require_dict(action.get("buffOwner"), f"{action_path}.buffOwner")
+            check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+                action.get("buffSettings"), f"{action_path}.buffSettings"
+            )
+            result.append(
+                BuffHoldSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(action, action_path),
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    buffCheckType=check_type,
+                    buffIds=buff_ids,
+                    tagQueryType=query_type,
+                    buffTagIds=tag_ids,
+                )
+            )
+    return tuple(result)
+
+
 def parse_damage_units(
     root: dict[str, Any],
     source_name: str,
@@ -1760,6 +1832,24 @@ def parse_buff_apply_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[in
     return tuple(result)
 
 
+def parse_buff_extend_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[int, ...]:
+    """解析 ExtendBuffAction 阻止 Buff 结束后临时挂到所属实体的标签。"""
+    result: list[int] = []
+    field = "tagsAfterTriggerExtendBuffAction"
+    if field not in buff:
+        return ()
+    for index, raw_tag in enumerate(require_list(buff.get(field), f"{source_name}.{field}")):
+        path = f"{source_name}.{field}[{index}]"
+        tag = require_dict(raw_tag, path)
+        if set(tag) != {"tagId"}:
+            raise ValueError(f"{path}: unexpected fields {sorted(tag)}")
+        tag_id = tag.get("tagId")
+        if not isinstance(tag_id, int) or isinstance(tag_id, bool):
+            raise ValueError(f"{path}.tagId: expected integer")
+        result.append(tag_id)
+    return tuple(result)
+
+
 def parse_buff_attribute_modifiers(
     buff: dict[str, Any],
     source_name: str,
@@ -1857,7 +1947,6 @@ UNPARSED_BUFF_PAYLOAD_FIELDS = (
     "igniteEventAction",
     "poiseModifier",
     "shieldConfigs",
-    "tagsAfterTriggerExtendBuffAction",
 )
 
 
@@ -1897,6 +1986,7 @@ def resolve_buff_definitions(
                 lifecycle=None,
                 blackboard=(),
                 applyTagIds=(),
+                extendTagIds=(),
                 attributeModifiers=(),
                 directDamageHits=(),
                 conditionalActions=(),
@@ -1930,6 +2020,7 @@ def resolve_buff_definitions(
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
             blackboard=declared_blackboard,
             applyTagIds=parse_buff_apply_tag_ids(buff, source_file),
+            extendTagIds=parse_buff_extend_tag_ids(buff, source_file),
             attributeModifiers=parse_buff_attribute_modifiers(
                 buff, source_file, blackboard
             ),
@@ -2550,6 +2641,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         ("blackboardMutation", skill.blackboardMutations),
         ("buffBlackboardRead", skill.buffBlackboardReads),
         ("buffFinish", skill.buffFinishes),
+        ("buffHold", getattr(skill, "buffHolds", ())),
     ):
         result.extend(
             ResolvedScheduleItemSource(
@@ -2756,6 +2848,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             buff_blackboard_reads,
         ),
         unresolvedCombatActions=unresolved,
+        buffHolds=parse_buff_hold_actions(root, source_name),
     )
 
 
@@ -3008,6 +3101,26 @@ def compile_buff_finish(finish: BuffFinishPayload | BuffFinishSource, path: str)
             ]
         )
     raise ValueError(f"{path}: unsupported buff finish target or identity")
+
+
+def compile_buff_hold(hold: BuffHoldSource, path: str) -> str:
+    """编译当前已闭环的施法者 Buff ID 查询；标签查询留待取得使用样本后接入。"""
+    if (
+        hold.targetSource != "Source"
+        or hold.targetGroupKey
+        or hold.buffCheckType != "Id"
+        or not hold.buffIds
+        or hold.buffTagIds
+    ):
+        raise ValueError(f"{path}: unsupported buff hold target or identity")
+    return "\n".join(
+        [
+            "step('holdBuffsById', {",
+            "  target: 'caster',",
+            f"  buffIds: {ts_inline_literal(hold.buffIds)},",
+            "})",
+        ]
+    )
 
 
 def indent_source(source: str, spaces: int) -> list[str]:
@@ -3866,6 +3979,12 @@ def compile_resolved_sequence(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffFinish",
             ).splitlines()
+        elif item.itemType == "buffHold":
+            payload = cast(BuffHoldSource, item.payload)
+            step_lines = compile_buff_hold(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffHold",
+            ).splitlines()
         elif item.itemType == "resourceGain":
             payload = cast(TimedResourceGainSource, item.payload)
             step_lines = compile_resource_gain(
@@ -3883,16 +4002,17 @@ def compile_resolved_sequence(
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
-        scheduled_entries.extend(
-            [
+        entry_lines = [
                 "      scheduled(",
                 f"        {item.frame},",
                 "        sequence(",
                 *(f"          {line}," if line.endswith(")") else f"          {line}" for line in step_lines),
                 "        ),",
-                "      ),",
             ]
-        )
+        if item.itemType == "buffHold":
+            entry_lines.append(f"        {cast(BuffHoldSource, item.payload).endFrame},")
+        entry_lines.append("      ),")
+        scheduled_entries.extend(entry_lines)
     fields = [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
@@ -4551,6 +4671,7 @@ def render_report(
                 ],
                 "buffBlackboardReads": [asdict(read) for read in skill.buffBlackboardReads],
                 "buffFinishes": [asdict(finish) for finish in skill.buffFinishes],
+                "buffHolds": [asdict(hold) for hold in skill.buffHolds],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
                 "projectileHits": [asdict(hit) for hit in skill.projectileHits],

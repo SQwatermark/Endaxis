@@ -171,6 +171,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */
   readonly applyTagIds: readonly number[];
+  /** Buff 到期但被 ExtendBuffAction 阻止结束后，临时挂到所属实体的标签。 */
+  readonly extendTagIds: readonly number[];
   /** Buff 启用期间注册到原生八槽属性公式的修正；目标属性名仍保留原生身份。 */
   readonly attributeModifiers: readonly GeneratedBuffAttributeModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
@@ -194,8 +196,7 @@ export interface GeneratedUnparsedBuffPayloadSource {
     | 'healModifier'
     | 'igniteEventAction'
     | 'poiseModifier'
-    | 'shieldConfigs'
-    | 'tagsAfterTriggerExtendBuffAction';
+    | 'shieldConfigs';
   readonly entryCount: number;
 }
 
@@ -404,6 +405,19 @@ export interface GeneratedBuffFinishSource extends GeneratedBuffFinishPayload {
   readonly actionIndex: number;
 }
 
+/** 在原生时间区间内禁止结束开始时匹配到的 Buff 实例。 */
+export interface GeneratedBuffHoldSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffCheckType: string;
+  readonly buffIds: readonly string[];
+  readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+  readonly buffTagIds: readonly number[];
+}
+
 /** 黑板键在当前技能中的可追溯来源；外部输入不得由生成器猜值。 */
 export interface GeneratedBlackboardKeyProvenanceSource {
   readonly key: string;
@@ -459,6 +473,7 @@ export interface GeneratedSkillSource {
   readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
+  readonly buffHolds: readonly GeneratedBuffHoldSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
   readonly projectileHits: readonly GeneratedProjectileHitSource[];

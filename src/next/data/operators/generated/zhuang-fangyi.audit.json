@@ -48,6 +48,7 @@
         }
       ],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -107,6 +108,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -237,6 +239,7 @@
       "applyTagIds": [
         -1486085048
       ],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -316,6 +319,7 @@
       "applyTagIds": [
         1670936726
       ],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -388,6 +392,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -493,6 +498,7 @@
         }
       ],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [
         {
@@ -960,6 +966,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1012,6 +1019,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1079,6 +1087,10 @@
       "applyTagIds": [
         -388303696,
         189882742
+      ],
+      "extendTagIds": [
+        -1486085048,
+        -496376350
       ],
       "attributeModifiers": [
         {
@@ -1155,12 +1167,7 @@
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "tagsAfterTriggerExtendBuffAction",
-          "entryCount": 2
-        }
-      ]
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -1202,6 +1209,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1266,6 +1274,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1325,6 +1334,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1384,6 +1394,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1447,6 +1458,7 @@
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [
         {
           "targetType": "Specific",
@@ -1477,6 +1489,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1496,6 +1509,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1515,6 +1529,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1534,6 +1549,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1553,6 +1569,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1580,6 +1597,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2029,6 +2047,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2457,6 +2476,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -3125,6 +3145,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3318,6 +3339,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3964,6 +3986,21 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 22,
+          "actionIndex": 10,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -3971,6 +4008,16 @@
       "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            10
+          ],
+          "itemType": "buffHold",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack1_ult"
+          ]
+        },
         {
           "frame": 12,
           "actionOrder": [
@@ -4661,6 +4708,21 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 55,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -4668,6 +4730,16 @@
       "referencedBuffIds": [],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            55
+          ],
+          "itemType": "buffHold",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2_ult"
+          ]
+        },
         {
           "frame": 10,
           "actionOrder": [
@@ -4922,6 +4994,21 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 35,
+          "actionIndex": 22,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -4931,6 +5018,16 @@
       ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            22
+          ],
+          "itemType": "buffHold",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3_ult"
+          ]
+        },
         {
           "frame": 3,
           "actionOrder": [
@@ -5124,6 +5221,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -5323,6 +5421,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [
         {
           "startFrame": 1,
@@ -6420,6 +6519,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -7595,6 +7695,21 @@
           "isAbsorbed": false
         }
       ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 18,
+          "actionIndex": 99,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -7996,6 +8111,16 @@
         }
       ],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            99
+          ],
+          "itemType": "buffHold",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult"
+          ]
+        },
         {
           "frame": 5,
           "actionOrder": [
@@ -8675,6 +8800,7 @@
           "isAbsorbed": false
         }
       ],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -9206,6 +9332,21 @@
           "isAbsorbed": false
         }
       ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 28,
+          "actionIndex": 58,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -9310,6 +9451,16 @@
         }
       ],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            58
+          ],
+          "itemType": "buffHold",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill_ult"
+          ]
+        },
         {
           "frame": 24,
           "actionOrder": [
@@ -9608,6 +9759,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],

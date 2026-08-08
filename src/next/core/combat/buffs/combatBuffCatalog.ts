@@ -62,6 +62,8 @@ export interface CombatBuffCatalogEntry {
   readonly id: string;
   /** 解包数据中的原始有符号 int32 applyTags。 */
   readonly applyTagIds?: readonly number[];
+  /** Buff 被延长动作阻止结束后，临时注册到所属实体的原始标签。 */
+  readonly extendTagIds?: readonly number[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -148,6 +150,7 @@ export class CompiledCombatBuffCatalog<
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
       applyTags: entry.applyTagIds?.map(gameplayTagId),
+      extendTags: entry.extendTagIds?.map(gameplayTagId),
       stackingType: entry.stackingType,
       stackingKey: entry.stackingKey,
       priority: entry.priority,
@@ -225,6 +228,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
   requireOnlyKeys(entry, path, [
     'id',
     'applyTagIds',
+    'extendTagIds',
     'stackingType',
     'stackingKey',
     'priority',
@@ -241,7 +245,8 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
-    ...parseOptionalGameplayTagIds(entry, path),
+    ...parseOptionalGameplayTagIds(entry, 'applyTagIds', path),
+    ...parseOptionalGameplayTagIds(entry, 'extendTagIds', path),
     stackingType,
     ...parseOptionalString(entry, 'stackingKey', path),
     ...parseOptionalPriority(entry, path),
@@ -286,21 +291,22 @@ function parseOptionalAttributeModifiers(
 
 function parseOptionalGameplayTagIds(
   entry: Readonly<Record<string, unknown>>,
+  key: 'applyTagIds' | 'extendTagIds',
   path: string,
-): { applyTagIds?: readonly number[] } {
-  if (entry.applyTagIds === undefined) return {};
-  if (!Array.isArray(entry.applyTagIds)) {
-    throw new Error(`${path}.applyTagIds: expected array`);
+): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+  if (entry[key] === undefined) return {};
+  if (!Array.isArray(entry[key])) {
+    throw new Error(`${path}.${key}: expected array`);
   }
   return {
-    applyTagIds: entry.applyTagIds.map((value, index) => {
+    [key]: entry[key].map((value, index) => {
       try {
         return gameplayTagId(value as number);
       } catch {
-        throw new Error(`${path}.applyTagIds[${index}]: expected signed 32-bit integer`);
+        throw new Error(`${path}.${key}[${index}]: expected signed 32-bit integer`);
       }
     }),
-  };
+  } as Partial<Pick<CombatBuffCatalogEntry, typeof key>>;
 }
 
 function parseOptionalRole(

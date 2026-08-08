@@ -51,6 +51,13 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       : this.delegate.execute(step, context);
   }
 
+  end(
+    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
+    context?: CombatOperationContext,
+  ): void {
+    this.delegate.end?.(step, context);
+  }
+
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'not') return !this.evaluate(condition.condition, context);
     if (condition.kind === 'all') {

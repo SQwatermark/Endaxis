@@ -8,6 +8,7 @@ import type { CombatExecutionContext } from '../actions/combatStep';
 /** 固定帧调度器消费的不可变行为区间。 */
 export interface TimelineAction {
   readonly startFrame: number;
+  readonly endFrame?: number;
   readonly sequence: ActionSequence;
 }
 
@@ -29,12 +30,19 @@ interface IndexedTimelineAction {
 export class TimelineActionProcessor {
   readonly #actions: readonly IndexedTimelineAction[];
   readonly #lifecycle: TimelineActionLifecycleSink;
+  readonly #active: IndexedTimelineAction[] = [];
   #nextPendingIndex = 0;
 
   constructor(actions: readonly TimelineAction[], lifecycle: TimelineActionLifecycleSink = {}) {
     actions.forEach((action, index) => {
       if (!Number.isInteger(action.startFrame)) {
         throw new TypeError(`timeline action ${index} must use an integer frame`);
+      }
+      if (
+        action.endFrame !== undefined &&
+        (!Number.isInteger(action.endFrame) || action.endFrame < action.startFrame)
+      ) {
+        throw new TypeError(`timeline action ${index} must use endFrame >= startFrame`);
       }
     });
     // 游戏内同起始帧行为的排序仍未确认；暂时沿用 combat-spec 使用的来源顺序，
@@ -49,15 +57,21 @@ export class TimelineActionProcessor {
   }
 
   get isComplete(): boolean {
-    return this.#nextPendingIndex === this.#actions.length;
+    return this.#nextPendingIndex === this.#actions.length && this.#active.length === 0;
   }
 
   reset(context: CombatExecutionContext): void {
     this.#nextPendingIndex = 0;
+    this.#active.length = 0;
     for (const { action } of this.#actions) action.sequence.reset(context);
   }
 
   tick(currentFrame: number, deltaTime: number, context: CombatExecutionContext): void {
+    // 已开始的区间行为在后续帧继续推进；本帧新开始的行为由下方分支推进一次。
+    for (const indexedAction of this.#active) {
+      indexedAction.action.sequence.tick(deltaTime, context);
+    }
+
     while (
       this.#nextPendingIndex < this.#actions.length &&
       this.#actions[this.#nextPendingIndex]!.action.startFrame <= currentFrame
@@ -67,11 +81,25 @@ export class TimelineActionProcessor {
       this.#lifecycle.started?.(indexedAction.action, indexedAction.sourceIndex, currentFrame);
       indexedAction.action.sequence.execute(context);
       indexedAction.action.sequence.tick(deltaTime, context);
+      if (indexedAction.action.endFrame === undefined) {
+        this.#end(indexedAction, currentFrame, context);
+      } else {
+        this.#active.push(indexedAction);
+      }
+    }
+
+    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
+      const indexedAction = this.#active[index]!;
+      if (indexedAction.action.endFrame! > currentFrame) continue;
+      this.#active.splice(index, 1);
       this.#end(indexedAction, currentFrame, context);
     }
   }
 
-  end(_currentFrame: number, _context: CombatExecutionContext): void {}
+  end(currentFrame: number, context: CombatExecutionContext): void {
+    for (const indexedAction of this.#active) this.#end(indexedAction, currentFrame, context);
+    this.#active.length = 0;
+  }
 
   #end(
     indexedAction: IndexedTimelineAction,

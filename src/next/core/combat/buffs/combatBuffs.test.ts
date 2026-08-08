@@ -1646,4 +1646,37 @@ describe('CombatBuffContainer', () => {
       "buff 'buff.shared-sp.missing-registry' requires a shared SP gain modifier set on its owner",
     );
   });
+
+  it('holds only the Buff instances matched at start and follows native delayed-finish semantics', () => {
+    const extendTagPath = 'buff/operator/ultimate/extended';
+    const extendTag = gameplayTagIdFromPath(extendTagPath);
+    const container = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet<Attribute>(),
+      new GameplayTagRegistry([extendTagPath]),
+    );
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.ultimate.base',
+      stackingType: 'unlimited',
+      durationSeconds: 1,
+      extendTags: [extendTag],
+    };
+    const held = requireAddedBuff(container.add(definition, 'operator'));
+    const hold = container.holdByIds([definition.id]);
+    const addedAfterHold = requireAddedBuff(container.add(definition, 'operator'));
+
+    container.tick(1);
+
+    expect(held.isFinished).toBe(false);
+    expect(held.isFinishable).toBe(false);
+    expect(addedAfterHold.isFinished).toBe(true);
+    expect(container.hasEntityTag(extendTag)).toBe(true);
+
+    hold.release();
+    // 原生 SetFinishable(true) 只在剩余时长严格小于 0 时立即结束。
+    expect(held.isFinished).toBe(false);
+    container.tick(1 / 30);
+    expect(held.finishReason).toBe('lifetime');
+    expect(container.hasEntityTag(extendTag)).toBe(false);
+  });
 });

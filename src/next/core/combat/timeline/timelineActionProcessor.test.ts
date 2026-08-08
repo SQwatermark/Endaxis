@@ -31,6 +31,15 @@ function timelineAction(startFrame: number, name: string, events: string[]): Tim
   };
 }
 
+function rangedTimelineAction(
+  startFrame: number,
+  endFrame: number,
+  name: string,
+  events: string[],
+): TimelineAction {
+  return { ...timelineAction(startFrame, name, events), endFrame };
+}
+
 describe('TimelineActionProcessor', () => {
   const context: CombatExecutionContext = {};
 
@@ -99,6 +108,36 @@ describe('TimelineActionProcessor', () => {
     expect(lifecycle.started).toHaveBeenCalledTimes(1);
     expect(lifecycle.ended).toHaveBeenCalledTimes(1);
     expect(processor.isComplete).toBe(false);
+  });
+
+  it('ticks an active ranged action until its inclusive end frame', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([rangedTimelineAction(2, 4, 'ranged', events)]);
+    processor.reset(context);
+
+    processor.tick(2, 1 / 30, context);
+    processor.tick(3, 1 / 30, context);
+    processor.tick(4, 1 / 30, context);
+
+    expect(events).toEqual([
+      'ranged:execute',
+      'ranged:tick',
+      'ranged:tick',
+      'ranged:tick',
+      'ranged:end',
+    ]);
+    expect(processor.isComplete).toBe(true);
+  });
+
+  it('ends an active ranged action when its parent skill is interrupted', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([rangedTimelineAction(1, 10, 'ranged', events)]);
+    processor.reset(context);
+    processor.tick(1, 1 / 30, context);
+
+    processor.end(3, context);
+
+    expect(events).toEqual(['ranged:execute', 'ranged:tick', 'ranged:end']);
   });
 
   it('rejects non-integer frames before runtime', () => {

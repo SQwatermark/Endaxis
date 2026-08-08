@@ -21,6 +21,7 @@ describe('BuffOperationExecutor', () => {
       },
       getCountByIds: () => 0,
       finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
@@ -66,6 +67,7 @@ describe('BuffOperationExecutor', () => {
       },
       getCountByIds: () => 0,
       finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
@@ -115,6 +117,7 @@ describe('BuffOperationExecutor', () => {
         },
         getCountByIds: () => 0,
         finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 0,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
@@ -353,5 +356,29 @@ describe('BuffOperationExecutor', () => {
     ).toBe(true);
     expect(active?.finishReason).toBe('other');
     expect(caster.getCountById('sword-trigger')).toBe(0);
+  });
+
+  it('releases the exact Buff hold when the ranged operation ends', () => {
+    const caster = new CombatBuffContainer('operator', new CombatAttributeSet());
+    const buff = caster.add(
+      { id: 'ultimate-base', stackingType: 'unlimited', durationSeconds: 1 },
+      'operator',
+    )!;
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => caster,
+      delegate,
+    });
+    const operation = {
+      kind: 'holdBuffsById' as const,
+      parameters: { target: 'caster' as const, buffIds: ['ultimate-base'] },
+    };
+
+    expect(executor.execute(operation)).toBe(true);
+    expect(buff.isFinishable).toBe(false);
+
+    executor.end(operation);
+
+    expect(buff.isFinishable).toBe(true);
   });
 });

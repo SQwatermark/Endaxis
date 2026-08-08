@@ -51,6 +51,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -110,6 +111,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -240,6 +242,7 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         -1486085048
       ],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -319,6 +322,7 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         1670936726
       ],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -391,6 +395,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -496,6 +501,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [
         {
@@ -890,6 +896,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -942,6 +949,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1009,6 +1017,10 @@ export const zhuangFangyiGeneratedSource = {
       "applyTagIds": [
         -388303696,
         189882742
+      ],
+      "extendTagIds": [
+        -1486085048,
+        -496376350
       ],
       "attributeModifiers": [
         {
@@ -1085,12 +1097,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "tagsAfterTriggerExtendBuffAction",
-          "entryCount": 2
-        }
-      ]
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -1132,6 +1139,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1196,6 +1204,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1255,6 +1264,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1314,6 +1324,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1377,6 +1388,7 @@ export const zhuangFangyiGeneratedSource = {
       },
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [
         {
           "targetType": "Specific",
@@ -1407,6 +1419,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1426,6 +1439,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1445,6 +1459,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1464,6 +1479,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1483,6 +1499,7 @@ export const zhuangFangyiGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -1986,7 +2003,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack2",
@@ -2617,7 +2635,8 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile",
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack3",
@@ -3383,7 +3402,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack4",
@@ -3715,7 +3735,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack5",
@@ -4211,7 +4232,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "enhancedBasicAttack1",
@@ -5154,6 +5176,21 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
+      ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 22,
+          "actionIndex": 10,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
       ]
     },
     {
@@ -6083,6 +6120,21 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
+      ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 55,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
       ]
     },
     {
@@ -6591,6 +6643,21 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "SpawnAbilityEntity"
+      ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 35,
+          "actionIndex": 22,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
       ]
     },
     {
@@ -7040,7 +7107,8 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "plungingAttack",
@@ -7368,7 +7436,8 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "DamageAction",
         "ObtainCostAction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "battleSkill",
@@ -9200,7 +9269,8 @@ export const zhuangFangyiGeneratedSource = {
         "LaunchProjectile",
         "ObtainCostAction",
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "enhancedBattleSkill",
@@ -11120,6 +11190,21 @@ export const zhuangFangyiGeneratedSource = {
         "LaunchProjectile",
         "ObtainCostAction",
         "SpawnAbilityEntity"
+      ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 18,
+          "actionIndex": 99,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
       ]
     },
     {
@@ -12091,7 +12176,8 @@ export const zhuangFangyiGeneratedSource = {
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "enhancedComboSkill",
@@ -12919,6 +13005,21 @@ export const zhuangFangyiGeneratedSource = {
         "DamageAction",
         "IfElseAction",
         "LaunchProjectile"
+      ],
+      "buffHolds": [
+        {
+          "startFrame": 0,
+          "endFrame": 28,
+          "actionIndex": 58,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0030_zhuangfy_ult_base"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": []
+        }
       ]
     },
     {
@@ -13600,7 +13701,8 @@ export const zhuangFangyiGeneratedSource = {
         "CreateBuffAction",
         "IfElseAction",
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

@@ -9,6 +9,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -28,6 +29,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -47,6 +49,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -66,6 +69,7 @@
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -93,6 +97,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -371,6 +376,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -851,6 +857,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -1596,6 +1603,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -2046,6 +2054,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2252,6 +2261,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [
         {
           "startFrame": 3,
@@ -2581,6 +2591,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
@@ -2809,6 +2820,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [
         {
@@ -3510,6 +3522,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "buffHolds": [],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],

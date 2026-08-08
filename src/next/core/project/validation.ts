@@ -447,6 +447,12 @@ function validateCombatStepParameters(
       validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
       requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
       break;
+    case 'holdBuffsById':
+      if (parameters.target !== 'caster') {
+        issues.push({ path: `${path}.target`, message: "expected 'caster'" });
+      }
+      validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
+      break;
     case 'modifyActionValue':
       requireString(parameters, 'key', path, issues);
       requireEnum(parameters.operation, actionValueOperations, `${path}.operation`, issues);

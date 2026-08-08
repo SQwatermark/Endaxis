@@ -213,6 +213,8 @@ function resolveStep(
       };
     case 'finishBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'holdBuffsById':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'modifyActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':
@@ -312,6 +314,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     costs,
     timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({
       startFrame: scheduled.startFrame,
+      ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
       sequence: resolveSequence(
         scheduled.sequence,
         input.skillLevel,

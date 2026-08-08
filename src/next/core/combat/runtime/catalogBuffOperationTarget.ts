@@ -51,6 +51,10 @@ export class CatalogBuffOperationTarget<Key extends string>
     return this.container.finishByIds(ids, reason);
   }
 
+  holdByIds(ids: readonly string[]): { release(): void } {
+    return this.container.holdByIds(ids);
+  }
+
   getCountByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,

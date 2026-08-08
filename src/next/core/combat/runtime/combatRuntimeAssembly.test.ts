@@ -9,6 +9,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 const emptyEnemyBuffs = {
   getCountByIds: () => 0,
   finishByIds: () => 0,
+  holdByIds: () => ({ release: () => undefined }),
   getCountByTags: () => 0,
   findFirstByTags: () => undefined,
   finishByTags: () => 0,
@@ -25,6 +26,7 @@ function asBuffRuntime(container: CombatBuffContainer<string>) {
     getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),
     finishByIds: (ids: readonly string[], reason: 'early' | 'absorbed' | 'other') =>
       container.finishByIds(ids, reason),
+    holdByIds: (ids: readonly string[]) => container.holdByIds(ids),
     getCountByTags: (...args: Parameters<typeof container.getCountByTags>) =>
       container.getCountByTags(...args),
     findFirstByTags: (...args: Parameters<typeof container.findFirstByTags>) =>

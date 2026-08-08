@@ -55,6 +55,7 @@ export interface ResolvedCombatStepParameters {
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
+  holdBuffsById: CombatStepParameters['holdBuffsById'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
   calculateActionValue: CombatStepParameters['calculateActionValue'];
   changeResource: {
@@ -104,6 +105,7 @@ export interface ResolvedActionSequence {
 /** 技能释放时刻相对帧上的一个已编译调度项。 */
 export interface CompiledTimelineAction {
   readonly startFrame: number;
+  readonly endFrame?: number;
   readonly sequence: ResolvedActionSequence;
 }
 

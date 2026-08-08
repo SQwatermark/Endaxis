@@ -24,6 +24,7 @@ export interface BuffOperationTarget {
   apply?(request: BuffApplicationRequest): boolean;
   getCountByIds(ids: readonly string[]): number;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
+  holdByIds(ids: readonly string[]): { release(): void };
   getCountByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,
@@ -57,6 +58,7 @@ export interface BuffOperationDependencies {
 }
 
 export class BuffOperationExecutor implements CombatOperationExecutor {
+  readonly #holds = new WeakMap<RuntimeOperation, { release(): void }>();
   constructor(readonly dependencies: BuffOperationDependencies) {}
 
   execute(
@@ -131,9 +133,33 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
+    if (step.kind === 'holdBuffsById') {
+      const previous = this.#holds.get(step);
+      if (previous !== undefined) {
+        throw new Error('holdBuffsById step is already active');
+      }
+      this.#holds.set(
+        step,
+        this.dependencies.resolveTarget(step.parameters.target).holdByIds(step.parameters.buffIds),
+      );
+      return true;
+    }
+
     return context === undefined
       ? this.dependencies.delegate.execute(step)
       : this.dependencies.delegate.execute(step, context);
+  }
+
+  end(
+    step: RuntimeOperation,
+    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
+  ): void {
+    if (step.kind === 'holdBuffsById') {
+      this.#holds.get(step)?.release();
+      this.#holds.delete(step);
+      return;
+    }
+    this.dependencies.delegate.end?.(step, context);
   }
 
   evaluate(

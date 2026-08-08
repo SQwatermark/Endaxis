@@ -113,8 +113,13 @@ export function firstMatching(
 export function scheduled(
   frame: number,
   actionSequence: ActionSequenceDefinition,
+  endFrame?: number,
 ): ScheduledSequenceDefinition {
-  return { startFrame: frame, sequence: actionSequence };
+  return {
+    startFrame: frame,
+    sequence: actionSequence,
+    ...(endFrame === undefined ? {} : { endFrame }),
+  };
 }
 
 /** 为技能定义附加按等级解析的初始动作黑板，不改变原技能对象。 */

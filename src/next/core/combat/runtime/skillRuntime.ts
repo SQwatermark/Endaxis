@@ -34,6 +34,10 @@ export interface CombatOperationExecutor {
     step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
     context?: CombatOperationContext,
   ): boolean;
+  end?(
+    step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
+    context?: CombatOperationContext,
+  ): void;
   evaluate(
     condition: Extract<ResolvedCombatStep, { kind: 'conditional' }>['parameters']['condition'],
     context?: CombatOperationContext,
@@ -63,6 +67,10 @@ class RuntimeOperationStep extends CombatStep {
   override tryExecute(): boolean {
     this.runtime.record('CombatStepReached', { kind: this.step.kind });
     return this.runtime.operations.execute(this.step, this.runtime.operationContext);
+  }
+
+  override end(): void {
+    this.runtime.operations.end?.(this.step, this.runtime.operationContext);
   }
 }
 
@@ -175,6 +183,7 @@ export class SkillRuntime {
     this.#timeline = new TimelineActionProcessor(
       this.#program.timelineActions.map(action => ({
         startFrame: action.startFrame,
+        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
         sequence: this.createSequence(action.sequence),
       })),
       {

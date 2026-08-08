@@ -103,6 +103,13 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
+  end(
+    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
+    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
+  ): void {
+    this.dependencies.delegate.end?.(step, context);
+  }
+
   evaluate(
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],

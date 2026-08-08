@@ -56,6 +56,7 @@ export function adaptGeneratedBuffDefinition(
   return {
     id: source.buffId,
     applyTagIds: source.applyTagIds,
+    extendTagIds: source.extendTagIds,
     stackingType: STACKING_TYPES[lifecycle.stackingType],
     ...(lifecycle.stackingIdentifierType === 'StackingKey'
       ? { stackingKey: lifecycle.stackingKey }

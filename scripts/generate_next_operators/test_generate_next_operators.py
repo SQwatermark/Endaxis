@@ -22,6 +22,7 @@ from generate_next_operators import (
     BlackboardMutationSource,
     BuffBlackboardReadSource,
     BuffFinishSource,
+    BuffHoldSource,
     DamageUnitSource,
     ResourceGainPayload,
     ScalarSource,
@@ -38,6 +39,7 @@ from generate_next_operators import (
     parse_buff_lifecycle,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
+    parse_buff_hold_actions,
     parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
@@ -48,6 +50,7 @@ from generate_next_operators import (
     parse_skill_patch,
     compile_buff_blackboard_read,
     compile_buff_finish,
+    compile_buff_hold,
     compile_buff_application,
     percentage_values,
     ts_inline_literal,
@@ -59,6 +62,58 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_extend_buff_action_preserves_exact_native_interval_and_identity(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 22,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ExtendBuffAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 10,
+                                    "buffOwner": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                    },
+                                    "buffSettings": {
+                                        "checkType": "Id",
+                                        "buffIdList": ["buff.ultimate.base"],
+                                        "tagQuery": {"queryType": "HasAny", "tags": []},
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        holds = parse_buff_hold_actions(root, "fixture.json")
+
+        self.assertEqual(
+            holds,
+            (
+                BuffHoldSource(
+                    startFrame=0,
+                    endFrame=22,
+                    actionIndex=10,
+                    targetSource="Source",
+                    targetGroupKey="",
+                    buffCheckType="Id",
+                    buffIds=("buff.ultimate.base",),
+                    tagQueryType="hasAny",
+                    buffTagIds=(),
+                ),
+            ),
+        )
+        self.assertIn("holdBuffsById", compile_buff_hold(holds[0], "fixture.hold"))
+
     def test_buff_application_compiler_preserves_inherited_cast_identity(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=0,
@@ -244,8 +299,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(
             tuple((item.field, item.entryCount) for item in definition.unparsedPayloads),
-            (("abilityEventAction", 2), ("tagsAfterTriggerExtendBuffAction", 1)),
+            (("abilityEventAction", 2),),
         )
+        self.assertEqual(definition.extendTagIds, (123,))
 
     def test_buff_definitions_follow_event_dependencies_once(self) -> None:
         def buff(buff_id: str, child_id: str | None) -> dict[str, object]:
@@ -1417,6 +1473,19 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             blackboardMutations=(),
             buffBlackboardReads=(),
             buffFinishes=(),
+            buffHolds=(
+                BuffHoldSource(
+                    startFrame=0,
+                    endFrame=18,
+                    actionIndex=1,
+                    targetSource="Source",
+                    targetGroupKey="",
+                    buffCheckType="Id",
+                    buffIds=("buff.fixture.ultimate",),
+                    tagQueryType="hasAny",
+                    buffTagIds=(),
+                ),
+            ),
             unresolvedCombatActions=("CreateBuffAction",),
             skillId="fixture.ultimate",
             directDamageHits=(),
@@ -1438,6 +1507,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("costFrame: 2", source)
         self.assertIn("scheduled(\n        3,", source)
         self.assertIn("buffId: 'buff.fixture.ultimate'", source)
+        self.assertIn("step('holdBuffsById'", source)
+        self.assertIn("        18,\n      ),", source)
 
     def test_resolved_damage_compiler_interleaves_condition_roots_by_native_order(self) -> None:
         unit = DamageUnitSource(

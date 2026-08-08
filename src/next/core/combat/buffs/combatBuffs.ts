@@ -126,6 +126,8 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
   readonly applyTags?: readonly GameplayTagId[];
+  /** Buff 到期但被 ExtendBuffAction 阻止结束后，临时注册到所属实体的标签。 */
+  readonly extendTags?: readonly GameplayTagId[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -168,6 +170,8 @@ export class CombatBuff<Key extends string> {
   #enabled = false;
   #finished = false;
   #finishing = false;
+  #finishable = true;
+  #appliedExtendTags = false;
   #finishReason: BuffFinishReason | null = null;
   #enhanceCount = 1;
   #stackingGroup: BuffStackingGroup<Key> | null = null;
@@ -247,6 +251,10 @@ export class CombatBuff<Key extends string> {
     return this.#finishReason;
   }
 
+  get isFinishable(): boolean {
+    return this.#finishable;
+  }
+
   get enhanceCount(): number {
     return this.#enhanceCount;
   }
@@ -300,12 +308,17 @@ export class CombatBuff<Key extends string> {
 
   finish(reason: BuffFinishReason = 'other'): boolean {
     if (this.#finished || this.#finishing) return false;
+    if (!this.#finishable) {
+      this.addExtendTags();
+      return false;
+    }
     this.#finishing = true;
     this.#finishReason = reason;
     this.definition.actions?.finish?.(this);
     const hadRegisteredModifiers = this.#enabled;
     this.#enabled = false;
     this.#finished = true;
+    this.removeExtendTags();
     this.#stackingGroup?.refreshAfterFinish();
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
@@ -327,8 +340,16 @@ export class CombatBuff<Key extends string> {
       this.#duringEnableAction?.tick(elapsed, this);
     }
     if (this.#remainingDuration === null) return;
-    this.#remainingDuration = Math.max(0, this.#remainingDuration - elapsed);
+    this.#remainingDuration -= elapsed;
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
+  }
+
+  /** 恢复可结束时，原生仅在剩余时长已经小于 0 的情况下补发到期结束。 */
+  setFinishable(finishable: boolean): void {
+    this.#finishable = finishable;
+    if (finishable && this.#remainingDuration !== null && this.#remainingDuration < 0) {
+      this.finish('lifetime');
+    }
   }
 
   attachStackingGroup(group: BuffStackingGroup<Key>): void {
@@ -461,6 +482,18 @@ export class CombatBuff<Key extends string> {
     }
     this.#attributeModifiers = replacements;
   }
+
+  private addExtendTags(): void {
+    if (this.#appliedExtendTags) return;
+    this.owner.addEntityTags(this.definition.extendTags ?? []);
+    this.#appliedExtendTags = true;
+  }
+
+  private removeExtendTags(): void {
+    if (!this.#appliedExtendTags) return;
+    this.owner.removeEntityTags(this.definition.extendTags ?? []);
+    this.#appliedExtendTags = false;
+  }
 }
 
 /** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
@@ -468,6 +501,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
+  readonly #entityTagCounts = new Map<GameplayTagId, number>();
   #nextInstanceId = 1;
 
   constructor(
@@ -529,6 +563,40 @@ export class CombatBuffContainer<Key extends string> {
       if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) count += 1;
     }
     return count;
+  }
+
+  /** 固定当前匹配实例并禁止其结束；释放不会影响保护开始后新增的同 ID Buff。 */
+  holdByIds(ids: readonly string[]): { release(): void } {
+    const accepted = new Set(ids);
+    const held = this.#buffs.filter(buff => !buff.isFinished && accepted.has(buff.definition.id));
+    for (const buff of held) buff.setFinishable(false);
+    let released = false;
+    return {
+      release: () => {
+        if (released) return;
+        released = true;
+        for (const buff of held) {
+          if (!buff.isFinished) buff.setFinishable(true);
+        }
+      },
+    };
+  }
+
+  hasEntityTag(tag: GameplayTagId): boolean {
+    return (this.#entityTagCounts.get(tag) ?? 0) > 0;
+  }
+
+  addEntityTags(tags: readonly GameplayTagId[]): void {
+    for (const tag of tags)
+      this.#entityTagCounts.set(tag, (this.#entityTagCounts.get(tag) ?? 0) + 1);
+  }
+
+  removeEntityTags(tags: readonly GameplayTagId[]): void {
+    for (const tag of tags) {
+      const next = (this.#entityTagCounts.get(tag) ?? 0) - 1;
+      if (next > 0) this.#entityTagCounts.set(tag, next);
+      else this.#entityTagCounts.delete(tag);
+    }
   }
 
   /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */

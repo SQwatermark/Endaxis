@@ -12,6 +12,7 @@ export const perlicaGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -31,6 +32,7 @@ export const perlicaGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -50,6 +52,7 @@ export const perlicaGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -69,6 +72,7 @@ export const perlicaGeneratedSource = {
       "lifecycle": null,
       "blackboard": [],
       "applyTagIds": [],
+      "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
@@ -543,7 +547,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack2",
@@ -1198,7 +1203,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack3",
@@ -2083,7 +2089,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "basicAttack4",
@@ -2689,7 +2696,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "finisher",
@@ -3240,7 +3248,8 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "plungingAttack",
@@ -3815,7 +3824,8 @@ export const perlicaGeneratedSource = {
         "DamageAction",
         "LaunchProjectile",
         "ObtainCostAction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "battleSkill",
@@ -4416,7 +4426,8 @@ export const perlicaGeneratedSource = {
         "CreateBuffAction",
         "DamageAction",
         "SpellInfliction"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "comboSkill",
@@ -5303,7 +5314,8 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "LaunchProjectile"
-      ]
+      ],
+      "buffHolds": []
     },
     {
       "key": "ultimate",
@@ -5929,7 +5941,8 @@ export const perlicaGeneratedSource = {
         "CreateBuffAction",
         "DamageAction",
         "SpawnAbilityEntity"
-      ]
+      ],
+      "buffHolds": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;
