@@ -475,6 +475,9 @@ export interface GeneratedConditionalBranchActionSource {
   /** 在所属 succeedActions/failActions 原始 actionData 中的下标。 */
   readonly actionIndex: number;
   readonly nestedCondition?: GeneratedConditionalActionSource;
+  /** 同一个原生动作实例生命周期内共享的 DoOnceAction 身份。 */
+  readonly onceScopeKey?: string;
+  readonly onceActions?: readonly GeneratedConditionalBranchActionSource[];
   readonly blackboardCalculation?: GeneratedBlackboardCalculationPayload;
   readonly blackboardMutation?: GeneratedBlackboardMutationPayload;
   readonly buffBlackboardRead?: GeneratedBuffBlackboardReadPayload;

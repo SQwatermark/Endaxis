@@ -568,6 +568,9 @@ function validateCombatStepParameters(
     case 'conditional':
       validateCombatCondition(parameters.condition, `${path}.condition`, issues);
       break;
+    case 'once':
+      requireString(parameters, 'scopeKey', path, issues);
+      break;
     case 'setContextFlag':
       requireString(parameters, 'flag', path, issues);
       if (
@@ -678,6 +681,21 @@ function collectDamageHitIds(
           collectDamageHitIds(step.whenFalse, `${stepPath}.whenFalse`, damageHitIds, issues);
         }
       }
+      if (step.body !== undefined) {
+        issues.push({ path: `${stepPath}.body`, message: 'only once steps may define a body' });
+      }
+    } else if (stepKind === 'once') {
+      if (!isObject(step.body)) {
+        issues.push({ path: `${stepPath}.body`, message: 'expected an object' });
+      } else {
+        collectDamageHitIds(step.body, `${stepPath}.body`, damageHitIds, issues);
+      }
+      if (step.whenTrue !== undefined || step.whenFalse !== undefined) {
+        issues.push({
+          path: step.whenTrue !== undefined ? `${stepPath}.whenTrue` : `${stepPath}.whenFalse`,
+          message: 'only conditional steps may use branches',
+        });
+      }
     } else {
       if (step.onImpact !== undefined) {
         issues.push({
@@ -690,6 +708,9 @@ function collectDamageHitIds(
           path: step.whenTrue !== undefined ? `${stepPath}.whenTrue` : `${stepPath}.whenFalse`,
           message: 'only conditional steps may use branches',
         });
+      }
+      if (step.body !== undefined) {
+        issues.push({ path: `${stepPath}.body`, message: 'only once steps may define a body' });
       }
     }
   });

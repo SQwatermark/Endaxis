@@ -9,7 +9,7 @@ import type { CombatResources } from './combatResources';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
+type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
 
 /** 资源执行节点所需的来源身份、账本、回执和后继执行器。 */
 export interface SkillResourceOperationDependencies {

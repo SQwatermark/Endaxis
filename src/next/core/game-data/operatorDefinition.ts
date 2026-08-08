@@ -392,6 +392,8 @@ export interface CombatStepParameters {
     stacks?: number;
   };
   conditional: { condition: CombatCondition };
+  /** 同一个技能释放实例内共享的只执行一次作用域。 */
+  once: { scopeKey: string };
   setContextFlag: {
     flag: string;
     value: boolean | number | string;
@@ -420,6 +422,7 @@ export const COMBAT_STEP_KINDS = [
   'applyStatus',
   'consumeStatus',
   'conditional',
+  'once',
   'setContextFlag',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 /** 编译器和执行器用于收窄步骤负载的稳定种类。 */
@@ -432,7 +435,9 @@ type CombatStepForKind<K extends CombatStepKind> = {
   parameters: Readonly<CombatStepParameters[K]>;
 } & (K extends 'conditional'
   ? { whenTrue: ActionSequenceDefinition; whenFalse?: ActionSequenceDefinition }
-  : {});
+  : K extends 'once'
+    ? { body: ActionSequenceDefinition }
+    : {});
 
 /** 干员目录中可执行且能按 `kind` 精确收窄的一项步骤。 */
 export type CombatStepDefinition = {

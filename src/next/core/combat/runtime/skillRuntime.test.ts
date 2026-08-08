@@ -17,7 +17,12 @@ function findPerlicaSkill(key: string): SkillDefinition {
   throw new Error(`missing Perlica skill '${key}'`);
 }
 
-function createBattleSkillRuntime(initialSp: number, costFrame?: number, cooldownFrames?: number) {
+function createBattleSkillRuntime(
+  initialSp: number,
+  costFrame?: number,
+  cooldownFrames?: number,
+  skillDefinition: SkillDefinition = findPerlicaSkill('battleSkill'),
+) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
@@ -49,9 +54,9 @@ function createBattleSkillRuntime(initialSp: number, costFrame?: number, cooldow
     skillLevel: 12,
     skill:
       costFrame === undefined && cooldownFrames === undefined
-        ? findPerlicaSkill('battleSkill')
+        ? skillDefinition
         : {
-            ...findPerlicaSkill('battleSkill'),
+            ...skillDefinition,
             ...(costFrame === undefined ? {} : { costFrame }),
             ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
           },
@@ -70,6 +75,49 @@ function createBattleSkillRuntime(initialSp: number, costFrame?: number, cooldow
 }
 
 describe('SkillRuntime', () => {
+  it('同一次释放只执行一次共享作用域，并在下一次释放时重置', () => {
+    const onceStep = {
+      kind: 'once',
+      parameters: { scopeKey: 'normal-attack-sp' },
+      body: {
+        steps: [
+          {
+            kind: 'setContextFlag',
+            parameters: { flag: 'executed', value: true, target: 'caster' },
+          },
+        ],
+      },
+    } as const;
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'once-fixture',
+      timelineBlockFrames: 2,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              onceStep,
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'continued', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+        { startFrame: 1, sequence: { steps: [onceStep] } },
+      ],
+    });
+    vi.mocked(fixture.operations.execute).mockReturnValueOnce(false);
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(2);
+
+    fixture.runtime.end();
+    fixture.runtime.tryStart();
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(4);
+  });
+
   it('为每个运行实例隔离动作黑板并在再次释放时重置', () => {
     const first = createBattleSkillRuntime(300);
     const second = createBattleSkillRuntime(300);

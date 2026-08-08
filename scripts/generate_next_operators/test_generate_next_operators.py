@@ -1883,6 +1883,72 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("DamageAction",),
         )
 
+    def test_conditional_audit_preserves_do_once_resource_gain(self) -> None:
+        compare = {
+            "$type": "Example.CompareFloat+Data, Example",
+            "valueA": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "compare": "Equals",
+            "valueB": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+        }
+        gain = {
+            "$type": "Example.ObtainCostAction+Data, Example",
+            "serverActionIndex": 3,
+            "costType": "Atb",
+            "isPercentValue": False,
+            "useUspRecoverTag": False,
+            "uspRecoverTag": {"tagId": 0},
+            "ignoreUspGainScalar": False,
+            "atbSourceType": "NormalAttack",
+            "atbGainMethod": "Gain",
+            "costValue": {"useBlackboardKey": False, "value": 10, "blackboardKey": ""},
+            "coefficient": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "atbOnlyMainChar": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 8,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [compare]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.DoOnceAction+Data, Example",
+                                                "serverActionIndex": 2,
+                                                "sequenceActionData": {"actionData": [gain]},
+                                            }
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(root, "once.json", {})[0]
+        once_action = condition.succeedActions[0]
+
+        self.assertEqual(once_action.actionType, "DoOnceAction")
+        self.assertTrue(once_action.onceScopeKey.startswith("do-once:"))
+        self.assertEqual(once_action.onceActions[0].actionType, "ObtainCostAction")
+        self.assertEqual(
+            collect_compilable_conditional_action_types((condition,)),
+            {"IfElseAction", "CompareFloat", "DoOnceAction", "ObtainCostAction"},
+        )
+        compiled = compile_conditional_action(condition, "once.condition")
+        self.assertIn("once(\n", compiled)
+        self.assertIn("'do-once:", compiled)
+        self.assertIn("step('changeResource'", compiled)
+
     def test_conditional_audit_parses_effect_leaf_payloads(self) -> None:
         scalar = {"useBlackboardKey": False, "value": 2, "blackboardKey": ""}
         condition = {

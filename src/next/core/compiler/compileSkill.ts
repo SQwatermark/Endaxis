@@ -220,6 +220,13 @@ function resolveStep(
           ? {}
           : { whenFalse: resolveSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
       };
+    case 'once':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        body: resolveSequence(step.body, skillLevel, `${path}.body`),
+      };
     case 'readBuffBlackboard':
       return {
         ...keyed,

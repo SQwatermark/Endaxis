@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 196,
+    "compiledCount": 198,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -18,16 +18,16 @@
       "projectile-data": 1,
       "condition-other": 7,
       "buff-source-or-target": 22,
-      "root-action-coverage": 11,
       "condition-buff-stack": 11,
+      "root-action-coverage": 8,
       "parser-damage-calculation": 4,
       "conditional-leaf": 5,
+      "dynamic-scalar": 2,
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
       "other": 2,
-      "source-data-missing": 21,
-      "dynamic-scalar": 1
+      "source-data-missing": 21
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 69,
@@ -905,11 +905,10 @@
       "operatorName": "Ember",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 5,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 3,
-        "root-action-coverage": 1
+        "buff-source-or-target": 3
       }
     },
     {
@@ -957,7 +956,8 @@
       "complete": false,
       "blockerKinds": {
         "conditional-leaf": 2,
-        "root-action-coverage": 2
+        "dynamic-scalar": 1,
+        "root-action-coverage": 1
       }
     },
     {
@@ -1093,11 +1093,10 @@
       "operatorName": "Catcher",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 5,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 2,
-        "root-action-coverage": 1,
         "condition-distance": 1
       }
     },
@@ -1947,11 +1946,11 @@
       "operatorName": "Ember",
       "skillId": "chr_0009_azrila_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack4: unresolved combat actions are not covered by resolved damage compiler",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -2477,10 +2476,10 @@
       "skillId": "chr_0014_aurora_attack3",
       "skillType": "basicAttack",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack3: unresolved combat actions are not covered by resolved damage compiler",
+      "blockerKind": "dynamic-scalar",
+      "blocker": "attack3.resolvedDamageHits[0].attackScale: scalar has no resolved level values",
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -4142,11 +4141,11 @@
       "operatorName": "Catcher",
       "skillId": "chr_0020_meurs_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack4: unresolved combat actions are not covered by resolved damage compiler",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0

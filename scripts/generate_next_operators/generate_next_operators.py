@@ -565,6 +565,8 @@ class ConditionalBranchActionSource:
     actionType: str
     actionIndex: int
     nestedCondition: ConditionalActionSource | None = None
+    onceScopeKey: str | None = None
+    onceActions: tuple[ConditionalBranchActionSource, ...] | None = None
     blackboardCalculation: BlackboardCalculationPayload | None = None
     blackboardMutation: BlackboardMutationPayload | None = None
     buffBlackboardRead: BuffBlackboardReadPayload | None = None
@@ -746,6 +748,8 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "targetIdentity",
         "distance",
         "nestedCondition",
+        "onceScopeKey",
+        "onceActions",
         "blackboardCalculation",
         "blackboardMutation",
         "buffBlackboardRead",
@@ -2219,6 +2223,23 @@ def parse_conditional_actions(
                             nestedCondition=nested,
                         )
                     )
+            elif action_type == "DoOnceAction":
+                once_actions = parse_branch(
+                    action.get("sequenceActionData"),
+                    start_frame,
+                    end_frame,
+                    (*action_path, "sequenceActionData"),
+                    execution_frames,
+                )
+                if once_actions:
+                    actions.append(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=index,
+                            onceScopeKey="do-once:" + ".".join(action_path),
+                            onceActions=once_actions,
+                        )
+                    )
             elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES:
                 source_path = f"{source_name}.{'.'.join(action_path)}"
                 calculation = None
@@ -3686,10 +3707,12 @@ def resolve_conditional_projectile_triggers(
     def resolve_branch_action(
         condition: ConditionalActionSource,
         action: ConditionalBranchActionSource,
+        nested_order: tuple[int, ...] = (),
     ) -> ConditionalBranchActionSource:
         action_order = (
             *parent_action_order,
             condition.actionIndex,
+            *nested_order,
             action.actionIndex,
         )
         nested = action.nestedCondition
@@ -3704,6 +3727,16 @@ def resolve_conditional_projectile_triggers(
                 inherited_blackboard,
                 action_order,
             )[0]
+        once_actions = action.onceActions
+        if once_actions is not None:
+            once_actions = tuple(
+                resolve_branch_action(
+                    condition,
+                    nested_action,
+                    (*nested_order, action.actionIndex),
+                )
+                for nested_action in once_actions
+            )
         triggered = action.projectileTriggeredSkills
         if action.projectileLaunch is not None:
             triggered = resolve_projectile_payload_triggers(
@@ -3719,6 +3752,7 @@ def resolve_conditional_projectile_triggers(
         return replace(
             action,
             nestedCondition=nested,
+            onceActions=once_actions,
             projectileTriggeredSkills=triggered,
         )
 
@@ -3943,6 +3977,8 @@ def guaranteed_ability_entity_spawns(
                 additions = ((ability_entity_spawn,),)
             elif nested_condition is not None:
                 additions = condition_outcomes(nested_condition)
+            elif getattr(action, "onceActions", None) is not None:
+                additions = branch_outcomes(action.onceActions)
             else:
                 additions = ((),)
             outcomes = tuple((*prefix, *addition) for prefix in outcomes for addition in additions)
@@ -3982,6 +4018,8 @@ def guaranteed_projectile_projections(
                 )
             elif nested_condition is not None:
                 additions = condition_outcomes(nested_condition)
+            elif getattr(action, "onceActions", None) is not None:
+                additions = branch_outcomes(action.onceActions)
             else:
                 additions = ((),)
             outcomes = tuple((*prefix, *addition) for prefix in outcomes for addition in additions)
@@ -4004,9 +4042,21 @@ def mark_projected_conditional_children(
     """标记已由解析层提升为确定子技能的生成动作，供 DSL 编译器避免重复消费。"""
 
     def mark_action(action: ConditionalBranchActionSource) -> ConditionalBranchActionSource:
-        if action.nestedCondition is None:
-            return action
-        return replace(action, nestedCondition=mark_condition(action.nestedCondition))
+        nested_condition = (
+            None
+            if action.nestedCondition is None
+            else mark_condition(action.nestedCondition)
+        )
+        once_actions = (
+            None
+            if action.onceActions is None
+            else tuple(mark_action(item) for item in action.onceActions)
+        )
+        return replace(
+            action,
+            nestedCondition=nested_condition,
+            onceActions=once_actions,
+        )
 
     def mark_condition(condition: ConditionalActionSource) -> ConditionalActionSource:
         marked = replace(
@@ -5461,6 +5511,32 @@ def compile_conditional_branch_action(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
         )
+    once_actions = getattr(action, "onceActions", None)
+    if once_actions is not None:
+        once_scope_key = getattr(action, "onceScopeKey", None)
+        if once_scope_key is None:
+            raise ValueError(f"{path}: DoOnceAction has no scope key")
+        body = compile_conditional_branch(
+            once_actions,
+            f"{path}.onceActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            projected_ability_entity_spawns=projected_ability_entity_spawns,
+            projected_projectile_launches=projected_projectile_launches,
+        )
+        body_lines = indent_source(body, 2)
+        body_lines[-1] += ","
+        return "\n".join(
+            [
+                "once(",
+                f"  {ts_inline_literal(once_scope_key)},",
+                *body_lines,
+                ")",
+            ]
+        )
     ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
     if ability_entity_spawn is not None:
         if ability_entity_spawn in projected_ability_entity_spawns:
@@ -5798,11 +5874,19 @@ def collect_compilable_conditional_action_types(
     """返回条件树中已由 DSL 编译器完整消费的原生动作类型。"""
     result = {"IfElseAction"} if actions else set()
 
-    def visit(action: ConditionalActionSource) -> None:
-        result.update(condition.sourceType for condition in action.conditions)
-        projected_spawns = getattr(action, "projectedAbilityEntitySpawns", ())
-        projected_launches = getattr(action, "projectedProjectileLaunches", ())
-        for branch_action in (*action.succeedActions, *action.failActions):
+    def visit_branch_actions(
+        branch_actions: tuple[ConditionalBranchActionSource, ...],
+        projected_spawns: tuple[AbilityEntitySpawnPayload, ...],
+        projected_launches: tuple[ConditionalProjectileProjection, ...],
+    ) -> None:
+        for branch_action in branch_actions:
+            if getattr(branch_action, "onceActions", None) is not None:
+                result.add("DoOnceAction")
+                visit_branch_actions(
+                    branch_action.onceActions,
+                    projected_spawns,
+                    projected_launches,
+                )
             if getattr(branch_action, "nestedCondition", None) is not None:
                 result.add("IfElseAction")
                 visit(branch_action.nestedCondition)
@@ -5833,6 +5917,16 @@ def collect_compilable_conditional_action_types(
             ) in projected_launches:
                 result.add("LaunchProjectile")
 
+    def visit(action: ConditionalActionSource) -> None:
+        result.update(condition.sourceType for condition in action.conditions)
+        projected_spawns = getattr(action, "projectedAbilityEntitySpawns", ())
+        projected_launches = getattr(action, "projectedProjectileLaunches", ())
+        visit_branch_actions(
+            (*action.succeedActions, *action.failActions),
+            projected_spawns,
+            projected_launches,
+        )
+
     for action in actions:
         visit(action)
     return result
@@ -5862,6 +5956,29 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
                     result.add(stack_read.outputKey)
                 if nested is not None:
                     visit_conditions((nested,))
+                if getattr(action, "onceActions", None) is not None:
+                    visit_branch_actions(action.onceActions)
+
+    def visit_branch_actions(
+        actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> None:
+        for action in actions:
+            calculation = action.blackboardCalculation
+            mutation = action.blackboardMutation
+            buff_read = action.buffBlackboardRead
+            stack_read = action.buffStackRead
+            if calculation is not None:
+                result.add(calculation.key)
+            if mutation is not None:
+                result.add(mutation.key)
+            if buff_read is not None:
+                result.add(buff_read.outputKey)
+            if stack_read is not None:
+                result.add(stack_read.outputKey)
+            if action.nestedCondition is not None:
+                visit_conditions((action.nestedCondition,))
+            if getattr(action, "onceActions", None) is not None:
+                visit_branch_actions(action.onceActions)
 
     def visit_entities(entities: tuple[AbilityEntityHitSource, ...]) -> None:
         for entity in entities:
@@ -6742,8 +6859,24 @@ def collect_conditional_blackboard_keys(
             if condition.buffStack is not None:
                 add_scalar(condition.buffStack.value)
         for branch_action in (*action.succeedActions, *action.failActions):
+            if getattr(branch_action, "onceActions", None) is not None:
+                visit_branch_actions(branch_action.onceActions)
             if branch_action.nestedCondition is not None:
                 visit_condition(branch_action.nestedCondition)
+            if branch_action.blackboardMutation is not None:
+                result.add(branch_action.blackboardMutation.key)
+                add_scalar(branch_action.blackboardMutation.value)
+            if branch_action.buffBlackboardRead is not None:
+                result.add(branch_action.buffBlackboardRead.outputKey)
+
+    def visit_branch_actions(
+        actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> None:
+        for branch_action in actions:
+            if branch_action.nestedCondition is not None:
+                visit_condition(branch_action.nestedCondition)
+            if getattr(branch_action, "onceActions", None) is not None:
+                visit_branch_actions(branch_action.onceActions)
             if branch_action.blackboardMutation is not None:
                 result.add(branch_action.blackboardMutation.key)
                 add_scalar(branch_action.blackboardMutation.value)
@@ -6769,6 +6902,8 @@ def collect_definition_helpers(
     }
     if any(skill.conditionalActions for skill, _ in compiled):
         helpers.add("branch")
+    if any("once(" in source for _, source in compiled):
+        helpers.add("once")
     return ", ".join(sorted(helpers))
 
 

@@ -29,7 +29,7 @@ import type { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
+type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' }>;
 type StaggerStep = Extract<RuntimeOperation, { kind: 'dealStagger' }>;
 type PoiseStep = DamageStep | StaggerStep;

@@ -17,7 +17,7 @@ import type {
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 
-type ImmediateStepKind = Exclude<CombatStepKind, 'conditional'>;
+type ImmediateStepKind = Exclude<CombatStepKind, 'conditional' | 'once'>;
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
 export function step<K extends ImmediateStepKind>(
@@ -89,6 +89,14 @@ export function branch(
     whenTrue,
     ...(whenFalse ? { whenFalse } : {}),
   };
+}
+
+/** 创建一个在单次技能释放内最多执行一次的动作序列。 */
+export function once(
+  scopeKey: string,
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'once' }> {
+  return { kind: 'once', parameters: { scopeKey }, body };
 }
 
 interface ConditionalCase {

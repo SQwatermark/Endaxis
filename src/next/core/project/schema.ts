@@ -112,7 +112,9 @@ type CombatStepDocumentForKind<K extends CombatStepKind> = {
 } & (K extends 'dealDamage' ? { hitId: string } : {}) &
   (K extends 'conditional'
     ? { whenTrue: ActionSequenceDocument; whenFalse?: ActionSequenceDocument }
-    : {});
+    : K extends 'once'
+      ? { body: ActionSequenceDocument }
+      : {});
 
 /** 规范化战斗操作，其 `kind` 决定负载结构。 */
 export type CombatStepDocument = {

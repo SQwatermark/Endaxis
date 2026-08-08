@@ -12,7 +12,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
+type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
 
 /** Buff 查询结果只暴露当前动作需要读取的数值黑板。 */
 export interface BuffQueryResult {

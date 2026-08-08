@@ -87,6 +87,7 @@ export interface ResolvedCombatStepParameters {
   };
   consumeStatus: CombatStepParameters['consumeStatus'];
   conditional: { condition: CombatCondition };
+  once: CombatStepParameters['once'];
   setContextFlag: CombatStepParameters['setContextFlag'];
 }
 
@@ -99,7 +100,9 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
       readonly whenTrue: ResolvedActionSequence;
       readonly whenFalse?: ResolvedActionSequence;
     }
-  : {});
+  : K extends 'once'
+    ? { readonly body: ResolvedActionSequence }
+    : {});
 
 /** 运行时可直接执行的、按 kind 收窄的单个步骤。 */
 export type ResolvedCombatStep = {

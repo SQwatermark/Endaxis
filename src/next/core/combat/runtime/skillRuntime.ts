@@ -32,11 +32,11 @@ export interface CombatOperationContext {
 
 export interface CombatOperationExecutor {
   execute(
-    step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
+    step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
     context?: CombatOperationContext,
   ): boolean;
   end?(
-    step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
+    step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
     context?: CombatOperationContext,
   ): void;
   evaluate(
@@ -57,7 +57,7 @@ interface SkillRuntimeDependencies {
 
 class RuntimeOperationStep extends CombatStep {
   constructor(
-    readonly step: Exclude<ResolvedCombatStep, { kind: 'conditional' }>,
+    readonly step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
     readonly runtime: SkillRuntime,
   ) {
     super();
@@ -74,6 +74,23 @@ class RuntimeOperationStep extends CombatStep {
 
   override end(): void {
     this.runtime.operations.end?.(this.step, this.runtime.operationContext);
+  }
+}
+
+class RuntimeOnceStep extends CombatStep {
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'once' }>,
+    readonly runtime: SkillRuntime,
+  ) {
+    super();
+  }
+
+  execute(context: CombatExecutionContext): void {
+    this.tryExecute(context);
+  }
+
+  override tryExecute(context: CombatExecutionContext): boolean {
+    return this.runtime.tryExecuteOnce(this.step.parameters.scopeKey, this.step.body, context);
   }
 }
 
@@ -119,6 +136,7 @@ export class SkillRuntime {
   #attemptedCost = false;
   #nonReturnedSpCost = 0;
   #skillCastId = 0;
+  readonly #executedOnceScopes = new Set<string>();
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
@@ -215,6 +233,7 @@ export class SkillRuntime {
     );
     this.#timeline.reset(this.#context);
     this.#blackboard.restore(this.#program.initialBlackboard);
+    this.#executedOnceScopes.clear();
     this.#passedFrames = 0;
     this.#appliedCost = false;
     this.#attemptedCost = false;
@@ -255,12 +274,27 @@ export class SkillRuntime {
 
   createSequence(sequence: ResolvedActionSequence): ActionSequence {
     return new ActionSequence(
-      sequence.steps.map(step =>
-        step.kind === 'conditional'
-          ? new RuntimeConditionalStep(step, this)
-          : new RuntimeOperationStep(step, this),
-      ),
+      sequence.steps.map(step => {
+        if (step.kind === 'conditional') return new RuntimeConditionalStep(step, this);
+        if (step.kind === 'once') return new RuntimeOnceStep(step, this);
+        return new RuntimeOperationStep(step, this);
+      }),
     );
+  }
+
+  /**
+   * 复现原生 DoOnceAction：内部序列无论返回真假，当前释放实例后续都不再重复执行。
+   * 作用域在下一次 tryStart 时统一清空，不能放进跨释放共享的实体黑板。
+   */
+  tryExecuteOnce(
+    scopeKey: string,
+    body: ResolvedActionSequence,
+    context: CombatExecutionContext,
+  ): boolean {
+    if (this.#executedOnceScopes.has(scopeKey)) return true;
+    this.createSequence(body).executeInstant(context);
+    this.#executedOnceScopes.add(scopeKey);
+    return true;
   }
 
   record(
