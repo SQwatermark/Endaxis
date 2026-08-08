@@ -70,6 +70,34 @@ describe('compileSkill', () => {
     });
   });
 
+  it('resolves a standalone stagger step without creating health damage', () => {
+    const skill = {
+      key: 'stagger-only',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [{ kind: 'dealStagger', parameters: { value: [10, 20] } }],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'dealStagger',
+      parameters: { value: 20 },
+    });
+  });
+
   it('preserves a dynamic damage multiplier for runtime resolution', () => {
     const skill = {
       key: 'dynamic-damage',

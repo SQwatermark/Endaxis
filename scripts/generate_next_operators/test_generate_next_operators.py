@@ -478,6 +478,44 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
                 self.assertIn(f"  damageType: '{damage_type}',", source)
 
+    def test_damage_compiler_preserves_a_pure_poise_unit_without_health_damage(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Cryst",
+            attributeType="Poise",
+            calculation="standard",
+            attackScale=ScalarSource(0, None, (0,)),
+            calculationMultiplier=None,
+            poiseValue=ScalarSource(20, "poise", (20, 30)),
+        )
+
+        source = compile_damage_units_step((unit,), ("normalAttack",), "fixture.poise")
+
+        self.assertEqual(
+            source,
+            ["step('dealStagger', {", "  value: [20, 30],", "})"],
+        )
+
+    def test_damage_compiler_rejects_poise_before_health(self) -> None:
+        poise = DamageUnitSource(
+            damageType="Cryst",
+            attributeType="Poise",
+            calculation="standard",
+            attackScale=ScalarSource(0, None, (0,)),
+            calculationMultiplier=None,
+            poiseValue=ScalarSource(20, None, (20,)),
+        )
+        health = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported DamageUnit execution order"):
+            compile_damage_units_step((poise, health), ("normalAttack",), "fixture.order")
+
     def test_conditional_projectile_resolution_stays_attached_to_its_branch(self) -> None:
         launch = ProjectileLaunchPayload(
             "projectile_fixture",

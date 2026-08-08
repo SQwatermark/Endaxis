@@ -115,6 +115,47 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(targetVitals.health).toBe(500);
   });
 
+  it('executes a standalone stagger step without entering the health damage path', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxPoise: 100,
+      poise: 100,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const receipt = new CombatReceiptCollector();
+    const captureAttributeSnapshots = vi.fn();
+    const emitPreparationEvent = vi.fn();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'mifu',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt,
+      captureAttributeSnapshots,
+      resolveRuntimeSnapshot: vi.fn(),
+      applyDamageModifiers: vi.fn(),
+      addInstantAttributeModifier: vi.fn(),
+      clearInstantAttributeModifiers: vi.fn(),
+      emitPreparationEvent,
+      resolvePoiseMultipliers: () => ({ output: 1.5, taken: 2 }),
+      emitHealthSourceEvent: vi.fn(),
+      emitHealthTargetEvent: vi.fn(),
+      emitPoiseSourceEvent: vi.fn(),
+      emitPoiseTargetEvent: vi.fn(),
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    expect(executor.execute({ kind: 'dealStagger', parameters: { value: 20 } })).toBe(true);
+    expect(targetVitals.health).toBe(1000);
+    expect(targetVitals.poise).toBe(40);
+    expect(captureAttributeSnapshots).not.toHaveBeenCalled();
+    expect(emitPreparationEvent).not.toHaveBeenCalled();
+    expect(receipt.entries.map(entry => entry.event)).toEqual(['PoiseApplied']);
+  });
+
   it('drives preparation events and both modifier stages before the formula', () => {
     const order: string[] = [];
     let attack = 100;

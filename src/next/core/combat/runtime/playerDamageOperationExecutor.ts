@@ -1,5 +1,5 @@
 /**
- * `dealDamage` 步骤进入完整玩家主动伤害生命周期的装配点。
+ * `dealDamage` 与 `dealStagger` 步骤进入玩家主动伤害生命周期的装配点。
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
@@ -31,6 +31,8 @@ import { resolveActionValueOperand } from './actionBlackboard';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' }>;
+type StaggerStep = Extract<RuntimeOperation, { kind: 'dealStagger' }>;
+type PoiseStep = DamageStep | StaggerStep;
 
 export const PLAYER_DAMAGE_PREPARATION_EVENTS = [
   'beforeDamageAction',
@@ -69,7 +71,7 @@ export interface PlayerDamageOperationDependencies {
     event: PlayerDamagePreparationEvent,
     context: PlayerDamageContext,
   ) => void;
-  readonly resolvePoiseMultipliers: (step: DamageStep) => PoiseDamageMultipliers;
+  readonly resolvePoiseMultipliers: (step: PoiseStep) => PoiseDamageMultipliers;
   readonly emitHealthSourceEvent: Parameters<typeof executeHealthDamage>[0]['emitSourceEvent'];
   readonly emitHealthTargetEvent: Parameters<typeof executeHealthDamage>[0]['emitTargetEvent'];
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
@@ -85,6 +87,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'dealStagger') {
+      this.#executePoise(step, step.parameters.value);
+      return true;
+    }
     if (step.kind !== 'dealDamage') {
       return operationContext === undefined
         ? this.dependencies.delegate.execute(step)
@@ -166,22 +172,26 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     });
 
     if (step.parameters.stagger !== undefined) {
-      const multipliers = this.dependencies.resolvePoiseMultipliers(step);
-      executePoiseDamage({
-        sourceId: this.dependencies.sourceOperatorId,
-        targetId: this.dependencies.targetId,
-        target: this.dependencies.targetVitals,
-        calculationValue: step.parameters.stagger,
-        outputMultiplier: multipliers.output,
-        takenMultiplier: multipliers.taken,
-        ignorePoiseImmune: multipliers.ignorePoiseImmune,
-        clock: this.dependencies.clock,
-        receipt: this.dependencies.receipt,
-        emitSourceEvent: this.dependencies.emitPoiseSourceEvent,
-        emitTargetEvent: this.dependencies.emitPoiseTargetEvent,
-      });
+      this.#executePoise(step, step.parameters.stagger);
     }
     return true;
+  }
+
+  #executePoise(step: PoiseStep, calculationValue: number): void {
+    const multipliers = this.dependencies.resolvePoiseMultipliers(step);
+    executePoiseDamage({
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: this.dependencies.targetId,
+      target: this.dependencies.targetVitals,
+      calculationValue,
+      outputMultiplier: multipliers.output,
+      takenMultiplier: multipliers.taken,
+      ignorePoiseImmune: multipliers.ignorePoiseImmune,
+      clock: this.dependencies.clock,
+      receipt: this.dependencies.receipt,
+      emitSourceEvent: this.dependencies.emitPoiseSourceEvent,
+      emitTargetEvent: this.dependencies.emitPoiseTargetEvent,
+    });
   }
 
   evaluate(

@@ -396,6 +396,9 @@ function validateCombatStepParameters(
         }
       }
       break;
+    case 'dealStagger':
+      validateLevelValues(parameters.value, `${path}.value`, issues);
+      break;
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);
       requireTarget();

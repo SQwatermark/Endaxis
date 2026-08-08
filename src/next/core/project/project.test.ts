@@ -412,6 +412,18 @@ describe('V2 project document', () => {
       );
     }
 
+    const invalidStagger = JSON.parse(serializeProjectDocument(project));
+    invalidStagger.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
+      { kind: 'dealStagger', parameters: { value: 'invalid' }, edited: [] },
+    );
+    const invalidStaggerResult = parseProjectDocument(invalidStagger);
+    expect(invalidStaggerResult.ok).toBe(false);
+    if (!invalidStaggerResult.ok && invalidStaggerResult.kind === 'invalid-document') {
+      expect(invalidStaggerResult.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.parameters.value') }),
+      );
+    }
+
     const invalidDamageTag = JSON.parse(serializeProjectDocument(project));
     invalidDamageTag.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters.tags =
       ['unknownDamageTag'];

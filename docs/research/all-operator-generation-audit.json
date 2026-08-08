@@ -7,12 +7,11 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 193,
+    "compiledCount": 195,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-channeling": 11,
-      "other": 8,
       "parser-tick-interval": 2,
       "projectile-child-actions": 2,
       "condition-tag": 6,
@@ -26,6 +25,7 @@
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
+      "other": 6,
       "source-data-missing": 21
     },
     "unresolvedActionPresence": {
@@ -846,12 +846,11 @@
       "operatorName": "Tangtang",
       "skillCount": 11,
       "parsedCount": 6,
-      "compiledCount": 5,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
         "parser-assignment-shape": 1,
         "parser-channeling": 3,
-        "other": 1,
         "parser-tick-interval": 1
       }
     },
@@ -1043,12 +1042,12 @@
       "operatorName": "Yvonne",
       "skillCount": 16,
       "parsedCount": 16,
-      "compiledCount": 5,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "other": 2,
         "buff-source-or-target": 2,
-        "condition-buff-stack": 7
+        "condition-buff-stack": 7,
+        "other": 1
       }
     },
     {
@@ -1276,9 +1275,9 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_attack5",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "attack5.schedule[1].conditionalAction.succeedActions[0]: unsupported DamageUnit layout",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -3527,9 +3526,9 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_attack5",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "attack5.schedule[1].conditionalAction.succeedActions[0]: unsupported DamageUnit layout",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,

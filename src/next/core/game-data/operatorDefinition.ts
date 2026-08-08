@@ -293,6 +293,8 @@ export interface CombatStepParameters {
     target: 'enemy';
   };
   dealDamage: DealDamageParameters;
+  /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
+  dealStagger: { value: LevelValues };
   applyBuff: {
     buffId: string;
     target: CombatTarget;
@@ -402,6 +404,7 @@ export const COMBAT_STEP_KINDS = [
   'applyElementalReaction',
   'consumeElementalReaction',
   'dealDamage',
+  'dealStagger',
   'applyBuff',
   'readBuffBlackboard',
   'readBuffStackCount',

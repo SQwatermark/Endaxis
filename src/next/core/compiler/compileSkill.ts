@@ -140,6 +140,14 @@ function resolveStep(
               }),
         },
       };
+    case 'dealStagger':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          value: resolveLevelValue(step.parameters.value, skillLevel, `${path}.parameters.value`),
+        },
+      };
     case 'changeResource':
       return {
         ...keyed,

@@ -52,6 +52,7 @@ export interface ResolvedCombatStepParameters {
       coefficient: number;
     };
   };
+  dealStagger: { value: number };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];

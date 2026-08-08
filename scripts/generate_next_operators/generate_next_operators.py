@@ -6265,15 +6265,28 @@ def compile_damage_units_step(
     path: str,
     runtime_blackboard_keys: frozenset[str] = frozenset(),
 ) -> list[str]:
-    """把同一原生 DamageAction 的生命与失衡单元编译为一个伤害步骤。"""
+    """按原生 DamageUnit 顺序编译生命伤害及独立失衡单元。"""
     hp_units = [unit for unit in damage_units if unit.attributeType == "Hp"]
     poise_units = [unit for unit in damage_units if unit.attributeType == "Poise"]
     if (
-        len(hp_units) != 1
+        len(hp_units) > 1
         or len(poise_units) > 1
         or len(hp_units) + len(poise_units) != len(damage_units)
+        or not damage_units
     ):
         raise ValueError(f"{path}: unsupported DamageUnit layout")
+    if not hp_units:
+        poise = poise_units[0].poiseValue
+        if poise is None:
+            raise ValueError(f"{path}: Poise unit has no value")
+        return [
+            "step('dealStagger', {",
+            "  value: "
+            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))},",
+            "})",
+        ]
+    if tuple(unit.attributeType for unit in damage_units) not in {("Hp",), ("Hp", "Poise")}:
+        raise ValueError(f"{path}: unsupported DamageUnit execution order")
     hp = hp_units[0]
     damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
     if damage_type is None:
