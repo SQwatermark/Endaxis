@@ -134,6 +134,7 @@ export interface GeneratedProjectileTriggeredSkillSource {
   /** 命中 SkillData 再次引用调用链中的同一技能时为真，避免静态生成无限递归。 */
   readonly cycleTruncated: boolean;
   readonly nestedProjectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
+  readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
 }
 
 export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
@@ -425,6 +426,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly buffApplication?: GeneratedBuffApplicationPayload;
   readonly resourceGain?: GeneratedResourceGainPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
+  readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
 }

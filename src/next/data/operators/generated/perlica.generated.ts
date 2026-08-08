@@ -426,7 +426,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -927,7 +928,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 12,
@@ -1073,7 +1075,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -1654,7 +1657,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 19,
@@ -1817,7 +1821,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 22,
@@ -1980,7 +1985,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -2589,7 +2595,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -3707,7 +3714,8 @@ export const perlicaGeneratedSource = {
           "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 1,
@@ -3727,7 +3735,8 @@ export const perlicaGeneratedSource = {
           "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 1,
@@ -3747,7 +3756,8 @@ export const perlicaGeneratedSource = {
           "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 1,
@@ -3767,7 +3777,8 @@ export const perlicaGeneratedSource = {
           "resourceGains": [],
           "combatActions": [],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -4958,7 +4969,340 @@ export const perlicaGeneratedSource = {
                         "skillId": "chr_0004_pelica_combo_skill_projhit"
                       }
                     ]
-                  }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 24,
+                      "actionOrder": [
+                        7,
+                        0,
+                        2
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0004_pelica_combo_skill",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0004_pelica_combo_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 2.5,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.8,
+                              0.88,
+                              0.96,
+                              1.04,
+                              1.12,
+                              1.2,
+                              1.28,
+                              1.36,
+                              1.44,
+                              1.54,
+                              1.66,
+                              1.8
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0
+                            ]
+                          }
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 11,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 2.5,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.8,
+                                  0.88,
+                                  0.96,
+                                  1.04,
+                                  1.12,
+                                  1.2,
+                                  1.28,
+                                  1.36,
+                                  1.44,
+                                  1.54,
+                                  1.66,
+                                  1.8
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null
+                            },
+                            {
+                              "damageType": "Physical",
+                              "attributeType": "Poise",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": {
+                                "value": 0.0,
+                                "blackboardKey": "poise",
+                                "levelValues": [
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0,
+                                  10.0
+                                ]
+                              }
+                            }
+                          ],
+                          "timedMarkerGate": null
+                        }
+                      ],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "Equals",
+                              "left": {
+                                "value": 0.0,
+                                "blackboardKey": "talent2",
+                                "levelValues": null
+                              },
+                              "right": {
+                                "value": 1.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": []
+                            },
+                            {
+                              "sourceType": "CheckTagMatch",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": []
+                            },
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "Equals",
+                              "left": {
+                                "value": 1.0,
+                                "blackboardKey": "EntityBB_bounced",
+                                "levelValues": null
+                              },
+                              "right": {
+                                "value": 0.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "ModifyDynamicBlackboard",
+                              "actionIndex": 0,
+                              "blackboardMutation": {
+                                "key": "EntityBB_bounced",
+                                "operation": "Assign",
+                                "value": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                }
+                              }
+                            },
+                            {
+                              "actionType": "LaunchProjectile",
+                              "actionIndex": 2,
+                              "projectileLaunch": {
+                                "projectileId": "projectile_chr_0004_pelica_combo_skill",
+                                "skillTriggers": [
+                                  {
+                                    "event": "hit",
+                                    "skillId": "chr_0004_pelica_combo_skill_projhit"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "failActions": []
+                        }
+                      ],
+                      "auxiliaryActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 9,
+                          "actionType": "CreateBuffAction",
+                          "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
+                          "classification": "tutorialMarker",
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "inheritSourceSkillCastInfo": true,
+                          "blackboardAssignments": {},
+                          "nestedCombatActions": []
+                        },
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 10,
+                          "actionType": "CreateBuffAction",
+                          "sourceId": "buff_common_pulse_pulse_conduct_triggered",
+                          "classification": "electrificationReaction",
+                          "targetSource": "Target",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "inheritSourceSkillCastInfo": true,
+                          "blackboardAssignments": {
+                            "duration": {
+                              "value": 7.5,
+                              "blackboardKey": "duration",
+                              "levelValues": [
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0,
+                                5.0
+                              ]
+                            },
+                            "extra_scaling": {
+                              "value": 0.0,
+                              "blackboardKey": "extra_scaling",
+                              "levelValues": null
+                            }
+                          },
+                          "nestedCombatActions": []
+                        }
+                      ],
+                      "resourceGains": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 15,
+                          "resource": "ultimateEnergy",
+                          "amount": {
+                            "value": 0.2,
+                            "blackboardKey": "usp",
+                            "levelValues": [
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0,
+                              10.0
+                            ]
+                          },
+                          "coefficient": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "spGainKind": null,
+                          "spGainSource": null,
+                          "onlyMainOperator": false,
+                          "isPercentValue": false,
+                          "useUltimateRecoveryTag": false,
+                          "ultimateRecoveryTagId": 0,
+                          "ignoreUltimateGainScalar": false,
+                          "onceActionValueKey": null
+                        }
+                      ],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "DamageAction",
+                        "IfElseAction",
+                        "LaunchProjectile",
+                        "ObtainCostAction"
+                      ],
+                      "cycleTruncated": true,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": []
+                    }
+                  ]
                 }
               ],
               "failActions": []
@@ -5075,7 +5419,8 @@ export const perlicaGeneratedSource = {
             "ObtainCostAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],

@@ -2127,7 +2127,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 8,
@@ -2209,7 +2210,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -2774,7 +2776,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 2,
@@ -2856,7 +2859,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [
@@ -3658,7 +3662,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 14,
@@ -3740,7 +3745,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 16,
@@ -3822,7 +3828,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         },
         {
           "launchFrame": 16,
@@ -3904,7 +3911,8 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],
@@ -10643,7 +10651,361 @@ export const zhuangFangyiGeneratedSource = {
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
                       ]
-                    }
+                    },
+                    "projectileTriggeredSkills": [
+                      {
+                        "launchFrame": 6,
+                        "actionOrder": [
+                          42,
+                          1,
+                          45,
+                          8
+                        ],
+                        "assumedTravelFrames": 0,
+                        "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                        "triggerEvent": "reach",
+                        "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                        "excludedByPrimaryTargetMarker": false,
+                        "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                        "damageUnits": [],
+                        "directDamageHits": [],
+                        "conditionalActions": [
+                          {
+                            "startFrame": 0,
+                            "endFrame": 1,
+                            "actionIndex": 2,
+                            "actionPath": [
+                              "timelineActions[0]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[2]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "GE",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "swordsForLimit",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 0.0,
+                                  "blackboardKey": "remain_sword_limit",
+                                  "levelValues": [
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "IfElseAction",
+                                "actionIndex": 2,
+                                "nestedCondition": {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 6,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]",
+                                    "succeedActions",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CheckBuffStackNumAdvanced",
+                                      "supported": true,
+                                      "comparison": null,
+                                      "left": null,
+                                      "right": null,
+                                      "skillTypes": [],
+                                      "buffStack": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "buffCheckType": "Id",
+                                        "buffIds": [
+                                          "buff_chr_0030_zhuangfy_ult_base"
+                                        ],
+                                        "tagQueryType": "hasAny",
+                                        "buffTagIds": [],
+                                        "countType": "BuffCount",
+                                        "comparison": "GE",
+                                        "value": {
+                                          "value": 1.0,
+                                          "blackboardKey": null,
+                                          "levelValues": null
+                                        },
+                                        "limitSkillCastId": false
+                                      }
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "failActions": [
+                              {
+                                "actionType": "IfElseAction",
+                                "actionIndex": 0,
+                                "nestedCondition": {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 10,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]",
+                                    "failActions",
+                                    "actionData",
+                                    "[0]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CheckBuffStackNumAdvanced",
+                                      "supported": true,
+                                      "comparison": null,
+                                      "left": null,
+                                      "right": null,
+                                      "skillTypes": [],
+                                      "buffStack": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "buffCheckType": "Id",
+                                        "buffIds": [
+                                          "buff_chr_0030_zhuangfy_ult_base"
+                                        ],
+                                        "tagQueryType": "hasAny",
+                                        "buffTagIds": [],
+                                        "countType": "BuffCount",
+                                        "comparison": "GE",
+                                        "value": {
+                                          "value": 1.0,
+                                          "blackboardKey": null,
+                                          "levelValues": null
+                                        },
+                                        "limitSkillCastId": false
+                                      }
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "combatActions": [
+                          "SpawnAbilityEntity"
+                        ],
+                        "cycleTruncated": false,
+                        "nestedProjectileTriggeredSkills": [],
+                        "abilityEntityHits": [
+                          {
+                            "spawnFrame": 6,
+                            "actionOrder": [
+                              42,
+                              1,
+                              45,
+                              8,
+                              2,
+                              0
+                            ],
+                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                            "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                            "entityBlackboardAssignments": [
+                              {
+                                "targetKey": "EntityBB_swordDuration",
+                                "valueType": "Numeric",
+                                "numericValue": 50.0,
+                                "stringValue": "",
+                                "useDirectValue": false,
+                                "inputValueKey": "sword_duration"
+                              },
+                              {
+                                "targetKey": "EntityBB_swordLimit",
+                                "valueType": "Numeric",
+                                "numericValue": 0.0,
+                                "stringValue": "",
+                                "useDirectValue": false,
+                                "inputValueKey": "remain_sword_limit"
+                              }
+                            ],
+                            "directDamageHits": [],
+                            "intervalDamageHits": [],
+                            "conditionalActions": [],
+                            "inflictions": [],
+                            "auxiliaryActions": [],
+                            "resourceGains": [],
+                            "projectileLaunches": [],
+                            "projectileTriggeredSkills": [],
+                            "nestedAbilityEntityHits": [],
+                            "combatActions": [],
+                            "cycleTruncated": false,
+                            "inheritsSourceBlackboard": true,
+                            "declaredBlackboard": [
+                              {
+                                "key": "atk_scale",
+                                "value": 0.2,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "potential_n",
+                                "value": 0.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "randomRotate",
+                                "value": 0.0,
+                                "isDynamic": true
+                              },
+                              {
+                                "key": "randomVFX",
+                                "value": 0.0,
+                                "isDynamic": true
+                              }
+                            ],
+                            "blackboardCalculations": [],
+                            "blackboardMutations": [],
+                            "buffBlackboardReads": [],
+                            "buffFinishes": []
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     "actionType": "CreateBuffAction",
@@ -10813,7 +11175,361 @@ export const zhuangFangyiGeneratedSource = {
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
                       ]
-                    }
+                    },
+                    "projectileTriggeredSkills": [
+                      {
+                        "launchFrame": 6,
+                        "actionOrder": [
+                          42,
+                          1,
+                          45,
+                          3
+                        ],
+                        "assumedTravelFrames": 0,
+                        "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                        "triggerEvent": "reach",
+                        "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                        "excludedByPrimaryTargetMarker": false,
+                        "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                        "damageUnits": [],
+                        "directDamageHits": [],
+                        "conditionalActions": [
+                          {
+                            "startFrame": 0,
+                            "endFrame": 1,
+                            "actionIndex": 2,
+                            "actionPath": [
+                              "timelineActions[0]",
+                              "_sequenceActionData",
+                              "actionData",
+                              "[2]"
+                            ],
+                            "conditions": [
+                              {
+                                "sourceType": "CompareFloat",
+                                "supported": true,
+                                "comparison": "GE",
+                                "left": {
+                                  "value": 0.0,
+                                  "blackboardKey": "swordsForLimit",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 0.0,
+                                  "blackboardKey": "remain_sword_limit",
+                                  "levelValues": [
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0,
+                                    9.0
+                                  ]
+                                },
+                                "skillTypes": []
+                              }
+                            ],
+                            "succeedActions": [
+                              {
+                                "actionType": "IfElseAction",
+                                "actionIndex": 2,
+                                "nestedCondition": {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 6,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]",
+                                    "succeedActions",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CheckBuffStackNumAdvanced",
+                                      "supported": true,
+                                      "comparison": null,
+                                      "left": null,
+                                      "right": null,
+                                      "skillTypes": [],
+                                      "buffStack": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "buffCheckType": "Id",
+                                        "buffIds": [
+                                          "buff_chr_0030_zhuangfy_ult_base"
+                                        ],
+                                        "tagQueryType": "hasAny",
+                                        "buffTagIds": [],
+                                        "countType": "BuffCount",
+                                        "comparison": "GE",
+                                        "value": {
+                                          "value": 1.0,
+                                          "blackboardKey": null,
+                                          "levelValues": null
+                                        },
+                                        "limitSkillCastId": false
+                                      }
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "failActions": [
+                              {
+                                "actionType": "IfElseAction",
+                                "actionIndex": 0,
+                                "nestedCondition": {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 10,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]",
+                                    "failActions",
+                                    "actionData",
+                                    "[0]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CheckBuffStackNumAdvanced",
+                                      "supported": true,
+                                      "comparison": null,
+                                      "left": null,
+                                      "right": null,
+                                      "skillTypes": [],
+                                      "buffStack": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "buffCheckType": "Id",
+                                        "buffIds": [
+                                          "buff_chr_0030_zhuangfy_ult_base"
+                                        ],
+                                        "tagQueryType": "hasAny",
+                                        "buffTagIds": [],
+                                        "countType": "BuffCount",
+                                        "comparison": "GE",
+                                        "value": {
+                                          "value": 1.0,
+                                          "blackboardKey": null,
+                                          "levelValues": null
+                                        },
+                                        "limitSkillCastId": false
+                                      }
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "SpawnAbilityEntity",
+                                      "actionIndex": 0,
+                                      "abilityEntitySpawn": {
+                                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                        "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                        "entityBlackboardAssignments": [
+                                          {
+                                            "targetKey": "EntityBB_swordDuration",
+                                            "valueType": "Numeric",
+                                            "numericValue": 50.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "sword_duration"
+                                          },
+                                          {
+                                            "targetKey": "EntityBB_swordLimit",
+                                            "valueType": "Numeric",
+                                            "numericValue": 0.0,
+                                            "stringValue": "",
+                                            "useDirectValue": false,
+                                            "inputValueKey": "remain_sword_limit"
+                                          }
+                                        ],
+                                        "assignBlackboard": true
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "combatActions": [
+                          "SpawnAbilityEntity"
+                        ],
+                        "cycleTruncated": false,
+                        "nestedProjectileTriggeredSkills": [],
+                        "abilityEntityHits": [
+                          {
+                            "spawnFrame": 6,
+                            "actionOrder": [
+                              42,
+                              1,
+                              45,
+                              3,
+                              2,
+                              0
+                            ],
+                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                            "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                            "entityBlackboardAssignments": [
+                              {
+                                "targetKey": "EntityBB_swordDuration",
+                                "valueType": "Numeric",
+                                "numericValue": 50.0,
+                                "stringValue": "",
+                                "useDirectValue": false,
+                                "inputValueKey": "sword_duration"
+                              },
+                              {
+                                "targetKey": "EntityBB_swordLimit",
+                                "valueType": "Numeric",
+                                "numericValue": 0.0,
+                                "stringValue": "",
+                                "useDirectValue": false,
+                                "inputValueKey": "remain_sword_limit"
+                              }
+                            ],
+                            "directDamageHits": [],
+                            "intervalDamageHits": [],
+                            "conditionalActions": [],
+                            "inflictions": [],
+                            "auxiliaryActions": [],
+                            "resourceGains": [],
+                            "projectileLaunches": [],
+                            "projectileTriggeredSkills": [],
+                            "nestedAbilityEntityHits": [],
+                            "combatActions": [],
+                            "cycleTruncated": false,
+                            "inheritsSourceBlackboard": true,
+                            "declaredBlackboard": [
+                              {
+                                "key": "atk_scale",
+                                "value": 0.2,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "potential_n",
+                                "value": 0.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "randomRotate",
+                                "value": 0.0,
+                                "isDynamic": true
+                              },
+                              {
+                                "key": "randomVFX",
+                                "value": 0.0,
+                                "isDynamic": true
+                              }
+                            ],
+                            "blackboardCalculations": [],
+                            "blackboardMutations": [],
+                            "buffBlackboardReads": [],
+                            "buffFinishes": []
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     "actionType": "CreateBuffAction",
@@ -12157,7 +12873,365 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
                             ]
-                          }
+                          },
+                          "projectileTriggeredSkills": [
+                            {
+                              "launchFrame": 5,
+                              "actionOrder": [
+                                30,
+                                1,
+                                33,
+                                0,
+                                35,
+                                1
+                              ],
+                              "assumedTravelFrames": 0,
+                              "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                              "triggerEvent": "reach",
+                              "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                              "excludedByPrimaryTargetMarker": false,
+                              "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                              "damageUnits": [],
+                              "directDamageHits": [],
+                              "conditionalActions": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 2,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CompareFloat",
+                                      "supported": true,
+                                      "comparison": "GE",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "swordsForLimit",
+                                        "levelValues": null
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "remain_sword_limit",
+                                        "levelValues": [
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0
+                                        ]
+                                      },
+                                      "skillTypes": []
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 2,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 6,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "succeedActions",
+                                          "actionData",
+                                          "[2]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 0,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 10,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "failActions",
+                                          "actionData",
+                                          "[0]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "auxiliaryActions": [],
+                              "resourceGains": [],
+                              "combatActions": [
+                                "SpawnAbilityEntity"
+                              ],
+                              "cycleTruncated": false,
+                              "nestedProjectileTriggeredSkills": [],
+                              "abilityEntityHits": [
+                                {
+                                  "spawnFrame": 5,
+                                  "actionOrder": [
+                                    30,
+                                    1,
+                                    33,
+                                    0,
+                                    35,
+                                    1,
+                                    2,
+                                    0
+                                  ],
+                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                  "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                  "entityBlackboardAssignments": [
+                                    {
+                                      "targetKey": "EntityBB_swordDuration",
+                                      "valueType": "Numeric",
+                                      "numericValue": 50.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "sword_duration"
+                                    },
+                                    {
+                                      "targetKey": "EntityBB_swordLimit",
+                                      "valueType": "Numeric",
+                                      "numericValue": 0.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "remain_sword_limit"
+                                    }
+                                  ],
+                                  "directDamageHits": [],
+                                  "intervalDamageHits": [],
+                                  "conditionalActions": [],
+                                  "inflictions": [],
+                                  "auxiliaryActions": [],
+                                  "resourceGains": [],
+                                  "projectileLaunches": [],
+                                  "projectileTriggeredSkills": [],
+                                  "nestedAbilityEntityHits": [],
+                                  "combatActions": [],
+                                  "cycleTruncated": false,
+                                  "inheritsSourceBlackboard": true,
+                                  "declaredBlackboard": [
+                                    {
+                                      "key": "atk_scale",
+                                      "value": 0.2,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "potential_n",
+                                      "value": 0.0,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "randomRotate",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    },
+                                    {
+                                      "key": "randomVFX",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    }
+                                  ],
+                                  "blackboardCalculations": [],
+                                  "blackboardMutations": [],
+                                  "buffBlackboardReads": [],
+                                  "buffFinishes": []
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -12190,7 +13264,365 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
                             ]
-                          }
+                          },
+                          "projectileTriggeredSkills": [
+                            {
+                              "launchFrame": 5,
+                              "actionOrder": [
+                                30,
+                                1,
+                                33,
+                                0,
+                                35,
+                                1
+                              ],
+                              "assumedTravelFrames": 0,
+                              "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                              "triggerEvent": "reach",
+                              "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                              "excludedByPrimaryTargetMarker": false,
+                              "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                              "damageUnits": [],
+                              "directDamageHits": [],
+                              "conditionalActions": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 2,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CompareFloat",
+                                      "supported": true,
+                                      "comparison": "GE",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "swordsForLimit",
+                                        "levelValues": null
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "remain_sword_limit",
+                                        "levelValues": [
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0
+                                        ]
+                                      },
+                                      "skillTypes": []
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 2,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 6,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "succeedActions",
+                                          "actionData",
+                                          "[2]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 0,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 10,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "failActions",
+                                          "actionData",
+                                          "[0]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "auxiliaryActions": [],
+                              "resourceGains": [],
+                              "combatActions": [
+                                "SpawnAbilityEntity"
+                              ],
+                              "cycleTruncated": false,
+                              "nestedProjectileTriggeredSkills": [],
+                              "abilityEntityHits": [
+                                {
+                                  "spawnFrame": 5,
+                                  "actionOrder": [
+                                    30,
+                                    1,
+                                    33,
+                                    0,
+                                    35,
+                                    1,
+                                    2,
+                                    0
+                                  ],
+                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                  "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                  "entityBlackboardAssignments": [
+                                    {
+                                      "targetKey": "EntityBB_swordDuration",
+                                      "valueType": "Numeric",
+                                      "numericValue": 50.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "sword_duration"
+                                    },
+                                    {
+                                      "targetKey": "EntityBB_swordLimit",
+                                      "valueType": "Numeric",
+                                      "numericValue": 0.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "remain_sword_limit"
+                                    }
+                                  ],
+                                  "directDamageHits": [],
+                                  "intervalDamageHits": [],
+                                  "conditionalActions": [],
+                                  "inflictions": [],
+                                  "auxiliaryActions": [],
+                                  "resourceGains": [],
+                                  "projectileLaunches": [],
+                                  "projectileTriggeredSkills": [],
+                                  "nestedAbilityEntityHits": [],
+                                  "combatActions": [],
+                                  "cycleTruncated": false,
+                                  "inheritsSourceBlackboard": true,
+                                  "declaredBlackboard": [
+                                    {
+                                      "key": "atk_scale",
+                                      "value": 0.2,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "potential_n",
+                                      "value": 0.0,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "randomRotate",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    },
+                                    {
+                                      "key": "randomVFX",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    }
+                                  ],
+                                  "blackboardCalculations": [],
+                                  "blackboardMutations": [],
+                                  "buffBlackboardReads": [],
+                                  "buffFinishes": []
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -12523,7 +13955,365 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
                             ]
-                          }
+                          },
+                          "projectileTriggeredSkills": [
+                            {
+                              "launchFrame": 5,
+                              "actionOrder": [
+                                30,
+                                1,
+                                33,
+                                0,
+                                45,
+                                8
+                              ],
+                              "assumedTravelFrames": 0,
+                              "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                              "triggerEvent": "reach",
+                              "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                              "excludedByPrimaryTargetMarker": false,
+                              "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                              "damageUnits": [],
+                              "directDamageHits": [],
+                              "conditionalActions": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 2,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CompareFloat",
+                                      "supported": true,
+                                      "comparison": "GE",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "swordsForLimit",
+                                        "levelValues": null
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "remain_sword_limit",
+                                        "levelValues": [
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0
+                                        ]
+                                      },
+                                      "skillTypes": []
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 2,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 6,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "succeedActions",
+                                          "actionData",
+                                          "[2]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 0,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 10,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "failActions",
+                                          "actionData",
+                                          "[0]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "auxiliaryActions": [],
+                              "resourceGains": [],
+                              "combatActions": [
+                                "SpawnAbilityEntity"
+                              ],
+                              "cycleTruncated": false,
+                              "nestedProjectileTriggeredSkills": [],
+                              "abilityEntityHits": [
+                                {
+                                  "spawnFrame": 5,
+                                  "actionOrder": [
+                                    30,
+                                    1,
+                                    33,
+                                    0,
+                                    45,
+                                    8,
+                                    2,
+                                    0
+                                  ],
+                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                  "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                  "entityBlackboardAssignments": [
+                                    {
+                                      "targetKey": "EntityBB_swordDuration",
+                                      "valueType": "Numeric",
+                                      "numericValue": 50.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "sword_duration"
+                                    },
+                                    {
+                                      "targetKey": "EntityBB_swordLimit",
+                                      "valueType": "Numeric",
+                                      "numericValue": 0.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "remain_sword_limit"
+                                    }
+                                  ],
+                                  "directDamageHits": [],
+                                  "intervalDamageHits": [],
+                                  "conditionalActions": [],
+                                  "inflictions": [],
+                                  "auxiliaryActions": [],
+                                  "resourceGains": [],
+                                  "projectileLaunches": [],
+                                  "projectileTriggeredSkills": [],
+                                  "nestedAbilityEntityHits": [],
+                                  "combatActions": [],
+                                  "cycleTruncated": false,
+                                  "inheritsSourceBlackboard": true,
+                                  "declaredBlackboard": [
+                                    {
+                                      "key": "atk_scale",
+                                      "value": 0.2,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "potential_n",
+                                      "value": 0.0,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "randomRotate",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    },
+                                    {
+                                      "key": "randomVFX",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    }
+                                  ],
+                                  "blackboardCalculations": [],
+                                  "blackboardMutations": [],
+                                  "buffBlackboardReads": [],
+                                  "buffFinishes": []
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -12699,7 +14489,365 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
                             ]
-                          }
+                          },
+                          "projectileTriggeredSkills": [
+                            {
+                              "launchFrame": 5,
+                              "actionOrder": [
+                                30,
+                                1,
+                                33,
+                                0,
+                                45,
+                                3
+                              ],
+                              "assumedTravelFrames": 0,
+                              "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
+                              "triggerEvent": "reach",
+                              "triggerSkillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit",
+                              "excludedByPrimaryTargetMarker": false,
+                              "sourceFile": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json",
+                              "damageUnits": [],
+                              "directDamageHits": [],
+                              "conditionalActions": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 1,
+                                  "actionIndex": 2,
+                                  "actionPath": [
+                                    "timelineActions[0]",
+                                    "_sequenceActionData",
+                                    "actionData",
+                                    "[2]"
+                                  ],
+                                  "conditions": [
+                                    {
+                                      "sourceType": "CompareFloat",
+                                      "supported": true,
+                                      "comparison": "GE",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "swordsForLimit",
+                                        "levelValues": null
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "remain_sword_limit",
+                                        "levelValues": [
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0,
+                                          9.0
+                                        ]
+                                      },
+                                      "skillTypes": []
+                                    }
+                                  ],
+                                  "succeedActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 2,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 6,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "succeedActions",
+                                          "actionData",
+                                          "[2]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "failActions": [
+                                    {
+                                      "actionType": "IfElseAction",
+                                      "actionIndex": 0,
+                                      "nestedCondition": {
+                                        "startFrame": 0,
+                                        "endFrame": 1,
+                                        "actionIndex": 10,
+                                        "actionPath": [
+                                          "timelineActions[0]",
+                                          "_sequenceActionData",
+                                          "actionData",
+                                          "[2]",
+                                          "failActions",
+                                          "actionData",
+                                          "[0]"
+                                        ],
+                                        "conditions": [
+                                          {
+                                            "sourceType": "CheckBuffStackNumAdvanced",
+                                            "supported": true,
+                                            "comparison": null,
+                                            "left": null,
+                                            "right": null,
+                                            "skillTypes": [],
+                                            "buffStack": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "buffCheckType": "Id",
+                                              "buffIds": [
+                                                "buff_chr_0030_zhuangfy_ult_base"
+                                              ],
+                                              "tagQueryType": "hasAny",
+                                              "buffTagIds": [],
+                                              "countType": "BuffCount",
+                                              "comparison": "GE",
+                                              "value": {
+                                                "value": 1.0,
+                                                "blackboardKey": null,
+                                                "levelValues": null
+                                              },
+                                              "limitSkillCastId": false
+                                            }
+                                          }
+                                        ],
+                                        "succeedActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ],
+                                        "failActions": [
+                                          {
+                                            "actionType": "SpawnAbilityEntity",
+                                            "actionIndex": 0,
+                                            "abilityEntitySpawn": {
+                                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                              "entityBlackboardAssignments": [
+                                                {
+                                                  "targetKey": "EntityBB_swordDuration",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 50.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "sword_duration"
+                                                },
+                                                {
+                                                  "targetKey": "EntityBB_swordLimit",
+                                                  "valueType": "Numeric",
+                                                  "numericValue": 0.0,
+                                                  "stringValue": "",
+                                                  "useDirectValue": false,
+                                                  "inputValueKey": "remain_sword_limit"
+                                                }
+                                              ],
+                                              "assignBlackboard": true
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "auxiliaryActions": [],
+                              "resourceGains": [],
+                              "combatActions": [
+                                "SpawnAbilityEntity"
+                              ],
+                              "cycleTruncated": false,
+                              "nestedProjectileTriggeredSkills": [],
+                              "abilityEntityHits": [
+                                {
+                                  "spawnFrame": 5,
+                                  "actionOrder": [
+                                    30,
+                                    1,
+                                    33,
+                                    0,
+                                    45,
+                                    3,
+                                    2,
+                                    0
+                                  ],
+                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                  "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                  "entityBlackboardAssignments": [
+                                    {
+                                      "targetKey": "EntityBB_swordDuration",
+                                      "valueType": "Numeric",
+                                      "numericValue": 50.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "sword_duration"
+                                    },
+                                    {
+                                      "targetKey": "EntityBB_swordLimit",
+                                      "valueType": "Numeric",
+                                      "numericValue": 0.0,
+                                      "stringValue": "",
+                                      "useDirectValue": false,
+                                      "inputValueKey": "remain_sword_limit"
+                                    }
+                                  ],
+                                  "directDamageHits": [],
+                                  "intervalDamageHits": [],
+                                  "conditionalActions": [],
+                                  "inflictions": [],
+                                  "auxiliaryActions": [],
+                                  "resourceGains": [],
+                                  "projectileLaunches": [],
+                                  "projectileTriggeredSkills": [],
+                                  "nestedAbilityEntityHits": [],
+                                  "combatActions": [],
+                                  "cycleTruncated": false,
+                                  "inheritsSourceBlackboard": true,
+                                  "declaredBlackboard": [
+                                    {
+                                      "key": "atk_scale",
+                                      "value": 0.2,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "potential_n",
+                                      "value": 0.0,
+                                      "isDynamic": false
+                                    },
+                                    {
+                                      "key": "randomRotate",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    },
+                                    {
+                                      "key": "randomVFX",
+                                      "value": 0.0,
+                                      "isDynamic": true
+                                    }
+                                  ],
+                                  "blackboardCalculations": [],
+                                  "blackboardMutations": [],
+                                  "buffBlackboardReads": [],
+                                  "buffFinishes": []
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -15479,7 +17627,8 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": []
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": []
         }
       ],
       "abilityEntityHits": [],

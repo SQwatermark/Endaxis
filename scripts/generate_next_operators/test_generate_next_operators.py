@@ -5,6 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from generate_next_operators import (
     collect_blackboard_keys,
@@ -63,6 +64,7 @@ from generate_next_operators import (
     parse_resource_gains,
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
+    resolve_conditional_projectile_triggers,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
     is_single_enemy_ability_entity_projection,
@@ -86,6 +88,55 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_conditional_projectile_resolution_stays_attached_to_its_branch(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile_fixture",
+            (ProjectileSkillTriggerSource("reach", "fixture_child"),),
+        )
+        branch = ConditionalBranchActionSource(
+            "LaunchProjectile",
+            7,
+            projectileLaunch=launch,
+        )
+        condition = ConditionalActionSource(
+            5,
+            6,
+            3,
+            ("condition",),
+            (),
+            (branch,),
+            (),
+        )
+        resolved_hit = SimpleNamespace(triggerSkillId="fixture_child")
+
+        with patch(
+            "generate_next_operators.resolve_projectile_payload_triggers",
+            return_value=(resolved_hit,),
+        ) as resolver:
+            result = resolve_conditional_projectile_triggers(
+                (condition,),
+                {},
+                "fixture.json",
+                Path("."),
+                10,
+                ("fixture_root",),
+                {},
+                (1,),
+            )
+
+        resolved_branch = result[0].succeedActions[0]
+        self.assertEqual(resolved_branch.projectileTriggeredSkills, (resolved_hit,))
+        resolver.assert_called_once_with(
+            launch,
+            {},
+            "fixture.json",
+            Path("."),
+            15,
+            (1, 3, 7),
+            ("fixture_root",),
+            {},
+        )
+
     def test_single_enemy_smart_target_count_is_guaranteed(self) -> None:
         condition = ConditionSource(
             sourceType="CheckEntityNum",

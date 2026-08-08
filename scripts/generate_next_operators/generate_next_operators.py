@@ -6,7 +6,7 @@ import argparse
 import json
 import textwrap
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Iterable, Literal, cast
 
@@ -184,6 +184,7 @@ class ProjectileTriggeredSkillSource:
     combatActions: tuple[str, ...]
     cycleTruncated: bool
     nestedProjectileTriggeredSkills: tuple["ProjectileTriggeredSkillSource", ...]
+    abilityEntityHits: tuple["AbilityEntityHitSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -508,6 +509,7 @@ class ConditionalBranchActionSource:
     buffApplication: BuffApplicationPayload | None = None
     resourceGain: ResourceGainPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
+    projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
 
@@ -658,6 +660,7 @@ def serialize_audit_value(value: Any) -> Any:
                     "buffApplication",
                     "resourceGain",
                     "projectileLaunch",
+                    "projectileTriggeredSkills",
                     "abilityEntitySpawn",
                     "damageUnits",
                 }
@@ -2986,6 +2989,142 @@ def filter_once_resource_gains(
     return tuple(result)
 
 
+def resolve_projectile_payload_triggers(
+    payload: ProjectileLaunchPayload,
+    source_root: dict[str, Any],
+    source_name: str,
+    source_dir: Path,
+    launch_frame: int,
+    action_order: tuple[int, ...],
+    stack: tuple[str, ...],
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[ProjectileTriggeredSkillSource, ...]:
+    """解析一次已定位的投射物发射；调用方负责提供其真实帧与动作顺序。"""
+    result: list[ProjectileTriggeredSkillSource] = []
+    for trigger in payload.skillTriggers:
+        trigger_source_name = f"{trigger.skillId}.json"
+        trigger_path = source_dir / trigger_source_name
+        if not trigger_path.is_file():
+            raise FileNotFoundError(
+                f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
+            )
+        trigger_root = require_dict(
+            json.loads(trigger_path.read_text(encoding="utf-8")),
+            trigger_source_name,
+        )
+        cycle_truncated = trigger.skillId in stack
+        child_stack = (*stack, trigger.skillId)
+        parsed_conditions = parse_conditional_actions(
+            trigger_root,
+            trigger_source_name,
+            inherited_blackboard,
+        )
+        trigger_conditions = (
+            parsed_conditions
+            if cycle_truncated
+            else resolve_conditional_projectile_triggers(
+                parsed_conditions,
+                trigger_root,
+                trigger_source_name,
+                source_dir,
+                launch_frame,
+                child_stack,
+                inherited_blackboard,
+                action_order,
+            )
+        )
+        nested = (
+            ()
+            if cycle_truncated
+            else resolve_projectile_triggered_skills(
+                trigger_root,
+                trigger_source_name,
+                source_dir,
+                launch_frame,
+                child_stack,
+                inherited_blackboard=inherited_blackboard,
+                parent_action_order=action_order,
+            )
+        )
+        ability_entities = (
+            ()
+            if cycle_truncated
+            else (
+                *resolve_ability_entity_hits(
+                    trigger_root,
+                    trigger_source_name,
+                    source_dir,
+                    launch_frame,
+                    child_stack,
+                    inherited_blackboard,
+                    parent_action_order=action_order,
+                ),
+                *resolve_guaranteed_conditional_ability_entity_hits(
+                    trigger_conditions,
+                    trigger_source_name,
+                    source_dir,
+                    launch_frame,
+                    child_stack,
+                    inherited_blackboard,
+                    action_order,
+                ),
+            )
+        )
+        result.append(
+            ProjectileTriggeredSkillSource(
+                launchFrame=launch_frame,
+                actionOrder=action_order,
+                assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
+                projectileId=payload.projectileId,
+                triggerEvent=trigger.event,
+                triggerSkillId=trigger.skillId,
+                excludedByPrimaryTargetMarker=is_projectile_trigger_excluded_for_single_enemy(
+                    source_root,
+                    launch_frame,
+                    action_order[-1],
+                    trigger_root,
+                    trigger_source_name,
+                ),
+                sourceFile=trigger_source_name,
+                damageUnits=parse_damage_units(
+                    trigger_root,
+                    trigger_source_name,
+                    inherited_blackboard,
+                ),
+                directDamageHits=parse_direct_damage_hits(
+                    trigger_root,
+                    trigger_source_name,
+                    inherited_blackboard,
+                ),
+                conditionalActions=trigger_conditions,
+                auxiliaryActions=parse_auxiliary_actions(
+                    trigger_root,
+                    trigger_source_name,
+                    source_dir,
+                    inherited_blackboard,
+                ),
+                resourceGains=parse_resource_gains(
+                    trigger_root,
+                    trigger_source_name,
+                    inherited_blackboard,
+                ),
+                combatActions=tuple(
+                    sorted(
+                        {
+                            action_name(item["$type"])
+                            for item in walk_actions(trigger_root.get("actionGroupData"))
+                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                        }
+                    )
+                ),
+                cycleTruncated=cycle_truncated,
+                nestedProjectileTriggeredSkills=nested,
+                abilityEntityHits=ability_entities,
+            )
+        )
+    return tuple(result)
+
+
 def resolve_projectile_triggered_skills(
     root: dict[str, Any],
     source_name: str,
@@ -3016,90 +3155,86 @@ def resolve_projectile_triggered_skills(
                 *(parent_action_order or ()),
                 require_server_action_index(action, f"{source_name}.LaunchProjectile"),
             )
-            for trigger in payload.skillTriggers:
-                trigger_source_name = f"{trigger.skillId}.json"
-                trigger_path = source_dir / trigger_source_name
-                if not trigger_path.is_file():
-                    raise FileNotFoundError(
-                        f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
-                    )
-                trigger_root = require_dict(
-                    json.loads(trigger_path.read_text(encoding="utf-8")),
-                    trigger_source_name,
+            result.extend(
+                resolve_projectile_payload_triggers(
+                    payload,
+                    root,
+                    source_name,
+                    source_dir,
+                    launch_frame,
+                    current_action_order,
+                    stack,
+                    inherited_blackboard or {},
                 )
-                cycle_truncated = trigger.skillId in stack
-                nested = (
-                    ()
-                    if cycle_truncated
-                    else resolve_projectile_triggered_skills(
-                        trigger_root,
-                        trigger_source_name,
-                        source_dir,
-                        launch_frame,
-                        (*stack, trigger.skillId),
-                        inherited_blackboard=inherited_blackboard,
-                        parent_action_order=current_action_order,
-                    )
-                )
-                result.append(
-                    ProjectileTriggeredSkillSource(
-                        launchFrame=launch_frame,
-                        actionOrder=current_action_order,
-                        assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
-                        projectileId=payload.projectileId,
-                        triggerEvent=trigger.event,
-                        triggerSkillId=trigger.skillId,
-                        excludedByPrimaryTargetMarker=is_projectile_trigger_excluded_for_single_enemy(
-                            root,
-                            launch_frame,
-                            current_action_order[-1],
-                            trigger_root,
-                            trigger_source_name,
-                        ),
-                        sourceFile=trigger_source_name,
-                        damageUnits=parse_damage_units(
-                            trigger_root,
-                            trigger_source_name,
-                            inherited_blackboard or {},
-                        ),
-                        directDamageHits=parse_direct_damage_hits(
-                            trigger_root,
-                            trigger_source_name,
-                            inherited_blackboard or {},
-                        ),
-                        conditionalActions=parse_conditional_actions(
-                            trigger_root,
-                            trigger_source_name,
-                            inherited_blackboard or {},
-                        ),
-                        auxiliaryActions=parse_auxiliary_actions(
-                            trigger_root,
-                            trigger_source_name,
-                            source_dir,
-                            inherited_blackboard or {},
-                        ),
-                        resourceGains=parse_resource_gains(
-                            trigger_root,
-                            trigger_source_name,
-                            inherited_blackboard or {},
-                        ),
-                        combatActions=tuple(
-                            sorted(
-                                {
-                                    action_name(item["$type"])
-                                    for item in walk_actions(
-                                        trigger_root.get("actionGroupData")
-                                    )
-                                    if action_name(item["$type"])
-                                    in COMBAT_ACTION_NAMES
-                                }
-                            )
-                        ),
-                        cycleTruncated=cycle_truncated,
-                        nestedProjectileTriggeredSkills=nested,
-                    )
-                )
+            )
     return tuple(result)
+
+
+def resolve_conditional_projectile_triggers(
+    conditions: tuple[ConditionalActionSource, ...],
+    source_root: dict[str, Any],
+    source_name: str,
+    source_dir: Path,
+    base_frame: int,
+    stack: tuple[str, ...],
+    inherited_blackboard: dict[str, tuple[float, ...]],
+    parent_action_order: tuple[int, ...] = (),
+) -> tuple[ConditionalActionSource, ...]:
+    """将条件叶子里的投射物触发技能挂回原分支，保留分支身份与原生顺序。"""
+
+    def resolve_branch_action(
+        condition: ConditionalActionSource,
+        action: ConditionalBranchActionSource,
+    ) -> ConditionalBranchActionSource:
+        action_order = (
+            *parent_action_order,
+            condition.actionIndex,
+            action.actionIndex,
+        )
+        nested = action.nestedCondition
+        if nested is not None:
+            nested = resolve_conditional_projectile_triggers(
+                (nested,),
+                source_root,
+                source_name,
+                source_dir,
+                base_frame,
+                stack,
+                inherited_blackboard,
+                action_order,
+            )[0]
+        triggered = action.projectileTriggeredSkills
+        if action.projectileLaunch is not None:
+            triggered = resolve_projectile_payload_triggers(
+                action.projectileLaunch,
+                source_root,
+                source_name,
+                source_dir,
+                base_frame + condition.startFrame,
+                action_order,
+                stack,
+                inherited_blackboard,
+            )
+        return replace(
+            action,
+            nestedCondition=nested,
+            projectileTriggeredSkills=triggered,
+        )
+
+    return tuple(
+        replace(
+            condition,
+            succeedActions=tuple(
+                resolve_branch_action(condition, action)
+                for action in condition.succeedActions
+            ),
+            failActions=tuple(
+                resolve_branch_action(condition, action)
+                for action in condition.failActions
+            ),
+        )
+        for condition in conditions
+    )
 
 
 def parse_projectile_launches(
@@ -3784,7 +3919,15 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
     blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
-    conditional_actions = parse_conditional_actions(root, source_name, patch.blackboard)
+    conditional_actions = resolve_conditional_projectile_triggers(
+        parse_conditional_actions(root, source_name, patch.blackboard),
+        root,
+        source_name,
+        source_dir,
+        0,
+        (skill_id,),
+        patch.blackboard,
+    )
     blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
         root, source_name, patch.blackboard
     )
