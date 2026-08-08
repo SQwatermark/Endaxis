@@ -687,6 +687,37 @@ export const zhuangFangyiGeneratedSource = {
         {
           "startFrame": 3,
           "endFrame": 6,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CreateTimedMarker",
+              "actionIndex": 9,
+              "timedMarkerApplication": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "markerId": "skillEnd",
+                "duration": {
+                  "value": 0.1,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "autoFinishByAction": false,
+                "useTimeDilationDt": false
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 6,
           "actionIndex": 18,
           "actionPath": [
             "timelineActions[4]",
@@ -17584,6 +17615,37 @@ export const zhuangFangyiGeneratedSource = {
                 54,
                 60
               ]
+            },
+            {
+              "startFrame": 67,
+              "endFrame": 70,
+              "actionIndex": 60,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 60,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "skillEnd",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": []
             }
           ],
           "inflictions": [

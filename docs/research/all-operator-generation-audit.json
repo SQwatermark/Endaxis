@@ -7,19 +7,19 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 235,
-    "completeOperatorCount": 3,
+    "compiledCount": 240,
+    "completeOperatorCount": 4,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-tick-interval": 2,
-      "condition-distance": 6,
+      "condition-entity-count": 2,
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
+      "condition-distance": 5,
       "conditional-leaf": 3,
-      "condition-entity-count": 1,
-      "root-action-coverage": 9,
-      "other": 3,
+      "root-action-coverage": 3,
+      "other": 4,
       "condition-main-operator": 1,
       "condition-other": 6,
       "source-data-missing": 21
@@ -851,7 +851,7 @@
       "blockerKinds": {
         "parser-assignment-shape": 1,
         "parser-tick-interval": 1,
-        "condition-distance": 1
+        "condition-entity-count": 1
       }
     },
     {
@@ -1014,11 +1014,11 @@
       "operatorName": "Arcane",
       "skillCount": 11,
       "parsedCount": 10,
-      "compiledCount": 6,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
         "source-data-missing": 1,
-        "root-action-coverage": 4
+        "other": 1
       }
     },
     {
@@ -1038,11 +1038,9 @@
       "operatorName": "Da Pan",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "root-action-coverage": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -1105,13 +1103,12 @@
       "operatorName": "Ardelia",
       "skillCount": 9,
       "parsedCount": 7,
-      "compiledCount": 4,
+      "compiledCount": 5,
       "complete": false,
       "blockerKinds": {
         "condition-other": 1,
         "parser-tick-interval": 1,
         "buff-source-or-target": 1,
-        "root-action-coverage": 1,
         "other": 1
       }
     },
@@ -1292,8 +1289,8 @@
       "skillId": "chr_0027_tangtang_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
+      "blockerKind": "condition-entity-count",
+      "blocker": "normal_skill.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",
@@ -3361,11 +3358,11 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack4: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -3375,16 +3372,16 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_attack5",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "attack5: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateTimedMarker",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"
       ],
-      "conditionCount": 1,
+      "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -3394,11 +3391,11 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_power_attack",
       "skillType": "finisher",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -3437,8 +3434,8 @@
       "skillId": "chr_0032_lizhiyan_ultimate_skill",
       "skillType": "ultimate",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['SpellInfliction']",
+      "blockerKind": "other",
+      "blocker": "ultimate_skill.schedule[4].conditionalAction.failActions[0].nestedCondition.conditions[0]: unsupported Buff stack query target or identity",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3821,11 +3818,11 @@
       "operatorName": "Da Pan",
       "skillId": "chr_0018_dapan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['IfElseAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
-      "conditionCount": 0,
+      "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -3853,7 +3850,7 @@
       "blockerKind": null,
       "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 7,
+      "conditionCount": 9,
       "referencedBuffCount": 10,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -4771,9 +4768,9 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CreateTimedMarker']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "CreateTimedMarker",

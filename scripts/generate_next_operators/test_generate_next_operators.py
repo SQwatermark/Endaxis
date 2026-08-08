@@ -2714,6 +2714,87 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             compile_conditional_action(actions[0], "root-once.action").startswith("once(\n")
         )
 
+    def test_single_enemy_foreach_exposes_root_and_conditional_timed_markers(self) -> None:
+        def marker(index: int) -> dict[str, object]:
+            return {
+                "$type": "Example.CreateTimedMarker+Data, Example",
+                "serverActionIndex": index,
+                "targetSettings": {"targetSource": "Owner", "targetGroupKey": ""},
+                "markerId": {
+                    "useBlackboardKey": False,
+                    "value": f"marker-{index}",
+                    "blackboardKey": "",
+                },
+                "duration": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "autoFinishByAction": False,
+                "useTimeDilationDt": False,
+            }
+
+        def for_each(child: dict[str, object], index: int) -> dict[str, object]:
+            return {
+                "$type": "Example.ForEachAction+Data, Example",
+                "isEnable": True,
+                "priorityLevel": "Default",
+                "priorityOffset": 0,
+                "serverActionIndex": index,
+                "target": {"targetSource": "Target", "targetGroupKey": ""},
+                "action": {"actionData": [child]},
+            }
+
+        compare = {
+            "$type": "Example.CompareFloat+Data, Example",
+            "valueA": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "compare": "Equals",
+            "valueB": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {"actionData": [for_each(marker(3), 2)]},
+                    },
+                    {
+                        "_startFrame": 5,
+                        "_endFrame": 5,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 4,
+                                    "conditionAction": {"actionData": [compare]},
+                                    "succeedActions": {
+                                        "actionData": [for_each(marker(6), 5)]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    },
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "foreach-marker.json", {})
+
+        self.assertEqual([action.startFrame for action in actions], [2, 5])
+        self.assertEqual(
+            collect_compilable_conditional_action_types(actions),
+            {"CreateTimedMarker", "IfElseAction", "CompareFloat"},
+        )
+        for index, action in enumerate(actions):
+            compiled = compile_conditional_action(
+                action,
+                f"foreach-marker.action[{index}]",
+                root_skill_context=True,
+            )
+            self.assertIn("step('createTimedMarker'", compiled)
+
     def test_conditional_audit_parses_effect_leaf_payloads(self) -> None:
         scalar = {"useBlackboardKey": False, "value": 2, "blackboardKey": ""}
         condition = {

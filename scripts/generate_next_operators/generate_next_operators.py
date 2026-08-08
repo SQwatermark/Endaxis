@@ -683,6 +683,11 @@ class DoOnceActionSource(ConditionalActionSource):
 
 
 @dataclass(frozen=True)
+class UnconditionalActionSource(ConditionalActionSource):
+    """借用统一动作树保存根时间轴中的直接战斗动作。"""
+
+
+@dataclass(frozen=True)
 class BlackboardCalculationSource:
     startFrame: int
     endFrame: int
@@ -2301,6 +2306,7 @@ def parse_conditional_actions(
     root: dict[str, Any],
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
+    consumed_action_ids: frozenset[int] = frozenset(),
 ) -> tuple[ConditionalActionSource, ...]:
     """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -2827,6 +2833,22 @@ def parse_conditional_actions(
                             nestedCondition=nested,
                         )
                     )
+            elif action_type == "ForEachAction":
+                # 固定单敌人模型下，逐目标容器只执行一次；目标形状仍由严格遍历器校验。
+                tuple(
+                    walk_single_enemy_actions(
+                        action, f"{source_name}.{'.'.join(action_path)}"
+                    )
+                )
+                actions.extend(
+                    parse_branch(
+                        action.get("action"),
+                        start_frame,
+                        end_frame,
+                        (*action_path, "action"),
+                        execution_frames,
+                    )
+                )
             elif action_type == "SwitchAction":
                 nested = parse_switch(
                     action,
@@ -3041,6 +3063,36 @@ def parse_conditional_actions(
                     )
                 )
             # 内部动作已保存在一次性节点中，不能再提升到根调度。
+            return
+        if action_type == "CreateTimedMarker":
+            if id(value) in consumed_action_ids:
+                return
+            marker = require_dict(value.get("markerId"), f"{source_name}.{'.'.join(path)}.markerId")
+            # 动态标记当前仅在命中去重等专用投影中闭环；不能伪装成固定身份标记。
+            if marker.get("useBlackboardKey") is not False:
+                return
+            action_path = f"{source_name}.{'.'.join(path)}"
+            action_index = require_server_action_index(value, action_path)
+            result.append(
+                UnconditionalActionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    actionPath=path,
+                    conditions=(),
+                    succeedActions=(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=action_index,
+                            timedMarkerApplication=parse_timed_marker_application_payload(
+                                value, action_path, inherited_blackboard
+                            ),
+                        ),
+                    ),
+                    failActions=(),
+                    executionFrames=execution_frames,
+                )
+            )
             return
         for key, child in value.items():
             visit(child, start_frame, end_frame, (*path, key), execution_frames)
@@ -5777,10 +5829,13 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     resolved_blackboard = resolve_skill_blackboard(root, source_name, patch)
     cast = require_dict(root.get("castData"), f"{source_name}.castData")
     cost = require_dict(cast.get("costData"), f"{source_name}.castData.costData")
+    consumed_root_timed_markers = collect_consumed_root_timed_marker_action_ids(
+        root, source_name
+    )
     timeline = parse_timeline(
         root,
         source_name,
-        collect_consumed_root_timed_marker_action_ids(root, source_name),
+        consumed_root_timed_markers,
     )
     allows, caches = collect_windows(root, source_name)
     exclusive = require_non_negative_int(root.get("exclusiveFrame"), f"{source_name}.exclusiveFrame")
@@ -5791,7 +5846,12 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     )
     conditional_actions = mark_projected_conditional_children(
         resolve_conditional_projectile_triggers(
-            parse_conditional_actions(root, source_name, resolved_blackboard),
+            parse_conditional_actions(
+                root,
+                source_name,
+                resolved_blackboard,
+                consumed_root_timed_markers,
+            ),
             root,
             source_name,
             source_dir,
@@ -7097,6 +7157,20 @@ def compile_conditional_action(
                 ")",
             ]
         )
+    if isinstance(action, UnconditionalActionSource):
+        return compile_conditional_branch(
+            action.succeedActions,
+            f"{path}.succeedActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
+            projected_projectile_launches=action.projectedProjectileLaunches,
+            context_action=action,
+        )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
     projected_ability_entity_spawns = getattr(
@@ -7411,6 +7485,8 @@ def collect_compilable_conditional_action_types(
     def visit(action: ConditionalActionSource) -> None:
         if isinstance(action, DoOnceActionSource):
             result.add("DoOnceAction")
+        elif isinstance(action, UnconditionalActionSource):
+            pass
         else:
             result.add(
                 "SwitchAction" if isinstance(action, SwitchActionSource) else "IfElseAction"

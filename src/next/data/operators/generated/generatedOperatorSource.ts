@@ -462,6 +462,24 @@ export interface GeneratedBuffApplicationPayload {
   readonly inheritSourceSkillCastInfo: boolean;
 }
 
+/** 技能动作创建的短生命周期标记；身份和持续时间均来自原生动作。 */
+export interface GeneratedTimedMarkerApplicationPayload {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly markerId: string;
+  readonly duration: GeneratedScalarSource;
+  readonly autoFinishByAction: boolean;
+  readonly useTimeDilationDt: boolean;
+}
+
+/** 原生全局冷却写入；正式编译时复用角色定时标记。 */
+export interface GeneratedGlobalCooldownApplicationPayload {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffId: string;
+  readonly duration: GeneratedScalarSource;
+}
+
 export interface GeneratedResourceGainPayload {
   readonly resource: 'sp' | 'ultimateEnergy';
   readonly amount: GeneratedScalarSource;
@@ -513,6 +531,8 @@ export interface GeneratedConditionalBranchActionSource {
   readonly buffFinish?: GeneratedBuffFinishPayload;
   readonly buffStackRead?: GeneratedBuffStackReadPayload;
   readonly buffApplication?: GeneratedBuffApplicationPayload;
+  readonly timedMarkerApplication?: GeneratedTimedMarkerApplicationPayload;
+  readonly globalCooldownApplication?: GeneratedGlobalCooldownApplicationPayload;
   readonly resourceGain?: GeneratedResourceGainPayload;
   readonly infliction?: GeneratedInflictionPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;

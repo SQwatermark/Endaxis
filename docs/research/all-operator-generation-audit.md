@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：282 个。
-- 无角色专用声明即可进入通用 DSL：235 个。
-- 当前整名干员完整直转：3 名。
+- 无角色专用声明即可进入通用 DSL：240 个。
+- 当前整名干员完整直转：4 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -36,15 +36,15 @@
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |      6 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |      9 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      4 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      5 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
@@ -60,14 +60,14 @@
 | -------------------------- | -----: |
 | `source-data-missing`      |     21 |
 | `buff-source-or-target`    |     17 |
-| `root-action-coverage`     |      9 |
-| `condition-distance`       |      6 |
 | `condition-other`          |      6 |
+| `condition-distance`       |      5 |
+| `other`                    |      4 |
 | `conditional-leaf`         |      3 |
-| `other`                    |      3 |
+| `root-action-coverage`     |      3 |
+| `condition-entity-count`   |      2 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
-| `condition-entity-count`   |      1 |
 | `condition-main-operator`  |      1 |
 | `parser-assignment-shape`  |      1 |
 | `projectile-data`          |      1 |
