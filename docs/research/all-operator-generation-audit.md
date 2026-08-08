@@ -59,9 +59,9 @@
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
 | `source-data-missing`       |     21 |
-| `buff-source-or-target`     |     16 |
+| `buff-source-or-target`     |     18 |
 | `parser-channeling`         |     13 |
-| `condition-buff-stack`      |     11 |
+| `condition-buff-stack`      |      9 |
 | `root-action-coverage`      |      8 |
 | `condition-other`           |      7 |
 | `condition-tag`             |      6 |

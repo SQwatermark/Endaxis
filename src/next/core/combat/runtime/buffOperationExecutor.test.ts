@@ -206,11 +206,14 @@ describe('BuffOperationExecutor', () => {
       tagQueryType: 'hasAny' as const,
       buffTagIds: [gameplayTagIdFromPath(path)],
       operator: 'greaterOrEqual' as const,
-      value: 2.000009,
+      value: { kind: 'constant' as const, value: 2.000009 },
     };
+    const context = { blackboard: new ActionBlackboard({ threshold: 2.000011 }) };
 
-    expect(executor.evaluate(condition)).toBe(true);
-    expect(executor.evaluate({ ...condition, value: 2.000011 })).toBe(false);
+    expect(executor.evaluate(condition, context)).toBe(true);
+    expect(
+      executor.evaluate({ ...condition, value: { kind: 'blackboard', key: 'threshold' } }, context),
+    ).toBe(false);
   });
 
   it('reads the first matching active buff and writes its value to the action blackboard', () => {

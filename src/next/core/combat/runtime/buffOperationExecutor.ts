@@ -6,8 +6,7 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
-import type { ActionBlackboard } from './actionBlackboard';
-import { resolveActionValueOperand } from './actionBlackboard';
+import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -183,10 +182,17 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
     if (condition.kind === 'buffStackCompare') {
+      if (context === undefined) {
+        throw new Error('buffStackCompare requires a combat operation context');
+      }
       const count = this.dependencies
         .resolveTarget(condition.target)
         .getCountByTags(condition.buffTagIds.map(gameplayTagId), condition.tagQueryType);
-      return compareCombatNumbers(count, condition.value, condition.operator);
+      return compareCombatNumbers(
+        count,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
     }
     if (condition.kind === 'buffIdStackCompare') {
       const count = this.dependencies

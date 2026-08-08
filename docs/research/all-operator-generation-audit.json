@@ -17,8 +17,8 @@
       "condition-tag": 6,
       "projectile-data": 1,
       "condition-other": 7,
-      "buff-source-or-target": 16,
-      "condition-buff-stack": 11,
+      "buff-source-or-target": 18,
+      "condition-buff-stack": 9,
       "root-action-coverage": 8,
       "parser-damage-calculation": 3,
       "conditional-leaf": 5,
@@ -967,7 +967,7 @@
       "complete": false,
       "blockerKinds": {
         "condition-distance": 1,
-        "condition-buff-stack": 1,
+        "buff-source-or-target": 1,
         "condition-entity-count": 1
       }
     },
@@ -1069,7 +1069,7 @@
       "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "condition-buff-stack": 1,
+        "buff-source-or-target": 1,
         "condition-tag": 1,
         "parser-channeling": 1
       }
@@ -2649,8 +2649,8 @@
       "skillId": "chr_0015_lifeng_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-buff-stack",
-      "blocker": "normal_skill.schedule[2].conditionalAction.conditions[0]: unsupported condition type 'CheckBuffStackNumByTag'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "normal_skill.schedule[2].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Target'/'tar'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 1,
       "referencedBuffCount": 2,
@@ -3814,8 +3814,8 @@
       "skillId": "chr_0028_wulfa_combo_3_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-buff-stack",
-      "blocker": "combo_3_skill.schedule[6].conditionalAction.conditions[0]: unsupported condition type 'CheckBuffStackNumByTag'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "combo_3_skill.schedule[6].conditionalAction.succeedActions[0]: unsupported Buff target 'Target'/''",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 7,
       "referencedBuffCount": 10,

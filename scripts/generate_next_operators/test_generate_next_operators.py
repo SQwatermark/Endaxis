@@ -2290,6 +2290,71 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported health target"):
             compile_combat_condition_group((condition,), "fixture.conditions")
 
+    def test_buff_stack_by_tag_preserves_target_and_dynamic_threshold(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckBuffStackNumByTag+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Target",
+                                                    "targetGroupKey": "ignored_by_native_action",
+                                                },
+                                                "tagQuery": {
+                                                    "queryType": "HasAny",
+                                                    "tags": [{"tagId": 1}, {"tagId": 2}],
+                                                },
+                                                "buffStackNumType": "BuffCount",
+                                                "compareType": "LE",
+                                                "value": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "num",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(root, "skill.json", {})[0].conditions[0]
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            input_target="enemy",
+        )
+
+        self.assertTrue(condition.supported)
+        self.assertEqual(condition.buffStack.targetSource, "Target")
+        self.assertEqual(condition.buffStack.targetGroupKey, "ignored_by_native_action")
+        self.assertEqual(condition.buffStack.buffTagIds, (1, 2))
+        self.assertIn("kind: 'buffStackCompare'", compiled)
+        self.assertIn("key: 'num'", compiled)
+
+        with self.assertRaisesRegex(ValueError, "unsupported Buff stack query target"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
+
     def test_projectile_child_buff_target_resolves_to_the_hit_enemy(self) -> None:
         arguments = {
             "buff_id": "buff.example",
@@ -2334,7 +2399,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         compiled = compile_combat_condition_group(
             (condition,),
             "fixture.conditions",
-            root_skill_context=False,
+            input_target="enemy",
         )
 
         self.assertIn("kind: 'buffStackCompare'", compiled)
@@ -2343,7 +2408,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             compile_combat_condition_group(
                 (condition,),
                 "fixture.conditions",
-                root_skill_context=True,
             )
 
     def test_condition_compiler_emits_action_blackboard_and_enemy_buff_conditions(self) -> None:

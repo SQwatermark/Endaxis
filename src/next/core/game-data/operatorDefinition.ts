@@ -173,7 +173,7 @@ export type CombatCondition =
       tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
       operator: ComparisonOperator;
-      value: number;
+      value: ActionValueOperand;
     }
   | {
       /** 按目录 Buff 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */

@@ -285,6 +285,8 @@ class ResolvedScheduleItemSource:
         " | TimedResourceGainSource"
         " | TimedInflictionSource"
     )
+    # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
+    inputTarget: Literal["enemy"] | None = None
 
 
 @dataclass(frozen=True)
@@ -2071,6 +2073,45 @@ def parse_conditional_actions(
                     limitSkillCastId=limit_skill_cast_id,
                 ),
             )
+        if condition_type == "CheckBuffStackNumByTag":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            query_type, tag_ids = parse_tag_query(
+                condition.get("tagQuery"),
+                f"{path}.tagQuery",
+            )
+            count_type = condition.get("buffStackNumType")
+            if not isinstance(count_type, str) or not count_type:
+                raise ValueError(f"{path}.buffStackNumType: expected string")
+            target_source = str(target.get("targetSource", ""))
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=(
+                    target_source == "Target"
+                    and count_type == "BuffCount"
+                    and bool(tag_ids)
+                ),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                buffStack=BuffStackConditionSource(
+                    targetSource=target_source,
+                    # 原生动作仅在 Context 来源时读取该键；Target 来源会直接读取传入目标。
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    buffCheckType="Tag",
+                    buffIds=(),
+                    tagQueryType=query_type,
+                    buffTagIds=tag_ids,
+                    countType=count_type,
+                    comparison=str(condition.get("compareType", "")),
+                    value=parse_scalar(
+                        condition.get("value"),
+                        f"{path}.value",
+                        inherited_blackboard,
+                    ),
+                    limitSkillCastId=False,
+                ),
+            )
         if condition_type == "CheckHp":
             target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
             comparison = condition.get("compare")
@@ -2483,26 +2524,32 @@ def parse_buff_find_settings(
     """严格读取 BuffFindSettings；未知查询枚举和非整数标签必须立即报错。"""
     settings = require_dict(value, path)
     raw_ids = require_list(settings.get("buffIdList"), f"{path}.buffIdList")
-    tag_query = require_dict(settings.get("tagQuery"), f"{path}.tagQuery")
-    raw_tags = require_list(tag_query.get("tags"), f"{path}.tagQuery.tags")
-    raw_query_type = tag_query.get("queryType")
-    query_type = TAG_QUERY_TYPE_MAP.get(raw_query_type)
-    if query_type is None:
-        raise ValueError(f"{path}.tagQuery.queryType: unsupported value {raw_query_type!r}")
-
-    tag_ids: list[int] = []
-    for tag_index, raw_tag in enumerate(raw_tags):
-        tag = require_dict(raw_tag, f"{path}.tagQuery.tags[{tag_index}]")
-        tag_id = tag.get("tagId")
-        if not isinstance(tag_id, int):
-            raise ValueError(f"{path}.tagQuery.tags[{tag_index}].tagId: expected integer")
-        tag_ids.append(tag_id)
+    query_type, tag_ids = parse_tag_query(settings.get("tagQuery"), f"{path}.tagQuery")
     return (
         str(settings.get("checkType", "")),
         tuple(str(item) for item in raw_ids),
         query_type,
-        tuple(tag_ids),
+        tag_ids,
     )
+
+
+def parse_tag_query(value: Any, path: str) -> tuple[str, tuple[int, ...]]:
+    """严格读取原生 GameplayTag 查询；一个 Buff 即使命中多个标签也只计数一次。"""
+    tag_query = require_dict(value, path)
+    raw_tags = require_list(tag_query.get("tags"), f"{path}.tags")
+    raw_query_type = tag_query.get("queryType")
+    query_type = TAG_QUERY_TYPE_MAP.get(raw_query_type)
+    if query_type is None:
+        raise ValueError(f"{path}.queryType: unsupported value {raw_query_type!r}")
+
+    tag_ids: list[int] = []
+    for tag_index, raw_tag in enumerate(raw_tags):
+        tag = require_dict(raw_tag, f"{path}.tags[{tag_index}]")
+        tag_id = tag.get("tagId")
+        if not isinstance(tag_id, int):
+            raise ValueError(f"{path}.tags[{tag_index}].tagId: expected integer")
+        tag_ids.append(tag_id)
+    return query_type, tuple(tag_ids)
 
 
 def parse_blackboard_runtime_actions(
@@ -4361,6 +4408,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="condition",
             sourcePath=action.actionPath,
             payload=action,
+            inputTarget="enemy",
         )
         for action in skill.conditionalActions
         for frame in (getattr(action, "executionFrames", ()) or (action.startFrame,))
@@ -4470,6 +4518,7 @@ def collect_projectile_schedule(
             itemType="condition",
             sourcePath=(*source_path, *condition.actionPath),
             payload=condition,
+            inputTarget="enemy",
         )
         for condition in hit.conditionalActions
         for frame in (condition.executionFrames or (condition.startFrame,))
@@ -4536,6 +4585,7 @@ def collect_ability_entity_schedule(
             itemType="condition",
             sourcePath=(*source_path, *condition.actionPath),
             payload=condition,
+            inputTarget="enemy",
         )
         for condition in getattr(hit, "conditionalActions", ())
         for frame in (
@@ -5044,6 +5094,7 @@ def compile_combat_condition(
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
     if is_guaranteed_single_enemy_condition(
@@ -5116,7 +5167,7 @@ def compile_combat_condition(
                 "}",
             ]
         )
-    if source.sourceType == "CheckBuffStackNumAdvanced":
+    if source.sourceType in {"CheckBuffStackNumAdvanced", "CheckBuffStackNumByTag"}:
         buff = source.buffStack
         if buff is None:
             raise ValueError(f"{path}: missing Buff stack condition payload")
@@ -5126,10 +5177,26 @@ def compile_combat_condition(
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {buff.comparison!r}")
         value_source = compile_condition_operand(buff.value, f"{path}.value")
-        prefix = "{ kind: 'constant', value: "
-        if not value_source.startswith(prefix):
-            raise ValueError(f"{path}.value: dynamic Buff count thresholds are not supported")
-        value = value_source.removeprefix(prefix).removesuffix(" }")
+        if (
+            source.sourceType == "CheckBuffStackNumByTag"
+            and buff.targetSource == "Target"
+            and input_target == "enemy"
+            and buff.buffCheckType == "Tag"
+            and buff.buffTagIds
+            and not buff.buffIds
+        ):
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'buffStackCompare',",
+                    "  target: 'enemy',",
+                    f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
+                    f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {value_source},",
+                    "}",
+                ]
+            )
         if (
             buff.targetSource == "Context"
             and buff.targetGroupKey == "smart_target"
@@ -5145,13 +5212,13 @@ def compile_combat_condition(
                     f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
                     f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
                     f"  operator: {ts_inline_literal(operator)},",
-                    f"  value: {value},",
+                    f"  value: {value_source},",
                     "}",
                 ]
             )
         if (
-            not root_skill_context
-            and buff.targetSource == "Target"
+            buff.targetSource == "Target"
+            and input_target == "enemy"
             and not buff.targetGroupKey
             and buff.buffCheckType == "Tag"
             and buff.buffTagIds
@@ -5165,7 +5232,7 @@ def compile_combat_condition(
                     f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
                     f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
                     f"  operator: {ts_inline_literal(operator)},",
-                    f"  value: {value},",
+                    f"  value: {value_source},",
                     "}",
                 ]
             )
@@ -5179,6 +5246,12 @@ def compile_combat_condition(
             and buff.buffIds
             and not buff.buffTagIds
         ):
+            prefix = "{ kind: 'constant', value: "
+            if not value_source.startswith(prefix):
+                raise ValueError(
+                    f"{path}.value: dynamic Buff ID count thresholds are not supported"
+                )
+            value = value_source.removeprefix(prefix).removesuffix(" }")
             return "\n".join(
                 [
                     "{",
@@ -5200,6 +5273,7 @@ def compile_combat_condition_group(
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
@@ -5211,6 +5285,7 @@ def compile_combat_condition_group(
             action,
             target_group_writes,
             root_skill_context,
+            input_target,
         )
         for index, condition in enumerate(conditions)
     ]
@@ -5596,6 +5671,7 @@ def compile_conditional_branch_action(
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
 ) -> str:
@@ -5609,6 +5685,7 @@ def compile_conditional_branch_action(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            input_target=input_target,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -5623,6 +5700,7 @@ def compile_conditional_branch_action(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
         )
@@ -5700,6 +5778,7 @@ def compile_conditional_branch(
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
 ) -> str:
@@ -5717,6 +5796,7 @@ def compile_conditional_branch(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
         )
@@ -5740,6 +5820,7 @@ def compile_conditional_action(
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     projected_ability_entity_spawns = getattr(
@@ -5752,6 +5833,7 @@ def compile_conditional_action(
         action,
         target_group_writes,
         root_skill_context,
+        input_target,
     )
     succeed = compile_conditional_branch(
         action.succeedActions,
@@ -5761,6 +5843,7 @@ def compile_conditional_action(
         runtime_blackboard_keys,
         target_group_writes=target_group_writes,
         root_skill_context=root_skill_context,
+        input_target=input_target,
         projected_ability_entity_spawns=projected_ability_entity_spawns,
         projected_projectile_launches=projected_projectile_launches,
     )
@@ -5773,6 +5856,7 @@ def compile_conditional_action(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            input_target=input_target,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
         )
@@ -6739,6 +6823,7 @@ def compile_resolved_sequence(
                 runtime_blackboard_keys,
                 target_group_writes=target_group_writes,
                 root_skill_context=item.sourcePath == payload.actionPath,
+                input_target=item.inputTarget,
             )
             if compiled_condition == "sequence()":
                 continue

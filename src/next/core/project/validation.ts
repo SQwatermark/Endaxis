@@ -172,7 +172,7 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
         );
       }
       requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      requireFiniteNumber(value.value, `${path}.value`, issues);
+      validateActionValueOperand(value.value, `${path}.value`, issues);
       break;
     case 'buffIdStackCompare':
       requireEnum(value.target, combatTargets, `${path}.target`, issues);

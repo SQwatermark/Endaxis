@@ -207,7 +207,7 @@ describe('ActionBlackboardOperationExecutor', () => {
               tagQueryType: 'hasAny',
               buffTagIds: [1],
               operator: 'greaterOrEqual',
-              value: 1,
+              value: { kind: 'constant', value: 1 },
             },
           ],
         },

@@ -529,7 +529,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
               tagQueryType: 'hasAny',
               buffTagIds: [2123008650],
               operator: 'greaterOrEqual',
-              value: 1,
+              value: { kind: 'constant', value: 1 },
             },
             sequence(
               step('readBuffStackCount', {
@@ -549,7 +549,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                   tagQueryType: 'hasAny',
                   buffTagIds: [1466867135],
                   operator: 'greaterOrEqual',
-                  value: 1,
+                  value: { kind: 'constant', value: 1 },
                 },
                 sequence(
                   step('modifyActionValue', {
@@ -672,7 +672,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
               tagQueryType: 'hasAny',
               buffTagIds: [2123008650],
               operator: 'greaterOrEqual',
-              value: 1,
+              value: { kind: 'constant', value: 1 },
             },
             sequence(
               step('readBuffStackCount', {
@@ -692,7 +692,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
                   tagQueryType: 'hasAny',
                   buffTagIds: [1466867135],
                   operator: 'greaterOrEqual',
-                  value: 1,
+                  value: { kind: 'constant', value: 1 },
                 },
                 sequence(
                   step('modifyActionValue', {
