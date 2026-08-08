@@ -5922,6 +5922,57 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(unit.attackScale.levelValues, (4.0, 9.0))
         self.assertEqual(unit.calculationMultiplier.value, 0.1)
 
+    def test_poise_unit_uses_its_own_definite_value_calculation(self) -> None:
+        root = {
+            "actionGroupData": {
+                "action": {
+                    "$type": "Example.DamageAction, Example",
+                    "damageUnits": [
+                        {
+                            "damageType": "Natural",
+                            "damageAttributeType": "Poise",
+                            "simpleCalculation": False,
+                            "atkScale": {
+                                "useBlackboardKey": False,
+                                "blackboardKey": "",
+                                "value": 1,
+                            },
+                            # Poise 分支不读取生命伤害公式；真实数据仍可能携带该占位对象。
+                            "atkCalculation": {
+                                "$type": "Example.DefiniteValueCalculation, Example",
+                                "value": {
+                                    "useBlackboardKey": False,
+                                    "blackboardKey": "",
+                                    "value": 1,
+                                },
+                            },
+                            "poiseCalculation": {
+                                "$type": "Example.DefiniteValueCalculation, Example",
+                                "value": {
+                                    "useBlackboardKey": True,
+                                    "blackboardKey": "poise",
+                                    "value": 20,
+                                },
+                                "applyScale": False,
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        unit = parse_damage_units(root, "ultimate.json", {"poise": (20.0, 30.0)})[0]
+
+        self.assertEqual(unit.attributeType, "Poise")
+        self.assertEqual(unit.poiseValue.levelValues, (20.0, 30.0))
+        self.assertEqual(unit.calculation, "standard")
+
+        root["actionGroupData"]["action"]["damageUnits"][0]["poiseCalculation"][
+            "applyScale"
+        ] = True
+        with self.assertRaisesRegex(ValueError, "scaled definite values"):
+            parse_damage_units(root, "ultimate.json", {"poise": (20.0, 30.0)})
+
 
 if __name__ == "__main__":
     unittest.main()

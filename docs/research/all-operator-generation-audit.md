@@ -10,8 +10,8 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：278 个。
-- 无角色专用声明即可进入通用 DSL：229 个。
+- 进入严格中间层：280 个。
+- 无角色专用声明即可进入通用 DSL：230 个。
 - 当前整名干员完整直转：2 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -36,7 +36,7 @@
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      7 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |      8 |      5 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |      6 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     10 |     10 | 否       |
@@ -60,17 +60,17 @@
 | --------------------------- | -----: |
 | `source-data-missing`       |     21 |
 | `buff-source-or-target`     |     17 |
-| `root-action-coverage`      |     13 |
+| `root-action-coverage`      |     14 |
 | `condition-other`           |      5 |
 | `condition-distance`        |      4 |
-| `parser-damage-calculation` |      4 |
+| `other`                     |      4 |
 | `conditional-leaf`          |      3 |
-| `other`                     |      3 |
 | `condition-entity-count`    |      2 |
 | `parser-tick-interval`      |      2 |
 | `projectile-child-actions`  |      2 |
 | `condition-main-operator`   |      1 |
 | `parser-assignment-shape`   |      1 |
+| `parser-damage-calculation` |      1 |
 | `projectile-data`           |      1 |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
@@ -147,13 +147,13 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                          | 涉及技能数 |
 | ----------------------------- | ---------: |
-| `DamageAction`                |        202 |
-| `IfElseAction`                |        145 |
+| `DamageAction`                |        205 |
+| `IfElseAction`                |        147 |
 | `ObtainCostAction`            |        145 |
-| `CreateBuffAction`            |        111 |
-| `LaunchProjectile`            |         70 |
-| `SpawnAbilityEntity`          |         25 |
-| `SpellInfliction`             |          9 |
+| `CreateBuffAction`            |        114 |
+| `LaunchProjectile`            |         69 |
+| `SpawnAbilityEntity`          |         27 |
+| `SpellInfliction`             |         11 |
 | `CreateTimedMarker`           |          7 |
 | `CheckDistanceCondition`      |          2 |
 | `AddGlobalCDTimer`            |          1 |

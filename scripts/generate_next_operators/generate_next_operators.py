@@ -3156,7 +3156,8 @@ def parse_damage_units(
             attack_scale_source = unit.get("atkScale")
             calculation = "standard"
             calculation_multiplier = None
-            if not simple_calculation:
+            attribute_type = str(unit.get("damageAttributeType", ""))
+            if attribute_type == "Hp" and not simple_calculation:
                 raw_calculation = require_dict(
                     unit.get("atkCalculation"),
                     f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation",
@@ -3179,11 +3180,24 @@ def parse_damage_units(
                         inherited_blackboard,
                     )
             poise_value = None
-            if unit.get("damageAttributeType") == "Poise":
+            if attribute_type == "Poise":
                 poise_calculation = require_dict(
                     unit.get("poiseCalculation"),
                     f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation",
                 )
+                poise_calculation_type = action_name(
+                    str(poise_calculation.get("$type", ""))
+                )
+                if poise_calculation_type != "DefiniteValueCalculation":
+                    raise ValueError(
+                        f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation: "
+                        f"unsupported calculation {poise_calculation_type}"
+                    )
+                if poise_calculation.get("applyScale") is not False:
+                    raise ValueError(
+                        f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation: "
+                        "scaled definite values are not supported"
+                    )
                 poise_value = parse_scalar(
                     poise_calculation.get("value"),
                     f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation.value",
@@ -3192,7 +3206,7 @@ def parse_damage_units(
             result.append(
                 DamageUnitSource(
                     damageType=str(unit.get("damageType", "")),
-                    attributeType=str(unit.get("damageAttributeType", "")),
+                    attributeType=attribute_type,
                     calculation=calculation,
                     attackScale=parse_scalar(
                         attack_scale_source,
