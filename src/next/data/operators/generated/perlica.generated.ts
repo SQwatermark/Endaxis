@@ -3600,7 +3600,8 @@ export const perlicaGeneratedSource = {
           "isPercentValue": false,
           "useUltimateRecoveryTag": false,
           "ultimateRecoveryTagId": 0,
-          "ignoreUltimateGainScalar": false
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null
         }
       ],
       "projectileLaunches": [
@@ -4986,7 +4987,8 @@ export const perlicaGeneratedSource = {
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": null
             }
           ],
           "combatActions": [

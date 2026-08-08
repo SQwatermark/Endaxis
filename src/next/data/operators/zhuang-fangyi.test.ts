@@ -1,10 +1,35 @@
 import { describe, expect, it } from 'vitest';
+import { zhuangFangyiBasicAttack5 as generatedBasicAttack5 } from './generated/zhuang-fangyi.skills.audit.generated';
 import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils';
 import { zhuangFangyi } from './zhuang-fangyi';
 
 const getSkill = (key: string) => findSkill(zhuangFangyi, key);
 
 describe('next Zhuang Fangyi definition', () => {
+  it('keeps the generated fifth normal attack equivalent to the current definition', () => {
+    const current = getSkill(generatedBasicAttack5.key);
+    expect(generatedBasicAttack5.timelineBlockFrames).toBe(current.timelineBlockFrames);
+    const generatedSteps = generatedBasicAttack5.scheduledSequences.flatMap(item =>
+      collectSteps(item.sequence),
+    );
+    const currentSteps = current.scheduledSequences.flatMap(item => collectSteps(item.sequence));
+    expect(generatedSteps[0]).toEqual(currentSteps[0]);
+    expect(generatedSteps[1]).toMatchObject({
+      kind: 'changeResourceByActionValue',
+      parameters: {
+        resource: 'sp',
+        amount: { kind: 'blackboard', key: 'atb' },
+        recipient: 'team',
+        spGainSource: 'normalAttack',
+      },
+    });
+    expect(generatedBasicAttack5.blackboard?.atb).toBe(18);
+    expect(currentSteps[1]).toMatchObject({
+      kind: 'changeResource',
+      parameters: { resource: 'sp', amount: 18, recipient: 'team' },
+    });
+  });
+
   it('keeps normal and enhanced attack chains as separate cast identities', () => {
     const normal = zhuangFangyi.skillGroups.find(group => group.key === 'basicAttack');
     const enhanced = zhuangFangyi.skillGroups.find(group => group.key === 'enhancedBasicAttack');

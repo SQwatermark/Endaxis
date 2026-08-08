@@ -12,6 +12,7 @@ from generate_next_operators import (
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_timed_marker_damage_gates,
+    collect_once_resource_gain_gates,
     build_blackboard_provenance,
     compile_skill_entries,
     compile_resolved_damage_sequence,
@@ -32,6 +33,7 @@ from generate_next_operators import (
     ScalarSource,
     TimedDamageSource,
     TimedMarkerGateSource,
+    TimedResourceGainSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
     classify_buff,
@@ -51,6 +53,7 @@ from generate_next_operators import (
     parse_conditional_actions,
     parse_projectile_launches,
     parse_resource_gains,
+    filter_once_resource_gains,
     resolve_projectile_hits,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
@@ -2510,6 +2513,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIsNone(gains[0].spGainKind)
         self.assertIsNone(gains[0].spGainSource)
         self.assertFalse(gains[0].useUltimateRecoveryTag)
+
+    def test_once_resource_gain_gate_matches_action_blackboard_sequence(self) -> None:
+        gain = {"$type": "Example.ObtainCostAction+Data, Example"}
+        actions = [
+            {
+                "$type": "Example.CheckEntityNum+Data, Example",
+                "checkTarget": {"targetSource": "Context", "targetGroupKey": "tar"},
+                "minNum": 1,
+                "compareType": "GE",
+            },
+            {
+                "$type": "Example.CompareFloat+Data, Example",
+                "valueA": {"useBlackboardKey": True, "blackboardKey": "hasGainAtb"},
+                "valueB": {"useBlackboardKey": False, "value": 0},
+                "compare": "Equals",
+            },
+            gain,
+            {
+                "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                "key": "hasGainAtb",
+                "operation": "Assign",
+                "directValue": True,
+                "value": {"useBlackboardKey": False, "value": 1},
+            },
+        ]
+
+        gates = collect_once_resource_gain_gates({"actionData": actions}, "sequence")
+
+        self.assertEqual(gates, {id(gain): "hasGainAtb"})
+
+    def test_once_resource_gain_filter_keeps_first_gated_gain(self) -> None:
+        def gain(frame: int, key: str | None) -> TimedResourceGainSource:
+            return TimedResourceGainSource(
+                startFrame=frame,
+                endFrame=frame,
+                actionIndex=frame,
+                resource="sp",
+                amount=ScalarSource(18, None, None),
+                coefficient=ScalarSource(1, None, None),
+                spGainKind="NormalAttack",
+                spGainSource="Default",
+                onlyMainOperator=False,
+                isPercentValue=False,
+                useUltimateRecoveryTag=False,
+                ultimateRecoveryTagId=0,
+                ignoreUltimateGainScalar=False,
+                onceActionValueKey=key,
+            )
+
+        filtered = filter_once_resource_gains(
+            (gain(0, "hasGainAtb"), gain(4, "hasGainAtb"), gain(8, "hasGainAtb"), gain(9, None))
+        )
+
+        self.assertEqual([item.startFrame for item in filtered], [0, 9])
 
     def test_spell_infliction_keeps_frame_action_order_and_element(self) -> None:
         root = {

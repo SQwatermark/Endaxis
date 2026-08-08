@@ -102,6 +102,8 @@ export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainP
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
+  /** 非空时，同一动作实例只允许该黑板键从 0 变为 1 前的首次回能。 */
+  readonly onceActionValueKey: string | null;
 }
 
 export interface GeneratedProjectileHitSource {

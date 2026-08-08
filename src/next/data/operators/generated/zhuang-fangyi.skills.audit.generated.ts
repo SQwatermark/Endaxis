@@ -117,6 +117,43 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack5',
+    timelineBlockFrames: 50,
+    scheduledSequences: [
+      scheduled(
+        20,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([48, 53, 58, 62, 67, 72, 77, 82, 86, 92, 100, 108]),
+            tags: ['normalAttack', 'normalAttackLastCombo'],
+            stagger: 18,
+          }),
+        ),
+      ),
+      scheduled(
+        20,
+        sequence(
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb' },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'normalAttack',
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'atb': 18,
+    'atk_scale': [0.48, 0.53, 0.58, 0.62, 0.67, 0.72, 0.77, 0.82, 0.86, 0.92, 1, 1.08],
+    'poise': 18,
+  },
+);
+
 export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'enhancedBasicAttack1',

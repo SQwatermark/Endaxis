@@ -3902,7 +3902,8 @@
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             },
             {
               "startFrame": 4,
@@ -3938,7 +3939,8 @@
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             },
             {
               "startFrame": 8,
@@ -3974,7 +3976,8 @@
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             }
           ],
           "projectileLaunches": [],
@@ -4092,30 +4095,6 @@
             6,
             0,
             17
-          ],
-          "itemType": "resourceGain",
-          "sourcePath": [
-            "chr_0030_zhuangfy_attack5_abilityrange"
-          ]
-        },
-        {
-          "frame": 24,
-          "actionOrder": [
-            6,
-            0,
-            21
-          ],
-          "itemType": "resourceGain",
-          "sourcePath": [
-            "chr_0030_zhuangfy_attack5_abilityrange"
-          ]
-        },
-        {
-          "frame": 28,
-          "actionOrder": [
-            6,
-            0,
-            25
           ],
           "itemType": "resourceGain",
           "sourcePath": [
@@ -6883,7 +6862,8 @@
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": null
             }
           ],
           "projectileLaunches": [],
@@ -7438,7 +7418,8 @@
           "isPercentValue": false,
           "useUltimateRecoveryTag": false,
           "ultimateRecoveryTagId": 0,
-          "ignoreUltimateGainScalar": false
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null
         }
       ],
       "projectileLaunches": [],

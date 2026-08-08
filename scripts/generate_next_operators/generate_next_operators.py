@@ -157,6 +157,7 @@ class TimedResourceGainSource:
     useUltimateRecoveryTag: bool
     ultimateRecoveryTagId: int
     ignoreUltimateGainScalar: bool
+    onceActionValueKey: str | None = None
 
 
 @dataclass(frozen=True)
@@ -921,6 +922,65 @@ def collect_timed_marker_damage_gates(value: Any, path: str) -> dict[int, TimedM
                     returnTrueIfNotExists=previous.get("returnTrueIfNotExists") is True,
                     durationSeconds=float(duration["value"]),
                 )
+        for key, child in current.items():
+            visit(child, f"{current_path}.{key}")
+
+    visit(value, path)
+    return result
+
+
+def collect_once_resource_gain_gates(value: Any, path: str) -> dict[int, str]:
+    """识别单敌人命中后只允许首次回能的动作黑板门。"""
+    result: dict[int, str] = {}
+
+    def visit(current: Any, current_path: str) -> None:
+        if isinstance(current, list):
+            for index, child in enumerate(current):
+                visit(child, f"{current_path}[{index}]")
+            return
+        if not isinstance(current, dict):
+            return
+        raw_actions = current.get("actionData")
+        if isinstance(raw_actions, list):
+            actions = [require_dict(action, f"{current_path}.actionData") for action in raw_actions]
+            for index in range(len(actions) - 3):
+                check_entity, compare, gain, mutation = actions[index : index + 4]
+                if [action_name(str(action.get("$type", ""))) for action in actions[index : index + 4]] != [
+                    "CheckEntityNum",
+                    "CompareFloat",
+                    "ObtainCostAction",
+                    "ModifyDynamicBlackboard",
+                ]:
+                    continue
+                target = require_dict(
+                    check_entity.get("checkTarget"), f"{current_path}.CheckEntityNum.checkTarget"
+                )
+                left = require_dict(compare.get("valueA"), f"{current_path}.CompareFloat.valueA")
+                right = require_dict(compare.get("valueB"), f"{current_path}.CompareFloat.valueB")
+                value = require_dict(
+                    mutation.get("value"), f"{current_path}.ModifyDynamicBlackboard.value"
+                )
+                flag_key = left.get("blackboardKey")
+                if not (
+                    target.get("targetSource") == "Context"
+                    and isinstance(target.get("targetGroupKey"), str)
+                    and target.get("targetGroupKey")
+                    and check_entity.get("minNum") == 1
+                    and check_entity.get("compareType") == "GE"
+                    and left.get("useBlackboardKey") is True
+                    and isinstance(flag_key, str)
+                    and flag_key
+                    and compare.get("compare") == "Equals"
+                    and right.get("useBlackboardKey") is False
+                    and right.get("value") == 0
+                    and mutation.get("key") == flag_key
+                    and mutation.get("operation") == "Assign"
+                    and mutation.get("directValue") is True
+                    and value.get("useBlackboardKey") is False
+                    and value.get("value") == 1
+                ):
+                    raise ValueError(f"{current_path}: unsupported once-only resource gain gate")
+                result[id(gain)] = flag_key
         for key, child in current.items():
             visit(child, f"{current_path}.{key}")
 
@@ -2476,6 +2536,18 @@ def parse_resource_gains(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[TimedResourceGainSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    once_gates = collect_once_resource_gain_gates(group, f"{source_name}.actionGroupData")
+    if once_gates:
+        declared_blackboard = {
+            item.key: item for item in parse_declared_blackboard(root, source_name)
+        }
+        for flag_key in set(once_gates.values()):
+            declaration = declared_blackboard.get(flag_key)
+            if declaration is None or declaration.value != 0 or not declaration.isDynamic:
+                raise ValueError(
+                    f"{source_name}.blackboard: once-only resource flag {flag_key!r} "
+                    "must be a dynamic value initialized to 0"
+                )
     result: list[TimedResourceGainSource] = []
     for timeline_index, raw_timeline in enumerate(
         require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -2512,8 +2584,25 @@ def parse_resource_gains(
                     useUltimateRecoveryTag=payload.useUltimateRecoveryTag,
                     ultimateRecoveryTagId=payload.ultimateRecoveryTagId,
                     ignoreUltimateGainScalar=payload.ignoreUltimateGainScalar,
+                    onceActionValueKey=once_gates.get(id(action)),
                 )
             )
+    return tuple(result)
+
+
+def filter_once_resource_gains(
+    gains: Iterable[TimedResourceGainSource],
+) -> tuple[TimedResourceGainSource, ...]:
+    """按动作实例黑板门保留首次回能，未受门控的回能保持原顺序。"""
+    result: list[TimedResourceGainSource] = []
+    consumed_flags: set[str] = set()
+    for gain in gains:
+        flag_key = getattr(gain, "onceActionValueKey", None)
+        if flag_key is not None:
+            if flag_key in consumed_flags:
+                continue
+            consumed_flags.add(flag_key)
+        result.append(gain)
     return tuple(result)
 
 
@@ -3046,7 +3135,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             )
             for action in actions
         )
-    for index, gain in enumerate(skill.resourceGains):
+    for index, gain in enumerate(filter_once_resource_gains(skill.resourceGains)):
         values = require_level_values(gain.amount, f"{skill.key}.resourceGains[{index}].amount")
         if all(value == 0 for value in values):
             continue
@@ -3080,17 +3169,24 @@ def collect_ability_entity_schedule(
 ) -> None:
     """把能力实体子技能中的非伤害动作换算到根技能帧坐标。"""
     source_path = (hit.skillId,)
-    result.extend(
-        ResolvedScheduleItemSource(
-            frame=hit.spawnFrame + gain.startFrame,
-            actionOrder=(*hit.actionOrder, gain.actionIndex),
-            itemType="resourceGain",
-            sourcePath=source_path,
-            payload=gain,
-        )
-        for gain in getattr(hit, "resourceGains", ())
-        if any(value != 0 for value in require_level_values(gain.amount, f"{hit.skillId}.resourceGain"))
+    resource_gains = sorted(
+        getattr(hit, "resourceGains", ()), key=lambda item: (item.startFrame, item.actionIndex)
     )
+    for gain in filter_once_resource_gains(resource_gains):
+        if not any(
+            value != 0
+            for value in require_level_values(gain.amount, f"{hit.skillId}.resourceGain")
+        ):
+            continue
+        result.append(
+            ResolvedScheduleItemSource(
+                frame=hit.spawnFrame + gain.startFrame,
+                actionOrder=(*hit.actionOrder, gain.actionIndex),
+                itemType="resourceGain",
+                sourcePath=source_path,
+                payload=gain,
+            )
+        )
     result.extend(
         ResolvedScheduleItemSource(
             frame=hit.spawnFrame + infliction.startFrame,

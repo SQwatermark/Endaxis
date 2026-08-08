@@ -4451,7 +4451,8 @@ export const zhuangFangyiGeneratedSource = {
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             },
             {
               "startFrame": 4,
@@ -4487,7 +4488,8 @@ export const zhuangFangyiGeneratedSource = {
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             },
             {
               "startFrame": 8,
@@ -4523,7 +4525,8 @@ export const zhuangFangyiGeneratedSource = {
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": "hasGainAtb"
             }
           ],
           "projectileLaunches": [],
@@ -7930,7 +7933,8 @@ export const zhuangFangyiGeneratedSource = {
               "isPercentValue": false,
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
-              "ignoreUltimateGainScalar": false
+              "ignoreUltimateGainScalar": false,
+              "onceActionValueKey": null
             }
           ],
           "projectileLaunches": [],
@@ -8774,7 +8778,8 @@ export const zhuangFangyiGeneratedSource = {
           "isPercentValue": false,
           "useUltimateRecoveryTag": false,
           "ultimateRecoveryTagId": 0,
-          "ignoreUltimateGainScalar": false
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null
         }
       ],
       "projectileLaunches": [],

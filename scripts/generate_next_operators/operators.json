@@ -175,7 +175,12 @@
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack5.json"
+          "source": "chr_0030_zhuangfy_attack5.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"],
+            "collapseSingleEnemyAbilityEntityBranches": true
+          }
         },
         {
           "key": "enhancedBasicAttack1",
