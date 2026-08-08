@@ -40,7 +40,9 @@
     },
     "entityCountConditionOccurrenceCount": 570,
     "entityCountConditionShapeCount": 40,
-    "auraActionReferenceCount": 19
+    "auraActionReferenceCount": 19,
+    "rawAuraActionCount": 22,
+    "reachableAuraActionCount": 19
   },
   "entityCountConditionShapes": [
     {
@@ -5931,5 +5933,26 @@
       "abilityEntityCount": 0,
       "auraActionCount": 0
     }
-  ]
+  ],
+  "auraReachability": {
+    "rawActionCount": 22,
+    "reachableActionCount": 19,
+    "unreachableSources": [
+      {
+        "sourceFile": "chr_0011_seraph_normal_skill_abentity_onfield.json",
+        "auraActionCount": 1,
+        "directInboundSources": []
+      },
+      {
+        "sourceFile": "chr_0016_laevat_dung_abilityentity.json",
+        "auraActionCount": 1,
+        "directInboundSources": ["chr_0016_laevat_dung_spawn_abilityentity.json"]
+      },
+      {
+        "sourceFile": "chr_0032_lizhiyan_normal_skill_abilityrange.json",
+        "auraActionCount": 1,
+        "directInboundSources": []
+      }
+    ]
+  }
 }

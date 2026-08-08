@@ -319,7 +319,79 @@ def enumerate_skill_entries(
     return result
 
 
-def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
+def audit_aura_source_reachability(
+    source: Path,
+    entry_skill_ids: set[str],
+) -> dict[str, Any]:
+    """区分 Aura 原始库存与从当前干员技能入口静态可达的部分。
+
+    这里只沿 SkillData 中能够解析为另一份 SkillData ID 的字符串引用建图。
+    不可达文件可能是旧版本或孤立数据，因此只作为候选记录，不能据此注入回退。
+    """
+
+    roots = {
+        path.stem: generator.require_dict(
+            json.loads(path.read_text(encoding="utf-8")), str(path)
+        )
+        for path in source.glob("*.json")
+    }
+    known_skill_ids = set(roots)
+
+    def collect_references(value: Any) -> set[str]:
+        if isinstance(value, str):
+            return {value} if value in known_skill_ids else set()
+        if isinstance(value, list):
+            return set().union(*(collect_references(item) for item in value))
+        if isinstance(value, dict):
+            return set().union(*(collect_references(item) for item in value.values()))
+        return set()
+
+    references = {
+        skill_id: collect_references(root) - {skill_id}
+        for skill_id, root in roots.items()
+    }
+    reachable: set[str] = set()
+    pending = [skill_id for skill_id in entry_skill_ids if skill_id in roots]
+    while pending:
+        skill_id = pending.pop()
+        if skill_id in reachable:
+            continue
+        reachable.add(skill_id)
+        pending.extend(references[skill_id] - reachable)
+
+    aura_counts = {
+        skill_id: sum(
+            generator.action_name(str(action.get("$type", ""))) == "AuraAction"
+            for action in generator.walk_actions(root)
+        )
+        for skill_id, root in roots.items()
+    }
+    inbound_sources: dict[str, list[str]] = {skill_id: [] for skill_id in roots}
+    for source_id, targets in references.items():
+        for target_id in targets:
+            inbound_sources[target_id].append(f"{source_id}.json")
+
+    return {
+        "rawActionCount": sum(aura_counts.values()),
+        "reachableActionCount": sum(
+            aura_counts[skill_id] for skill_id in reachable
+        ),
+        "unreachableSources": [
+            {
+                "sourceFile": f"{skill_id}.json",
+                "auraActionCount": aura_count,
+                "directInboundSources": sorted(inbound_sources[skill_id]),
+            }
+            for skill_id, aura_count in sorted(aura_counts.items())
+            if aura_count and skill_id not in reachable
+        ],
+    }
+
+
+def build_document(
+    audits: list[SkillAudit],
+    aura_reachability: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     per_operator = []
     for character_id in dict.fromkeys(item.characterId for item in audits):
         skills = [item for item in audits if item.characterId == character_id]
@@ -361,27 +433,36 @@ def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
             }
         )
 
-    return {
+    summary = {
+        "parsedCount": sum(item.stage != "source-or-parser-blocked" for item in audits),
+        "compiledCount": sum(item.stage == "dsl-compiled" for item in audits),
+        "completeOperatorCount": sum(item["complete"] for item in per_operator),
+        "blockerKinds": dict(
+            Counter(item.blockerKind for item in audits if item.blockerKind is not None)
+        ),
+        "unresolvedActionPresence": dict(
+            Counter(action for item in audits for action in item.unresolvedActions)
+        ),
+        "entityCountConditionOccurrenceCount": sum(entity_count_occurrences.values()),
+        "entityCountConditionShapeCount": len(entity_count_occurrences),
+        "auraActionReferenceCount": sum(item.auraActionCount for item in audits),
+    }
+    if aura_reachability is not None:
+        summary.update(
+            {
+                "rawAuraActionCount": aura_reachability["rawActionCount"],
+                "reachableAuraActionCount": aura_reachability["reachableActionCount"],
+            }
+        )
+
+    document = {
         "schemaVersion": 1,
         "scope": {
             "operatorCount": len(per_operator),
             "excludedCharacterIds": sorted(OBSOLETE_CHARACTER_IDS),
             "skillCount": len(audits),
         },
-        "summary": {
-            "parsedCount": sum(item.stage != "source-or-parser-blocked" for item in audits),
-            "compiledCount": sum(item.stage == "dsl-compiled" for item in audits),
-            "completeOperatorCount": sum(item["complete"] for item in per_operator),
-            "blockerKinds": dict(
-                Counter(item.blockerKind for item in audits if item.blockerKind is not None)
-            ),
-            "unresolvedActionPresence": dict(
-                Counter(action for item in audits for action in item.unresolvedActions)
-            ),
-            "entityCountConditionOccurrenceCount": sum(entity_count_occurrences.values()),
-            "entityCountConditionShapeCount": len(entity_count_occurrences),
-            "auraActionReferenceCount": sum(item.auraActionCount for item in audits),
-        },
+        "summary": summary,
         "entityCountConditionShapes": entity_count_shapes,
         "operators": per_operator,
         "skills": [
@@ -393,6 +474,9 @@ def build_document(audits: list[SkillAudit]) -> dict[str, Any]:
             for item in audits
         ],
     }
+    if aura_reachability is not None:
+        document["auraReachability"] = aura_reachability
+    return document
 
 
 def render_markdown(document: dict[str, Any]) -> str:
@@ -446,6 +530,32 @@ def render_markdown(document: dict[str, Any]) -> str:
         summary["blockerKinds"].items(), key=lambda item: (-item[1], item[0])
     ):
         lines.append(f"| `{kind}` | {count} |")
+    if "auraReachability" in document:
+        unreachable = document["auraReachability"]["unreachableSources"]
+        lines.extend(
+            [
+                "",
+                "## Aura 原始库存与入口可达性",
+                "",
+                f"- SkillData 原始 Aura 动作：{summary['rawAuraActionCount']} 个。",
+                f"- 从当前干员技能入口静态可达：{summary['reachableAuraActionCount']} 个。",
+                f"- 当前入口调用图中的结构化引用：{summary['auraActionReferenceCount']} 个。",
+                "",
+                "可达性只沿 SkillData 中指向另一份 SkillData 的字符串引用计算。",
+                "静态不可达文件可能是旧变体或孤立数据，不计为 parser 缺口，也不能据此注入回退。",
+                "引用数统计调用图身份；若同一原始动作被多个入口引用，它不必等于唯一动作库存。",
+                "",
+                "| 静态不可达源文件 | Aura 动作 | 直接入边来源 |",
+                "| --- | ---: | --- |",
+            ]
+        )
+        for item in unreachable:
+            inbound = "<br>".join(
+                f"`{source}`" for source in item["directInboundSources"]
+            ) or "无"
+            lines.append(
+                f"| `{item['sourceFile']}` | {item['auraActionCount']} | {inbound} |"
+            )
     lines.extend(
         [
             "",
@@ -535,7 +645,11 @@ def main() -> None:
         audit_skill(character_id, name, group_type, skill_id, args.source, patch_table)
         for character_id, name, group_type, skill_id in entries
     ]
-    document = build_document(audits)
+    aura_reachability = audit_aura_source_reachability(
+        args.source,
+        {skill_id for _, _, _, skill_id in entries},
+    )
+    document = build_document(audits, aura_reachability)
     write(args.json_output, json.dumps(document, ensure_ascii=False, indent=2) + "\n")
     write(args.markdown_output, render_markdown(document))
     print(

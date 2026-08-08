@@ -71,6 +71,22 @@
 | `condition-entity-count`   |      1 |
 | `projectile-data`          |      1 |
 
+## Aura 原始库存与入口可达性
+
+- SkillData 原始 Aura 动作：22 个。
+- 从当前干员技能入口静态可达：19 个。
+- 当前入口调用图中的结构化引用：19 个。
+
+可达性只沿 SkillData 中指向另一份 SkillData 的字符串引用计算。
+静态不可达文件可能是旧变体或孤立数据，不计为 parser 缺口，也不能据此注入回退。
+引用数统计调用图身份；若同一原始动作被多个入口引用，它不必等于唯一动作库存。
+
+| 静态不可达源文件                                     | Aura 动作 | 直接入边来源                                    |
+| ---------------------------------------------------- | --------: | ----------------------------------------------- |
+| `chr_0011_seraph_normal_skill_abentity_onfield.json` |         1 | 无                                              |
+| `chr_0016_laevat_dung_abilityentity.json`            |         1 | `chr_0016_laevat_dung_spawn_abilityentity.json` |
+| `chr_0032_lizhiyan_normal_skill_abilityrange.json`   |         1 | 无                                              |
+
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
 第二轮只在根技能上下文折叠 `ActionOwner/Owner`，入口进一步增至 60 个；嵌套分支仍严格拒绝。
 第三轮把投射物命中子技能的条件与回能投影回根时间轴，入口增至 61 个，并将 34 个原投射物

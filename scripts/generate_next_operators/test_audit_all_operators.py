@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+import tempfile
 import unittest
 
 from audit_all_operators import (
     SkillAudit,
+    audit_aura_source_reachability,
     build_document,
     classify_blocker,
     classify_skill,
@@ -16,6 +20,46 @@ from generate_next_operators import EntityCountConditionSource
 
 
 class AuditAllOperatorsTests(unittest.TestCase):
+    def test_distinguishes_reachable_and_orphan_aura_sources(self) -> None:
+        aura_action = {
+            "$type": "Example.AuraAction+Data, Example",
+            "isEnable": True,
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            documents = {
+                "entry": {"childSkillId": "active_child"},
+                "active_child": {"actionData": [aura_action]},
+                "orphan_parent": {"childSkillId": "orphan_child"},
+                "orphan_child": {"actionData": [aura_action]},
+                "old_variant": {"actionData": [aura_action]},
+            }
+            for skill_id, document in documents.items():
+                (source / f"{skill_id}.json").write_text(
+                    json.dumps(document), encoding="utf-8"
+                )
+
+            result = audit_aura_source_reachability(source, {"entry"})
+
+        self.assertEqual(result["rawActionCount"], 3)
+        self.assertEqual(result["reachableActionCount"], 1)
+        self.assertEqual(
+            result["unreachableSources"],
+            [
+                {
+                    "sourceFile": "old_variant.json",
+                    "auraActionCount": 1,
+                    "directInboundSources": [],
+                },
+                {
+                    "sourceFile": "orphan_child.json",
+                    "auraActionCount": 1,
+                    "directInboundSources": ["orphan_parent.json"],
+                },
+            ],
+        )
+
     def test_collects_entity_count_conditions_before_skill_parsing(self) -> None:
         root = {
             "actionData": [
@@ -198,6 +242,18 @@ class AuditAllOperatorsTests(unittest.TestCase):
                 }
             ],
         )
+
+    def test_includes_aura_reachability_when_provided(self) -> None:
+        reachability = {
+            "rawActionCount": 3,
+            "reachableActionCount": 1,
+            "unreachableSources": [],
+        }
+        document = build_document([], reachability)
+
+        self.assertEqual(document["summary"]["rawAuraActionCount"], 3)
+        self.assertEqual(document["summary"]["reachableAuraActionCount"], 1)
+        self.assertIs(document["auraReachability"], reachability)
 
 
 if __name__ == "__main__":
