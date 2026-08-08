@@ -4019,6 +4019,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'singleEnemyPresent' }",
         )
 
+        condition["target"]["targetSource"] = "Context"
+        condition["target"]["targetGroupKey"] = "smart_target"
+        smart_target = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+        self.assertEqual(
+            compile_combat_condition_group(
+                (smart_target,), "fixture.conditions", root_skill_context=True
+            ),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
         condition["lessThan"] = False
         farther_than = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
         self.assertEqual(

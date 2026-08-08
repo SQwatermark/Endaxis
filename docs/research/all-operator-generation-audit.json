@@ -7,8 +7,8 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 241,
-    "completeOperatorCount": 4,
+    "compiledCount": 243,
+    "completeOperatorCount": 5,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-tick-interval": 2,
@@ -16,7 +16,7 @@
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
-      "condition-distance": 5,
+      "condition-distance": 3,
       "conditional-leaf": 3,
       "root-action-coverage": 3,
       "other": 3,
@@ -891,11 +891,9 @@
       "operatorName": "Arclight",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "condition-distance": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0009_azrila",
@@ -957,10 +955,9 @@
       "operatorName": "Lifeng",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "condition-distance": 1,
         "condition-entity-count": 1
       }
     },
@@ -1840,9 +1837,9 @@
       "operatorName": "Arclight",
       "skillId": "chr_0007_ikut_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "normal_skill.schedule[6].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
@@ -2544,9 +2541,9 @@
       "operatorName": "Lifeng",
       "skillId": "chr_0015_lifeng_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 1,

@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：282 个。
-- 无角色专用声明即可进入通用 DSL：241 个。
-- 当前整名干员完整直转：4 名。
+- 无角色专用声明即可进入通用 DSL：243 个。
+- 当前整名干员完整直转：5 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -25,13 +25,13 @@
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |     10 | 是       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
-| Arclight       | `chr_0007_ikut`     |   10 |     10 |      9 | 否       |
+| Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      8 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
-| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      7 | 否       |
+| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      8 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
@@ -61,7 +61,7 @@
 | `source-data-missing`      |     21 |
 | `buff-source-or-target`    |     17 |
 | `condition-other`          |      6 |
-| `condition-distance`       |      5 |
+| `condition-distance`       |      3 |
 | `conditional-leaf`         |      3 |
 | `other`                    |      3 |
 | `root-action-coverage`     |      3 |

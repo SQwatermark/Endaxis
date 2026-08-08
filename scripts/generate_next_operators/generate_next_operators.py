@@ -7322,11 +7322,10 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
     )
 
 
-def target_reference_is_plain(reference: TargetReferenceSource) -> bool:
-    """目标引用未附带会改变身份或位置的上下文、校验器和后处理器。"""
+def target_reference_has_plain_selector(reference: TargetReferenceSource) -> bool:
+    """目标引用未附带会改变身份或位置的选择器配置。"""
     if (
-        reference.targetGroupKey
-        or reference.selectorOwner != "ActionOwner"
+        reference.selectorOwner != "ActionOwner"
         or reference.ownerContextKey
         or reference.centerType != "ActionSource"
         or reference.centerContextKey
@@ -7340,6 +7339,11 @@ def target_reference_is_plain(reference: TargetReferenceSource) -> bool:
     ):
         return False
     return True
+
+
+def target_reference_is_plain(reference: TargetReferenceSource) -> bool:
+    """目标引用既没有命名目标组，也没有会改变身份或位置的选择器配置。"""
+    return not reference.targetGroupKey and target_reference_has_plain_selector(reference)
 
 
 def target_identity_reference_guarantees_single_enemy(
@@ -7359,7 +7363,15 @@ def target_identity_reference_guarantees_single_enemy(
 
 def zero_distance_target_role(reference: TargetReferenceSource) -> str | None:
     """把根干员技能中的普通目标引用归类为共点的施法者或唯一敌人。"""
-    if not target_reference_is_plain(reference):
+    if not target_reference_has_plain_selector(reference):
+        return None
+    if (
+        reference.targetSource == "Context"
+        and reference.targetGroupKey == "smart_target"
+        and reference.finderType is None
+    ):
+        return "enemy"
+    if reference.targetGroupKey:
         return None
     if reference.targetSource in {"Owner", "Source"} and reference.finderType is None:
         return "caster"
