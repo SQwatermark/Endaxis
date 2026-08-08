@@ -1142,6 +1142,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported Buff source 'ActionOwner'"):
             compile_conditional_action(action, "fixture.condition")
 
+        source = compile_conditional_action(
+            action,
+            "fixture.condition",
+            root_skill_context=True,
+        )
+        self.assertIn("target: 'caster'", source)
+
     def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
         root = {
             "actionGroupData": {

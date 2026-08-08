@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 199,
+    "compiledCount": 203,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -16,8 +16,8 @@
       "projectile-child-actions": 2,
       "condition-tag": 6,
       "projectile-data": 1,
-      "condition-other": 7,
-      "buff-source-or-target": 23,
+      "condition-other": 8,
+      "buff-source-or-target": 18,
       "condition-buff-stack": 11,
       "root-action-coverage": 8,
       "parser-damage-calculation": 3,
@@ -904,10 +904,10 @@
       "operatorName": "Ember",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 3
+        "buff-source-or-target": 1
       }
     },
     {
@@ -1069,7 +1069,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 1,
+        "condition-other": 1,
         "condition-buff-stack": 1,
         "condition-tag": 1,
         "parser-channeling": 1
@@ -1126,13 +1126,13 @@
       "operatorName": "Ardelia",
       "skillCount": 9,
       "parsedCount": 7,
-      "compiledCount": 3,
+      "compiledCount": 4,
       "complete": false,
       "blockerKinds": {
         "conditional-leaf": 1,
         "condition-other": 1,
         "parser-channeling": 2,
-        "buff-source-or-target": 2
+        "buff-source-or-target": 1
       }
     },
     {
@@ -1174,11 +1174,10 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "condition-other": 3,
-        "buff-source-or-target": 1
+        "condition-other": 3
       }
     },
     {
@@ -1887,9 +1886,9 @@
       "operatorName": "Ember",
       "skillId": "chr_0009_azrila_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[1].buffs[0]: unsupported Buff source 'ActionOwner'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 4,
       "referencedBuffCount": 1,
@@ -1985,9 +1984,9 @@
       "operatorName": "Ember",
       "skillId": "chr_0009_azrila_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[0].conditionalAction.succeedActions[1].buffs[0]: unsupported Buff source 'ActionOwner'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 4,
       "referencedBuffCount": 3,
@@ -3803,8 +3802,8 @@
       "skillId": "chr_0028_wulfa_combo_2_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_2_skill.schedule[18].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Owner'/''",
+      "blockerKind": "condition-other",
+      "blocker": "combo_2_skill.schedule[19].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckHp'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 4,
       "referencedBuffCount": 6,
@@ -4737,9 +4736,9 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[2].conditionalAction.succeedActions[1].buffs[0]: unsupported Buff target 'Owner'/''",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5371,9 +5370,9 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_normalskill_2",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normalskill_2.schedule[3].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff source 'ActionOwner'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 2,
       "referencedBuffCount": 3,

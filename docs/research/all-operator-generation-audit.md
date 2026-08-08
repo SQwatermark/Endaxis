@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：199 个。
+- 无角色专用声明即可进入通用 DSL：203 个。
 - 当前整名干员完整直转：1 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -26,7 +26,7 @@
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |     10 | 是       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |      9 |      7 | 否       |
-| Ember          | `chr_0009_azrila`   |    9 |      9 |      6 | 否       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      7 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      7 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      7 |      7 | 否       |
@@ -44,11 +44,11 @@
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      6 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      8 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      3 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      4 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      7 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     10 |      7 | 否       |
 
 ## 共通阻塞簇
@@ -58,12 +58,12 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `buff-source-or-target`     |     23 |
 | `source-data-missing`       |     21 |
+| `buff-source-or-target`     |     18 |
 | `parser-channeling`         |     13 |
 | `condition-buff-stack`      |     11 |
+| `condition-other`           |      8 |
 | `root-action-coverage`      |      8 |
-| `condition-other`           |      7 |
 | `condition-tag`             |      6 |
 | `conditional-leaf`          |      5 |
 | `parser-damage-calculation` |      3 |

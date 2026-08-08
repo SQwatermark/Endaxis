@@ -5462,6 +5462,8 @@ def compile_conditional_buff_application(
     payload: BuffApplicationPayload,
     path: str,
     ignored_buff_ids: frozenset[str],
+    *,
+    root_skill_context: bool = False,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     compiled = [
@@ -5473,7 +5475,7 @@ def compile_conditional_buff_application(
             count=payload.count,
             buff_source=payload.buffSource,
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
-            root_skill_context=False,
+            root_skill_context=root_skill_context,
             path=f"{path}.buffs[{index}]",
         )
         for index, buff in enumerate(payload.buffs)
@@ -5578,6 +5580,7 @@ def compile_conditional_branch_action(
             action.buffApplication,
             path,
             ignored_buff_ids,
+            root_skill_context=root_skill_context,
         )
     if getattr(action, "blackboardMutation", None) is not None:
         return compile_blackboard_mutation(action.blackboardMutation, path)
