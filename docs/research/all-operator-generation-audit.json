@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 232,
+    "compiledCount": 234,
     "completeOperatorCount": 3,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -16,9 +16,9 @@
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
-      "root-action-coverage": 12,
       "conditional-leaf": 3,
       "condition-entity-count": 1,
+      "root-action-coverage": 10,
       "other": 3,
       "condition-main-operator": 1,
       "condition-other": 6,
@@ -925,10 +925,9 @@
       "operatorName": "Avywenna",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 7,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 2,
         "condition-distance": 1
       }
     },
@@ -2140,9 +2139,9 @@
       "operatorName": "Avywenna",
       "skillId": "chr_0012_avywen_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -2271,9 +2270,9 @@
       "operatorName": "Avywenna",
       "skillId": "chr_0012_avywen_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler: ['ObtainCostAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",

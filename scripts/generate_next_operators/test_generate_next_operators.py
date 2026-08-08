@@ -5799,6 +5799,64 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIsNone(gains[0].spGainSource)
         self.assertFalse(gains[0].useUltimateRecoveryTag)
 
+    def test_resource_gain_flattens_for_each_in_single_enemy_model(self) -> None:
+        gain = {
+            "$type": "Example.ObtainCostAction+Data, Example",
+            "isEnable": True,
+            "serverActionIndex": 2,
+            "costType": "UltimateSp",
+            "atbSourceType": "Default",
+            "atbGainMethod": "Gain",
+            "atbOnlyMainChar": False,
+            "isPercentValue": False,
+            "useUspRecoverTag": False,
+            "uspRecoverTag": {"tagId": 0},
+            "ignoreUspGainScalar": False,
+            "costValue": {
+                "useBlackboardKey": False,
+                "blackboardKey": "",
+                "value": 8,
+            },
+            "coefficient": {
+                "useBlackboardKey": False,
+                "blackboardKey": "",
+                "value": 1,
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 12,
+                        "_endFrame": 13,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "target": {
+                                        "targetSource": "Context",
+                                        "targetGroupKey": "targets",
+                                    },
+                                    "action": {"actionData": [gain]},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        gains = parse_resource_gains(root, "skill.json", {})
+
+        self.assertEqual(len(gains), 1)
+        self.assertEqual((gains[0].startFrame, gains[0].actionIndex), (12, 2))
+        self.assertEqual(gains[0].resource, "ultimateEnergy")
+        self.assertEqual(gains[0].amount.value, 8)
+
     def test_once_resource_gain_gate_matches_action_blackboard_sequence(self) -> None:
         gain = {"$type": "Example.ObtainCostAction+Data, Example"}
         actions = [

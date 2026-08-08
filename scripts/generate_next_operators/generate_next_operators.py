@@ -4205,7 +4205,10 @@ def parse_resource_gains(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+        for action in walk_single_enemy_actions(
+            timeline.get("_sequenceActionData"),
+            f"{source_name}.timelineActions[{timeline_index}]._sequenceActionData",
+        ):
             if action_name(action["$type"]) != "ObtainCostAction" or action.get("isEnable") is False:
                 continue
             payload = parse_resource_gain_payload(
