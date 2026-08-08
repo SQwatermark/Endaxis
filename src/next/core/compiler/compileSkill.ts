@@ -202,6 +202,21 @@ function resolveStep(
           buffTagIds: step.parameters.buffTagIds.map(gameplayTagId),
         },
       };
+    case 'readBuffStackCount':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...step.parameters,
+          query:
+            step.parameters.query.kind === 'tag'
+              ? {
+                  ...step.parameters.query,
+                  buffTagIds: step.parameters.query.buffTagIds.map(gameplayTagId),
+                }
+              : step.parameters.query,
+        },
+      };
     case 'finishBuffsByTag':
       return {
         ...keyed,

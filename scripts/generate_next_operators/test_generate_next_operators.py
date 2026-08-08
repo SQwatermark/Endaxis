@@ -19,6 +19,7 @@ from generate_next_operators import (
     compile_resolved_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
+    collect_compilable_conditional_action_types,
     AuxiliaryActionSource,
     BlackboardCalculationPayload,
     BlackboardMutationPayload,
@@ -27,8 +28,10 @@ from generate_next_operators import (
     BuffBlackboardReadSource,
     BuffFinishSource,
     BuffHoldSource,
+    BuffStackReadPayload,
     DamageUnitSource,
     EntityBlackboardAssignmentSource,
+    ProjectileLaunchPayload,
     ProjectileSkillTriggerSource,
     ResourceGainPayload,
     ScalarSource,
@@ -37,6 +40,8 @@ from generate_next_operators import (
     TimedResourceGainSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    ConditionSource,
+    EntityCountConditionSource,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
@@ -61,6 +66,7 @@ from generate_next_operators import (
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
     is_single_enemy_ability_entity_projection,
+    is_guaranteed_single_enemy_condition,
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
     parse_skill_patch,
@@ -79,6 +85,80 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_single_enemy_smart_target_count_is_guaranteed(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="smart_target",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+
+        self.assertTrue(is_guaranteed_single_enemy_condition(condition))
+
+    def test_conditional_action_coverage_only_includes_compilable_leaf_payloads(self) -> None:
+        condition = ConditionalActionSource(
+            0,
+            0,
+            1,
+            ("condition",),
+            (),
+            (
+                ConditionalBranchActionSource(
+                    "ObtainCostAction",
+                    0,
+                    resourceGain=ResourceGainPayload(
+                        "sp",
+                        ScalarSource(1, None, (1,)),
+                        ScalarSource(1, None, (1,)),
+                        "gain",
+                        "skill",
+                        False,
+                        False,
+                        False,
+                        0,
+                        False,
+                    ),
+                ),
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    1,
+                    projectileLaunch=ProjectileLaunchPayload("projectile", ()),
+                ),
+                ConditionalBranchActionSource(
+                    "SaveBuffStackNumAdvanced",
+                    2,
+                    buffStackRead=BuffStackReadPayload(
+                        "count",
+                        "Context",
+                        "smart_target",
+                        "Tag",
+                        (),
+                        "hasAny",
+                        (123,),
+                        "BuffCount",
+                        False,
+                    ),
+                ),
+            ),
+            (),
+        )
+
+        self.assertEqual(
+            collect_compilable_conditional_action_types((condition,)),
+            {"IfElseAction", "ObtainCostAction", "SaveBuffStackNumAdvanced"},
+        )
+
     def test_guaranteed_ability_entity_projection_accepts_target_routing_only(self) -> None:
         spawn = AbilityEntitySpawnPayload("entity.test", "skill.test")
         mutation = BlackboardMutationPayload(

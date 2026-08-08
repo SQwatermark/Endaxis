@@ -12,6 +12,41 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('writes a matching Buff stack count to the action blackboard', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        getCountByIds: () => 3,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 2,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'enemy',
+            outputKey: 'inflictCnt',
+            query: {
+              kind: 'tag',
+              tagQueryType: 'hasAny',
+              buffTagIds: [gameplayTagIdFromPath('buff/status/conduct')],
+            },
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('inflictCnt')).toBe(2);
+  });
+
   it('resolves action-blackboard assignments before applying a catalog buff', () => {
     const applied: unknown[] = [];
     const target = {

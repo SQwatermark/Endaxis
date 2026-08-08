@@ -59,6 +59,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
+    if (condition.kind === 'singleEnemyPresent') return true;
     if (condition.kind === 'not') return !this.evaluate(condition.condition, context);
     if (condition.kind === 'all') {
       return condition.conditions.every(child => this.evaluate(child, context));

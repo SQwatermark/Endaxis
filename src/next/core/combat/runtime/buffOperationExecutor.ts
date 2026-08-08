@@ -119,6 +119,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
+    if (step.kind === 'readBuffStackCount') {
+      if (context === undefined) {
+        throw new Error('readBuffStackCount requires a combat operation context');
+      }
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const count =
+        step.parameters.query.kind === 'tag'
+          ? target.getCountByTags(
+              step.parameters.query.buffTagIds.map(gameplayTagId),
+              step.parameters.query.tagQueryType,
+            )
+          : target.getCountByIds(step.parameters.query.buffIds);
+      context.blackboard.assignDynamic(step.parameters.outputKey, count);
+      return true;
+    }
+
     if (step.kind === 'finishBuffsByTag') {
       const target = this.dependencies.resolveTarget(step.parameters.target);
       const tags = step.parameters.buffTagIds.map(gameplayTagId);

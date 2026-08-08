@@ -141,6 +141,8 @@ export interface DealDamageParameters {
  * 新条件必须能由运行时统一求值，不能在干员文件中嵌入函数。
  */
 export type CombatCondition =
+  /** Endaxis 固定单敌人场景中，表示原生智能目标数量检查已被模型保证。 */
+  | { kind: 'singleEnemyPresent' }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | { kind: 'contextFlagEquals'; flag: string; value: boolean | number | string }
@@ -189,6 +191,7 @@ export type CombatCondition =
       right: OperatorAttribute;
     };
 export const COMBAT_CONDITION_KINDS = [
+  'singleEnemyPresent',
   'skillBranchEnabled',
   'targetStaggered',
   'contextFlagEquals',
@@ -302,6 +305,18 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
+  /** 查询匹配 Buff 的累计层数，并写入当前技能实例的动作黑板。 */
+  readBuffStackCount: {
+    target: CombatTarget;
+    outputKey: string;
+    query:
+      | { kind: 'id'; buffIds: readonly string[] }
+      | {
+          kind: 'tag';
+          tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+          buffTagIds: readonly number[];
+        };
+  };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {
     target: CombatTarget;
@@ -379,6 +394,7 @@ export const COMBAT_STEP_KINDS = [
   'dealDamage',
   'applyBuff',
   'readBuffBlackboard',
+  'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',
   'holdBuffsById',

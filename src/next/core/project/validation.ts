@@ -122,6 +122,8 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
   }
 
   switch (kind) {
+    case 'singleEnemyPresent':
+      break;
     case 'skillBranchEnabled':
       requireString(value, 'branchKey', path, issues);
       break;
@@ -429,6 +431,39 @@ function validateCombatStepParameters(
       }
       requireString(parameters, 'desiredKey', path, issues);
       requireString(parameters, 'outputKey', path, issues);
+      break;
+    case 'readBuffStackCount':
+      requireTarget();
+      requireString(parameters, 'outputKey', path, issues);
+      if (!isObject(parameters.query)) {
+        issues.push({ path: `${path}.query`, message: 'expected object' });
+        break;
+      }
+      if (parameters.query.kind === 'id') {
+        validateNonEmptyStringArray(parameters.query.buffIds, `${path}.query.buffIds`, issues);
+      } else if (parameters.query.kind === 'tag') {
+        requireEnum(
+          parameters.query.tagQueryType,
+          gameplayTagQueryTypes,
+          `${path}.query.tagQueryType`,
+          issues,
+        );
+        if (
+          !Array.isArray(parameters.query.buffTagIds) ||
+          parameters.query.buffTagIds.length === 0
+        ) {
+          issues.push({
+            path: `${path}.query.buffTagIds`,
+            message: 'expected a non-empty array',
+          });
+        } else {
+          parameters.query.buffTagIds.forEach((tagId, index) =>
+            requireInteger(tagId, `${path}.query.buffTagIds[${index}]`, issues),
+          );
+        }
+      } else {
+        issues.push({ path: `${path}.query.kind`, message: "expected 'id' or 'tag'" });
+      }
       break;
     case 'finishBuffsByTag':
       requireTarget();

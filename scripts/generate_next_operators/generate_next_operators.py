@@ -3663,6 +3663,8 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
 
 def compile_combat_condition(source: ConditionSource, path: str) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
+    if is_guaranteed_single_enemy_condition(source):
+        return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CompareFloat":
         if source.left is None or source.right is None or source.comparison is None:
             raise ValueError(f"{path}: incomplete CompareFloat condition")
@@ -4024,6 +4026,42 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
     )
 
 
+def compile_buff_stack_read(payload: BuffStackReadPayload, path: str) -> str:
+    """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
+    if payload.countType != "BuffCount":
+        raise ValueError(f"{path}: unsupported Buff count type {payload.countType!r}")
+    if payload.limitSkillCastId:
+        raise ValueError(f"{path}: skill-cast-limited Buff count is not supported")
+    if payload.targetSource == "Source" and not payload.targetGroupKey:
+        target = "caster"
+    elif payload.targetSource == "Context" and payload.targetGroupKey == "smart_target":
+        target = "enemy"
+    else:
+        raise ValueError(
+            f"{path}: unsupported Buff target "
+            f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
+        )
+    if payload.buffCheckType == "Id" and payload.buffIds:
+        query = "{ kind: 'id', buffIds: " + ts_inline_literal(payload.buffIds) + " }"
+    elif payload.buffCheckType == "Tag" and payload.buffTagIds:
+        query = (
+            "{ kind: 'tag', tagQueryType: "
+            f"{ts_inline_literal(payload.tagQueryType)}, buffTagIds: "
+            f"{ts_inline_literal(payload.buffTagIds)} }}"
+        )
+    else:
+        raise ValueError(f"{path}: unsupported or empty Buff lookup")
+    return "\n".join(
+        [
+            "step('readBuffStackCount', {",
+            f"  target: {ts_inline_literal(target)},",
+            f"  outputKey: {ts_inline_literal(payload.outputKey)},",
+            f"  query: {query},",
+            "})",
+        ]
+    )
+
+
 def compile_conditional_buff_application(
     payload: BuffApplicationPayload,
     path: str,
@@ -4073,6 +4111,8 @@ def compile_conditional_branch_action(
         return compile_buff_blackboard_read(action.buffBlackboardRead, path)
     if getattr(action, "buffFinish", None) is not None:
         return compile_buff_finish(action.buffFinish, path)
+    if getattr(action, "buffStackRead", None) is not None:
+        return compile_buff_stack_read(action.buffStackRead, path)
     if getattr(action, "buffApplication", None) is not None:
         return compile_conditional_buff_application(
             action.buffApplication,
@@ -4152,6 +4192,53 @@ def compile_conditional_action(
         lines.extend(fail_lines)
     lines.append(")")
     return "\n".join(lines)
+
+
+def is_guaranteed_single_enemy_condition(condition: ConditionSource) -> bool:
+    """识别在 Endaxis 固定单个有效敌人模型下恒真的目标数量条件。"""
+    entity = getattr(condition, "entityCount", None)
+    return (
+        condition.sourceType == "CheckEntityNum"
+        and entity is not None
+        and entity.targetSource == "Context"
+        and entity.targetGroupKey == "smart_target"
+        and entity.minimumCount == 1
+        and entity.comparison == "GE"
+        and not entity.containsHittableTarget
+        and not entity.excludeDeadEntity
+        and not entity.storeKey
+    )
+
+
+def collect_compilable_conditional_action_types(
+    actions: tuple[ConditionalActionSource, ...],
+) -> set[str]:
+    """返回条件树中已由 DSL 编译器完整消费的原生动作类型。"""
+    result = {"IfElseAction"} if actions else set()
+
+    def visit(action: ConditionalActionSource) -> None:
+        for branch_action in (*action.succeedActions, *action.failActions):
+            if getattr(branch_action, "nestedCondition", None) is not None:
+                result.add("IfElseAction")
+                visit(branch_action.nestedCondition)
+            if getattr(branch_action, "buffBlackboardRead", None) is not None:
+                result.add("GetTargetBuffBBAdvanced")
+            if getattr(branch_action, "buffFinish", None) is not None:
+                result.add("FinishBuffAdvanced")
+            if getattr(branch_action, "buffStackRead", None) is not None:
+                result.add("SaveBuffStackNumAdvanced")
+            if getattr(branch_action, "buffApplication", None) is not None:
+                result.add("CreateBuffAction")
+            if getattr(branch_action, "blackboardMutation", None) is not None:
+                result.add("ModifyDynamicBlackboard")
+            if getattr(branch_action, "blackboardCalculation", None) is not None:
+                result.add("SimpleCalcBBAction")
+            if getattr(branch_action, "resourceGain", None) is not None:
+                result.add("ObtainCostAction")
+
+    for action in actions:
+        visit(action)
+    return result
 
 
 def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
@@ -4643,8 +4730,7 @@ def compile_resolved_sequence(
     if any(not launch.skillTriggers for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without triggered SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
-    if skill.conditionalActions:
-        allowed_actions.add("IfElseAction")
+    allowed_actions.update(collect_compilable_conditional_action_types(skill.conditionalActions))
     if skill.blackboardCalculations:
         allowed_actions.add("SimpleCalcBBAction")
     if skill.blackboardMutations:

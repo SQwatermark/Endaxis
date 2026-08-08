@@ -483,6 +483,139 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'comboSkill',
+    timelineBlockFrames: 25,
+    cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    scheduledSequences: [
+      scheduled(
+        24,
+        sequence(
+          branch(
+            {
+              kind: 'buffStackCompare',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              buffTagIds: [2123008650],
+              operator: 'greaterOrEqual',
+              value: 1,
+            },
+            sequence(
+              step('readBuffStackCount', {
+                target: 'enemy',
+                outputKey: 'inflictCnt',
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+              }),
+              step('modifyActionValue', {
+                key: 'conductCnt',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'inflictCnt' },
+              }),
+              branch(
+                {
+                  kind: 'buffStackCompare',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTagIds: [1466867135],
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'conductCnt',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'conductCnt' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 4 },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'conductCnt',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 4 },
+                  }),
+                ),
+              ),
+              step('applyBuff', {
+                buffId: 'buff_common_pulse_pulse_conduct_triggered',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'count': { kind: 'blackboard', key: 'conductCnt' },
+                },
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([160, 176, 192, 208, 224, 240, 256, 272, 288, 308, 332, 360]),
+            tags: ['comboSkill'],
+            stagger: 10,
+          }),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('finishBuffsByTag', {
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            buffTagIds: [2123008650],
+            reason: 'early',
+          }),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          branch(
+            { kind: 'singleEnemyPresent' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp' },
+                recipient: 'caster',
+              }),
+              step('calculateActionValue', {
+                key: 'usp_extra',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'usp_extra' },
+                right: { kind: 'blackboard', key: 'inflictCnt' },
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp_extra' },
+                recipient: 'caster',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ],
+  },
+  {
+    'conductCnt': 0,
+    'inflictCnt': 0,
+    'atk_scale': [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
+    'poise': 10,
+    'usp': 10,
+    'usp_extra': 10,
+  },
+);
+
 export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',

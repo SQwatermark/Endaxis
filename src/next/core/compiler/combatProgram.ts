@@ -53,6 +53,7 @@ export interface ResolvedCombatStepParameters {
   };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
+  readBuffStackCount: CombatStepParameters['readBuffStackCount'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
