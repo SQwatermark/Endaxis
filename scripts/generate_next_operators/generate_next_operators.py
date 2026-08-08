@@ -3323,16 +3323,40 @@ def parse_damage_units(
                         f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation: "
                         f"unsupported calculation {poise_calculation_type}"
                     )
-                if poise_calculation.get("applyScale") is not False:
-                    raise ValueError(
-                        f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation: "
-                        "scaled definite values are not supported"
-                    )
                 poise_value = parse_scalar(
                     poise_calculation.get("value"),
                     f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation.value",
                     inherited_blackboard,
                 )
+                apply_scale = poise_calculation.get("applyScale")
+                if not isinstance(apply_scale, bool):
+                    raise ValueError(
+                        f"{source_name}.DamageAction.damageUnits[{index}].poiseCalculation."
+                        "applyScale: expected boolean"
+                    )
+                if apply_scale:
+                    value_scale = parse_scalar(
+                        poise_calculation.get("valueScale"),
+                        f"{source_name}.DamageAction.damageUnits[{index}]."
+                        "poiseCalculation.valueScale",
+                        inherited_blackboard,
+                    )
+                    if value_scale.blackboardKey is not None:
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}]."
+                            "poiseCalculation.valueScale: dynamic scale is not supported"
+                        )
+                    if poise_value.levelValues is None:
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}]."
+                            "poiseCalculation.value: scaled value must resolve at generation time"
+                        )
+                    scale = to_float32(value_scale.value)
+                    poise_value = ScalarSource(
+                        value=poise_value.value * scale,
+                        blackboardKey=None,
+                        levelValues=tuple(value * scale for value in poise_value.levelValues),
+                    )
             result.append(
                 DamageUnitSource(
                     damageType=str(unit.get("damageType", "")),

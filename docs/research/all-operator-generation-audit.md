@@ -10,9 +10,9 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：281 个。
-- 无角色专用声明即可进入通用 DSL：229 个。
-- 当前整名干员完整直转：2 名。
+- 进入严格中间层：282 个。
+- 无角色专用声明即可进入通用 DSL：230 个。
+- 当前整名干员完整直转：3 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -29,7 +29,7 @@
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      8 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      7 | 否       |
-| Gilberta       | `chr_0013_aglina`   |    9 |      8 |      8 | 否       |
+| Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      7 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
@@ -63,8 +63,8 @@
 | `root-action-coverage`     |     17 |
 | `condition-other`          |      5 |
 | `condition-distance`       |      4 |
-| `other`                    |      4 |
 | `conditional-leaf`         |      3 |
+| `other`                    |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
 | `condition-entity-count`   |      1 |
@@ -150,7 +150,7 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `IfElseAction`                |        150 |
 | `ObtainCostAction`            |        145 |
 | `CreateBuffAction`            |        115 |
-| `LaunchProjectile`            |         69 |
+| `LaunchProjectile`            |         70 |
 | `SpawnAbilityEntity`          |         27 |
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |

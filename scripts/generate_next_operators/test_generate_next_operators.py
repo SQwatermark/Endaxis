@@ -2,6 +2,7 @@
 
 import unittest
 import json
+import struct
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
@@ -6128,7 +6129,31 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         root["actionGroupData"]["action"]["damageUnits"][0]["poiseCalculation"][
             "applyScale"
         ] = True
-        with self.assertRaisesRegex(ValueError, "scaled definite values"):
+        root["actionGroupData"]["action"]["damageUnits"][0]["poiseCalculation"][
+            "valueScale"
+        ] = {
+            "useBlackboardKey": False,
+            "blackboardKey": "",
+            "value": 0.3333333,
+        }
+        scaled = parse_damage_units(
+            root,
+            "ultimate.json",
+            {"poise": (20.0, 30.0)},
+        )[0]
+
+        scale = struct.unpack("<f", struct.pack("<f", 0.3333333))[0]
+        self.assertIsNone(scaled.poiseValue.blackboardKey)
+        self.assertEqual(scaled.poiseValue.levelValues, (20.0 * scale, 30.0 * scale))
+
+        root["actionGroupData"]["action"]["damageUnits"][0]["poiseCalculation"][
+            "valueScale"
+        ] = {
+            "useBlackboardKey": True,
+            "blackboardKey": "scale",
+            "value": 1,
+        }
+        with self.assertRaisesRegex(ValueError, "dynamic scale is not supported"):
             parse_damage_units(root, "ultimate.json", {"poise": (20.0, 30.0)})
 
     def test_hp_definite_value_compiles_as_fixed_damage(self) -> None:
