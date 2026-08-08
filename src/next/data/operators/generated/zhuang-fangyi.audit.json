@@ -1981,7 +1981,9 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack1_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 8,
@@ -1991,7 +1993,9 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack1_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -2451,6 +2455,17 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -2460,6 +2475,17 @@
             {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
             }
           ]
         }
@@ -3404,6 +3430,17 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3414,6 +3451,17 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3424,6 +3472,17 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3433,6 +3492,17 @@
             {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
             }
           ]
         }
@@ -9294,7 +9364,9 @@
                           "event": "reach",
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true,
+                      "entityBlackboardAssignments": []
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -9332,7 +9404,9 @@
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -9818,7 +9892,9 @@
                           "event": "reach",
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true,
+                      "entityBlackboardAssignments": []
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -9856,7 +9932,9 @@
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -11004,7 +11082,9 @@
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -11044,7 +11124,9 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -11395,7 +11477,9 @@
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -11435,7 +11519,9 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -12086,7 +12172,9 @@
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -12126,7 +12214,9 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -12620,7 +12710,9 @@
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -12660,7 +12752,9 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -15443,7 +15537,9 @@
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_combo_skill_ring_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [

@@ -261,7 +261,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack1_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -770,7 +772,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack2_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 12,
@@ -780,7 +784,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack2_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -1472,7 +1478,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack3_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 19,
@@ -1482,7 +1490,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack3_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 22,
@@ -1492,7 +1502,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack3_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -2372,7 +2384,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_attack4_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -3662,7 +3676,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_plunging_attack_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 1,
@@ -3672,7 +3688,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_plunging_attack_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 1,
@@ -3682,7 +3700,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_plunging_attack_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 1,
@@ -3692,7 +3712,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_plunging_attack_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -4756,7 +4778,9 @@ export const perlicaGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0004_pelica_combo_skill_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -4910,7 +4934,9 @@ export const perlicaGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "talent2",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -4967,6 +4993,17 @@ export const perlicaGeneratedSource = {
                       {
                         "event": "hit",
                         "skillId": "chr_0004_pelica_combo_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_bounced",
+                        "valueType": "Numeric",
+                        "numericValue": 1.0,
+                        "stringValue": "",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
                       }
                     ]
                   },
@@ -5123,7 +5160,9 @@ export const perlicaGeneratedSource = {
                               "left": {
                                 "value": 0.0,
                                 "blackboardKey": "talent2",
-                                "levelValues": null
+                                "levelValues": [
+                                  0.0
+                                ]
                               },
                               "right": {
                                 "value": 1.0,
@@ -5180,6 +5219,17 @@ export const perlicaGeneratedSource = {
                                   {
                                     "event": "hit",
                                     "skillId": "chr_0004_pelica_combo_skill_projhit"
+                                  }
+                                ],
+                                "assignBlackboard": true,
+                                "entityBlackboardAssignments": [
+                                  {
+                                    "targetKey": "EntityBB_bounced",
+                                    "valueType": "Numeric",
+                                    "numericValue": 1.0,
+                                    "stringValue": "",
+                                    "useDirectValue": true,
+                                    "inputValueKey": ""
                                   }
                                 ]
                               }
@@ -5246,7 +5296,9 @@ export const perlicaGeneratedSource = {
                             "extra_scaling": {
                               "value": 0.0,
                               "blackboardKey": "extra_scaling",
-                              "levelValues": null
+                              "levelValues": [
+                                1.0
+                              ]
                             }
                           },
                           "nestedCombatActions": []
@@ -5366,7 +5418,9 @@ export const perlicaGeneratedSource = {
                 "extra_scaling": {
                   "value": 0.0,
                   "blackboardKey": "extra_scaling",
-                  "levelValues": null
+                  "levelValues": [
+                    1.0
+                  ]
                 }
               },
               "nestedCombatActions": []

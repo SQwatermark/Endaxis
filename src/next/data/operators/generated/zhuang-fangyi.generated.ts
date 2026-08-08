@@ -2033,7 +2033,9 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack1_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         },
         {
           "launchFrame": 8,
@@ -2043,7 +2045,9 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack1_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [
@@ -2682,6 +2686,17 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -2691,6 +2706,17 @@ export const zhuangFangyiGeneratedSource = {
             {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
             }
           ]
         }
@@ -3548,6 +3574,17 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3558,6 +3595,17 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3568,6 +3616,17 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
             }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
+            }
           ]
         },
         {
@@ -3577,6 +3636,17 @@ export const zhuangFangyiGeneratedSource = {
             {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_max_dist",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "sword_dist"
             }
           ]
         }
@@ -10650,7 +10720,9 @@ export const zhuangFangyiGeneratedSource = {
                           "event": "reach",
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true,
+                      "entityBlackboardAssignments": []
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -10688,7 +10760,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -11174,7 +11248,9 @@ export const zhuangFangyiGeneratedSource = {
                           "event": "reach",
                           "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                         }
-                      ]
+                      ],
+                      "assignBlackboard": true,
+                      "entityBlackboardAssignments": []
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -11212,7 +11288,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -12872,7 +12950,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -12912,7 +12992,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -13263,7 +13345,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -13303,7 +13387,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -13954,7 +14040,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -13994,7 +14082,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -14488,7 +14578,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "event": "reach",
                                 "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
                               }
-                            ]
+                            ],
+                            "assignBlackboard": true,
+                            "entityBlackboardAssignments": []
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -14528,7 +14620,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -17603,7 +17697,9 @@ export const zhuangFangyiGeneratedSource = {
               "event": "hit",
               "skillId": "chr_0030_zhuangfy_combo_skill_ring_projhit"
             }
-          ]
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
         }
       ],
       "projectileTriggeredSkills": [

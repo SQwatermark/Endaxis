@@ -192,6 +192,8 @@ class ProjectileLaunchSource:
     launchFrame: int
     projectileId: str
     skillTriggers: tuple[ProjectileSkillTriggerSource, ...]
+    assignBlackboard: bool
+    entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...]
 
 
 @dataclass(frozen=True)
@@ -486,6 +488,8 @@ class ResourceGainPayload:
 class ProjectileLaunchPayload:
     projectileId: str
     skillTriggers: tuple[ProjectileSkillTriggerSource, ...]
+    assignBlackboard: bool = False
+    entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1360,6 +1364,7 @@ def parse_projectile_launch_payload(
     projectile_id = action.get("projectileId")
     if not isinstance(projectile_id, str) or not projectile_id:
         raise ValueError(f"{path}.projectileId: expected non-empty string")
+    assign_blackboard = require_bool(action.get("assignBlackboard"), f"{path}.assignBlackboard")
     trigger_fields = (
         ("hit", "castSkillOnHit", "projectileSkillId"),
         ("block", "castSkillOnBlock", "skillIdOnBlock"),
@@ -1380,6 +1385,8 @@ def parse_projectile_launch_payload(
     return ProjectileLaunchPayload(
         projectileId=projectile_id,
         skillTriggers=tuple(triggers),
+        assignBlackboard=assign_blackboard,
+        entityBlackboardAssignments=parse_entity_blackboard_assignments(action, path),
     )
 
 
@@ -1486,6 +1493,60 @@ def is_projectile_trigger_excluded_for_single_enemy(
     return all(id(action) in guarded_combat_action_ids for action in combat_actions)
 
 
+def parse_entity_blackboard_assignments(
+    action: dict[str, Any],
+    path: str,
+) -> tuple[EntityBlackboardAssignmentSource, ...]:
+    """严格解析动作写入新实体黑板的显式赋值；未启用时必须为空。"""
+    assign_entity_blackboard = require_bool(
+        action.get("assignEntityBlackboard"),
+        f"{path}.assignEntityBlackboard",
+    )
+    raw_assignments = require_list(action.get("assignPairs"), f"{path}.assignPairs")
+    if not assign_entity_blackboard:
+        if raw_assignments:
+            raise ValueError(f"{path}.assignPairs: expected empty when assignment is disabled")
+        return ()
+    assignments: list[EntityBlackboardAssignmentSource] = []
+    for index, raw_assignment in enumerate(raw_assignments):
+        assignment = require_dict(raw_assignment, f"{path}.assignPairs[{index}]")
+        target_key = assignment.get("targetKey")
+        value_type = assignment.get("directValueType")
+        numeric_value = assignment.get("numericValue")
+        string_value = assignment.get("stringValue")
+        use_direct_value = assignment.get("useDirectValue")
+        input_value_key = assignment.get("inputValueKey")
+        if not isinstance(use_direct_value, bool):
+            raise ValueError(f"{path}.assignPairs[{index}].useDirectValue: expected boolean")
+        if not isinstance(input_value_key, str):
+            raise ValueError(f"{path}.assignPairs[{index}].inputValueKey: expected string")
+        if not use_direct_value and not input_value_key:
+            raise ValueError(
+                f"{path}.assignPairs[{index}]: indirect assignment requires an input key"
+            )
+        if not isinstance(target_key, str) or not target_key:
+            raise ValueError(f"{path}.assignPairs[{index}].targetKey: expected string")
+        if value_type not in {"String", "Numeric"}:
+            raise ValueError(
+                f"{path}.assignPairs[{index}].directValueType: unsupported {value_type!r}"
+            )
+        if not isinstance(numeric_value, (int, float)) or isinstance(numeric_value, bool):
+            raise ValueError(f"{path}.assignPairs[{index}].numericValue: expected number")
+        if not isinstance(string_value, str):
+            raise ValueError(f"{path}.assignPairs[{index}].stringValue: expected string")
+        assignments.append(
+            EntityBlackboardAssignmentSource(
+                targetKey=target_key,
+                valueType=value_type,
+                numericValue=float(numeric_value),
+                stringValue=string_value,
+                useDirectValue=use_direct_value,
+                inputValueKey=input_value_key,
+            )
+        )
+    return tuple(assignments)
+
+
 def parse_ability_entity_spawn_payload(
     action: dict[str, Any],
     path: str,
@@ -1496,53 +1557,11 @@ def parse_ability_entity_spawn_payload(
         raise ValueError(f"{path}.abilityEntityId: expected non-empty string")
     if not isinstance(skill_id, str):
         raise ValueError(f"{path}.abilityEntitySkillId: expected string")
-    assign_blackboard = action.get("assignBlackboard")
-    if not isinstance(assign_blackboard, bool):
-        raise ValueError(f"{path}.assignBlackboard: expected boolean")
-    assignments: list[EntityBlackboardAssignmentSource] = []
-    if action.get("assignEntityBlackboard") is True:
-        for index, raw_assignment in enumerate(
-            require_list(action.get("assignPairs"), f"{path}.assignPairs")
-        ):
-            assignment = require_dict(raw_assignment, f"{path}.assignPairs[{index}]")
-            target_key = assignment.get("targetKey")
-            value_type = assignment.get("directValueType")
-            numeric_value = assignment.get("numericValue")
-            string_value = assignment.get("stringValue")
-            use_direct_value = assignment.get("useDirectValue")
-            input_value_key = assignment.get("inputValueKey")
-            if not isinstance(use_direct_value, bool):
-                raise ValueError(f"{path}.assignPairs[{index}].useDirectValue: expected boolean")
-            if not isinstance(input_value_key, str):
-                raise ValueError(f"{path}.assignPairs[{index}].inputValueKey: expected string")
-            if not use_direct_value and not input_value_key:
-                raise ValueError(
-                    f"{path}.assignPairs[{index}]: indirect assignment requires an input key"
-                )
-            if not isinstance(target_key, str) or not target_key:
-                raise ValueError(f"{path}.assignPairs[{index}].targetKey: expected string")
-            if value_type not in {"String", "Numeric"}:
-                raise ValueError(
-                    f"{path}.assignPairs[{index}].directValueType: unsupported {value_type!r}"
-                )
-            if not isinstance(numeric_value, (int, float)) or isinstance(numeric_value, bool):
-                raise ValueError(f"{path}.assignPairs[{index}].numericValue: expected number")
-            if not isinstance(string_value, str):
-                raise ValueError(f"{path}.assignPairs[{index}].stringValue: expected string")
-            assignments.append(
-                EntityBlackboardAssignmentSource(
-                    targetKey=target_key,
-                    valueType=value_type,
-                    numericValue=float(numeric_value),
-                    stringValue=string_value,
-                    useDirectValue=use_direct_value,
-                    inputValueKey=input_value_key,
-                )
-            )
+    assign_blackboard = require_bool(action.get("assignBlackboard"), f"{path}.assignBlackboard")
     return AbilityEntitySpawnPayload(
         abilityEntityId=ability_id,
         skillId=skill_id or None,
-        entityBlackboardAssignments=tuple(assignments),
+        entityBlackboardAssignments=parse_entity_blackboard_assignments(action, path),
         assignBlackboard=assign_blackboard,
     )
 
@@ -3012,12 +3031,18 @@ def resolve_projectile_payload_triggers(
             json.loads(trigger_path.read_text(encoding="utf-8")),
             trigger_source_name,
         )
+        trigger_blackboard = {
+            item.key: (item.value,)
+            for item in parse_declared_blackboard(trigger_root, trigger_source_name)
+        }
+        if payload.assignBlackboard:
+            trigger_blackboard.update(inherited_blackboard)
         cycle_truncated = trigger.skillId in stack
         child_stack = (*stack, trigger.skillId)
         parsed_conditions = parse_conditional_actions(
             trigger_root,
             trigger_source_name,
-            inherited_blackboard,
+            trigger_blackboard,
         )
         trigger_conditions = (
             parsed_conditions
@@ -3029,7 +3054,7 @@ def resolve_projectile_payload_triggers(
                 source_dir,
                 launch_frame,
                 child_stack,
-                inherited_blackboard,
+                trigger_blackboard,
                 action_order,
             )
         )
@@ -3042,7 +3067,7 @@ def resolve_projectile_payload_triggers(
                 source_dir,
                 launch_frame,
                 child_stack,
-                inherited_blackboard=inherited_blackboard,
+                inherited_blackboard=trigger_blackboard,
                 parent_action_order=action_order,
             )
         )
@@ -3056,7 +3081,7 @@ def resolve_projectile_payload_triggers(
                     source_dir,
                     launch_frame,
                     child_stack,
-                    inherited_blackboard,
+                    trigger_blackboard,
                     parent_action_order=action_order,
                 ),
                 *resolve_guaranteed_conditional_ability_entity_hits(
@@ -3065,7 +3090,7 @@ def resolve_projectile_payload_triggers(
                     source_dir,
                     launch_frame,
                     child_stack,
-                    inherited_blackboard,
+                    trigger_blackboard,
                     action_order,
                 ),
             )
@@ -3089,24 +3114,24 @@ def resolve_projectile_payload_triggers(
                 damageUnits=parse_damage_units(
                     trigger_root,
                     trigger_source_name,
-                    inherited_blackboard,
+                    trigger_blackboard,
                 ),
                 directDamageHits=parse_direct_damage_hits(
                     trigger_root,
                     trigger_source_name,
-                    inherited_blackboard,
+                    trigger_blackboard,
                 ),
                 conditionalActions=trigger_conditions,
                 auxiliaryActions=parse_auxiliary_actions(
                     trigger_root,
                     trigger_source_name,
                     source_dir,
-                    inherited_blackboard,
+                    trigger_blackboard,
                 ),
                 resourceGains=parse_resource_gains(
                     trigger_root,
                     trigger_source_name,
-                    inherited_blackboard,
+                    trigger_blackboard,
                 ),
                 combatActions=tuple(
                     sorted(
@@ -3262,6 +3287,8 @@ def parse_projectile_launches(
                     launchFrame=launch_frame,
                     projectileId=payload.projectileId,
                     skillTriggers=payload.skillTriggers,
+                    assignBlackboard=payload.assignBlackboard,
+                    entityBlackboardAssignments=payload.entityBlackboardAssignments,
                 )
             )
     return tuple(result)

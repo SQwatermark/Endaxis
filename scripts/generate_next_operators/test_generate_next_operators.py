@@ -1234,6 +1234,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                             {
                                                 "$type": "Example.LaunchProjectile+Data, Example",
                                                 "projectileId": "projectile.test",
+                                                "assignBlackboard": True,
+                                                "assignEntityBlackboard": False,
+                                                "assignPairs": [],
                                                 "castSkillOnHit": True,
                                                 "projectileSkillId": "skill.projectile.hit",
                                             },
@@ -1242,6 +1245,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                 "abilityEntityId": "entity.test",
                                                 "abilityEntitySkillId": "skill.entity.hit",
                                                 "assignBlackboard": False,
+                                                "assignEntityBlackboard": False,
+                                                "assignPairs": [],
                                             },
                                         ]
                                     },
@@ -2352,6 +2357,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "$type": "Example.LaunchProjectile+Data, Example",
                             "isEnable": True,
                             "projectileId": "visual_or_native_projectile",
+                            "assignBlackboard": True,
+                            "assignEntityBlackboard": False,
+                            "assignPairs": [],
                             "castSkillOnHit": False,
                             "projectileSkillId": "",
                         },
@@ -2370,6 +2378,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         payload = parse_projectile_launch_payload(
             {
                 "projectileId": "projectile.test",
+                "assignBlackboard": True,
+                "assignEntityBlackboard": False,
+                "assignPairs": [],
                 "castSkillOnHit": False,
                 "projectileSkillId": "stale.hit.skill",
                 "castSkillOnBlock": True,
@@ -2476,6 +2487,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "abilityEntityId": "fake_target",
                             "abilityEntitySkillId": "",
                             "assignBlackboard": False,
+                            "assignEntityBlackboard": False,
+                            "assignPairs": [],
                         },
                     }
                 ]
@@ -2496,6 +2509,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "abilityEntityId": "ability_entity",
             "abilityEntitySkillId": "child_skill",
             "assignBlackboard": False,
+            "assignEntityBlackboard": False,
+            "assignPairs": [],
         }
         root = {
             "actionGroupData": {
@@ -2714,6 +2729,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "serverActionIndex": 7,
                             "isEnable": True,
                             "projectileId": "parent_projectile",
+                            "assignBlackboard": True,
+                            "assignEntityBlackboard": False,
+                            "assignPairs": [],
                             "castSkillOnHit": True,
                             "projectileSkillId": "child_hit",
                         },
@@ -2722,6 +2740,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
         child = {
+            "blackboard": [],
             "actionGroupData": {
                 "timelineActions": [
                     {
@@ -2732,6 +2751,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "serverActionIndex": 2,
                             "isEnable": True,
                             "projectileId": "nested_projectile",
+                            "assignBlackboard": True,
+                            "assignEntityBlackboard": False,
+                            "assignPairs": [],
                             "castSkillOnHit": True,
                             "projectileSkillId": "nested_hit",
                         },
@@ -2739,7 +2761,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ]
             }
         }
-        nested = {"actionGroupData": {"timelineActions": []}}
+        nested = {"blackboard": [], "actionGroupData": {"timelineActions": []}}
         with tempfile.TemporaryDirectory() as directory:
             source_dir = Path(directory)
             (source_dir / "child_hit.json").write_text(json.dumps(child), encoding="utf-8")

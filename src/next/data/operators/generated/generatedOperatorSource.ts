@@ -403,6 +403,8 @@ export interface GeneratedProjectileLaunchPayload {
   readonly projectileId: string;
   /** 仅保留原生布尔开关已启用的事件；关闭事件旁残留的 Skill ID 不具有触发语义。 */
   readonly skillTriggers: readonly GeneratedProjectileSkillTriggerSource[];
+  readonly assignBlackboard: boolean;
+  readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
 }
 
 export interface GeneratedAbilityEntitySpawnPayload {
