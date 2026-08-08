@@ -28,6 +28,10 @@ export class CatalogBuffOperationTarget<Key extends string>
     readonly definitions: CombatBuffDefinitionResolver<Key>,
   ) {}
 
+  get entityBlackboard() {
+    return this.container.entityBlackboard;
+  }
+
   apply(request: BuffApplicationRequest): boolean {
     const definition = this.definitions.get(request.buffId);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);

@@ -187,7 +187,7 @@ export class CombatBuff<Key extends string> {
     readonly instanceId: number,
     options?: CombatBuffAddOptions,
   ) {
-    this.blackboard = new ActionBlackboard(definition.blackboard);
+    this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
     this.blackboard.assign(options?.blackboardValues);
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     this.priority = resolveBuffPriority(definition, this.blackboard);
@@ -510,6 +510,8 @@ export class CombatBuffContainer<Key extends string> {
     readonly tagRegistry = new GameplayTagRegistry([]),
     /** 一次战斗唯一的共享 SP 修正注册表；仅使用相关 Buff 的容器需要提供。 */
     readonly sharedSpGainModifiers: SharedSpGainModifierSet | null = null,
+    /** 该实体的技能与 Buff 共同回退读写的持久运行时黑板。 */
+    readonly entityBlackboard = new ActionBlackboard(),
   ) {}
 
   get buffs(): readonly CombatBuff<Key>[] {

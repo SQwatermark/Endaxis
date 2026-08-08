@@ -22,7 +22,8 @@ export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
-  readonly buffRuntime?: FrameRuntime & BuffOperationTarget;
+  readonly buffRuntime?: FrameRuntime &
+    BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
   readonly actionRuntime?: FrameRuntime;
 }
 
@@ -70,7 +71,7 @@ export class CombatRuntimeAssembly {
       if (this.#abilitySystems.has(operator.operatorId)) {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
-      const entityBlackboard = new ActionBlackboard();
+      const entityBlackboard = operator.buffRuntime?.entityBlackboard ?? new ActionBlackboard();
       const skills = operator.skills.map(program =>
         this.#createSkillRuntime(
           operator,

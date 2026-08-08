@@ -20,6 +20,7 @@ import {
 } from './combatBuffs';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { SharedSpGainModifierSet } from '../resources/sharedSpGainModifiers';
+import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
@@ -1248,6 +1249,42 @@ describe('CombatBuffContainer', () => {
 
     expect(buff.blackboard.getNumber('count')).toBe(3);
     expect(buff.blackboard.getString('label')).toBe('default');
+  });
+
+  it('routes EntityBB writes from a buff to its owner entity blackboard', () => {
+    const entityBlackboard = new ActionBlackboard({ EntityBB_SwordNum: 0 });
+    const container = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet<Attribute>(),
+      undefined,
+      null,
+      entityBlackboard,
+    );
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'buff.entity-blackboard-writer',
+          stackingType: 'unique',
+          triggerIntervalSeconds: 0.03,
+          waitFirstTriggerInterval: false,
+          maxTriggerCount: -1,
+          blackboard: { swordsNum: 2 },
+          actions: {
+            trigger: current => {
+              current.blackboard.assignDynamic(
+                'EntityBB_SwordNum',
+                current.blackboard.getNumber('swordsNum')!,
+              );
+            },
+          },
+        },
+        'operator',
+      ),
+    );
+
+    expect(buff.blackboard.snapshot()).toEqual({ swordsNum: 2 });
+    expect(buff.blackboard.getNumber('EntityBB_SwordNum')).toBe(2);
+    expect(entityBlackboard.getNumber('EntityBB_SwordNum')).toBe(2);
   });
 
   it('resolves dynamic duration after add options and refreshes from the incoming values', () => {

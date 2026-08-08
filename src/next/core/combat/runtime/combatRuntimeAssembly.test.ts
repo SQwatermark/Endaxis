@@ -22,6 +22,7 @@ const rejectingExecutor: CombatOperationExecutor = {
 
 function asBuffRuntime(container: CombatBuffContainer<string>) {
   return {
+    entityBlackboard: container.entityBlackboard,
     advanceFrame: () => undefined,
     getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),
     finishByIds: (ids: readonly string[], reason: 'early' | 'absorbed' | 'other') =>
@@ -372,6 +373,78 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.tryStartSkill('operator', 'writer')).toBe(true);
     assembly.advanceFrame();
     expect(assembly.tryStartSkill('operator', 'reader')).toBe(true);
+    expect(reachedBranch).toBe(true);
+  });
+
+  it('uses the same entity blackboard for an operator buff runtime and its skills', () => {
+    const casterBuffs = new CombatBuffContainer('operator', new CombatAttributeSet());
+    casterBuffs.entityBlackboard.assignDynamic('EntityBB_SwordNum', 4);
+    let reachedBranch = false;
+    const reader = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 4 },
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'reached', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      enemyBuffs: emptyEnemyBuffs,
+      operators: [
+        { operatorId: 'operator', skills: [reader], buffRuntime: asBuffRuntime(casterBuffs) },
+      ],
+      createOperationExecutor: () => ({
+        execute: step => {
+          reachedBranch ||= step.kind === 'setContextFlag';
+          return true;
+        },
+        evaluate: () => false,
+      }),
+    });
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(reachedBranch).toBe(true);
   });
 
