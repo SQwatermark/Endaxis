@@ -1,11 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { zhuangFangyiBasicAttack5 as generatedBasicAttack5 } from './generated/zhuang-fangyi.skills.audit.generated';
+import {
+  zhuangFangyiBasicAttack4 as generatedBasicAttack4,
+  zhuangFangyiBasicAttack5 as generatedBasicAttack5,
+} from './generated/zhuang-fangyi.skills.audit.generated';
 import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils';
 import { zhuangFangyi } from './zhuang-fangyi';
 
 const getSkill = (key: string) => findSkill(zhuangFangyi, key);
 
 describe('next Zhuang Fangyi definition', () => {
+  it('keeps all four fourth-attack hits and restores their interval timing', () => {
+    const current = getSkill(generatedBasicAttack4.key);
+    expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);
+    expect(generatedBasicAttack4.scheduledSequences.map(item => item.startFrame)).toEqual([
+      11, 20, 23, 26,
+    ]);
+    expect(current.scheduledSequences.map(item => item.startFrame)).toEqual([11, 11, 11, 11]);
+    const generatedDamage = generatedBasicAttack4.scheduledSequences.map(item =>
+      collectSteps(item.sequence).find(step => step.kind === 'dealDamage'),
+    );
+    expect(generatedDamage).toEqual(generatedDamage.map(() => generatedDamage[0]));
+    expect(generatedDamage[0]).toEqual(
+      collectSteps(current.scheduledSequences[0]!.sequence).find(
+        step => step.kind === 'dealDamage',
+      ),
+    );
+  });
+
   it('keeps the generated fifth normal attack equivalent to the current definition', () => {
     const current = getSkill(generatedBasicAttack5.key);
     expect(generatedBasicAttack5.timelineBlockFrames).toBe(current.timelineBlockFrames);

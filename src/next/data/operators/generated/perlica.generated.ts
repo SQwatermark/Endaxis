@@ -5755,6 +5755,7 @@ export const perlicaGeneratedSource = {
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
           "directDamageHits": [],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],

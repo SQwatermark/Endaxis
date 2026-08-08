@@ -132,6 +132,17 @@ export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaun
   readonly launchFrame: number;
 }
 
+/** 固定周期动作中每次必然执行的同构伤害。 */
+export interface GeneratedTimedIntervalDamageSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly intervalFrames: number;
+  readonly tickFrames: readonly number[];
+  readonly damageActionIndex: number;
+  readonly damageUnits: readonly GeneratedDamageUnitSource[];
+}
+
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
 export interface GeneratedAbilityEntityHitSource {
   readonly spawnFrame: number;
@@ -143,6 +154,7 @@ export interface GeneratedAbilityEntityHitSource {
   /** 父动作在生成实体时写入的实例黑板，用于解析子技能中的动态标记等身份。 */
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly intervalDamageHits: readonly GeneratedTimedIntervalDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];

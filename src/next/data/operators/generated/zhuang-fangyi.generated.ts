@@ -2523,6 +2523,47 @@ export const zhuangFangyiGeneratedSource = {
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 8,
+              "intervalFrames": 3,
+              "tickFrames": [
+                9,
+                12,
+                15
+              ],
+              "damageActionIndex": 14,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -3795,6 +3836,47 @@ export const zhuangFangyiGeneratedSource = {
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 8,
+              "intervalFrames": 3,
+              "tickFrames": [
+                9,
+                12,
+                15
+              ],
+              "damageActionIndex": 14,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -4413,6 +4495,7 @@ export const zhuangFangyiGeneratedSource = {
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5713,6 +5796,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5783,6 +5867,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5853,6 +5938,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5923,6 +6009,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -7113,6 +7200,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -7183,6 +7271,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -7253,6 +7342,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -7323,6 +7413,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -7895,6 +7986,7 @@ export const zhuangFangyiGeneratedSource = {
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -12007,6 +12099,7 @@ export const zhuangFangyiGeneratedSource = {
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [
             {
               "startFrame": 12,

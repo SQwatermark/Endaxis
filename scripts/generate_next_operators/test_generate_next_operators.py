@@ -40,6 +40,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_direct_damage_hits,
+    parse_interval_damage_hits,
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
@@ -2643,6 +2644,65 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual((hits[0].startFrame, hits[0].endFrame, hits[0].actionIndex), (13, 15, 1))
         self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (1.0, 2.0))
+
+    def test_interval_damage_projects_immediate_and_fixed_interval_ticks(self) -> None:
+        def damage(action_index: int) -> dict[str, object]:
+            return {
+                "$type": "Example.DamageAction+Data, Example",
+                "serverActionIndex": action_index,
+                "damageUnits": [
+                    {
+                        "damageType": "Pulse",
+                        "damageAttributeType": "Hp",
+                        "simpleCalculation": True,
+                        "atkScale": {
+                            "useBlackboardKey": True,
+                            "blackboardKey": "atk",
+                            "value": 0,
+                        },
+                    }
+                ],
+            }
+
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 9,
+                        "_endFrame": 16,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.TickIntervalAction+Data, Example",
+                                    "serverActionIndex": 8,
+                                    "executeEachFrame": False,
+                                    "tickInterval": 0.1,
+                                    "tickIntervalBlackboardKey": "",
+                                    "useTickIntervalBlackboardKey": False,
+                                    "actionOnTick": {
+                                        "actionData": [
+                                            {"$type": "Example.PickTargetAction+Data, Example"},
+                                            {
+                                                "$type": "Example.IfElseAction+Data, Example",
+                                                "succeedActions": {"actionData": [damage(14)]},
+                                                "failActions": {"actionData": [damage(23)]},
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        hits = parse_interval_damage_hits(root, "skill.json", {"atk": (0.11, 0.25)})
+
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0].tickFrames, (9, 12, 15))
+        self.assertEqual(hits[0].intervalFrames, 3)
+        self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (0.11, 0.25))
 
     def test_direct_damage_does_not_project_conditional_branch_hits(self) -> None:
         damage = {

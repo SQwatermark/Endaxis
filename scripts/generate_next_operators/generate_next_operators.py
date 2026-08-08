@@ -187,6 +187,19 @@ class ProjectileLaunchSource:
 
 
 @dataclass(frozen=True)
+class TimedIntervalDamageSource:
+    """固定周期动作中每次必然执行的同构伤害。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    intervalFrames: int
+    tickFrames: tuple[int, ...]
+    damageActionIndex: int
+    damageUnits: tuple[DamageUnitSource, ...]
+
+
+@dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
     actionOrder: tuple[int, ...]
@@ -195,6 +208,7 @@ class AbilityEntityHitSource:
     sourceFile: str
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    intervalDamageHits: tuple[TimedIntervalDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
@@ -1966,6 +1980,119 @@ def parse_direct_damage_hits(
     return tuple(result)
 
 
+def parse_interval_damage_hits(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedIntervalDamageSource, ...]:
+    """解析固定间隔内每次都由等价分支执行的伤害。"""
+
+    def enabled_actions(sequence: Any, path: str) -> list[dict[str, Any]]:
+        data = require_dict(sequence, path)
+        result: list[dict[str, Any]] = []
+        for index, raw_action in enumerate(
+            require_list(data.get("actionData"), f"{path}.actionData")
+        ):
+            action = require_dict(raw_action, f"{path}.actionData[{index}]")
+            if action.get("isEnable") is not False:
+                result.append(action)
+        return result
+
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedIntervalDamageSource] = []
+    timelines = require_list(
+        group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
+    )
+    for timeline_index, raw_timeline in enumerate(timelines):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+            if (
+                action_name(action["$type"]) != "TickIntervalAction"
+                or action.get("isEnable") is False
+            ):
+                continue
+            action_path = f"{timeline_path}.TickIntervalAction"
+            if (
+                action.get("executeEachFrame") is not False
+                or action.get("useTickIntervalBlackboardKey") is not False
+                or action.get("tickIntervalBlackboardKey") != ""
+            ):
+                raise ValueError(f"{action_path}: only a fixed literal interval is supported")
+            interval_seconds = action.get("tickInterval")
+            if (
+                not isinstance(interval_seconds, (int, float))
+                or isinstance(interval_seconds, bool)
+                or interval_seconds <= 0
+            ):
+                raise ValueError(f"{action_path}.tickInterval: expected positive number")
+            interval_frames_float = float(interval_seconds) * 30
+            interval_frames = round(interval_frames_float)
+            if interval_frames <= 0 or abs(interval_frames_float - interval_frames) > 1e-6:
+                raise ValueError(f"{action_path}.tickInterval: does not align to combat frames")
+
+            tick_actions = enabled_actions(
+                action.get("actionOnTick"), f"{action_path}.actionOnTick"
+            )
+            branches = [
+                item for item in tick_actions if action_name(item["$type"]) == "IfElseAction"
+            ]
+            if len(branches) != 1:
+                if any(action_name(item["$type"]) == "DamageAction" for item in tick_actions):
+                    raise ValueError(f"{action_path}: unsupported direct tick damage shape")
+                continue
+            branch = branches[0]
+            branch_damage_actions: list[list[dict[str, Any]]] = []
+            for branch_name in ("succeedActions", "failActions"):
+                actions = enabled_actions(branch.get(branch_name), f"{action_path}.{branch_name}")
+                branch_damage_actions.append(
+                    [item for item in actions if action_name(item["$type"]) == "DamageAction"]
+                )
+            if not branch_damage_actions[0] and not branch_damage_actions[1]:
+                continue
+            if any(len(actions) != 1 for actions in branch_damage_actions):
+                raise ValueError(f"{action_path}: tick branches have asymmetric direct damage")
+
+            branch_damage: list[tuple[int, tuple[DamageUnitSource, ...]]] = []
+            for branch_name, damage_actions in zip(
+                ("succeedActions", "failActions"), branch_damage_actions, strict=True
+            ):
+                damage = damage_actions[0]
+                damage_root = {"actionGroupData": {"action": damage}}
+                branch_damage.append(
+                    (
+                        require_server_action_index(
+                            damage, f"{action_path}.{branch_name}.DamageAction"
+                        ),
+                        parse_damage_units(damage_root, action_path, inherited_blackboard),
+                    )
+                )
+            if branch_damage[0][1] != branch_damage[1][1]:
+                raise ValueError(f"{action_path}: tick branches do not deal equivalent damage")
+            # 周期动作在激活帧先执行一次，之后每隔 intervalFrames 重复；结束帧不执行。
+            tick_frames = tuple(range(start_frame, end_frame, interval_frames))
+            if not tick_frames:
+                raise ValueError(f"{action_path}: interval produces no ticks")
+            result.append(
+                TimedIntervalDamageSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(action, action_path),
+                    intervalFrames=interval_frames,
+                    tickFrames=tick_frames,
+                    damageActionIndex=min(item[0] for item in branch_damage),
+                    damageUnits=branch_damage[0][1],
+                )
+            )
+    return tuple(result)
+
+
 def classify_buff(buff_id: str) -> str | None:
     if buff_id.startswith("buff_common_damage_immune_"):
         return "incomingDamageProtection"
@@ -2850,6 +2977,7 @@ def resolve_ability_entity_payload(
         sourceFile=child_name,
         entityBlackboardAssignments=payload.entityBlackboardAssignments,
         directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
+        intervalDamageHits=parse_interval_damage_hits(child, child_name, blackboard),
         conditionalActions=child_conditions,
         inflictions=parse_inflictions(child, child_name),
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
@@ -3052,6 +3180,22 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                     ),
                     marker_id,
                     marker_duration_frames,
+                )
+        for repeated in getattr(hit, "intervalDamageHits", ()):
+            for tick_index, tick_frame in enumerate(repeated.tickFrames):
+                append(
+                    ResolvedDamageHitSource(
+                        hit.spawnFrame + tick_frame,
+                        (
+                            *hit.actionOrder,
+                            repeated.actionIndex,
+                            tick_index,
+                            repeated.damageActionIndex,
+                        ),
+                        "abilityEntityInterval",
+                        current_path,
+                        repeated.damageUnits,
+                    )
                 )
         for projectile in hit.projectileHits:
             collect_projectile(projectile, current_path)

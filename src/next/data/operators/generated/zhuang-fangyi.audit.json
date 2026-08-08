@@ -2276,6 +2276,47 @@
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 8,
+              "intervalFrames": 3,
+              "tickFrames": [
+                9,
+                12,
+                15
+              ],
+              "damageActionIndex": 14,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -2511,6 +2552,132 @@
               "poiseValue": null
             }
           ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            0,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 27,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            1,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 30,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            2,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.04,
+                  0.04,
+                  0.04,
+                  0.05,
+                  0.05,
+                  0.05,
+                  0.06,
+                  0.06,
+                  0.06,
+                  0.07,
+                  0.07,
+                  0.08
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
         }
       ],
       "resolvedSchedule": [
@@ -2570,6 +2737,51 @@
             13,
             0,
             2
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            0,
+            14
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 27,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            1,
+            14
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 30,
+          "actionOrder": [
+            13,
+            0,
+            8,
+            2,
+            14
           ],
           "itemType": "damage",
           "sourcePath": [
@@ -3422,6 +3634,47 @@
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 8,
+              "intervalFrames": 3,
+              "tickFrames": [
+                9,
+                12,
+                15
+              ],
+              "damageActionIndex": 14,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -3579,6 +3832,132 @@
               "poiseValue": null
             }
           ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            0,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 23,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            1,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
+        },
+        {
+          "frame": 26,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            2,
+            14
+          ],
+          "sourceKind": "abilityEntityInterval",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.11,
+                  0.12,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.17,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.22,
+                  0.23,
+                  0.25
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null
+            }
+          ]
         }
       ],
       "resolvedSchedule": [
@@ -3601,6 +3980,51 @@
             6,
             0,
             2
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            0,
+            14
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 23,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            1,
+            14
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4",
+            "chr_0030_zhuangfy_attack2_abilityrange"
+          ]
+        },
+        {
+          "frame": 26,
+          "actionOrder": [
+            6,
+            0,
+            8,
+            2,
+            14
           ],
           "itemType": "damage",
           "sourcePath": [
@@ -3864,6 +4288,7 @@
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -4965,6 +5390,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5035,6 +5461,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5105,6 +5532,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -5175,6 +5603,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -6183,6 +6612,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -6253,6 +6683,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -6323,6 +6754,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -6393,6 +6825,7 @@
               }
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -6824,6 +7257,7 @@
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -9747,6 +10181,7 @@
               "timedMarkerGate": null
             }
           ],
+          "intervalDamageHits": [],
           "conditionalActions": [
             {
               "startFrame": 12,

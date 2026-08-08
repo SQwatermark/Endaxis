@@ -117,6 +117,59 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack4',
+    timelineBlockFrames: 17,
+    scheduledSequences: [
+      scheduled(
+        11,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        20,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        23,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+      scheduled(
+        26,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'atk_scale': [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25],
+    'display_atk_scale': [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
+  },
+);
+
 export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
