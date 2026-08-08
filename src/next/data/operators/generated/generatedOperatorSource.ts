@@ -498,6 +498,29 @@ export interface GeneratedDeclaredBlackboardValueSource {
   readonly isDynamic: boolean;
 }
 
+export interface GeneratedTargetGroupInputSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly finderType: string | null;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+}
+
+/** 命名目标组的一次原生写入；它只保留来源证据，不代表已归约为单敌人语义。 */
+export interface GeneratedTargetGroupWriteSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly actionPath: readonly string[];
+  readonly targetGroupKey: string;
+  readonly producerType: 'FindTargetAction' | 'ContinuousFindTargetAction' | 'MergeTargetAction';
+  readonly finderType: string | null;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+  readonly inputTargets: readonly GeneratedTargetGroupInputSource[];
+  readonly intervalSeconds: number | null;
+}
+
 export interface GeneratedBuffEventActionSource {
   /** 事件由 Buff 生命周期还是 Buff 宿主实体发出。 */
   readonly eventSource: 'buff' | 'ability';
@@ -561,6 +584,8 @@ export interface GeneratedSkillSource {
   /** 需要由 SkillPatch、Buff 或运行时上下文赋值后才能闭环的原生黑板键。 */
   readonly blackboardKeys: readonly string[];
   readonly blackboardProvenance: readonly GeneratedBlackboardKeyProvenanceSource[];
+  /** 条件读取命名目标组前，用于证明该组由哪个动作和分支产生。 */
+  readonly targetGroupWrites: readonly GeneratedTargetGroupWriteSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

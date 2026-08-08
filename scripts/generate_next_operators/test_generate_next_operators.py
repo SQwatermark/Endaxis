@@ -51,6 +51,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_timeline,
+    parse_target_group_writes,
     parse_direct_damage_hits,
     parse_interval_damage_hits,
     parse_damage_units,
@@ -93,6 +94,135 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
+        find_action = {
+            "$type": "Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 4,
+            "targetGroupKey": "tar",
+            "center": "ActionSource",
+            "centerContextKey": "",
+            "useCenterEntityMountPoint": False,
+            "centerMountPoint": "None",
+            "centerToGround": False,
+            "selectorOwner": "ActionOwner",
+            "selectorOwnerContextKey": "",
+            "selectorData": {
+                "finderData": {
+                    "$type": "Beyond.Gameplay.Core.Selector+HitBoxFinder+Data, Gameplay.Beyond"
+                },
+                "validatorData": [
+                    {
+                        "$type": "Beyond.Gameplay.Core.Selector+TagValidator+Data, Gameplay.Beyond"
+                    }
+                ],
+                "postProcessorData": [],
+            },
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+            "contextKey": "",
+            "useAdvancedDirectionSetting": False,
+            "advancedSelectorDirection": {},
+        }
+        merge_action = {
+            "$type": "Beyond.Gameplay.Core.MergeTargetAction+Data, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 7,
+            "targetGroupKey": "total_tar",
+            "targets": [
+                {
+                    "targetSource": "Context",
+                    "targetGroupKey": "tar",
+                    "selectorOwner": "ActionOwner",
+                    "ownerContextKey": "",
+                    "centerType": "ActionSource",
+                    "centerContextKey": "",
+                    "centerToGround": False,
+                    "selectorData": {"validatorData": [], "postProcessorData": []},
+                    "enableAdvancedDirection": False,
+                    "advancedDirection": {},
+                    "selectorDirection": "SourceForward",
+                    "target": "ActionSource",
+                    "targetContextKey": "",
+                }
+            ],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 8,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 1,
+                                    "succeedActions": {"actionData": [find_action, merge_action]},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        writes = parse_target_group_writes(root, "fixture.json")
+
+        self.assertEqual([write.targetGroupKey for write in writes], ["tar", "total_tar"])
+        self.assertEqual(writes[0].finderType, "HitBoxFinder")
+        self.assertEqual(writes[0].validatorTypes, ("TagValidator",))
+        self.assertIn("succeedActions", writes[0].actionPath)
+        self.assertEqual(writes[1].inputTargets[0].targetGroupKey, "tar")
+
+    def test_target_group_writes_reject_unknown_selector_type(self) -> None:
+        action = {
+            "$type": "Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 1,
+            "targetGroupKey": "tar",
+            "center": "ActionSource",
+            "centerContextKey": "",
+            "useCenterEntityMountPoint": False,
+            "centerMountPoint": "None",
+            "centerToGround": False,
+            "selectorOwner": "ActionOwner",
+            "selectorOwnerContextKey": "",
+            "selectorData": {
+                "finderData": {
+                    "$type": "Beyond.Gameplay.Core.Selector+UnknownFinder+Data, Gameplay.Beyond"
+                },
+                "validatorData": [],
+                "postProcessorData": [],
+            },
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+            "contextKey": "",
+            "useAdvancedDirectionSetting": False,
+            "advancedSelectorDirection": {},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 0,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "unsupported finder 'UnknownFinder'"):
+            parse_target_group_writes(root, "fixture.json")
+
     def test_projectile_child_conditions_and_resource_gains_use_hit_frame(self) -> None:
         condition = SimpleNamespace(
             startFrame=2,

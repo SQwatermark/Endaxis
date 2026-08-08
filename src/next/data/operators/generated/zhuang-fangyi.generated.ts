@@ -2382,7 +2382,8 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "basicAttack2",
@@ -3294,7 +3295,135 @@ export const zhuangFangyiGeneratedSource = {
         "LaunchProjectile",
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 2,
+          "endFrame": 3,
+          "actionIndex": 7,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "SwordCenter",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 3,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "SwordCenter",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 18,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 19,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "basicAttack3",
@@ -4137,7 +4266,51 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 7,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "SwordCenter",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "SwordCenter",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "basicAttack4",
@@ -4712,7 +4885,93 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 8,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "basicAttack5",
@@ -5487,7 +5746,207 @@ export const zhuangFangyiGeneratedSource = {
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 13,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 18,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 19,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 21,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 23,
+          "actionIndex": 22,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "abiPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "enhancedBasicAttack1",
@@ -7010,6 +7469,46 @@ export const zhuangFangyiGeneratedSource = {
           "tagQueryType": "hasAny",
           "buffTagIds": []
         }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 12,
+          "endFrame": 16,
+          "actionIndex": 53,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar_pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 16,
+          "actionIndex": 54,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "tar_inter",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [
+            "HittableObjectValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
       ]
     },
     {
@@ -8519,6 +9018,46 @@ export const zhuangFangyiGeneratedSource = {
           "tagQueryType": "hasAny",
           "buffTagIds": []
         }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 10,
+          "endFrame": 14,
+          "actionIndex": 52,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar_pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 14,
+          "actionIndex": 53,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "tar_inter",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [
+            "HittableObjectValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
       ]
     },
     {
@@ -9213,7 +9752,8 @@ export const zhuangFangyiGeneratedSource = {
           "tagQueryType": "hasAny",
           "buffTagIds": []
         }
-      ]
+      ],
+      "targetGroupWrites": []
     },
     {
       "key": "finisher",
@@ -9665,7 +10205,8 @@ export const zhuangFangyiGeneratedSource = {
         "CreateBuffAction",
         "DamageAction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "plungingAttack",
@@ -9996,7 +10537,50 @@ export const zhuangFangyiGeneratedSource = {
         "DamageAction",
         "ObtainCostAction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 1,
+          "endFrame": 5,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 5,
+          "actionIndex": 24,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "airSword",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "validatorTypes": [
+            "TagValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "battleSkill",
@@ -12552,7 +13136,103 @@ export const zhuangFangyiGeneratedSource = {
         "ObtainCostAction",
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainChar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 35,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "swordsForExtend",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "validatorTypes": [
+            "TagValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 58,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[7]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "actionIndex": 68,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[2]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "enhancedBattleSkill",
@@ -16154,6 +16834,180 @@ export const zhuangFangyiGeneratedSource = {
           "tagQueryType": "hasAny",
           "buffTagIds": []
         }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 10,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainChar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 26,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "swordsForExtend",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "validatorTypes": [
+            "TagValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 37,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 41,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 58,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[7]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "actionIndex": 68,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[2]"
+          ],
+          "targetGroupKey": "swordPos",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 18,
+          "actionIndex": 80,
+          "actionPath": [
+            "timelineActions[11]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderPos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
       ]
     },
     {
@@ -17126,7 +17980,50 @@ export const zhuangFangyiGeneratedSource = {
         "IfElseAction",
         "ObtainCostAction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "actionIndex": 1,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainTar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 21,
+          "actionIndex": 13,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "enhancedComboSkill",
@@ -17978,6 +18875,49 @@ export const zhuangFangyiGeneratedSource = {
           "tagQueryType": "hasAny",
           "buffTagIds": []
         }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "actionIndex": 2,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainTar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 21,
+          "actionIndex": 14,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
       ]
     },
     {
@@ -18660,7 +19600,45 @@ export const zhuangFangyiGeneratedSource = {
         "IfElseAction",
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abPosMirror",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 78,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "abPosMirror",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     }
   ]
 } as const satisfies GeneratedOperatorSource;

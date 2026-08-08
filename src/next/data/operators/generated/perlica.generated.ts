@@ -562,7 +562,8 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "basicAttack2",
@@ -1246,7 +1247,8 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "basicAttack3",
@@ -2174,7 +2176,8 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "basicAttack4",
@@ -2795,7 +2798,8 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "finisher",
@@ -3348,7 +3352,8 @@ export const perlicaGeneratedSource = {
         "CreateBuffAction",
         "DamageAction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": []
     },
     {
       "key": "plungingAttack",
@@ -3962,7 +3967,99 @@ export const perlicaGeneratedSource = {
         "LaunchProjectile",
         "ObtainCostAction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 3,
+          "endFrame": 7,
+          "actionIndex": 2,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 1,
+          "actionIndex": 10,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "pos1",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 1,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "pos2",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 1,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "targetGroupKey": "pos3",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 1,
+          "actionIndex": 13,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[3]"
+          ],
+          "targetGroupKey": "pos4",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "battleSkill",
@@ -4565,7 +4662,65 @@ export const perlicaGeneratedSource = {
         "DamageAction",
         "SpellInfliction"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 2,
+          "actionIndex": 1,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 2,
+          "actionIndex": 2,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "comboSkill",
@@ -5831,7 +5986,55 @@ export const perlicaGeneratedSource = {
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 11,
+          "actionIndex": 4,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "main_char",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 23,
+          "actionIndex": 18,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     },
     {
       "key": "ultimate",
@@ -6467,7 +6670,65 @@ export const perlicaGeneratedSource = {
         "DamageAction",
         "SpawnAbilityEntity"
       ],
-      "buffHolds": []
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 1,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 2,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 58,
+          "endFrame": 63,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "targets",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ]
     }
   ]
 } as const satisfies GeneratedOperatorSource;

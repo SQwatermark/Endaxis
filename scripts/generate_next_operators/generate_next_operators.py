@@ -611,6 +611,34 @@ class DeclaredBlackboardValueSource:
 
 
 @dataclass(frozen=True)
+class TargetGroupInputSource:
+    """MergeTargetAction 的一个输入；即时查找输入同时记录选择器组成。"""
+
+    targetSource: str
+    targetGroupKey: str
+    finderType: str | None
+    validatorTypes: tuple[str, ...]
+    postProcessorTypes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TargetGroupWriteSource:
+    """技能动作树对命名目标组的一次写入，用于后续按控制流证明目标来源。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    actionPath: tuple[str, ...]
+    targetGroupKey: str
+    producerType: str
+    finderType: str | None
+    validatorTypes: tuple[str, ...]
+    postProcessorTypes: tuple[str, ...]
+    inputTargets: tuple[TargetGroupInputSource, ...]
+    intervalSeconds: float | None
+
+
+@dataclass(frozen=True)
 class SkillSource:
     key: str
     skillId: str
@@ -645,6 +673,7 @@ class SkillSource:
     blackboardProvenance: tuple[BlackboardKeyProvenanceSource, ...]
     unresolvedCombatActions: tuple[str, ...]
     buffHolds: tuple[BuffHoldSource, ...] = ()
+    targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
 
 
 OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
@@ -804,6 +833,138 @@ def require_server_action_index(action: dict[str, Any], path: str) -> int:
 def action_name(type_name: str) -> str:
     qualified = type_name.split(",", 1)[0]
     return qualified.rsplit(".", 1)[-1].split("+", 1)[0]
+
+
+TARGET_GROUP_FIND_ACTION_FIELDS = {
+    "$type",
+    "advancedSelectorDirection",
+    "center",
+    "centerContextKey",
+    "centerMountPoint",
+    "centerToGround",
+    "contextKey",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "selectorData",
+    "selectorDirection",
+    "selectorOwner",
+    "selectorOwnerContextKey",
+    "serverActionIndex",
+    "target",
+    "targetGroupKey",
+    "useAdvancedDirectionSetting",
+    "useCenterEntityMountPoint",
+}
+TARGET_GROUP_MERGE_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "targetGroupKey",
+    "targets",
+}
+TARGET_GROUP_MERGE_INPUT_FIELDS = {
+    "advancedDirection",
+    "centerContextKey",
+    "centerToGround",
+    "centerType",
+    "enableAdvancedDirection",
+    "ownerContextKey",
+    "selectorData",
+    "selectorDirection",
+    "selectorOwner",
+    "target",
+    "targetContextKey",
+    "targetGroupKey",
+    "targetSource",
+}
+KNOWN_TARGET_FINDER_TYPES = {
+    "CharacterTeamFinder",
+    "FixedPointFinder",
+    "HitBoxFinder",
+    "InFightEnemyFinder",
+    "MainTargetFinder",
+    "OwnerSpawnedEntityFinder",
+    "PointFinder",
+    "RandomPointFinder",
+    "SmartTargetFinder",
+    "SnapPointFinder",
+    "SourceFinder",
+}
+KNOWN_TARGET_VALIDATOR_TYPES = {
+    "DistanceValidator",
+    "HittableObjectValidator",
+    "MainCharacterValidator",
+    "SkillCastIdValidator",
+    "TagValidator",
+    "TargetContainsValidator",
+}
+KNOWN_TARGET_POST_PROCESSOR_TYPES = {
+    "ConvertToSlot",
+    "ExcludeTarget",
+    "PriorityFilter",
+    "ShuffleTarget",
+}
+
+
+def selector_component_name(value: Any, path: str) -> str:
+    """读取 Selector 嵌套类型名；该格式与普通 Action 的类型名层级不同。"""
+    item = require_dict(value, path)
+    type_name = item.get("$type")
+    if not isinstance(type_name, str):
+        raise ValueError(f"{path}.$type: expected string")
+    parts = type_name.split(",", 1)[0].split("+")
+    if len(parts) < 3 or parts[-1] != "Data" or not parts[-2]:
+        raise ValueError(f"{path}.$type: unsupported selector type {type_name!r}")
+    return parts[-2]
+
+
+def parse_selector_summary(
+    value: Any,
+    path: str,
+    *,
+    finder_required: bool,
+) -> tuple[str | None, tuple[str, ...], tuple[str, ...]]:
+    """保留决定目标组语义的选择器类型，不复制碰撞体等大体积参数。"""
+    selector = require_dict(value, path)
+    expected_fields = {"validatorData", "postProcessorData"}
+    if finder_required or "finderData" in selector:
+        expected_fields.add("finderData")
+    if set(selector) != expected_fields:
+        raise ValueError(f"{path}: unexpected fields {sorted(selector)}")
+
+    finder_type: str | None = None
+    if "finderData" in selector:
+        finder_type = selector_component_name(selector.get("finderData"), f"{path}.finderData")
+        if finder_type not in KNOWN_TARGET_FINDER_TYPES:
+            raise ValueError(f"{path}.finderData: unsupported finder {finder_type!r}")
+    elif finder_required:
+        raise ValueError(f"{path}.finderData: expected object")
+
+    validators = tuple(
+        selector_component_name(item, f"{path}.validatorData[{index}]")
+        for index, item in enumerate(require_list(selector.get("validatorData"), f"{path}.validatorData"))
+    )
+    unknown_validators = set(validators).difference(KNOWN_TARGET_VALIDATOR_TYPES)
+    if unknown_validators:
+        raise ValueError(f"{path}.validatorData: unsupported validators {sorted(unknown_validators)}")
+
+    post_processors = tuple(
+        selector_component_name(item, f"{path}.postProcessorData[{index}]")
+        for index, item in enumerate(
+            require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+        )
+    )
+    unknown_post_processors = set(post_processors).difference(
+        KNOWN_TARGET_POST_PROCESSOR_TYPES
+    )
+    if unknown_post_processors:
+        raise ValueError(
+            f"{path}.postProcessorData: unsupported processors {sorted(unknown_post_processors)}"
+        )
+    return finder_type, validators, post_processors
 
 
 def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
@@ -3956,6 +4117,148 @@ def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActi
     return tuple(result)
 
 
+def parse_target_group_writes(
+    root: dict[str, Any], source_name: str
+) -> tuple[TargetGroupWriteSource, ...]:
+    """按原始动作树路径读取目标组生产者；这里不推断目标组在单敌人模型中的值。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TargetGroupWriteSource] = []
+
+    def visit(value: Any, start_frame: int, end_frame: int, path: tuple[str, ...]) -> None:
+        if isinstance(value, list):
+            for index, child in enumerate(value):
+                visit(child, start_frame, end_frame, (*path, f"[{index}]"))
+            return
+        if not isinstance(value, dict) or value.get("isEnable") is False:
+            return
+
+        producer_type = action_name(str(value.get("$type", "")))
+        if producer_type in {"FindTargetAction", "ContinuousFindTargetAction"}:
+            expected_fields = set(TARGET_GROUP_FIND_ACTION_FIELDS)
+            if producer_type == "ContinuousFindTargetAction":
+                expected_fields.add("findInterval")
+            if set(value) != expected_fields:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}: unexpected fields {sorted(value)}"
+                )
+            target_group_key = value.get("targetGroupKey")
+            if not isinstance(target_group_key, str) or not target_group_key:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}.targetGroupKey: expected non-empty string"
+                )
+            finder, validators, post_processors = parse_selector_summary(
+                value.get("selectorData"),
+                f"{source_name}.{'.'.join(path)}.selectorData",
+                finder_required=True,
+            )
+            interval: float | None = None
+            if producer_type == "ContinuousFindTargetAction":
+                raw_interval = value.get("findInterval")
+                if (
+                    not isinstance(raw_interval, (int, float))
+                    or isinstance(raw_interval, bool)
+                    or raw_interval <= 0
+                ):
+                    raise ValueError(
+                        f"{source_name}.{'.'.join(path)}.findInterval: expected positive number"
+                    )
+                interval = float(raw_interval)
+            result.append(
+                TargetGroupWriteSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(
+                        value, f"{source_name}.{'.'.join(path)}"
+                    ),
+                    actionPath=path,
+                    targetGroupKey=target_group_key,
+                    producerType=producer_type,
+                    finderType=finder,
+                    validatorTypes=validators,
+                    postProcessorTypes=post_processors,
+                    inputTargets=(),
+                    intervalSeconds=interval,
+                )
+            )
+        elif producer_type == "MergeTargetAction":
+            if set(value) != TARGET_GROUP_MERGE_ACTION_FIELDS:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}: unexpected fields {sorted(value)}"
+                )
+            target_group_key = value.get("targetGroupKey")
+            if not isinstance(target_group_key, str) or not target_group_key:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}.targetGroupKey: expected non-empty string"
+                )
+            input_targets: list[TargetGroupInputSource] = []
+            for index, raw_target in enumerate(
+                require_list(value.get("targets"), f"{source_name}.{'.'.join(path)}.targets")
+            ):
+                target_path = f"{source_name}.{'.'.join(path)}.targets[{index}]"
+                target = require_dict(raw_target, target_path)
+                if set(target) != TARGET_GROUP_MERGE_INPUT_FIELDS:
+                    raise ValueError(f"{target_path}: unexpected fields {sorted(target)}")
+                target_source = target.get("targetSource")
+                input_group_key = target.get("targetGroupKey")
+                if not isinstance(target_source, str) or not target_source:
+                    raise ValueError(f"{target_path}.targetSource: expected non-empty string")
+                if not isinstance(input_group_key, str):
+                    raise ValueError(f"{target_path}.targetGroupKey: expected string")
+                finder, validators, post_processors = parse_selector_summary(
+                    target.get("selectorData"),
+                    f"{target_path}.selectorData",
+                    finder_required=target_source == "InstantSearch",
+                )
+                input_targets.append(
+                    TargetGroupInputSource(
+                        targetSource=target_source,
+                        targetGroupKey=input_group_key,
+                        finderType=finder,
+                        validatorTypes=validators,
+                        postProcessorTypes=post_processors,
+                    )
+                )
+            result.append(
+                TargetGroupWriteSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(
+                        value, f"{source_name}.{'.'.join(path)}"
+                    ),
+                    actionPath=path,
+                    targetGroupKey=target_group_key,
+                    producerType=producer_type,
+                    finderType=None,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                    inputTargets=tuple(input_targets),
+                    intervalSeconds=None,
+                )
+            )
+
+        for key, child in value.items():
+            visit(child, start_frame, end_frame, (*path, key))
+
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        visit(
+            timeline.get("_sequenceActionData"),
+            start_frame,
+            end_frame,
+            (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
+        )
+    return tuple(result)
+
+
 def collect_unresolved_combat_actions(
     timeline: tuple[TimelineActionSource, ...],
 ) -> tuple[str, ...]:
@@ -4136,6 +4439,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         ),
         unresolvedCombatActions=unresolved,
         buffHolds=parse_buff_hold_actions(root, source_name),
+        targetGroupWrites=parse_target_group_writes(root, source_name),
     )
 
 
@@ -6233,6 +6537,9 @@ def render_report(
                 "blackboardKeys": skill.blackboardKeys,
                 "blackboardProvenance": [
                     asdict(provenance) for provenance in skill.blackboardProvenance
+                ],
+                "targetGroupWrites": [
+                    asdict(write) for write in skill.targetGroupWrites
                 ],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
