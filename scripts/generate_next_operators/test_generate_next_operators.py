@@ -69,6 +69,7 @@ from generate_next_operators import (
     parse_projectile_launch_payload,
     parse_projectile_launches,
     parse_resource_gains,
+    require_level_values,
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
     resolve_conditional_projectile_triggers,
@@ -95,6 +96,14 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_literal_scalar_is_already_a_resolved_level_value(self) -> None:
+        self.assertEqual(
+            require_level_values(ScalarSource(50, None, None), "fixture"),
+            (50,),
+        )
+        with self.assertRaisesRegex(ValueError, "no resolved level values"):
+            require_level_values(ScalarSource(0, "runtime_key", None), "fixture")
+
     def test_child_condition_does_not_read_root_target_group_writes(self) -> None:
         writes = (SimpleNamespace(targetGroupKey="tar"),)
         skill = SimpleNamespace(targetGroupWrites=writes)

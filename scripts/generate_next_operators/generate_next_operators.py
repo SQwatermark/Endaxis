@@ -4568,9 +4568,11 @@ DAMAGE_TYPE_MAP = {
 
 
 def require_level_values(source: ScalarSource, path: str) -> tuple[float, ...]:
-    if source.levelValues is None:
-        raise ValueError(f"{path}: scalar has no resolved level values")
-    return source.levelValues
+    if source.levelValues is not None:
+        return source.levelValues
+    if source.blackboardKey is None:
+        return (source.value,)
+    raise ValueError(f"{path}: scalar has no resolved level values")
 
 
 def resolved_scalar_values(source: ScalarSource) -> tuple[float, ...]:
