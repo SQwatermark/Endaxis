@@ -929,6 +929,54 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'LaunchProjectile'"):
             compile_conditional_action(marked, "fixture.condition")
 
+    def test_nested_projectile_is_not_consumed_without_root_projection(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile.test",
+            (ProjectileSkillTriggerSource("hit", "skill.hit"),),
+        )
+        triggered = (SimpleNamespace(triggerSkillId="skill.hit"),)
+        condition = ConditionSource(
+            "CompareFloat",
+            True,
+            "Equals",
+            ScalarSource(1, None, None),
+            ScalarSource(1, None, None),
+            (),
+        )
+        projectile_action = ConditionalBranchActionSource(
+            "LaunchProjectile",
+            0,
+            projectileLaunch=launch,
+            projectileTriggeredSkills=triggered,
+        )
+        inner = ConditionalActionSource(
+            3,
+            3,
+            12,
+            ("root", "succeedActions", "nested"),
+            (condition,),
+            (projectile_action,),
+            (projectile_action,),
+        )
+        outer = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (condition,),
+            (ConditionalBranchActionSource("IfElse", 0, nestedCondition=inner),),
+            (),
+        )
+
+        marked = mark_projected_conditional_children((outer,))[0]
+        marked_inner = marked.succeedActions[0].nestedCondition
+
+        self.assertEqual(marked.projectedProjectileLaunches, ())
+        self.assertIsNotNone(marked_inner)
+        self.assertEqual(marked_inner.projectedProjectileLaunches, ())
+        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'LaunchProjectile'"):
+            compile_conditional_action(marked, "fixture.condition")
+
     def test_single_enemy_walker_flattens_supported_foreach_and_single_tick_channel(self) -> None:
         damage = {"$type": "Example.DamageAction, Example"}
         channel = {

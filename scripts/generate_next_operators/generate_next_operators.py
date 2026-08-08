@@ -4340,7 +4340,73 @@ def mark_projected_conditional_children(
             projectedProjectileLaunches=guaranteed_projectile_projections(marked),
         )
 
-    return tuple(mark_condition(condition) for condition in conditions)
+    def retain_root_owned_projectiles_in_action(
+        action: ConditionalBranchActionSource,
+        root_owned: tuple[ConditionalProjectileProjection, ...],
+    ) -> ConditionalBranchActionSource:
+        nested_condition = (
+            None
+            if action.nestedCondition is None
+            else retain_root_owned_projectiles_in_condition(
+                action.nestedCondition,
+                root_owned,
+                is_root=False,
+            )
+        )
+        once_actions = (
+            None
+            if action.onceActions is None
+            else tuple(
+                retain_root_owned_projectiles_in_action(item, root_owned)
+                for item in action.onceActions
+            )
+        )
+        return replace(
+            action,
+            nestedCondition=nested_condition,
+            onceActions=once_actions,
+        )
+
+    def retain_root_owned_projectiles_in_condition(
+        condition: ConditionalActionSource,
+        root_owned: tuple[ConditionalProjectileProjection, ...],
+        *,
+        is_root: bool,
+    ) -> ConditionalActionSource:
+        # 根调度只收集顶层投影；内层仅能消费由根节点唯一拥有的投影。
+        retained = (
+            condition.projectedProjectileLaunches
+            if is_root
+            else tuple(
+                projection
+                for projection in condition.projectedProjectileLaunches
+                if root_owned.count(projection) == 1
+            )
+        )
+        return replace(
+            condition,
+            succeedActions=tuple(
+                retain_root_owned_projectiles_in_action(action, root_owned)
+                for action in condition.succeedActions
+            ),
+            failActions=tuple(
+                retain_root_owned_projectiles_in_action(action, root_owned)
+                for action in condition.failActions
+            ),
+            projectedProjectileLaunches=retained,
+        )
+
+    result: list[ConditionalActionSource] = []
+    for condition in conditions:
+        marked = mark_condition(condition)
+        result.append(
+            retain_root_owned_projectiles_in_condition(
+                marked,
+                marked.projectedProjectileLaunches,
+                is_root=True,
+            )
+        )
+    return tuple(result)
 
 
 def collect_projected_conditional_projectile_skills(

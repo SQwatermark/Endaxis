@@ -5177,7 +5177,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "conditional-leaf",
-      "blocker": "normal_skill_ult.schedule[1].conditionalAction.succeedActions[1].nestedCondition.failActions[0].nestedCondition.succeedActions[7]: unsupported conditional leaf 'LaunchProjectile'",
+      "blocker": "normal_skill_ult.schedule[1].conditionalAction.succeedActions[1].nestedCondition.succeedActions[0].nestedCondition.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
       "unresolvedActions": [
         "CreateBuffAction",
         "IfElseAction",
