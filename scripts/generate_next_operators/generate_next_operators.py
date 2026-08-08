@@ -4583,6 +4583,15 @@ def guaranteed_projectile_projections(
 ) -> tuple[ConditionalProjectileProjection, ...]:
     """仅当条件树每条叶子路径发射完全相同的已解析投射物时返回投影。"""
 
+    def outcomes_are_equivalent(
+        left: tuple[ConditionalProjectileProjection, ...],
+        right: tuple[ConditionalProjectileProjection, ...],
+    ) -> bool:
+        return len(left) == len(right) and all(
+            projectile_projections_are_equivalent(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+
     def branch_outcomes(
         actions: tuple[ConditionalBranchActionSource, ...],
     ) -> tuple[tuple[ConditionalProjectileProjection, ...], ...]:
@@ -4614,9 +4623,47 @@ def guaranteed_projectile_projections(
         return (*branch_outcomes(current.succeedActions), *branch_outcomes(current.failActions))
 
     outcomes = condition_outcomes(condition)
-    if not outcomes or any(outcome != outcomes[0] for outcome in outcomes[1:]):
+    if not outcomes or any(
+        not outcomes_are_equivalent(outcome, outcomes[0]) for outcome in outcomes[1:]
+    ):
         return ()
     return outcomes[0]
+
+
+def projectile_projections_are_equivalent(
+    left: ConditionalProjectileProjection,
+    right: ConditionalProjectileProjection,
+) -> bool:
+    """比较投射物的战斗语义，忽略分支路径带来的同帧排序前缀。"""
+
+    def without_action_order(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {
+                key: without_action_order(item)
+                for key, item in value.items()
+                if key != "actionOrder"
+            }
+        if isinstance(value, list):
+            return [without_action_order(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(without_action_order(item) for item in value)
+        if hasattr(value, "__dict__"):
+            return without_action_order(vars(value))
+        return value
+
+    return without_action_order(asdict(left)) == without_action_order(asdict(right))
+
+
+def contains_equivalent_projectile_projection(
+    projections: tuple[ConditionalProjectileProjection, ...],
+    candidate: ConditionalProjectileProjection,
+) -> bool:
+    """判断投影集合是否已包含同一战斗行为。"""
+
+    return any(
+        projectile_projections_are_equivalent(projection, candidate)
+        for projection in projections
+    )
 
 
 def mark_projected_conditional_children(
@@ -4698,7 +4745,11 @@ def mark_projected_conditional_children(
             else tuple(
                 projection
                 for projection in condition.projectedProjectileLaunches
-                if root_owned.count(projection) == 1
+                if sum(
+                    projectile_projections_are_equivalent(projection, candidate)
+                    for candidate in root_owned
+                )
+                == 1
             )
         )
         return replace(
@@ -6500,7 +6551,9 @@ def compile_conditional_branch_action(
             projectile_launch,
             getattr(action, "projectileTriggeredSkills", None) or (),
         )
-        if projection in projected_projectile_launches:
+        if contains_equivalent_projectile_projection(
+            projected_projectile_launches, projection
+        ):
             return "sequence()"
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     if getattr(action, "damageUnits", None) is not None:
@@ -6977,10 +7030,13 @@ def collect_compilable_conditional_action_types(
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:
                 result.add("SpawnAbilityEntity")
             projectile_launch = getattr(branch_action, "projectileLaunch", None)
-            if projectile_launch is not None and ConditionalProjectileProjection(
-                projectile_launch,
-                getattr(branch_action, "projectileTriggeredSkills", None) or (),
-            ) in projected_launches:
+            if projectile_launch is not None and contains_equivalent_projectile_projection(
+                projected_launches,
+                ConditionalProjectileProjection(
+                    projectile_launch,
+                    getattr(branch_action, "projectileTriggeredSkills", None) or (),
+                ),
+            ):
                 result.add("LaunchProjectile")
 
     def visit(action: ConditionalActionSource) -> None:

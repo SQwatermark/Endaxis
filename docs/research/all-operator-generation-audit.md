@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：278 个。
-- 无角色专用声明即可进入通用 DSL：224 个。
+- 无角色专用声明即可进入通用 DSL：227 个。
 - 当前整名干员完整直转：2 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -30,21 +30,21 @@
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      8 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      7 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      8 |      8 | 否       |
-| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      5 | 否       |
+| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      7 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      7 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |      8 |      5 | 否       |
-| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     11 | 否       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     12 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     10 |      9 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      3 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      4 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
@@ -61,8 +61,8 @@
 | `source-data-missing`       |     21 |
 | `buff-source-or-target`     |     17 |
 | `root-action-coverage`      |     13 |
-| `conditional-leaf`          |      8 |
 | `condition-other`           |      5 |
+| `conditional-leaf`          |      5 |
 | `condition-distance`        |      4 |
 | `parser-damage-calculation` |      4 |
 | `other`                     |      3 |

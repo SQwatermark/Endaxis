@@ -926,6 +926,53 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertEqual(compile_conditional_action(marked, "fixture.condition"), "sequence()")
 
+    def test_conditional_compiler_ignores_branch_local_projectile_order(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile.test",
+            (ProjectileSkillTriggerSource("hit", "skill.hit"),),
+        )
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "Equals",
+                    ScalarSource(1, None, None),
+                    ScalarSource(1, None, None),
+                    (),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    1,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=(
+                        SimpleNamespace(triggerSkillId="skill.hit", actionOrder=(11, 1)),
+                    ),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    2,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=(
+                        SimpleNamespace(triggerSkillId="skill.hit", actionOrder=(11, 2)),
+                    ),
+                ),
+            ),
+        )
+
+        marked = mark_projected_conditional_children((source,))[0]
+
+        self.assertEqual(len(marked.projectedProjectileLaunches), 1)
+        self.assertEqual(compile_conditional_action(marked, "fixture.condition"), "sequence()")
+
     def test_conditional_compiler_rejects_divergent_projectile_children(self) -> None:
         launch = ProjectileLaunchPayload(
             "projectile.test",
