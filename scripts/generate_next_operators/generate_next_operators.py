@@ -446,6 +446,15 @@ class TimedMarkerConditionSource:
 
 
 @dataclass(frozen=True)
+class GlobalCooldownConditionSource:
+    """原生全局冷却检查；运行时以角色和 Buff ID 共同标识冷却项。"""
+
+    targetSource: str
+    targetGroupKey: str
+    buffId: str
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -461,6 +470,7 @@ class ConditionSource:
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None
     timedMarker: "TimedMarkerConditionSource | None" = None
+    globalCooldown: "GlobalCooldownConditionSource | None" = None
 
 
 @dataclass(frozen=True)
@@ -567,6 +577,16 @@ class TimedMarkerApplicationPayload:
 
 
 @dataclass(frozen=True)
+class GlobalCooldownApplicationPayload:
+    """原生全局冷却写入；在 Next 中复用同一角色上的定时标记容器。"""
+
+    targetSource: str
+    targetGroupKey: str
+    buffId: str
+    duration: ScalarSource
+
+
+@dataclass(frozen=True)
 class ResourceGainPayload:
     resource: str
     amount: ScalarSource
@@ -618,6 +638,7 @@ class ConditionalBranchActionSource:
     buffStackRead: BuffStackReadPayload | None = None
     buffApplication: BuffApplicationPayload | None = None
     timedMarkerApplication: TimedMarkerApplicationPayload | None = None
+    globalCooldownApplication: GlobalCooldownApplicationPayload | None = None
     resourceGain: ResourceGainPayload | None = None
     infliction: InflictionPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
@@ -795,6 +816,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "distance",
         "entityTag",
         "timedMarker",
+        "globalCooldown",
         "nestedCondition",
         "onceScopeKey",
         "onceActions",
@@ -805,6 +827,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "buffStackRead",
         "buffApplication",
         "timedMarkerApplication",
+        "globalCooldownApplication",
         "resourceGain",
         "infliction",
         "projectileLaunch",
@@ -884,7 +907,7 @@ COMBAT_ACTION_NAMES = {
 }
 
 # 标记本身不造成伤害，但会改变后续条件、事件冷却或时间轴控制，必须参与完备性审计。
-STATEFUL_COMBAT_ACTION_NAMES = {"CreateTimedMarker"}
+STATEFUL_COMBAT_ACTION_NAMES = {"CreateTimedMarker", "AddGlobalCDTimer"}
 AUDITED_COMBAT_ACTION_NAMES = COMBAT_ACTION_NAMES | STATEFUL_COMBAT_ACTION_NAMES
 
 # 这些根级标记已由专用单敌人投影等价消费；这里只阻止完备性审计重复计数。
@@ -906,6 +929,7 @@ AUDITED_COMBAT_EFFECT_ACTION_NAMES = (
 
 # 这些运行时动作已单独解析，不进入 unresolvedCombatActions，但必须出现在条件分支审计中。
 CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
+    "AddGlobalCDTimer",
     "CreateTimedMarker",
     "FinishBuffAdvanced",
     "GetTargetBuffBBAdvanced",
@@ -2259,6 +2283,26 @@ def parse_conditional_actions(
                     returnTrueIfNotExists=return_true_if_missing,
                 ),
             )
+        if condition_type == "CheckGlobalCDTimerAction":
+            target = require_dict(condition.get("target"), f"{path}.target")
+            buff_id = condition.get("buffId")
+            if not isinstance(buff_id, str) or not buff_id:
+                raise ValueError(f"{path}.buffId: expected non-empty string")
+            target_source = str(target.get("targetSource", ""))
+            target_group_key = str(target.get("targetGroupKey", ""))
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=(target_source in {"Owner", "Source"} and not target_group_key),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                globalCooldown=GlobalCooldownConditionSource(
+                    targetSource=target_source,
+                    targetGroupKey=target_group_key,
+                    buffId=buff_id,
+                ),
+            )
         if condition_type == "CheckHp":
             target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
             comparison = condition.get("compare")
@@ -2480,6 +2524,7 @@ def parse_conditional_actions(
                 buff_stack_read = None
                 buff_application = None
                 timed_marker_application = None
+                global_cooldown_application = None
                 resource_gain = None
                 infliction = None
                 projectile_launch = None
@@ -2505,6 +2550,10 @@ def parse_conditional_actions(
                     )
                 elif action_type == "CreateTimedMarker":
                     timed_marker_application = parse_timed_marker_application_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "AddGlobalCDTimer":
+                    global_cooldown_application = parse_global_cooldown_application_payload(
                         action, source_path, inherited_blackboard
                     )
                 elif action_type == "ObtainCostAction":
@@ -2537,6 +2586,7 @@ def parse_conditional_actions(
                         buffStackRead=buff_stack_read,
                         buffApplication=buff_application,
                         timedMarkerApplication=timed_marker_application,
+                        globalCooldownApplication=global_cooldown_application,
                         resourceGain=resource_gain,
                         infliction=infliction,
                         projectileLaunch=projectile_launch,
@@ -3141,6 +3191,26 @@ def parse_timed_marker_application_payload(
         ),
         useTimeDilationDt=require_bool(
             action.get("useTimeDilationDt"), f"{path}.useTimeDilationDt"
+        ),
+    )
+
+
+def parse_global_cooldown_application_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> GlobalCooldownApplicationPayload:
+    """读取原生 AddGlobalCDTimer；Buff ID 同时充当冷却项的稳定标识。"""
+    target = require_dict(action.get("target"), f"{path}.target")
+    buff_id = action.get("buffId")
+    if not isinstance(buff_id, str) or not buff_id:
+        raise ValueError(f"{path}.buffId: expected non-empty string")
+    return GlobalCooldownApplicationPayload(
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        buffId=buff_id,
+        duration=parse_scalar(
+            action.get("cdTime"), f"{path}.cdTime", inherited_blackboard
         ),
     )
 
@@ -5522,6 +5592,24 @@ def compile_combat_condition(
         if marker.returnTrueIfNotExists:
             return f"{{ kind: 'not', condition: {condition} }}"
         return condition
+    if source.sourceType == "CheckGlobalCDTimerAction":
+        cooldown = source.globalCooldown
+        if cooldown is None:
+            raise ValueError(f"{path}: missing global cooldown condition payload")
+        if not (
+            cooldown.targetSource == "Source"
+            or (root_skill_context and cooldown.targetSource == "Owner")
+        ) or cooldown.targetGroupKey:
+            raise ValueError(
+                f"{path}: unsupported global cooldown target "
+                f"{cooldown.targetSource!r}/{cooldown.targetGroupKey!r}"
+            )
+        # 原生检查在对应全局定时项不存在时成功，和普通标记检查的反向极性一致。
+        present = (
+            "{ kind: 'timedMarkerPresent', target: 'caster', markerId: "
+            f"{ts_inline_literal(cooldown.buffId)} }}"
+        )
+        return f"{{ kind: 'not', condition: {present} }}"
     if source.sourceType in {
         "CheckBuffStackNum",
         "CheckBuffStackNumAdvanced",
@@ -5975,6 +6063,34 @@ def compile_timed_marker_application(
     )
 
 
+def compile_global_cooldown_application(
+    payload: GlobalCooldownApplicationPayload,
+    path: str,
+    *,
+    root_skill_context: bool,
+) -> str:
+    """将原生全局冷却写入映射到 Next 的角色定时标记。"""
+    if not (
+        payload.targetSource == "Source"
+        or (root_skill_context and payload.targetSource == "Owner")
+    ) or payload.targetGroupKey:
+        raise ValueError(
+            f"{path}: unsupported global cooldown target "
+            f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
+        )
+    return "\n".join(
+        [
+            "step('createTimedMarker', {",
+            "  target: 'caster',",
+            f"  markerId: {ts_inline_literal(payload.buffId)},",
+            "  durationSeconds: "
+            f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
+            "  autoFinishByAction: false,",
+            "})",
+        ]
+    )
+
+
 def compile_buff_stack_read(payload: BuffStackReadPayload, path: str) -> str:
     """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
     if payload.countType != "BuffCount":
@@ -6141,6 +6257,12 @@ def compile_conditional_branch_action(
     if getattr(action, "timedMarkerApplication", None) is not None:
         return compile_timed_marker_application(
             action.timedMarkerApplication,
+            path,
+            root_skill_context=root_skill_context,
+        )
+    if getattr(action, "globalCooldownApplication", None) is not None:
+        return compile_global_cooldown_application(
+            action.globalCooldownApplication,
             path,
             root_skill_context=root_skill_context,
         )
@@ -6474,6 +6596,8 @@ def collect_compilable_conditional_action_types(
                 result.add("CreateBuffAction")
             if getattr(branch_action, "timedMarkerApplication", None) is not None:
                 result.add("CreateTimedMarker")
+            if getattr(branch_action, "globalCooldownApplication", None) is not None:
+                result.add("AddGlobalCDTimer")
             if getattr(branch_action, "blackboardMutation", None) is not None:
                 result.add("ModifyDynamicBlackboard")
             if getattr(branch_action, "blackboardCalculation", None) is not None:

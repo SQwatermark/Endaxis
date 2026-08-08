@@ -714,7 +714,8 @@
               "targetIdentity": null,
               "distance": null,
               "entityTag": null,
-              "timedMarker": null
+              "timedMarker": null,
+              "globalCooldown": null
             }
           ],
           "succeedActions": [
@@ -731,6 +732,7 @@
               "buffStackRead": null,
               "buffApplication": null,
               "timedMarkerApplication": null,
+              "globalCooldownApplication": null,
               "resourceGain": null,
               "infliction": null,
               "projectileLaunch": null,
@@ -796,7 +798,8 @@
                     "targetIdentity": null,
                     "distance": null,
                     "entityTag": null,
-                    "timedMarker": null
+                    "timedMarker": null,
+                    "globalCooldown": null
                   }
                 ],
                 "succeedActions": [
@@ -813,6 +816,7 @@
                     "buffStackRead": null,
                     "buffApplication": null,
                     "timedMarkerApplication": null,
+                    "globalCooldownApplication": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -856,6 +860,7 @@
               "buffStackRead": null,
               "buffApplication": null,
               "timedMarkerApplication": null,
+              "globalCooldownApplication": null,
               "resourceGain": null,
               "infliction": null,
               "projectileLaunch": null,
@@ -878,6 +883,7 @@
               "buffStackRead": null,
               "buffApplication": null,
               "timedMarkerApplication": null,
+              "globalCooldownApplication": null,
               "resourceGain": null,
               "infliction": null,
               "projectileLaunch": null,
@@ -943,7 +949,8 @@
                     "targetIdentity": null,
                     "distance": null,
                     "entityTag": null,
-                    "timedMarker": null
+                    "timedMarker": null,
+                    "globalCooldown": null
                   }
                 ],
                 "succeedActions": [
@@ -960,6 +967,7 @@
                     "buffStackRead": null,
                     "buffApplication": null,
                     "timedMarkerApplication": null,
+                    "globalCooldownApplication": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1003,6 +1011,7 @@
               "buffStackRead": null,
               "buffApplication": null,
               "timedMarkerApplication": null,
+              "globalCooldownApplication": null,
               "resourceGain": null,
               "infliction": null,
               "projectileLaunch": null,
@@ -1052,7 +1061,8 @@
               "targetIdentity": null,
               "distance": null,
               "entityTag": null,
-              "timedMarker": null
+              "timedMarker": null,
+              "globalCooldown": null
             }
           ],
           "succeedActions": [
@@ -1069,6 +1079,7 @@
               "buffStackRead": null,
               "buffApplication": null,
               "timedMarkerApplication": null,
+              "globalCooldownApplication": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {

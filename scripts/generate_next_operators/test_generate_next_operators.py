@@ -2780,6 +2780,79 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("durationSeconds: { kind: 'constant', value: 5 }", compiled)
         self.assertIn("autoFinishByAction: false", compiled)
 
+    def test_global_cooldown_condition_and_write_use_caster_timed_marker(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckGlobalCDTimerAction+Data, Example",
+                                                "target": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "buffId": "buff.example.cooldown",
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.AddGlobalCDTimer+Data, Example",
+                                                "serverActionIndex": 2,
+                                                "target": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "buffId": "buff.example.cooldown",
+                                                "cdTime": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "cooldown",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(
+            root,
+            "fixture.json",
+            {"cooldown": (8,)},
+        )[0]
+        compiled = compile_conditional_action(
+            action,
+            "fixture.condition",
+            root_skill_context=True,
+        )
+
+        self.assertEqual(
+            action.conditions[0].globalCooldown.buffId,
+            "buff.example.cooldown",
+        )
+        self.assertIn("kind: 'not'", compiled)
+        self.assertIn("kind: 'timedMarkerPresent'", compiled)
+        self.assertIn("markerId: 'buff.example.cooldown'", compiled)
+        self.assertIn("step('createTimedMarker'", compiled)
+        self.assertIn("key: 'cooldown'", compiled)
+        self.assertIn("autoFinishByAction: false", compiled)
+
     def test_root_skill_owner_buff_condition_targets_the_caster(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",
