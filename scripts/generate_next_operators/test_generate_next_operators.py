@@ -81,6 +81,7 @@ from generate_next_operators import (
     parse_projectile_launches,
     parse_resource_gains,
     project_channel_trigger_frames,
+    project_single_enemy_channeling_timeline,
     require_level_values,
     resolve_skill_blackboard,
     resource_gain_can_change_value,
@@ -1109,6 +1110,90 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             # 单精度累加在第 3 帧产生略大于 1/30 的差值，原生严格大于比较会放行。
             (0, 2, 3),
         )
+
+    def test_channel_timeline_projection_expands_shared_one_shot_nodes(self) -> None:
+        damage = {
+            "$type": "Example.DamageAction, Example",
+            "isEnable": True,
+            "serverActionIndex": 9,
+        }
+        target = target_settings_fixture("Context")
+        target["targetGroupKey"] = "enemy"
+        channel = {
+            "$type": "Example.ChannelingAction, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 2,
+            "targetSettings": target,
+            "executeEachFrame": True,
+            "triggerInterval": 0.033,
+            "maxCountPerTarget": 2,
+            "targetTriggerInterval": -1,
+            "actionOnTick": {
+                "actionData": [damage],
+                "onlyExecuteWhenSourceIsMainChar": False,
+                "onlyExecuteWhenSourceIsGuard": False,
+            },
+        }
+        retained = {"$type": "Example.EffectAction, Example", "isEnable": True}
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 4,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [retained, channel],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "forceSyncAnimData": True,
+                    }
+                ]
+            }
+        }
+
+        projected = project_single_enemy_channeling_timeline(root, "fixture")
+        timelines = projected["actionGroupData"]["timelineActions"]
+
+        self.assertEqual(
+            [(item["_startFrame"], item["_endFrame"]) for item in timelines],
+            [(4, 7), (4, 4), (5, 5)],
+        )
+        self.assertEqual(timelines[0]["_sequenceActionData"]["actionData"], [retained])
+        self.assertIs(timelines[1]["_sequenceActionData"]["actionData"][0], damage)
+        self.assertIs(timelines[2]["_sequenceActionData"]["actionData"][0], damage)
+
+    def test_channel_timeline_projection_rejects_owner_until_target_is_explicit(self) -> None:
+        target = target_settings_fixture("Owner")
+        channel = {
+            "$type": "Example.ChannelingAction, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 2,
+            "targetSettings": target,
+            "executeEachFrame": False,
+            "triggerInterval": 0.1,
+            "maxCountPerTarget": -1,
+            "targetTriggerInterval": 0,
+            "actionOnTick": {"actionData": []},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {"actionData": [channel]},
+                    }
+                ]
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "requires explicit input target projection"):
+            project_single_enemy_channeling_timeline(root, "fixture")
 
     def test_timed_marker_gate_keeps_only_the_first_ability_entity_hit(self) -> None:
         gate = TimedMarkerGateSource("marker_key", True, 0.4)

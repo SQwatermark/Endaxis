@@ -1419,6 +1419,138 @@ def project_channel_trigger_frames(
     return tuple(result)
 
 
+def project_single_enemy_channeling_timeline(
+    root: dict[str, Any], source_name: str
+) -> dict[str, Any]:
+    """把根时间轴中的直接 ChannelingAction 展开为共享的一次性动作节点。
+
+    该投影只接受可确定为敌人的 Context/Target 输入。Owner 需要把后续动作的 Target
+    重新绑定为自身，不能用根技能目标代替，因此在引入显式输入目标身份前继续拒绝。
+    """
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    timelines = require_list(
+        group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
+    )
+    projected_timelines: list[dict[str, Any]] = []
+
+    for timeline_index, raw_timeline in enumerate(timelines):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        sequence = require_dict(
+            timeline.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData"
+        )
+        # 部分子技能测试夹具和已归一化输入会直接把单个动作放在该字段；其中没有
+        # 可安全抽取的兄弟 ChannelingAction，保持原节点交给后续严格解析器处理。
+        if "actionData" not in sequence:
+            projected_timelines.append(timeline)
+            continue
+        actions = require_list(
+            sequence.get("actionData"), f"{timeline_path}._sequenceActionData.actionData"
+        )
+        retained_actions: list[Any] = []
+        emitted_timelines: list[dict[str, Any]] = []
+
+        for action_index, raw_action in enumerate(actions):
+            action_path = f"{timeline_path}.actionData[{action_index}]"
+            action = require_dict(raw_action, action_path)
+            if action_name(str(action.get("$type", ""))) != "ChannelingAction":
+                retained_actions.append(action)
+                continue
+            expected_fields = {
+                "$type",
+                "isEnable",
+                "priorityLevel",
+                "priorityOffset",
+                "serverActionIndex",
+                "targetSettings",
+                "executeEachFrame",
+                "triggerInterval",
+                "maxCountPerTarget",
+                "targetTriggerInterval",
+                "actionOnTick",
+            }
+            if set(action) != expected_fields:
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: unexpected fields {sorted(action)}"
+                )
+            if action.get("isEnable") is False:
+                continue
+
+            target = require_dict(
+                action.get("targetSettings"),
+                f"{action_path}.ChannelingAction.targetSettings",
+            )
+            target_source = target.get("targetSource")
+            if target_source not in {"Context", "Target"}:
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: target source {target_source!r} "
+                    "requires explicit input target projection"
+                )
+            selector = require_dict(
+                target.get("selectorData"),
+                f"{action_path}.ChannelingAction.targetSettings.selectorData",
+            )
+            if selector.get("validatorData") != [] or selector.get("postProcessorData") != []:
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: target selector is not identity-only"
+                )
+            if "finderData" in selector:
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: target selector finder is unsupported"
+                )
+            if target_source == "Context" and not target.get("targetGroupKey"):
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: Context target requires a group key"
+                )
+
+            trigger_frames = project_channel_trigger_frames(
+                start_frame,
+                end_frame,
+                execute_each_frame=action.get("executeEachFrame"),
+                trigger_interval=action.get("triggerInterval"),
+                max_count_per_target=action.get("maxCountPerTarget"),
+                target_trigger_interval=action.get("targetTriggerInterval"),
+            )
+            action_on_tick = require_dict(
+                action.get("actionOnTick"),
+                f"{action_path}.ChannelingAction.actionOnTick",
+            )
+            for frame in trigger_frames:
+                emitted_timelines.append(
+                    {
+                        "_startFrame": frame,
+                        "_endFrame": frame,
+                        "_sequenceActionData": action_on_tick,
+                        "forceSyncAnimData": False,
+                    }
+                )
+
+        if retained_actions:
+            retained_sequence = {**sequence, "actionData": retained_actions}
+            projected_timelines.append(
+                {**timeline, "_sequenceActionData": retained_sequence}
+            )
+        projected_timelines.extend(emitted_timelines)
+
+    projected_group = {
+        **group,
+        "timelineActions": projected_timelines,
+    }
+    return {**root, "actionGroupData": projected_group}
+
+
+def load_projected_skill_data(source_path: Path, source_name: str) -> dict[str, Any]:
+    """加载技能数据，并建立后续所有语义解析器共享的单敌人时间轴视图。"""
+    root = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_name)
+    return project_single_enemy_channeling_timeline(root, source_name)
+
+
 def walk_single_enemy_actions(value: Any, path: str) -> Iterable[dict[str, Any]]:
     """在固定单敌人模型下，仅把证据明确的逐目标容器退化为一次顺序执行。"""
     if isinstance(value, dict):
@@ -3836,7 +3968,7 @@ def parse_auxiliary_actions(
                 child_path = source_dir / child_name
                 if not child_path.is_file():
                     raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
-                child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+                child = load_projected_skill_data(child_path, child_name)
                 nested = tuple(
                     sorted(
                         {
@@ -3970,10 +4102,7 @@ def resolve_projectile_payload_triggers(
             raise FileNotFoundError(
                 f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
             )
-        trigger_root = require_dict(
-            json.loads(trigger_path.read_text(encoding="utf-8")),
-            trigger_source_name,
-        )
+        trigger_root = load_projected_skill_data(trigger_path, trigger_source_name)
         trigger_blackboard = {
             item.key: (item.value,)
             for item in parse_declared_blackboard(trigger_root, trigger_source_name)
@@ -4291,7 +4420,7 @@ def resolve_ability_entity_hits(
             child_path = source_dir / child_name
             if not child_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
-            child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+            child = load_projected_skill_data(child_path, child_name)
             current_action_order = (
                 *(parent_action_order or ()),
                 require_server_action_index(action, f"{source_name}.SpawnAbilityEntity"),
@@ -4663,7 +4792,7 @@ def resolve_guaranteed_conditional_ability_entity_hits(
             child_path = source_dir / child_name
             if not child_path.is_file():
                 raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
-            child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
+            child = load_projected_skill_data(child_path, child_name)
             result.append(
                 resolve_ability_entity_payload(
                     payload,
@@ -5367,7 +5496,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     source_path = source_dir / source_name
     if not source_path.is_file():
         raise FileNotFoundError(source_path)
-    root = require_dict(json.loads(source_path.read_text(encoding="utf-8")), source_name)
+    root = load_projected_skill_data(source_path, source_name)
     skill_id = root.get("skillId")
     if not isinstance(skill_id, str) or not skill_id:
         raise ValueError(f"{source_name}.skillId: expected non-empty string")

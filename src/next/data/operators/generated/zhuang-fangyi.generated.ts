@@ -5579,7 +5579,7 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [
             {
               "startFrame": 0,
-              "endFrame": 12,
+              "endFrame": 0,
               "actionIndex": 11,
               "damageUnits": [
                 {
@@ -10256,7 +10256,7 @@ export const zhuangFangyiGeneratedSource = {
           "directDamageHits": [
             {
               "startFrame": 30,
-              "endFrame": 33,
+              "endFrame": 30,
               "actionIndex": 2,
               "damageUnits": [
                 {
