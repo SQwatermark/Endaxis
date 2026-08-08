@@ -12,6 +12,7 @@ from generate_next_operators import (
     collect_conditional_blackboard_keys,
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
+    collect_resolved_schedule,
     collect_timed_marker_damage_gates,
     collect_once_resource_gain_gates,
     build_blackboard_provenance,
@@ -89,6 +90,65 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_projectile_child_conditions_and_resource_gains_use_hit_frame(self) -> None:
+        condition = SimpleNamespace(
+            startFrame=2,
+            executionFrames=(),
+            actionIndex=7,
+            actionPath=(7,),
+        )
+        gain = TimedResourceGainSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=8,
+            resource="sp",
+            amount=ScalarSource(1, None, (1,)),
+            coefficient=ScalarSource(1, None, (1,)),
+            spGainKind="direct",
+            spGainSource="skill",
+            onlyMainOperator=False,
+            isPercentValue=False,
+            useUltimateRecoveryTag=False,
+            ultimateRecoveryTagId=0,
+            ignoreUltimateGainScalar=False,
+        )
+        projectile = SimpleNamespace(
+            launchFrame=10,
+            assumedTravelFrames=5,
+            actionOrder=(4,),
+            triggerSkillId="projectile_hit",
+            excludedByPrimaryTargetMarker=False,
+            directDamageHits=(),
+            conditionalActions=(condition,),
+            resourceGains=(gain,),
+            nestedProjectileTriggeredSkills=(),
+        )
+        skill = SimpleNamespace(
+            skillId="root",
+            directDamageHits=(),
+            projectileTriggeredSkills=(projectile,),
+            abilityEntityHits=(),
+            auxiliaryActions=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            buffHolds=(),
+            resourceGains=(),
+            inflictions=(),
+        )
+
+        schedule = collect_resolved_schedule(skill)
+
+        self.assertEqual(
+            [(item.itemType, item.frame, item.actionOrder) for item in schedule],
+            [
+                ("condition", 17, (4, 7)),
+                ("resourceGain", 18, (4, 8)),
+            ],
+        )
+
     def test_damage_compiler_maps_native_element_names(self) -> None:
         cases = {
             "Fire": "heat",

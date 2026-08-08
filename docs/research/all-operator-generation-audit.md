@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：60 个。
+- 无角色专用声明即可进入通用 DSL：61 个。
 - 当前整名干员完整直转：0 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -29,7 +29,7 @@
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      4 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      2 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      1 | 否       |
-| Gilberta       | `chr_0013_aglina`   |    9 |      7 |      2 | 否       |
+| Gilberta       | `chr_0013_aglina`   |    9 |      7 |      3 | 否       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      2 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      1 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      1 | 否       |
@@ -58,29 +58,31 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `condition-main-operator`   |     84 |
-| `projectile-child-actions`  |     44 |
+| `condition-main-operator`   |    115 |
 | `source-data-missing`       |     21 |
 | `condition-entity-count`    |     16 |
 | `buff-source-or-target`     |     14 |
 | `parser-channeling`         |     11 |
 | `condition-buff-stack`      |     10 |
 | `dynamic-scalar`            |     10 |
+| `projectile-child-actions`  |     10 |
 | `root-action-coverage`      |      9 |
 | `condition-target-identity` |      7 |
-| `condition-tag`             |      4 |
+| `condition-tag`             |      5 |
 | `conditional-leaf`          |      4 |
 | `other`                     |      4 |
 | `parser-damage-calculation` |      4 |
-| `condition-other`           |      2 |
+| `condition-other`           |      3 |
 | `parser-tick-interval`      |      2 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
 第二轮只在根技能上下文折叠 `ActionOwner/Owner`，入口进一步增至 60 个；嵌套分支仍严格拒绝。
-Buff 来源/目标和投射物子技能副作用是后续覆盖面更大的通用编译问题。主控身份条件虽出现最多，
-但必须先确认其分支副作用，不能统一常量折叠。
+第三轮把投射物命中子技能的条件与回能投影回根时间轴，入口增至 61 个，并将 34 个原投射物
+阻塞细化为实际条件缺口。
+主控身份条件已成为覆盖面最大的后续缺口；它必须根据排轴时的主控状态选择完整分支，不能在
+导入 SkillData 时统一常量折叠。剩余 Buff 上下文目标和复杂投射物子行为继续严格阻塞。
 能力实体计数是庄方宜闭环所需能力，却不是全量覆盖率最高的第一批工作。
 管理员的 20 个入口源文件当前全部缺失；另外还有一项诀的子能力实体文件名不一致，二者应作为
 数据导出问题处理，而不是在生成器中添加回退。

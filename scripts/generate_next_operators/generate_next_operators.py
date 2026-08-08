@@ -3755,9 +3755,50 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for infliction in skill.inflictions
     )
+    for projectile in skill.projectileTriggeredSkills:
+        collect_projectile_schedule(projectile, result)
     for entity in skill.abilityEntityHits:
         collect_ability_entity_schedule(entity, result)
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
+
+
+def collect_projectile_schedule(
+    hit: ProjectileTriggeredSkillSource,
+    result: list[ResolvedScheduleItemSource],
+) -> None:
+    """把投射物命中子技能的条件与回能换算到根技能帧坐标。"""
+    if hit.excludedByPrimaryTargetMarker:
+        return
+    hit_frame = hit.launchFrame + hit.assumedTravelFrames
+    source_path = (hit.triggerSkillId,)
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit_frame + frame,
+            actionOrder=(*hit.actionOrder, condition.actionIndex),
+            itemType="condition",
+            sourcePath=(*source_path, *condition.actionPath),
+            payload=condition,
+        )
+        for condition in hit.conditionalActions
+        for frame in (condition.executionFrames or (condition.startFrame,))
+    )
+    for gain in filter_once_resource_gains(hit.resourceGains):
+        if not any(
+            value != 0
+            for value in require_level_values(gain.amount, f"{hit.triggerSkillId}.resourceGain")
+        ):
+            continue
+        result.append(
+            ResolvedScheduleItemSource(
+                frame=hit_frame + gain.startFrame,
+                actionOrder=(*hit.actionOrder, gain.actionIndex),
+                itemType="resourceGain",
+                sourcePath=source_path,
+                payload=gain,
+            )
+        )
+    for nested in hit.nestedProjectileTriggeredSkills:
+        collect_projectile_schedule(nested, result)
 
 
 def collect_ability_entity_schedule(
@@ -5279,8 +5320,15 @@ def compile_resolved_sequence(
     def collect_unmodeled_projectile_actions(hit: ProjectileTriggeredSkillSource) -> None:
         if getattr(hit, "excludedByPrimaryTargetMarker", False):
             return
+        projected_actions = {"DamageAction"}
+        if hit.conditionalActions:
+            projected_actions.update(
+                collect_compilable_conditional_action_types(hit.conditionalActions)
+            )
+        if hit.resourceGains:
+            projected_actions.add("ObtainCostAction")
         unmodeled_projectile_actions.extend(
-            action for action in hit.combatActions if action != "DamageAction"
+            action for action in hit.combatActions if action not in projected_actions
         )
         for nested in hit.nestedProjectileTriggeredSkills:
             collect_unmodeled_projectile_actions(nested)
