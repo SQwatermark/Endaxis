@@ -4905,6 +4905,15 @@
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
           "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "thunder",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -4933,6 +4942,16 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 3,
+          "actionOrder": [
+            21
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3_ult"
           ]
         }
       ],
@@ -5069,6 +5088,15 @@
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -5079,6 +5107,15 @@
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -5180,6 +5217,26 @@
         }
       ],
       "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            24
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            25
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_power_attack"
+          ]
+        },
         {
           "frame": 11,
           "actionOrder": [
@@ -7372,6 +7429,11 @@
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "classification": null,
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": [
             "CreateBuffAction",
@@ -7737,6 +7799,15 @@
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
               "classification": null,
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
               "nestedCombatActions": []
             }
@@ -9299,6 +9370,11 @@
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult_mirror",
           "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -9309,6 +9385,11 @@
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult",
           "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -9319,6 +9400,15 @@
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_ult_base",
           "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {
             "duration": {
               "value": 60.0,
@@ -9366,6 +9456,15 @@
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -9396,6 +9495,26 @@
             "_sequenceActionData",
             "actionData",
             "[3]"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            26
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 78,
+          "actionOrder": [
+            14
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_ultimate_skill"
           ]
         }
       ],

@@ -6401,6 +6401,15 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_attack3_ult_cancel",
           "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "thunder",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -6889,6 +6898,15 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -6899,6 +6917,15 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -10192,6 +10219,11 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "classification": null,
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": [
             "CreateBuffAction",
@@ -10495,6 +10527,15 @@ export const zhuangFangyiGeneratedSource = {
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
               "classification": null,
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
               "nestedCombatActions": []
             }
@@ -13153,6 +13194,11 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult_mirror",
           "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -13163,6 +13209,11 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0030_zhuangfy_ult",
           "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -13173,6 +13224,15 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_chr_0030_zhuangfy_ult_base",
           "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {
             "duration": {
               "value": 60.0,
@@ -13220,6 +13280,15 @@ export const zhuangFangyiGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }

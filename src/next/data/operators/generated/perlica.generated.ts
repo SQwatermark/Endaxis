@@ -3010,6 +3010,15 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_medium",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -3020,6 +3029,15 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_power_attack_disable_cast_skill",
           "classification": "inputLock",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -4146,6 +4164,15 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_obtain_ultimate_sp",
           "classification": "skillCostUltimateEnergyGain",
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }
@@ -4846,6 +4873,15 @@ export const perlicaGeneratedSource = {
               "actionType": "CreateBuffAction",
               "sourceId": "buff_chr_0004_pelica_combo_skill_tutorial_marker",
               "classification": "tutorialMarker",
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
               "nestedCombatActions": []
             },
@@ -4856,6 +4892,15 @@ export const perlicaGeneratedSource = {
               "actionType": "CreateBuffAction",
               "sourceId": "buff_common_pulse_pulse_conduct_triggered",
               "classification": "electrificationReaction",
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {
                 "duration": {
                   "value": 7.5,
@@ -5638,6 +5683,15 @@ export const perlicaGeneratedSource = {
           "actionType": "CreateBuffAction",
           "sourceId": "buff_common_damage_immune_ult_skill",
           "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         },
@@ -5648,6 +5702,11 @@ export const perlicaGeneratedSource = {
           "actionType": "SpawnAbilityEntity",
           "sourceId": "abilityentity_chr_0004_pelica_ultimate_skill:chr_0004_pelica_ultimate_skill_abilityrange",
           "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": []
         }

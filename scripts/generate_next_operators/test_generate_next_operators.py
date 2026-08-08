@@ -16,6 +16,7 @@ from generate_next_operators import (
     compile_resolved_damage_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
+    AuxiliaryActionSource,
     BlackboardCalculationPayload,
     BlackboardMutationSource,
     BuffBlackboardReadSource,
@@ -46,6 +47,7 @@ from generate_next_operators import (
     parse_skill_patch,
     compile_buff_blackboard_read,
     compile_buff_finish,
+    compile_buff_application,
     percentage_values,
     ts_inline_literal,
     typescript_identifier,
@@ -56,6 +58,26 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_buff_application_compiler_rejects_unmodeled_inherited_cast_identity(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        with self.assertRaisesRegex(ValueError, "inherited skill-cast identity"):
+            compile_buff_application(action, "fixture")
+
     def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
         root = {
             "actionGroupData": {
@@ -1253,9 +1275,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             timelineBlockFrames=20,
             auxiliaryActions=(
                 SimpleNamespace(
+                    startFrame=0,
+                    actionIndex=1,
                     actionType="CreateBuffAction",
                     sourceId="input_lock",
                     classification="inputLock",
+                    targetSource="Owner",
+                    targetGroupKey="",
+                    count=ScalarSource(1, None, None),
+                    buffSource="ActionSource",
+                    inheritSourceSkillCastInfo=True,
+                    blackboardAssignments={},
                 ),
             ),
             resourceGains=(SimpleNamespace(amount=ScalarSource(0, "unused", (0, 0))),),
@@ -1382,7 +1412,25 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         skill = SimpleNamespace(
             key="attack",
             timelineBlockFrames=20,
-            auxiliaryActions=(),
+            auxiliaryActions=(
+                AuxiliaryActionSource(
+                    startFrame=12,
+                    endFrame=12,
+                    actionIndex=5,
+                    actionType="CreateBuffAction",
+                    sourceId="buff_fixture",
+                    classification=None,
+                    targetSource="Source",
+                    targetGroupKey="",
+                    count=ScalarSource(1, None, None),
+                    buffSource="ActionSource",
+                    inheritSourceSkillCastInfo=False,
+                    blackboardAssignments={
+                        "duration": ScalarSource(0, "duration", (25, 25)),
+                    },
+                    nestedCombatActions=(),
+                ),
+            ),
             resourceGains=(
                 SimpleNamespace(
                     startFrame=12,
@@ -1414,7 +1462,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             blackboardCalculations=(
                 SimpleNamespace(
                     startFrame=12,
-                    actionIndex=5,
+                    actionIndex=6,
                     key="attackScale",
                     operation="Multiply",
                     left=ScalarSource(None, "baseScale", None),
@@ -1466,6 +1514,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             unresolvedCombatActions=(
                 "FinishBuffAdvanced",
                 "GetTargetBuffBBAdvanced",
+                "CreateBuffAction",
                 "ModifyDynamicBlackboard",
                 "ObtainCostAction",
                 "SimpleCalcBBAction",
@@ -1478,7 +1527,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=12,
-                    actionOrder=(6,),
+                    actionOrder=(7,),
                     skillId="entity_hit",
                     directDamageHits=(
                         SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=(unit,)),
@@ -1498,6 +1547,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "modifyActionValue",
             "readBuffBlackboard",
             "finishBuffsByTag",
+            "step('applyBuff'",
             "calculateActionValue",
             "step('dealDamage'",
         ]
@@ -1505,6 +1555,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             [source.index(marker) for marker in ordered_markers],
             sorted(source.index(marker) for marker in ordered_markers),
         )
+        self.assertIn("buffId: 'buff_fixture'", source)
+        self.assertIn("target: 'caster'", source)
+        self.assertIn("'duration': { kind: 'blackboard', key: 'duration' }", source)
 
     def test_skill_compiler_rejects_unconsumed_conditional_actions(self) -> None:
         skill = SimpleNamespace(

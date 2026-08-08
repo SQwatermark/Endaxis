@@ -59,6 +59,16 @@ export interface GeneratedAuxiliaryActionSource {
   readonly sourceId: string;
   /** 原生辅助行为的已确认语义；是否输出为步骤由具体分类决定，null 会阻止正式生成。 */
   readonly classification: GeneratedAuxiliaryClassification;
+  /** CreateBuffAction 的原生目标来源；不适用于能力实体时为空字符串。 */
+  readonly targetSource: string;
+  /** Context 等目标来源使用的原生目标组；空字符串也是有意义的配置值。 */
+  readonly targetGroupKey: string;
+  /** 每个目标上的创建次数；不适用于能力实体时为 null。 */
+  readonly count: GeneratedScalarSource | null;
+  /** 新 Buff 的原生来源解析方式；不适用于能力实体时为 null。 */
+  readonly buffSource: string | null;
+  /** 是否把本次施法身份传给新 Buff；不适用于能力实体时为 null。 */
+  readonly inheritSourceSkillCastInfo: boolean | null;
   readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
   readonly nestedCombatActions: readonly string[];
 }

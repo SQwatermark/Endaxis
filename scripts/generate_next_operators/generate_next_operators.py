@@ -104,6 +104,11 @@ class AuxiliaryActionSource:
     actionType: str
     sourceId: str
     classification: str | None
+    targetSource: str
+    targetGroupKey: str
+    count: ScalarSource | None
+    buffSource: str | None
+    inheritSourceSkillCastInfo: bool | None
     blackboardAssignments: dict[str, ScalarSource]
     nestedCombatActions: tuple[str, ...]
 
@@ -197,6 +202,7 @@ ResolvedScheduleItemType = Literal[
     "buffFinish",
     "resourceGain",
     "infliction",
+    "buffApplication",
 ]
 
 
@@ -2056,10 +2062,28 @@ def parse_auxiliary_actions(
                 continue
             name = action_name(action["$type"])
             if name == "CreateBuffAction":
+                target_settings = require_dict(
+                    action.get("targetSettings"),
+                    f"{source_name}.CreateBuffAction.targetSettings",
+                )
                 payload = parse_buff_application_payload(
                     action,
                     f"{source_name}.CreateBuffAction",
                     inherited_blackboard,
+                )
+                count = parse_scalar(
+                    action.get("count"),
+                    f"{source_name}.CreateBuffAction.count",
+                    inherited_blackboard,
+                )
+                buff_source = action.get("buffSource")
+                if not isinstance(buff_source, str) or not buff_source:
+                    raise ValueError(
+                        f"{source_name}.CreateBuffAction.buffSource: expected non-empty string"
+                    )
+                inherit_skill_cast_info = require_bool(
+                    action.get("inheritSourceSkillCastInfo"),
+                    f"{source_name}.CreateBuffAction.inheritSourceSkillCastInfo",
                 )
                 for buff in payload.buffs:
                     result.append(
@@ -2072,6 +2096,11 @@ def parse_auxiliary_actions(
                             actionType=name,
                             sourceId=buff.buffId,
                             classification=buff.classification,
+                            targetSource=str(target_settings.get("targetSource", "")),
+                            targetGroupKey=str(target_settings.get("targetGroupKey", "")),
+                            count=count,
+                            buffSource=buff_source,
+                            inheritSourceSkillCastInfo=inherit_skill_cast_info,
                             blackboardAssignments=buff.blackboardAssignments,
                             nestedCombatActions=(),
                         )
@@ -2091,6 +2120,11 @@ def parse_auxiliary_actions(
                             actionType=name,
                             sourceId=payload.abilityEntityId,
                             classification="nonCombatAbilityEntity",
+                            targetSource="",
+                            targetGroupKey="",
+                            count=None,
+                            buffSource=None,
+                            inheritSourceSkillCastInfo=None,
                             blackboardAssignments={},
                             nestedCombatActions=(),
                         )
@@ -2121,6 +2155,11 @@ def parse_auxiliary_actions(
                         actionType=name,
                         sourceId=f"{payload.abilityEntityId}:{skill_id}",
                         classification="nonCombatAbilityEntity" if not nested else None,
+                        targetSource="",
+                        targetGroupKey="",
+                        count=None,
+                        buffSource=None,
+                        inheritSourceSkillCastInfo=None,
                         blackboardAssignments={},
                         nestedCombatActions=nested,
                     )
@@ -2464,7 +2503,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
 
 
 def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemSource, ...]:
-    """归并根技能中的伤害与条件根，不展开条件分支内部的局部顺序。"""
+    """归并根技能中的伤害、Buff 施加与条件根，不展开条件分支内部的局部顺序。"""
     result = [
         ResolvedScheduleItemSource(
             frame=hit.frame,
@@ -2475,6 +2514,17 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for hit in collect_resolved_damage_hits(skill)
     ]
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="buffApplication",
+            sourcePath=(skill.skillId,),
+            payload=action,
+        )
+        for action in skill.auxiliaryActions
+        if action.actionType == "CreateBuffAction"
+    )
     result.extend(
         ResolvedScheduleItemSource(
             frame=action.startFrame,
@@ -3071,6 +3121,42 @@ def compile_infliction(infliction: TimedInflictionSource) -> str:
     )
 
 
+def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
+    """编译已闭环的单实例施加；目标、次数与来源不满足证据子集时明确拒绝。"""
+    if action.actionType != "CreateBuffAction" or action.count is None:
+        raise ValueError(f"{path}: expected parsed CreateBuffAction")
+    if action.count.blackboardKey is not None or action.count.value != 1:
+        raise ValueError(f"{path}: only a literal application count of 1 is supported")
+    if action.buffSource != "ActionSource":
+        raise ValueError(f"{path}: unsupported Buff source {action.buffSource!r}")
+    if action.inheritSourceSkillCastInfo is not False:
+        raise ValueError(f"{path}: inherited skill-cast identity is not modeled yet")
+    if action.targetSource == "Source" and not action.targetGroupKey:
+        target = "caster"
+    elif action.targetSource == "Context" and action.targetGroupKey == "smart_target":
+        target = "enemy"
+    else:
+        raise ValueError(
+            f"{path}: unsupported Buff target "
+            f"{action.targetSource!r}/{action.targetGroupKey!r}"
+        )
+    lines = [
+        "step('applyBuff', {",
+        f"  buffId: {ts_inline_literal(action.sourceId)},",
+        f"  target: {ts_inline_literal(target)},",
+    ]
+    if action.blackboardAssignments:
+        lines.append("  blackboardAssignments: {")
+        for key, value in action.blackboardAssignments.items():
+            lines.append(
+                f"    {ts_inline_literal(key)}: "
+                f"{compile_condition_operand(value, f'{path}.blackboardAssignments.{key}')},"
+            )
+        lines.append("  },")
+    lines.append("})")
+    return "\n".join(lines)
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource, path: str
 ) -> str:
@@ -3594,13 +3680,6 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         for action in getattr(skill, "auxiliaryActions", [])
         if action.actionType == "CreateBuffAction"
     ]
-    unignored_auxiliary_actions = [
-        action
-        for action in combat_auxiliary_actions
-        if action.classification not in ignored_auxiliary_classifications
-    ]
-    if unignored_auxiliary_actions:
-        raise ValueError(f"{skill.key}: resolved damage compiler does not accept root buffs")
     if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
@@ -3616,7 +3695,7 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         allowed_actions.add("FinishBuffAdvanced")
     if skill.inflictions:
         allowed_actions.add("SpellInfliction")
-    if ignored_auxiliary_classifications:
+    if combat_auxiliary_actions:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
         allowed_actions.add("ObtainCostAction")
@@ -3625,7 +3704,15 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
     hits = collect_resolved_damage_hits(skill)
     if not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
-    schedule = collect_resolved_schedule(skill)
+    schedule = tuple(
+        item
+        for item in collect_resolved_schedule(skill)
+        if not (
+            item.itemType == "buffApplication"
+            and cast(AuxiliaryActionSource, item.payload).classification
+            in ignored_auxiliary_classifications
+        )
+    )
     damage_indexes = {hit: index for index, hit in enumerate(hits)}
     scheduled_entries: list[str] = []
     for schedule_index, item in enumerate(schedule):
@@ -3678,6 +3765,12 @@ def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any])
         elif item.itemType == "infliction":
             payload = cast(TimedInflictionSource, item.payload)
             step_lines = compile_infliction(payload).splitlines()
+        elif item.itemType == "buffApplication":
+            payload = cast(AuxiliaryActionSource, item.payload)
+            step_lines = compile_buff_application(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffApplication",
+            ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
         scheduled_entries.extend(
