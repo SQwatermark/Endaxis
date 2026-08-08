@@ -4,6 +4,14 @@
  */
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
+export const ELEMENTAL_INFLICTION_OUTCOME_KINDS = [
+  'attachmentOnly',
+  'burst',
+  'compoundStatus',
+] as const;
+/** 一次附着申请实际进入的仅附着、爆发或复合状态分支。 */
+export type ElementalInflictionOutcomeKind = (typeof ELEMENTAL_INFLICTION_OUTCOME_KINDS)[number];
+
 /** 目标当前活动附着的元素、层数和对应 Buff 身份。 */
 export interface ExistingElementalAttachment {
   readonly element: InflictionElement;

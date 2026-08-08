@@ -6,13 +6,14 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import {
   resolveElementalInfliction,
   type ElementalInflictionOperation,
+  type ElementalInflictionOutcomeKind,
   type ExistingElementalAttachment,
 } from '../infliction/elementalInfliction';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
+type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
 type InflictionStep = Extract<RuntimeOperation, { kind: 'applyElementalInfliction' }>;
 
 export const ELEMENTAL_INFLICTION_EVENTS = [
@@ -81,6 +82,15 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     for (const operation of operations) this.dependencies.applyOperation(operation);
     this.dependencies.emitSourceEvent('afterOutputInfliction', payload);
     this.dependencies.emitTargetEvent('afterTakeInfliction', payload);
+    const current = this.dependencies.getExistingAttachment();
+    const compound = operations.find(operation => operation.kind === 'createCompoundStatus');
+    const outcomeKind: ElementalInflictionOutcomeKind = operations.some(
+      operation => operation.kind === 'triggerBurst',
+    )
+      ? 'burst'
+      : compound === undefined
+        ? 'attachmentOnly'
+        : 'compoundStatus';
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
@@ -89,10 +99,19 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
       targetId: this.dependencies.targetId,
       data: {
         skillId: this.dependencies.skillId,
-        element: step.parameters.element,
+        requestedElement: step.parameters.element,
         isExtra: payload.isExtra,
-        existingElement: existing?.element ?? null,
-        existingLayers: existing?.layers ?? 0,
+        previousElement: existing?.element ?? null,
+        previousLayers: existing?.layers ?? 0,
+        currentElement: current?.element ?? null,
+        currentLayers: current?.layers ?? 0,
+        outcomeKind,
+        ...(compound === undefined
+          ? {}
+          : {
+              consumedElement: compound.consumedElement,
+              consumedLayers: compound.consumedLayers,
+            }),
         operationKinds: operations.map(operation => operation.kind).join(','),
       },
     });

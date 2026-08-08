@@ -4,7 +4,7 @@ import type {
   ElementalInflictionOperation,
   ExistingElementalAttachment,
 } from '../infliction/elementalInfliction';
-import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import type { CombatReceiptEntry, CombatReceiptSink } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 
@@ -18,8 +18,12 @@ describe('ElementalInflictionOperationExecutor', () => {
     const order: string[] = [];
     let attachment: ExistingElementalAttachment | null = null;
     const applied: ElementalInflictionOperation[] = [];
+    let recorded: Omit<CombatReceiptEntry, 'sequence'> | undefined;
     const receipt: CombatReceiptSink = {
-      record: entry => order.push(`receipt:${entry.event}`),
+      record: entry => {
+        recorded = entry;
+        order.push(`receipt:${entry.event}`);
+      },
     };
     const executor = new ElementalInflictionOperationExecutor({
       sourceOperatorId: 'operator',
@@ -34,6 +38,7 @@ describe('ElementalInflictionOperationExecutor', () => {
       applyOperation: operation => {
         order.push(`apply:${operation.kind}`);
         applied.push(operation);
+        if (operation.kind === 'consumeAttachment') attachment = null;
       },
       emitSourceEvent: event => order.push(`source:${event}`),
       emitTargetEvent: event => {
@@ -56,7 +61,26 @@ describe('ElementalInflictionOperationExecutor', () => {
       'apply:createCompoundStatus',
       'source:afterOutputInfliction',
       'target:afterTakeInfliction',
+      'query',
       'receipt:ElementalInflictionApplied',
     ]);
+    expect(recorded).toMatchObject({
+      event: 'ElementalInflictionApplied',
+      sourceId: 'operator',
+      targetId: 'enemy',
+      data: {
+        skillId: 'skill',
+        requestedElement: 'electric',
+        isExtra: false,
+        previousElement: 'heat',
+        previousLayers: 2,
+        currentElement: null,
+        currentLayers: 0,
+        outcomeKind: 'compoundStatus',
+        consumedElement: 'heat',
+        consumedLayers: 2,
+        operationKinds: 'consumeAttachment,createCompoundStatus',
+      },
+    });
   });
 });
