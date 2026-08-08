@@ -80,6 +80,7 @@ from generate_next_operators import (
     parse_projectile_launch_payload,
     parse_projectile_launches,
     parse_resource_gains,
+    project_channel_trigger_frames,
     require_level_values,
     resolve_skill_blackboard,
     resource_gain_can_change_value,
@@ -1045,6 +1046,69 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         invalid = dict(channel, maxCountPerTarget=2)
         with self.assertRaisesRegex(ValueError, "only one trigger per target"):
             list(walk_single_enemy_actions(invalid, "skill"))
+
+    def test_channel_projection_ticks_on_both_interval_boundaries(self) -> None:
+        self.assertEqual(
+            project_channel_trigger_frames(
+                7,
+                7,
+                execute_each_frame=True,
+                trigger_interval=0.033,
+                max_count_per_target=-1,
+                target_trigger_interval=-1,
+            ),
+            (7,),
+        )
+        self.assertEqual(
+            project_channel_trigger_frames(
+                7,
+                9,
+                execute_each_frame=True,
+                trigger_interval=0.033,
+                max_count_per_target=-1,
+                target_trigger_interval=-1,
+            ),
+            (7, 8, 9),
+        )
+
+    def test_channel_projection_uses_immediate_first_scan_and_global_interval(self) -> None:
+        self.assertEqual(
+            project_channel_trigger_frames(
+                0,
+                6,
+                execute_each_frame=False,
+                trigger_interval=0.06,
+                max_count_per_target=-1,
+                target_trigger_interval=-1,
+            ),
+            (0, 2, 4, 6),
+        )
+        # 非零帧启动时，起始更新本身已经携带一个 1/30 秒的 deltaTime。
+        self.assertEqual(
+            project_channel_trigger_frames(
+                5,
+                9,
+                execute_each_frame=False,
+                trigger_interval=0.06,
+                max_count_per_target=-1,
+                target_trigger_interval=-1,
+            ),
+            (5, 6, 8),
+        )
+
+    def test_channel_projection_applies_strict_per_target_interval_and_count(self) -> None:
+        self.assertEqual(
+            project_channel_trigger_frames(
+                0,
+                8,
+                execute_each_frame=True,
+                trigger_interval=0.033,
+                max_count_per_target=3,
+                target_trigger_interval=1 / 30,
+            ),
+            # 单精度累加在第 3 帧产生略大于 1/30 的差值，原生严格大于比较会放行。
+            (0, 2, 3),
+        )
 
     def test_timed_marker_gate_keeps_only_the_first_ability_entity_hit(self) -> None:
         gate = TimedMarkerGateSource("marker_key", True, 0.4)

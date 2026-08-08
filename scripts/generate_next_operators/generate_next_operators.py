@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import struct
 import textwrap
 from collections import Counter
 from dataclasses import asdict, dataclass, replace
@@ -1333,6 +1335,88 @@ def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
     elif isinstance(value, list):
         for child in value:
             yield from walk_unconditional_actions(child)
+
+
+def to_float32(value: float) -> float:
+    """按原生单精度指令的舍入方式保存中间结果。"""
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def project_channel_trigger_frames(
+    start_frame: int,
+    end_frame: int,
+    *,
+    execute_each_frame: bool,
+    trigger_interval: float,
+    max_count_per_target: int,
+    target_trigger_interval: float,
+) -> tuple[int, ...]:
+    """投影固定 30 Hz、单目标模型下 ChannelingAction 的实际触发帧。
+
+    原生动作先按全局扫描节奏寻找目标，再对每个目标分别检查次数和时间间隔。
+    Endaxis 不模拟跳帧更新，因此这里逐逻辑帧推进；区间终点会先 Tick 再 End。
+    """
+    if start_frame < 0 or end_frame < start_frame:
+        raise ValueError("channel frame range must be non-negative and ordered")
+    if not isinstance(execute_each_frame, bool):
+        raise ValueError("channel executeEachFrame must be boolean")
+    if not isinstance(max_count_per_target, int) or isinstance(
+        max_count_per_target, bool
+    ):
+        raise ValueError("channel maxCountPerTarget must be integer")
+    for name, value in (
+        ("triggerInterval", trigger_interval),
+        ("targetTriggerInterval", target_trigger_interval),
+    ):
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+        ):
+            raise ValueError(f"channel {name} must be a finite number")
+
+    frame_delta = to_float32(1 / 30)
+    trigger_interval_f32 = to_float32(float(trigger_interval))
+    target_interval_f32 = to_float32(float(target_trigger_interval))
+    timer = to_float32(0)
+    global_trigger_count = 0
+    target_trigger_count = 0
+    last_target_trigger_time = to_float32(0)
+    last_checked_frame = -1
+    result: list[int] = []
+
+    for frame in range(start_frame, end_frame + 1):
+        # 技能施放入口会立即执行一次 OnTick(0, 0)；后续逻辑帧固定推进 1/30 秒。
+        delta = 0.0 if frame == 0 else frame_delta
+        timer = to_float32(timer + delta)
+        previous_checked_frame = last_checked_frame
+        last_checked_frame = frame
+
+        should_scan = execute_each_frame and previous_checked_frame != frame
+        if not should_scan:
+            threshold = to_float32(
+                to_float32(float(global_trigger_count)) * trigger_interval_f32
+            )
+            should_scan = timer >= threshold
+        if not should_scan:
+            continue
+        global_trigger_count += 1
+
+        if (
+            max_count_per_target >= 0
+            and target_trigger_count >= max_count_per_target
+        ):
+            continue
+        if target_trigger_count > 0:
+            elapsed = to_float32(timer - last_target_trigger_time)
+            if not elapsed > target_interval_f32:
+                continue
+
+        result.append(frame)
+        target_trigger_count += 1
+        last_target_trigger_time = timer
+
+    return tuple(result)
 
 
 def walk_single_enemy_actions(value: Any, path: str) -> Iterable[dict[str, Any]]:
