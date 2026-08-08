@@ -3994,8 +3994,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             for action in actions
         )
     for index, gain in enumerate(filter_once_resource_gains(skill.resourceGains)):
-        values = require_level_values(gain.amount, f"{skill.key}.resourceGains[{index}].amount")
-        if all(value == 0 for value in values):
+        if not resource_gain_can_change_value(
+            gain, f"{skill.key}.resourceGains[{index}].amount"
+        ):
             continue
         result.append(
             ResolvedScheduleItemSource(
@@ -4034,6 +4035,16 @@ def root_target_group_writes_for_condition(
     return getattr(skill, "targetGroupWrites", ())
 
 
+def resource_gain_can_change_value(
+    gain: ResourceGainPayload | TimedResourceGainSource,
+    path: str,
+) -> bool:
+    """动态 amount 必须进入运行时；只有已解析且全为零的值可以提前过滤。"""
+    if gain.amount.blackboardKey is not None and gain.amount.levelValues is None:
+        return True
+    return any(value != 0 for value in require_level_values(gain.amount, path))
+
+
 def collect_projectile_schedule(
     hit: ProjectileTriggeredSkillSource,
     result: list[ResolvedScheduleItemSource],
@@ -4055,9 +4066,8 @@ def collect_projectile_schedule(
         for frame in (condition.executionFrames or (condition.startFrame,))
     )
     for gain in filter_once_resource_gains(hit.resourceGains):
-        if not any(
-            value != 0
-            for value in require_level_values(gain.amount, f"{hit.triggerSkillId}.resourceGain")
+        if not resource_gain_can_change_value(
+            gain, f"{hit.triggerSkillId}.resourceGain"
         ):
             continue
         result.append(
@@ -4118,10 +4128,7 @@ def collect_ability_entity_schedule(
         getattr(hit, "resourceGains", ()), key=lambda item: (item.startFrame, item.actionIndex)
     )
     for gain in filter_once_resource_gains(resource_gains):
-        if not any(
-            value != 0
-            for value in require_level_values(gain.amount, f"{hit.skillId}.resourceGain")
-        ):
+        if not resource_gain_can_change_value(gain, f"{hit.skillId}.resourceGain"):
             continue
         result.append(
             ResolvedScheduleItemSource(

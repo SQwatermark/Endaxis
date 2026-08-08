@@ -7,11 +7,11 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 150,
+    "compiledCount": 151,
     "completeOperatorCount": 0,
     "blockerKinds": {
       "parser-assignment-shape": 1,
-      "other": 32,
+      "other": 33,
       "parser-channeling": 11,
       "parser-tick-interval": 2,
       "projectile-child-actions": 10,
@@ -23,10 +23,10 @@
       "condition-entity-count": 3,
       "condition-buff-stack": 10,
       "parser-damage-calculation": 4,
-      "conditional-leaf": 6,
+      "conditional-leaf": 7,
       "condition-target-identity": 13,
-      "dynamic-scalar": 6,
-      "source-data-missing": 21
+      "source-data-missing": 21,
+      "dynamic-scalar": 3
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 69,
@@ -1003,8 +1003,7 @@
       "complete": false,
       "blockerKinds": {
         "parser-channeling": 1,
-        "dynamic-scalar": 1,
-        "other": 3,
+        "other": 4,
         "condition-buff-stack": 1,
         "root-action-coverage": 2
       }
@@ -1018,7 +1017,7 @@
       "complete": false,
       "blockerKinds": {
         "condition-tag": 1,
-        "dynamic-scalar": 1
+        "conditional-leaf": 1
       }
     },
     {
@@ -1172,10 +1171,10 @@
       "operatorName": "Pogranichnik",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "dynamic-scalar": 3,
+        "dynamic-scalar": 2,
         "condition-entity-count": 1
       }
     },
@@ -2853,8 +2852,8 @@
       "skillId": "chr_0016_laevat_attack2",
       "skillType": "basicAttack",
       "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "attack2.resourceGains[0].amount: scalar has no resolved level values",
+      "blockerKind": "other",
+      "blocker": "attack2.schedule[1].resourceGain: resource gain coefficient other than 1 is not supported",
       "unresolvedActions": ["DamageAction", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -3144,8 +3143,8 @@
       "skillId": "chr_0021_whiten_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "normal_skill.resourceGains[0].amount: scalar has no resolved level values",
+      "blockerKind": "conditional-leaf",
+      "blocker": "normal_skill.schedule[0].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
       "unresolvedActions": ["LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -4916,9 +4915,9 @@
       "operatorName": "Pogranichnik",
       "skillId": "chr_0029_pograni_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "combo_skill.resourceGains[0].amount: scalar has no resolved level values",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,

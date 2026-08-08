@@ -70,6 +70,7 @@ from generate_next_operators import (
     parse_projectile_launches,
     parse_resource_gains,
     require_level_values,
+    resource_gain_can_change_value,
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
     resolve_conditional_projectile_triggers,
@@ -96,6 +97,13 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_dynamic_resource_gain_reaches_runtime_compiler(self) -> None:
+        dynamic = SimpleNamespace(amount=ScalarSource(0, "calculated_atb", None))
+        zero = SimpleNamespace(amount=ScalarSource(0, None, None))
+
+        self.assertTrue(resource_gain_can_change_value(dynamic, "fixture"))
+        self.assertFalse(resource_gain_can_change_value(zero, "fixture"))
+
     def test_literal_scalar_is_already_a_resolved_level_value(self) -> None:
         self.assertEqual(
             require_level_values(ScalarSource(50, None, None), "fixture"),

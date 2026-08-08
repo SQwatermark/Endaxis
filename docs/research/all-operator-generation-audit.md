@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：150 个。
+- 无角色专用声明即可进入通用 DSL：151 个。
 - 当前整名干员完整直转：0 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -46,7 +46,7 @@
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      3 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      6 | 否       |
-| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      6 | 否       |
+| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      7 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |      6 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      7 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     10 |      4 | 否       |
@@ -58,7 +58,7 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `other`                     |     32 |
+| `other`                     |     33 |
 | `source-data-missing`       |     21 |
 | `buff-source-or-target`     |     17 |
 | `condition-target-identity` |     13 |
@@ -66,12 +66,12 @@
 | `condition-buff-stack`      |     10 |
 | `projectile-child-actions`  |     10 |
 | `root-action-coverage`      |     10 |
+| `conditional-leaf`          |      7 |
 | `condition-other`           |      6 |
-| `conditional-leaf`          |      6 |
-| `dynamic-scalar`            |      6 |
 | `condition-tag`             |      5 |
 | `parser-damage-calculation` |      4 |
 | `condition-entity-count`    |      3 |
+| `dynamic-scalar`            |      3 |
 | `parser-tick-interval`      |      2 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |
