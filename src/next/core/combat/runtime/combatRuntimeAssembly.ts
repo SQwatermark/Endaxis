@@ -17,6 +17,9 @@ import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
 import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
+import { StatusOperationExecutor } from './statusOperationExecutor';
+import { CombatStatusContainer } from '../status/combatStatuses';
+import { CombatStatusRuntime } from './combatStatusRuntime';
 
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -25,6 +28,8 @@ export interface CombatOperatorProgram {
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
   readonly buffRuntime?: FrameRuntime &
     BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
+  /** 通用语义状态与 Buff 分属两个显式所有者；容器只在本次模拟中使用。 */
+  readonly statusContainer?: CombatStatusContainer;
   readonly actionRuntime?: FrameRuntime;
 }
 
@@ -40,6 +45,7 @@ export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffs: BuffOperationTarget;
+  readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
@@ -66,23 +72,45 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #enemyBuffs: BuffOperationTarget;
+  readonly #enemyStatuses?: CombatStatusRuntime;
+  readonly #operatorStatuses = new Map<string, CombatStatusRuntime>();
   readonly #skillCastIds = new SkillCastIdAllocator();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
     this.#enemyBuffs = options.enemyBuffs;
+    this.#enemyStatuses =
+      options.enemyStatusContainer === undefined
+        ? undefined
+        : new CombatStatusRuntime(options.enemyStatusContainer, this.clock, this.receipt);
 
     for (const operator of options.operators) {
       if (this.#abilitySystems.has(operator.operatorId)) {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
       const entityBlackboard = operator.buffRuntime?.entityBlackboard ?? new ActionBlackboard();
+      const statusRuntime =
+        operator.statusContainer === undefined
+          ? undefined
+          : new CombatStatusRuntime(operator.statusContainer, this.clock, this.receipt);
+      if (
+        operator.statusContainer !== undefined &&
+        operator.statusContainer.ownerId !== operator.operatorId
+      ) {
+        throw new Error(
+          `status owner '${operator.statusContainer.ownerId}' does not match operator '${operator.operatorId}'`,
+        );
+      }
+      if (statusRuntime !== undefined) {
+        this.#operatorStatuses.set(operator.operatorId, statusRuntime);
+      }
       const skills = operator.skills.map(program =>
         this.#createSkillRuntime(
           operator,
           program,
           entityBlackboard,
+          statusRuntime,
           options.createOperationExecutor,
           options.isOperatorControlled,
         ),
@@ -98,6 +126,12 @@ export class CombatRuntimeAssembly {
     }
 
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
+    // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
+    if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
+    for (const operator of options.operators) {
+      const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
+      if (statusRuntime !== undefined) this.simulation.add(statusRuntime);
+    }
     const inputRuntime = new CombatInputRuntime({
       clock: this.clock,
       inputs: options.inputs ?? [],
@@ -131,6 +165,7 @@ export class CombatRuntimeAssembly {
     operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
     entityBlackboard: ActionBlackboard,
+    statusRuntime: CombatStatusRuntime | undefined,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
   ): SkillRuntime {
@@ -159,6 +194,22 @@ export class CombatRuntimeAssembly {
       },
       delegate: baseDelegate,
     });
+    const statusOperations = new StatusOperationExecutor({
+      sourceId: operatorId,
+      skillId: program.skillId,
+      clock: this.clock,
+      receipt: this.receipt,
+      resolveTarget: target => {
+        const targetRuntime = target === 'enemy' ? this.#enemyStatuses : statusRuntime;
+        if (targetRuntime === undefined) {
+          throw new Error(
+            `combat ${target} '${target === 'enemy' ? 'enemy' : operatorId}' has no status runtime`,
+          );
+        }
+        return targetRuntime;
+      },
+      delegate: buffOperations,
+    });
     const controlConditions = new OperatorControlConditionExecutor({
       isCasterControlled: () => {
         if (isOperatorControlled === undefined) {
@@ -166,7 +217,7 @@ export class CombatRuntimeAssembly {
         }
         return isOperatorControlled(operatorId, this.clock.frame);
       },
-      delegate: buffOperations,
+      delegate: statusOperations,
     });
     const delegate = new ActionBlackboardOperationExecutor(controlConditions);
     let runtime: SkillRuntime;

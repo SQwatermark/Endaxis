@@ -5,23 +5,15 @@
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import type { CombatStatusChangeReason, CombatStatusTransition } from '../status/combatStatuses';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
-type ApplyStatusStep = Extract<RuntimeOperation, { kind: 'applyStatus' }>;
-type ConsumeStatusStep = Extract<RuntimeOperation, { kind: 'consumeStatus' }>;
-
-/** 某个语义状态在一次动作边界上的实际快照；null 时长表示没有有限到期时间。 */
-export interface CombatStatusSnapshot {
-  readonly stacks: number;
-  readonly remainingFrames: number | null;
-}
-
-/** 状态所有者完成一次动作后返回的实际变化，不包含任何投影层推导值。 */
-export interface CombatStatusTransition {
-  readonly previous: CombatStatusSnapshot;
-  readonly current: CombatStatusSnapshot;
+export interface StatusActionRequest<K extends 'applyStatus' | 'consumeStatus'> {
+  readonly sourceId: string;
+  readonly skillId: string;
+  readonly parameters: Extract<RuntimeOperation, { kind: K }>['parameters'];
 }
 
 /**
@@ -30,8 +22,9 @@ export interface CombatStatusTransition {
  */
 export interface CombatStatusOperationTarget {
   readonly targetId: string;
-  applyStatus(parameters: ApplyStatusStep['parameters']): CombatStatusTransition;
-  consumeStatus(parameters: ConsumeStatusStep['parameters']): CombatStatusTransition;
+  applyStatus(request: StatusActionRequest<'applyStatus'>): CombatStatusTransition;
+  consumeStatus(request: StatusActionRequest<'consumeStatus'>): CombatStatusTransition;
+  getStacks(statusKey: string): number;
 }
 
 export interface StatusOperationDependencies {
@@ -53,23 +46,43 @@ export class StatusOperationExecutor implements CombatOperationExecutor {
   ): boolean {
     if (step.kind === 'applyStatus') {
       const target = this.dependencies.resolveTarget(step.parameters.target);
-      const transition = target.applyStatus(step.parameters);
-      this.recordTransition(target.targetId, step.parameters.statusKey, 'applied', transition, {
-        requestedStacks: step.parameters.stacks ?? null,
-        requestedDurationFrames: step.parameters.durationFrames ?? null,
-        requestedMaxStacks: step.parameters.maxStacks ?? null,
+      const transition = target.applyStatus({
+        sourceId: this.dependencies.sourceId,
+        skillId: this.dependencies.skillId,
+        parameters: step.parameters,
       });
+      recordStatusTransition(
+        this.dependencies.receipt,
+        this.dependencies.clock,
+        target.targetId,
+        transition,
+        {
+          requestedStacks: step.parameters.stacks ?? null,
+          requestedDurationFrames: step.parameters.durationFrames ?? null,
+          requestedMaxStacks: step.parameters.maxStacks ?? null,
+        },
+      );
       return true;
     }
 
     if (step.kind === 'consumeStatus') {
       const target = this.dependencies.resolveTarget(step.parameters.target);
-      const transition = target.consumeStatus(step.parameters);
-      this.recordTransition(target.targetId, step.parameters.statusKey, 'consumed', transition, {
-        requestedStacks: step.parameters.stacks ?? null,
-        requestedDurationFrames: null,
-        requestedMaxStacks: null,
+      const transition = target.consumeStatus({
+        sourceId: this.dependencies.sourceId,
+        skillId: this.dependencies.skillId,
+        parameters: step.parameters,
       });
+      recordStatusTransition(
+        this.dependencies.receipt,
+        this.dependencies.clock,
+        target.targetId,
+        transition,
+        {
+          requestedStacks: step.parameters.stacks ?? null,
+          requestedDurationFrames: null,
+          requestedMaxStacks: null,
+        },
+      );
       return true;
     }
 
@@ -82,38 +95,45 @@ export class StatusOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
+    if (condition.kind === 'statusActive') {
+      const stacks = this.dependencies
+        .resolveTarget(condition.target)
+        .getStacks(condition.statusKey);
+      return stacks >= (condition.minimumStacks ?? 1);
+    }
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
   }
+}
 
-  private recordTransition(
-    targetId: string,
-    statusKey: string,
-    reason: 'applied' | 'consumed',
-    transition: CombatStatusTransition,
-    request: {
-      readonly requestedStacks: number | null;
-      readonly requestedDurationFrames: number | null;
-      readonly requestedMaxStacks: number | null;
+/** 状态动作与自然到期共享的唯一回执写入边界。 */
+export function recordStatusTransition(
+  receipt: CombatReceiptSink,
+  clock: CombatClock,
+  targetId: string,
+  transition: CombatStatusTransition & { readonly reason: CombatStatusChangeReason },
+  request: {
+    readonly requestedStacks: number | null;
+    readonly requestedDurationFrames: number | null;
+    readonly requestedMaxStacks: number | null;
+  },
+): void {
+  receipt.record({
+    frame: clock.frame,
+    time: clock.time,
+    event: 'StatusChanged',
+    sourceId: transition.sourceId,
+    targetId,
+    data: {
+      skillId: transition.skillId,
+      statusKey: transition.statusKey,
+      reason: transition.reason,
+      ...request,
+      previousStacks: transition.previous.stacks,
+      previousRemainingFrames: transition.previous.remainingFrames,
+      currentStacks: transition.current.stacks,
+      currentRemainingFrames: transition.current.remainingFrames,
     },
-  ): void {
-    this.dependencies.receipt.record({
-      frame: this.dependencies.clock.frame,
-      time: this.dependencies.clock.time,
-      event: 'StatusChanged',
-      sourceId: this.dependencies.sourceId,
-      targetId,
-      data: {
-        skillId: this.dependencies.skillId,
-        statusKey,
-        reason,
-        ...request,
-        previousStacks: transition.previous.stacks,
-        previousRemainingFrames: transition.previous.remainingFrames,
-        currentStacks: transition.current.stacks,
-        currentRemainingFrames: transition.current.remainingFrames,
-      },
-    });
-  }
+  });
 }

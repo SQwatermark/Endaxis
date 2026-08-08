@@ -12,10 +12,15 @@ describe('StatusOperationExecutor', () => {
     const target: CombatStatusOperationTarget = {
       targetId: 'enemy',
       applyStatus: vi.fn(() => ({
+        statusKey: 'mark',
+        reason: 'applied' as const,
+        sourceId: 'operator',
+        skillId: 'battleSkill',
         previous: { stacks: 1, remainingFrames: 12 },
         current: { stacks: 3, remainingFrames: 90 },
       })),
       consumeStatus: vi.fn(),
+      getStacks: vi.fn(() => 0),
     };
     const executor = new StatusOperationExecutor({
       sourceId: 'operator',
@@ -40,12 +45,16 @@ describe('StatusOperationExecutor', () => {
       }),
     ).toBe(true);
     expect(target.applyStatus).toHaveBeenCalledWith({
-      statusKey: 'mark',
-      target: 'enemy',
-      stacks: 2,
-      maxStacks: 4,
-      durationFrames: 90,
-      modifiers: [],
+      sourceId: 'operator',
+      skillId: 'battleSkill',
+      parameters: {
+        statusKey: 'mark',
+        target: 'enemy',
+        stacks: 2,
+        maxStacks: 4,
+        durationFrames: 90,
+        modifiers: [],
+      },
     });
     expect(receipt.entries[0]).toMatchObject({
       event: 'StatusChanged',
@@ -72,9 +81,14 @@ describe('StatusOperationExecutor', () => {
       targetId: 'operator',
       applyStatus: vi.fn(),
       consumeStatus: vi.fn(() => ({
+        statusKey: 'ready',
+        reason: 'consumed' as const,
+        sourceId: 'operator',
+        skillId: 'enhancedSkill',
         previous: { stacks: 2, remainingFrames: null },
         current: { stacks: 0, remainingFrames: null },
       })),
+      getStacks: vi.fn(() => 2),
     };
     const executor = new StatusOperationExecutor({
       sourceId: 'operator',
@@ -97,5 +111,13 @@ describe('StatusOperationExecutor', () => {
       previousStacks: 2,
       currentStacks: 0,
     });
+    expect(
+      executor.evaluate({
+        kind: 'statusActive',
+        statusKey: 'ready',
+        target: 'caster',
+        minimumStacks: 2,
+      }),
+    ).toBe(true);
   });
 });

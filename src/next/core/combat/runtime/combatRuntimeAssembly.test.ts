@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -84,6 +86,83 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('routes semantic status actions and conditions through one frame-driven owner', () => {
+    const receipt = new CombatReceiptCollector();
+    const program = skill({
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyStatus',
+                parameters: { statusKey: 'ready', target: 'caster' },
+              },
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'statusActive',
+                    statusKey: 'ready',
+                    target: 'caster',
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'changeResource',
+                      parameters: { resource: 'sp', amount: 1, recipient: 'team' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: false,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [],
+      },
+      enemyBuffs: emptyEnemyBuffs,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [program],
+          statusContainer: new CombatStatusContainer('operator', [
+            {
+              statusKey: 'ready',
+              applyStacks: 1,
+              maxStacks: 1,
+              durationFrames: 2,
+              durationStacking: 'refresh',
+              consumeStacks: 'all',
+            },
+          ]),
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+      receipt,
+    });
+
+    assembly.tryStartSkill('operator', 'skill');
+    expect(assembly.resources.sp).toBe(1);
+    assembly.advanceFrames(2);
+    expect(
+      receipt.entries
+        .filter(entry => entry.event === 'StatusChanged')
+        .map(entry => entry.data?.reason),
+    ).toEqual(['applied', 'expired']);
+  });
+
   it('evaluates caster control conditions from the current simulation frame', () => {
     const isOperatorControlled = vi.fn(() => true);
     const program = skill({

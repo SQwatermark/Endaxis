@@ -69,16 +69,39 @@ describe('projectStatusChangePoints', () => {
     expect(points.map(point => point.sequence)).toEqual([4, 6]);
   });
 
+  it('accepts natural expiration facts recorded by the runtime owner', () => {
+    const points = projectStatusChangePoints([
+      statusReceipt(7, {
+        data: {
+          ...statusReceipt(7).data,
+          reason: 'expired',
+          requestedStacks: null,
+          requestedDurationFrames: null,
+          requestedMaxStacks: null,
+          previousStacks: 1,
+          previousRemainingFrames: 1,
+          currentStacks: 0,
+          currentRemainingFrames: null,
+        },
+      }),
+    ]);
+    expect(points[0]).toMatchObject({
+      reason: 'expired',
+      previousRemainingFrames: 1,
+      currentStacks: 0,
+    });
+  });
+
   it('rejects malformed state facts instead of repairing them', () => {
     expect(() =>
       projectStatusChangePoints([
-        statusReceipt(7, { data: { ...statusReceipt(7).data, currentStacks: -1 } }),
+        statusReceipt(8, { data: { ...statusReceipt(8).data, currentStacks: -1 } }),
       ]),
-    ).toThrow("receipt 7 'StatusChanged' has invalid currentStacks");
+    ).toThrow("receipt 8 'StatusChanged' has invalid currentStacks");
     expect(() =>
       projectStatusChangePoints([
-        statusReceipt(8, { data: { ...statusReceipt(8).data, reason: 'expired' } }),
+        statusReceipt(9, { data: { ...statusReceipt(9).data, reason: 'unknown' } }),
       ]),
-    ).toThrow("receipt 8 'StatusChanged' has invalid reason");
+    ).toThrow("receipt 9 'StatusChanged' has invalid reason");
   });
 });

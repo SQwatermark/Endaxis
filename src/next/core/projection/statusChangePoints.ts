@@ -3,9 +3,12 @@
  * 本投影只校验执行现场记录的快照，不计算叠层、刷新、消费或到期结果。
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
+import {
+  COMBAT_STATUS_CHANGE_REASONS,
+  type CombatStatusChangeReason,
+} from '../combat/status/combatStatuses';
 
-export const STATUS_CHANGE_REASONS = ['applied', 'consumed'] as const;
-export type StatusChangeReason = (typeof STATUS_CHANGE_REASONS)[number];
+export type StatusChangeReason = CombatStatusChangeReason;
 
 /** 一次通用状态动作完成后的请求参数、前后状态和执行定位。 */
 export interface StatusChangePoint {
@@ -58,7 +61,7 @@ function requireReason(
   data: Readonly<Record<string, CombatReceiptValue>>,
 ): StatusChangeReason {
   const value = data.reason;
-  if (!STATUS_CHANGE_REASONS.includes(value as StatusChangeReason)) {
+  if (!COMBAT_STATUS_CHANGE_REASONS.includes(value as StatusChangeReason)) {
     throw new Error(`receipt ${entry.sequence} 'StatusChanged' has invalid reason`);
   }
   return value as StatusChangeReason;
