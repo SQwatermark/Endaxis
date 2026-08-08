@@ -24,6 +24,7 @@ from generate_next_operators import (
     build_blackboard_provenance,
     compile_skill_entries,
     compile_buff_application_values,
+    compile_buff_stack_read,
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
     compile_combat_condition_group,
@@ -2143,6 +2144,58 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", result)
         with self.assertRaisesRegex(ValueError, "unsupported buff finish target"):
             compile_buff_finish(finish, "fixture.finish")
+
+    def test_input_target_buff_finish_targets_the_enemy(self) -> None:
+        finish = BuffFinishSource(
+            startFrame=11,
+            endFrame=12,
+            actionIndex=1,
+            targetSource="Target",
+            targetGroupKey="ignored_by_target_source",
+            buffCheckType="Tag",
+            # Tag 是判别字段；该模式下原生数据可能仍携带不参与查询的 ID 列表。
+            buffIds=("inactive.id",),
+            tagQueryType="hasAny",
+            buffTagIds=(1466867135,),
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=True,
+            isAbsorbed=False,
+        )
+
+        result = compile_buff_finish(
+            finish,
+            "fixture.finish",
+            input_target="enemy",
+        )
+
+        self.assertIn("target: 'enemy'", result)
+        with self.assertRaisesRegex(ValueError, "unsupported buff finish target"):
+            compile_buff_finish(finish, "fixture.finish")
+
+    def test_input_target_buff_stack_read_targets_the_enemy(self) -> None:
+        read = BuffStackReadPayload(
+            "count",
+            "Target",
+            "ignored_by_target_source",
+            "Tag",
+            ("",),
+            "hasAny",
+            (1466867135,),
+            "BuffCount",
+            False,
+        )
+
+        result = compile_buff_stack_read(
+            read,
+            "fixture.read",
+            input_target="enemy",
+        )
+
+        self.assertIn("target: 'enemy'", result)
+        self.assertIn("kind: 'tag'", result)
+        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
+            compile_buff_stack_read(read, "fixture.read")
 
     def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:
         root = {

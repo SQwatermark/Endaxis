@@ -6093,25 +6093,36 @@ def compile_buff_finish(
     finish: BuffFinishPayload | BuffFinishSource,
     path: str,
     *,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
+    context_target_is_enemy: bool = False,
 ) -> str:
-    """编译已闭环的敌方标签或施法者 ID 全量结束分支。"""
+    """编译目标身份和 Buff 查询方式均已闭环的全量结束分支。"""
     if not finish.finishAll or finish.limitSource:
         raise ValueError(f"{path}: only finishAll without source limiting is supported")
     if finish.isFinishedEarly and finish.isAbsorbed:
         raise ValueError(f"{path}: conflicting finish reasons")
     reason = "early" if finish.isFinishedEarly else "absorbed" if finish.isAbsorbed else "other"
+    target = resolve_fixed_combat_target(
+        finish.targetSource,
+        finish.targetGroupKey,
+        action=action,
+        target_group_writes=target_group_writes,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+        context_target_is_enemy=context_target_is_enemy,
+    )
     if (
-        finish.targetSource == "Context"
-        and finish.targetGroupKey == "smart_target"
+        target is not None
         and finish.buffCheckType == "Tag"
         and finish.buffTagIds
-        and not finish.buffIds
     ):
         return "\n".join(
             [
                 "step('finishBuffsByTag', {",
-                "  target: 'enemy',",
+                f"  target: {ts_inline_literal(target)},",
                 f"  tagQueryType: {ts_inline_literal(finish.tagQueryType)},",
                 f"  buffTagIds: {ts_inline_literal(finish.buffTagIds)},",
                 f"  reason: {ts_inline_literal(reason)},",
@@ -6119,19 +6130,14 @@ def compile_buff_finish(
             ]
         )
     if (
-        (
-            finish.targetSource == "Source"
-            or (root_skill_context and finish.targetSource == "Owner")
-        )
-        and not finish.targetGroupKey
+        target is not None
         and finish.buffCheckType == "Id"
         and finish.buffIds
-        and not finish.buffTagIds
     ):
         return "\n".join(
             [
                 "step('finishBuffsById', {",
-                "  target: 'caster',",
+                f"  target: {ts_inline_literal(target)},",
                 f"  buffIds: {ts_inline_literal(finish.buffIds)},",
                 f"  reason: {ts_inline_literal(reason)},",
                 "})",
@@ -6411,17 +6417,31 @@ def compile_global_cooldown_application(
     )
 
 
-def compile_buff_stack_read(payload: BuffStackReadPayload, path: str) -> str:
+def compile_buff_stack_read(
+    payload: BuffStackReadPayload,
+    path: str,
+    *,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
+    context_target_is_enemy: bool = False,
+) -> str:
     """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
     if payload.countType != "BuffCount":
         raise ValueError(f"{path}: unsupported Buff count type {payload.countType!r}")
     if payload.limitSkillCastId:
         raise ValueError(f"{path}: skill-cast-limited Buff count is not supported")
-    if payload.targetSource == "Source" and not payload.targetGroupKey:
-        target = "caster"
-    elif payload.targetSource == "Context" and payload.targetGroupKey == "smart_target":
-        target = "enemy"
-    else:
+    target = resolve_fixed_combat_target(
+        payload.targetSource,
+        payload.targetGroupKey,
+        action=action,
+        target_group_writes=target_group_writes,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+        context_target_is_enemy=context_target_is_enemy,
+    )
+    if target is None:
         raise ValueError(
             f"{path}: unsupported Buff target "
             f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
@@ -6677,10 +6697,20 @@ def compile_conditional_branch_action(
         return compile_buff_finish(
             action.buffFinish,
             path,
+            action=context_action,
+            target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            input_target=input_target,
         )
     if getattr(action, "buffStackRead", None) is not None:
-        return compile_buff_stack_read(action.buffStackRead, path)
+        return compile_buff_stack_read(
+            action.buffStackRead,
+            path,
+            action=context_action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
     if getattr(action, "buffApplication", None) is not None:
         buff_application = action.buffApplication
         context_target_is_enemy = False
@@ -7351,6 +7381,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
                     finish,
                     f"{skill.key}.buffFinishes[{index}]",
                     root_skill_context=True,
+                    input_target="enemy",
                 ),
             )
         )
@@ -7905,7 +7936,8 @@ def compile_resolved_sequence(
             step_lines = compile_buff_finish(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffFinish",
-                root_skill_context=True,
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
             ).splitlines()
         elif item.itemType == "buffHold":
             payload = cast(BuffHoldSource, item.payload)
