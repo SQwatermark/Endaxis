@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CombatClock } from './combatClock';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
@@ -17,12 +18,31 @@ describe('CombatResourceRuntime', () => {
       squad: [],
     });
     const observedSp: number[] = [];
-    const simulation = new CombatSimulation(new CombatClock());
-    simulation.add(new CombatResourceRuntime(resources));
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const simulation = new CombatSimulation(clock);
+    simulation.add(new CombatResourceRuntime(resources, clock, receipt));
     simulation.add({ advanceFrame: () => observedSp.push(resources.sp) });
 
     simulation.advanceFrame();
 
     expect(observedSp).toEqual([100]);
+    expect(receipt.entries).toEqual([
+      {
+        sequence: 0,
+        frame: 1,
+        time: 1 / 30,
+        event: 'SpChanged',
+        data: {
+          recipient: 'team',
+          baseValue: 1,
+          requestedValue: 1,
+          actualValue: 1,
+          previousValue: 99,
+          currentValue: 100,
+          gainKind: 'gain',
+        },
+      },
+    ]);
   });
 });

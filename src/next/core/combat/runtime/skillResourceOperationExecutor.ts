@@ -65,6 +65,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         sourceId: this.dependencies.sourceOperatorId,
         data: {
           skillId: this.dependencies.skillId,
+          recipient: 'team',
           baseValue: change.baseValue,
           requestedValue: change.requestedValue,
           actualValue: change.actualValue,
@@ -130,6 +131,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       targetId: change.operatorId,
       data: {
         skillId: this.dependencies.skillId,
+        recipient: 'operator',
         baseValue: change.baseValue,
         requestedValue: change.requestedValue,
         applied: change.applied,

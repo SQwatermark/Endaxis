@@ -97,7 +97,7 @@ export class CombatRuntimeAssembly {
       );
     }
 
-    this.simulation.add(new CombatResourceRuntime(this.resources));
+    this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     const inputRuntime = new CombatInputRuntime({
       clock: this.clock,
       inputs: options.inputs ?? [],

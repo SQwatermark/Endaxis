@@ -339,6 +339,7 @@ describe('SkillResourceOperationExecutor', () => {
         targetId: 'perlica',
         data: {
           skillId: 'battleSkill',
+          recipient: 'operator',
           baseValue: 9,
           requestedValue: 13.5,
           applied: true,
@@ -351,6 +352,7 @@ describe('SkillResourceOperationExecutor', () => {
         targetId: 'ally',
         data: {
           skillId: 'battleSkill',
+          recipient: 'operator',
           baseValue: 18,
           requestedValue: 9,
           applied: true,

@@ -36,6 +36,7 @@ export * from './mechanics/mechanicCompiler';
 export * from './mechanics/mechanicContribution';
 export * from './mechanics/mechanicRuntime';
 export * from './pipeline/simulationPipeline';
+export * from './projection/resourceChangePoints';
 export * from './projection/skillAvailabilityDiagnostics';
 export * from './projection/skillExecutionDiagnostics';
 export * from './project/createProject';

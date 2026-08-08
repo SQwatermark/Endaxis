@@ -59,6 +59,16 @@ describe('CombatResources', () => {
     expect(resources.pay('source', [{ resource: 'sp', value: 220 }])).toEqual({
       paid: true,
       nonReturnedSpCost: 10,
+      changes: [
+        {
+          resource: 'sp',
+          baseValue: -220,
+          requestedValue: -220,
+          actualValue: -220,
+          previousValue: 300,
+          currentValue: 80,
+        },
+      ],
     });
     expect(resources.returnedSp).toBe(0);
   });
@@ -88,6 +98,16 @@ describe('CombatResources', () => {
     expect(resources.pay('source', [{ resource: 'sp', value: 40 }])).toEqual({
       paid: true,
       nonReturnedSpCost: 30,
+      changes: [
+        {
+          resource: 'sp',
+          baseValue: -40,
+          requestedValue: -40,
+          actualValue: -40,
+          previousValue: 100,
+          currentValue: 60,
+        },
+      ],
     });
     expect(resources.sp).toBe(60);
     expect(resources.returnedSp).toBe(0);
@@ -210,6 +230,18 @@ describe('CombatResources', () => {
     expect(resources.pay('source', [{ resource: 'ultimateEnergy', value: 80 }])).toEqual({
       paid: true,
       nonReturnedSpCost: 0,
+      changes: [
+        {
+          resource: 'ultimateEnergy',
+          operatorId: 'source',
+          baseValue: -80,
+          requestedValue: -80,
+          applied: false,
+          actualValue: 0,
+          previousValue: 80,
+          currentValue: 80,
+        },
+      ],
     });
     expect(resources.getUltimateEnergy('source')).toBe(80);
   });

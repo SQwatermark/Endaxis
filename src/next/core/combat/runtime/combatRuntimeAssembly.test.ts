@@ -153,6 +153,8 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.resources.sp).toBe(1);
     expect(assembly.receipt.entries.map(entry => entry.event)).toEqual([
       'SkillStarted',
+      'SpChanged',
+      'SpChanged',
       'SkillCostApplied',
     ]);
   });
@@ -613,7 +615,9 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.resources.sp).toBe(0);
     expect(assembly.receipt.entries.map(entry => entry.event)).toEqual([
+      'SpChanged',
       'SkillStarted',
+      'SpChanged',
       'SkillCostApplied',
       'SkillInputProcessed',
     ]);

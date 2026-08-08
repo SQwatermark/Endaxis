@@ -101,6 +101,7 @@ describe('SkillRuntime', () => {
     expect(fixture.resources.sp).toBe(200);
     expect(fixture.receipt.entries.map(entry => entry.event)).toEqual([
       'SkillStarted',
+      'SpChanged',
       'SkillCostApplied',
     ]);
   });

@@ -263,12 +263,17 @@ export class SkillRuntime {
     );
   }
 
-  record(event: string, data?: Readonly<Record<string, boolean | number | string | null>>): void {
+  record(
+    event: string,
+    data?: Readonly<Record<string, boolean | number | string | null>>,
+    targetId?: string,
+  ): void {
     this.#dependencies.receipt.record({
       frame: this.#dependencies.clock.frame,
       time: this.#dependencies.clock.time,
       event,
       sourceId: this.#program.operatorId,
+      ...(targetId === undefined ? {} : { targetId }),
       data: { skillId: this.#program.skillId, ...data },
     });
   }
@@ -287,6 +292,32 @@ export class SkillRuntime {
       if (payment.paid) {
         this.#appliedCost = true;
         this.#nonReturnedSpCost = payment.nonReturnedSpCost;
+        for (const change of payment.changes) {
+          if (change.resource === 'sp') {
+            this.record('SpChanged', {
+              recipient: 'team',
+              baseValue: change.baseValue,
+              requestedValue: change.requestedValue,
+              actualValue: change.actualValue,
+              previousValue: change.previousValue,
+              currentValue: change.currentValue,
+            });
+          } else {
+            this.record(
+              'UltimateEnergyChanged',
+              {
+                recipient: 'operator',
+                baseValue: change.baseValue,
+                requestedValue: change.requestedValue,
+                applied: change.applied,
+                actualValue: change.actualValue,
+                previousValue: change.previousValue,
+                currentValue: change.currentValue,
+              },
+              change.operatorId,
+            );
+          }
+        }
         this.record('SkillCostApplied', {
           nonReturnedSpCost: payment.nonReturnedSpCost,
           remainingSp: this.#dependencies.resources.sp,

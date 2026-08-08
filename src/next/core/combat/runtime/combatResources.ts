@@ -48,11 +48,25 @@ export interface CombatResourceSnapshot {
   readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
 }
 
-/** 技能费用尝试的结果；失败时不得继续执行技能。 */
+/** 技能费用尝试的结果；失败时不改变资源账本。 */
 export interface SkillPaymentResult {
   readonly paid: boolean;
   readonly nonReturnedSpCost: number;
+  /** 支付成功时按费用配置顺序产生的实际账本变化。 */
+  readonly changes: readonly SkillPaymentChange[];
 }
+
+/** 技能支付直接产生的资源变化；运行时据此记录事实，不再次读取或计算账本。 */
+export type SkillPaymentChange =
+  | {
+      readonly resource: 'sp';
+      readonly baseValue: number;
+      readonly requestedValue: number;
+      readonly actualValue: number;
+      readonly previousValue: number;
+      readonly currentValue: number;
+    }
+  | ({ readonly resource: 'ultimateEnergy' } & UltimateEnergyChange);
 
 /** 一次共享技力增加的请求值、实际值与前后账本状态。 */
 export interface SpChange {
@@ -250,22 +264,48 @@ export class CombatResources {
   }
 
   pay(operatorId: string, costs: readonly CompiledSkillCost[]): SkillPaymentResult {
-    if (!this.canPay(operatorId, costs)) return { paid: false, nonReturnedSpCost: 0 };
+    if (!this.canPay(operatorId, costs)) {
+      return { paid: false, nonReturnedSpCost: 0, changes: [] };
+    }
     let nonReturnedSpCost = 0;
+    const changes: SkillPaymentChange[] = [];
     for (const cost of costs) {
       if (cost.resource === 'sp') {
+        const previousValue = this.#sp;
         this.#sp = Math.max(0, this.#sp - cost.value);
         const consumedReturnedSp = Math.min(this.#returnedSp, cost.value);
         this.#returnedSp -= consumedReturnedSp;
         nonReturnedSpCost = cost.value - consumedReturnedSp;
         this.#spRecoveryPauseRemaining = this.#spRecoveryPauseDuration;
+        changes.push({
+          resource: 'sp',
+          baseValue: -cost.value,
+          requestedValue: -cost.value,
+          actualValue: this.#sp - previousValue,
+          previousValue,
+          currentValue: this.#sp,
+        });
       } else {
-        const operator = this.#requireOperator(operatorId);
+        const previousValue = this.getUltimateEnergy(operatorId);
         // 原生 `Skill.ApplyCost` 会忽略终结技能量 Setter 的返回值。
-        this.#trySetUltimateEnergy(operator, operator.ultimateEnergy - cost.value);
+        const applied = this.#trySetUltimateEnergy(
+          this.#requireOperator(operatorId),
+          previousValue - cost.value,
+        );
+        const currentValue = this.getUltimateEnergy(operatorId);
+        changes.push({
+          resource: 'ultimateEnergy',
+          operatorId,
+          baseValue: -cost.value,
+          requestedValue: -cost.value,
+          applied,
+          actualValue: currentValue - previousValue,
+          previousValue,
+          currentValue,
+        });
       }
     }
-    return { paid: true, nonReturnedSpCost };
+    return { paid: true, nonReturnedSpCost, changes };
   }
 
   gainSquadUltimateEnergyFromSkillCost(
