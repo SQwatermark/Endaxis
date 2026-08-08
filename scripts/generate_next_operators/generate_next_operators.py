@@ -5031,7 +5031,10 @@ def compile_combat_condition(
                 ]
             )
         if (
-            buff.targetSource == "Source"
+            (
+                buff.targetSource == "Source"
+                or (root_skill_context and buff.targetSource == "Owner")
+            )
             and not buff.targetGroupKey
             and buff.buffCheckType == "Id"
             and buff.buffIds
@@ -5115,7 +5118,12 @@ def compile_buff_blackboard_read(
     )
 
 
-def compile_buff_finish(finish: BuffFinishPayload | BuffFinishSource, path: str) -> str:
+def compile_buff_finish(
+    finish: BuffFinishPayload | BuffFinishSource,
+    path: str,
+    *,
+    root_skill_context: bool = False,
+) -> str:
     """编译已闭环的敌方标签或施法者 ID 全量结束分支。"""
     if not finish.finishAll or finish.limitSource:
         raise ValueError(f"{path}: only finishAll without source limiting is supported")
@@ -5140,7 +5148,10 @@ def compile_buff_finish(finish: BuffFinishPayload | BuffFinishSource, path: str)
             ]
         )
     if (
-        finish.targetSource == "Source"
+        (
+            finish.targetSource == "Source"
+            or (root_skill_context and finish.targetSource == "Owner")
+        )
         and not finish.targetGroupKey
         and finish.buffCheckType == "Id"
         and finish.buffIds
@@ -5476,7 +5487,11 @@ def compile_conditional_branch_action(
     if getattr(action, "buffBlackboardRead", None) is not None:
         return compile_buff_blackboard_read(action.buffBlackboardRead, path)
     if getattr(action, "buffFinish", None) is not None:
-        return compile_buff_finish(action.buffFinish, path)
+        return compile_buff_finish(
+            action.buffFinish,
+            path,
+            root_skill_context=root_skill_context,
+        )
     if getattr(action, "buffStackRead", None) is not None:
         return compile_buff_stack_read(action.buffStackRead, path)
     if getattr(action, "buffApplication", None) is not None:
@@ -6000,7 +6015,11 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         ordered_steps.append(
             (
                 finish.actionIndex,
-                compile_buff_finish(finish, f"{skill.key}.buffFinishes[{index}]"),
+                compile_buff_finish(
+                    finish,
+                    f"{skill.key}.buffFinishes[{index}]",
+                    root_skill_context=True,
+                ),
             )
         )
     for infliction in skill.inflictions:
@@ -6516,6 +6535,7 @@ def compile_resolved_sequence(
             step_lines = compile_buff_finish(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffFinish",
+                root_skill_context=True,
             ).splitlines()
         elif item.itemType == "buffHold":
             payload = cast(BuffHoldSource, item.payload)

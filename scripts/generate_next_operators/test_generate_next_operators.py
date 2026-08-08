@@ -1663,6 +1663,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
+    def test_root_skill_owner_buff_finish_targets_the_caster(self) -> None:
+        finish = BuffFinishSource(
+            startFrame=11,
+            endFrame=12,
+            actionIndex=1,
+            targetSource="Owner",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=("buff.example",),
+            tagQueryType="hasAny",
+            buffTagIds=(),
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=False,
+            isAbsorbed=False,
+        )
+
+        result = compile_buff_finish(
+            finish,
+            "fixture.finish",
+            root_skill_context=True,
+        )
+
+        self.assertIn("target: 'caster'", result)
+        with self.assertRaisesRegex(ValueError, "unsupported buff finish target"):
+            compile_buff_finish(finish, "fixture.finish")
+
     def test_blackboard_calculation_keeps_dynamic_operands(self) -> None:
         root = {
             "actionGroupData": {
@@ -2090,6 +2117,36 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffIdStackCompare'", result)
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
+
+    def test_root_skill_owner_buff_condition_targets_the_caster(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            comparison=None,
+            left=None,
+            right=None,
+            buffStack=SimpleNamespace(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Id",
+                buffIds=("buff.example.sword",),
+                buffTagIds=(),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        result = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            root_skill_context=True,
+        )
+
+        self.assertIn("target: 'caster'", result)
+        with self.assertRaisesRegex(ValueError, "unsupported Buff stack query target"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
 
     def test_condition_parser_and_compiler_preserve_main_operator_semantics(self) -> None:
         condition = {

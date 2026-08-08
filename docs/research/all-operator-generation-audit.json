@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 195,
+    "compiledCount": 196,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -17,16 +17,17 @@
       "condition-tag": 6,
       "projectile-data": 1,
       "condition-other": 7,
-      "buff-source-or-target": 21,
+      "buff-source-or-target": 22,
       "root-action-coverage": 11,
-      "condition-buff-stack": 10,
+      "condition-buff-stack": 11,
       "parser-damage-calculation": 4,
       "conditional-leaf": 5,
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
-      "other": 6,
-      "source-data-missing": 21
+      "other": 2,
+      "source-data-missing": 21,
+      "dynamic-scalar": 1
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 69,
@@ -1070,7 +1071,8 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "other": 2,
+        "dynamic-scalar": 1,
+        "condition-buff-stack": 1,
         "condition-tag": 1,
         "parser-damage-calculation": 1
       }
@@ -1133,8 +1135,7 @@
         "conditional-leaf": 1,
         "condition-other": 1,
         "parser-tick-interval": 1,
-        "buff-source-or-target": 1,
-        "other": 1,
+        "buff-source-or-target": 2,
         "parser-channeling": 1
       }
     },
@@ -1143,11 +1144,10 @@
       "operatorName": "Last Rite",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 2,
-        "other": 1
+        "buff-source-or-target": 2
       }
     },
     {
@@ -3668,7 +3668,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "ult_attack_end.schedule[0].buffFinish: unsupported buff finish target or identity",
+      "blocker": "ult_attack_end.schedule[2].buffBlackboardRead: unsupported buff blackboard target",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 3,
       "referencedBuffCount": 3,
@@ -3807,8 +3807,8 @@
       "skillId": "chr_0028_wulfa_combo_2_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "combo_2_skill.schedule[1].buffFinish: unsupported buff finish target or identity",
+      "blockerKind": "dynamic-scalar",
+      "blocker": "combo_2_skill.resolvedDamageHits[0].attackScale: scalar has no resolved level values",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 4,
       "referencedBuffCount": 6,
@@ -3821,8 +3821,8 @@
       "skillId": "chr_0028_wulfa_combo_3_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "combo_3_skill.schedule[1].buffFinish: unsupported buff finish target or identity",
+      "blockerKind": "condition-buff-stack",
+      "blocker": "combo_3_skill.schedule[6].conditionalAction.conditions[0]: unsupported condition type 'CheckBuffStackNumByTag'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 7,
       "referencedBuffCount": 10,
@@ -4742,8 +4742,8 @@
       "skillId": "chr_0025_ardelia_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[1].buffFinish: unsupported buff finish target or identity",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "normal_skill.schedule[2].conditionalAction.succeedActions[1].buffs[0]: unsupported Buff target 'Owner'/''",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4831,9 +4831,9 @@
       "operatorName": "Last Rite",
       "skillId": "chr_0026_lastrite_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "attack4.schedule[0].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 3,
       "referencedBuffCount": 0,
