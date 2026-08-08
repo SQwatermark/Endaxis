@@ -768,6 +768,13 @@ def omit_empty_execution_frames(value: Any) -> Any:
     return value
 
 
+# 这些条件作为 SequenceAction 子项时会用返回值截断同一 actionData 的剩余动作。
+SEQUENCE_GUARD_ACTION_NAMES = {
+    "CheckDistanceCondition",
+    "CheckMainCharacterCondition",
+    "CheckTargetsEqual",
+}
+
 COMBAT_ACTION_NAMES = {
     "DamageAction",
     "CreateBuffAction",
@@ -780,11 +787,9 @@ COMBAT_ACTION_NAMES = {
     "ObtainCostAction",
     "IfElseAction",
     # 条件直接位于 SequenceAction 时会以 false 截断后续动作；在保留序列边界前必须视为战斗动作。
-    "CheckMainCharacterCondition",
+    *SEQUENCE_GUARD_ACTION_NAMES,
 }
 
-# 这些条件作为 SequenceAction 子项时会用返回值截断同一 actionData 的剩余动作。
-SEQUENCE_GUARD_ACTION_NAMES = {"CheckMainCharacterCondition"}
 # IfElse 与序列守卫本身只组织控制流；是否影响战斗取决于其子树中的实际效果动作。
 COMBAT_EFFECT_ACTION_NAMES = COMBAT_ACTION_NAMES - {
     "IfElseAction",
@@ -2117,14 +2122,23 @@ def parse_conditional_actions(
     ) -> tuple[ConditionalBranchActionSource, ...]:
         branch = require_dict(value, f"{source_name}.{'.'.join(path)}")
         actions: list[ConditionalBranchActionSource] = []
-        for index, raw_action in enumerate(
-            require_list(branch.get("actionData"), f"{source_name}.{'.'.join(path)}.actionData")
-        ):
+        raw_actions = require_list(
+            branch.get("actionData"), f"{source_name}.{'.'.join(path)}.actionData"
+        )
+        for index, raw_action in enumerate(raw_actions):
             action = require_dict(raw_action, f"{source_name}.{'.'.join(path)}.actionData[{index}]")
             if action.get("isEnable") is False:
                 continue
             action_type = action_name(str(action.get("$type", "")))
             action_path = (*path, "actionData", f"[{index}]")
+            if (
+                action_type in SEQUENCE_GUARD_ACTION_NAMES
+                and not any(
+                    contains_combat_effect(item)
+                    for item in raw_actions[index + 1 :]
+                )
+            ):
+                continue
             if action_type == "IfElseAction":
                 nested = parse_if_else(
                     action,
@@ -5477,6 +5491,7 @@ def collect_compilable_conditional_action_types(
     result = {"IfElseAction"} if actions else set()
 
     def visit(action: ConditionalActionSource) -> None:
+        result.update(condition.sourceType for condition in action.conditions)
         for branch_action in (*action.succeedActions, *action.failActions):
             if getattr(branch_action, "nestedCondition", None) is not None:
                 result.add("IfElseAction")

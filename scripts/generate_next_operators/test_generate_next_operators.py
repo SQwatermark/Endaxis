@@ -1997,6 +1997,45 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
         )
 
+    def test_direct_distance_guard_remains_an_unresolved_root_action(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckDistanceCondition+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 1,
+                                },
+                                {
+                                    "$type": "Example.DamageAction+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 2,
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertIn(
+            "CheckDistanceCondition",
+            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
+        root["actionGroupData"]["timelineActions"][0]["_sequenceActionData"][
+            "actionData"
+        ].reverse()
+        self.assertNotIn(
+            "CheckDistanceCondition",
+            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
     def test_direct_main_operator_guard_before_presentation_only_tail_is_ignored(self) -> None:
         root = {
             "actionGroupData": {

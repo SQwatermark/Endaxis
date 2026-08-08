@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：185 个。
+- 无角色专用声明即可进入通用 DSL：184 个。
 - 当前整名干员完整直转：1 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -28,7 +28,7 @@
 | Arclight       | `chr_0007_ikut`     |   10 |      9 |      7 | 否       |
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      5 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      7 | 否       |
-| Avywenna       | `chr_0012_avywen`   |   10 |     10 |      8 | 否       |
+| Avywenna       | `chr_0012_avywen`   |   10 |     10 |      7 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      7 |      7 | 否       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      4 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      6 | 否       |
@@ -72,6 +72,7 @@
 | `parser-damage-calculation` |      4 |
 | `condition-entity-count`    |      3 |
 | `parser-tick-interval`      |      2 |
+| `condition-main-operator`   |      1 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |
 
@@ -149,6 +150,7 @@
 | `LaunchProjectile`            |         69 |
 | `SpawnAbilityEntity`          |         22 |
 | `SpellInfliction`             |          7 |
+| `CheckDistanceCondition`      |          1 |
 | `CheckMainCharacterCondition` |          1 |
 
 ## 使用方式
