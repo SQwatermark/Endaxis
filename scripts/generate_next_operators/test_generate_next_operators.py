@@ -50,6 +50,7 @@ from generate_next_operators import (
     ConditionSource,
     EntityCountConditionSource,
     MainOperatorConditionSource,
+    InflictionPayload,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
@@ -2501,6 +2502,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("modifyActionValue", result)
         self.assertIn("key: 'swordCount'", result)
         self.assertIn("operation: 'add'", result)
+
+    def test_conditional_action_compiler_emits_elemental_infliction(self) -> None:
+        action = SimpleNamespace(
+            conditions=(
+                SimpleNamespace(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="Equals",
+                    left=ScalarSource(1, None, None),
+                    right=ScalarSource(1, None, None),
+                ),
+            ),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="SpellInfliction",
+                    nestedCondition=None,
+                    infliction=InflictionPayload("electric", True),
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("applyElementalInfliction", result)
+        self.assertIn("element: 'electric'", result)
+        self.assertIn("isExtra: true", result)
 
     def test_conditional_action_compiler_emits_two_operand_blackboard_calculation(self) -> None:
         condition = SimpleNamespace(

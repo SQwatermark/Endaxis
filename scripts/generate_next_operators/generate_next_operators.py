@@ -134,6 +134,12 @@ class AuxiliaryActionSource:
 
 
 @dataclass(frozen=True)
+class InflictionPayload:
+    element: str
+    isExtra: bool
+
+
+@dataclass(frozen=True)
 class TimedInflictionSource:
     startFrame: int
     endFrame: int
@@ -566,6 +572,7 @@ class ConditionalBranchActionSource:
     buffStackRead: BuffStackReadPayload | None = None
     buffApplication: BuffApplicationPayload | None = None
     resourceGain: ResourceGainPayload | None = None
+    infliction: InflictionPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
@@ -746,6 +753,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "buffStackRead",
         "buffApplication",
         "resourceGain",
+        "infliction",
         "projectileLaunch",
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
@@ -2220,6 +2228,7 @@ def parse_conditional_actions(
                 buff_stack_read = None
                 buff_application = None
                 resource_gain = None
+                infliction = None
                 projectile_launch = None
                 ability_entity_spawn = None
                 damage_units = None
@@ -2245,6 +2254,8 @@ def parse_conditional_actions(
                     resource_gain = parse_resource_gain_payload(
                         action, source_path, inherited_blackboard
                     )
+                elif action_type == "SpellInfliction":
+                    infliction = parse_infliction_payload(action, source_path)
                 elif action_type == "LaunchProjectile":
                     projectile_launch = parse_projectile_launch_payload(action, source_path)
                 elif action_type == "SpawnAbilityEntity":
@@ -2269,6 +2280,7 @@ def parse_conditional_actions(
                         buffStackRead=buff_stack_read,
                         buffApplication=buff_application,
                         resourceGain=resource_gain,
+                        infliction=infliction,
                         projectileLaunch=projectile_launch,
                         abilityEntitySpawn=ability_entity_spawn,
                         damageUnits=damage_units,
@@ -2821,6 +2833,17 @@ INFLICTION_TYPE_MAP = {
 }
 
 
+def parse_infliction_payload(action: dict[str, Any], path: str) -> InflictionPayload:
+    raw_type = action.get("inflictionType")
+    element = INFLICTION_TYPE_MAP.get(raw_type)
+    if element is None:
+        raise ValueError(f"{path}: unsupported inflictionType {raw_type!r}")
+    is_extra = action.get("isExtra")
+    if not isinstance(is_extra, bool):
+        raise ValueError(f"{path}.isExtra: expected boolean")
+    return InflictionPayload(element, is_extra)
+
+
 def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInflictionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[TimedInflictionSource] = []
@@ -2837,13 +2860,7 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
         for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
             if action_name(action["$type"]) != "SpellInfliction":
                 continue
-            raw_type = action.get("inflictionType")
-            element = INFLICTION_TYPE_MAP.get(raw_type)
-            if element is None:
-                raise ValueError(f"{source_name}.SpellInfliction: unsupported inflictionType {raw_type!r}")
-            is_extra = action.get("isExtra")
-            if not isinstance(is_extra, bool):
-                raise ValueError(f"{source_name}.SpellInfliction.isExtra: expected boolean")
+            payload = parse_infliction_payload(action, f"{source_name}.SpellInfliction")
             result.append(
                 TimedInflictionSource(
                     startFrame=start_frame,
@@ -2851,8 +2868,8 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
                     actionIndex=require_server_action_index(
                         action, f"{source_name}.SpellInfliction"
                     ),
-                    element=element,
-                    isExtra=is_extra,
+                    element=payload.element,
+                    isExtra=payload.isExtra,
                 )
             )
     return tuple(result)
@@ -5474,6 +5491,13 @@ def compile_conditional_branch_action(
         return compile_blackboard_calculation(action.blackboardCalculation, path)
     if getattr(action, "resourceGain", None) is not None:
         return compile_resource_gain(action.resourceGain, path)
+    infliction = getattr(action, "infliction", None)
+    if infliction is not None:
+        return (
+            "step('applyElementalInfliction', { element: "
+            f"{ts_inline_literal(infliction.element)}, isExtra: "
+            f"{ts_inline_literal(infliction.isExtra)} }})"
+        )
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
 
 
@@ -5781,6 +5805,8 @@ def collect_compilable_conditional_action_types(
                 result.add("SimpleCalcBBAction")
             if getattr(branch_action, "resourceGain", None) is not None:
                 result.add("ObtainCostAction")
+            if getattr(branch_action, "infliction", None) is not None:
+                result.add("SpellInfliction")
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:

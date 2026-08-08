@@ -90,12 +90,15 @@ export interface GeneratedAuxiliaryActionSource {
   readonly nestedCombatActions: readonly string[];
 }
 
-export interface GeneratedTimedInflictionSource {
+export interface GeneratedInflictionPayload {
+  readonly element: 'heat' | 'cryo' | 'electric' | 'nature';
+  readonly isExtra: boolean;
+}
+
+export interface GeneratedTimedInflictionSource extends GeneratedInflictionPayload {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
-  readonly element: 'heat' | 'cryo' | 'electric' | 'nature';
-  readonly isExtra: boolean;
 }
 
 export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainPayload {
@@ -479,6 +482,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly buffStackRead?: GeneratedBuffStackReadPayload;
   readonly buffApplication?: GeneratedBuffApplicationPayload;
   readonly resourceGain?: GeneratedResourceGainPayload;
+  readonly infliction?: GeneratedInflictionPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
