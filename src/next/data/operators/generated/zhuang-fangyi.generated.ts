@@ -714,7 +714,23 @@ export const zhuangFangyiGeneratedSource = {
           "succeedActions": [
             {
               "actionType": "DamageAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
             },
             {
               "actionType": "IfElseAction",
@@ -789,7 +805,23 @@ export const zhuangFangyiGeneratedSource = {
           "failActions": [
             {
               "actionType": "DamageAction",
-              "actionIndex": 0
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
             },
             {
               "actionType": "IfElseAction",
@@ -2941,7 +2973,34 @@ export const zhuangFangyiGeneratedSource = {
               "succeedActions": [
                 {
                   "actionType": "DamageAction",
-                  "actionIndex": 2
+                  "actionIndex": 2,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.04,
+                          0.04,
+                          0.04,
+                          0.05,
+                          0.05,
+                          0.05,
+                          0.06,
+                          0.06,
+                          0.06,
+                          0.07,
+                          0.07,
+                          0.08
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -2960,7 +3019,34 @@ export const zhuangFangyiGeneratedSource = {
               "failActions": [
                 {
                   "actionType": "DamageAction",
-                  "actionIndex": 2
+                  "actionIndex": 2,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.04,
+                          0.04,
+                          0.04,
+                          0.05,
+                          0.05,
+                          0.05,
+                          0.06,
+                          0.06,
+                          0.06,
+                          0.07,
+                          0.07,
+                          0.08
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4302,7 +4388,34 @@ export const zhuangFangyiGeneratedSource = {
               "succeedActions": [
                 {
                   "actionType": "DamageAction",
-                  "actionIndex": 2
+                  "actionIndex": 2,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.11,
+                          0.12,
+                          0.14,
+                          0.15,
+                          0.16,
+                          0.17,
+                          0.18,
+                          0.19,
+                          0.2,
+                          0.22,
+                          0.23,
+                          0.25
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4321,7 +4434,34 @@ export const zhuangFangyiGeneratedSource = {
               "failActions": [
                 {
                   "actionType": "DamageAction",
-                  "actionIndex": 2
+                  "actionIndex": 2,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.11,
+                          0.12,
+                          0.14,
+                          0.15,
+                          0.16,
+                          0.17,
+                          0.18,
+                          0.19,
+                          0.2,
+                          0.22,
+                          0.23,
+                          0.25
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -12964,13 +13104,45 @@ export const zhuangFangyiGeneratedSource = {
                     "succeedActions": [
                       {
                         "actionType": "DamageAction",
-                        "actionIndex": 0
+                        "actionIndex": 0,
+                        "damageUnits": [
+                          {
+                            "damageType": "Pulse",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "atk_scale_final",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null
+                          }
+                        ]
                       }
                     ],
                     "failActions": [
                       {
                         "actionType": "DamageAction",
-                        "actionIndex": 0
+                        "actionIndex": 0,
+                        "damageUnits": [
+                          {
+                            "damageType": "Pulse",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "atk_scale_final",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null
+                          }
+                        ]
                       }
                     ],
                     "executionFrames": [

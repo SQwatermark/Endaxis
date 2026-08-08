@@ -7,6 +7,7 @@ import {
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
+import { ActionBlackboard } from './actionBlackboard';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 
 const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
@@ -99,6 +100,19 @@ describe('PlayerDamageOperationExecutor', () => {
       'source:outputDamage',
     ]);
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
+
+    executor.execute(
+      {
+        ...DAMAGE_STEP,
+        parameters: {
+          ...DAMAGE_STEP.parameters,
+          attackScale: { kind: 'blackboard', key: 'attackScale' },
+          stagger: undefined,
+        },
+      },
+      { blackboard: new ActionBlackboard({ attackScale: 1 }) },
+    );
+    expect(targetVitals.health).toBe(500);
   });
 
   it('drives preparation events and both modifier stages before the formula', () => {

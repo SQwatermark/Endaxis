@@ -426,6 +426,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly resourceGain?: GeneratedResourceGainPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
+  readonly damageUnits?: readonly GeneratedDamageUnitSource[];
 }
 
 export interface GeneratedBlackboardCalculationSource

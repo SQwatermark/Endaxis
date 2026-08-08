@@ -509,6 +509,7 @@ class ConditionalBranchActionSource:
     resourceGain: ResourceGainPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
+    damageUnits: tuple[DamageUnitSource, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -658,6 +659,7 @@ def serialize_audit_value(value: Any) -> Any:
                     "resourceGain",
                     "projectileLaunch",
                     "abilityEntitySpawn",
+                    "damageUnits",
                 }
                 and item is None
             )
@@ -1747,6 +1749,7 @@ def parse_conditional_actions(
                 resource_gain = None
                 projectile_launch = None
                 ability_entity_spawn = None
+                damage_units = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -1775,6 +1778,13 @@ def parse_conditional_actions(
                     ability_entity_spawn = parse_ability_entity_spawn_payload(
                         action, source_path
                     )
+                elif action_type == "DamageAction":
+                    if "damageUnits" in action:
+                        damage_units = parse_damage_units(
+                            {"actionGroupData": {"action": action}},
+                            source_path,
+                            inherited_blackboard,
+                        )
                 actions.append(
                     ConditionalBranchActionSource(
                         actionType=action_type,
@@ -1788,6 +1798,7 @@ def parse_conditional_actions(
                         resourceGain=resource_gain,
                         projectileLaunch=projectile_launch,
                         abilityEntitySpawn=ability_entity_spawn,
+                        damageUnits=damage_units,
                     )
                 )
         return tuple(actions)
@@ -4366,6 +4377,8 @@ def compile_conditional_branch_action(
     action: ConditionalBranchActionSource,
     path: str,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
+    runtime_blackboard_keys: frozenset[str] = frozenset(),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -4373,6 +4386,17 @@ def compile_conditional_branch_action(
             action.nestedCondition,
             f"{path}.nestedCondition",
             ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+        )
+    if getattr(action, "damageUnits", None) is not None:
+        return "\n".join(
+            compile_damage_units_step(
+                action.damageUnits,
+                damage_tags,
+                path,
+                runtime_blackboard_keys,
+            )
         )
     if getattr(action, "buffBlackboardRead", None) is not None:
         return compile_buff_blackboard_read(action.buffBlackboardRead, path)
@@ -4399,6 +4423,8 @@ def compile_conditional_branch(
     actions: tuple[ConditionalBranchActionSource, ...],
     path: str,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
+    runtime_blackboard_keys: frozenset[str] = frozenset(),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -4410,6 +4436,8 @@ def compile_conditional_branch(
             action,
             f"{path}[{index}]",
             ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
         )
         if compiled == "sequence()":
             continue
@@ -4427,6 +4455,8 @@ def compile_conditional_action(
     action: ConditionalActionSource,
     path: str,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
+    runtime_blackboard_keys: frozenset[str] = frozenset(),
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     condition = compile_combat_condition_group(action.conditions, f"{path}.conditions")
@@ -4434,12 +4464,16 @@ def compile_conditional_action(
         action.succeedActions,
         f"{path}.succeedActions",
         ignored_buff_ids,
+        damage_tags,
+        runtime_blackboard_keys,
     )
     fail = (
         compile_conditional_branch(
             action.failActions,
             f"{path}.failActions",
             ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
         )
         if action.failActions
         else None
@@ -4501,10 +4535,50 @@ def collect_compilable_conditional_action_types(
                 result.add("SimpleCalcBBAction")
             if getattr(branch_action, "resourceGain", None) is not None:
                 result.add("ObtainCostAction")
+            if getattr(branch_action, "damageUnits", None) is not None:
+                result.add("DamageAction")
 
     for action in actions:
         visit(action)
     return result
+
+
+def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]:
+    """收集会在本次技能执行中被动作写入的键；仅这些键必须延迟到运行时求值。"""
+    result = {item.key for item in skill.blackboardCalculations}
+    result.update(item.key for item in skill.blackboardMutations)
+    result.update(item.outputKey for item in skill.buffBlackboardReads)
+
+    def visit_conditions(actions: tuple[ConditionalActionSource, ...]) -> None:
+        for condition in actions:
+            for action in (*condition.succeedActions, *condition.failActions):
+                calculation = getattr(action, "blackboardCalculation", None)
+                mutation = getattr(action, "blackboardMutation", None)
+                buff_read = getattr(action, "buffBlackboardRead", None)
+                stack_read = getattr(action, "buffStackRead", None)
+                nested = getattr(action, "nestedCondition", None)
+                if calculation is not None:
+                    result.add(calculation.key)
+                if mutation is not None:
+                    result.add(mutation.key)
+                if buff_read is not None:
+                    result.add(buff_read.outputKey)
+                if stack_read is not None:
+                    result.add(stack_read.outputKey)
+                if nested is not None:
+                    visit_conditions((nested,))
+
+    def visit_entities(entities: tuple[AbilityEntityHitSource, ...]) -> None:
+        for entity in entities:
+            result.update(item.key for item in getattr(entity, "blackboardCalculations", ()))
+            result.update(item.key for item in getattr(entity, "blackboardMutations", ()))
+            result.update(item.outputKey for item in getattr(entity, "buffBlackboardReads", ()))
+            visit_conditions(getattr(entity, "conditionalActions", ()))
+            visit_entities(getattr(entity, "nestedAbilityEntityHits", ()))
+
+    visit_conditions(skill.conditionalActions)
+    visit_entities(skill.abilityEntityHits)
+    return frozenset(result)
 
 
 def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
@@ -4905,34 +4979,39 @@ def validate_ignored_recursive_projectile_conditions(
         raise ValueError(f"{path}: recursive launch does not target the same projectile event skill")
 
 
-def compile_resolved_damage_steps(
-    skill: SkillSource,
-    config: dict[str, Any],
-    hit: ResolvedDamageHitSource,
-    index: int,
-    is_last_damage: bool,
+def compile_damage_units_step(
+    damage_units: tuple[DamageUnitSource, ...],
+    tags: tuple[str, ...],
+    path: str,
+    runtime_blackboard_keys: frozenset[str] = frozenset(),
 ) -> list[str]:
-    """把一个已解析命中编译成同步步骤；收尾效果紧跟最后一次伤害。"""
-    hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
-    poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
+    """把同一原生 DamageAction 的生命与失衡单元编译为一个伤害步骤。"""
+    hp_units = [unit for unit in damage_units if unit.attributeType == "Hp"]
+    poise_units = [unit for unit in damage_units if unit.attributeType == "Poise"]
     if (
         len(hp_units) != 1
         or len(poise_units) > 1
-        or len(hp_units) + len(poise_units) != len(hit.damageUnits)
+        or len(hp_units) + len(poise_units) != len(damage_units)
     ):
-        raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: unsupported DamageUnit layout")
+        raise ValueError(f"{path}: unsupported DamageUnit layout")
     hp = hp_units[0]
     damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
     if damage_type is None:
-        raise ValueError(
-            f"{skill.key}.resolvedDamageHits[{index}]: unsupported damage type {hp.damageType}"
+        raise ValueError(f"{path}: unsupported damage type {hp.damageType}")
+    if hp.attackScale.blackboardKey in runtime_blackboard_keys:
+        attack_scale = (
+            "{ kind: 'blackboard', key: "
+            f"{ts_inline_literal(hp.attackScale.blackboardKey)} }}"
         )
-    tags = require_list(config.get("tags"), f"{skill.key}.compile.tags")
+    else:
+        attack_scale = (
+            "percentages("
+            f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{path}.attackScale')))}"
+            ")"
+        )
     fields = [
         f"damageType: {ts_inline_literal(damage_type)}",
-        "attackScale: percentages("
-        f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.hit[{index}].attackScale')))}"
-        ")",
+        f"attackScale: {attack_scale}",
         f"tags: {ts_inline_literal(tags)}",
     ]
     if hp.calculation != "standard":
@@ -4945,12 +5024,30 @@ def compile_resolved_damage_steps(
     if poise_units:
         poise = poise_units[0].poiseValue
         if poise is None:
-            raise ValueError(f"{skill.key}.resolvedDamageHits[{index}]: Poise unit has no value")
+            raise ValueError(f"{path}: Poise unit has no value")
         fields.append(
             "stagger: "
-            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.hit[{index}].stagger')))}"
+            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))}"
         )
-    result = ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+    return ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+
+
+def compile_resolved_damage_steps(
+    skill: SkillSource,
+    config: dict[str, Any],
+    hit: ResolvedDamageHitSource,
+    index: int,
+    is_last_damage: bool,
+    runtime_blackboard_keys: frozenset[str] = frozenset(),
+) -> list[str]:
+    """把一个已解析命中编译成同步步骤；收尾效果紧跟最后一次伤害。"""
+    tags = tuple(require_list(config.get("tags"), f"{skill.key}.compile.tags"))
+    result = compile_damage_units_step(
+        hit.damageUnits,
+        tags,
+        f"{skill.key}.resolvedDamageHits[{index}]",
+        runtime_blackboard_keys,
+    )
     if is_last_damage and config.get("afterDamage") == "gainFinisherSp":
         result.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
     elif is_last_damage and config.get("afterDamage") is not None:
@@ -4974,6 +5071,8 @@ def compile_resolved_sequence(
     ignored_buff_ids = frozenset(
         require_list(config.get("ignoreBuffIds", []), f"{skill.key}.compile.ignoreBuffIds")
     )
+    damage_tags = tuple(require_list(config.get("tags", []), f"{skill.key}.compile.tags"))
+    runtime_blackboard_keys = collect_runtime_blackboard_output_keys(skill)
     collapse_single_enemy_entity_branches = config.get(
         "collapseSingleEnemyAbilityEntityBranches", False
     )
@@ -5064,6 +5163,7 @@ def compile_resolved_sequence(
                 payload,
                 index,
                 index == len(hits) - 1,
+                runtime_blackboard_keys,
             )
         elif item.itemType == "condition":
             payload = cast(ConditionalActionSource, item.payload)
@@ -5071,6 +5171,8 @@ def compile_resolved_sequence(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
                 ignored_buff_ids,
+                damage_tags,
+                runtime_blackboard_keys,
             )
             if compiled_condition == "sequence()":
                 continue

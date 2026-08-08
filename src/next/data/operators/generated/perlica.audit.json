@@ -271,7 +271,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -549,7 +550,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -706,7 +708,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -1072,7 +1075,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -1247,7 +1251,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -1422,7 +1427,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -1877,7 +1883,8 @@
                     "ignoreUltimateGainScalar": false
                   },
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []
@@ -3123,7 +3130,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 },
                 {
                   "actionType": "LaunchProjectile",
@@ -3145,7 +3153,8 @@
                       }
                     ]
                   },
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": []

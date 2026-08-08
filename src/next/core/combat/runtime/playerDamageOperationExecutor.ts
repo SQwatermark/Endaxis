@@ -27,6 +27,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { resolveActionValueOperand } from './actionBlackboard';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' }>;
@@ -96,6 +97,18 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     if (step.parameters.damageType === 'lifeDrain') {
       throw new Error('life-drain damage uses a separate native calculation branch');
     }
+    let attackScale: number;
+    if (typeof step.parameters.attackScale === 'number') {
+      attackScale = step.parameters.attackScale;
+    } else {
+      if (operationContext === undefined) {
+        throw new Error('dynamic damage scale requires an action blackboard');
+      }
+      attackScale = resolveActionValueOperand(
+        step.parameters.attackScale,
+        operationContext.blackboard,
+      );
+    }
 
     const context = new PlayerDamageContext({
       sourceId: this.dependencies.sourceOperatorId,
@@ -120,9 +133,9 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
             targetDamageTakenMultiplier:
               context.defenderAttributes.breakingAttackDamageTakenMultiplier,
             calculationMultiplier: step.parameters.calculationMultiplier ?? 1,
-            attackScale: step.parameters.attackScale,
+            attackScale,
           })
-        : context.attackerAttributes.attack * step.parameters.attackScale,
+        : context.attackerAttributes.attack * attackScale,
     );
     injectDamageScaleAttributes(context.damageScales, {
       damageType: step.parameters.damageType,

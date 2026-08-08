@@ -1609,6 +1609,45 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("spGainKind: 'refund'", result)
         self.assertIn("spGainSource: 'skill'", result)
 
+    def test_conditional_action_compiler_preserves_runtime_damage_scale(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        damage = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(None, "atk_scale_final", (1.0,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="DamageAction",
+                    nestedCondition=None,
+                    damageUnits=(damage,),
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(
+            action,
+            "fixture.condition",
+            damage_tags=("battleSkill",),
+            runtime_blackboard_keys=frozenset({"atk_scale_final"}),
+        )
+
+        self.assertIn("step('dealDamage'", result)
+        self.assertIn("attackScale: { kind: 'blackboard', key: 'atk_scale_final' }", result)
+        self.assertIn("tags: ['battleSkill']", result)
+
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",

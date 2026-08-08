@@ -70,6 +70,42 @@ describe('compileSkill', () => {
     });
   });
 
+  it('preserves a dynamic damage multiplier for runtime resolution', () => {
+    const skill = {
+      key: 'dynamic-damage',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'electric',
+                  attackScale: { kind: 'blackboard', key: 'attackScale' },
+                  tags: ['normalSkill'],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 1,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
+      parameters: { attackScale: { kind: 'blackboard', key: 'attackScale' } },
+    });
+  });
+
   it('keeps the derived timeline block width in the compiled catalog', () => {
     const skill = {
       key: 'timeline-block',

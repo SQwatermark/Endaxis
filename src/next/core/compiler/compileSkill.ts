@@ -3,6 +3,7 @@
  * 调用前必须给出有效等级；调用后所有数值均已解析，运行时不得再访问养成配置。
  */
 import type {
+  ActionValueOperand,
   ActionSequenceDefinition,
   CombatStepDefinition,
   LevelValues,
@@ -34,6 +35,15 @@ function resolveLevelValue(value: LevelValues, skillLevel: number, path: string)
   }
   if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
   return resolved;
+}
+
+function resolveLevelValueOrActionOperand(
+  value: LevelValues | ActionValueOperand,
+  skillLevel: number,
+  path: string,
+): number | ActionValueOperand {
+  if (typeof value === 'object' && 'kind' in value) return value;
+  return resolveLevelValue(value as LevelValues, skillLevel, path);
 }
 
 function resolveStatusModifier(
@@ -92,7 +102,7 @@ function resolveStep(
           ...(step.parameters.calculation === undefined
             ? {}
             : { calculation: step.parameters.calculation }),
-          attackScale: resolveLevelValue(
+          attackScale: resolveLevelValueOrActionOperand(
             step.parameters.attackScale,
             skillLevel,
             `${path}.parameters.attackScale`,

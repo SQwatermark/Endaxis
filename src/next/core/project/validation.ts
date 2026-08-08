@@ -340,7 +340,11 @@ function validateCombatStepParameters(
       if (parameters.calculation !== undefined) {
         requireEnum(parameters.calculation, damageCalculations, `${path}.calculation`, issues);
       }
-      validateLevelValues(parameters.attackScale, `${path}.attackScale`, issues);
+      if (isObject(parameters.attackScale) && !Array.isArray(parameters.attackScale)) {
+        validateActionValueOperand(parameters.attackScale, `${path}.attackScale`, issues);
+      } else {
+        validateLevelValues(parameters.attackScale, `${path}.attackScale`, issues);
+      }
       if (parameters.calculationMultiplier !== undefined) {
         validateLevelValues(
           parameters.calculationMultiplier,

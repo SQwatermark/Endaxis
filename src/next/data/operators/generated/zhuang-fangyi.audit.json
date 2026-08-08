@@ -723,7 +723,23 @@
               "buffApplication": null,
               "resourceGain": null,
               "projectileLaunch": null,
-              "abilityEntitySpawn": null
+              "abilityEntitySpawn": null,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
             },
             {
               "actionType": "IfElseAction",
@@ -799,7 +815,8 @@
                       "ignoreUltimateGainScalar": false
                     },
                     "projectileLaunch": null,
-                    "abilityEntitySpawn": null
+                    "abilityEntitySpawn": null,
+                    "damageUnits": null
                   }
                 ],
                 "failActions": [],
@@ -813,7 +830,8 @@
               "buffApplication": null,
               "resourceGain": null,
               "projectileLaunch": null,
-              "abilityEntitySpawn": null
+              "abilityEntitySpawn": null,
+              "damageUnits": null
             }
           ],
           "failActions": [
@@ -829,7 +847,23 @@
               "buffApplication": null,
               "resourceGain": null,
               "projectileLaunch": null,
-              "abilityEntitySpawn": null
+              "abilityEntitySpawn": null,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ]
             },
             {
               "actionType": "IfElseAction",
@@ -905,7 +939,8 @@
                       "ignoreUltimateGainScalar": false
                     },
                     "projectileLaunch": null,
-                    "abilityEntitySpawn": null
+                    "abilityEntitySpawn": null,
+                    "damageUnits": null
                   }
                 ],
                 "failActions": [],
@@ -919,7 +954,8 @@
               "buffApplication": null,
               "resourceGain": null,
               "projectileLaunch": null,
-              "abilityEntitySpawn": null
+              "abilityEntitySpawn": null,
+              "damageUnits": null
             }
           ],
           "executionFrames": []
@@ -992,7 +1028,8 @@
                 "ignoreUltimateGainScalar": false
               },
               "projectileLaunch": null,
-              "abilityEntitySpawn": null
+              "abilityEntitySpawn": null,
+              "damageUnits": null
             }
           ],
           "failActions": [],
@@ -2710,7 +2747,34 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.04,
+                          0.04,
+                          0.04,
+                          0.05,
+                          0.05,
+                          0.05,
+                          0.06,
+                          0.06,
+                          0.06,
+                          0.07,
+                          0.07,
+                          0.08
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -2732,7 +2796,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": [
@@ -2748,7 +2813,34 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.04,
+                          0.04,
+                          0.04,
+                          0.05,
+                          0.05,
+                          0.05,
+                          0.06,
+                          0.06,
+                          0.06,
+                          0.07,
+                          0.07,
+                          0.08
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -2770,7 +2862,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "executionFrames": [
@@ -4116,7 +4209,34 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.11,
+                          0.12,
+                          0.14,
+                          0.15,
+                          0.16,
+                          0.17,
+                          0.18,
+                          0.19,
+                          0.2,
+                          0.22,
+                          0.23,
+                          0.25
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4138,7 +4258,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": [
@@ -4154,7 +4275,34 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Pulse",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.11,
+                          0.12,
+                          0.14,
+                          0.15,
+                          0.16,
+                          0.17,
+                          0.18,
+                          0.19,
+                          0.2,
+                          0.22,
+                          0.23,
+                          0.25
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null
+                    }
+                  ]
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4176,7 +4324,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "executionFrames": [
@@ -11053,7 +11202,8 @@
                   },
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -11109,7 +11259,23 @@
                         "buffApplication": null,
                         "resourceGain": null,
                         "projectileLaunch": null,
-                        "abilityEntitySpawn": null
+                        "abilityEntitySpawn": null,
+                        "damageUnits": [
+                          {
+                            "damageType": "Pulse",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "atk_scale_final",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null
+                          }
+                        ]
                       }
                     ],
                     "failActions": [
@@ -11125,7 +11291,23 @@
                         "buffApplication": null,
                         "resourceGain": null,
                         "projectileLaunch": null,
-                        "abilityEntitySpawn": null
+                        "abilityEntitySpawn": null,
+                        "damageUnits": [
+                          {
+                            "damageType": "Pulse",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "atk_scale_final",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null
+                          }
+                        ]
                       }
                     ],
                     "executionFrames": [
@@ -11148,7 +11330,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -11170,7 +11353,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": [],
@@ -11242,7 +11426,8 @@
                   "buffApplication": null,
                   "resourceGain": null,
                   "projectileLaunch": null,
-                  "abilityEntitySpawn": null
+                  "abilityEntitySpawn": null,
+                  "damageUnits": null
                 }
               ],
               "failActions": [],

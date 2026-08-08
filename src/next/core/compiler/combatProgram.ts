@@ -3,6 +3,7 @@
  * 运行时可以直接消费，但不得修改或重新解释原始干员配置。
  */
 import type {
+  ActionValueOperand,
   CombatCondition,
   CombatResource,
   CombatStepKind,
@@ -41,7 +42,7 @@ export interface ResolvedCombatStepParameters {
   dealDamage: {
     damageType: DamageType;
     calculation?: 'standard' | 'breakingAttack';
-    attackScale: number;
+    attackScale: number | ActionValueOperand;
     calculationMultiplier?: number;
     tags: readonly DamageTag[];
     stagger?: number;

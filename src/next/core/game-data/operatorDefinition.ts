@@ -121,8 +121,8 @@ export interface DealDamageParameters {
   damageType: DamageType;
   /** 生成基础伤害所用的公式；标准攻击倍率路径可省略。 */
   calculation?: DamageCalculation;
-  /** 单次命中的攻击倍率，使用小数表示。 */
-  attackScale: LevelValues;
+  /** 单次命中的攻击倍率；原生允许在命中前通过动作黑板动态计算。 */
+  attackScale: LevelValues | ActionValueOperand;
   /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
   calculationMultiplier?: LevelValues;
   tags: readonly DamageTag[];
