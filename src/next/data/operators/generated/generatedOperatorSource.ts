@@ -121,6 +121,8 @@ export interface GeneratedProjectileTriggeredSkillSource {
   readonly projectileId: string;
   readonly triggerEvent: GeneratedProjectileSkillTriggerSource['event'];
   readonly triggerSkillId: string;
+  /** 主目标已被根技能标记、子技能只处理未标记目标时，在固定单敌人模型中排除该分支。 */
+  readonly excludedByPrimaryTargetMarker: boolean;
   readonly sourceFile: string;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];

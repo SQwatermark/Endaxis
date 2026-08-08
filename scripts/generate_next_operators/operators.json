@@ -267,7 +267,12 @@
         {
           "key": "enhancedComboSkill",
           "skillType": "comboSkill",
-          "source": "chr_0030_zhuangfy_combo_skill_ult.json"
+          "source": "chr_0030_zhuangfy_combo_skill_ult.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["comboSkill"],
+            "usePatchCooldown": true
+          }
         },
         {
           "key": "ultimate",

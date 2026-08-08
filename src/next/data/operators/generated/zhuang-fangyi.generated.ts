@@ -2024,6 +2024,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
           "damageUnits": [
             {
@@ -2105,6 +2106,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
           "damageUnits": [
             {
@@ -2667,6 +2669,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
           "damageUnits": [
             {
@@ -2748,6 +2751,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
           "damageUnits": [
             {
@@ -3473,6 +3477,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3554,6 +3559,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3635,6 +3641,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3716,6 +3723,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -14763,6 +14771,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",
+          "excludedByPrimaryTargetMarker": true,
           "sourceFile": "chr_0030_zhuangfy_combo_skill_ring_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],

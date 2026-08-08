@@ -274,6 +274,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack1",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack1_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack1_projhit.json",
           "damageUnits": [
             {
@@ -791,6 +792,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack2_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack2_projhit.json",
           "damageUnits": [
             {
@@ -936,6 +938,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack2",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack2_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack2_projhit.json",
           "damageUnits": [
             {
@@ -1499,6 +1502,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack3_projhit.json",
           "damageUnits": [
             {
@@ -1661,6 +1665,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack3_projhit.json",
           "damageUnits": [
             {
@@ -1823,6 +1828,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack3",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack3_projhit.json",
           "damageUnits": [
             {
@@ -2373,6 +2379,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_normal_attack4",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_attack4_projhit.json",
           "damageUnits": [
             {
@@ -3691,6 +3698,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
@@ -3710,6 +3718,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
@@ -3729,6 +3738,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
@@ -3748,6 +3758,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_plunging_attack",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_plunging_attack_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_plunging_attack_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
@@ -4747,6 +4758,7 @@ export const perlicaGeneratedSource = {
           "projectileId": "projectile_chr_0004_pelica_combo_skill",
           "triggerEvent": "hit",
           "triggerSkillId": "chr_0004_pelica_combo_skill_projhit",
+          "excludedByPrimaryTargetMarker": false,
           "sourceFile": "chr_0004_pelica_combo_skill_projhit.json",
           "damageUnits": [
             {

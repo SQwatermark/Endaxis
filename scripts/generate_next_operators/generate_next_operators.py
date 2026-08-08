@@ -174,6 +174,7 @@ class ProjectileTriggeredSkillSource:
     projectileId: str
     triggerEvent: str
     triggerSkillId: str
+    excludedByPrimaryTargetMarker: bool
     sourceFile: str
     damageUnits: tuple[DamageUnitSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
@@ -1350,6 +1351,109 @@ def parse_projectile_launch_payload(
         projectileId=projectile_id,
         skillTriggers=tuple(triggers),
     )
+
+
+def is_projectile_trigger_excluded_for_single_enemy(
+    root: dict[str, Any],
+    launch_frame: int,
+    launch_action_index: int,
+    trigger_root: dict[str, Any],
+    trigger_source_name: str,
+) -> bool:
+    """识别先标记主目标、再仅处理未标记命中目标的额外目标投射物。"""
+
+    active_markers: set[str] = set()
+    group = require_dict(root.get("actionGroupData"), "projectile source.actionGroupData")
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), "projectile source.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"projectile source.timelineActions[{timeline_index}]")
+        marker_frame = require_non_negative_int(
+            timeline.get("_startFrame"),
+            f"projectile source.timelineActions[{timeline_index}]._startFrame",
+        )
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+            if action.get("isEnable") is False or action_name(action["$type"]) != "CreateTimedMarker":
+                continue
+            action_index = require_server_action_index(action, "projectile source.CreateTimedMarker")
+            if marker_frame > launch_frame or (
+                marker_frame == launch_frame and action_index >= launch_action_index
+            ):
+                continue
+            target = require_dict(
+                action.get("targetSettings"), "projectile source.CreateTimedMarker.targetSettings"
+            )
+            marker = require_dict(
+                action.get("markerId"), "projectile source.CreateTimedMarker.markerId"
+            )
+            duration = require_dict(
+                action.get("duration"), "projectile source.CreateTimedMarker.duration"
+            )
+            if (
+                target.get("targetSource") != "Context"
+                or target.get("targetGroupKey") != "smart_target"
+                or marker.get("useBlackboardKey") is not False
+                or not isinstance(marker.get("value"), str)
+                or not marker["value"]
+                or duration.get("useBlackboardKey") is not False
+                or not isinstance(duration.get("value"), (int, float))
+                or isinstance(duration.get("value"), bool)
+            ):
+                continue
+            elapsed_seconds = (launch_frame - marker_frame) / 30
+            if float(duration["value"]) > elapsed_seconds:
+                active_markers.add(marker["value"])
+
+    if not active_markers:
+        return False
+
+    combat_actions = [
+        action
+        for action in walk_actions(trigger_root.get("actionGroupData"))
+        if action_name(action["$type"]) in COMBAT_ACTION_NAMES
+    ]
+    if not combat_actions:
+        return False
+
+    guarded_combat_action_ids: set[int] = set()
+    for action in walk_actions(trigger_root.get("actionGroupData")):
+        if action_name(action["$type"]) != "ForEachAction":
+            continue
+        target = require_dict(action.get("target"), f"{trigger_source_name}.ForEachAction.target")
+        if target.get("targetSource") != "Target" or target.get("targetGroupKey") != "":
+            continue
+        nested = require_dict(action.get("action"), f"{trigger_source_name}.ForEachAction.action")
+        nested_actions = [
+            require_dict(item, f"{trigger_source_name}.ForEachAction.action.actionData")
+            for item in require_list(
+                nested.get("actionData"), f"{trigger_source_name}.ForEachAction.action.actionData"
+            )
+            if not isinstance(item, dict) or item.get("isEnable") is not False
+        ]
+        if not nested_actions:
+            continue
+        check = nested_actions[0]
+        if action_name(str(check.get("$type", ""))) != "CheckTimedMarkerCondition":
+            continue
+        check_target = require_dict(
+            check.get("checkTarget"), f"{trigger_source_name}.CheckTimedMarkerCondition.checkTarget"
+        )
+        marker_id = check.get("id")
+        if (
+            check_target.get("targetSource") != "Target"
+            or check_target.get("targetGroupKey") != ""
+            or check.get("useBlackboardKey") is not False
+            or check.get("returnTrueIfNotExists") is not True
+            or marker_id not in active_markers
+        ):
+            continue
+        guarded_combat_action_ids.update(
+            id(item)
+            for item in walk_actions({"actionData": nested_actions[1:]})
+            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+        )
+
+    return all(id(action) in guarded_combat_action_ids for action in combat_actions)
 
 
 def parse_ability_entity_spawn_payload(
@@ -2842,6 +2946,13 @@ def resolve_projectile_triggered_skills(
                         projectileId=payload.projectileId,
                         triggerEvent=trigger.event,
                         triggerSkillId=trigger.skillId,
+                        excludedByPrimaryTargetMarker=is_projectile_trigger_excluded_for_single_enemy(
+                            root,
+                            launch_frame,
+                            current_action_order[-1],
+                            trigger_root,
+                            trigger_source_name,
+                        ),
                         sourceFile=trigger_source_name,
                         damageUnits=parse_damage_units(
                             trigger_root,
@@ -3172,6 +3283,8 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
             )
 
     def collect_projectile(hit: ProjectileTriggeredSkillSource, path: tuple[str, ...]) -> None:
+        if getattr(hit, "excludedByPrimaryTargetMarker", False):
+            return
         current_path = (*path, hit.triggerSkillId)
         for damage in hit.directDamageHits:
             if damage.damageUnits:
@@ -4729,6 +4842,24 @@ def compile_resolved_sequence(
     ]
     if any(not launch.skillTriggers for launch in skill.projectileLaunches):
         raise ValueError(f"{skill.key}: projectile without triggered SkillData remains unresolved")
+    unmodeled_projectile_actions: list[str] = []
+
+    def collect_unmodeled_projectile_actions(hit: ProjectileTriggeredSkillSource) -> None:
+        if getattr(hit, "excludedByPrimaryTargetMarker", False):
+            return
+        unmodeled_projectile_actions.extend(
+            action for action in hit.combatActions if action != "DamageAction"
+        )
+        for nested in hit.nestedProjectileTriggeredSkills:
+            collect_unmodeled_projectile_actions(nested)
+
+    for projectile in skill.projectileTriggeredSkills:
+        collect_unmodeled_projectile_actions(projectile)
+    if unmodeled_projectile_actions:
+        raise ValueError(
+            f"{skill.key}: projectile child combat actions are not projected: "
+            f"{sorted(set(unmodeled_projectile_actions))}"
+        )
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
     allowed_actions.update(collect_compilable_conditional_action_types(skill.conditionalActions))
     if skill.blackboardCalculations:

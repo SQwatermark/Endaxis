@@ -2,7 +2,10 @@
  * 用真实庄方宜生成结果固定跨步骤动作黑板链路；这里验证生成器闭环，不替代正式干员行为测试。
  */
 import { describe, expect, it } from 'vitest';
-import { zhuangFangyiComboSkill } from './zhuang-fangyi.skills.audit.generated';
+import {
+  zhuangFangyiComboSkill,
+  zhuangFangyiEnhancedComboSkill,
+} from './zhuang-fangyi.skills.audit.generated';
 
 describe('zhuangFangyi generated skill audit', () => {
   it('preserves combo-skill Buff counting and same-frame native order', () => {
@@ -28,6 +31,27 @@ describe('zhuangFangyi generated skill audit', () => {
         target: 'enemy',
         outputKey: 'inflictCnt',
         query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+      },
+    });
+  });
+
+  it('keeps enhanced combo primary-target actions without the extra-target ring hit', () => {
+    expect(
+      zhuangFangyiEnhancedComboSkill.scheduledSequences.map(item => item.startFrame),
+    ).toEqual([0, 24, 24, 24]);
+    expect(
+      zhuangFangyiEnhancedComboSkill.scheduledSequences.map(
+        item => item.sequence.steps[0]?.kind,
+      ),
+    ).toEqual(['holdBuffsById', 'conditional', 'dealDamage', 'finishBuffsByTag']);
+
+    const damage = zhuangFangyiEnhancedComboSkill.scheduledSequences[2]!.sequence.steps[0]!;
+    expect(damage).toMatchObject({
+      kind: 'dealDamage',
+      parameters: {
+        damageType: 'electric',
+        attackScale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
+        stagger: 10,
       },
     });
   });

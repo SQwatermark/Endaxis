@@ -67,6 +67,7 @@ from generate_next_operators import (
     guaranteed_ability_entity_spawns,
     is_single_enemy_ability_entity_projection,
     is_guaranteed_single_enemy_condition,
+    is_projectile_trigger_excluded_for_single_enemy,
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
     parse_skill_patch,
@@ -2296,6 +2297,78 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ProjectileSkillTriggerSource("block", "skill.block"),
                 ProjectileSkillTriggerSource("reach", "skill.reach"),
             ),
+        )
+
+    def test_primary_target_marker_excludes_projectile_child_combat_in_single_enemy_model(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 24,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CreateTimedMarker+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 56,
+                                    "targetSettings": {
+                                        "targetSource": "Context",
+                                        "targetGroupKey": "smart_target",
+                                    },
+                                    "markerId": {"useBlackboardKey": False, "value": "primary"},
+                                    "duration": {"useBlackboardKey": False, "value": 0.5},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+        trigger = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "target": {"targetSource": "Target", "targetGroupKey": ""},
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckTimedMarkerCondition+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Target",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "id": "primary",
+                                                "useBlackboardKey": False,
+                                                "returnTrueIfNotExists": True,
+                                            },
+                                            {"$type": "Example.CreateBuffAction+Data, Example"},
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertTrue(
+            is_projectile_trigger_excluded_for_single_enemy(
+                root, 24, 57, trigger, "trigger.json"
+            )
+        )
+        trigger["actionGroupData"]["timelineActions"][0]["_sequenceActionData"][
+            "actionData"
+        ][0]["action"]["actionData"][0]["id"] = "other"
+        self.assertFalse(
+            is_projectile_trigger_excluded_for_single_enemy(
+                root, 24, 57, trigger, "trigger.json"
+            )
         )
 
     def test_ability_entity_without_child_skill_is_kept_as_non_combat_auxiliary_action(self) -> None:

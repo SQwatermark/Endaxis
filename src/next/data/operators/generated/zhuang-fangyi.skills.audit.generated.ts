@@ -616,6 +616,121 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedComboSkill',
+    timelineBlockFrames: 25,
+    cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('holdBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
+          }),
+        ),
+        28,
+      ),
+      scheduled(
+        24,
+        sequence(
+          branch(
+            {
+              kind: 'buffStackCompare',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              buffTagIds: [2123008650],
+              operator: 'greaterOrEqual',
+              value: 1,
+            },
+            sequence(
+              step('readBuffStackCount', {
+                target: 'enemy',
+                outputKey: 'inflictCnt',
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+              }),
+              step('modifyActionValue', {
+                key: 'conductCnt',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'inflictCnt' },
+              }),
+              branch(
+                {
+                  kind: 'buffStackCompare',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTagIds: [1466867135],
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'conductCnt',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'conductCnt' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 4 },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'conductCnt',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 4 },
+                  }),
+                ),
+              ),
+              step('applyBuff', {
+                buffId: 'buff_common_pulse_pulse_conduct_triggered',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'count': { kind: 'blackboard', key: 'conductCnt' },
+                },
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([240, 264, 288, 312, 336, 360, 384, 408, 432, 462, 498, 540]),
+            tags: ['comboSkill'],
+            stagger: 10,
+          }),
+        ),
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('finishBuffsByTag', {
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            buffTagIds: [2123008650],
+            reason: 'early',
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'conductCnt': 0,
+    'inflictCnt': 0,
+    'atk_scale': [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
+    'poise': 10,
+  },
+);
+
 export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
