@@ -573,6 +573,7 @@ class ConditionalActionSource:
     succeedActions: tuple[ConditionalBranchActionSource, ...]
     failActions: tuple[ConditionalBranchActionSource, ...]
     executionFrames: tuple[int, ...] = ()
+    projectedAbilityEntitySpawns: tuple[AbilityEntitySpawnPayload, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -739,6 +740,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
         "damageUnits",
+        "projectedAbilityEntitySpawns",
     }
 )
 
@@ -771,7 +773,10 @@ def omit_empty_execution_frames(value: Any) -> Any:
             key: omit_empty_execution_frames(item)
             for key, item in value.items()
             if not (
-                (key == "executionFrames" and not item)
+                (
+                    key in {"executionFrames", "projectedAbilityEntitySpawns"}
+                    and not item
+                )
                 or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
             )
         }
@@ -3489,6 +3494,10 @@ def resolve_projectile_payload_triggers(
                 action_order,
             )
         )
+        if not cycle_truncated:
+            trigger_conditions = mark_projected_conditional_ability_entity_spawns(
+                trigger_conditions
+            )
         nested = (
             ()
             if cycle_truncated
@@ -3814,6 +3823,7 @@ def resolve_ability_entity_payload(
     )
     nested = ()
     if not cycle_truncated:
+        child_conditions = mark_projected_conditional_ability_entity_spawns(child_conditions)
         child_stack = (*stack, skill_id)
         nested = (
             *resolve_ability_entity_hits(
@@ -3908,6 +3918,32 @@ def guaranteed_ability_entity_spawns(
     if not outcomes or any(outcome != outcomes[0] for outcome in outcomes[1:]):
         return ()
     return outcomes[0]
+
+
+def mark_projected_conditional_ability_entity_spawns(
+    conditions: tuple[ConditionalActionSource, ...],
+) -> tuple[ConditionalActionSource, ...]:
+    """标记已由解析层提升为确定子技能的生成动作，供 DSL 编译器避免重复消费。"""
+
+    def mark_action(action: ConditionalBranchActionSource) -> ConditionalBranchActionSource:
+        if action.nestedCondition is None:
+            return action
+        return replace(action, nestedCondition=mark_condition(action.nestedCondition))
+
+    def mark_condition(condition: ConditionalActionSource) -> ConditionalActionSource:
+        marked = replace(
+            condition,
+            succeedActions=tuple(mark_action(action) for action in condition.succeedActions),
+            failActions=tuple(mark_action(action) for action in condition.failActions),
+        )
+        projected = tuple(
+            payload
+            for payload in guaranteed_ability_entity_spawns(marked)
+            if payload.skillId is not None
+        )
+        return replace(marked, projectedAbilityEntitySpawns=projected)
+
+    return tuple(mark_condition(condition) for condition in conditions)
 
 
 def is_single_enemy_ability_entity_projection(condition: ConditionalActionSource) -> bool:
@@ -4613,14 +4649,16 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     blackboard_calculations = parse_blackboard_calculations(
         root, source_name, resolved_blackboard
     )
-    conditional_actions = resolve_conditional_projectile_triggers(
-        parse_conditional_actions(root, source_name, resolved_blackboard),
-        root,
-        source_name,
-        source_dir,
-        0,
-        (skill_id,),
-        resolved_blackboard,
+    conditional_actions = mark_projected_conditional_ability_entity_spawns(
+        resolve_conditional_projectile_triggers(
+            parse_conditional_actions(root, source_name, resolved_blackboard),
+            root,
+            source_name,
+            source_dir,
+            0,
+            (skill_id,),
+            resolved_blackboard,
+        )
     )
     blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
         root, source_name, resolved_blackboard
@@ -5276,6 +5314,7 @@ def compile_conditional_branch_action(
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -5288,6 +5327,11 @@ def compile_conditional_branch_action(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
         )
+    ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
+    if ability_entity_spawn is not None:
+        if ability_entity_spawn in projected_ability_entity_spawns:
+            return "sequence()"
+        raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     if getattr(action, "damageUnits", None) is not None:
         return "\n".join(
             compile_damage_units_step(
@@ -5326,6 +5370,7 @@ def compile_conditional_branch(
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
+    projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5341,6 +5386,7 @@ def compile_conditional_branch(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            projected_ability_entity_spawns=projected_ability_entity_spawns,
         )
         if compiled == "sequence()":
             continue
@@ -5364,6 +5410,9 @@ def compile_conditional_action(
     root_skill_context: bool = False,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
+    projected_ability_entity_spawns = getattr(
+        action, "projectedAbilityEntitySpawns", ()
+    )
     condition = compile_combat_condition_group(
         action.conditions,
         f"{path}.conditions",
@@ -5379,6 +5428,7 @@ def compile_conditional_action(
         runtime_blackboard_keys,
         target_group_writes=target_group_writes,
         root_skill_context=root_skill_context,
+        projected_ability_entity_spawns=projected_ability_entity_spawns,
     )
     fail = (
         compile_conditional_branch(
@@ -5389,6 +5439,7 @@ def compile_conditional_action(
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
+            projected_ability_entity_spawns=projected_ability_entity_spawns,
         )
         if action.failActions
         else None

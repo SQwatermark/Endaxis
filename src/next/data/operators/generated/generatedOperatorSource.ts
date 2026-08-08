@@ -353,6 +353,8 @@ export interface GeneratedConditionalActionSource {
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
   /** 固定间隔动作会在多个帧重复执行同一条件树；普通条件仅含 startFrame。 */
   readonly executionFrames?: readonly number[];
+  /** 已由解析层提升为确定子技能并进入全局调度的生成动作。 */
+  readonly projectedAbilityEntitySpawns?: readonly GeneratedAbilityEntitySpawnPayload[];
 }
 
 export interface GeneratedBlackboardCalculationPayload {

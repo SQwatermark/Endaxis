@@ -828,7 +828,8 @@
                   }
                 ],
                 "failActions": [],
-                "executionFrames": []
+                "executionFrames": [],
+                "projectedAbilityEntitySpawns": []
               },
               "blackboardCalculation": null,
               "blackboardMutation": null,
@@ -958,7 +959,8 @@
                   }
                 ],
                 "failActions": [],
-                "executionFrames": []
+                "executionFrames": [],
+                "projectedAbilityEntitySpawns": []
               },
               "blackboardCalculation": null,
               "blackboardMutation": null,
@@ -973,7 +975,8 @@
               "damageUnits": null
             }
           ],
-          "executionFrames": []
+          "executionFrames": [],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 6,
@@ -1052,7 +1055,8 @@
             }
           ],
           "failActions": [],
-          "executionFrames": []
+          "executionFrames": [],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "blackboardCalculations": [
@@ -2405,7 +2409,8 @@
                 }
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 15,
@@ -2487,6 +2492,14 @@
                 "entityBlackboardAssignments": [],
                 "assignBlackboard": true
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+              "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+              "entityBlackboardAssignments": [],
+              "assignBlackboard": true
             }
           ]
         }
@@ -3563,7 +3576,8 @@
                 }
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [],
@@ -4400,6 +4414,14 @@
                 "assignBlackboard": true
               }
             }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+              "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+              "entityBlackboardAssignments": [],
+              "assignBlackboard": true
+            }
           ]
         }
       ],
@@ -5209,6 +5231,14 @@
                             "assignBlackboard": true
                           }
                         }
+                      ],
+                      "projectedAbilityEntitySpawns": [
+                        {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                          "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true
+                        }
                       ]
                     }
                   }
@@ -5224,6 +5254,14 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                    "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -5238,6 +5276,14 @@
                 "entityBlackboardAssignments": [],
                 "assignBlackboard": true
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+              "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+              "entityBlackboardAssignments": [],
+              "assignBlackboard": true
             }
           ]
         }
@@ -6092,6 +6138,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -6181,8 +6244,42 @@
                       }
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -6291,6 +6388,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -6367,8 +6481,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -6477,6 +6625,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -6553,8 +6718,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -6663,6 +6862,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -6739,8 +6955,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         }
@@ -7518,6 +7768,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -7607,8 +7874,42 @@
                       }
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -7717,6 +8018,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -7793,8 +8111,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -7903,6 +8255,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -7979,8 +8348,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         },
@@ -8089,6 +8492,23 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -8165,8 +8585,42 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                    "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                    "entityBlackboardAssignments": [
+                      {
+                        "targetKey": "EntityBB_hitedMark",
+                        "valueType": "String",
+                        "numericValue": 0.0,
+                        "stringValue": "attack1UltHitMark",
+                        "useDirectValue": true,
+                        "inputValueKey": ""
+                      }
+                    ],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+              "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+              "entityBlackboardAssignments": [
+                {
+                  "targetKey": "EntityBB_hitedMark",
+                  "valueType": "String",
+                  "numericValue": 0.0,
+                  "stringValue": "attack1UltHitMark",
+                  "useDirectValue": true,
+                  "inputValueKey": ""
+                }
+              ],
+              "assignBlackboard": true
             }
           ]
         }
@@ -8896,6 +9350,14 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                    "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true
+                  }
                 ]
               }
             }
@@ -8954,8 +9416,24 @@
                       "assignBlackboard": true
                     }
                   }
+                ],
+                "projectedAbilityEntitySpawns": [
+                  {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                    "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true
+                  }
                 ]
               }
+            }
+          ],
+          "projectedAbilityEntitySpawns": [
+            {
+              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+              "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+              "entityBlackboardAssignments": [],
+              "assignBlackboard": true
             }
           ]
         }
@@ -9910,7 +10388,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 6,
@@ -10147,7 +10626,8 @@
                             }
                           }
                         }
-                      ]
+                      ],
+                      "projectedAbilityEntitySpawns": []
                     }
                   },
                   {
@@ -10249,7 +10729,8 @@
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "projectedAbilityEntitySpawns": []
                     }
                   },
                   {
@@ -10429,6 +10910,31 @@
                                         "assignBlackboard": true
                                       }
                                     }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
+                                    }
                                   ]
                                 }
                               }
@@ -10535,8 +11041,58 @@
                                         "assignBlackboard": true
                                       }
                                     }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
+                                    }
                                   ]
                                 }
+                              }
+                            ],
+                            "projectedAbilityEntitySpawns": [
+                              {
+                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                "entityBlackboardAssignments": [
+                                  {
+                                    "targetKey": "EntityBB_swordDuration",
+                                    "valueType": "Numeric",
+                                    "numericValue": 50.0,
+                                    "stringValue": "",
+                                    "useDirectValue": false,
+                                    "inputValueKey": "sword_duration"
+                                  },
+                                  {
+                                    "targetKey": "EntityBB_swordLimit",
+                                    "valueType": "Numeric",
+                                    "numericValue": 0.0,
+                                    "stringValue": "",
+                                    "useDirectValue": false,
+                                    "inputValueKey": "remain_sword_limit"
+                                  }
+                                ],
+                                "assignBlackboard": true
                               }
                             ]
                           }
@@ -10712,7 +11268,8 @@
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "projectedAbilityEntitySpawns": []
                     }
                   },
                   {
@@ -10777,7 +11334,8 @@
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "projectedAbilityEntitySpawns": []
                     }
                   },
                   {
@@ -10957,6 +11515,31 @@
                                         "assignBlackboard": true
                                       }
                                     }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
+                                    }
                                   ]
                                 }
                               }
@@ -11063,8 +11646,58 @@
                                         "assignBlackboard": true
                                       }
                                     }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
+                                    }
                                   ]
                                 }
+                              }
+                            ],
+                            "projectedAbilityEntitySpawns": [
+                              {
+                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                "entityBlackboardAssignments": [
+                                  {
+                                    "targetKey": "EntityBB_swordDuration",
+                                    "valueType": "Numeric",
+                                    "numericValue": 50.0,
+                                    "stringValue": "",
+                                    "useDirectValue": false,
+                                    "inputValueKey": "sword_duration"
+                                  },
+                                  {
+                                    "targetKey": "EntityBB_swordLimit",
+                                    "valueType": "Numeric",
+                                    "numericValue": 0.0,
+                                    "stringValue": "",
+                                    "useDirectValue": false,
+                                    "inputValueKey": "remain_sword_limit"
+                                  }
+                                ],
+                                "assignBlackboard": true
                               }
                             ]
                           }
@@ -11173,7 +11806,8 @@
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "projectedAbilityEntitySpawns": []
               }
             }
           ],
@@ -11188,7 +11822,8 @@
                 "assignBlackboard": true
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 13,
@@ -11441,7 +12076,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 6,
@@ -11547,10 +12183,12 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [],
@@ -12257,6 +12895,31 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
                                     }
@@ -12363,8 +13026,58 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
+                                    }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
                                     }
                                   ]
                                 }
@@ -12652,6 +13365,31 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
                                     }
@@ -12758,8 +13496,58 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
+                                    }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
                                     }
                                   ]
                                 }
@@ -12866,7 +13654,8 @@
                             "isAbsorbed": false
                           }
                         }
-                      ]
+                      ],
+                      "projectedAbilityEntitySpawns": []
                     }
                   }
                 ],
@@ -13060,7 +13849,8 @@
                                   }
                                 }
                               }
-                            ]
+                            ],
+                            "projectedAbilityEntitySpawns": []
                           }
                         },
                         {
@@ -13165,7 +13955,8 @@
                                 }
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "projectedAbilityEntitySpawns": []
                           }
                         },
                         {
@@ -13347,6 +14138,31 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
                                     }
@@ -13453,8 +14269,58 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
+                                    }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
                                     }
                                   ]
                                 }
@@ -13635,7 +14501,8 @@
                                 }
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "projectedAbilityEntitySpawns": []
                           }
                         },
                         {
@@ -13703,7 +14570,8 @@
                                 }
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "projectedAbilityEntitySpawns": []
                           }
                         },
                         {
@@ -13885,6 +14753,31 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
                                     }
@@ -13991,8 +14884,58 @@
                                               "assignBlackboard": true
                                             }
                                           }
+                                        ],
+                                        "projectedAbilityEntitySpawns": [
+                                          {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true
+                                          }
                                         ]
                                       }
+                                    }
+                                  ],
+                                  "projectedAbilityEntitySpawns": [
+                                    {
+                                      "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                      "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_swordDuration",
+                                          "valueType": "Numeric",
+                                          "numericValue": 50.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "sword_duration"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_swordLimit",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "remain_sword_limit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true
                                     }
                                   ]
                                 }
@@ -14103,10 +15046,12 @@
                             "inheritSourceSkillCastInfo": true
                           }
                         }
-                      ]
+                      ],
+                      "projectedAbilityEntitySpawns": []
                     }
                   }
-                ]
+                ],
+                "projectedAbilityEntitySpawns": []
               }
             }
           ],
@@ -14121,7 +15066,8 @@
                 "assignBlackboard": true
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 5,
@@ -14227,10 +15173,12 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             }
-          ]
+          ],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [
@@ -15860,7 +16808,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             },
             {
@@ -15912,7 +16861,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             },
             {
@@ -15944,7 +16894,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         },
         {
           "startFrame": 24,
@@ -16082,7 +17033,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [],
@@ -16580,7 +17532,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             },
             {
@@ -16632,7 +17585,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "projectedAbilityEntitySpawns": []
               }
             },
             {
@@ -16664,7 +17618,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [],
@@ -17061,7 +18016,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "projectedAbilityEntitySpawns": []
         }
       ],
       "auxiliaryActions": [

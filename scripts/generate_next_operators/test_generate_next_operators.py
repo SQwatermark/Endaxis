@@ -78,6 +78,7 @@ from generate_next_operators import (
     resolve_conditional_projectile_triggers,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
+    mark_projected_conditional_ability_entity_spawns,
     is_single_enemy_ability_entity_projection,
     is_guaranteed_single_enemy_condition,
     is_projectile_trigger_excluded_for_single_enemy,
@@ -687,6 +688,72 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertFalse(is_single_enemy_ability_entity_projection(divergent))
         self.assertEqual(guaranteed_ability_entity_spawns(extra_mutation), (first,))
         self.assertFalse(is_single_enemy_ability_entity_projection(extra_mutation))
+
+    def test_conditional_compiler_skips_only_ability_entities_lifted_by_parser(self) -> None:
+        spawn = AbilityEntitySpawnPayload("entity.test", "skill.test")
+        condition = ConditionSource(
+            "CompareFloat",
+            True,
+            "Equals",
+            ScalarSource(1, None, None),
+            ScalarSource(1, None, None),
+            (),
+        )
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (condition,),
+            (
+                ConditionalBranchActionSource(
+                    "SpawnAbilityEntity", 0, abilityEntitySpawn=spawn
+                ),
+                ConditionalBranchActionSource(
+                    "ModifyDynamicBlackboard",
+                    1,
+                    blackboardMutation=BlackboardMutationPayload(
+                        "combat_value", "Add", ScalarSource(1, None, None)
+                    ),
+                ),
+            ),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=spawn),),
+        )
+
+        marked = mark_projected_conditional_ability_entity_spawns((source,))[0]
+        result = compile_conditional_action(marked, "fixture.condition")
+
+        self.assertEqual(marked.projectedAbilityEntitySpawns, (spawn,))
+        self.assertIn("modifyActionValue", result)
+        self.assertNotIn("SpawnAbilityEntity", result)
+
+    def test_conditional_compiler_rejects_divergent_ability_entity_spawns(self) -> None:
+        first = AbilityEntitySpawnPayload("entity.first", "skill.first")
+        second = AbilityEntitySpawnPayload("entity.second", "skill.second")
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "Equals",
+                    ScalarSource(1, None, None),
+                    ScalarSource(1, None, None),
+                    (),
+                ),
+            ),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=first),),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=second),),
+        )
+
+        marked = mark_projected_conditional_ability_entity_spawns((source,))[0]
+
+        self.assertEqual(marked.projectedAbilityEntitySpawns, ())
+        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'SpawnAbilityEntity'"):
+            compile_conditional_action(marked, "fixture.condition")
 
     def test_single_enemy_walker_flattens_supported_foreach_and_single_tick_channel(self) -> None:
         damage = {"$type": "Example.DamageAction, Example"}

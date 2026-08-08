@@ -421,7 +421,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -932,7 +933,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -1083,7 +1085,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -1676,7 +1679,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -1844,7 +1848,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -2012,7 +2017,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -2629,7 +2635,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [],
@@ -5464,7 +5471,8 @@ export const perlicaGeneratedSource = {
                               }
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "projectedAbilityEntitySpawns": []
                         }
                       ],
                       "auxiliaryActions": [
@@ -5597,7 +5605,8 @@ export const perlicaGeneratedSource = {
                   ]
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "projectedAbilityEntitySpawns": []
             }
           ],
           "auxiliaryActions": [
