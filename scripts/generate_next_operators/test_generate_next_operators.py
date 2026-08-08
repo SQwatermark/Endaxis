@@ -10,6 +10,7 @@ from unittest.mock import patch
 from generate_next_operators import (
     collect_blackboard_keys,
     collect_conditional_blackboard_keys,
+    collect_unresolved_combat_actions,
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_resolved_schedule,
@@ -45,9 +46,11 @@ from generate_next_operators import (
     ConditionalBranchActionSource,
     ConditionSource,
     EntityCountConditionSource,
+    MainOperatorConditionSource,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
+    parse_timeline,
     parse_direct_damage_hits,
     parse_interval_damage_hits,
     parse_damage_units,
@@ -1547,6 +1550,135 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffIdStackCompare'", result)
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
+
+    def test_condition_parser_and_compiler_preserve_main_operator_semantics(self) -> None:
+        condition = {
+            "$type": "Example.CheckMainCharacterCondition+Data, Example",
+            "checkTarget": {
+                "targetSource": "Source",
+                "targetGroupKey": "tar",
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        self.assertTrue(parsed.supported)
+        self.assertEqual(
+            parsed.mainOperator,
+            MainOperatorConditionSource(targetSource="Source", targetGroupKey="tar"),
+        )
+        self.assertEqual(
+            compile_combat_condition_group((parsed,), "fixture.conditions"),
+            "{ kind: 'casterControlled' }",
+        )
+
+    def test_direct_main_operator_guard_remains_an_unresolved_root_action(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckMainCharacterCondition+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 1,
+                                    "checkTarget": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                    },
+                                },
+                                {
+                                    "$type": "Example.ObtainCostAction+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 2,
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertIn(
+            "CheckMainCharacterCondition",
+            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
+    def test_direct_main_operator_guard_before_presentation_only_tail_is_ignored(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckMainCharacterCondition+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 1,
+                                },
+                                {
+                                    "$type": "Example.CameraImpulseAction+Data, Example",
+                                    "isEnable": True,
+                                    "serverActionIndex": 2,
+                                },
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertNotIn(
+            "CheckMainCharacterCondition",
+            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
+    def test_condition_compiler_rejects_enemy_main_operator_checks(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckMainCharacterCondition",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            mainOperator=MainOperatorConditionSource(
+                targetSource="Target",
+                targetGroupKey="",
+            ),
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported main operator target"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
 
     def test_conditional_action_compiler_preserves_nested_branch_order(self) -> None:
         compare = SimpleNamespace(

@@ -124,6 +124,7 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
   switch (kind) {
     case 'combatActive':
     case 'singleEnemyPresent':
+    case 'casterControlled':
       break;
     case 'skillBranchEnabled':
       requireString(value, 'branchKey', path, issues);

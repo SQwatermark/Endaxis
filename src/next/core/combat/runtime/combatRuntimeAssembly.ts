@@ -16,6 +16,7 @@ import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
+import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
 
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -42,6 +43,11 @@ export interface CombatRuntimeAssemblyOptions {
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
+  /**
+   * 按模拟帧查询干员是否为当前主控。仅在技能实际包含主控条件时才会调用；
+   * 项目编译层必须依据控制切换时间线提供实现，装配层不会猜测初始主控。
+   */
+  readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
    * 共享技力与战技扣费转能由装配器统一包在该执行器外层。
@@ -78,6 +84,7 @@ export class CombatRuntimeAssembly {
           program,
           entityBlackboard,
           options.createOperationExecutor,
+          options.isOperatorControlled,
         ),
       );
       this.#abilitySystems.set(
@@ -125,6 +132,7 @@ export class CombatRuntimeAssembly {
     program: CompiledSkillProgram,
     entityBlackboard: ActionBlackboard,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
+    isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
   ): SkillRuntime {
     const operatorId = operator.operatorId;
     if (program.operatorId !== operatorId) {
@@ -151,7 +159,16 @@ export class CombatRuntimeAssembly {
       },
       delegate: baseDelegate,
     });
-    const delegate = new ActionBlackboardOperationExecutor(buffOperations);
+    const controlConditions = new OperatorControlConditionExecutor({
+      isCasterControlled: () => {
+        if (isOperatorControlled === undefined) {
+          throw new Error(`skill '${program.skillId}' requires the current controlled operator`);
+        }
+        return isOperatorControlled(operatorId, this.clock.frame);
+      },
+      delegate: buffOperations,
+    });
+    const delegate = new ActionBlackboardOperationExecutor(controlConditions);
     let runtime: SkillRuntime;
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,

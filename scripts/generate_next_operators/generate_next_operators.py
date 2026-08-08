@@ -375,6 +375,12 @@ class BuffStackConditionSource:
 
 
 @dataclass(frozen=True)
+class MainOperatorConditionSource:
+    targetSource: str
+    targetGroupKey: str
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -384,6 +390,7 @@ class ConditionSource:
     skillTypes: tuple[str, ...]
     entityCount: EntityCountConditionSource | None = None
     buffStack: BuffStackConditionSource | None = None
+    mainOperator: MainOperatorConditionSource | None = None
 
 
 @dataclass(frozen=True)
@@ -640,6 +647,27 @@ class SkillSource:
     buffHolds: tuple[BuffHoldSource, ...] = ()
 
 
+OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
+    {
+        "entityCount",
+        "buffStack",
+        "mainOperator",
+        "nestedCondition",
+        "blackboardCalculation",
+        "blackboardMutation",
+        "buffBlackboardRead",
+        "buffFinish",
+        "buffStackRead",
+        "buffApplication",
+        "resourceGain",
+        "projectileLaunch",
+        "projectileTriggeredSkills",
+        "abilityEntitySpawn",
+        "damageUnits",
+    }
+)
+
+
 def serialize_audit_value(value: Any) -> Any:
     """序列化审计对象，并省略仅对特定条件有意义的空详情。"""
     if hasattr(value, "__dataclass_fields__"):
@@ -651,24 +679,7 @@ def serialize_audit_value(value: Any) -> Any:
             if not (
                 (key == "executionFrames" and not item)
                 or
-                key
-                in {
-                    "entityCount",
-                    "buffStack",
-                    "nestedCondition",
-                    "blackboardCalculation",
-                    "blackboardMutation",
-                    "buffBlackboardRead",
-                    "buffFinish",
-                    "buffStackRead",
-                    "buffApplication",
-                    "resourceGain",
-                    "projectileLaunch",
-                    "projectileTriggeredSkills",
-                    "abilityEntitySpawn",
-                    "damageUnits",
-                }
-                and item is None
+                key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None
             )
         }
     if isinstance(value, (list, tuple)):
@@ -684,7 +695,10 @@ def omit_empty_execution_frames(value: Any) -> Any:
         return {
             key: omit_empty_execution_frames(item)
             for key, item in value.items()
-            if key != "executionFrames" or item
+            if not (
+                (key == "executionFrames" and not item)
+                or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
+            )
         }
     if isinstance(value, (list, tuple)):
         return [omit_empty_execution_frames(item) for item in value]
@@ -702,6 +716,16 @@ COMBAT_ACTION_NAMES = {
     "SpellInfliction",
     "ObtainCostAction",
     "IfElseAction",
+    # 条件直接位于 SequenceAction 时会以 false 截断后续动作；在保留序列边界前必须视为战斗动作。
+    "CheckMainCharacterCondition",
+}
+
+# 这些条件作为 SequenceAction 子项时会用返回值截断同一 actionData 的剩余动作。
+SEQUENCE_GUARD_ACTION_NAMES = {"CheckMainCharacterCondition"}
+# IfElse 与序列守卫本身只组织控制流；是否影响战斗取决于其子树中的实际效果动作。
+COMBAT_EFFECT_ACTION_NAMES = COMBAT_ACTION_NAMES - {
+    "IfElseAction",
+    *SEQUENCE_GUARD_ACTION_NAMES,
 }
 
 # 这些运行时动作已单独解析，不进入 unresolvedCombatActions，但必须出现在条件分支审计中。
@@ -840,8 +864,33 @@ def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
         for child in value.values():
             yield from walk_actions(child)
     elif isinstance(value, list):
-        for child in value:
+        for index, child in enumerate(value):
+            if isinstance(child, dict):
+                type_name = child.get("$type")
+                if (
+                    child.get("isEnable") is not False
+                    and isinstance(type_name, str)
+                    and action_name(type_name) in SEQUENCE_GUARD_ACTION_NAMES
+                ):
+                    # 纯表现尾部不进入战斗生成器；含战斗效果的尾部必须保留守卫并阻止误编译。
+                    if contains_combat_effect(value[index + 1 :]):
+                        yield child
+                    continue
             yield from walk_actions(child)
+
+
+def contains_combat_effect(value: Any) -> bool:
+    """判断动作子树是否包含会改变单敌人战斗模拟结果的已知效果。"""
+    if isinstance(value, dict):
+        if value.get("isEnable") is False:
+            return False
+        type_name = value.get("$type")
+        if isinstance(type_name, str) and action_name(type_name) in COMBAT_EFFECT_ACTION_NAMES:
+            return True
+        return any(contains_combat_effect(child) for child in value.values())
+    if isinstance(value, list):
+        return any(contains_combat_effect(child) for child in value)
+    return False
 
 
 def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
@@ -1664,6 +1713,21 @@ def parse_conditional_actions(
                     comparison=str(condition.get("compareType", "")),
                     value=parse_scalar(condition.get("value"), f"{path}.value", inherited_blackboard),
                     limitSkillCastId=limit_skill_cast_id,
+                ),
+            )
+        if condition_type == "CheckMainCharacterCondition":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            target_source = str(target.get("targetSource", ""))
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=target_source in {"Owner", "Source"},
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                mainOperator=MainOperatorConditionSource(
+                    targetSource=target_source,
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
                 ),
             )
         return ConditionSource(
@@ -3892,6 +3956,16 @@ def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActi
     return tuple(result)
 
 
+def collect_unresolved_combat_actions(
+    timeline: tuple[TimelineActionSource, ...],
+) -> tuple[str, ...]:
+    """汇总根时间轴上仍需由正式 DSL 消费的战斗动作类型。"""
+    action_counts = Counter(
+        action_type for item in timeline for action_type in item.actionTypes
+    )
+    return tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
+
+
 def collect_windows(root: dict[str, Any], source_name: str) -> tuple[tuple[dict[str, Any], ...], tuple[dict[str, Any], ...]]:
     group = require_dict(root["actionGroupData"], f"{source_name}.actionGroupData")
     allows: list[dict[str, Any]] = []
@@ -3984,8 +4058,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     allows, caches = collect_windows(root, source_name)
     exclusive = require_non_negative_int(root.get("exclusiveFrame"), f"{source_name}.exclusiveFrame")
     block_frame, block_source = derive_timeline_block(exclusive, allows)
-    action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
-    unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
+    unresolved = collect_unresolved_combat_actions(timeline)
     blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
     conditional_actions = resolve_conditional_projectile_triggers(
         parse_conditional_actions(root, source_name, patch.blackboard),
@@ -4157,6 +4230,16 @@ def compile_combat_condition(source: ConditionSource, path: str) -> str:
         return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
+    if source.sourceType == "CheckMainCharacterCondition":
+        main_operator = source.mainOperator
+        if main_operator is None:
+            raise ValueError(f"{path}: missing main operator condition payload")
+        if main_operator.targetSource in {"Owner", "Source"}:
+            return "{ kind: 'casterControlled' }"
+        raise ValueError(
+            f"{path}: unsupported main operator target "
+            f"{main_operator.targetSource!r}/{main_operator.targetGroupKey!r}"
+        )
     if source.sourceType == "CompareFloat":
         if source.left is None or source.right is None or source.comparison is None:
             raise ValueError(f"{path}: incomplete CompareFloat condition")

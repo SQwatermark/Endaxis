@@ -288,6 +288,12 @@ export interface GeneratedBuffStackConditionSource {
   readonly limitSkillCastId: boolean;
 }
 
+/** 原生主控干员检查所解析的目标来源；目标组仅对 Context 来源有语义。 */
+export interface GeneratedMainOperatorConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -297,6 +303,7 @@ export interface GeneratedConditionSource {
   readonly skillTypes: readonly string[];
   readonly entityCount?: GeneratedEntityCountConditionSource;
   readonly buffStack?: GeneratedBuffStackConditionSource;
+  readonly mainOperator?: GeneratedMainOperatorConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {

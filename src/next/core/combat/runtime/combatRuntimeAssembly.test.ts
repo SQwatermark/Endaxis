@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
@@ -53,7 +53,10 @@ function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProg
   };
 }
 
-function createAssembly(programs: readonly CompiledSkillProgram[]): CombatRuntimeAssembly {
+function createAssembly(
+  programs: readonly CompiledSkillProgram[],
+  isOperatorControlled?: (operatorId: string, frame: number) => boolean,
+): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     resources: {
       sp: 100,
@@ -76,10 +79,71 @@ function createAssembly(programs: readonly CompiledSkillProgram[]): CombatRuntim
     enemyBuffs: emptyEnemyBuffs,
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
+    ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
   });
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('evaluates caster control conditions from the current simulation frame', () => {
+    const isOperatorControlled = vi.fn(() => true);
+    const program = skill({
+      timelineActions: [
+        {
+          startFrame: 1,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'casterControlled' } },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'changeResource',
+                      parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly([program], isOperatorControlled);
+
+    assembly.tryStartSkill('operator', 'skill');
+    assembly.advanceFrame();
+
+    expect(isOperatorControlled).toHaveBeenCalledWith('operator', 1);
+    expect(assembly.resources.sp).toBe(21);
+  });
+
+  it('rejects caster control conditions when the scenario did not provide control state', () => {
+    const program = skill({
+      timelineActions: [
+        {
+          startFrame: 1,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'casterControlled' } },
+                whenTrue: { steps: [] },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly([program]);
+
+    assembly.tryStartSkill('operator', 'skill');
+
+    expect(() => assembly.advanceFrame()).toThrow(
+      "skill 'skill' requires the current controlled operator",
+    );
+  });
+
   it('runs resource recovery before the skill cost frame and records the result', () => {
     const assembly = createAssembly([skill()]);
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);

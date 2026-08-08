@@ -354,11 +354,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -877,11 +881,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 }
               ],
               "succeedActions": [
@@ -1024,11 +1032,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 }
               ],
               "succeedActions": [
@@ -1595,11 +1607,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1759,11 +1775,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1923,11 +1943,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2535,11 +2559,15 @@ export const perlicaGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",

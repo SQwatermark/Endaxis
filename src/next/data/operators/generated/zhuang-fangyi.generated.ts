@@ -1448,6 +1448,7 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "combatActions": [
+            "CheckMainCharacterCondition",
             "CreateBuffAction"
           ],
           "damageUnits": [],
@@ -5636,7 +5637,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 15,
           "endFrame": 18,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CameraImpulseAction",
             "FAnimationCurve"
           ]
@@ -5842,11 +5842,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -6037,11 +6041,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -6219,11 +6227,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -6401,11 +6413,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7144,7 +7160,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 13,
           "endFrame": 16,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CameraImpulseAction",
             "FAnimationCurve"
           ]
@@ -7350,11 +7365,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7545,11 +7564,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7727,11 +7750,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7909,11 +7936,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -8769,11 +8800,15 @@ export const zhuangFangyiGeneratedSource = {
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -10173,7 +10208,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 123,
           "endFrame": 126,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "HitStopAction",
             "FAnimationCurve"
@@ -10190,7 +10224,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 123,
           "endFrame": 126,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "HitStopAction",
             "FAnimationCurve"
@@ -10219,7 +10252,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 19,
           "endFrame": 126,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "CompareFloat",
             "AddDynamicCcsAction",
@@ -12720,7 +12752,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 21,
           "endFrame": 77,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "AddDynamicCcsAction",
             "FAnimationCurve",
@@ -16238,7 +16269,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 33,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "LockCameraAimAction"
           ]
@@ -17224,7 +17254,6 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 50,
           "actionTypes": [
-            "CheckMainCharacterCondition",
             "CheckEntityNum",
             "LockCameraAimAction"
           ]

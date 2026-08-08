@@ -707,7 +707,8 @@
               },
               "skillTypes": [],
               "entityCount": null,
-              "buffStack": null
+              "buffStack": null,
+              "mainOperator": null
             }
           ],
           "succeedActions": [
@@ -779,7 +780,8 @@
                     },
                     "skillTypes": [],
                     "entityCount": null,
-                    "buffStack": null
+                    "buffStack": null,
+                    "mainOperator": null
                   }
                 ],
                 "succeedActions": [
@@ -906,7 +908,8 @@
                     },
                     "skillTypes": [],
                     "entityCount": null,
-                    "buffStack": null
+                    "buffStack": null,
+                    "mainOperator": null
                   }
                 ],
                 "succeedActions": [
@@ -997,7 +1000,8 @@
               },
               "skillTypes": [],
               "entityCount": null,
-              "buffStack": null
+              "buffStack": null,
+              "mainOperator": null
             }
           ],
           "succeedActions": [
@@ -1534,6 +1538,7 @@
             "CreateBuffAction"
           ],
           "combatActions": [
+            "CheckMainCharacterCondition",
             "CreateBuffAction"
           ],
           "damageUnits": [],
@@ -2766,26 +2771,13 @@
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -2817,8 +2809,6 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -2827,33 +2817,13 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": [
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -2885,8 +2855,6 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -2895,16 +2863,7 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "executionFrames": [
@@ -4280,26 +4239,13 @@
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4331,8 +4277,6 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -4341,33 +4285,13 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": [
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4399,8 +4323,6 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -4409,16 +4331,7 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "executionFrames": [
@@ -5486,11 +5399,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -5681,11 +5598,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -5863,11 +5784,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -6045,11 +5970,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -6812,11 +6741,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7007,11 +6940,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7189,11 +7126,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7371,11 +7312,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -8090,11 +8035,15 @@
                 "conditions": [
                   {
                     "sourceType": "CheckMainCharacterCondition",
-                    "supported": false,
+                    "supported": true,
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "mainOperator": {
+                      "targetSource": "Source",
+                      "targetGroupKey": ""
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -13424,21 +13373,13 @@
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "CreateBuffAction",
                   "actionIndex": 0,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -13456,12 +13397,7 @@
                     },
                     "buffSource": "ActionSource",
                     "inheritSourceSkillCastInfo": true
-                  },
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 },
                 {
                   "actionType": "IfElseAction",
@@ -13499,26 +13435,13 @@
                           "blackboardKey": null,
                           "levelValues": null
                         },
-                        "skillTypes": [],
-                        "entityCount": null,
-                        "buffStack": null
+                        "skillTypes": []
                       }
                     ],
                     "succeedActions": [
                       {
                         "actionType": "DamageAction",
                         "actionIndex": 0,
-                        "nestedCondition": null,
-                        "blackboardCalculation": null,
-                        "blackboardMutation": null,
-                        "buffBlackboardRead": null,
-                        "buffFinish": null,
-                        "buffStackRead": null,
-                        "buffApplication": null,
-                        "resourceGain": null,
-                        "projectileLaunch": null,
-                        "projectileTriggeredSkills": null,
-                        "abilityEntitySpawn": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -13541,17 +13464,6 @@
                       {
                         "actionType": "DamageAction",
                         "actionIndex": 0,
-                        "nestedCondition": null,
-                        "blackboardCalculation": null,
-                        "blackboardMutation": null,
-                        "buffBlackboardRead": null,
-                        "buffFinish": null,
-                        "buffStackRead": null,
-                        "buffApplication": null,
-                        "resourceGain": null,
-                        "projectileLaunch": null,
-                        "projectileTriggeredSkills": null,
-                        "abilityEntitySpawn": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -13581,24 +13493,11 @@
                       54,
                       60
                     ]
-                  },
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 3,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "tick_index",
                     "operation": "Add",
@@ -13607,16 +13506,7 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": [],
@@ -13662,17 +13552,13 @@
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 3,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "sword_index",
                     "operation": "Add",
@@ -13681,16 +13567,7 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": [],

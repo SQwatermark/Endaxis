@@ -13,7 +13,7 @@ Action 同时统计配置数量和 `isEnable != false` 的启用数量；正文�
 - 干员：29 名，其中有可递归数据者 28 名。
 - 入口技能：308 个；SkillData 文件 605 个；BuffData 文件 529 个。
 - 进入严格中间层：269 个。
-- 当前可直接编译为通用 Next DSL：61 个。
+- 当前可直接编译为通用 Next DSL：106 个。
 
 ## 分干员覆盖
 
@@ -21,53 +21,52 @@ Action 同时统计配置数量和 `isEnable != false` 的启用数量；正文�
 | -------------- | ------------------- | ---: | -------: | -------: | --: | -------: | --------: | -------: |
 | Tangtang       | `chr_0027_tangtang` |   11 |       11 |        6 |   4 |       25 |        37 |        4 |
 | Perlica        | `chr_0004_pelica`   |    9 |        9 |        9 |   4 |       16 |         9 |        5 |
-| Chen Qianyu    | `chr_0005_chen`     |   10 |       10 |       10 |   4 |       10 |         7 |        4 |
-| Wulfgard       | `chr_0006_wolfgd`   |    9 |        9 |        9 |   2 |       20 |        14 |       10 |
-| Arclight       | `chr_0007_ikut`     |   10 |       10 |        9 |   2 |       11 |        10 |        8 |
-| Ember          | `chr_0009_azrila`   |    9 |        9 |        9 |   4 |        9 |        17 |        6 |
+| Chen Qianyu    | `chr_0005_chen`     |   10 |       10 |       10 |   6 |       10 |         7 |        4 |
+| Wulfgard       | `chr_0006_wolfgd`   |    9 |        9 |        9 |   3 |       20 |        14 |       10 |
+| Arclight       | `chr_0007_ikut`     |   10 |       10 |        9 |   6 |       11 |        10 |        8 |
+| Ember          | `chr_0009_azrila`   |    9 |        9 |        9 |   5 |        9 |        17 |        6 |
 | Xaihi          | `chr_0011_seraph`   |   10 |       10 |       10 |   2 |       16 |        31 |        6 |
-| Avywenna       | `chr_0012_avywen`   |   10 |       10 |       10 |   1 |       17 |        12 |        5 |
-| Gilberta       | `chr_0013_aglina`   |    9 |        9 |        7 |   3 |       16 |        19 |        4 |
+| Avywenna       | `chr_0012_avywen`   |   10 |       10 |       10 |   5 |       17 |        12 |        5 |
+| Gilberta       | `chr_0013_aglina`   |    9 |        9 |        7 |   4 |       16 |        19 |        4 |
 | Snowshine      | `chr_0014_aurora`   |    8 |        8 |        8 |   2 |       12 |        13 |        7 |
-| Lifeng         | `chr_0015_lifeng`   |    9 |        9 |        9 |   1 |       10 |        12 |        4 |
+| Lifeng         | `chr_0015_lifeng`   |    9 |        9 |        9 |   4 |       10 |        12 |        4 |
 | Antal          | `chr_0023_antal`    |    9 |        9 |        9 |   1 |       15 |        14 |        6 |
-| Laevatain      | `chr_0016_laevat`   |   15 |       15 |       14 |   3 |       22 |        51 |       24 |
-| Estella        | `chr_0021_whiten`   |    9 |        9 |        9 |   2 |       10 |         6 |        4 |
-| Alesh          | `chr_0024_deepfin`  |   10 |       10 |       10 |   0 |       10 |         4 |        8 |
-| Arcane         | `chr_0032_lizhiyan` |   11 |       11 |        7 |   2 |       14 |        42 |       11 |
+| Laevatain      | `chr_0016_laevat`   |   15 |       15 |       14 |   5 |       22 |        51 |       24 |
+| Estella        | `chr_0021_whiten`   |    9 |        9 |        9 |   7 |       10 |         6 |        4 |
+| Alesh          | `chr_0024_deepfin`  |   10 |       10 |       10 |   4 |       10 |         4 |        8 |
+| Arcane         | `chr_0032_lizhiyan` |   11 |       11 |        7 |   3 |       14 |        42 |       11 |
 | Yvonne         | `chr_0017_yvonne`   |   16 |       16 |       16 |   0 |       27 |        38 |       12 |
-| Da Pan         | `chr_0018_dapan`    |    9 |        9 |        8 |   2 |        9 |         6 |        6 |
-| Rossi          | `chr_0028_wulfa`    |   11 |       11 |       10 |   1 |       20 |        39 |       24 |
-| Akekuri        | `chr_0019_karin`    |    9 |        9 |        9 |   2 |        9 |         9 |        4 |
-| Catcher        | `chr_0020_meurs`    |    9 |        9 |        9 |   2 |       10 |        10 |        7 |
+| Da Pan         | `chr_0018_dapan`    |    9 |        9 |        8 |   3 |        9 |         6 |        6 |
+| Rossi          | `chr_0028_wulfa`    |   11 |       11 |       10 |   3 |       20 |        39 |       24 |
+| Akekuri        | `chr_0019_karin`    |    9 |        9 |        9 |   6 |        9 |         9 |        4 |
+| Catcher        | `chr_0020_meurs`    |    9 |        9 |        9 |   3 |       10 |        10 |        7 |
 | Fluorite       | `chr_0022_bounda`   |   10 |       10 |       10 |   3 |       20 |         8 |        9 |
 | Endministrator | `chr_9000_endmin`   |   20 |        0 |        0 |   0 |        0 |         0 |       20 |
 | Ardelia        | `chr_0025_ardelia`  |    9 |        9 |        7 |   0 |       21 |        17 |        8 |
 | Last Rite      | `chr_0026_lastrite` |    9 |        9 |        9 |   3 |       10 |        13 |        6 |
-| Pogranichnik   | `chr_0029_pograni`  |   10 |       10 |       10 |   2 |       13 |        15 |        4 |
+| Pogranichnik   | `chr_0029_pograni`  |   10 |       10 |       10 |   5 |       13 |        15 |        4 |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |       15 |       15 |   6 |       29 |        29 |       29 |
-| Mifu           | `chr_0031_mifu`     |   11 |       11 |       11 |   1 |       11 |        22 |        8 |
-| Camille        | `chr_0033_camille`  |   12 |       12 |       10 |   2 |       18 |        28 |        5 |
+| Mifu           | `chr_0031_mifu`     |   11 |       11 |       11 |   5 |       11 |        22 |        8 |
+| Camille        | `chr_0033_camille`  |   12 |       12 |       10 |   4 |       18 |        28 |        5 |
 
 ## 分层缺口
 
 | 入口审计类别                | 技能数 | 干员覆盖 | 层级                  |
 | --------------------------- | -----: | -------: | --------------------- |
-| `condition-main-operator`   |    115 |       27 | Next DSL/运行时未覆盖 |
+| `condition-entity-count`    |     58 |       21 | Next DSL/运行时未覆盖 |
+| `other`                     |     21 |       11 | Next DSL/运行时未覆盖 |
 | `source-data-missing`       |     21 |        2 | 数据源缺失            |
-| `condition-entity-count`    |     16 |       11 | Next DSL/运行时未覆盖 |
-| `buff-source-or-target`     |     14 |       11 | Next DSL/运行时未覆盖 |
+| `buff-source-or-target`     |     15 |       11 | Next DSL/运行时未覆盖 |
+| `dynamic-scalar`            |     14 |        8 | Next DSL/运行时未覆盖 |
 | `parser-channeling`         |     11 |        8 | 严格 parser 不支持    |
 | `condition-buff-stack`      |     10 |        4 | Next DSL/运行时未覆盖 |
-| `dynamic-scalar`            |     10 |        7 | Next DSL/运行时未覆盖 |
 | `projectile-child-actions`  |     10 |        7 | Next DSL/运行时未覆盖 |
-| `root-action-coverage`      |      9 |        7 | Next DSL/运行时未覆盖 |
-| `condition-target-identity` |      7 |        4 | Next DSL/运行时未覆盖 |
+| `root-action-coverage`      |     10 |        7 | Next DSL/运行时未覆盖 |
+| `condition-target-identity` |      9 |        5 | Next DSL/运行时未覆盖 |
+| `condition-other`           |      5 |        3 | Next DSL/运行时未覆盖 |
 | `condition-tag`             |      5 |        4 | Next DSL/运行时未覆盖 |
-| `conditional-leaf`          |      4 |        3 | Next DSL/运行时未覆盖 |
-| `other`                     |      4 |        3 | Next DSL/运行时未覆盖 |
+| `conditional-leaf`          |      5 |        4 | Next DSL/运行时未覆盖 |
 | `parser-damage-calculation` |      4 |        3 | 严格 parser 不支持    |
-| `condition-other`           |      3 |        2 | Next DSL/运行时未覆盖 |
 | `parser-tick-interval`      |      2 |        2 | 严格 parser 不支持    |
 | `parser-assignment-shape`   |      1 |        1 | 严格 parser 不支持    |
 | `projectile-data`           |      1 |        1 | Next DSL/运行时未覆盖 |

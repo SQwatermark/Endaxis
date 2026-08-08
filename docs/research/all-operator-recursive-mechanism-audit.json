@@ -16,12 +16,17 @@
   "layers": {
     "entryAudit": {
       "strictParsedCount": 269,
-      "nextDslCompiledCount": 61,
+      "nextDslCompiledCount": 106,
       "blockers": [
         {
-          "kind": "condition-main-operator",
-          "entrySkillCount": 115,
-          "operatorCoverage": 27
+          "kind": "condition-entity-count",
+          "entrySkillCount": 58,
+          "operatorCoverage": 21
+        },
+        {
+          "kind": "other",
+          "entrySkillCount": 21,
+          "operatorCoverage": 11
         },
         {
           "kind": "source-data-missing",
@@ -29,14 +34,14 @@
           "operatorCoverage": 2
         },
         {
-          "kind": "condition-entity-count",
-          "entrySkillCount": 16,
+          "kind": "buff-source-or-target",
+          "entrySkillCount": 15,
           "operatorCoverage": 11
         },
         {
-          "kind": "buff-source-or-target",
+          "kind": "dynamic-scalar",
           "entrySkillCount": 14,
-          "operatorCoverage": 11
+          "operatorCoverage": 8
         },
         {
           "kind": "parser-channeling",
@@ -49,24 +54,24 @@
           "operatorCoverage": 4
         },
         {
-          "kind": "dynamic-scalar",
-          "entrySkillCount": 10,
-          "operatorCoverage": 7
-        },
-        {
           "kind": "projectile-child-actions",
           "entrySkillCount": 10,
           "operatorCoverage": 7
         },
         {
           "kind": "root-action-coverage",
-          "entrySkillCount": 9,
+          "entrySkillCount": 10,
           "operatorCoverage": 7
         },
         {
           "kind": "condition-target-identity",
-          "entrySkillCount": 7,
-          "operatorCoverage": 4
+          "entrySkillCount": 9,
+          "operatorCoverage": 5
+        },
+        {
+          "kind": "condition-other",
+          "entrySkillCount": 5,
+          "operatorCoverage": 3
         },
         {
           "kind": "condition-tag",
@@ -75,23 +80,13 @@
         },
         {
           "kind": "conditional-leaf",
-          "entrySkillCount": 4,
-          "operatorCoverage": 3
-        },
-        {
-          "kind": "other",
-          "entrySkillCount": 4,
-          "operatorCoverage": 3
+          "entrySkillCount": 5,
+          "operatorCoverage": 4
         },
         {
           "kind": "parser-damage-calculation",
           "entrySkillCount": 4,
           "operatorCoverage": 3
-        },
-        {
-          "kind": "condition-other",
-          "entrySkillCount": 3,
-          "operatorCoverage": 2
         },
         {
           "kind": "parser-tick-interval",
@@ -7892,7 +7887,7 @@
       "entrySkillCount": 10,
       "availableEntrySkillCount": 10,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 4,
+      "nextDslCompiledEntryCount": 6,
       "recursiveSkillCount": 10,
       "recursiveBuffCount": 7,
       "missingReferenceCount": 4,
@@ -8034,7 +8029,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 3,
       "recursiveSkillCount": 20,
       "recursiveBuffCount": 14,
       "missingReferenceCount": 10,
@@ -8169,7 +8164,7 @@
       "entrySkillCount": 10,
       "availableEntrySkillCount": 10,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 6,
       "recursiveSkillCount": 11,
       "recursiveBuffCount": 10,
       "missingReferenceCount": 8,
@@ -8313,7 +8308,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 4,
+      "nextDslCompiledEntryCount": 5,
       "recursiveSkillCount": 9,
       "recursiveBuffCount": 17,
       "missingReferenceCount": 6,
@@ -8606,7 +8601,7 @@
       "entrySkillCount": 10,
       "availableEntrySkillCount": 10,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 1,
+      "nextDslCompiledEntryCount": 5,
       "recursiveSkillCount": 17,
       "recursiveBuffCount": 12,
       "missingReferenceCount": 5,
@@ -8749,7 +8744,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 7,
-      "nextDslCompiledEntryCount": 3,
+      "nextDslCompiledEntryCount": 4,
       "recursiveSkillCount": 16,
       "recursiveBuffCount": 19,
       "missingReferenceCount": 4,
@@ -9043,7 +9038,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 1,
+      "nextDslCompiledEntryCount": 4,
       "recursiveSkillCount": 10,
       "recursiveBuffCount": 12,
       "missingReferenceCount": 4,
@@ -9322,7 +9317,7 @@
       "entrySkillCount": 15,
       "availableEntrySkillCount": 15,
       "strictParsedEntryCount": 14,
-      "nextDslCompiledEntryCount": 3,
+      "nextDslCompiledEntryCount": 5,
       "recursiveSkillCount": 22,
       "recursiveBuffCount": 51,
       "missingReferenceCount": 24,
@@ -9503,7 +9498,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 7,
       "recursiveSkillCount": 10,
       "recursiveBuffCount": 6,
       "missingReferenceCount": 4,
@@ -9640,7 +9635,7 @@
       "entrySkillCount": 10,
       "availableEntrySkillCount": 10,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 0,
+      "nextDslCompiledEntryCount": 4,
       "recursiveSkillCount": 10,
       "recursiveBuffCount": 4,
       "missingReferenceCount": 8,
@@ -9787,7 +9782,7 @@
       "entrySkillCount": 11,
       "availableEntrySkillCount": 11,
       "strictParsedEntryCount": 7,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 3,
       "recursiveSkillCount": 14,
       "recursiveBuffCount": 42,
       "missingReferenceCount": 11,
@@ -10167,7 +10162,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 8,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 3,
       "recursiveSkillCount": 9,
       "recursiveBuffCount": 6,
       "missingReferenceCount": 6,
@@ -10303,7 +10298,7 @@
       "entrySkillCount": 11,
       "availableEntrySkillCount": 11,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 1,
+      "nextDslCompiledEntryCount": 3,
       "recursiveSkillCount": 20,
       "recursiveBuffCount": 39,
       "missingReferenceCount": 24,
@@ -10515,7 +10510,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 6,
       "recursiveSkillCount": 9,
       "recursiveBuffCount": 9,
       "missingReferenceCount": 4,
@@ -10642,7 +10637,7 @@
       "entrySkillCount": 9,
       "availableEntrySkillCount": 9,
       "strictParsedEntryCount": 9,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 3,
       "recursiveSkillCount": 10,
       "recursiveBuffCount": 10,
       "missingReferenceCount": 7,
@@ -11303,7 +11298,7 @@
       "entrySkillCount": 10,
       "availableEntrySkillCount": 10,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 5,
       "recursiveSkillCount": 13,
       "recursiveBuffCount": 15,
       "missingReferenceCount": 4,
@@ -11668,7 +11663,7 @@
       "entrySkillCount": 11,
       "availableEntrySkillCount": 11,
       "strictParsedEntryCount": 11,
-      "nextDslCompiledEntryCount": 1,
+      "nextDslCompiledEntryCount": 5,
       "recursiveSkillCount": 11,
       "recursiveBuffCount": 22,
       "missingReferenceCount": 8,
@@ -11854,7 +11849,7 @@
       "entrySkillCount": 12,
       "availableEntrySkillCount": 12,
       "strictParsedEntryCount": 10,
-      "nextDslCompiledEntryCount": 2,
+      "nextDslCompiledEntryCount": 4,
       "recursiveSkillCount": 18,
       "recursiveBuffCount": 28,
       "missingReferenceCount": 5,

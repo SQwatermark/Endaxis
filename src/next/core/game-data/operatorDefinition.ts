@@ -145,6 +145,8 @@ export type CombatCondition =
   | { kind: 'combatActive' }
   /** Endaxis 固定单敌人场景中，表示原生智能目标数量检查已被模型保证。 */
   | { kind: 'singleEnemyPresent' }
+  /** 当前技能所属干员是否为该帧的主控干员；必须由场景运行时提供主控身份。 */
+  | { kind: 'casterControlled' }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | { kind: 'contextFlagEquals'; flag: string; value: boolean | number | string }
@@ -195,6 +197,7 @@ export type CombatCondition =
 export const COMBAT_CONDITION_KINDS = [
   'combatActive',
   'singleEnemyPresent',
+  'casterControlled',
   'skillBranchEnabled',
   'targetStaggered',
   'contextFlagEquals',

@@ -201,13 +201,15 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -224,21 +226,13 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  },
-                  "buffStack": null
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -271,11 +265,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -347,6 +337,21 @@
           "sourcePath": [
             "chr_0004_pelica_attack1",
             "chr_0004_pelica_attack1_projhit"
+          ]
+        },
+        {
+          "frame": 8,
+          "actionOrder": [
+            3,
+            1
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack1_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
           ]
         }
       ],
@@ -504,26 +509,21 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -556,11 +556,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -664,26 +660,21 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -716,11 +707,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -834,6 +821,21 @@
           ]
         },
         {
+          "frame": 9,
+          "actionOrder": [
+            1,
+            1
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack2_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
+        },
+        {
           "frame": 12,
           "actionOrder": [
             2,
@@ -843,6 +845,21 @@
           "sourcePath": [
             "chr_0004_pelica_attack2",
             "chr_0004_pelica_attack2_projhit"
+          ]
+        },
+        {
+          "frame": 12,
+          "actionOrder": [
+            2,
+            1
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack2_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
           ]
         }
       ],
@@ -1021,13 +1038,15 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1044,21 +1063,13 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  },
-                  "buffStack": null
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1091,11 +1102,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -1199,13 +1206,15 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1222,21 +1231,13 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  },
-                  "buffStack": null
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1269,11 +1270,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -1377,13 +1374,15 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1400,21 +1399,13 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  },
-                  "buffStack": null
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1447,11 +1438,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -1604,6 +1591,21 @@
           ]
         },
         {
+          "frame": 16,
+          "actionOrder": [
+            3,
+            3
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack3_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        },
+        {
           "frame": 19,
           "actionOrder": [
             4,
@@ -1616,6 +1618,21 @@
           ]
         },
         {
+          "frame": 19,
+          "actionOrder": [
+            4,
+            3
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack3_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        },
+        {
           "frame": 22,
           "actionOrder": [
             5,
@@ -1625,6 +1642,21 @@
           "sourcePath": [
             "chr_0004_pelica_attack3",
             "chr_0004_pelica_attack3_projhit"
+          ]
+        },
+        {
+          "frame": 22,
+          "actionOrder": [
+            5,
+            3
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack3_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
           ]
         }
       ],
@@ -1837,13 +1869,15 @@
               "conditions": [
                 {
                   "sourceType": "CheckMainCharacterCondition",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "mainOperator": {
+                    "targetSource": "Source",
+                    "targetGroupKey": ""
+                  }
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1860,21 +1894,13 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  },
-                  "buffStack": null
+                  }
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1907,11 +1933,7 @@
                     "useUltimateRecoveryTag": false,
                     "ultimateRecoveryTagId": 0,
                     "ignoreUltimateGainScalar": false
-                  },
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 }
               ],
               "failActions": []
@@ -2012,6 +2034,21 @@
           "sourcePath": [
             "chr_0004_pelica_attack4",
             "chr_0004_pelica_attack4_projhit"
+          ]
+        },
+        {
+          "frame": 27,
+          "actionOrder": [
+            3,
+            2
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_attack4_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
           ]
         }
       ],
@@ -3120,9 +3157,7 @@
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 },
                 {
                   "sourceType": "CheckTagMatch",
@@ -3130,9 +3165,7 @@
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -3148,17 +3181,13 @@
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": [],
-                  "entityCount": null,
-                  "buffStack": null
+                  "skillTypes": []
                 }
               ],
               "succeedActions": [
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 0,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
                   "blackboardMutation": {
                     "key": "EntityBB_bounced",
                     "operation": "Assign",
@@ -3167,28 +3196,11 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  },
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
-                  "projectileLaunch": null,
-                  "projectileTriggeredSkills": null,
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  }
                 },
                 {
                   "actionType": "LaunchProjectile",
                   "actionIndex": 2,
-                  "nestedCondition": null,
-                  "blackboardCalculation": null,
-                  "blackboardMutation": null,
-                  "buffBlackboardRead": null,
-                  "buffFinish": null,
-                  "buffStackRead": null,
-                  "buffApplication": null,
-                  "resourceGain": null,
                   "projectileLaunch": {
                     "projectileId": "projectile_chr_0004_pelica_combo_skill",
                     "skillTriggers": [
@@ -3371,9 +3383,7 @@
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": [],
-                              "entityCount": null,
-                              "buffStack": null
+                              "skillTypes": []
                             },
                             {
                               "sourceType": "CheckTagMatch",
@@ -3381,9 +3391,7 @@
                               "comparison": null,
                               "left": null,
                               "right": null,
-                              "skillTypes": [],
-                              "entityCount": null,
-                              "buffStack": null
+                              "skillTypes": []
                             },
                             {
                               "sourceType": "CompareFloat",
@@ -3399,17 +3407,13 @@
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": [],
-                              "entityCount": null,
-                              "buffStack": null
+                              "skillTypes": []
                             }
                           ],
                           "succeedActions": [
                             {
                               "actionType": "ModifyDynamicBlackboard",
                               "actionIndex": 0,
-                              "nestedCondition": null,
-                              "blackboardCalculation": null,
                               "blackboardMutation": {
                                 "key": "EntityBB_bounced",
                                 "operation": "Assign",
@@ -3418,28 +3422,11 @@
                                   "blackboardKey": null,
                                   "levelValues": null
                                 }
-                              },
-                              "buffBlackboardRead": null,
-                              "buffFinish": null,
-                              "buffStackRead": null,
-                              "buffApplication": null,
-                              "resourceGain": null,
-                              "projectileLaunch": null,
-                              "projectileTriggeredSkills": null,
-                              "abilityEntitySpawn": null,
-                              "damageUnits": null
+                              }
                             },
                             {
                               "actionType": "LaunchProjectile",
                               "actionIndex": 2,
-                              "nestedCondition": null,
-                              "blackboardCalculation": null,
-                              "blackboardMutation": null,
-                              "buffBlackboardRead": null,
-                              "buffFinish": null,
-                              "buffStackRead": null,
-                              "buffApplication": null,
-                              "resourceGain": null,
                               "projectileLaunch": {
                                 "projectileId": "projectile_chr_0004_pelica_combo_skill",
                                 "skillTriggers": [
@@ -3459,10 +3446,7 @@
                                     "inputValueKey": ""
                                   }
                                 ]
-                              },
-                              "projectileTriggeredSkills": null,
-                              "abilityEntitySpawn": null,
-                              "damageUnits": null
+                              }
                             }
                           ],
                           "failActions": []
@@ -3584,9 +3568,7 @@
                       "nestedProjectileTriggeredSkills": [],
                       "abilityEntityHits": []
                     }
-                  ],
-                  "abilityEntitySpawn": null,
-                  "damageUnits": null
+                  ]
                 }
               ],
               "failActions": []
@@ -3786,11 +3768,37 @@
           "frame": 24,
           "actionOrder": [
             7,
+            0
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill_projhit",
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
             11
           ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_combo_skill",
+            "chr_0004_pelica_combo_skill_projhit"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            15
+          ],
+          "itemType": "resourceGain",
+          "sourcePath": [
             "chr_0004_pelica_combo_skill_projhit"
           ]
         }
