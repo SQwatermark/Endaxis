@@ -40,6 +40,23 @@ export interface GeneratedTimedDamageSource {
   /** 同一原生 TimelineAction 展开后的动作顺序，用于维持同帧结算次序。 */
   readonly actionIndex: number;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
+  /** 同一目标短时命中标记的门控；标记存在时原生 Sequence 会在伤害前短路。 */
+  readonly timedMarkerGate: GeneratedTimedMarkerGateSource | null;
+}
+
+export interface GeneratedTimedMarkerGateSource {
+  readonly markerBlackboardKey: string;
+  readonly returnTrueIfNotExists: boolean;
+  readonly durationSeconds: number;
+}
+
+export interface GeneratedEntityBlackboardAssignmentSource {
+  readonly targetKey: string;
+  readonly valueType: 'String' | 'Numeric';
+  readonly numericValue: number;
+  readonly stringValue: string;
+  readonly useDirectValue: boolean;
+  readonly inputValueKey: string;
 }
 
 export type GeneratedAuxiliaryClassification =
@@ -121,6 +138,8 @@ export interface GeneratedAbilityEntityHitSource {
   readonly abilityEntityId: string;
   readonly skillId: string;
   readonly sourceFile: string;
+  /** 父动作在生成实体时写入的实例黑板，用于解析子技能中的动态标记等身份。 */
+  readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
@@ -358,6 +377,7 @@ export interface GeneratedProjectileLaunchPayload {
 export interface GeneratedAbilityEntitySpawnPayload {
   readonly abilityEntityId: string;
   readonly skillId: string | null;
+  readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
 }
 
 /** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */

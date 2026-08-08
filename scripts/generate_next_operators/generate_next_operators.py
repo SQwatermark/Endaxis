@@ -94,6 +94,26 @@ class TimedDamageSource:
     endFrame: int
     actionIndex: int
     damageUnits: tuple[DamageUnitSource, ...]
+    timedMarkerGate: "TimedMarkerGateSource | None" = None
+
+
+@dataclass(frozen=True)
+class TimedMarkerGateSource:
+    """同一目标上的短时命中标记；条件失败时会截断其后的伤害序列。"""
+
+    markerBlackboardKey: str
+    returnTrueIfNotExists: bool
+    durationSeconds: float
+
+
+@dataclass(frozen=True)
+class EntityBlackboardAssignmentSource:
+    targetKey: str
+    valueType: str
+    numericValue: float
+    stringValue: str
+    useDirectValue: bool = True
+    inputValueKey: str = ""
 
 
 @dataclass(frozen=True)
@@ -172,6 +192,7 @@ class AbilityEntityHitSource:
     abilityEntityId: str
     skillId: str
     sourceFile: str
+    entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     inflictions: tuple[TimedInflictionSource, ...]
@@ -434,6 +455,7 @@ class ProjectileLaunchPayload:
 class AbilityEntitySpawnPayload:
     abilityEntityId: str
     skillId: str | None
+    entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -771,6 +793,141 @@ def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
             yield from walk_unconditional_actions(child)
 
 
+def walk_single_enemy_actions(value: Any, path: str) -> Iterable[dict[str, Any]]:
+    """在固定单敌人模型下，仅把证据明确的逐目标容器退化为一次顺序执行。"""
+    if isinstance(value, dict):
+        type_name = value.get("$type")
+        if isinstance(type_name, str):
+            name = action_name(type_name)
+            if name == "ChannelingAction":
+                expected_fields = {
+                    "$type",
+                    "isEnable",
+                    "priorityLevel",
+                    "priorityOffset",
+                    "serverActionIndex",
+                    "targetSettings",
+                    "executeEachFrame",
+                    "triggerInterval",
+                    "maxCountPerTarget",
+                    "targetTriggerInterval",
+                    "actionOnTick",
+                }
+                if set(value) != expected_fields:
+                    raise ValueError(
+                        f"{path}.ChannelingAction: unexpected fields {sorted(value)}"
+                    )
+                if value.get("isEnable") is False:
+                    return
+                if value.get("maxCountPerTarget") != 1:
+                    raise ValueError(
+                        f"{path}.ChannelingAction: only one trigger per target is supported"
+                    )
+                yield from walk_single_enemy_actions(
+                    value.get("actionOnTick"), f"{path}.ChannelingAction.actionOnTick"
+                )
+                return
+            if name != "ForEachAction":
+                yield value
+                return
+            expected_fields = {
+                "$type",
+                "isEnable",
+                "priorityLevel",
+                "priorityOffset",
+                "serverActionIndex",
+                "target",
+                "action",
+            }
+            if set(value) != expected_fields:
+                raise ValueError(f"{path}.ForEachAction: unexpected fields {sorted(value)}")
+            if value.get("isEnable") is False:
+                return
+            target = require_dict(value.get("target"), f"{path}.ForEachAction.target")
+            target_source = target.get("targetSource")
+            target_group = target.get("targetGroupKey")
+            if not (
+                (target_source == "Context" and isinstance(target_group, str) and target_group)
+                or (target_source == "Target" and target_group == "")
+            ):
+                raise ValueError(f"{path}.ForEachAction: unsupported target collection")
+            yield from walk_single_enemy_actions(
+                value.get("action"), f"{path}.ForEachAction.action"
+            )
+            return
+        for key, child in value.items():
+            yield from walk_single_enemy_actions(child, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            yield from walk_single_enemy_actions(child, f"{path}[{index}]")
+
+
+def collect_timed_marker_damage_gates(value: Any, path: str) -> dict[int, TimedMarkerGateSource]:
+    """识别 `检查目标标记 -> 伤害 -> 创建同标记` 的单目标去重序列。"""
+    result: dict[int, TimedMarkerGateSource] = {}
+
+    def visit(current: Any, current_path: str) -> None:
+        if isinstance(current, list):
+            for index, child in enumerate(current):
+                visit(child, f"{current_path}[{index}]")
+            return
+        if not isinstance(current, dict):
+            return
+        if action_name(str(current.get("$type", ""))) == "ForEachAction":
+            action_group = require_dict(current.get("action"), f"{current_path}.action")
+            actions = [
+                require_dict(raw, f"{current_path}.action.actionData[{index}]")
+                for index, raw in enumerate(
+                    require_list(action_group.get("actionData"), f"{current_path}.action.actionData")
+                )
+                if not isinstance(raw, dict) or raw.get("isEnable") is not False
+            ]
+            for index, action in enumerate(actions):
+                if action_name(str(action.get("$type", ""))) != "DamageAction":
+                    continue
+                previous = actions[index - 1] if index > 0 else None
+                following = actions[index + 1] if index + 1 < len(actions) else None
+                if (
+                    previous is None
+                    or following is None
+                    or action_name(str(previous.get("$type", ""))) != "CheckTimedMarkerCondition"
+                    or action_name(str(following.get("$type", ""))) != "CreateTimedMarker"
+                ):
+                    continue
+                check_target = require_dict(
+                    previous.get("checkTarget"), f"{current_path}.CheckTimedMarkerCondition.checkTarget"
+                )
+                marker = require_dict(
+                    following.get("markerId"), f"{current_path}.CreateTimedMarker.markerId"
+                )
+                duration = require_dict(
+                    following.get("duration"), f"{current_path}.CreateTimedMarker.duration"
+                )
+                marker_key = previous.get("blackboardKey")
+                if (
+                    check_target.get("targetSource") != "Target"
+                    or previous.get("useBlackboardKey") is not True
+                    or not isinstance(marker_key, str)
+                    or not marker_key
+                    or marker.get("useBlackboardKey") is not True
+                    or marker.get("blackboardKey") != marker_key
+                    or duration.get("useBlackboardKey") is not False
+                    or not isinstance(duration.get("value"), (int, float))
+                    or isinstance(duration.get("value"), bool)
+                ):
+                    raise ValueError(f"{current_path}: unsupported timed marker damage gate")
+                result[id(action)] = TimedMarkerGateSource(
+                    markerBlackboardKey=marker_key,
+                    returnTrueIfNotExists=previous.get("returnTrueIfNotExists") is True,
+                    durationSeconds=float(duration["value"]),
+                )
+        for key, child in current.items():
+            visit(child, f"{current_path}.{key}")
+
+    visit(value, path)
+    return result
+
+
 def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
     keys: set[str] = set()
     if isinstance(value, dict):
@@ -1105,9 +1262,50 @@ def parse_ability_entity_spawn_payload(
         raise ValueError(f"{path}.abilityEntityId: expected non-empty string")
     if not isinstance(skill_id, str):
         raise ValueError(f"{path}.abilityEntitySkillId: expected string")
+    assignments: list[EntityBlackboardAssignmentSource] = []
+    if action.get("assignEntityBlackboard") is True:
+        for index, raw_assignment in enumerate(
+            require_list(action.get("assignPairs"), f"{path}.assignPairs")
+        ):
+            assignment = require_dict(raw_assignment, f"{path}.assignPairs[{index}]")
+            target_key = assignment.get("targetKey")
+            value_type = assignment.get("directValueType")
+            numeric_value = assignment.get("numericValue")
+            string_value = assignment.get("stringValue")
+            use_direct_value = assignment.get("useDirectValue")
+            input_value_key = assignment.get("inputValueKey")
+            if not isinstance(use_direct_value, bool):
+                raise ValueError(f"{path}.assignPairs[{index}].useDirectValue: expected boolean")
+            if not isinstance(input_value_key, str):
+                raise ValueError(f"{path}.assignPairs[{index}].inputValueKey: expected string")
+            if not use_direct_value and not input_value_key:
+                raise ValueError(
+                    f"{path}.assignPairs[{index}]: indirect assignment requires an input key"
+                )
+            if not isinstance(target_key, str) or not target_key:
+                raise ValueError(f"{path}.assignPairs[{index}].targetKey: expected string")
+            if value_type not in {"String", "Numeric"}:
+                raise ValueError(
+                    f"{path}.assignPairs[{index}].directValueType: unsupported {value_type!r}"
+                )
+            if not isinstance(numeric_value, (int, float)) or isinstance(numeric_value, bool):
+                raise ValueError(f"{path}.assignPairs[{index}].numericValue: expected number")
+            if not isinstance(string_value, str):
+                raise ValueError(f"{path}.assignPairs[{index}].stringValue: expected string")
+            assignments.append(
+                EntityBlackboardAssignmentSource(
+                    targetKey=target_key,
+                    valueType=value_type,
+                    numericValue=float(numeric_value),
+                    stringValue=string_value,
+                    useDirectValue=use_direct_value,
+                    inputValueKey=input_value_key,
+                )
+            )
     return AbilityEntitySpawnPayload(
         abilityEntityId=ability_id,
         skillId=skill_id or None,
+        entityBlackboardAssignments=tuple(assignments),
     )
 
 
@@ -1604,7 +1802,7 @@ def parse_damage_units(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[DamageUnitSource, ...]:
     result: list[DamageUnitSource] = []
-    for action in walk_unconditional_actions(root.get("actionGroupData")):
+    for action in walk_single_enemy_actions(root.get("actionGroupData"), source_name):
         if action_name(action["$type"]) != "DamageAction":
             continue
         units = require_list(action.get("damageUnits"), f"{source_name}.DamageAction.damageUnits")
@@ -1672,6 +1870,7 @@ def parse_direct_damage_hits(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[TimedDamageSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    marker_gates = collect_timed_marker_damage_gates(group, f"{source_name}.actionGroupData")
     result: list[TimedDamageSource] = []
     for timeline_index, raw_timeline in enumerate(
         require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -1683,7 +1882,12 @@ def parse_direct_damage_hits(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        actions = list(walk_unconditional_actions(timeline.get("_sequenceActionData")))
+        actions = list(
+            walk_single_enemy_actions(
+                timeline.get("_sequenceActionData"),
+                f"{source_name}.timelineActions[{timeline_index}]",
+            )
+        )
         for action in actions:
             if action_name(action["$type"]) != "DamageAction":
                 continue
@@ -1696,6 +1900,7 @@ def parse_direct_damage_hits(
                         action, f"{source_name}.DamageAction"
                     ),
                     damageUnits=parse_damage_units(action_root, source_name, inherited_blackboard),
+                    timedMarkerGate=marker_gates.get(id(action)),
                 )
             )
     return tuple(result)
@@ -2485,53 +2690,192 @@ def resolve_ability_entity_hits(
                 *(parent_action_order or ()),
                 require_server_action_index(action, f"{source_name}.SpawnAbilityEntity"),
             )
-            cycle_truncated = skill_id in stack
-            nested = (
-                ()
-                if cycle_truncated
-                else resolve_ability_entity_hits(
+            result.append(
+                resolve_ability_entity_payload(
+                    payload,
                     child,
                     child_name,
                     source_dir,
                     spawn_frame,
-                    (*stack, skill_id),
+                    stack,
                     blackboard,
-                    parent_action_order=current_action_order,
+                    current_action_order,
                 )
             )
-            combat_actions = tuple(
-                sorted(
-                    {
-                        action_name(item["$type"])
-                        for item in walk_actions(child.get("actionGroupData"))
-                        if action_name(item["$type"]) in COMBAT_ACTION_NAMES
-                    }
-                )
-            )
+    return tuple(result)
+
+
+def resolve_ability_entity_payload(
+    payload: AbilityEntitySpawnPayload,
+    child: dict[str, Any],
+    child_name: str,
+    source_dir: Path,
+    spawn_frame: int,
+    stack: tuple[str, ...],
+    blackboard: dict[str, tuple[float, ...]],
+    action_order: tuple[int, ...],
+) -> AbilityEntityHitSource:
+    """解析一项已确定会发生的能力实体生成，不关心它来自根动作还是条件叶子。"""
+    skill_id = payload.skillId
+    if skill_id is None:
+        raise AssertionError("combat ability entity payload must expose skillId")
+    cycle_truncated = skill_id in stack
+    child_conditions = parse_conditional_actions(child, child_name, blackboard)
+    nested = ()
+    if not cycle_truncated:
+        child_stack = (*stack, skill_id)
+        nested = (
+            *resolve_ability_entity_hits(
+                child,
+                child_name,
+                source_dir,
+                spawn_frame,
+                child_stack,
+                blackboard,
+                parent_action_order=action_order,
+            ),
+            *resolve_guaranteed_conditional_ability_entity_hits(
+                child_conditions,
+                child_name,
+                source_dir,
+                spawn_frame,
+                child_stack,
+                blackboard,
+                action_order,
+            ),
+        )
+    combat_actions = tuple(
+        sorted(
+            {
+                action_name(item["$type"])
+                for item in walk_actions(child.get("actionGroupData"))
+                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+            }
+        )
+    )
+    return AbilityEntityHitSource(
+        spawnFrame=spawn_frame,
+        actionOrder=action_order,
+        abilityEntityId=payload.abilityEntityId,
+        skillId=skill_id,
+        sourceFile=child_name,
+        entityBlackboardAssignments=payload.entityBlackboardAssignments,
+        directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
+        conditionalActions=child_conditions,
+        inflictions=parse_inflictions(child, child_name),
+        auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
+        resourceGains=parse_resource_gains(child, child_name, blackboard),
+        projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
+        projectileHits=resolve_projectile_hits(
+            child,
+            child_name,
+            source_dir,
+            spawn_frame,
+            inherited_blackboard=blackboard,
+            parent_action_order=action_order,
+        ),
+        nestedAbilityEntityHits=nested,
+        combatActions=combat_actions,
+        cycleTruncated=cycle_truncated,
+    )
+
+
+def guaranteed_ability_entity_spawns(
+    condition: ConditionalActionSource,
+) -> tuple[AbilityEntitySpawnPayload, ...]:
+    """仅当条件树每条叶子路径生成完全相同的实体序列时返回该序列。"""
+
+    def branch_outcomes(
+        actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> tuple[tuple[AbilityEntitySpawnPayload, ...], ...]:
+        outcomes: tuple[tuple[AbilityEntitySpawnPayload, ...], ...] = ((),)
+        for action in actions:
+            ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
+            nested_condition = getattr(action, "nestedCondition", None)
+            if ability_entity_spawn is not None:
+                additions = ((ability_entity_spawn,),)
+            elif nested_condition is not None:
+                additions = condition_outcomes(nested_condition)
+            else:
+                additions = ((),)
+            outcomes = tuple((*prefix, *addition) for prefix in outcomes for addition in additions)
+        return outcomes
+
+    def condition_outcomes(
+        current: ConditionalActionSource,
+    ) -> tuple[tuple[AbilityEntitySpawnPayload, ...], ...]:
+        return (*branch_outcomes(current.succeedActions), *branch_outcomes(current.failActions))
+
+    outcomes = condition_outcomes(condition)
+    if not outcomes or any(outcome != outcomes[0] for outcome in outcomes[1:]):
+        return ()
+    return outcomes[0]
+
+
+def is_single_enemy_ability_entity_projection(condition: ConditionalActionSource) -> bool:
+    """确认条件树除必然生成能力实体外，只修改单敌人定位使用的临时黑板。"""
+
+    def branch_is_supported(actions: tuple[ConditionalBranchActionSource, ...]) -> bool:
+        for action in actions:
+            if getattr(action, "abilityEntitySpawn", None) is not None:
+                continue
+            nested_condition = getattr(action, "nestedCondition", None)
+            if nested_condition is not None:
+                if not condition_is_supported(nested_condition):
+                    return False
+                continue
+            mutation = getattr(action, "blackboardMutation", None)
+            if mutation is None:
+                return False
+            if (
+                mutation.key != "target_in_range"
+                or mutation.operation != "Assign"
+                or mutation.value.blackboardKey is not None
+                or mutation.value.value != 1
+            ):
+                return False
+        return True
+
+    def condition_is_supported(current: ConditionalActionSource) -> bool:
+        return (
+            bool(guaranteed_ability_entity_spawns(current))
+            and branch_is_supported(current.succeedActions)
+            and branch_is_supported(current.failActions)
+        )
+
+    return condition_is_supported(condition)
+
+
+def resolve_guaranteed_conditional_ability_entity_hits(
+    conditions: tuple[ConditionalActionSource, ...],
+    source_name: str,
+    source_dir: Path,
+    base_frame: int,
+    stack: tuple[str, ...],
+    blackboard: dict[str, tuple[float, ...]],
+    parent_action_order: tuple[int, ...] = (),
+) -> tuple[AbilityEntityHitSource, ...]:
+    """投影条件无关的能力实体生成；分支结果不一致时保留在条件审计层。"""
+    result: list[AbilityEntityHitSource] = []
+    for condition in conditions:
+        for branch_index, payload in enumerate(guaranteed_ability_entity_spawns(condition)):
+            if payload.skillId is None:
+                continue
+            child_name = f"{payload.skillId}.json"
+            child_path = source_dir / child_name
+            if not child_path.is_file():
+                raise FileNotFoundError(f"{source_name}: missing ability entity skill {child_path}")
+            child = require_dict(json.loads(child_path.read_text(encoding="utf-8")), child_name)
             result.append(
-                AbilityEntityHitSource(
-                    spawnFrame=spawn_frame,
-                    actionOrder=current_action_order,
-                    abilityEntityId=payload.abilityEntityId,
-                    skillId=skill_id,
-                    sourceFile=child_name,
-                    directDamageHits=parse_direct_damage_hits(child, child_name, blackboard),
-                    conditionalActions=parse_conditional_actions(child, child_name, blackboard),
-                    inflictions=parse_inflictions(child, child_name),
-                    auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
-                    resourceGains=parse_resource_gains(child, child_name, blackboard),
-                    projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
-                    projectileHits=resolve_projectile_hits(
-                        child,
-                        child_name,
-                        source_dir,
-                        spawn_frame,
-                        inherited_blackboard=blackboard,
-                        parent_action_order=current_action_order,
-                    ),
-                    nestedAbilityEntityHits=nested,
-                    combatActions=combat_actions,
-                    cycleTruncated=cycle_truncated,
+                resolve_ability_entity_payload(
+                    payload,
+                    child,
+                    child_name,
+                    source_dir,
+                    base_frame + condition.startFrame,
+                    stack,
+                    blackboard,
+                    (*parent_action_order, condition.actionIndex, branch_index),
                 )
             )
     return tuple(result)
@@ -2539,10 +2883,18 @@ def resolve_ability_entity_hits(
 
 def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitSource, ...]:
     """将根技能及其引用子技能中的伤害动作投影到根技能的绝对帧。"""
-    result: list[ResolvedDamageHitSource] = []
+    candidates: list[tuple[ResolvedDamageHitSource, str | None, int]] = []
+
+    def append(
+        resolved: ResolvedDamageHitSource,
+        marker_id: str | None = None,
+        marker_duration_frames: int = 0,
+    ) -> None:
+        candidates.append((resolved, marker_id, marker_duration_frames))
+
     for hit in skill.directDamageHits:
         if hit.damageUnits:
-            result.append(
+            append(
                 ResolvedDamageHitSource(
                     hit.startFrame,
                     (hit.actionIndex,),
@@ -2556,7 +2908,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
         current_path = (*path, hit.hitSkillId)
         for damage in hit.directDamageHits:
             if damage.damageUnits:
-                result.append(
+                append(
                     ResolvedDamageHitSource(
                         hit.launchFrame + hit.assumedTravelFrames + damage.startFrame,
                         (*hit.actionOrder, damage.actionIndex),
@@ -2572,14 +2924,45 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
         current_path = (*path, hit.skillId)
         for damage in hit.directDamageHits:
             if damage.damageUnits:
-                result.append(
+                marker_id = None
+                marker_duration_frames = 0
+                gate = getattr(damage, "timedMarkerGate", None)
+                if gate is not None:
+                    if not gate.returnTrueIfNotExists:
+                        raise ValueError(
+                            f"{hit.skillId}: timed marker gate must pass when the marker is absent"
+                        )
+                    assignments = [
+                        assignment
+                        for assignment in getattr(hit, "entityBlackboardAssignments", ())
+                        if assignment.targetKey == gate.markerBlackboardKey
+                    ]
+                    if (
+                        len(assignments) != 1
+                        or assignments[0].valueType != "String"
+                        or not assignments[0].useDirectValue
+                    ):
+                        raise ValueError(
+                            f"{hit.skillId}: timed marker key {gate.markerBlackboardKey!r} "
+                            "does not resolve to one string assignment"
+                        )
+                    marker_id = assignments[0].stringValue
+                    marker_duration_frames_float = gate.durationSeconds * 30
+                    marker_duration_frames = round(marker_duration_frames_float)
+                    if abs(marker_duration_frames_float - marker_duration_frames) > 1e-6:
+                        raise ValueError(
+                            f"{hit.skillId}: timed marker duration does not align to combat frames"
+                        )
+                append(
                     ResolvedDamageHitSource(
                         hit.spawnFrame + damage.startFrame,
                         (*hit.actionOrder, damage.actionIndex),
                         "abilityEntity",
                         current_path,
                         damage.damageUnits,
-                    )
+                    ),
+                    marker_id,
+                    marker_duration_frames,
                 )
         for projectile in hit.projectileHits:
             collect_projectile(projectile, current_path)
@@ -2591,7 +2974,17 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
         collect_projectile(projectile, root_path)
     for entity in skill.abilityEntityHits:
         collect_entity(entity, root_path)
-    return tuple(sorted(result, key=lambda hit: (hit.frame, hit.actionOrder)))
+    result: list[ResolvedDamageHitSource] = []
+    marker_expiry_frames: dict[str, int] = {}
+    for hit, marker_id, duration_frames in sorted(
+        candidates, key=lambda item: (item[0].frame, item[0].actionOrder)
+    ):
+        if marker_id is not None:
+            if hit.frame < marker_expiry_frames.get(marker_id, -1):
+                continue
+            marker_expiry_frames[marker_id] = hit.frame + duration_frames
+        result.append(hit)
+    return tuple(result)
 
 
 def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemSource, ...]:
@@ -2676,7 +3069,40 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for infliction in skill.inflictions
     )
+    for entity in skill.abilityEntityHits:
+        collect_ability_entity_schedule(entity, result)
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
+
+
+def collect_ability_entity_schedule(
+    hit: AbilityEntityHitSource,
+    result: list[ResolvedScheduleItemSource],
+) -> None:
+    """把能力实体子技能中的非伤害动作换算到根技能帧坐标。"""
+    source_path = (hit.skillId,)
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit.spawnFrame + gain.startFrame,
+            actionOrder=(*hit.actionOrder, gain.actionIndex),
+            itemType="resourceGain",
+            sourcePath=source_path,
+            payload=gain,
+        )
+        for gain in getattr(hit, "resourceGains", ())
+        if any(value != 0 for value in require_level_values(gain.amount, f"{hit.skillId}.resourceGain"))
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit.spawnFrame + infliction.startFrame,
+            actionOrder=(*hit.actionOrder, infliction.actionIndex),
+            itemType="infliction",
+            sourcePath=source_path,
+            payload=infliction,
+        )
+        for infliction in getattr(hit, "inflictions", ())
+    )
+    for nested in getattr(hit, "nestedAbilityEntityHits", ()):
+        collect_ability_entity_schedule(nested, result)
 
 
 def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
@@ -2792,6 +3218,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     action_counts = Counter(action_type for item in timeline for action_type in item.actionTypes)
     unresolved = tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
     blackboard_calculations = parse_blackboard_calculations(root, source_name, patch.blackboard)
+    conditional_actions = parse_conditional_actions(root, source_name, patch.blackboard)
     blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
         root, source_name, patch.blackboard
     )
@@ -2812,7 +3239,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         inputCacheWindows=caches,
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, patch.blackboard),
-        conditionalActions=parse_conditional_actions(root, source_name, patch.blackboard),
+        conditionalActions=conditional_actions,
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(root, source_name, source_dir, patch.blackboard),
         blackboardCalculations=blackboard_calculations,
@@ -2828,12 +3255,22 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             stack=(skill_id,),
             inherited_blackboard=patch.blackboard,
         ),
-        abilityEntityHits=resolve_ability_entity_hits(
-            root,
-            source_name,
-            source_dir,
-            stack=(skill_id,),
-            inherited_blackboard=patch.blackboard,
+        abilityEntityHits=(
+            *resolve_ability_entity_hits(
+                root,
+                source_name,
+                source_dir,
+                stack=(skill_id,),
+                inherited_blackboard=patch.blackboard,
+            ),
+            *resolve_guaranteed_conditional_ability_entity_hits(
+                conditional_actions,
+                source_name,
+                source_dir,
+                0,
+                (skill_id,),
+                patch.blackboard,
+            ),
         ),
         referencedBuffIds=referenced_buff_ids,
         patch=patch,
@@ -3894,6 +4331,29 @@ def compile_resolved_sequence(
     ignored_buff_ids = frozenset(
         require_list(config.get("ignoreBuffIds", []), f"{skill.key}.compile.ignoreBuffIds")
     )
+    collapse_single_enemy_entity_branches = config.get(
+        "collapseSingleEnemyAbilityEntityBranches", False
+    )
+    if not isinstance(collapse_single_enemy_entity_branches, bool):
+        raise ValueError(
+            f"{skill.key}.compile.collapseSingleEnemyAbilityEntityBranches: expected boolean"
+        )
+    projected_condition_paths = frozenset(
+        condition.actionPath
+        for condition in skill.conditionalActions
+        if is_single_enemy_ability_entity_projection(condition)
+    )
+    if collapse_single_enemy_entity_branches:
+        unsupported_conditions = [
+            condition.actionPath
+            for condition in skill.conditionalActions
+            if condition.actionPath not in projected_condition_paths
+        ]
+        if unsupported_conditions:
+            raise ValueError(
+                f"{skill.key}: single-enemy ability entity projection does not cover "
+                f"conditions {unsupported_conditions}"
+            )
     combat_auxiliary_actions = [
         action
         for action in getattr(skill, "auxiliaryActions", [])
@@ -3928,8 +4388,17 @@ def compile_resolved_sequence(
         for item in collect_resolved_schedule(skill)
         if not (
             item.itemType == "buffApplication"
-            and cast(AuxiliaryActionSource, item.payload).classification
-            in ignored_auxiliary_classifications
+            and (
+                cast(AuxiliaryActionSource, item.payload).classification
+                in ignored_auxiliary_classifications
+                or cast(AuxiliaryActionSource, item.payload).sourceId in ignored_buff_ids
+            )
+        )
+        and not (
+            item.itemType == "condition"
+            and collapse_single_enemy_entity_branches
+            and cast(ConditionalActionSource, item.payload).actionPath
+            in projected_condition_paths
         )
     )
     damage_indexes = {hit: index for index, hit in enumerate(hits)}

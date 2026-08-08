@@ -541,7 +541,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [
@@ -1749,7 +1750,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -1828,7 +1830,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -2273,7 +2276,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 2,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
-                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                "entityBlackboardAssignments": []
               }
             }
           ],
@@ -2283,7 +2287,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 2,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
-                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                "entityBlackboardAssignments": []
               }
             }
           ]
@@ -2378,7 +2383,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -2457,7 +2463,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -2470,7 +2477,128 @@ export const zhuangFangyiGeneratedSource = {
           "nestedProjectileHits": []
         }
       ],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 15,
+          "actionOrder": [
+            13,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+          "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+          "entityBlackboardAssignments": [],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.04,
+                      0.04,
+                      0.04,
+                      0.05,
+                      0.05,
+                      0.05,
+                      0.06,
+                      0.06,
+                      0.06,
+                      0.07,
+                      0.07,
+                      0.08
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": null
+            }
+          ],
+          "conditionalActions": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "actionOnTick",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "Probablity",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 2
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 6,
+                  "blackboardMutation": {
+                    "key": "thunderPosIndex",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 2
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 6,
+                  "blackboardMutation": {
+                    "key": "thunderPosIndex",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [],
       "patch": {
         "levels": [
@@ -3002,7 +3130,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -3081,7 +3210,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -3160,7 +3290,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -3239,7 +3370,8 @@ export const zhuangFangyiGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [],
@@ -3590,7 +3722,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 2,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
-                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                "entityBlackboardAssignments": []
               }
             }
           ],
@@ -3600,7 +3733,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 2,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
-                "skillId": "chr_0030_zhuangfy_attack2_abilityrange"
+                "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                "entityBlackboardAssignments": []
               }
             }
           ]
@@ -3615,7 +3749,128 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 11,
+          "actionOrder": [
+            6,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+          "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+          "entityBlackboardAssignments": [],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 1,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.11,
+                      0.12,
+                      0.14,
+                      0.15,
+                      0.16,
+                      0.17,
+                      0.18,
+                      0.19,
+                      0.2,
+                      0.22,
+                      0.23,
+                      0.25
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": null
+            }
+          ],
+          "conditionalActions": [
+            {
+              "startFrame": 9,
+              "endFrame": 16,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "actionOnTick",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "Probablity",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 2
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 6,
+                  "blackboardMutation": {
+                    "key": "thunderPosIndex",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 2
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 6,
+                  "blackboardMutation": {
+                    "key": "thunderPosIndex",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [],
       "patch": {
         "levels": [
@@ -4028,7 +4283,8 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 2,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
-                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                            "entityBlackboardAssignments": []
                           }
                         }
                       ],
@@ -4038,7 +4294,8 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 2,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
-                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                            "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                            "entityBlackboardAssignments": []
                           }
                         }
                       ]
@@ -4051,7 +4308,8 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 2,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
-                      "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                      "entityBlackboardAssignments": []
                     }
                   }
                 ]
@@ -4064,7 +4322,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 2,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
-                "skillId": "chr_0030_zhuangfy_attack5_abilityrange"
+                "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                "entityBlackboardAssignments": []
               }
             }
           ]
@@ -4079,7 +4338,204 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 20,
+          "actionOrder": [
+            6,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+          "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+          "entityBlackboardAssignments": [],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 12,
+              "actionIndex": 11,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.48,
+                      0.53,
+                      0.58,
+                      0.62,
+                      0.67,
+                      0.72,
+                      0.77,
+                      0.82,
+                      0.86,
+                      0.92,
+                      1.0,
+                      1.08
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
+                    ]
+                  }
+                }
+              ],
+              "timedMarkerGate": null
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 0,
+              "endFrame": 2,
+              "actionIndex": 17,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "spGainKind": "gain",
+              "spGainSource": "normalAttack",
+              "onlyMainOperator": true,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
+            },
+            {
+              "startFrame": 4,
+              "endFrame": 6,
+              "actionIndex": 21,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "spGainKind": "gain",
+              "spGainSource": "normalAttack",
+              "onlyMainOperator": true,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
+            },
+            {
+              "startFrame": 8,
+              "endFrame": 10,
+              "actionIndex": 25,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0,
+                  18.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "spGainKind": "gain",
+              "spGainSource": "normalAttack",
+              "onlyMainOperator": true,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
+            }
+          ],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [],
       "patch": {
         "levels": [
@@ -4450,7 +4906,8 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 12,
           "endFrame": 16,
           "actionIndex": 55,
-          "damageUnits": []
+          "damageUnits": [],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [
@@ -4516,7 +4973,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   },
                   {
@@ -4539,7 +5006,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -4579,7 +5056,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4589,7 +5076,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   },
                   {
@@ -4680,7 +5177,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4690,7 +5197,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -4730,7 +5247,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4740,7 +5267,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -4818,7 +5355,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4828,7 +5375,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -4868,7 +5425,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4878,7 +5445,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -4956,7 +5533,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -4966,7 +5553,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5006,7 +5603,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5016,7 +5623,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5034,7 +5651,288 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 12,
+          "actionOrder": [
+            11,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 13,
+          "actionOrder": [
+            23,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 14,
+          "actionOrder": [
+            33,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 15,
+          "actionOrder": [
+            43,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.67,
+                      0.73,
+                      0.8,
+                      0.86,
+                      0.93,
+                      1.0,
+                      1.06,
+                      1.13,
+                      1.2,
+                      1.28,
+                      1.38,
+                      1.5
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [],
       "patch": {
         "levels": [
@@ -5408,7 +6306,8 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 10,
           "endFrame": 14,
           "actionIndex": 54,
-          "damageUnits": []
+          "damageUnits": [],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [
@@ -5474,7 +6373,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   },
                   {
@@ -5497,7 +6406,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5537,7 +6456,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5547,7 +6476,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   },
                   {
@@ -5638,7 +6577,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5648,7 +6597,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5688,7 +6647,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5698,7 +6667,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5776,7 +6755,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5786,7 +6775,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5826,7 +6825,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5836,7 +6845,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5914,7 +6933,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5924,7 +6953,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5964,7 +7003,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ],
@@ -5974,7 +7023,17 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
-                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                      "entityBlackboardAssignments": [
+                        {
+                          "targetKey": "EntityBB_hitedMark",
+                          "valueType": "String",
+                          "numericValue": 0.0,
+                          "stringValue": "attack1UltHitMark",
+                          "useDirectValue": true,
+                          "inputValueKey": ""
+                        }
+                      ]
                     }
                   }
                 ]
@@ -5992,7 +7051,288 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 10,
+          "actionOrder": [
+            10,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 11,
+          "actionOrder": [
+            22,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 12,
+          "actionOrder": [
+            32,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        },
+        {
+          "spawnFrame": 13,
+          "actionOrder": [
+            42,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_hitedMark",
+              "valueType": "String",
+              "numericValue": 0.0,
+              "stringValue": "attack1UltHitMark",
+              "useDirectValue": true,
+              "inputValueKey": ""
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 3,
+              "endFrame": 4,
+              "actionIndex": 4,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.94,
+                      1.03,
+                      1.12,
+                      1.22,
+                      1.31,
+                      1.4,
+                      1.5,
+                      1.59,
+                      1.68,
+                      1.8,
+                      1.94,
+                      2.1
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                }
+              ],
+              "timedMarkerGate": {
+                "markerBlackboardKey": "EntityBB_hitedMark",
+                "returnTrueIfNotExists": true,
+                "durationSeconds": 0.4
+              }
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [],
       "patch": {
         "levels": [
@@ -6375,7 +7715,8 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
-                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                      "entityBlackboardAssignments": []
                     }
                   }
                 ],
@@ -6385,7 +7726,8 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
-                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                      "entityBlackboardAssignments": []
                     }
                   }
                 ]
@@ -6425,7 +7767,8 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
-                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                      "entityBlackboardAssignments": []
                     }
                   }
                 ],
@@ -6435,7 +7778,8 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 0,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
-                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange"
+                      "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                      "entityBlackboardAssignments": []
                     }
                   }
                 ]
@@ -6473,7 +7817,132 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileHits": [],
-      "abilityEntityHits": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 3,
+          "actionOrder": [
+            11,
+            0
+          ],
+          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+          "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+          "entityBlackboardAssignments": [],
+          "directDamageHits": [
+            {
+              "startFrame": 30,
+              "endFrame": 33,
+              "actionIndex": 2,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      1.34,
+                      1.47,
+                      1.6,
+                      1.74,
+                      1.87,
+                      2.0,
+                      2.14,
+                      2.27,
+                      2.4,
+                      2.57,
+                      2.77,
+                      3.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null
+                },
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Poise",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": {
+                    "value": 0.0,
+                    "blackboardKey": "poise",
+                    "levelValues": [
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0,
+                      18.0
+                    ]
+                  }
+                }
+              ],
+              "timedMarkerGate": null
+            }
+          ],
+          "conditionalActions": [],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [
+            {
+              "startFrame": 30,
+              "endFrame": 33,
+              "actionIndex": 5,
+              "resource": "sp",
+              "amount": {
+                "value": 0.0,
+                "blackboardKey": "atb",
+                "levelValues": [
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0,
+                  20.0
+                ]
+              },
+              "coefficient": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "spGainKind": "gain",
+              "spGainSource": "normalAttack",
+              "onlyMainOperator": true,
+              "isPercentValue": false,
+              "useUltimateRecoveryTag": false,
+              "ultimateRecoveryTagId": 0,
+              "ignoreUltimateGainScalar": false
+            }
+          ],
+          "projectileLaunches": [],
+          "projectileHits": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "cycleTruncated": false
+        }
+      ],
       "referencedBuffIds": [
         "buff_chr_0030_zhuangfy_attack3_ult_cancel"
       ],
@@ -6916,7 +8385,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "poiseValue": null
             }
-          ]
+          ],
+          "timedMarkerGate": null
         },
         {
           "startFrame": 40,
@@ -6952,7 +8422,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "poiseValue": null
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -7257,7 +8728,8 @@ export const zhuangFangyiGeneratedSource = {
               "calculationMultiplier": null,
               "poiseValue": null
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -8393,7 +9865,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 0,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
-                "skillId": null
+                "skillId": null,
+                "entityBlackboardAssignments": []
               }
             }
           ]
@@ -10264,7 +11737,8 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 0,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
-                "skillId": null
+                "skillId": null,
+                "entityBlackboardAssignments": []
               }
             }
           ]
@@ -10467,6 +11941,16 @@ export const zhuangFangyiGeneratedSource = {
           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
           "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_normal_skill_ult_abilityrange.json",
+          "entityBlackboardAssignments": [
+            {
+              "targetKey": "EntityBB_SwordNum",
+              "valueType": "Numeric",
+              "numericValue": 0.0,
+              "stringValue": "",
+              "useDirectValue": false,
+              "inputValueKey": "EntityBB_SwordNum"
+            }
+          ],
           "directDamageHits": [
             {
               "startFrame": 69,
@@ -10514,7 +11998,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -11527,7 +13012,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [
@@ -12524,7 +14010,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [

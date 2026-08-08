@@ -11,6 +11,7 @@ from generate_next_operators import (
     collect_conditional_blackboard_keys,
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
+    collect_timed_marker_damage_gates,
     build_blackboard_provenance,
     compile_skill_entries,
     compile_resolved_damage_sequence,
@@ -19,13 +20,20 @@ from generate_next_operators import (
     compile_conditional_action,
     AuxiliaryActionSource,
     BlackboardCalculationPayload,
+    BlackboardMutationPayload,
     BlackboardMutationSource,
+    AbilityEntitySpawnPayload,
     BuffBlackboardReadSource,
     BuffFinishSource,
     BuffHoldSource,
     DamageUnitSource,
+    EntityBlackboardAssignmentSource,
     ResourceGainPayload,
     ScalarSource,
+    TimedDamageSource,
+    TimedMarkerGateSource,
+    ConditionalActionSource,
+    ConditionalBranchActionSource,
     classify_buff,
     derive_timeline_block,
     parse_scalar,
@@ -45,6 +53,8 @@ from generate_next_operators import (
     parse_resource_gains,
     resolve_projectile_hits,
     resolve_ability_entity_hits,
+    guaranteed_ability_entity_spawns,
+    is_single_enemy_ability_entity_projection,
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
     parse_skill_patch,
@@ -57,11 +67,163 @@ from generate_next_operators import (
     typescript_identifier,
     validate_skill_groups,
     walk_actions,
+    walk_single_enemy_actions,
     walk_unconditional_actions,
 )
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_guaranteed_ability_entity_projection_accepts_target_routing_only(self) -> None:
+        spawn = AbilityEntitySpawnPayload("entity.test", "skill.test")
+        mutation = BlackboardMutationPayload(
+            "target_in_range", "Assign", ScalarSource(1, None, None)
+        )
+        condition = ConditionalActionSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=11,
+            actionPath=("timelineActions[0]",),
+            conditions=(),
+            succeedActions=(
+                ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=spawn),
+                ConditionalBranchActionSource(
+                    "ModifyDynamicBlackboard", 1, blackboardMutation=mutation
+                ),
+            ),
+            failActions=(
+                ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=spawn),
+            ),
+        )
+
+        self.assertEqual(guaranteed_ability_entity_spawns(condition), (spawn,))
+        self.assertTrue(is_single_enemy_ability_entity_projection(condition))
+
+    def test_guaranteed_ability_entity_projection_rejects_divergent_or_combat_side_effects(self) -> None:
+        first = AbilityEntitySpawnPayload("entity.first", "skill.first")
+        second = AbilityEntitySpawnPayload("entity.second", "skill.second")
+        divergent = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("divergent",),
+            (),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=first),),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=second),),
+        )
+        extra_mutation = ConditionalActionSource(
+            3,
+            3,
+            12,
+            ("extra",),
+            (),
+            (
+                ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=first),
+                ConditionalBranchActionSource(
+                    "ModifyDynamicBlackboard",
+                    1,
+                    blackboardMutation=BlackboardMutationPayload(
+                        "combat_value", "Assign", ScalarSource(1, None, None)
+                    ),
+                ),
+            ),
+            (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=first),),
+        )
+
+        self.assertEqual(guaranteed_ability_entity_spawns(divergent), ())
+        self.assertFalse(is_single_enemy_ability_entity_projection(divergent))
+        self.assertEqual(guaranteed_ability_entity_spawns(extra_mutation), (first,))
+        self.assertFalse(is_single_enemy_ability_entity_projection(extra_mutation))
+
+    def test_single_enemy_walker_flattens_supported_foreach_and_single_tick_channel(self) -> None:
+        damage = {"$type": "Example.DamageAction, Example"}
+        channel = {
+            "$type": "Example.ChannelingAction, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 2,
+            "targetSettings": {},
+            "executeEachFrame": True,
+            "triggerInterval": 0.033,
+            "maxCountPerTarget": 1,
+            "targetTriggerInterval": 0,
+            "actionOnTick": damage,
+        }
+        foreach = {
+            "$type": "Example.ForEachAction, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 1,
+            "target": {"targetSource": "Context", "targetGroupKey": "targets"},
+            "action": channel,
+        }
+
+        self.assertEqual(list(walk_single_enemy_actions(foreach, "skill")), [damage])
+
+        invalid = dict(channel, maxCountPerTarget=2)
+        with self.assertRaisesRegex(ValueError, "only one trigger per target"):
+            list(walk_single_enemy_actions(invalid, "skill"))
+
+    def test_timed_marker_gate_keeps_only_the_first_ability_entity_hit(self) -> None:
+        gate = TimedMarkerGateSource("marker_key", True, 0.4)
+        damage = TimedDamageSource(3, 4, 4, (SimpleNamespace(),), gate)
+
+        def entity(spawn_frame: int, order: int) -> SimpleNamespace:
+            return SimpleNamespace(
+                spawnFrame=spawn_frame,
+                actionOrder=(order,),
+                skillId=f"child{order}",
+                directDamageHits=(damage,),
+                entityBlackboardAssignments=(
+                    EntityBlackboardAssignmentSource(
+                        "marker_key", "String", 0, "shared-hit-marker"
+                    ),
+                ),
+                projectileHits=(),
+                nestedAbilityEntityHits=(),
+            )
+
+        skill = SimpleNamespace(
+            skillId="root",
+            directDamageHits=(),
+            projectileHits=(),
+            abilityEntityHits=(entity(12, 11), entity(13, 23)),
+        )
+
+        hits = collect_resolved_damage_hits(skill)
+
+        self.assertEqual([(hit.frame, hit.actionOrder) for hit in hits], [(15, (11, 4))])
+
+    def test_timed_marker_gate_parser_requires_matching_blackboard_keys(self) -> None:
+        condition = {
+            "$type": "Example.CheckTimedMarkerCondition+Data, Example",
+            "isEnable": True,
+            "checkTarget": {"targetSource": "Target"},
+            "useBlackboardKey": True,
+            "blackboardKey": "marker_key",
+            "returnTrueIfNotExists": True,
+        }
+        damage = {"$type": "Example.DamageAction+Data, Example", "isEnable": True}
+        create = {
+            "$type": "Example.CreateTimedMarker+Data, Example",
+            "isEnable": True,
+            "markerId": {"useBlackboardKey": True, "blackboardKey": "marker_key"},
+            "duration": {"useBlackboardKey": False, "value": 0.4},
+        }
+        root = {
+            "$type": "Example.ForEachAction+Data, Example",
+            "action": {"actionData": [condition, damage, create]},
+        }
+
+        gates = collect_timed_marker_damage_gates(root, "skill")
+
+        self.assertEqual(gates[id(damage)], TimedMarkerGateSource("marker_key", True, 0.4))
+
+        create["markerId"]["blackboardKey"] = "other_key"
+        with self.assertRaisesRegex(ValueError, "unsupported timed marker damage gate"):
+            collect_timed_marker_damage_gates(root, "skill")
+
     def test_extend_buff_action_preserves_exact_native_interval_and_identity(self) -> None:
         root = {
             "actionGroupData": {

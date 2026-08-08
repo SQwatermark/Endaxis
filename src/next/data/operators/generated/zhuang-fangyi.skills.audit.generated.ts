@@ -117,6 +117,119 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedBasicAttack1',
+    timelineBlockFrames: 22,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('holdBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
+          }),
+        ),
+        22,
+      ),
+      scheduled(
+        15,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([67, 73, 80, 86, 93, 100, 106, 113, 120, 128, 138, 150]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'target_in_range': 0,
+    'atk_scale': [0.67, 0.73, 0.8, 0.86, 0.93, 1, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5],
+  },
+);
+
+export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedBasicAttack2',
+    timelineBlockFrames: 27,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('holdBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
+          }),
+        ),
+        17,
+      ),
+      scheduled(
+        13,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([94, 103, 112, 122, 131, 140, 150, 159, 168, 180, 194, 210]),
+            tags: ['normalAttack'],
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'target_in_range': 0,
+    'atk_scale': [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1],
+  },
+);
+
+export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'enhancedBasicAttack3',
+    timelineBlockFrames: 60,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('holdBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
+          }),
+        ),
+        35,
+      ),
+      scheduled(
+        33,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([134, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300]),
+            tags: ['normalAttack', 'normalAttackLastCombo'],
+            stagger: 18,
+          }),
+        ),
+      ),
+      scheduled(
+        33,
+        sequence(
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb' },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'normalAttack',
+          }),
+        ),
+      ),
+    ],
+  },
+  {
+    'atb': 20,
+    'atk_scale': [1.34, 1.47, 1.6, 1.74, 1.87, 2, 2.14, 2.27, 2.4, 2.57, 2.77, 3],
+    'poise': 18,
+  },
+);
+
 export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',

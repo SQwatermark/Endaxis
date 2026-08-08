@@ -328,7 +328,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -835,7 +836,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -978,7 +980,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -1527,7 +1530,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -1687,7 +1691,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -1847,7 +1852,8 @@ export const perlicaGeneratedSource = {
                   "calculationMultiplier": null,
                   "poiseValue": null
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -2449,7 +2455,8 @@ export const perlicaGeneratedSource = {
                     ]
                   }
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -3005,7 +3012,8 @@ export const perlicaGeneratedSource = {
               },
               "poiseValue": null
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -3546,7 +3554,8 @@ export const perlicaGeneratedSource = {
               "calculationMultiplier": null,
               "poiseValue": null
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -4153,7 +4162,8 @@ export const perlicaGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -4793,7 +4803,8 @@ export const perlicaGeneratedSource = {
                     ]
                   }
                 }
-              ]
+              ],
+              "timedMarkerGate": null
             }
           ],
           "conditionalActions": [
@@ -5682,7 +5693,8 @@ export const perlicaGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "timedMarkerGate": null
         }
       ],
       "conditionalActions": [],
@@ -5739,6 +5751,7 @@ export const perlicaGeneratedSource = {
           "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
+          "entityBlackboardAssignments": [],
           "directDamageHits": [],
           "conditionalActions": [],
           "inflictions": [],

@@ -180,17 +180,33 @@
         {
           "key": "enhancedBasicAttack1",
           "skillType": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack1_ult.json"
+          "source": "chr_0030_zhuangfy_attack1_ult.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack"],
+            "collapseSingleEnemyAbilityEntityBranches": true
+          }
         },
         {
           "key": "enhancedBasicAttack2",
           "skillType": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack2_ult.json"
+          "source": "chr_0030_zhuangfy_attack2_ult.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack"],
+            "collapseSingleEnemyAbilityEntityBranches": true
+          }
         },
         {
           "key": "enhancedBasicAttack3",
           "skillType": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack3_ult.json"
+          "source": "chr_0030_zhuangfy_attack3_ult.json",
+          "compile": {
+            "kind": "resolvedDamageSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"],
+            "collapseSingleEnemyAbilityEntityBranches": true,
+            "ignoreBuffIds": ["buff_chr_0030_zhuangfy_attack3_ult_cancel"]
+          }
         },
         {
           "key": "finisher",
