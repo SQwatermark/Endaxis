@@ -213,7 +213,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const count = this.dependencies
         .resolveTarget(condition.target)
         .getCountByIds(condition.buffIds);
-      return compareCombatNumbers(count, condition.value, condition.operator);
+      if (typeof condition.value === 'number') {
+        return compareCombatNumbers(count, condition.value, condition.operator);
+      }
+      if (context === undefined) {
+        throw new Error('dynamic buffIdStackCompare requires a combat operation context');
+      }
+      const value = resolveActionValueOperand(condition.value, context.blackboard);
+      return compareCombatNumbers(count, value, condition.operator);
     }
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)

@@ -485,6 +485,18 @@ describe('BuffOperationExecutor', () => {
       }),
     ).toBe(true);
     expect(
+      executor.evaluate(
+        {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['sword-trigger'],
+          operator: 'equal',
+          value: { kind: 'blackboard', key: 'expectedStacks' },
+        },
+        { blackboard: new ActionBlackboard({ expectedStacks: 2 }) },
+      ),
+    ).toBe(true);
+    expect(
       executor.execute({
         kind: 'finishBuffsById',
         parameters: {

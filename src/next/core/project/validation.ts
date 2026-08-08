@@ -189,7 +189,11 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       requireEnum(value.target, combatTargets, `${path}.target`, issues);
       validateNonEmptyStringArray(value.buffIds, `${path}.buffIds`, issues);
       requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      requireFiniteNumber(value.value, `${path}.value`, issues);
+      if (isObject(value.value)) {
+        validateActionValueOperand(value.value, `${path}.value`, issues);
+      } else {
+        requireFiniteNumber(value.value, `${path}.value`, issues);
+      }
       break;
     case 'elementalInflictionPresent': {
       const elements = Array.isArray(value.elements) ? value.elements : [value.elements];

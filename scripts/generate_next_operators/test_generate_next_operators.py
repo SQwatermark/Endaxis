@@ -2550,6 +2550,85 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
 
+    def test_simple_buff_stack_condition_normalizes_to_an_id_query(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckBuffStackNum+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "buffId": {"buffId": "buff.example.energy"},
+                                                "compareType": "GE",
+                                                "value": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "requiredStacks",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CreateBuffAction+Data, Example",
+                                                "serverActionIndex": 2,
+                                                "buffs": [
+                                                    {
+                                                        "buffId": "buff.example.result",
+                                                        "assignItems": [],
+                                                    }
+                                                ],
+                                                "targetSettings": {
+                                                    "targetSource": "Source",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "count": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "buffSource": "ActionSource",
+                                                "inheritSourceSkillCastInfo": False,
+                                            }
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(
+            root,
+            "fixture.json",
+            {"requiredStacks": (1, 2)},
+        )[0].conditions[0]
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            root_skill_context=True,
+        )
+
+        self.assertEqual(condition.buffStack.buffIds, ("buff.example.energy",))
+        self.assertIn("kind: 'buffIdStackCompare'", compiled)
+        self.assertIn("key: 'requiredStacks'", compiled)
+
     def test_root_skill_owner_buff_condition_targets_the_caster(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",

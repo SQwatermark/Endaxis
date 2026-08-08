@@ -2056,6 +2056,36 @@ def parse_conditional_actions(
                     storeKey=store_key,
                 ),
             )
+        if condition_type == "CheckBuffStackNum":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            buff_id_value = require_dict(condition.get("buffId"), f"{path}.buffId")
+            buff_id = buff_id_value.get("buffId")
+            if not isinstance(buff_id, str) or not buff_id:
+                raise ValueError(f"{path}.buffId.buffId: expected non-empty string")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                buffStack=BuffStackConditionSource(
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    buffCheckType="Id",
+                    buffIds=(buff_id,),
+                    tagQueryType="hasAny",
+                    buffTagIds=(),
+                    countType="BuffCount",
+                    comparison=str(condition.get("compareType", "")),
+                    value=parse_scalar(
+                        condition.get("value"),
+                        f"{path}.value",
+                        inherited_blackboard,
+                    ),
+                    limitSkillCastId=False,
+                ),
+            )
         if condition_type == "CheckBuffStackNumAdvanced":
             target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
             check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
@@ -5252,7 +5282,11 @@ def compile_combat_condition(
                 "}",
             ]
         )
-    if source.sourceType in {"CheckBuffStackNumAdvanced", "CheckBuffStackNumByTag"}:
+    if source.sourceType in {
+        "CheckBuffStackNum",
+        "CheckBuffStackNumAdvanced",
+        "CheckBuffStackNumByTag",
+    }:
         buff = source.buffStack
         if buff is None:
             raise ValueError(f"{path}: missing Buff stack condition payload")
@@ -5331,12 +5365,6 @@ def compile_combat_condition(
             and buff.buffIds
             and not buff.buffTagIds
         ):
-            prefix = "{ kind: 'constant', value: "
-            if not value_source.startswith(prefix):
-                raise ValueError(
-                    f"{path}.value: dynamic Buff ID count thresholds are not supported"
-                )
-            value = value_source.removeprefix(prefix).removesuffix(" }")
             return "\n".join(
                 [
                     "{",
@@ -5344,7 +5372,7 @@ def compile_combat_condition(
                     "  target: 'caster',",
                     f"  buffIds: {ts_inline_literal(buff.buffIds)},",
                     f"  operator: {ts_inline_literal(operator)},",
-                    f"  value: {value},",
+                    f"  value: {value_source},",
                     "}",
                 ]
             )

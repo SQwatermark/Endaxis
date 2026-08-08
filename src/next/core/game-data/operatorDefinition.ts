@@ -188,7 +188,7 @@ export type CombatCondition =
       target: CombatTarget;
       buffIds: readonly string[];
       operator: ComparisonOperator;
-      value: number;
+      value: number | ActionValueOperand;
     }
   | {
       kind: 'elementalInflictionPresent';
