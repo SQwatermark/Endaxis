@@ -88,6 +88,7 @@ class DamageUnitSource:
     attackScale: ScalarSource
     calculationMultiplier: ScalarSource | None
     poiseValue: ScalarSource | None
+    definiteValue: ScalarSource | None = None
 
 
 @dataclass(frozen=True)
@@ -3156,6 +3157,7 @@ def parse_damage_units(
             attack_scale_source = unit.get("atkScale")
             calculation = "standard"
             calculation_multiplier = None
+            definite_value = None
             attribute_type = str(unit.get("damageAttributeType", ""))
             if attribute_type == "Hp" and not simple_calculation:
                 raw_calculation = require_dict(
@@ -3166,13 +3168,26 @@ def parse_damage_units(
                 calculation_types = {
                     "AtkScaleCalculation": "standard",
                     "BreakingAttackCalculation": "breakingAttack",
+                    "DefiniteValueCalculation": "definiteValue",
                 }
                 if calculation_type not in calculation_types:
                     raise ValueError(
                         f"{source_name}.DamageAction.damageUnits[{index}]: unsupported calculation {calculation_type}"
                     )
                 calculation = calculation_types[calculation_type]
-                attack_scale_source = raw_calculation.get("atkScale")
+                if calculation == "definiteValue":
+                    if raw_calculation.get("applyScale") is not False:
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation: "
+                            "scaled definite values are not supported"
+                        )
+                    definite_value = parse_scalar(
+                        raw_calculation.get("value"),
+                        f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation.value",
+                        inherited_blackboard,
+                    )
+                else:
+                    attack_scale_source = raw_calculation.get("atkScale")
                 if calculation == "breakingAttack":
                     calculation_multiplier = parse_scalar(
                         raw_calculation.get("multiplier"),
@@ -3215,6 +3230,7 @@ def parse_damage_units(
                     ),
                     calculationMultiplier=calculation_multiplier,
                     poiseValue=poise_value,
+                    definiteValue=definite_value,
                 )
             )
     return tuple(result)
@@ -7704,29 +7720,48 @@ def compile_damage_units_step(
     damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
     if damage_type is None:
         raise ValueError(f"{path}: unsupported damage type {hp.damageType}")
-    if hp.attackScale.blackboardKey in runtime_blackboard_keys:
-        attack_scale = (
-            "{ kind: 'blackboard', key: "
-            f"{ts_inline_literal(hp.attackScale.blackboardKey)} }}"
-        )
+    if hp.calculation == "definiteValue":
+        fixed_value = hp.definiteValue
+        if fixed_value is None:
+            raise ValueError(f"{path}: definite damage unit has no value")
+        if fixed_value.blackboardKey in runtime_blackboard_keys:
+            value = (
+                "{ kind: 'blackboard', key: "
+                f"{ts_inline_literal(fixed_value.blackboardKey)} }}"
+            )
+        else:
+            value = ts_inline_literal(
+                compact_level_values(require_level_values(fixed_value, f"{path}.value"))
+            )
+        fields = [
+            f"damageType: {ts_inline_literal(damage_type)}",
+            f"value: {value}",
+            f"tags: {ts_inline_literal(tags)}",
+        ]
     else:
-        attack_scale = (
-            "percentages("
-            f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{path}.attackScale')))}"
-            ")"
-        )
-    fields = [
-        f"damageType: {ts_inline_literal(damage_type)}",
-        f"attackScale: {attack_scale}",
-        f"tags: {ts_inline_literal(tags)}",
-    ]
-    if hp.calculation != "standard":
-        fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
-    if hp.calculationMultiplier is not None:
-        fields.append(
-            "calculationMultiplier: "
-            f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
-        )
+        if hp.attackScale.blackboardKey in runtime_blackboard_keys:
+            attack_scale = (
+                "{ kind: 'blackboard', key: "
+                f"{ts_inline_literal(hp.attackScale.blackboardKey)} }}"
+            )
+        else:
+            attack_scale = (
+                "percentages("
+                f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{path}.attackScale')))}"
+                ")"
+            )
+        fields = [
+            f"damageType: {ts_inline_literal(damage_type)}",
+            f"attackScale: {attack_scale}",
+            f"tags: {ts_inline_literal(tags)}",
+        ]
+        if hp.calculation != "standard":
+            fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+        if hp.calculationMultiplier is not None:
+            fields.append(
+                "calculationMultiplier: "
+                f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
+            )
     if poise_units:
         poise = poise_units[0].poiseValue
         if poise is None:
@@ -7741,7 +7776,8 @@ def compile_damage_units_step(
                 "stagger: "
                 f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))}"
             )
-    return ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
+    step_kind = "dealFixedDamage" if hp.calculation == "definiteValue" else "dealDamage"
+    return [f"step('{step_kind}', {{", *(f"  {field}," for field in fields), "})"]
 
 
 def compile_resolved_damage_steps(

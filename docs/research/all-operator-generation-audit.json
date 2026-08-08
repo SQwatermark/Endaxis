@@ -6,37 +6,36 @@
     "skillCount": 308
   },
   "summary": {
-    "parsedCount": 269,
-    "compiledCount": 209,
-    "completeOperatorCount": 1,
+    "parsedCount": 281,
+    "compiledCount": 230,
+    "completeOperatorCount": 2,
     "blockerKinds": {
       "parser-assignment-shape": 1,
-      "parser-channeling": 13,
-      "parser-tick-interval": 1,
+      "parser-tick-interval": 2,
+      "root-action-coverage": 14,
       "projectile-child-actions": 2,
-      "conditional-leaf": 6,
+      "buff-source-or-target": 17,
       "projectile-data": 1,
-      "condition-distance": 3,
-      "condition-other": 7,
-      "buff-source-or-target": 21,
-      "root-action-coverage": 11,
-      "parser-damage-calculation": 3,
+      "condition-distance": 4,
+      "other": 4,
+      "conditional-leaf": 3,
       "condition-entity-count": 2,
-      "other": 6,
       "condition-main-operator": 1,
+      "condition-other": 6,
       "source-data-missing": 21
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 69,
-      "DamageAction": 194,
-      "CreateBuffAction": 105,
-      "ObtainCostAction": 141,
-      "SpellInfliction": 7,
-      "SpawnAbilityEntity": 22,
-      "IfElseAction": 140,
-      "CheckDistanceCondition": 1,
+      "DamageAction": 206,
+      "CreateBuffAction": 115,
+      "CheckDistanceCondition": 2,
+      "IfElseAction": 148,
+      "ObtainCostAction": 145,
+      "SpawnAbilityEntity": 27,
+      "SpellInfliction": 12,
       "CheckMainCharacterCondition": 1,
-      "CreateTimedMarker": 6
+      "CreateTimedMarker": 7,
+      "AddGlobalCDTimer": 1
     },
     "entityCountConditionOccurrenceCount": 570,
     "entityCountConditionShapeCount": 40
@@ -844,13 +843,13 @@
       "characterId": "chr_0027_tangtang",
       "operatorName": "Tangtang",
       "skillCount": 11,
-      "parsedCount": 6,
-      "compiledCount": 6,
+      "parsedCount": 9,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
         "parser-assignment-shape": 1,
-        "parser-channeling": 3,
-        "parser-tick-interval": 1
+        "parser-tick-interval": 1,
+        "root-action-coverage": 1
       }
     },
     {
@@ -881,7 +880,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "conditional-leaf": 1,
+        "buff-source-or-target": 1,
         "projectile-data": 1
       }
     },
@@ -889,13 +888,11 @@
       "characterId": "chr_0007_ikut",
       "operatorName": "Arclight",
       "skillCount": 10,
-      "parsedCount": 9,
-      "compiledCount": 7,
+      "parsedCount": 10,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "parser-channeling": 1,
-        "condition-distance": 1,
-        "condition-other": 1
+        "condition-distance": 1
       }
     },
     {
@@ -936,12 +933,11 @@
       "characterId": "chr_0013_aglina",
       "operatorName": "Gilberta",
       "skillCount": 9,
-      "parsedCount": 7,
-      "compiledCount": 7,
+      "parsedCount": 8,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "parser-channeling": 1,
-        "parser-damage-calculation": 1
+        "other": 1
       }
     },
     {
@@ -949,11 +945,11 @@
       "operatorName": "Snowshine",
       "skillCount": 8,
       "parsedCount": 8,
-      "compiledCount": 5,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "conditional-leaf": 2,
-        "root-action-coverage": 1
+        "condition-distance": 1,
+        "conditional-leaf": 1
       }
     },
     {
@@ -961,11 +957,10 @@
       "operatorName": "Lifeng",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
         "condition-distance": 1,
-        "buff-source-or-target": 1,
         "condition-entity-count": 1
       }
     },
@@ -986,12 +981,10 @@
       "operatorName": "Laevatain",
       "skillCount": 15,
       "parsedCount": 14,
-      "compiledCount": 11,
+      "compiledCount": 13,
       "complete": false,
       "blockerKinds": {
-        "parser-channeling": 1,
         "other": 1,
-        "root-action-coverage": 1,
         "condition-main-operator": 1
       }
     },
@@ -1000,12 +993,9 @@
       "operatorName": "Estella",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 7,
-      "complete": false,
-      "blockerKinds": {
-        "buff-source-or-target": 1,
-        "other": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0024_deepfin",
@@ -1024,14 +1014,12 @@
       "characterId": "chr_0032_lizhiyan",
       "operatorName": "Arcane",
       "skillCount": 11,
-      "parsedCount": 7,
-      "compiledCount": 5,
+      "parsedCount": 10,
+      "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
         "source-data-missing": 1,
-        "root-action-coverage": 2,
-        "parser-channeling": 1,
-        "parser-damage-calculation": 2
+        "root-action-coverage": 4
       }
     },
     {
@@ -1039,37 +1027,33 @@
       "operatorName": "Yvonne",
       "skillCount": 16,
       "parsedCount": 16,
-      "compiledCount": 11,
+      "compiledCount": 13,
       "complete": false,
       "blockerKinds": {
         "condition-other": 1,
-        "buff-source-or-target": 1,
-        "other": 3
+        "buff-source-or-target": 2
       }
     },
     {
       "characterId": "chr_0018_dapan",
       "operatorName": "Da Pan",
       "skillCount": 9,
-      "parsedCount": 8,
-      "compiledCount": 7,
+      "parsedCount": 9,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 1,
-        "parser-channeling": 1
+        "root-action-coverage": 1
       }
     },
     {
       "characterId": "chr_0028_wulfa",
       "operatorName": "Rossi",
       "skillCount": 11,
-      "parsedCount": 10,
-      "compiledCount": 8,
+      "parsedCount": 11,
+      "compiledCount": 10,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 1,
-        "other": 1,
-        "parser-channeling": 1
+        "condition-other": 1
       }
     },
     {
@@ -1088,10 +1072,10 @@
       "operatorName": "Catcher",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 2,
+        "buff-source-or-target": 1,
         "condition-distance": 1
       }
     },
@@ -1122,14 +1106,14 @@
       "operatorName": "Ardelia",
       "skillCount": 9,
       "parsedCount": 7,
-      "compiledCount": 3,
+      "compiledCount": 4,
       "complete": false,
       "blockerKinds": {
-        "conditional-leaf": 1,
         "condition-other": 1,
-        "parser-channeling": 2,
+        "parser-tick-interval": 1,
         "buff-source-or-target": 1,
-        "root-action-coverage": 1
+        "root-action-coverage": 1,
+        "other": 1
       }
     },
     {
@@ -1140,7 +1124,8 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 2
+        "other": 1,
+        "buff-source-or-target": 1
       }
     },
     {
@@ -1171,22 +1156,22 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "condition-other": 3
+        "condition-other": 2
       }
     },
     {
       "characterId": "chr_0033_camille",
       "operatorName": "Camille",
       "skillCount": 12,
-      "parsedCount": 10,
-      "compiledCount": 7,
+      "parsedCount": 12,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 3,
-        "parser-channeling": 2
+        "root-action-coverage": 1
       }
     }
   ],
@@ -1238,13 +1223,13 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_attack3",
       "skillType": "basicAttack",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0027_tangtang_attack3.json.timelineActions[6].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
-      "projectileChildCount": 0,
+      "projectileChildCount": 4,
       "abilityEntityCount": 0
     },
     {
@@ -1308,14 +1293,21 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_normal_skill",
       "skillType": "battleSkill",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0027_tangtang_normal_skill.json.timelineActions[8].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": [
+        "CheckDistanceCondition",
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SpawnAbilityEntity"
+      ],
+      "conditionCount": 1,
+      "referencedBuffCount": 5,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 1
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -1336,14 +1328,14 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0027_tangtang_ultimate_skill_1.json.timelineActions[3].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "conditionCount": 1,
+      "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 1
     },
     {
       "characterId": "chr_0004_pelica",
@@ -1715,8 +1707,8 @@
       "skillId": "chr_0006_wolfgd_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "conditional-leaf",
-      "blocker": "normal_skill.schedule[3].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "normal_skill.schedule[6].conditionalAction.succeedActions[4].buffs[0]: unsupported Buff target 'Context'/'Target'",
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 3,
       "referencedBuffCount": 2,
@@ -1798,11 +1790,11 @@
       "operatorName": "Arclight",
       "skillId": "chr_0007_ikut_attack4",
       "skillType": "basicAttack",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0007_ikut_attack4.json.timelineActions[19].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "conditionCount": 3,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -1868,9 +1860,9 @@
       "operatorName": "Arclight",
       "skillId": "chr_0007_ikut_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "ultimate_skill.schedule[0].conditionalAction.conditions[1]: unsupported condition type 'CheckSkillCameraMotionFree'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
       "conditionCount": 1,
       "referencedBuffCount": 1,
@@ -2355,13 +2347,13 @@
       "operatorName": "Gilberta",
       "skillId": "chr_0013_aglina_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0013_aglina_attack4_projhit.json.DamageAction.damageUnits[1].poiseCalculation: scaled definite values are not supported",
+      "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
-      "projectileChildCount": 3,
+      "projectileChildCount": 0,
       "abilityEntityCount": 0
     },
     {
@@ -2397,41 +2389,51 @@
       "operatorName": "Gilberta",
       "skillId": "chr_0013_aglina_normal_skill",
       "skillType": "battleSkill",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0013_aglina_normal_skill_abilityrange.json.timelineActions[1].actionData[1].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpawnAbilityEntity",
+        "SpellInfliction"
+      ],
+      "conditionCount": 1,
+      "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 1
     },
     {
       "characterId": "chr_0013_aglina",
       "operatorName": "Gilberta",
       "skillId": "chr_0013_aglina_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-damage-calculation",
-      "blocker": "ValueError: chr_0013_aglina_ultimate_skill.json.DamageAction.damageUnits[1]: unsupported calculation DefiniteValueCalculation",
-      "unresolvedActions": [],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpawnAbilityEntity",
+        "SpellInfliction"
+      ],
       "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "referencedBuffCount": 1,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 1
     },
     {
       "characterId": "chr_0014_aurora",
       "operatorName": "Snowshine",
       "skillId": "chr_0014_aurora_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "conditional-leaf",
-      "blocker": "combo_skill.schedule[2].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 1,
-      "projectileChildCount": 0,
+      "projectileChildCount": 1,
       "abilityEntityCount": 0
     },
     {
@@ -2510,8 +2512,8 @@
       "skillId": "chr_0014_aurora_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "blockerKind": "condition-distance",
+      "blocker": "normal_skill.schedule[4].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -2646,9 +2648,9 @@
       "operatorName": "Lifeng",
       "skillId": "chr_0015_lifeng_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[2].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Target'/'tar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 1,
       "referencedBuffCount": 2,
@@ -2801,8 +2803,8 @@
       "skillId": "chr_0016_laevat_combo_skill",
       "skillType": "comboSkill",
       "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0016_laevat_combo_skill.json.timelineActions[9].actionData[0].ChannelingAction: only one trigger per target is supported",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0016_laevat_combo_skill.json.timelineActions[9].actionData[0].ChannelingAction: target source 'Owner' requires explicit input target projection",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -2932,9 +2934,9 @@
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_normal_skill_during_ult",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill_during_ult.schedule[2].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 3,
       "referencedBuffCount": 5,
@@ -2988,9 +2990,9 @@
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack3",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "ult_attack3: unresolved combat actions are not covered by resolved damage compiler",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction", "SpellInfliction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -3004,7 +3006,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "condition-main-operator",
-      "blocker": "ult_attack4.schedule[4].conditionalAction.succeedActions[1]: unsupported conditional leaf 'CheckMainCharacterCondition'",
+      "blocker": "ult_attack4.schedule[6].conditionalAction.succeedActions[1]: unsupported conditional leaf 'CheckMainCharacterCondition'",
       "unresolvedActions": [
         "CheckMainCharacterCondition",
         "DamageAction",
@@ -3021,9 +3023,9 @@
       "operatorName": "Estella",
       "skillId": "chr_0021_whiten_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[0].nestedCondition.succeedActions[1].buffs[0]: unsupported Buff target 'Target'/''",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 1,
@@ -3119,9 +3121,9 @@
       "operatorName": "Estella",
       "skillId": "chr_0021_whiten_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[3].buffBlackboardRead: unsupported buff blackboard target",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -3382,12 +3384,12 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_power_attack",
       "skillType": "finisher",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0032_lizhiyan_power_attack.json.timelineActions[20].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "power_attack: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
       "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
     },
@@ -3424,26 +3426,32 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-damage-calculation",
-      "blocker": "ValueError: chr_0032_lizhiyan_ultimate_skill.json.DamageAction.damageUnits[1]: unsupported calculation DefiniteValueCalculation",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "SpawnAbilityEntity",
+        "SpellInfliction"
+      ],
+      "conditionCount": 2,
+      "referencedBuffCount": 4,
       "projectileChildCount": 0,
-      "abilityEntityCount": 0
+      "abilityEntityCount": 1
     },
     {
       "characterId": "chr_0032_lizhiyan",
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_ultimate_skill2",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-damage-calculation",
-      "blocker": "ValueError: chr_0032_lizhiyan_ultimate_skill2.json.timelineActions[15]._sequenceActionData.actionData.[1].succeedActions.actionData.[1].DamageAction.damageUnits[1]: unsupported calculation DefiniteValueCalculation",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "conditionCount": 2,
+      "referencedBuffCount": 4,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
     },
@@ -3606,13 +3614,13 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack2_1",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "ult_attack2_1.schedule[6].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported health target 'Context'/'maintar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 11,
       "referencedBuffCount": 6,
-      "projectileChildCount": 0,
+      "projectileChildCount": 4,
       "abilityEntityCount": 0
     },
     {
@@ -3620,13 +3628,13 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack2_2",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "ult_attack2_2.schedule[4].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported health target 'Context'/'maintar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 9,
       "referencedBuffCount": 6,
-      "projectileChildCount": 0,
+      "projectileChildCount": 2,
       "abilityEntityCount": 0
     },
     {
@@ -3673,8 +3681,8 @@
       "skillId": "chr_0017_yvonne_ult_attack_end",
       "skillType": "ultimate",
       "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "ult_attack_end.schedule[2].buffBlackboardRead: unsupported buff blackboard target",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "ult_attack_end.schedule[7].buffApplication: unsupported Buff target 'Context'/'robots'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 3,
       "referencedBuffCount": 3,
@@ -3784,9 +3792,9 @@
       "operatorName": "Da Pan",
       "skillId": "chr_0018_dapan_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[1].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'tar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "CreateTimedMarker",
@@ -3803,12 +3811,12 @@
       "operatorName": "Da Pan",
       "skillId": "chr_0018_dapan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0018_dapan_ultimate_skill.json.timelineActions[8].actionData[1].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "referencedBuffCount": 3,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
     },
@@ -3831,9 +3839,9 @@
       "operatorName": "Rossi",
       "skillId": "chr_0028_wulfa_combo_3_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_3_skill.schedule[6].conditionalAction.succeedActions[0]: unsupported Buff target 'Target'/''",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 7,
       "referencedBuffCount": 10,
@@ -3943,9 +3951,9 @@
       "operatorName": "Rossi",
       "skillId": "chr_0028_wulfa_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[14].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 5,
       "referencedBuffCount": 4,
@@ -3957,12 +3965,12 @@
       "operatorName": "Rossi",
       "skillId": "chr_0028_wulfa_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0028_wulfa_ultimate_skill.json.timelineActions[65].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-blocked",
+      "blockerKind": "condition-other",
+      "blocker": "ultimate_skill.schedule[3].conditionalAction.failActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckEnemyRank'",
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "SpellInfliction"],
+      "conditionCount": 30,
+      "referencedBuffCount": 5,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
     },
@@ -4209,9 +4217,9 @@
       "operatorName": "Catcher",
       "skillId": "chr_0020_meurs_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[1].buffApplication: unsupported Buff target 'Context'/'tar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4654,13 +4662,13 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "conditional-leaf",
-      "blocker": "combo_skill.schedule[1].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "SpawnAbilityEntity"],
       "conditionCount": 1,
       "referencedBuffCount": 1,
-      "projectileChildCount": 0,
+      "projectileChildCount": 1,
       "abilityEntityCount": 1
     },
     {
@@ -4725,8 +4733,8 @@
       "skillId": "chr_0025_ardelia_power_attack",
       "skillType": "finisher",
       "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0025_ardelia_power_attack.json.timelineActions[10].actionData[0].ChannelingAction: only one trigger per target is supported",
+      "blockerKind": "parser-tick-interval",
+      "blocker": "ValueError: chr_0025_ardelia_power_attack.json.timelineActions[8]._sequenceActionData.actionData.[0].tickInterval: does not align to combat frames",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -4774,8 +4782,8 @@
       "skillId": "chr_0025_ardelia_ultimate_skill",
       "skillType": "ultimate",
       "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0025_ardelia_ultimate_skill.json.timelineActions[7].actionData[0].ChannelingAction: only one trigger per target is supported",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0025_ardelia_ultimate_skill.json.timelineActions[7].actionData[0].ChannelingAction: target source 'Owner' requires explicit input target projection",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -4788,8 +4796,8 @@
       "skillId": "chr_0026_lastrite_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'tar'",
+      "blockerKind": "other",
+      "blocker": "combo_skill.schedule[3].resourceGain: unsupported ultimate-energy recovery options",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 3,
       "referencedBuffCount": 2,
@@ -5275,10 +5283,16 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "combo_skill.schedule[0].conditionalAction.conditions[1]: unsupported condition type 'CheckGlobalCDTimerAction'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": [
+        "AddGlobalCDTimer",
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
@@ -5499,11 +5513,11 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_attack3",
       "skillType": "basicAttack",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0033_camille_attack3.json.timelineActions[20].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -5583,12 +5597,18 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-channeling",
-      "blocker": "ValueError: chr_0033_camille_ultimate_skill.json.timelineActions[25].actionData[0].ChannelingAction: only one trigger per target is supported",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SpellInfliction"
+      ],
+      "conditionCount": 1,
+      "referencedBuffCount": 4,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
     }

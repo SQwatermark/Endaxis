@@ -140,6 +140,29 @@ function resolveStep(
               }),
         },
       };
+    case 'dealFixedDamage':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          damageType: step.parameters.damageType,
+          value: resolveLevelValueOrActionOperand(
+            step.parameters.value,
+            skillLevel,
+            `${path}.parameters.value`,
+          ),
+          tags: step.parameters.tags,
+          ...(step.parameters.stagger === undefined
+            ? {}
+            : {
+                stagger: resolveLevelValueOrActionOperand(
+                  step.parameters.stagger,
+                  skillLevel,
+                  `${path}.parameters.stagger`,
+                ),
+              }),
+        },
+      };
     case 'dealStagger':
       return {
         ...keyed,

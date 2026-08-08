@@ -52,6 +52,12 @@ export interface ResolvedCombatStepParameters {
       coefficient: number;
     };
   };
+  dealFixedDamage: {
+    damageType: DamageType;
+    value: number | ActionValueOperand;
+    tags: readonly DamageTag[];
+    stagger?: number | ActionValueOperand;
+  };
   dealStagger: { value: number | ActionValueOperand };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];

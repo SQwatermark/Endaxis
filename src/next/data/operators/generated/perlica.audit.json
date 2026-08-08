@@ -149,7 +149,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -181,7 +182,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -322,7 +324,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         }
@@ -459,7 +462,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -491,7 +495,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -611,7 +616,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -643,7 +649,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -767,7 +774,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         },
@@ -806,7 +814,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         }
@@ -991,7 +1000,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1023,7 +1033,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1160,7 +1171,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1192,7 +1204,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1329,7 +1342,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1361,7 +1375,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1502,7 +1517,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         },
@@ -1541,7 +1557,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         },
@@ -1580,7 +1597,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         }
@@ -1768,7 +1786,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -1797,7 +1816,8 @@
                   15.0,
                   15.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1829,7 +1849,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Physical",
@@ -1858,7 +1879,8 @@
                       15.0,
                       15.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1999,7 +2021,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -2028,7 +2051,8 @@
                   15.0,
                   15.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ]
         }
@@ -2136,7 +2160,8 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -2236,7 +2261,8 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         }
@@ -2386,7 +2412,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -2614,7 +2641,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ]
         }
@@ -2803,7 +2831,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -2845,7 +2874,8 @@
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -2920,7 +2950,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -2962,7 +2993,8 @@
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ]
         }
@@ -3226,7 +3258,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -3255,7 +3288,8 @@
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -3287,7 +3321,8 @@
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Physical",
@@ -3316,7 +3351,8 @@
                       10.0,
                       10.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -3471,7 +3507,8 @@
                             ]
                           },
                           "calculationMultiplier": null,
-                          "poiseValue": null
+                          "poiseValue": null,
+                          "definiteValue": null
                         },
                         {
                           "damageType": "Physical",
@@ -3500,7 +3537,8 @@
                               10.0,
                               10.0
                             ]
-                          }
+                          },
+                          "definiteValue": null
                         }
                       ],
                       "directDamageHits": [
@@ -3532,7 +3570,8 @@
                                 ]
                               },
                               "calculationMultiplier": null,
-                              "poiseValue": null
+                              "poiseValue": null,
+                              "definiteValue": null
                             },
                             {
                               "damageType": "Physical",
@@ -3561,7 +3600,8 @@
                                   10.0,
                                   10.0
                                 ]
-                              }
+                              },
+                              "definiteValue": null
                             }
                           ],
                           "timedMarkerGate": null
@@ -3988,7 +4028,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -4017,7 +4058,8 @@
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ]
         }
@@ -4310,7 +4352,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -4352,7 +4395,8 @@
                   20.0,
                   20.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -4471,7 +4515,8 @@
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -4513,7 +4558,8 @@
                   20.0,
                   20.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ]
         }

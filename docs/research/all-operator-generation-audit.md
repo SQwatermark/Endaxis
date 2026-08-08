@@ -10,7 +10,7 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：280 个。
+- 进入严格中间层：281 个。
 - 无角色专用声明即可进入通用 DSL：230 个。
 - 当前整名干员完整直转：2 名。
 
@@ -39,7 +39,7 @@
 | Arcane         | `chr_0032_lizhiyan` |   11 |     10 |      6 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
-| Rossi          | `chr_0028_wulfa`    |   11 |     10 |     10 | 否       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
@@ -56,22 +56,21 @@
 下表按被阻塞技能入口数排序。一个技能只记录首次令严格转换停止的原因，因此数字用于排优先级，
 不等于该机制在原始数据中的完整出现次数。
 
-| 阻塞类别                    | 技能数 |
-| --------------------------- | -----: |
-| `source-data-missing`       |     21 |
-| `buff-source-or-target`     |     17 |
-| `root-action-coverage`      |     14 |
-| `condition-other`           |      5 |
-| `condition-distance`        |      4 |
-| `other`                     |      4 |
-| `conditional-leaf`          |      3 |
-| `condition-entity-count`    |      2 |
-| `parser-tick-interval`      |      2 |
-| `projectile-child-actions`  |      2 |
-| `condition-main-operator`   |      1 |
-| `parser-assignment-shape`   |      1 |
-| `parser-damage-calculation` |      1 |
-| `projectile-data`           |      1 |
+| 阻塞类别                   | 技能数 |
+| -------------------------- | -----: |
+| `source-data-missing`      |     21 |
+| `buff-source-or-target`    |     17 |
+| `root-action-coverage`     |     14 |
+| `condition-other`          |      6 |
+| `condition-distance`       |      4 |
+| `other`                    |      4 |
+| `conditional-leaf`         |      3 |
+| `condition-entity-count`   |      2 |
+| `parser-tick-interval`     |      2 |
+| `projectile-child-actions` |      2 |
+| `condition-main-operator`  |      1 |
+| `parser-assignment-shape`  |      1 |
+| `projectile-data`          |      1 |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
 第二轮只在根技能上下文折叠 `ActionOwner/Owner`，入口进一步增至 60 个；嵌套分支仍严格拒绝。
@@ -147,13 +146,13 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                          | 涉及技能数 |
 | ----------------------------- | ---------: |
-| `DamageAction`                |        205 |
-| `IfElseAction`                |        147 |
+| `DamageAction`                |        206 |
+| `IfElseAction`                |        148 |
 | `ObtainCostAction`            |        145 |
-| `CreateBuffAction`            |        114 |
+| `CreateBuffAction`            |        115 |
 | `LaunchProjectile`            |         69 |
 | `SpawnAbilityEntity`          |         27 |
-| `SpellInfliction`             |         11 |
+| `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
 | `CheckDistanceCondition`      |          2 |
 | `AddGlobalCDTimer`            |          1 |

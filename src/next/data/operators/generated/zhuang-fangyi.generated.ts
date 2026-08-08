@@ -657,7 +657,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -675,7 +676,8 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": [
                   0.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -729,7 +731,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ]
             },
@@ -820,7 +823,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ]
             },
@@ -2094,7 +2098,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -2126,7 +2131,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -2178,7 +2184,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -2210,7 +2217,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -2814,7 +2822,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -2846,7 +2855,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -2898,7 +2908,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -2930,7 +2941,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -2988,7 +3000,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -3030,7 +3043,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ]
             }
@@ -3087,7 +3101,8 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       },
                       "calculationMultiplier": null,
-                      "poiseValue": null
+                      "poiseValue": null,
+                      "definiteValue": null
                     }
                   ]
                 },
@@ -3133,7 +3148,8 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       },
                       "calculationMultiplier": null,
-                      "poiseValue": null
+                      "poiseValue": null,
+                      "definiteValue": null
                     }
                   ]
                 },
@@ -3892,7 +3908,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -3924,7 +3941,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -3976,7 +3994,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -4008,7 +4027,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -4060,7 +4080,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -4092,7 +4113,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -4144,7 +4166,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -4176,7 +4199,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -4697,7 +4721,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -4739,7 +4764,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ]
             }
@@ -4796,7 +4822,8 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       },
                       "calculationMultiplier": null,
-                      "poiseValue": null
+                      "poiseValue": null,
+                      "definiteValue": null
                     }
                   ]
                 },
@@ -4842,7 +4869,8 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       },
                       "calculationMultiplier": null,
-                      "poiseValue": null
+                      "poiseValue": null,
+                      "definiteValue": null
                     }
                   ]
                 },
@@ -5605,7 +5633,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Pulse",
@@ -5634,7 +5663,8 @@ export const zhuangFangyiGeneratedSource = {
                       18.0,
                       18.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -7497,7 +7527,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -7591,7 +7622,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -7685,7 +7717,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -7779,7 +7812,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -9312,7 +9346,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -9406,7 +9441,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -9500,7 +9536,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -9594,7 +9631,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": {
@@ -10282,7 +10320,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Pulse",
@@ -10311,7 +10350,8 @@ export const zhuangFangyiGeneratedSource = {
                       18.0,
                       18.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -10843,7 +10883,8 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -10880,7 +10921,8 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -11189,7 +11231,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -17258,7 +17301,8 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Pulse",
@@ -17287,7 +17331,8 @@ export const zhuangFangyiGeneratedSource = {
                       15.0,
                       15.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -17408,7 +17453,8 @@ export const zhuangFangyiGeneratedSource = {
                               ]
                             },
                             "calculationMultiplier": null,
-                            "poiseValue": null
+                            "poiseValue": null,
+                            "definiteValue": null
                           }
                         ]
                       }
@@ -17430,7 +17476,8 @@ export const zhuangFangyiGeneratedSource = {
                               ]
                             },
                             "calculationMultiplier": null,
-                            "poiseValue": null
+                            "poiseValue": null,
+                            "definiteValue": null
                           }
                         ]
                       }
@@ -18658,7 +18705,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -18687,7 +18735,8 @@ export const zhuangFangyiGeneratedSource = {
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -19704,7 +19753,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -19733,7 +19783,8 @@ export const zhuangFangyiGeneratedSource = {
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null

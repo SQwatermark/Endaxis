@@ -116,6 +116,54 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(targetVitals.health).toBe(500);
   });
 
+  it('uses fixed damage as the calculation result while preserving the damage formula', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'rossi',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => createAttributeSnapshots(9999, 100),
+      resolveRuntimeSnapshot: () => ({
+        criticalSample: 1,
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: (timing, side, context) => {
+        if (timing === 'afterCalculation' && side === 'attacker') {
+          context.multiplyCalculationValue(2);
+        }
+      },
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      kind: 'dealFixedDamage',
+      parameters: { damageType: 'physical', value: 100, tags: ['ultimateSkill'] },
+    });
+
+    expect(targetVitals.health).toBe(900);
+  });
+
   it('executes a standalone stagger step without entering the health damage path', () => {
     const targetVitals = new CombatVitals({
       health: 1000,

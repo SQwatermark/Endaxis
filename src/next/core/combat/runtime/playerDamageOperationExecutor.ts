@@ -1,5 +1,5 @@
 /**
- * `dealDamage` 与 `dealStagger` 步骤进入玩家主动伤害生命周期的装配点。
+ * 生命伤害与独立失衡步骤进入玩家主动伤害生命周期的装配点。
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
@@ -31,9 +31,10 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
-type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' }>;
+type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type StaggerStep = Extract<RuntimeOperation, { kind: 'dealStagger' }>;
 type PoiseStep = DamageStep | StaggerStep;
+type OperationContext = Parameters<CombatOperationExecutor['execute']>[1];
 
 export const PLAYER_DAMAGE_PREPARATION_EVENTS = [
   'beforeDamageAction',
@@ -84,10 +85,7 @@ export interface PlayerDamageOperationDependencies {
 export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: PlayerDamageOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
     if (step.kind === 'dealStagger') {
       this.#executePoise(
         step,
@@ -95,31 +93,18 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       );
       return true;
     }
-    if (step.kind !== 'dealDamage') {
+    if (step.kind !== 'dealDamage' && step.kind !== 'dealFixedDamage') {
       return operationContext === undefined
         ? this.dependencies.delegate.execute(step)
         : this.dependencies.delegate.execute(step, operationContext);
     }
 
-    if (step.parameters.attackScalePerStatusStack !== undefined) {
+    if (step.kind === 'dealDamage' && step.parameters.attackScalePerStatusStack !== undefined) {
       throw new Error('status-stack attack scale must be resolved by its recovered branch');
     }
     if (step.parameters.damageType === 'lifeDrain') {
       throw new Error('life-drain damage uses a separate native calculation branch');
     }
-    let attackScale: number;
-    if (typeof step.parameters.attackScale === 'number') {
-      attackScale = step.parameters.attackScale;
-    } else {
-      if (operationContext === undefined) {
-        throw new Error('dynamic damage scale requires an action blackboard');
-      }
-      attackScale = resolveActionValueOperand(
-        step.parameters.attackScale,
-        operationContext.blackboard,
-      );
-    }
-
     const context = new PlayerDamageContext({
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
@@ -136,17 +121,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     this.dependencies.emitPreparationEvent('beforeDamageAction', context);
     this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
     context.applyModifiers('beforeCalculation');
-    context.setCalculationResult(
-      step.parameters.calculation === 'breakingAttack'
-        ? calculateBreakingAttackValue({
-            attack: context.attackerAttributes.attack,
-            targetDamageTakenMultiplier:
-              context.defenderAttributes.breakingAttackDamageTakenMultiplier,
-            calculationMultiplier: step.parameters.calculationMultiplier ?? 1,
-            attackScale,
-          })
-        : context.attackerAttributes.attack * attackScale,
-    );
+    context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
     injectDamageScaleAttributes(context.damageScales, {
       damageType: step.parameters.damageType,
       classifications: classifyDamageTags(step.parameters.tags),
@@ -188,6 +163,35 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
+  /** 只选择原生基础值计算分支；所有分支完成后仍共享同一伤害修正和最终公式。 */
+  #resolveCalculationResult(
+    step: DamageStep,
+    context: PlayerDamageContext,
+    operationContext: OperationContext | undefined,
+  ): number {
+    if (step.kind === 'dealFixedDamage') {
+      return this.#resolveActionValue(
+        step.parameters.value,
+        operationContext,
+        'dynamic fixed damage value',
+      );
+    }
+    const attackScale = this.#resolveActionValue(
+      step.parameters.attackScale,
+      operationContext,
+      'dynamic damage scale',
+    );
+    if (step.parameters.calculation !== 'breakingAttack') {
+      return context.attackerAttributes.attack * attackScale;
+    }
+    return calculateBreakingAttackValue({
+      attack: context.attackerAttributes.attack,
+      targetDamageTakenMultiplier: context.defenderAttributes.breakingAttackDamageTakenMultiplier,
+      calculationMultiplier: step.parameters.calculationMultiplier ?? 1,
+      attackScale,
+    });
+  }
+
   #executePoise(step: PoiseStep, calculationValue: number): void {
     const multipliers = this.dependencies.resolvePoiseMultipliers(step);
     executePoiseDamage({
@@ -207,7 +211,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
 
   #resolveActionValue(
     value: number | ActionValueOperand,
-    operationContext: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+    operationContext: OperationContext | undefined,
     missingContextMessage: string,
   ): number {
     if (typeof value === 'number') return value;

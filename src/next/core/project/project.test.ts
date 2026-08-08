@@ -390,6 +390,18 @@ describe('V2 project document', () => {
       expect(JSON.stringify(sequence)).not.toContain('afterDamage');
     }
 
+    const fixedDamage = JSON.parse(serializeProjectDocument(project));
+    const fixedDamageStep =
+      fixedDamage.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence
+        .steps[2];
+    fixedDamageStep.kind = 'dealFixedDamage';
+    fixedDamageStep.parameters = {
+      damageType: 'physical',
+      value: 0.01,
+      tags: ['ultimateSkill'],
+    };
+    expect(validateProjectDocument(fixedDamage).ok).toBe(true);
+
     const invalidKind = JSON.parse(serializeProjectDocument(project));
     invalidKind.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[0].kind =
       'unknownStep';

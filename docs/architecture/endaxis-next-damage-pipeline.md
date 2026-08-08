@@ -42,7 +42,7 @@ DamageAction
 
 `injectDamageScaleAttributes` 已接入玩家主动攻击所需的固定属性映射：伤害类型增伤、普攻/战技/连携/终结技增伤、对失衡目标增伤、对应类型强化和对应类型易伤。爆发与异常伤害使用独立语义分类承载，不要求干员配置保存原生整数 mask。原生 mask 到这些分类的转换属于目录适配阶段。
 
-`resolvePlayerActiveDamageInput` 当前接通标准 `AtkScale` 路径：它将编译后的每击倍率、攻击属性和 DamageScale 最终值合成为 `finalAttackValue`，并按伤害类型选择对应抗性。处决和按状态层数增加倍率仍显式拒绝，直到其运行时输入闭环。
+`resolvePlayerActiveDamageInput` 当前接通标准 `AtkScale` 与固定基础值两条路径：前者使用每击倍率和攻击属性生成基础值，后者直接使用 `DefiniteValueCalculation.value`；两者随后都应用 DamageScale，并按伤害类型进入同一套暴击、防御、抗性与承伤公式。处决使用独立的破防基础值计算；按状态层数增加倍率仍显式拒绝，直到其运行时输入闭环。
 
 `CombatVitals` 承载一次模拟中的生命值和失衡状态。生命伤害按原生规则先将负伤害钳制为 0，再将生命值钳制到 0；失衡变化使用 `1e-5` 容差、失衡免疫和 `[0, MaxPoise]` 钳制，并返回请求变化量与实际变化量。
 
@@ -70,7 +70,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `DamageModifier` 已实现侧别、所属实体和条件门控，处理器严格保持配置顺序。当前可执行处理器为计算前后伤害值乘算、计算后的七区增伤与计算前瞬时属性修正；它们都会拒绝生命汲取，且按目标生命类型过滤。瞬时属性处理器通过 DamagePack 端口向指定侧挂载标准 `Instant` 属性修正器，刷新快照后由同一阶段的 `finally` 清理，因此它只影响该阶段捕获的属性，不会泄漏到下一次命中。独立生命和伤害文本处理器尚未接线。
 
-`PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的标准 `AtkScale` 生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，根据刷新后的攻击力计算基础值，注入固定属性对应的七区增伤，执行计算后 modifier，再使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。处决、按状态层数追加倍率、生命汲取仍由显式错误隔离，不会误入标准路径。
+`PlayerDamageOperationExecutor` 已从半程适配器改为驱动完整的玩家生命伤害路径：依次触发 `OnBeforeDamageAction`、`OnBeforeCalculateDamage`，执行计算前 modifier，再按步骤选择攻击力倍率、破防攻击或固定基础值计算。三条分支之后统一注入固定属性对应的七区增伤、执行计算后 modifier，并使用第二次刷新后的攻防属性进入最终公式。生命伤害完成后，才执行同一命中的失衡单元。按状态层数追加倍率和生命汲取仍由显式错误隔离，不会误入标准路径；`DefiniteValueCalculation.applyScale=true` 在反编译语义闭环前也仍由生成器严格拒绝。
 
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID。
 
@@ -107,7 +107,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 1. 导出真实 SkillSetting 数据与增强公式，并投影三种自然 wrapper 与 12 种最终状态；
 2. 从 BuffData 投影四种同类爆发，严格补齐事件、伤害与生命周期动作；
-3. 将已闭环干员的逐 hit 处决动作导入技能 DSL，再实现生命汲取和特殊失衡计算分支；
+3. 将已闭环干员的逐 hit 处决动作导入技能 DSL，再实现生命汲取、缩放固定值和特殊失衡计算分支；
 4. 用真实面板快照和游戏内战斗样本校验整条数值链；
 5. 将 receipt 投影到分析面板、合法性诊断和时间轴显示，并在正确性稳定后再做热点优化。
 

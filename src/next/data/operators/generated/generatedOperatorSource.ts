@@ -28,10 +28,12 @@ export interface GeneratedSkillPatchSource {
 export interface GeneratedDamageUnitSource {
   readonly damageType: string;
   readonly attributeType: string;
-  readonly calculation: 'standard' | 'breakingAttack';
+  readonly calculation: 'standard' | 'breakingAttack' | 'definiteValue';
   readonly attackScale: GeneratedScalarSource;
   readonly calculationMultiplier: GeneratedScalarSource | null;
   readonly poiseValue: GeneratedScalarSource | null;
+  /** 固定生命伤害使用的原生计算值；其他计算路径为 null。 */
+  readonly definiteValue: GeneratedScalarSource | null;
 }
 
 export interface GeneratedTimedDamageSource {

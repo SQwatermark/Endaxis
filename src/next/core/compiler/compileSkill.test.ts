@@ -98,6 +98,43 @@ describe('compileSkill', () => {
     });
   });
 
+  it('resolves the level value of fixed base damage', () => {
+    const skill = {
+      key: 'fixed-damage',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealFixedDamage',
+                parameters: {
+                  damageType: 'physical',
+                  value: [10, 20],
+                  tags: ['ultimateSkill'],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'ultimate',
+      skillType: 'ultimate',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'dealFixedDamage',
+      parameters: { damageType: 'physical', value: 20, tags: ['ultimateSkill'] },
+    });
+  });
+
   it('keeps dynamic stagger operands for runtime blackboard evaluation', () => {
     const skill = {
       key: 'dynamic-stagger',

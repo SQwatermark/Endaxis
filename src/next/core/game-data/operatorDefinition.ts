@@ -137,6 +137,18 @@ export interface DealDamageParameters {
 }
 
 /**
+ * 不读取攻击力的固定基础值伤害。
+ * 固定值只替代标准伤害的“攻击力乘倍率”阶段，后续伤害修正与防御、抗性公式保持不变。
+ */
+export interface DealFixedDamageParameters {
+  damageType: DamageType;
+  value: LevelValues | ActionValueOperand;
+  tags: readonly DamageTag[];
+  /** 同一次命中在生命伤害之后结算的失衡伤害。 */
+  stagger?: LevelValues | ActionValueOperand;
+}
+
+/**
  * 技能可用性、条件步骤和事件响应共享的条件树。
  * 新条件必须能由运行时统一求值，不能在干员文件中嵌入函数。
  */
@@ -317,6 +329,7 @@ export interface CombatStepParameters {
     target: 'enemy';
   };
   dealDamage: DealDamageParameters;
+  dealFixedDamage: DealFixedDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
   dealStagger: { value: LevelValues | ActionValueOperand };
   applyBuff: {
@@ -449,6 +462,7 @@ export const COMBAT_STEP_KINDS = [
   'applyElementalReaction',
   'consumeElementalReaction',
   'dealDamage',
+  'dealFixedDamage',
   'dealStagger',
   'applyBuff',
   'readBuffBlackboard',

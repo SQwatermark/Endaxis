@@ -109,7 +109,7 @@ type CombatStepDocumentForKind<K extends CombatStepKind> = {
   sourceStepKey?: string;
   /** 用户显式修改过的参数键。 */
   edited: Extract<keyof CombatStepParameters[K], string>[];
-} & (K extends 'dealDamage' ? { hitId: string } : {}) &
+} & (K extends 'dealDamage' | 'dealFixedDamage' ? { hitId: string } : {}) &
   (K extends 'conditional'
     ? { whenTrue: ActionSequenceDocument; whenFalse?: ActionSequenceDocument }
     : K extends 'once'

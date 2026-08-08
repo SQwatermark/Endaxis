@@ -302,7 +302,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -334,7 +335,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -831,7 +833,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -863,7 +866,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -983,7 +987,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1015,7 +1020,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1560,7 +1566,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1592,7 +1599,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1729,7 +1737,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1761,7 +1770,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -1898,7 +1908,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -1930,7 +1941,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -2458,7 +2470,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -2487,7 +2500,8 @@ export const perlicaGeneratedSource = {
                   15.0,
                   15.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -2519,7 +2533,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Physical",
@@ -2548,7 +2563,8 @@ export const perlicaGeneratedSource = {
                       15.0,
                       15.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -3112,7 +3128,8 @@ export const perlicaGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -3657,7 +3674,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -4371,7 +4389,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -4413,7 +4432,8 @@ export const perlicaGeneratedSource = {
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null
@@ -5040,7 +5060,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Physical",
@@ -5069,7 +5090,8 @@ export const perlicaGeneratedSource = {
                   10.0,
                   10.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "directDamageHits": [
@@ -5101,7 +5123,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "calculationMultiplier": null,
-                  "poiseValue": null
+                  "poiseValue": null,
+                  "definiteValue": null
                 },
                 {
                   "damageType": "Physical",
@@ -5130,7 +5153,8 @@ export const perlicaGeneratedSource = {
                       10.0,
                       10.0
                     ]
-                  }
+                  },
+                  "definiteValue": null
                 }
               ],
               "timedMarkerGate": null
@@ -5285,7 +5309,8 @@ export const perlicaGeneratedSource = {
                             ]
                           },
                           "calculationMultiplier": null,
-                          "poiseValue": null
+                          "poiseValue": null,
+                          "definiteValue": null
                         },
                         {
                           "damageType": "Physical",
@@ -5314,7 +5339,8 @@ export const perlicaGeneratedSource = {
                               10.0,
                               10.0
                             ]
-                          }
+                          },
+                          "definiteValue": null
                         }
                       ],
                       "directDamageHits": [
@@ -5346,7 +5372,8 @@ export const perlicaGeneratedSource = {
                                 ]
                               },
                               "calculationMultiplier": null,
-                              "poiseValue": null
+                              "poiseValue": null,
+                              "definiteValue": null
                             },
                             {
                               "damageType": "Physical",
@@ -5375,7 +5402,8 @@ export const perlicaGeneratedSource = {
                                   10.0,
                                   10.0
                                 ]
-                              }
+                              },
+                              "definiteValue": null
                             }
                           ],
                           "timedMarkerGate": null
@@ -6467,7 +6495,8 @@ export const perlicaGeneratedSource = {
                 ]
               },
               "calculationMultiplier": null,
-              "poiseValue": null
+              "poiseValue": null,
+              "definiteValue": null
             },
             {
               "damageType": "Pulse",
@@ -6509,7 +6538,8 @@ export const perlicaGeneratedSource = {
                   20.0,
                   20.0
                 ]
-              }
+              },
+              "definiteValue": null
             }
           ],
           "timedMarkerGate": null

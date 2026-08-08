@@ -46,7 +46,7 @@ export interface PlayerDamageRuntimeSnapshot {
 
 /** 从伤害步骤、双方快照和运行时状态解析公式输入的完整参数。 */
 export interface ResolvePlayerActiveDamageInput {
-  readonly step: Extract<ResolvedCombatStep, { kind: 'dealDamage' }>;
+  readonly step: Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
   readonly finalAttackValue: number;
   readonly attacker: PlayerDamageAttackerSnapshot;
   readonly defender: PlayerDamageDefenderSnapshot;
@@ -61,7 +61,7 @@ export function resolvePlayerActiveDamageInput({
   defender,
   runtime,
 }: ResolvePlayerActiveDamageInput): PlayerActiveDamageInput {
-  if (step.parameters.attackScalePerStatusStack !== undefined) {
+  if (step.kind === 'dealDamage' && step.parameters.attackScalePerStatusStack !== undefined) {
     throw new Error('status-stack attack scale must be resolved before damage input construction');
   }
   if (step.parameters.damageType === 'lifeDrain') {

@@ -5973,6 +5973,57 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "scaled definite values"):
             parse_damage_units(root, "ultimate.json", {"poise": (20.0, 30.0)})
 
+    def test_hp_definite_value_compiles_as_fixed_damage(self) -> None:
+        root = {
+            "actionGroupData": {
+                "action": {
+                    "$type": "Example.DamageAction, Example",
+                    "damageUnits": [
+                        {
+                            "damageType": "Physical",
+                            "damageAttributeType": "Hp",
+                            "simpleCalculation": False,
+                            "atkScale": {
+                                "useBlackboardKey": False,
+                                "blackboardKey": "",
+                                "value": 1,
+                            },
+                            "atkCalculation": {
+                                "$type": "Example.DefiniteValueCalculation, Example",
+                                "value": {
+                                    "useBlackboardKey": False,
+                                    "blackboardKey": "",
+                                    "value": 0.01,
+                                },
+                                "applyScale": False,
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        unit = parse_damage_units(root, "ultimate.json", {})[0]
+
+        self.assertEqual(unit.calculation, "definiteValue")
+        self.assertEqual(unit.definiteValue.value, 0.01)
+        self.assertEqual(
+            compile_damage_units_step((unit,), ("ultimateSkill",), "ultimate.hit"),
+            [
+                "step('dealFixedDamage', {",
+                "  damageType: 'physical',",
+                "  value: 0.01,",
+                "  tags: ['ultimateSkill'],",
+                "})",
+            ],
+        )
+
+        root["actionGroupData"]["action"]["damageUnits"][0]["atkCalculation"][
+            "applyScale"
+        ] = True
+        with self.assertRaisesRegex(ValueError, "scaled definite values"):
+            parse_damage_units(root, "ultimate.json", {})
+
 
 if __name__ == "__main__":
     unittest.main()

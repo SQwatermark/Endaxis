@@ -432,6 +432,28 @@ function validateCombatStepParameters(
         }
       }
       break;
+    case 'dealFixedDamage':
+      requireEnum(parameters.damageType, damageTypes, `${path}.damageType`, issues);
+      if (isObject(parameters.value) && !Array.isArray(parameters.value)) {
+        validateActionValueOperand(parameters.value, `${path}.value`, issues);
+      } else {
+        validateLevelValues(parameters.value, `${path}.value`, issues);
+      }
+      if (!Array.isArray(parameters.tags)) {
+        issues.push({ path: `${path}.tags`, message: 'expected an array' });
+      } else {
+        parameters.tags.forEach((tag, index) =>
+          requireEnum(tag, damageTags, `${path}.tags[${index}]`, issues),
+        );
+      }
+      if (parameters.stagger !== undefined) {
+        if (isObject(parameters.stagger) && !Array.isArray(parameters.stagger)) {
+          validateActionValueOperand(parameters.stagger, `${path}.stagger`, issues);
+        } else {
+          validateLevelValues(parameters.stagger, `${path}.stagger`, issues);
+        }
+      }
+      break;
     case 'dealStagger':
       if (isObject(parameters.value) && !Array.isArray(parameters.value)) {
         validateActionValueOperand(parameters.value, `${path}.value`, issues);
@@ -716,7 +738,7 @@ function collectDamageHitIds(
     if (step.sourceStepKey !== undefined) {
       requireString(step, 'sourceStepKey', stepPath, issues);
     }
-    if (stepKind === 'dealDamage') {
+    if (stepKind === 'dealDamage' || stepKind === 'dealFixedDamage') {
       const hitId = requireString(step, 'hitId', stepPath, issues);
       if (hitId !== null && damageHitIds.has(hitId)) {
         issues.push({
