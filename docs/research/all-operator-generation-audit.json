@@ -7,15 +7,15 @@
   },
   "summary": {
     "parsedCount": 283,
-    "compiledCount": 244,
-    "completeOperatorCount": 5,
+    "compiledCount": 247,
+    "completeOperatorCount": 6,
     "blockerKinds": {
       "other": 4,
       "parser-tick-interval": 2,
       "condition-entity-count": 1,
       "projectile-child-actions": 2,
       "root-action-coverage": 6,
-      "buff-source-or-target": 17,
+      "buff-source-or-target": 14,
       "projectile-data": 1,
       "condition-distance": 1,
       "conditional-leaf": 3,
@@ -904,22 +904,19 @@
       "operatorName": "Ember",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "buff-source-or-target": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0011_seraph",
       "operatorName": "Xaihi",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "projectile-child-actions": 1,
-        "buff-source-or-target": 1
+        "projectile-child-actions": 1
       }
     },
     {
@@ -968,11 +965,11 @@
       "operatorName": "Antal",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
         "root-action-coverage": 1,
-        "buff-source-or-target": 2
+        "buff-source-or-target": 1
       }
     },
     {
@@ -2035,9 +2032,9 @@
       "operatorName": "Ember",
       "skillId": "chr_0009_azrila_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[4].buffApplication: unsupported Buff target 'Context'/'Teammate'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction"],
       "conditionCount": 1,
       "referencedBuffCount": 2,
@@ -2185,9 +2182,9 @@
       "operatorName": "Xaihi",
       "skillId": "chr_0011_seraph_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[1].buffApplication: unsupported Buff target 'Context'/'tar'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction"],
       "conditionCount": 0,
       "referencedBuffCount": 3,
@@ -2899,9 +2896,9 @@
       "operatorName": "Antal",
       "skillId": "chr_0023_antal_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[1].buffApplication: unsupported Buff target 'Context'/'team'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction"],
       "conditionCount": 0,
       "referencedBuffCount": 2,

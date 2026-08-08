@@ -98,6 +98,10 @@ export const COMBAT_TARGETS = ['caster', 'enemy'] as const;
 /** 干员 DSL 中无需多敌人寻址的语义目标。 */
 export type CombatTarget = (typeof COMBAT_TARGETS)[number];
 
+export const BUFF_APPLICATION_TARGETS = [...COMBAT_TARGETS, 'party'] as const;
+/** Buff 施加允许面向单一战斗实体或当前队伍中的全部存活干员。 */
+export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
+
 export const COMPARISON_OPERATORS = [
   'equal',
   'notEqual',
@@ -334,7 +338,7 @@ export interface CombatStepParameters {
   dealStagger: { value: LevelValues | ActionValueOperand };
   applyBuff: {
     buffId: string;
-    target: CombatTarget;
+    target: BuffApplicationTarget;
     /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
     count?: ActionValueOperand;
     /**

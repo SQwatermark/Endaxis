@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：244 个。
-- 当前整名干员完整直转：5 名。
+- 无角色专用声明即可进入通用 DSL：247 个。
+- 当前整名干员完整直转：6 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -27,13 +27,13 @@
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
-| Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
-| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      8 | 否       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      9 | 是       |
+| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      9 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
+| Antal          | `chr_0023_antal`    |    9 |      9 |      7 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     14 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
@@ -60,7 +60,7 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `source-data-missing`      |     21 |
-| `buff-source-or-target`    |     17 |
+| `buff-source-or-target`    |     14 |
 | `condition-other`          |      6 |
 | `root-action-coverage`     |      6 |
 | `other`                    |      4 |

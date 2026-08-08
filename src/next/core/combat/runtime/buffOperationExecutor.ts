@@ -3,7 +3,7 @@
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { CombatTarget } from '../../game-data/operatorDefinition';
+import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
@@ -61,6 +61,10 @@ export interface BuffApplicationRequest {
 export interface BuffOperationDependencies {
   readonly sourceId: string;
   readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
+  /** 集合施加只用于 CreateBuffAction；Buff 查询与结束仍必须解析为单一实体。 */
+  readonly resolveApplicationTargets?: (
+    target: BuffApplicationTarget,
+  ) => readonly BuffOperationTarget[];
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -82,8 +86,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
       }
-      const target = this.dependencies.resolveTarget(step.parameters.target);
-      if (target.apply === undefined) {
+      const targets = this.#resolveApplicationTargets(step.parameters.target);
+      if (targets.some(target => target.apply === undefined)) {
         return context === undefined
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
@@ -120,7 +124,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           : {}),
       };
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
-      for (let repetition = 0; repetition < count; repetition += 1) target.apply(request);
+      for (let repetition = 0; repetition < count; repetition += 1) {
+        for (const target of targets) target.apply!(request);
+      }
       return true;
     }
 
@@ -190,6 +196,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return context === undefined
       ? this.dependencies.delegate.execute(step)
       : this.dependencies.delegate.execute(step, context);
+  }
+
+  #resolveApplicationTargets(target: BuffApplicationTarget): readonly BuffOperationTarget[] {
+    const resolved = this.dependencies.resolveApplicationTargets?.(target);
+    if (resolved !== undefined) return resolved;
+    if (target === 'party') {
+      throw new Error('party Buff application requires a collection target resolver');
+    }
+    return [this.dependencies.resolveTarget(target)];
   }
 
   end(

@@ -99,6 +99,40 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('applies a party Buff to every resolved operator target', () => {
+    const appliedTo: string[] = [];
+    const createTarget = (ownerId: string) => ({
+      ownerId,
+      apply: () => {
+        appliedTo.push(ownerId);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    });
+    const party = [createTarget('operator-a'), createTarget('operator-b')];
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator-a',
+      resolveTarget: () => party[0]!,
+      resolveApplicationTargets: target => (target === 'party' ? party : [party[0]!]),
+      delegate,
+    });
+
+    expect(
+      executor.execute({
+        kind: 'applyBuff',
+        parameters: { buffId: 'party-buff', target: 'party' },
+      }),
+    ).toBe(true);
+    expect(appliedTo).toEqual(['operator-a', 'operator-b']);
+  });
+
   it('uses an explicitly selected entity as the Buff source', () => {
     const applied: unknown[] = [];
     const targets = {

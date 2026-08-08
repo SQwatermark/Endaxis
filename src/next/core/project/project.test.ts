@@ -301,7 +301,7 @@ describe('V2 project document', () => {
                   kind: 'applyBuff',
                   parameters: {
                     buffId: 'electric-infliction',
-                    target: 'enemy',
+                    target: 'party',
                   },
                   edited: [],
                 },

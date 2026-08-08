@@ -4,6 +4,7 @@ import unittest
 import json
 import struct
 import tempfile
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -1671,7 +1672,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_buff_application(
             action,
             "fixture",
-            context_target_is_enemy=True,
+            context_application_target="enemy",
         )
 
         self.assertIn("target: 'enemy'", source)
@@ -4720,7 +4721,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('applyBuff'", result)
         self.assertIn("target: 'enemy'", result)
 
-    def test_conditional_buff_context_rejects_prior_teammate_target_group(self) -> None:
+    def test_conditional_buff_context_compiles_unfiltered_team_target_as_party(self) -> None:
         condition = SimpleNamespace(
             startFrame=3,
             actionIndex=2,
@@ -4772,14 +4773,23 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             intervalSeconds=None,
         )
 
-        with self.assertRaisesRegex(
-            ValueError,
-            r"unsupported Buff target 'Context'/'team'",
-        ):
+        compiled = compile_conditional_action(
+            condition,
+            "fixture.condition",
+            target_group_writes=(teammate_write,),
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertIn("target: 'party'", compiled)
+
+        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
             compile_conditional_action(
                 condition,
                 "fixture.condition",
-                target_group_writes=(teammate_write,),
+                target_group_writes=(
+                    replace(teammate_write, validatorTypes=("MainCharacterValidator",)),
+                ),
                 root_skill_context=True,
                 input_target="enemy",
             )

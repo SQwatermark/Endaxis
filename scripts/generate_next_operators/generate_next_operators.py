@@ -7283,7 +7283,7 @@ def compile_buff_application_values(
     inherit_source_skill_cast_info: bool,
     root_skill_context: bool,
     path: str,
-    context_target_is_enemy: bool = False,
+    context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
     allow_dynamic_count: bool = False,
 ) -> str:
@@ -7294,12 +7294,15 @@ def compile_buff_application_values(
     supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
     if buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
-    target = resolve_fixed_combat_target(
-        target_source,
-        target_group_key,
-        root_skill_context=root_skill_context,
-        input_target="enemy" if root_skill_context else input_target,
-        context_target_is_enemy=context_target_is_enemy,
+    target = (
+        context_application_target
+        if target_source == "Context" and context_application_target is not None
+        else resolve_fixed_combat_target(
+            target_source,
+            target_group_key,
+            root_skill_context=root_skill_context,
+            input_target="enemy" if root_skill_context else input_target,
+        )
     )
     if target is None:
         raise ValueError(
@@ -7332,7 +7335,7 @@ def compile_buff_application(
     path: str,
     *,
     root_skill_context: bool = True,
-    context_target_is_enemy: bool = False,
+    context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
@@ -7349,7 +7352,7 @@ def compile_buff_application(
         buff_source=action.buffSource,
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
         root_skill_context=root_skill_context,
-        context_target_is_enemy=context_target_is_enemy,
+        context_application_target=context_application_target,
         input_target=input_target,
         path=path,
     )
@@ -7470,7 +7473,7 @@ def compile_conditional_buff_application(
     ignored_buff_ids: frozenset[str],
     *,
     root_skill_context: bool = False,
-    context_target_is_enemy: bool = False,
+    context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
@@ -7489,7 +7492,7 @@ def compile_conditional_buff_application(
             buff_source=payload.buffSource,
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
             root_skill_context=root_skill_context,
-            context_target_is_enemy=context_target_is_enemy,
+            context_application_target=context_application_target,
             input_target=input_target,
             path=f"{path}.buffs[{index}]",
             allow_dynamic_count=has_dynamic_count,
@@ -7716,7 +7719,7 @@ def compile_conditional_branch_action(
         )
     if getattr(action, "buffApplication", None) is not None:
         buff_application = action.buffApplication
-        context_target_is_enemy = False
+        context_application_target = None
         if (
             buff_application.targetSource == "Context"
             and context_action is not None
@@ -7726,16 +7729,13 @@ def compile_conditional_branch_action(
                 buff_application.targetGroupKey,
                 target_group_writes,
             )
-            context_target_is_enemy = (
-                write is not None
-                and target_group_write_guarantees_single_enemy(write)
-            )
+            context_application_target = target_group_write_buff_application_target(write)
         return compile_conditional_buff_application(
             buff_application,
             path,
             ignored_buff_ids,
             root_skill_context=root_skill_context,
-            context_target_is_enemy=context_target_is_enemy,
+            context_application_target=context_application_target,
             input_target=input_target,
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
@@ -8032,6 +8032,24 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
         and write.finderTargetObjectType == "Normal"
         and write.finderCheckAlive is True
     )
+
+
+def target_group_write_buff_application_target(
+    write: TargetGroupWriteSource | None,
+) -> Literal["enemy", "party"] | None:
+    """把已闭环的目标组写入归约为 Buff 施加支持的单体或集合目标。"""
+    if write is None:
+        return None
+    if target_group_write_guarantees_single_enemy(write):
+        return "enemy"
+    if (
+        not write.validatorTypes
+        and not write.postProcessorTypes
+        and write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
+        and write.finderType == "CharacterTeamFinder"
+    ):
+        return "party"
+    return None
 
 
 def target_reference_has_plain_selector(reference: TargetReferenceSource) -> bool:
@@ -9044,7 +9062,7 @@ def compile_resolved_sequence(
             step_lines = compile_infliction(payload).splitlines()
         elif item.itemType == "buffApplication":
             payload = cast(AuxiliaryActionSource, item.payload)
-            context_target_is_enemy = False
+            context_application_target = None
             if (
                 item.sourcePath == (skill.skillId,)
                 and payload.targetSource == "Context"
@@ -9057,15 +9075,12 @@ def compile_resolved_sequence(
                     target_group_key=payload.targetGroupKey,
                     writes=skill.targetGroupWrites,
                 )
-                context_target_is_enemy = (
-                    write is not None
-                    and target_group_write_guarantees_single_enemy(write)
-                )
+                context_application_target = target_group_write_buff_application_target(write)
             step_lines = compile_buff_application(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffApplication",
                 root_skill_context=item.sourcePath == (skill.skillId,),
-                context_target_is_enemy=context_target_is_enemy,
+                context_application_target=context_application_target,
                 input_target=item.inputTarget,
             ).splitlines()
         else:

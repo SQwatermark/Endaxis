@@ -82,6 +82,8 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #enemyBuffs: BuffOperationTarget;
+  readonly #operatorBuffs = new Map<string, BuffOperationTarget>();
+  readonly #operatorOrder: string[] = [];
   readonly #enemyStatuses?: CombatStatusRuntime;
   readonly #operatorStatuses = new Map<string, CombatStatusRuntime>();
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
@@ -102,6 +104,10 @@ export class CombatRuntimeAssembly {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
       const entityBlackboard = operator.buffRuntime?.entityBlackboard ?? new ActionBlackboard();
+      this.#operatorOrder.push(operator.operatorId);
+      if (operator.buffRuntime !== undefined) {
+        this.#operatorBuffs.set(operator.operatorId, operator.buffRuntime);
+      }
       this.#operatorTimedMarkers.set(
         operator.operatorId,
         new TimedMarkerContainer(operator.operatorId, this.clock),
@@ -202,14 +208,11 @@ export class CombatRuntimeAssembly {
     });
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
-      resolveTarget: target => {
-        if (target === 'enemy') return this.#enemyBuffs;
-        const casterBuffs = operator.buffRuntime;
-        if (casterBuffs === undefined) {
-          throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
-        }
-        return casterBuffs;
-      },
+      resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
+      resolveApplicationTargets: target =>
+        target === 'party'
+          ? this.#requirePartyBuffTargets()
+          : [this.#resolveBuffTarget(target, operatorId)],
       delegate: baseDelegate,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -289,5 +292,25 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' has no timed marker container`);
     }
     return container;
+  }
+
+  #resolveBuffTarget(target: CombatTarget, operatorId: string): BuffOperationTarget {
+    if (target === 'enemy') return this.#enemyBuffs;
+    const casterBuffs = this.#operatorBuffs.get(operatorId);
+    if (casterBuffs === undefined) {
+      throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+    }
+    return casterBuffs;
+  }
+
+  #requirePartyBuffTargets(): readonly BuffOperationTarget[] {
+    // 当前不结算队员死亡，已装配干员即存活队伍；逆序保持原生 CharacterTeamFinder 的遍历顺序。
+    return [...this.#operatorOrder].reverse().map(operatorId => {
+      const target = this.#operatorBuffs.get(operatorId);
+      if (target === undefined) {
+        throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+      }
+      return target;
+    });
   }
 }

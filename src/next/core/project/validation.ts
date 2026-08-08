@@ -13,6 +13,7 @@ import {
 import {
   ACTION_VALUE_OPERATIONS,
   ACTION_VALUE_CALCULATION_OPERATIONS,
+  BUFF_APPLICATION_TARGETS,
   COMBAT_RESOURCES,
   COMBAT_CONDITION_KINDS,
   COMBAT_STEP_KINDS,
@@ -59,6 +60,7 @@ const combatStepKinds = new Set<string>(COMBAT_STEP_KINDS);
 const combatResources = new Set<string>(COMBAT_RESOURCES);
 const combatConditionKinds = new Set<string>(COMBAT_CONDITION_KINDS);
 const combatTargets = new Set<string>(COMBAT_TARGETS);
+const buffApplicationTargets = new Set<string>(BUFF_APPLICATION_TARGETS);
 const comparisonOperators = new Set<string>(COMPARISON_OPERATORS);
 const damageCalculations = new Set<string>(DAMAGE_CALCULATIONS);
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
@@ -463,7 +465,7 @@ function validateCombatStepParameters(
       break;
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);
-      requireTarget();
+      requireEnum(parameters.target, buffApplicationTargets, `${path}.target`, issues);
       if (parameters.count !== undefined) {
         validateActionValueOperand(parameters.count, `${path}.count`, issues);
       }
