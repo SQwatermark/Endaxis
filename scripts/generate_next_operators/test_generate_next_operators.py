@@ -1852,14 +1852,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 [
                     "step('readBuffBlackboard', {",
                     "  target: 'enemy',",
-                    "  tagQueryType: 'hasAny',",
-                    "  buffTagIds: [1466867135],",
+                    "  query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1466867135] },",
                     "  desiredKey: 'count',",
                     "  outputKey: 'conductCnt',",
                     "})",
                 ]
             ),
         )
+
+        id_read = BuffBlackboardReadSource(
+            startFrame=11,
+            endFrame=12,
+            actionIndex=1,
+            outputKey="attackScale",
+            desiredKey="attackScale",
+            targetSource="Owner",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=("buff.example.owner",),
+            tagQueryType="hasAny",
+            buffTagIds=(),
+        )
+        compiled_id = compile_buff_blackboard_read(
+            id_read,
+            "fixture.idRead",
+            root_skill_context=True,
+        )
+        self.assertIn("target: 'caster'", compiled_id)
+        self.assertIn("query: { kind: 'id', buffIds: ['buff.example.owner'] }", compiled_id)
 
     def test_blackboard_provenance_distinguishes_external_runtime_input(self) -> None:
         root = {
@@ -2682,6 +2702,49 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported health target"):
             compile_combat_condition_group((condition,), "fixture.conditions")
 
+    def test_health_condition_resolves_a_prior_enemy_target_group(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckHp",
+            health=SimpleNamespace(
+                targetSource="Context",
+                targetGroupKey="maintar",
+                comparison="LT",
+                isRatio=True,
+                value=ScalarSource(0.5, None, None),
+            ),
+        )
+        action = SimpleNamespace(
+            startFrame=5,
+            actionIndex=2,
+            actionPath=("timelineActions", "0", "actionData", "1"),
+        )
+        write = TargetGroupWriteSource(
+            startFrame=5,
+            endFrame=5,
+            actionIndex=1,
+            actionPath=("timelineActions", "0", "actionData", "0"),
+            targetGroupKey="maintar",
+            producerType="FindTargetAction",
+            finderType="HitBoxFinder",
+            finderFactionTarget="Anti",
+            finderTargetObjectType="Normal",
+            finderCheckAlive=True,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            action=action,
+            target_group_writes=(write,),
+        )
+
+        self.assertIn("kind: 'healthCompare'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+
     def test_buff_stack_by_tag_preserves_target_and_dynamic_threshold(self) -> None:
         root = {
             "actionGroupData": {
@@ -2762,6 +2825,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         compiled = compile_buff_application_values(
             **arguments,
             root_skill_context=False,
+            input_target="enemy",
         )
 
         self.assertIn("target: 'enemy'", compiled)
@@ -2920,6 +2984,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffIdStackCompare'", result)
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
+
+    def test_buff_query_kind_is_independent_from_the_resolved_target(self) -> None:
+        caster_tag = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            buffStack=SimpleNamespace(
+                targetSource="Source",
+                targetGroupKey="",
+                buffCheckType="Tag",
+                buffIds=(),
+                buffTagIds=(101,),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+        enemy_id = SimpleNamespace(
+            sourceType="CheckBuffStackNumAdvanced",
+            buffStack=SimpleNamespace(
+                targetSource="Target",
+                targetGroupKey="ignored_by_native_action",
+                buffCheckType="Id",
+                buffIds=("buff.example.enemy",),
+                buffTagIds=(),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        caster_compiled = compile_combat_condition_group(
+            (caster_tag,), "fixture.caster"
+        )
+        enemy_compiled = compile_combat_condition_group(
+            (enemy_id,),
+            "fixture.enemy",
+            input_target="enemy",
+        )
+
+        self.assertIn("kind: 'buffStackCompare'", caster_compiled)
+        self.assertIn("target: 'caster'", caster_compiled)
+        self.assertIn("kind: 'buffIdStackCompare'", enemy_compiled)
+        self.assertIn("target: 'enemy'", enemy_compiled)
 
     def test_simple_buff_stack_condition_normalizes_to_an_id_query(self) -> None:
         root = {

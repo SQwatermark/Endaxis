@@ -557,6 +557,12 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** 按容器插入顺序返回首个未结束且 ID 命中任一候选项的 Buff。 */
+  findFirstByIds(ids: readonly string[]): CombatBuff<Key> | undefined {
+    const accepted = new Set(ids);
+    return this.#buffs.find(buff => !buff.isFinished && accepted.has(buff.definition.id));
+  }
+
   /** 按容器插入顺序结束所有 ID 命中任一候选项的 Buff。 */
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
     const accepted = new Set(ids);

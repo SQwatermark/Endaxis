@@ -16,6 +16,7 @@ const emptyEnemyBuffs = {
   holdByIds: () => ({ release: () => undefined }),
   getCountByTags: () => 0,
   matchesEntityTags: () => false,
+  findFirstByIds: () => undefined,
   findFirstByTags: () => undefined,
   finishByTags: () => 0,
 };
@@ -31,6 +32,7 @@ function asBuffRuntime(container: CombatBuffContainer<string>) {
     entityBlackboard: container.entityBlackboard,
     advanceFrame: () => undefined,
     getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),
+    findFirstByIds: (ids: readonly string[]) => container.findFirstByIds(ids),
     finishByIds: (ids: readonly string[], reason: 'early' | 'absorbed' | 'other') =>
       container.finishByIds(ids, reason),
     holdByIds: (ids: readonly string[]) => container.holdByIds(ids),
@@ -369,8 +371,11 @@ describe('CombatRuntimeAssembly', () => {
                 kind: 'readBuffBlackboard',
                 parameters: {
                   target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  buffTagIds: [gameplayTagIdFromPath(path)],
+                  query: {
+                    kind: 'tag',
+                    tagQueryType: 'hasAny',
+                    buffTagIds: [gameplayTagIdFromPath(path)],
+                  },
                   desiredKey: 'count',
                   outputKey: 'conductCount',
                 },

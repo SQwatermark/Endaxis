@@ -476,13 +476,29 @@ function validateCombatStepParameters(
       break;
     case 'readBuffBlackboard':
       requireTarget();
-      requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
-      if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
-        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
-      } else {
-        parameters.buffTagIds.forEach((tagId, index) =>
-          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
+      if (!isObject(parameters.query)) {
+        issues.push({ path: `${path}.query`, message: 'expected object' });
+      } else if (parameters.query.kind === 'id') {
+        validateNonEmptyStringArray(parameters.query.buffIds, `${path}.query.buffIds`, issues);
+      } else if (parameters.query.kind === 'tag') {
+        requireEnum(
+          parameters.query.tagQueryType,
+          gameplayTagQueryTypes,
+          `${path}.query.tagQueryType`,
+          issues,
         );
+        if (
+          !Array.isArray(parameters.query.buffTagIds) ||
+          parameters.query.buffTagIds.length === 0
+        ) {
+          issues.push({ path: `${path}.query.buffTagIds`, message: 'expected a non-empty array' });
+        } else {
+          parameters.query.buffTagIds.forEach((tagId, index) =>
+            requireInteger(tagId, `${path}.query.buffTagIds[${index}]`, issues),
+          );
+        }
+      } else {
+        issues.push({ path: `${path}.query.kind`, message: 'expected id or tag' });
       }
       requireString(parameters, 'desiredKey', path, issues);
       requireString(parameters, 'outputKey', path, issues);

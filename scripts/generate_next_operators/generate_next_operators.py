@@ -4953,6 +4953,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="buffApplication",
             sourcePath=(skill.skillId,),
             payload=action,
+            inputTarget="enemy",
         )
         for action in skill.auxiliaryActions
         if action.actionType == "CreateBuffAction"
@@ -4992,6 +4993,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
                 itemType=item_type,
                 sourcePath=(skill.skillId,),
                 payload=action,
+                inputTarget="enemy",
             )
             for action in actions
         )
@@ -5079,6 +5081,7 @@ def collect_projectile_schedule(
             itemType="buffApplication",
             sourcePath=source_path,
             payload=action,
+            inputTarget="enemy",
         )
         for action in getattr(hit, "auxiliaryActions", ())
         if action.actionType == "CreateBuffAction"
@@ -5692,6 +5695,40 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
 
 
+def resolve_fixed_combat_target(
+    target_source: str,
+    target_group_key: str,
+    *,
+    action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
+    context_target_is_enemy: bool = False,
+) -> Literal["caster", "enemy"] | None:
+    """把原生目标引用归约为 Next 固定施法者/单敌人身份；无法证明时返回空。"""
+    if target_source == "Source" and not target_group_key:
+        return "caster"
+    if root_skill_context and target_source == "Owner" and not target_group_key:
+        return "caster"
+    if target_source == "Target" and input_target == "enemy":
+        # 原生 Target 直接读取动作输入目标，命名目标组对该来源没有作用。
+        return "enemy"
+    if target_source == "Context" and (
+        target_group_key == "smart_target" or context_target_is_enemy
+    ):
+        return "enemy"
+    if target_source != "Context" or action is None:
+        return None
+    write = resolve_latest_target_group_write(
+        action,
+        target_group_key,
+        target_group_writes,
+    )
+    if write is not None and target_group_write_guarantees_single_enemy(write):
+        return "enemy"
+    return None
+
+
 def compile_combat_condition(
     source: ConditionSource,
     path: str,
@@ -5756,7 +5793,15 @@ def compile_combat_condition(
         operator = COMPARISON_OPERATOR_MAP.get(health.comparison)
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {health.comparison!r}")
-        if health.targetSource != "Context" or health.targetGroupKey != "smart_target":
+        target = resolve_fixed_combat_target(
+            health.targetSource,
+            health.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
+        if target is None:
             raise ValueError(
                 f"{path}: unsupported health target "
                 f"{health.targetSource!r}/{health.targetGroupKey!r}"
@@ -5765,7 +5810,7 @@ def compile_combat_condition(
             [
                 "{",
                 "  kind: 'healthCompare',",
-                "  target: 'enemy',",
+                f"  target: {ts_inline_literal(target)},",
                 f"  valueType: {ts_inline_literal('ratio' if health.isRatio else 'current')},",
                 f"  operator: {ts_inline_literal(operator)},",
                 f"  value: {compile_condition_operand(health.value, f'{path}.value')},",
@@ -5776,31 +5821,14 @@ def compile_combat_condition(
         entity_tag = source.entityTag
         if entity_tag is None:
             raise ValueError(f"{path}: missing entity tag condition payload")
-        target: Literal["caster", "enemy"] | None = None
-        if entity_tag.targetSource == "Source" and not entity_tag.targetGroupKey:
-            target = "caster"
-        elif (
-            root_skill_context
-            and entity_tag.targetSource == "Owner"
-            and not entity_tag.targetGroupKey
-        ):
-            target = "caster"
-        elif entity_tag.targetSource == "Target" and input_target == "enemy":
-            # 原生 Target 来源忽略 targetGroupKey，直接读取当前动作收到的目标。
-            target = "enemy"
-        elif (
-            entity_tag.targetSource == "Context"
-            and entity_tag.targetGroupKey == "smart_target"
-        ):
-            target = "enemy"
-        elif entity_tag.targetSource == "Context" and action is not None:
-            write = resolve_latest_target_group_write(
-                action,
-                entity_tag.targetGroupKey,
-                target_group_writes,
-            )
-            if write is not None and target_group_write_guarantees_single_enemy(write):
-                target = "enemy"
+        target = resolve_fixed_combat_target(
+            entity_tag.targetSource,
+            entity_tag.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
         if target is None:
             raise ValueError(
                 f"{path}: unsupported entity tag target "
@@ -5880,10 +5908,16 @@ def compile_combat_condition(
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {buff.comparison!r}")
         value_source = compile_condition_operand(buff.value, f"{path}.value")
+        target = resolve_fixed_combat_target(
+            buff.targetSource,
+            buff.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
         if (
-            source.sourceType == "CheckBuffStackNumByTag"
-            and buff.targetSource == "Target"
-            and input_target == "enemy"
+            target is not None
             and buff.buffCheckType == "Tag"
             and buff.buffTagIds
             and not buff.buffIds
@@ -5892,7 +5926,7 @@ def compile_combat_condition(
                 [
                     "{",
                     "  kind: 'buffStackCompare',",
-                    "  target: 'enemy',",
+                    f"  target: {ts_inline_literal(target)},",
                     f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
                     f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
                     f"  operator: {ts_inline_literal(operator)},",
@@ -5901,50 +5935,7 @@ def compile_combat_condition(
                 ]
             )
         if (
-            buff.targetSource == "Context"
-            and buff.targetGroupKey == "smart_target"
-            and buff.buffCheckType == "Tag"
-            and buff.buffTagIds
-            and not buff.buffIds
-        ):
-            return "\n".join(
-                [
-                    "{",
-                    "  kind: 'buffStackCompare',",
-                    "  target: 'enemy',",
-                    f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
-                    f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
-                    f"  operator: {ts_inline_literal(operator)},",
-                    f"  value: {value_source},",
-                    "}",
-                ]
-            )
-        if (
-            buff.targetSource == "Target"
-            and input_target == "enemy"
-            and not buff.targetGroupKey
-            and buff.buffCheckType == "Tag"
-            and buff.buffTagIds
-            and not buff.buffIds
-        ):
-            return "\n".join(
-                [
-                    "{",
-                    "  kind: 'buffStackCompare',",
-                    "  target: 'enemy',",
-                    f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
-                    f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
-                    f"  operator: {ts_inline_literal(operator)},",
-                    f"  value: {value_source},",
-                    "}",
-                ]
-            )
-        if (
-            (
-                buff.targetSource == "Source"
-                or (root_skill_context and buff.targetSource == "Owner")
-            )
-            and not buff.targetGroupKey
+            target is not None
             and buff.buffCheckType == "Id"
             and buff.buffIds
             and not buff.buffTagIds
@@ -5953,7 +5944,7 @@ def compile_combat_condition(
                 [
                     "{",
                     "  kind: 'buffIdStackCompare',",
-                    "  target: 'caster',",
+                    f"  target: {ts_inline_literal(target)},",
                     f"  buffIds: {ts_inline_literal(buff.buffIds)},",
                     f"  operator: {ts_inline_literal(operator)},",
                     f"  value: {value_source},",
@@ -6010,20 +6001,36 @@ def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:
 def compile_buff_blackboard_read(
     read: BuffBlackboardReadPayload | BuffBlackboardReadSource,
     path: str,
+    *,
+    root_skill_context: bool = False,
+    input_target: Literal["enemy"] | None = None,
+    context_target_is_enemy: bool = False,
 ) -> str:
-    """将已确认的单敌人标签查询映射为正式 DSL，拒绝尚未建模的目标与 ID 查询。"""
-    if read.targetSource != "Context" or read.targetGroupKey != "smart_target":
+    """编译 Buff 黑板读取；目标身份和 ID/Tag 查询类型彼此独立。"""
+    target = resolve_fixed_combat_target(
+        read.targetSource,
+        read.targetGroupKey,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+        context_target_is_enemy=context_target_is_enemy,
+    )
+    if target is None:
         raise ValueError(f"{path}: unsupported buff blackboard target")
-    if read.buffCheckType != "Tag" or read.buffIds:
-        raise ValueError(f"{path}: only tag-based buff lookup is supported")
-    if not read.buffTagIds:
-        raise ValueError(f"{path}: buff tag query must not be empty")
+    if read.buffCheckType == "Id" and read.buffIds and not read.buffTagIds:
+        query = "{ kind: 'id', buffIds: " + ts_inline_literal(read.buffIds) + " }"
+    elif read.buffCheckType == "Tag" and read.buffTagIds and not read.buffIds:
+        query = (
+            "{ kind: 'tag', tagQueryType: "
+            f"{ts_inline_literal(read.tagQueryType)}, buffTagIds: "
+            f"{ts_inline_literal(read.buffTagIds)} }}"
+        )
+    else:
+        raise ValueError(f"{path}: unsupported or empty Buff lookup")
     return "\n".join(
         [
             "step('readBuffBlackboard', {",
-            "  target: 'enemy',",
-            f"  tagQueryType: {ts_inline_literal(read.tagQueryType)},",
-            f"  buffTagIds: {ts_inline_literal(read.buffTagIds)},",
+            f"  target: {ts_inline_literal(target)},",
+            f"  query: {query},",
             f"  desiredKey: {ts_inline_literal(read.desiredKey)},",
             f"  outputKey: {ts_inline_literal(read.outputKey)},",
             "})",
@@ -6226,6 +6233,7 @@ def compile_buff_application_values(
     root_skill_context: bool,
     path: str,
     context_target_is_enemy: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if count.blackboardKey is not None or count.value != 1:
@@ -6234,21 +6242,14 @@ def compile_buff_application_values(
     supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
     if buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
-    if target_source == "Source" and not target_group_key:
-        target = "caster"
-    elif root_skill_context and target_source == "Owner" and not target_group_key:
-        target = "caster"
-    elif target_source == "Target" and (
-        root_skill_context or not target_group_key
-    ):
-        # 原生 Target 直接读取动作输入目标并忽略 group key。根技能输入目标和投射物
-        # 命中子技能的输入目标在 Endaxis 固定单敌人模型中都是唯一敌人。
-        target = "enemy"
-    elif target_source == "Context" and target_group_key == "smart_target":
-        target = "enemy"
-    elif target_source == "Context" and context_target_is_enemy:
-        target = "enemy"
-    else:
+    target = resolve_fixed_combat_target(
+        target_source,
+        target_group_key,
+        root_skill_context=root_skill_context,
+        input_target="enemy" if root_skill_context else input_target,
+        context_target_is_enemy=context_target_is_enemy,
+    )
+    if target is None:
         raise ValueError(
             f"{path}: unsupported Buff target "
             f"{target_source!r}/{target_group_key!r}"
@@ -6278,6 +6279,7 @@ def compile_buff_application(
     *,
     root_skill_context: bool = True,
     context_target_is_enemy: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
@@ -6294,6 +6296,7 @@ def compile_buff_application(
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
         root_skill_context=root_skill_context,
         context_target_is_enemy=context_target_is_enemy,
+        input_target=input_target,
         path=path,
     )
 
@@ -6400,6 +6403,7 @@ def compile_conditional_buff_application(
     *,
     root_skill_context: bool = False,
     context_target_is_enemy: bool = False,
+    input_target: Literal["enemy"] | None = None,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     compiled = [
@@ -6413,6 +6417,7 @@ def compile_conditional_buff_application(
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
             root_skill_context=root_skill_context,
             context_target_is_enemy=context_target_is_enemy,
+            input_target=input_target,
             path=f"{path}.buffs[{index}]",
         )
         for index, buff in enumerate(payload.buffs)
@@ -6508,7 +6513,29 @@ def compile_conditional_branch_action(
             )
         )
     if getattr(action, "buffBlackboardRead", None) is not None:
-        return compile_buff_blackboard_read(action.buffBlackboardRead, path)
+        buff_read = action.buffBlackboardRead
+        context_target_is_enemy = False
+        if (
+            buff_read.targetSource == "Context"
+            and buff_read.targetGroupKey != "smart_target"
+            and context_action is not None
+        ):
+            write = resolve_latest_target_group_write(
+                context_action,
+                buff_read.targetGroupKey,
+                target_group_writes,
+            )
+            context_target_is_enemy = (
+                write is not None
+                and target_group_write_guarantees_single_enemy(write)
+            )
+        return compile_buff_blackboard_read(
+            buff_read,
+            path,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            context_target_is_enemy=context_target_is_enemy,
+        )
     if getattr(action, "buffFinish", None) is not None:
         return compile_buff_finish(
             action.buffFinish,
@@ -6539,6 +6566,7 @@ def compile_conditional_branch_action(
             ignored_buff_ids,
             root_skill_context=root_skill_context,
             context_target_is_enemy=context_target_is_enemy,
+            input_target=input_target,
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
         return compile_timed_marker_application(
@@ -7161,7 +7189,12 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         ordered_steps.append(
             (
                 read.actionIndex,
-                compile_buff_blackboard_read(read, f"{skill.key}.buffBlackboardReads[{index}]"),
+                compile_buff_blackboard_read(
+                    read,
+                    f"{skill.key}.buffBlackboardReads[{index}]",
+                    root_skill_context=True,
+                    input_target="enemy",
+                ),
             )
         )
     for index, finish in enumerate(skill.buffFinishes):
@@ -7699,9 +7732,29 @@ def compile_resolved_sequence(
             ).splitlines()
         elif item.itemType == "buffBlackboardRead":
             payload = cast(BuffBlackboardReadSource, item.payload)
+            context_target_is_enemy = False
+            if (
+                item.sourcePath == (skill.skillId,)
+                and payload.targetSource == "Context"
+                and payload.targetGroupKey != "smart_target"
+            ):
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=(),
+                    target_group_key=payload.targetGroupKey,
+                    writes=skill.targetGroupWrites,
+                )
+                context_target_is_enemy = (
+                    write is not None
+                    and target_group_write_guarantees_single_enemy(write)
+                )
             step_lines = compile_buff_blackboard_read(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffBlackboardRead",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
+                context_target_is_enemy=context_target_is_enemy,
             ).splitlines()
         elif item.itemType == "buffFinish":
             payload = cast(BuffFinishSource, item.payload)
@@ -7749,6 +7802,7 @@ def compile_resolved_sequence(
                 f"{skill.key}.schedule[{schedule_index}].buffApplication",
                 root_skill_context=item.sourcePath == (skill.skillId,),
                 context_target_is_enemy=context_target_is_enemy,
+                input_target=item.inputTarget,
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")

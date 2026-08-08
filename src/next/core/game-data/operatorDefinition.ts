@@ -334,11 +334,16 @@ export interface CombatStepParameters {
     durationSeconds?: number;
     effectiveness?: number;
   };
-  /** 按原生标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
+  /** 按原生 ID 或标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
   readBuffBlackboard: {
     target: CombatTarget;
-    tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-    buffTagIds: readonly number[];
+    query:
+      | { kind: 'id'; buffIds: readonly string[] }
+      | {
+          kind: 'tag';
+          tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+          buffTagIds: readonly number[];
+        };
     desiredKey: string;
     outputKey: string;
   };

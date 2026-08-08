@@ -377,8 +377,11 @@ describe('compileSkill', () => {
                 kind: 'readBuffBlackboard',
                 parameters: {
                   target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  buffTagIds: [0x80000000],
+                  query: {
+                    kind: 'tag',
+                    tagQueryType: 'hasAny',
+                    buffTagIds: [0x80000000],
+                  },
                   desiredKey: 'count',
                   outputKey: 'result',
                 },

@@ -24,6 +24,7 @@ export interface BuffOperationTarget {
   readonly ownerId: string;
   apply?(request: BuffApplicationRequest): boolean;
   getCountByIds(ids: readonly string[]): number;
+  findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   holdByIds(ids: readonly string[]): { release(): void };
   getCountByTags(
@@ -117,8 +118,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('readBuffBlackboard requires a combat operation context');
       }
       const target = this.dependencies.resolveTarget(step.parameters.target);
-      const tags = step.parameters.buffTagIds.map(gameplayTagId);
-      const buff = target.findFirstByTags(tags, step.parameters.tagQueryType);
+      const buff =
+        step.parameters.query.kind === 'tag'
+          ? target.findFirstByTags(
+              step.parameters.query.buffTagIds.map(gameplayTagId),
+              step.parameters.query.tagQueryType,
+            )
+          : target.findFirstByIds(step.parameters.query.buffIds);
       if (buff === undefined) return false;
 
       context.blackboard.assignDynamic(

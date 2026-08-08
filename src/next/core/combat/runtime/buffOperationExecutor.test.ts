@@ -23,6 +23,7 @@ describe('BuffOperationExecutor', () => {
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 2,
         matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       }),
@@ -62,6 +63,7 @@ describe('BuffOperationExecutor', () => {
       holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
       matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
     };
@@ -107,6 +109,7 @@ describe('BuffOperationExecutor', () => {
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 0,
         matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       },
@@ -121,6 +124,7 @@ describe('BuffOperationExecutor', () => {
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 0,
         matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       },
@@ -163,6 +167,7 @@ describe('BuffOperationExecutor', () => {
       holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
       matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
     };
@@ -215,6 +220,7 @@ describe('BuffOperationExecutor', () => {
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 0,
         matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       }),
@@ -356,8 +362,11 @@ describe('BuffOperationExecutor', () => {
           kind: 'readBuffBlackboard',
           parameters: {
             target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTagIds: [gameplayTagIdFromPath(path)],
+            query: {
+              kind: 'tag',
+              tagQueryType: 'hasAny',
+              buffTagIds: [gameplayTagIdFromPath(path)],
+            },
             desiredKey: 'count',
             outputKey: 'conductCount',
           },
@@ -366,6 +375,52 @@ describe('BuffOperationExecutor', () => {
       ),
     ).toBe(true);
     expect(blackboard.getNumber('conductCount')).toBe(4);
+  });
+
+  it('reads the first Buff matching an ID query', () => {
+    const target = new CombatBuffContainer(
+      'caster',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([]),
+    );
+    target.add(
+      {
+        id: 'other',
+        stackingType: 'unlimited',
+        blackboard: { value: 3 },
+      },
+      'operator',
+    );
+    target.add(
+      {
+        id: 'wanted',
+        stackingType: 'unlimited',
+        blackboard: { value: 8 },
+      },
+      'operator',
+    );
+    const blackboard = new ActionBlackboard();
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffBlackboard',
+          parameters: {
+            target: 'caster',
+            query: { kind: 'id', buffIds: ['wanted'] },
+            desiredKey: 'value',
+            outputKey: 'result',
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('result')).toBe(8);
   });
 
   it('writes zero for a missing key but fails when no buff matches', () => {
@@ -394,8 +449,11 @@ describe('BuffOperationExecutor', () => {
       kind: 'readBuffBlackboard' as const,
       parameters: {
         target: 'enemy' as const,
-        tagQueryType: 'hasAny' as const,
-        buffTagIds: [gameplayTagIdFromPath(path)],
+        query: {
+          kind: 'tag' as const,
+          tagQueryType: 'hasAny' as const,
+          buffTagIds: [gameplayTagIdFromPath(path)],
+        },
         desiredKey: 'count',
         outputKey: 'output',
       },

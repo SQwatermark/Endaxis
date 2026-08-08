@@ -55,6 +55,10 @@ export class CatalogBuffOperationTarget<Key extends string>
     return this.container.getCountByIds(ids);
   }
 
+  findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined {
+    return this.container.findFirstByIds(ids);
+  }
+
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
     return this.container.finishByIds(ids, reason);
   }
