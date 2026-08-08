@@ -124,6 +124,25 @@ describe('compileSkill', () => {
     expect(program.timelineBlockFrames).toBe(18);
   });
 
+  it('rejects cooldown values that cannot be represented as frame periods', () => {
+    const skill = {
+      key: 'invalid-cooldown',
+      timelineBlockFrames: 1,
+      cooldownFrames: 1.5,
+      scheduledSequences: [],
+    } satisfies SkillDefinition;
+
+    expect(() =>
+      compileSkill({
+        operatorId: 'fixture',
+        skillGroupKey: 'comboSkill',
+        skillType: 'comboSkill',
+        skillLevel: 1,
+        skill,
+      }),
+    ).toThrow("skill 'invalid-cooldown' must use positive integer cooldownFrames");
+  });
+
   it('compiles Perlica battle skill into a single-level runtime program', () => {
     const skill = findPerlicaSkill('battleSkill');
 

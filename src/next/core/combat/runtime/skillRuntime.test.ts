@@ -17,7 +17,7 @@ function findPerlicaSkill(key: string): SkillDefinition {
   throw new Error(`missing Perlica skill '${key}'`);
 }
 
-function createBattleSkillRuntime(initialSp: number, costFrame?: number) {
+function createBattleSkillRuntime(initialSp: number, costFrame?: number, cooldownFrames?: number) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
@@ -48,9 +48,13 @@ function createBattleSkillRuntime(initialSp: number, costFrame?: number) {
     skillType: 'battleSkill',
     skillLevel: 12,
     skill:
-      costFrame === undefined
+      costFrame === undefined && cooldownFrames === undefined
         ? findPerlicaSkill('battleSkill')
-        : { ...findPerlicaSkill('battleSkill'), costFrame },
+        : {
+            ...findPerlicaSkill('battleSkill'),
+            ...(costFrame === undefined ? {} : { costFrame }),
+            ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
+          },
   });
   let nextSkillCastId = 1;
   const runtime = new SkillRuntime(compiledProgram, {
@@ -200,5 +204,36 @@ describe('SkillRuntime', () => {
     expect(operations.execute).toHaveBeenCalledTimes(3);
     expect(receipt.entries.some(entry => entry.event === 'SkillCostRejected')).toBe(true);
     expect(receipt.entries.at(-1)?.event).toBe('TimelineActionEnded');
+  });
+
+  it('refunds a reserved cooldown when interrupted before the recovered commit frame', () => {
+    const fixture = createBattleSkillRuntime(300, 3, 10);
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(2);
+    fixture.runtime.interrupt('castNextSkill');
+
+    expect(fixture.runtime.cooldown.ready).toBe(true);
+    expect(fixture.receipt.entries.map(entry => entry.event)).toContain('SkillCooldownRefunded');
+  });
+
+  it('records an unavailable cooldown but still simulates the authored cast', () => {
+    const fixture = createBattleSkillRuntime(300, 3, 10);
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(3);
+    fixture.runtime.interrupt('castNextSkill');
+    expect(fixture.runtime.cooldown.remainingFrames).toBe(7);
+
+    expect(fixture.runtime.tryStart()).toBe(true);
+    expect(fixture.runtime.state).toBe('casting');
+    expect(fixture.runtime.cooldown.remainingFrames).toBe(7);
+    expect(fixture.receipt.entries.map(entry => entry.event)).toContain(
+      'SkillCooldownUnavailableAtStart',
+    );
+
+    fixture.simulation.advanceFrames(7);
+    expect(fixture.runtime.cooldown.ready).toBe(true);
+    expect(fixture.receipt.entries.map(entry => entry.event)).toContain('SkillCooldownReady');
   });
 });

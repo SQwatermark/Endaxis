@@ -18,6 +18,14 @@ export class PeriodicTimer {
     return Math.abs(this.#remaining) <= READY_EPSILON;
   }
 
+  get remaining(): number {
+    return this.#remaining;
+  }
+
+  get passed(): number {
+    return this.#passed;
+  }
+
   get progress(): number {
     return this.#period === 0 ? 1 : Math.min(1, Math.max(0, 1 - this.#remaining / this.#period));
   }

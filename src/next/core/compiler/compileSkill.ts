@@ -326,6 +326,10 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       resolveLevelValue(value, input.skillLevel, `blackboard.${key}`),
     ]),
   );
+  const cooldownFrames =
+    input.skill.cooldownFrames === undefined
+      ? undefined
+      : resolveLevelValue(input.skill.cooldownFrames, input.skillLevel, 'cooldownFrames');
   if (costs.length > 1) {
     throw new Error(
       `skill '${input.skill.key}' has multiple costs, but native CastData has one cost`,
@@ -343,7 +347,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
   ) {
     throw new RangeError(`skill '${input.skill.key}' must use a non-negative integer costFrame`);
   }
-
+  if (cooldownFrames !== undefined && (!Number.isInteger(cooldownFrames) || cooldownFrames <= 0)) {
+    throw new RangeError(`skill '${input.skill.key}' must use positive integer cooldownFrames`);
+  }
   return {
     operatorId: input.operatorId,
     skillGroupKey: input.skillGroupKey,
@@ -352,15 +358,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     skillLevel: input.skillLevel,
     initialBlackboard,
     timelineBlockFrames: input.skill.timelineBlockFrames,
-    ...(input.skill.cooldownFrames === undefined
-      ? {}
-      : {
-          cooldownFrames: resolveLevelValue(
-            input.skill.cooldownFrames,
-            input.skillLevel,
-            'cooldownFrames',
-          ),
-        }),
+    ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),
     costs,
     timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({

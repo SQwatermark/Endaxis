@@ -15,6 +15,7 @@ import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
@@ -110,6 +111,7 @@ export class SkillRuntime {
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
   readonly #operationContext: CombatOperationContext;
+  readonly #cooldown: SkillCooldown;
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
@@ -122,6 +124,7 @@ export class SkillRuntime {
     this.#program = program;
     this.#dependencies = dependencies;
     this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
+    this.#cooldown = new SkillCooldown(program.cooldownFrames, program.costFrame);
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,
@@ -155,6 +158,10 @@ export class SkillRuntime {
     return this.#nonReturnedSpCost;
   }
 
+  get cooldown(): SkillCooldownSnapshot {
+    return this.#cooldown.snapshot;
+  }
+
   get skillCastInfo(): CombatSkillCastInfo {
     if (this.#skillCastId === 0)
       throw new Error(`skill '${this.#program.skillId}' has not started`);
@@ -179,6 +186,12 @@ export class SkillRuntime {
 
   tryStart(): boolean {
     if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
+    const cooldownReserved = this.#cooldown.tryReserve();
+    if (this.#cooldown.snapshot.configured) {
+      this.record(cooldownReserved ? 'SkillCooldownReserved' : 'SkillCooldownUnavailableAtStart', {
+        remainingFrames: this.#cooldown.snapshot.remainingFrames,
+      });
+    }
     if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)) {
       this.record('SkillCostUnavailableAtStart');
     }
@@ -218,6 +231,7 @@ export class SkillRuntime {
   }
 
   advanceFrame(): void {
+    if (this.#cooldown.advanceFrame()) this.record('SkillCooldownReady');
     if (this.#state !== 'casting') return;
     this.#passedFrames += 1;
     this.#tick(COMBAT_FRAME_INTERVAL);
@@ -226,6 +240,7 @@ export class SkillRuntime {
   end(): void {
     if (this.#state !== 'casting') return;
     this.#timeline?.end(this.#passedFrames, this.#context);
+    if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillEnded');
   }
@@ -233,6 +248,7 @@ export class SkillRuntime {
   interrupt(reason: RuntimeSkillInterruptReason): void {
     if (this.#state !== 'casting') return;
     this.#timeline?.end(this.#passedFrames, this.#context);
+    if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillInterrupted', { reason });
   }
