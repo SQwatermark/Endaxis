@@ -421,12 +421,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -933,12 +933,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1085,12 +1085,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1679,12 +1679,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1848,12 +1848,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -2017,12 +2017,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -2635,12 +2635,12 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -3774,6 +3774,7 @@ export const perlicaGeneratedSource = {
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -3795,6 +3796,7 @@ export const perlicaGeneratedSource = {
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -3816,6 +3818,7 @@ export const perlicaGeneratedSource = {
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -3837,6 +3840,7 @@ export const perlicaGeneratedSource = {
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -5471,8 +5475,7 @@ export const perlicaGeneratedSource = {
                               }
                             }
                           ],
-                          "failActions": [],
-                          "projectedAbilityEntitySpawns": []
+                          "failActions": []
                         }
                       ],
                       "auxiliaryActions": [
@@ -5591,6 +5594,7 @@ export const perlicaGeneratedSource = {
                           "onceActionValueKey": null
                         }
                       ],
+                      "inflictions": [],
                       "combatActions": [
                         "CreateBuffAction",
                         "DamageAction",
@@ -5605,8 +5609,7 @@ export const perlicaGeneratedSource = {
                   ]
                 }
               ],
-              "failActions": [],
-              "projectedAbilityEntitySpawns": []
+              "failActions": []
             }
           ],
           "auxiliaryActions": [
@@ -5725,6 +5728,7 @@ export const perlicaGeneratedSource = {
               "onceActionValueKey": null
             }
           ],
+          "inflictions": [],
           "combatActions": [
             "CreateBuffAction",
             "DamageAction",

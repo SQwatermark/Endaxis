@@ -129,6 +129,7 @@ export interface GeneratedProjectileTriggeredSkillSource {
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
+  readonly inflictions: readonly GeneratedTimedInflictionSource[];
   /** 命中技能内仍可能影响战斗的原生行为；非空时不得作为纯表现投射物省略。 */
   readonly combatActions: readonly string[];
   /** 命中 SkillData 再次引用调用链中的同一技能时为真，避免静态生成无限递归。 */
@@ -355,6 +356,8 @@ export interface GeneratedConditionalActionSource {
   readonly executionFrames?: readonly number[];
   /** 已由解析层提升为确定子技能并进入全局调度的生成动作。 */
   readonly projectedAbilityEntitySpawns?: readonly GeneratedAbilityEntitySpawnPayload[];
+  /** 已由解析层提升为确定命中子技能并进入全局调度的投射物。 */
+  readonly projectedProjectileLaunches?: readonly GeneratedConditionalProjectileProjection[];
 }
 
 export interface GeneratedBlackboardCalculationPayload {
@@ -449,6 +452,11 @@ export interface GeneratedProjectileLaunchPayload {
   readonly skillTriggers: readonly GeneratedProjectileSkillTriggerSource[];
   readonly assignBlackboard: boolean;
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
+}
+
+export interface GeneratedConditionalProjectileProjection {
+  readonly launch: GeneratedProjectileLaunchPayload;
+  readonly triggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
 }
 
 export interface GeneratedAbilityEntitySpawnPayload {

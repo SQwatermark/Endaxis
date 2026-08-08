@@ -7,24 +7,24 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 190,
+    "compiledCount": 192,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-channeling": 11,
-      "other": 6,
+      "other": 8,
       "parser-tick-interval": 2,
-      "projectile-child-actions": 10,
+      "projectile-child-actions": 4,
       "projectile-data": 1,
       "condition-tag": 5,
       "condition-other": 7,
-      "buff-source-or-target": 18,
-      "root-action-coverage": 10,
-      "condition-entity-count": 3,
+      "buff-source-or-target": 20,
+      "root-action-coverage": 12,
       "condition-buff-stack": 10,
       "parser-damage-calculation": 4,
-      "conditional-leaf": 6,
+      "conditional-leaf": 5,
       "condition-distance": 2,
+      "condition-entity-count": 2,
       "condition-main-operator": 1,
       "source-data-missing": 21
     },
@@ -880,10 +880,10 @@
       "operatorName": "Wulfgard",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "projectile-child-actions": 2,
+        "projectile-child-actions": 1,
         "projectile-data": 1
       }
     },
@@ -920,7 +920,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "condition-entity-count": 1,
+        "projectile-child-actions": 1,
         "condition-buff-stack": 1,
         "buff-source-or-target": 1
       }
@@ -933,8 +933,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "projectile-child-actions": 2,
-        "root-action-coverage": 1
+        "root-action-coverage": 3
       }
     },
     {
@@ -1010,7 +1009,7 @@
       "complete": false,
       "blockerKinds": {
         "condition-tag": 1,
-        "conditional-leaf": 1
+        "other": 1
       }
     },
     {
@@ -1048,9 +1047,8 @@
       "complete": false,
       "blockerKinds": {
         "other": 2,
-        "projectile-child-actions": 1,
-        "condition-buff-stack": 7,
-        "buff-source-or-target": 1
+        "buff-source-or-target": 2,
+        "condition-buff-stack": 7
       }
     },
     {
@@ -1107,11 +1105,11 @@
       "operatorName": "Fluorite",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
         "root-action-coverage": 1,
-        "projectile-child-actions": 2
+        "projectile-child-actions": 1
       }
     },
     {
@@ -1137,7 +1135,7 @@
         "condition-other": 1,
         "parser-tick-interval": 1,
         "buff-source-or-target": 1,
-        "projectile-child-actions": 1,
+        "other": 1,
         "parser-channeling": 1
       }
     },
@@ -1198,7 +1196,7 @@
       "blockerKinds": {
         "condition-tag": 2,
         "parser-channeling": 2,
-        "projectile-child-actions": 1
+        "buff-source-or-target": 1
       }
     }
   ],
@@ -1364,7 +1362,7 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "projectile-child-actions",
-      "blocker": "combo_skill: projectile child combat actions are not projected: ['CreateBuffAction', 'LaunchProjectile']",
+      "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -1628,9 +1626,9 @@
       "operatorName": "Wulfgard",
       "skillId": "chr_0006_wolfgd_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "combo_skill: projectile child combat actions are not projected: ['CreateBuffAction', 'SpawnAbilityEntity']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -2021,12 +2019,12 @@
       "skillId": "chr_0011_seraph_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-entity-count",
-      "blocker": "combo_skill.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
+      "blockerKind": "projectile-child-actions",
+      "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 1,
       "referencedBuffCount": 1,
-      "projectileChildCount": 0,
+      "projectileChildCount": 1,
       "abilityEntityCount": 0
     },
     {
@@ -2161,8 +2159,8 @@
       "skillId": "chr_0012_avywen_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "combo_skill: projectile child combat actions are not projected: ['SpawnAbilityEntity']",
+      "blockerKind": "root-action-coverage",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler",
       "unresolvedActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -2292,8 +2290,8 @@
       "skillId": "chr_0012_avywen_ultimate_skill",
       "skillType": "ultimate",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "ultimate_skill: projectile child combat actions are not projected: ['SpawnAbilityEntity']",
+      "blockerKind": "root-action-coverage",
+      "blocker": "ultimate_skill: unresolved combat actions are not covered by resolved damage compiler",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3132,12 +3130,12 @@
       "skillId": "chr_0021_whiten_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "conditional-leaf",
-      "blocker": "normal_skill.schedule[0].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
+      "blockerKind": "other",
+      "blocker": "normal_skill.schedule[3].buffBlackboardRead: unsupported buff blackboard target",
       "unresolvedActions": ["LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
-      "projectileChildCount": 0,
+      "projectileChildCount": 1,
       "abilityEntityCount": 0
     },
     {
@@ -3544,8 +3542,8 @@
       "skillId": "chr_0017_yvonne_power_attack",
       "skillType": "finisher",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "power_attack: projectile child combat actions are not projected: ['CreateBuffAction']",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "power_attack.schedule[3].buffApplication: unsupported Buff target 'Target'/''",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 2,
@@ -4338,9 +4336,9 @@
       "operatorName": "Fluorite",
       "skillId": "chr_0022_bounda_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "normal_skill: projectile child combat actions are not projected: ['SpawnAbilityEntity']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 1,
@@ -4354,7 +4352,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "projectile-child-actions",
-      "blocker": "ultimate_skill: projectile child combat actions are not projected: ['CreateBuffAction', 'SpellInfliction']",
+      "blocker": "ultimate_skill: projectile child combat actions are not projected: ['SpellInfliction']",
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 1,
@@ -4745,8 +4743,8 @@
       "skillId": "chr_0025_ardelia_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "normal_skill: projectile child combat actions are not projected: ['SpawnAbilityEntity']",
+      "blockerKind": "other",
+      "blocker": "normal_skill.schedule[1].buffFinish: unsupported buff finish target or identity",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5192,7 +5190,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "conditional-leaf",
-      "blocker": "normal_skill_ult.schedule[1].conditionalAction.succeedActions[1].nestedCondition.succeedActions[0].nestedCondition.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
+      "blocker": "normal_skill_ult.schedule[1].conditionalAction.succeedActions[1].nestedCondition.failActions[0].nestedCondition.succeedActions[7]: unsupported conditional leaf 'LaunchProjectile'",
       "unresolvedActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -5561,8 +5559,8 @@
       "skillId": "chr_0033_camille_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "normal_skill: projectile child combat actions are not projected: ['CreateBuffAction', 'SpawnAbilityEntity']",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "normal_skill.schedule[2].buffApplication: unsupported Buff target 'Context'/'Camille_Bat'",
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,

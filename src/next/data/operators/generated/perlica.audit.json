@@ -273,6 +273,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -565,6 +566,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -716,6 +718,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1112,6 +1115,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1280,6 +1284,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1448,6 +1453,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -1944,6 +1950,7 @@
           ],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [
             "DamageAction",
             "IfElseAction",
@@ -2496,6 +2503,7 @@
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -2517,6 +2525,7 @@
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -2538,6 +2547,7 @@
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -2559,6 +2569,7 @@
           "conditionalActions": [],
           "auxiliaryActions": [],
           "resourceGains": [],
+          "inflictions": [],
           "combatActions": [],
           "cycleTruncated": false,
           "nestedProjectileTriggeredSkills": [],
@@ -3769,6 +3780,7 @@
                           "onceActionValueKey": null
                         }
                       ],
+                      "inflictions": [],
                       "combatActions": [
                         "CreateBuffAction",
                         "DamageAction",
@@ -3902,6 +3914,7 @@
               "onceActionValueKey": null
             }
           ],
+          "inflictions": [],
           "combatActions": [
             "CreateBuffAction",
             "DamageAction",
@@ -4000,6 +4013,28 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            9
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill_projhit"
+          ]
+        },
+        {
+          "frame": 24,
+          "actionOrder": [
+            7,
+            10
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill_projhit"
           ]
         },
         {

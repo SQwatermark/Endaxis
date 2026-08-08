@@ -181,6 +181,7 @@ class ProjectileTriggeredSkillSource:
     conditionalActions: tuple["ConditionalActionSource", ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
+    inflictions: tuple[TimedInflictionSource, ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
     nestedProjectileTriggeredSkills: tuple["ProjectileTriggeredSkillSource", ...]
@@ -538,6 +539,14 @@ class ProjectileLaunchPayload:
 
 
 @dataclass(frozen=True)
+class ConditionalProjectileProjection:
+    """条件各路径一致时，可提升到根调度的一次投射物命中子技能。"""
+
+    launch: ProjectileLaunchPayload
+    triggeredSkills: tuple[ProjectileTriggeredSkillSource, ...]
+
+
+@dataclass(frozen=True)
 class AbilityEntitySpawnPayload:
     abilityEntityId: str
     skillId: str | None
@@ -574,6 +583,7 @@ class ConditionalActionSource:
     failActions: tuple[ConditionalBranchActionSource, ...]
     executionFrames: tuple[int, ...] = ()
     projectedAbilityEntitySpawns: tuple[AbilityEntitySpawnPayload, ...] = ()
+    projectedProjectileLaunches: tuple[ConditionalProjectileProjection, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -741,6 +751,15 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "abilityEntitySpawn",
         "damageUnits",
         "projectedAbilityEntitySpawns",
+        "projectedProjectileLaunches",
+    }
+)
+
+EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
+    {
+        "executionFrames",
+        "projectedAbilityEntitySpawns",
+        "projectedProjectileLaunches",
     }
 )
 
@@ -754,9 +773,8 @@ def serialize_audit_value(value: Any) -> Any:
             key: serialize_audit_value(item)
             for key, item in value.items()
             if not (
-                (key == "executionFrames" and not item)
-                or
-                key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None
+                (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
+                or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
             )
         }
     if isinstance(value, (list, tuple)):
@@ -773,10 +791,7 @@ def omit_empty_execution_frames(value: Any) -> Any:
             key: omit_empty_execution_frames(item)
             for key, item in value.items()
             if not (
-                (
-                    key in {"executionFrames", "projectedAbilityEntitySpawns"}
-                    and not item
-                )
+                (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
                 or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
             )
         }
@@ -3495,20 +3510,23 @@ def resolve_projectile_payload_triggers(
             )
         )
         if not cycle_truncated:
-            trigger_conditions = mark_projected_conditional_ability_entity_spawns(
+            trigger_conditions = mark_projected_conditional_children(
                 trigger_conditions
             )
         nested = (
             ()
             if cycle_truncated
-            else resolve_projectile_triggered_skills(
-                trigger_root,
-                trigger_source_name,
-                source_dir,
-                launch_frame,
-                child_stack,
-                inherited_blackboard=trigger_blackboard,
-                parent_action_order=action_order,
+            else (
+                *resolve_projectile_triggered_skills(
+                    trigger_root,
+                    trigger_source_name,
+                    source_dir,
+                    launch_frame,
+                    child_stack,
+                    inherited_blackboard=trigger_blackboard,
+                    parent_action_order=action_order,
+                ),
+                *collect_projected_conditional_projectile_skills(trigger_conditions),
             )
         )
         ability_entities = (
@@ -3573,6 +3591,7 @@ def resolve_projectile_payload_triggers(
                     trigger_source_name,
                     trigger_blackboard,
                 ),
+                inflictions=parse_inflictions(trigger_root, trigger_source_name),
                 combatActions=tuple(
                     sorted(
                         {
@@ -3823,7 +3842,7 @@ def resolve_ability_entity_payload(
     )
     nested = ()
     if not cycle_truncated:
-        child_conditions = mark_projected_conditional_ability_entity_spawns(child_conditions)
+        child_conditions = mark_projected_conditional_children(child_conditions)
         child_stack = (*stack, skill_id)
         nested = (
             *resolve_ability_entity_hits(
@@ -3868,13 +3887,16 @@ def resolve_ability_entity_payload(
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, child_blackboard),
         resourceGains=parse_resource_gains(child, child_name, child_blackboard),
         projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
-        projectileTriggeredSkills=resolve_projectile_triggered_skills(
-            child,
-            child_name,
-            source_dir,
-            spawn_frame,
-            inherited_blackboard=child_blackboard,
-            parent_action_order=action_order,
+        projectileTriggeredSkills=(
+            *resolve_projectile_triggered_skills(
+                child,
+                child_name,
+                source_dir,
+                spawn_frame,
+                inherited_blackboard=child_blackboard,
+                parent_action_order=action_order,
+            ),
+            *collect_projected_conditional_projectile_skills(child_conditions),
         ),
         nestedAbilityEntityHits=nested,
         combatActions=combat_actions,
@@ -3920,7 +3942,46 @@ def guaranteed_ability_entity_spawns(
     return outcomes[0]
 
 
-def mark_projected_conditional_ability_entity_spawns(
+def guaranteed_projectile_projections(
+    condition: ConditionalActionSource,
+) -> tuple[ConditionalProjectileProjection, ...]:
+    """仅当条件树每条叶子路径发射完全相同的已解析投射物时返回投影。"""
+
+    def branch_outcomes(
+        actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> tuple[tuple[ConditionalProjectileProjection, ...], ...]:
+        outcomes: tuple[tuple[ConditionalProjectileProjection, ...], ...] = ((),)
+        for action in actions:
+            launch = action.projectileLaunch
+            nested_condition = action.nestedCondition
+            if launch is not None and action.projectileTriggeredSkills:
+                additions = (
+                    (
+                        ConditionalProjectileProjection(
+                            launch,
+                            action.projectileTriggeredSkills,
+                        ),
+                    ),
+                )
+            elif nested_condition is not None:
+                additions = condition_outcomes(nested_condition)
+            else:
+                additions = ((),)
+            outcomes = tuple((*prefix, *addition) for prefix in outcomes for addition in additions)
+        return outcomes
+
+    def condition_outcomes(
+        current: ConditionalActionSource,
+    ) -> tuple[tuple[ConditionalProjectileProjection, ...], ...]:
+        return (*branch_outcomes(current.succeedActions), *branch_outcomes(current.failActions))
+
+    outcomes = condition_outcomes(condition)
+    if not outcomes or any(outcome != outcomes[0] for outcome in outcomes[1:]):
+        return ()
+    return outcomes[0]
+
+
+def mark_projected_conditional_children(
     conditions: tuple[ConditionalActionSource, ...],
 ) -> tuple[ConditionalActionSource, ...]:
     """标记已由解析层提升为确定子技能的生成动作，供 DSL 编译器避免重复消费。"""
@@ -3941,9 +4002,25 @@ def mark_projected_conditional_ability_entity_spawns(
             for payload in guaranteed_ability_entity_spawns(marked)
             if payload.skillId is not None
         )
-        return replace(marked, projectedAbilityEntitySpawns=projected)
+        return replace(
+            marked,
+            projectedAbilityEntitySpawns=projected,
+            projectedProjectileLaunches=guaranteed_projectile_projections(marked),
+        )
 
     return tuple(mark_condition(condition) for condition in conditions)
+
+
+def collect_projected_conditional_projectile_skills(
+    conditions: tuple[ConditionalActionSource, ...],
+) -> tuple[ProjectileTriggeredSkillSource, ...]:
+    """汇总已标记的确定投射物子技能；其帧与动作顺序已在解析叶子时换算。"""
+    return tuple(
+        skill
+        for condition in conditions
+        for projection in condition.projectedProjectileLaunches
+        for skill in projection.triggeredSkills
+    )
 
 
 def is_single_enemy_ability_entity_projection(condition: ConditionalActionSource) -> bool:
@@ -4055,6 +4132,8 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 )
         for nested in hit.nestedProjectileTriggeredSkills:
             collect_projectile(nested, current_path)
+        for entity in getattr(hit, "abilityEntityHits", ()):
+            collect_entity(entity, current_path)
 
     def collect_entity(hit: AbilityEntityHitSource, path: tuple[str, ...]) -> None:
         current_path = (*path, hit.skillId)
@@ -4262,6 +4341,17 @@ def collect_projectile_schedule(
     source_path = (hit.triggerSkillId,)
     result.extend(
         ResolvedScheduleItemSource(
+            frame=hit_frame + action.startFrame,
+            actionOrder=(*hit.actionOrder, action.actionIndex),
+            itemType="buffApplication",
+            sourcePath=source_path,
+            payload=action,
+        )
+        for action in getattr(hit, "auxiliaryActions", ())
+        if action.actionType == "CreateBuffAction"
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
             frame=hit_frame + frame,
             actionOrder=(*hit.actionOrder, condition.actionIndex),
             itemType="condition",
@@ -4285,8 +4375,20 @@ def collect_projectile_schedule(
                 payload=gain,
             )
         )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit_frame + infliction.startFrame,
+            actionOrder=(*hit.actionOrder, infliction.actionIndex),
+            itemType="infliction",
+            sourcePath=source_path,
+            payload=infliction,
+        )
+        for infliction in getattr(hit, "inflictions", ())
+    )
     for nested in hit.nestedProjectileTriggeredSkills:
         collect_projectile_schedule(nested, result)
+    for entity in getattr(hit, "abilityEntityHits", ()):
+        collect_ability_entity_schedule(entity, result)
 
 
 def collect_ability_entity_schedule(
@@ -4649,7 +4751,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     blackboard_calculations = parse_blackboard_calculations(
         root, source_name, resolved_blackboard
     )
-    conditional_actions = mark_projected_conditional_ability_entity_spawns(
+    conditional_actions = mark_projected_conditional_children(
         resolve_conditional_projectile_triggers(
             parse_conditional_actions(root, source_name, resolved_blackboard),
             root,
@@ -4691,12 +4793,15 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         buffFinishes=buff_finishes,
         resourceGains=parse_resource_gains(root, source_name, resolved_blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
-        projectileTriggeredSkills=resolve_projectile_triggered_skills(
-            root,
-            source_name,
-            source_dir,
-            stack=(skill_id,),
-            inherited_blackboard=resolved_blackboard,
+        projectileTriggeredSkills=(
+            *resolve_projectile_triggered_skills(
+                root,
+                source_name,
+                source_dir,
+                stack=(skill_id,),
+                inherited_blackboard=resolved_blackboard,
+            ),
+            *collect_projected_conditional_projectile_skills(conditional_actions),
         ),
         abilityEntityHits=(
             *resolve_ability_entity_hits(
@@ -5315,6 +5420,7 @@ def compile_conditional_branch_action(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
+    projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -5330,6 +5436,15 @@ def compile_conditional_branch_action(
     ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
     if ability_entity_spawn is not None:
         if ability_entity_spawn in projected_ability_entity_spawns:
+            return "sequence()"
+        raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
+    projectile_launch = getattr(action, "projectileLaunch", None)
+    if projectile_launch is not None:
+        projection = ConditionalProjectileProjection(
+            projectile_launch,
+            getattr(action, "projectileTriggeredSkills", None) or (),
+        )
+        if projection in projected_projectile_launches:
             return "sequence()"
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     if getattr(action, "damageUnits", None) is not None:
@@ -5371,6 +5486,7 @@ def compile_conditional_branch(
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
+    projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5387,6 +5503,7 @@ def compile_conditional_branch(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
+            projected_projectile_launches=projected_projectile_launches,
         )
         if compiled == "sequence()":
             continue
@@ -5413,6 +5530,7 @@ def compile_conditional_action(
     projected_ability_entity_spawns = getattr(
         action, "projectedAbilityEntitySpawns", ()
     )
+    projected_projectile_launches = getattr(action, "projectedProjectileLaunches", ())
     condition = compile_combat_condition_group(
         action.conditions,
         f"{path}.conditions",
@@ -5429,6 +5547,7 @@ def compile_conditional_action(
         target_group_writes=target_group_writes,
         root_skill_context=root_skill_context,
         projected_ability_entity_spawns=projected_ability_entity_spawns,
+        projected_projectile_launches=projected_projectile_launches,
     )
     fail = (
         compile_conditional_branch(
@@ -5440,6 +5559,7 @@ def compile_conditional_action(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
+            projected_projectile_launches=projected_projectile_launches,
         )
         if action.failActions
         else None
@@ -5641,6 +5761,8 @@ def collect_compilable_conditional_action_types(
 
     def visit(action: ConditionalActionSource) -> None:
         result.update(condition.sourceType for condition in action.conditions)
+        projected_spawns = getattr(action, "projectedAbilityEntitySpawns", ())
+        projected_launches = getattr(action, "projectedProjectileLaunches", ())
         for branch_action in (*action.succeedActions, *action.failActions):
             if getattr(branch_action, "nestedCondition", None) is not None:
                 result.add("IfElseAction")
@@ -5661,6 +5783,14 @@ def collect_compilable_conditional_action_types(
                 result.add("ObtainCostAction")
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
+            if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:
+                result.add("SpawnAbilityEntity")
+            projectile_launch = getattr(branch_action, "projectileLaunch", None)
+            if projectile_launch is not None and ConditionalProjectileProjection(
+                projectile_launch,
+                getattr(branch_action, "projectileTriggeredSkills", None) or (),
+            ) in projected_launches:
+                result.add("LaunchProjectile")
 
     for action in actions:
         visit(action)
@@ -6230,6 +6360,17 @@ def compile_resolved_sequence(
             )
         if hit.resourceGains:
             projected_actions.add("ObtainCostAction")
+        if any(
+            action.actionType == "CreateBuffAction"
+            for action in getattr(hit, "auxiliaryActions", ())
+        ):
+            projected_actions.add("CreateBuffAction")
+        if getattr(hit, "inflictions", ()):
+            projected_actions.add("SpellInfliction")
+        if hit.nestedProjectileTriggeredSkills:
+            projected_actions.add("LaunchProjectile")
+        if getattr(hit, "abilityEntityHits", ()):
+            projected_actions.add("SpawnAbilityEntity")
         unmodeled_projectile_actions.extend(
             action for action in hit.combatActions if action not in projected_actions
         )

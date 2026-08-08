@@ -42,6 +42,7 @@ from generate_next_operators import (
     ScalarSource,
     SkillPatchSource,
     TimedDamageSource,
+    TimedInflictionSource,
     TimedMarkerGateSource,
     TimedResourceGainSource,
     ConditionalActionSource,
@@ -78,7 +79,9 @@ from generate_next_operators import (
     resolve_conditional_projectile_triggers,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
-    mark_projected_conditional_ability_entity_spawns,
+    mark_projected_conditional_children,
+    guaranteed_projectile_projections,
+    collect_projected_conditional_projectile_skills,
     is_single_enemy_ability_entity_projection,
     is_guaranteed_single_enemy_condition,
     is_projectile_trigger_excluded_for_single_enemy,
@@ -410,8 +413,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             excludedByPrimaryTargetMarker=False,
             directDamageHits=(),
             conditionalActions=(condition,),
+            auxiliaryActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    startFrame=1,
+                    actionIndex=5,
+                ),
+            ),
             resourceGains=(gain,),
+            inflictions=(TimedInflictionSource(4, 4, 9, "heat", False),),
             nestedProjectileTriggeredSkills=(),
+            abilityEntityHits=(),
         )
         skill = SimpleNamespace(
             skillId="root",
@@ -434,8 +446,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             [(item.itemType, item.frame, item.actionOrder) for item in schedule],
             [
+                ("buffApplication", 16, (4, 5)),
                 ("condition", 17, (4, 7)),
                 ("resourceGain", 18, (4, 8)),
+                ("infliction", 19, (4, 9)),
             ],
         )
 
@@ -720,7 +734,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=spawn),),
         )
 
-        marked = mark_projected_conditional_ability_entity_spawns((source,))[0]
+        marked = mark_projected_conditional_children((source,))[0]
         result = compile_conditional_action(marked, "fixture.condition")
 
         self.assertEqual(marked.projectedAbilityEntitySpawns, (spawn,))
@@ -749,10 +763,102 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (ConditionalBranchActionSource("SpawnAbilityEntity", 0, abilityEntitySpawn=second),),
         )
 
-        marked = mark_projected_conditional_ability_entity_spawns((source,))[0]
+        marked = mark_projected_conditional_children((source,))[0]
 
         self.assertEqual(marked.projectedAbilityEntitySpawns, ())
         with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'SpawnAbilityEntity'"):
+            compile_conditional_action(marked, "fixture.condition")
+
+    def test_conditional_compiler_lifts_identical_projectile_children(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile.test",
+            (ProjectileSkillTriggerSource("hit", "skill.hit"),),
+        )
+        triggered = (SimpleNamespace(triggerSkillId="skill.hit"),)
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "Equals",
+                    ScalarSource(1, None, None),
+                    ScalarSource(1, None, None),
+                    (),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    0,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=triggered,
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    0,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=triggered,
+                ),
+            ),
+        )
+
+        marked = mark_projected_conditional_children((source,))[0]
+
+        self.assertEqual(guaranteed_projectile_projections(marked), marked.projectedProjectileLaunches)
+        self.assertEqual(
+            collect_projected_conditional_projectile_skills((marked,)),
+            triggered,
+        )
+        self.assertEqual(compile_conditional_action(marked, "fixture.condition"), "sequence()")
+
+    def test_conditional_compiler_rejects_divergent_projectile_children(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile.test",
+            (ProjectileSkillTriggerSource("hit", "skill.hit"),),
+        )
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "Equals",
+                    ScalarSource(1, None, None),
+                    ScalarSource(1, None, None),
+                    (),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    0,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=(SimpleNamespace(triggerSkillId="first"),),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "LaunchProjectile",
+                    0,
+                    projectileLaunch=launch,
+                    projectileTriggeredSkills=(SimpleNamespace(triggerSkillId="second"),),
+                ),
+            ),
+        )
+
+        marked = mark_projected_conditional_children((source,))[0]
+
+        self.assertEqual(marked.projectedProjectileLaunches, ())
+        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'LaunchProjectile'"):
             compile_conditional_action(marked, "fixture.condition")
 
     def test_single_enemy_walker_flattens_supported_foreach_and_single_tick_channel(self) -> None:
