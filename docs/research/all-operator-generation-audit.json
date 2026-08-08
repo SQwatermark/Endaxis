@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 240,
+    "compiledCount": 241,
     "completeOperatorCount": 4,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -19,7 +19,7 @@
       "condition-distance": 5,
       "conditional-leaf": 3,
       "root-action-coverage": 3,
-      "other": 4,
+      "other": 3,
       "condition-main-operator": 1,
       "condition-other": 6,
       "source-data-missing": 21
@@ -1014,11 +1014,10 @@
       "operatorName": "Arcane",
       "skillCount": 11,
       "parsedCount": 10,
-      "compiledCount": 9,
+      "compiledCount": 10,
       "complete": false,
       "blockerKinds": {
-        "source-data-missing": 1,
-        "other": 1
+        "source-data-missing": 1
       }
     },
     {
@@ -3433,9 +3432,9 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "ultimate_skill.schedule[4].conditionalAction.failActions[0].nestedCondition.conditions[0]: unsupported Buff stack query target or identity",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",

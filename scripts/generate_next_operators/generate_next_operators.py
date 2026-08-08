@@ -3169,10 +3169,17 @@ def parse_buff_find_settings(
     """严格读取 BuffFindSettings；未知查询枚举和非整数标签必须立即报错。"""
     settings = require_dict(value, path)
     raw_ids = require_list(settings.get("buffIdList"), f"{path}.buffIdList")
+    buff_ids: list[str] = []
+    for index, raw_id in enumerate(raw_ids):
+        if not isinstance(raw_id, str):
+            raise ValueError(f"{path}.buffIdList[{index}]: expected string")
+        # Tag 查询的真实数据会用空字符串占住无效 ID 槽；它不构成 Buff 身份。
+        if raw_id:
+            buff_ids.append(raw_id)
     query_type, tag_ids = parse_tag_query(settings.get("tagQuery"), f"{path}.tagQuery")
     return (
         str(settings.get("checkType", "")),
-        tuple(str(item) for item in raw_ids),
+        tuple(buff_ids),
         query_type,
         tag_ids,
     )

@@ -76,6 +76,7 @@ from generate_next_operators import (
     parse_auxiliary_actions,
     parse_buff_attribute_modifiers,
     parse_buff_application_payload,
+    parse_buff_find_settings,
     parse_buff_lifecycle,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
@@ -152,6 +153,24 @@ def target_settings_fixture(
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_buff_find_settings_ignores_empty_id_placeholders(self) -> None:
+        check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+            {
+                "checkType": "Tag",
+                "buffIdList": [""],
+                "tagQuery": {
+                    "queryType": "HasAny",
+                    "tags": [{"tagId": -1411846745}],
+                },
+            },
+            "fixture.buffSettings",
+        )
+
+        self.assertEqual(check_type, "Tag")
+        self.assertEqual(buff_ids, ())
+        self.assertEqual(query_type, "hasAny")
+        self.assertEqual(tag_ids, (-1411846745,))
+
     def test_skill_blackboard_uses_static_defaults_and_patch_overrides(self) -> None:
         root = {
             "blackboard": [

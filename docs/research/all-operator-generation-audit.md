@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：282 个。
-- 无角色专用声明即可进入通用 DSL：240 个。
+- 无角色专用声明即可进入通用 DSL：241 个。
 - 当前整名干员完整直转：4 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -36,7 +36,7 @@
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |      9 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |     10 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
@@ -62,8 +62,8 @@
 | `buff-source-or-target`    |     17 |
 | `condition-other`          |      6 |
 | `condition-distance`       |      5 |
-| `other`                    |      4 |
 | `conditional-leaf`         |      3 |
+| `other`                    |      3 |
 | `root-action-coverage`     |      3 |
 | `condition-entity-count`   |      2 |
 | `parser-tick-interval`     |      2 |
