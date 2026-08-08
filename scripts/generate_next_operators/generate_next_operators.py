@@ -161,12 +161,19 @@ class TimedResourceGainSource:
 
 
 @dataclass(frozen=True)
-class ProjectileHitSource:
+class ProjectileSkillTriggerSource:
+    event: Literal["hit", "block", "reach", "finish"]
+    skillId: str
+
+
+@dataclass(frozen=True)
+class ProjectileTriggeredSkillSource:
     launchFrame: int
     actionOrder: tuple[int, ...]
     assumedTravelFrames: int
     projectileId: str
-    hitSkillId: str
+    triggerEvent: str
+    triggerSkillId: str
     sourceFile: str
     damageUnits: tuple[DamageUnitSource, ...]
     directDamageHits: tuple[TimedDamageSource, ...]
@@ -175,15 +182,14 @@ class ProjectileHitSource:
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
-    nestedProjectileHits: tuple["ProjectileHitSource", ...]
+    nestedProjectileTriggeredSkills: tuple["ProjectileTriggeredSkillSource", ...]
 
 
 @dataclass(frozen=True)
 class ProjectileLaunchSource:
     launchFrame: int
     projectileId: str
-    castSkillOnHit: bool
-    hitSkillId: str | None
+    skillTriggers: tuple[ProjectileSkillTriggerSource, ...]
 
 
 @dataclass(frozen=True)
@@ -214,7 +220,7 @@ class AbilityEntityHitSource:
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
-    projectileHits: tuple[ProjectileHitSource, ...]
+    projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...]
     nestedAbilityEntityHits: tuple["AbilityEntityHitSource", ...]
     combatActions: tuple[str, ...]
     cycleTruncated: bool
@@ -471,8 +477,7 @@ class ResourceGainPayload:
 @dataclass(frozen=True)
 class ProjectileLaunchPayload:
     projectileId: str
-    castSkillOnHit: bool
-    hitSkillId: str | None
+    skillTriggers: tuple[ProjectileSkillTriggerSource, ...]
 
 
 @dataclass(frozen=True)
@@ -608,7 +613,7 @@ class SkillSource:
     buffFinishes: tuple[BuffFinishSource, ...]
     resourceGains: tuple[TimedResourceGainSource, ...]
     projectileLaunches: tuple[ProjectileLaunchSource, ...]
-    projectileHits: tuple[ProjectileHitSource, ...]
+    projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...]
     abilityEntityHits: tuple[AbilityEntityHitSource, ...]
     referencedBuffIds: tuple[str, ...]
     patch: SkillPatchSource
@@ -1324,14 +1329,26 @@ def parse_projectile_launch_payload(
     projectile_id = action.get("projectileId")
     if not isinstance(projectile_id, str) or not projectile_id:
         raise ValueError(f"{path}.projectileId: expected non-empty string")
-    cast_on_hit = action.get("castSkillOnHit") is True
-    hit_skill_id = action.get("projectileSkillId")
-    if cast_on_hit and (not isinstance(hit_skill_id, str) or not hit_skill_id):
-        raise ValueError(f"{path}.projectileSkillId: cast-on-hit projectile requires a skill")
+    trigger_fields = (
+        ("hit", "castSkillOnHit", "projectileSkillId"),
+        ("block", "castSkillOnBlock", "skillIdOnBlock"),
+        ("reach", "castSkillOnReach", "skillIdOnReach"),
+        ("finish", "castSkillOnFinish", "skillIdOnFinish"),
+    )
+    triggers: list[ProjectileSkillTriggerSource] = []
+    for event, enabled_field, skill_field in trigger_fields:
+        enabled = action.get(enabled_field, False)
+        if not isinstance(enabled, bool):
+            raise ValueError(f"{path}.{enabled_field}: expected boolean")
+        if not enabled:
+            continue
+        skill_id = action.get(skill_field)
+        if not isinstance(skill_id, str) or not skill_id:
+            raise ValueError(f"{path}.{skill_field}: enabled projectile event requires a skill")
+        triggers.append(ProjectileSkillTriggerSource(event=event, skillId=skill_id))
     return ProjectileLaunchPayload(
         projectileId=projectile_id,
-        castSkillOnHit=cast_on_hit,
-        hitSkillId=hit_skill_id if isinstance(hit_skill_id, str) and hit_skill_id else None,
+        skillTriggers=tuple(triggers),
     )
 
 
@@ -2762,7 +2779,7 @@ def filter_once_resource_gains(
     return tuple(result)
 
 
-def resolve_projectile_hits(
+def resolve_projectile_triggered_skills(
     root: dict[str, Any],
     source_name: str,
     source_dir: Path,
@@ -2770,8 +2787,8 @@ def resolve_projectile_hits(
     stack: tuple[str, ...] = (),
     inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
     parent_action_order: tuple[int, ...] | None = None,
-) -> tuple[ProjectileHitSource, ...]:
-    result: list[ProjectileHitSource] = []
+) -> tuple[ProjectileTriggeredSkillSource, ...]:
+    result: list[ProjectileTriggeredSkillSource] = []
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     for timeline_index, raw_timeline in enumerate(
         require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
@@ -2788,81 +2805,86 @@ def resolve_projectile_hits(
             payload = parse_projectile_launch_payload(
                 action, f"{source_name}.LaunchProjectile"
             )
-            if not payload.castSkillOnHit:
-                continue
-            hit_skill_id = payload.hitSkillId
-            if hit_skill_id is None:
-                raise AssertionError("cast-on-hit projectile payload must expose hitSkillId")
-            hit_source_name = f"{hit_skill_id}.json"
-            hit_path = source_dir / hit_source_name
-            if not hit_path.is_file():
-                raise FileNotFoundError(f"{source_name}: missing projectile hit skill {hit_path}")
-            hit_root = require_dict(json.loads(hit_path.read_text(encoding="utf-8")), hit_source_name)
             current_action_order = (
                 *(parent_action_order or ()),
                 require_server_action_index(action, f"{source_name}.LaunchProjectile"),
             )
-            cycle_truncated = hit_skill_id in stack
-            nested = (
-                ()
-                if cycle_truncated
-                else resolve_projectile_hits(
-                    hit_root,
-                    hit_source_name,
-                    source_dir,
-                    launch_frame,
-                    (*stack, hit_skill_id),
-                    inherited_blackboard=inherited_blackboard,
-                    parent_action_order=current_action_order,
+            for trigger in payload.skillTriggers:
+                trigger_source_name = f"{trigger.skillId}.json"
+                trigger_path = source_dir / trigger_source_name
+                if not trigger_path.is_file():
+                    raise FileNotFoundError(
+                        f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
+                    )
+                trigger_root = require_dict(
+                    json.loads(trigger_path.read_text(encoding="utf-8")),
+                    trigger_source_name,
                 )
-            )
-            result.append(
-                ProjectileHitSource(
-                    launchFrame=launch_frame,
-                    actionOrder=current_action_order,
-                    assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
-                    projectileId=payload.projectileId,
-                    hitSkillId=hit_skill_id,
-                    sourceFile=hit_source_name,
-                    damageUnits=parse_damage_units(
-                        hit_root,
-                        hit_source_name,
-                        inherited_blackboard or {},
-                    ),
-                    directDamageHits=parse_direct_damage_hits(
-                        hit_root,
-                        hit_source_name,
-                        inherited_blackboard or {},
-                    ),
-                    conditionalActions=parse_conditional_actions(
-                        hit_root,
-                        hit_source_name,
-                        inherited_blackboard or {},
-                    ),
-                    auxiliaryActions=parse_auxiliary_actions(
-                        hit_root,
-                        hit_source_name,
+                cycle_truncated = trigger.skillId in stack
+                nested = (
+                    ()
+                    if cycle_truncated
+                    else resolve_projectile_triggered_skills(
+                        trigger_root,
+                        trigger_source_name,
                         source_dir,
-                        inherited_blackboard or {},
-                    ),
-                    resourceGains=parse_resource_gains(
-                        hit_root,
-                        hit_source_name,
-                        inherited_blackboard or {},
-                    ),
-                    combatActions=tuple(
-                        sorted(
-                            {
-                                action_name(item["$type"])
-                                for item in walk_actions(hit_root.get("actionGroupData"))
-                                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
-                            }
-                        )
-                    ),
-                    cycleTruncated=cycle_truncated,
-                    nestedProjectileHits=nested,
+                        launch_frame,
+                        (*stack, trigger.skillId),
+                        inherited_blackboard=inherited_blackboard,
+                        parent_action_order=current_action_order,
+                    )
                 )
-            )
+                result.append(
+                    ProjectileTriggeredSkillSource(
+                        launchFrame=launch_frame,
+                        actionOrder=current_action_order,
+                        assumedTravelFrames=ASSUMED_PROJECTILE_TRAVEL_FRAMES,
+                        projectileId=payload.projectileId,
+                        triggerEvent=trigger.event,
+                        triggerSkillId=trigger.skillId,
+                        sourceFile=trigger_source_name,
+                        damageUnits=parse_damage_units(
+                            trigger_root,
+                            trigger_source_name,
+                            inherited_blackboard or {},
+                        ),
+                        directDamageHits=parse_direct_damage_hits(
+                            trigger_root,
+                            trigger_source_name,
+                            inherited_blackboard or {},
+                        ),
+                        conditionalActions=parse_conditional_actions(
+                            trigger_root,
+                            trigger_source_name,
+                            inherited_blackboard or {},
+                        ),
+                        auxiliaryActions=parse_auxiliary_actions(
+                            trigger_root,
+                            trigger_source_name,
+                            source_dir,
+                            inherited_blackboard or {},
+                        ),
+                        resourceGains=parse_resource_gains(
+                            trigger_root,
+                            trigger_source_name,
+                            inherited_blackboard or {},
+                        ),
+                        combatActions=tuple(
+                            sorted(
+                                {
+                                    action_name(item["$type"])
+                                    for item in walk_actions(
+                                        trigger_root.get("actionGroupData")
+                                    )
+                                    if action_name(item["$type"])
+                                    in COMBAT_ACTION_NAMES
+                                }
+                            )
+                        ),
+                        cycleTruncated=cycle_truncated,
+                        nestedProjectileTriggeredSkills=nested,
+                    )
+                )
     return tuple(result)
 
 
@@ -2890,8 +2912,7 @@ def parse_projectile_launches(
                 ProjectileLaunchSource(
                     launchFrame=launch_frame,
                     projectileId=payload.projectileId,
-                    castSkillOnHit=payload.castSkillOnHit,
-                    hitSkillId=payload.hitSkillId,
+                    skillTriggers=payload.skillTriggers,
                 )
             )
     return tuple(result)
@@ -3012,7 +3033,7 @@ def resolve_ability_entity_payload(
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, blackboard),
         resourceGains=parse_resource_gains(child, child_name, blackboard),
         projectileLaunches=parse_projectile_launches(child, child_name, spawn_frame),
-        projectileHits=resolve_projectile_hits(
+        projectileTriggeredSkills=resolve_projectile_triggered_skills(
             child,
             child_name,
             source_dir,
@@ -3150,8 +3171,8 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                 )
             )
 
-    def collect_projectile(hit: ProjectileHitSource, path: tuple[str, ...]) -> None:
-        current_path = (*path, hit.hitSkillId)
+    def collect_projectile(hit: ProjectileTriggeredSkillSource, path: tuple[str, ...]) -> None:
+        current_path = (*path, hit.triggerSkillId)
         for damage in hit.directDamageHits:
             if damage.damageUnits:
                 append(
@@ -3163,7 +3184,7 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                         damage.damageUnits,
                     )
                 )
-        for nested in hit.nestedProjectileHits:
+        for nested in hit.nestedProjectileTriggeredSkills:
             collect_projectile(nested, current_path)
 
     def collect_entity(hit: AbilityEntityHitSource, path: tuple[str, ...]) -> None:
@@ -3226,13 +3247,13 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                         repeated.damageUnits,
                     )
                 )
-        for projectile in hit.projectileHits:
+        for projectile in hit.projectileTriggeredSkills:
             collect_projectile(projectile, current_path)
         for nested in hit.nestedAbilityEntityHits:
             collect_entity(nested, current_path)
 
     root_path = (skill.skillId,)
-    for projectile in skill.projectileHits:
+    for projectile in skill.projectileTriggeredSkills:
         collect_projectile(projectile, root_path)
     for entity in skill.abilityEntityHits:
         collect_entity(entity, root_path)
@@ -3517,7 +3538,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         buffFinishes=buff_finishes,
         resourceGains=parse_resource_gains(root, source_name, patch.blackboard),
         projectileLaunches=parse_projectile_launches(root, source_name),
-        projectileHits=resolve_projectile_hits(
+        projectileTriggeredSkills=resolve_projectile_triggered_skills(
             root,
             source_name,
             source_dir,
@@ -4138,27 +4159,27 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
         raise ValueError(
             f"{skill.key}: basic attack compiler expected only LaunchProjectile, got {skill.unresolvedCombatActions}"
         )
-    if not skill.projectileHits:
+    if not skill.projectileTriggeredSkills:
         raise ValueError(f"{skill.key}: basic attack has no projectile hits")
     hit_frames: list[int] = []
     attack_scale: tuple[float, ...] | None = None
     stagger: tuple[float, ...] | None = None
     damage_type: str | None = None
-    for index, hit in enumerate(skill.projectileHits):
-        if hit.cycleTruncated or hit.nestedProjectileHits:
-            raise ValueError(f"{skill.key}.projectileHits[{index}]: recursive projectile is not supported")
+    for index, hit in enumerate(skill.projectileTriggeredSkills):
+        if hit.cycleTruncated or hit.nestedProjectileTriggeredSkills:
+            raise ValueError(f"{skill.key}.projectileTriggeredSkills[{index}]: recursive projectile is not supported")
         hp_units = [unit for unit in hit.damageUnits if unit.attributeType == "Hp"]
         poise_units = [unit for unit in hit.damageUnits if unit.attributeType == "Poise"]
         unknown_units = [unit for unit in hit.damageUnits if unit.attributeType not in {"Hp", "Poise"}]
         if len(hp_units) != 1 or len(poise_units) > 1 or unknown_units:
-            raise ValueError(f"{skill.key}.projectileHits[{index}]: unsupported DamageUnit layout")
+            raise ValueError(f"{skill.key}.projectileTriggeredSkills[{index}]: unsupported DamageUnit layout")
         hp = hp_units[0]
         mapped_type = DAMAGE_TYPE_MAP.get(hp.damageType)
         if mapped_type is None:
             raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
-        current_scale = require_level_values(hp.attackScale, f"{skill.key}.projectileHits[{index}].attackScale")
+        current_scale = require_level_values(hp.attackScale, f"{skill.key}.projectileTriggeredSkills[{index}].attackScale")
         current_stagger = (
-            require_level_values(poise_units[0].poiseValue, f"{skill.key}.projectileHits[{index}].poise")
+            require_level_values(poise_units[0].poiseValue, f"{skill.key}.projectileTriggeredSkills[{index}].poise")
             if poise_units and poise_units[0].poiseValue
             else None
         )
@@ -4203,8 +4224,8 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         raise ValueError(f"{skill.key}: direct damage compiler requires exactly one non-projectile hit")
     non_presentation_projectiles = [
         hit
-        for hit in skill.projectileHits
-        if hit.cycleTruncated or hit.combatActions or hit.nestedProjectileHits
+        for hit in skill.projectileTriggeredSkills
+        if hit.cycleTruncated or hit.combatActions or hit.nestedProjectileTriggeredSkills
     ]
     if non_presentation_projectiles:
         raise ValueError(f"{skill.key}: projectile contains combat behavior and cannot be omitted")
@@ -4216,7 +4237,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         *(action.actionType for action in skill.auxiliaryActions),
         *({"ObtainCostAction"} if skill.resourceGains else set()),
         *({"SpellInfliction"} if skill.inflictions else set()),
-        *({"LaunchProjectile"} if skill.projectileHits else set()),
+        *({"LaunchProjectile"} if skill.projectileTriggeredSkills else set()),
         *({"GetTargetBuffBBAdvanced"} if skill.buffBlackboardReads else set()),
     }
     if set(skill.unresolvedCombatActions) != expected_actions:
@@ -4359,9 +4380,9 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
             f"{skill.key}: projectile damage compiler expected only root LaunchProjectile, "
             f"got {skill.unresolvedCombatActions}"
         )
-    if len(skill.projectileHits) != 1:
+    if len(skill.projectileTriggeredSkills) != 1:
         raise ValueError(f"{skill.key}: projectile damage compiler requires exactly one root projectile")
-    hit = skill.projectileHits[0]
+    hit = skill.projectileTriggeredSkills[0]
     if hit.cycleTruncated:
         raise ValueError(f"{skill.key}: root projectile unexpectedly truncates a cycle")
     if hit.assumedTravelFrames != 0:
@@ -4374,18 +4395,18 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
                 f"{skill.key}: conditional projectile branch requires an explicit single-target omission declaration"
             )
         validate_ignored_recursive_projectile_conditions(
-            hit, f"{skill.key}.projectileHits[0].conditionalActions"
+            hit, f"{skill.key}.projectileTriggeredSkills[0].conditionalActions"
         )
-    if hit.nestedProjectileHits:
+    if hit.nestedProjectileTriggeredSkills:
         if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
             raise ValueError(
                 f"{skill.key}: recursive projectile requires an explicit single-target omission declaration"
             )
         if any(
             nested.projectileId != hit.projectileId
-            or nested.hitSkillId != hit.hitSkillId
+            or nested.triggerSkillId != hit.triggerSkillId
             or not nested.cycleTruncated
-            for nested in hit.nestedProjectileHits
+            for nested in hit.nestedProjectileTriggeredSkills
         ):
             raise ValueError(f"{skill.key}: recursive projectile shape is not the expected self-cycle")
 
@@ -4393,7 +4414,7 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         "DamageAction",
         *({"CreateBuffAction"} if hit.auxiliaryActions else set()),
         *({"ObtainCostAction"} if hit.resourceGains else set()),
-        *({"LaunchProjectile"} if hit.nestedProjectileHits else set()),
+        *({"LaunchProjectile"} if hit.nestedProjectileTriggeredSkills else set()),
         *({"IfElseAction", "LaunchProjectile"} if hit.conditionalActions else set()),
     }
     if set(hit.combatActions) != expected_child_actions:
@@ -4503,7 +4524,7 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
 
 
 def validate_ignored_recursive_projectile_conditions(
-    hit: ProjectileHitSource, path: str
+    hit: ProjectileTriggeredSkillSource, path: str
 ) -> None:
     """校验显式省略项确实只是在条件分支中再次发射同一命中技能。"""
     launches: list[ProjectileLaunchSource] = []
@@ -4524,11 +4545,11 @@ def validate_ignored_recursive_projectile_conditions(
         raise ValueError(f"{path}: expected exactly one recursive projectile launch")
     launch = launches[0]
     if (
-        not launch.castSkillOnHit
-        or launch.projectileId != hit.projectileId
-        or launch.hitSkillId != hit.hitSkillId
+        launch.projectileId != hit.projectileId
+        or ProjectileSkillTriggerSource(hit.triggerEvent, hit.triggerSkillId)
+        not in launch.skillTriggers
     ):
-        raise ValueError(f"{path}: recursive launch does not target the same projectile hit skill")
+        raise ValueError(f"{path}: recursive launch does not target the same projectile event skill")
 
 
 def compile_resolved_damage_steps(
@@ -4619,8 +4640,8 @@ def compile_resolved_sequence(
         for action in getattr(skill, "auxiliaryActions", [])
         if action.actionType == "CreateBuffAction"
     ]
-    if any(not launch.castSkillOnHit for launch in skill.projectileLaunches):
-        raise ValueError(f"{skill.key}: projectile without hit SkillData remains unresolved")
+    if any(not launch.skillTriggers for launch in skill.projectileLaunches):
+        raise ValueError(f"{skill.key}: projectile without triggered SkillData remains unresolved")
     allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
     if skill.conditionalActions:
         allowed_actions.add("IfElseAction")
@@ -4810,7 +4831,7 @@ def compile_skill_entries(
         if kind == "basicAttack":
             damage_types = {
                 DAMAGE_TYPE_MAP[unit.damageType]
-                for hit in skill.projectileHits
+                for hit in skill.projectileTriggeredSkills
                 for unit in hit.damageUnits
                 if unit.attributeType == "Hp" and unit.damageType in DAMAGE_TYPE_MAP
             }
@@ -5403,7 +5424,7 @@ def render_report(
                 "buffHolds": [asdict(hold) for hold in skill.buffHolds],
                 "resourceGains": [asdict(gain) for gain in skill.resourceGains],
                 "projectileLaunches": [asdict(launch) for launch in skill.projectileLaunches],
-                "projectileHits": [asdict(hit) for hit in skill.projectileHits],
+                "projectileTriggeredSkills": [asdict(hit) for hit in skill.projectileTriggeredSkills],
                 "abilityEntityHits": [asdict(hit) for hit in skill.abilityEntityHits],
                 "referencedBuffIds": skill.referencedBuffIds,
                 "resolvedDamageHits": [asdict(hit) for hit in collect_resolved_damage_hits(skill)],

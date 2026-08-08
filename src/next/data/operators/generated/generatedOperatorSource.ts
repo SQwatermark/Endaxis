@@ -106,7 +106,12 @@ export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainP
   readonly onceActionValueKey: string | null;
 }
 
-export interface GeneratedProjectileHitSource {
+export interface GeneratedProjectileSkillTriggerSource {
+  readonly event: 'hit' | 'block' | 'reach' | 'finish';
+  readonly skillId: string;
+}
+
+export interface GeneratedProjectileTriggeredSkillSource {
   readonly launchFrame: number;
   /** 从根技能到当前投射物的分层原生动作顺序。 */
   readonly actionOrder: readonly number[];
@@ -114,7 +119,8 @@ export interface GeneratedProjectileHitSource {
   /** 单敌人必命中模型暂不计算距离、轨迹和范围，命中子技能与发射处于同一帧。 */
   readonly assumedTravelFrames: 0;
   readonly projectileId: string;
-  readonly hitSkillId: string;
+  readonly triggerEvent: GeneratedProjectileSkillTriggerSource['event'];
+  readonly triggerSkillId: string;
   readonly sourceFile: string;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
@@ -125,7 +131,7 @@ export interface GeneratedProjectileHitSource {
   readonly combatActions: readonly string[];
   /** 命中 SkillData 再次引用调用链中的同一技能时为真，避免静态生成无限递归。 */
   readonly cycleTruncated: boolean;
-  readonly nestedProjectileHits: readonly GeneratedProjectileHitSource[];
+  readonly nestedProjectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
 }
 
 export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
@@ -161,7 +167,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   /** 原始发射动作；没有命中子技能时仍保留在这里，不能据此推断为无战斗效果。 */
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
-  readonly projectileHits: readonly GeneratedProjectileHitSource[];
+  readonly projectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly nestedAbilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   readonly combatActions: readonly string[];
   readonly cycleTruncated: boolean;
@@ -383,8 +389,8 @@ export interface GeneratedResourceGainPayload {
 
 export interface GeneratedProjectileLaunchPayload {
   readonly projectileId: string;
-  readonly castSkillOnHit: boolean;
-  readonly hitSkillId: string | null;
+  /** 仅保留原生布尔开关已启用的事件；关闭事件旁残留的 Skill ID 不具有触发语义。 */
+  readonly skillTriggers: readonly GeneratedProjectileSkillTriggerSource[];
 }
 
 export interface GeneratedAbilityEntitySpawnPayload {
@@ -520,7 +526,7 @@ export interface GeneratedSkillSource {
   readonly buffHolds: readonly GeneratedBuffHoldSource[];
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly projectileLaunches: readonly GeneratedProjectileLaunchSource[];
-  readonly projectileHits: readonly GeneratedProjectileHitSource[];
+  readonly projectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   /** 整棵技能动作树直接引用的 Buff ID；条件分支只进入清单，不会被提升成无条件应用。 */
   readonly referencedBuffIds: readonly string[];

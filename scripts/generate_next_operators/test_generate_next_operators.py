@@ -29,6 +29,7 @@ from generate_next_operators import (
     BuffHoldSource,
     DamageUnitSource,
     EntityBlackboardAssignmentSource,
+    ProjectileSkillTriggerSource,
     ResourceGainPayload,
     ScalarSource,
     TimedDamageSource,
@@ -52,10 +53,11 @@ from generate_next_operators import (
     parse_blackboard_runtime_actions,
     parse_buff_hold_actions,
     parse_conditional_actions,
+    parse_projectile_launch_payload,
     parse_projectile_launches,
     parse_resource_gains,
     filter_once_resource_gains,
-    resolve_projectile_hits,
+    resolve_projectile_triggered_skills,
     resolve_ability_entity_hits,
     guaranteed_ability_entity_spawns,
     is_single_enemy_ability_entity_projection,
@@ -184,14 +186,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         "marker_key", "String", 0, "shared-hit-marker"
                     ),
                 ),
-                projectileHits=(),
+                projectileTriggeredSkills=(),
                 nestedAbilityEntityHits=(),
             )
 
         skill = SimpleNamespace(
             skillId="root",
             directDamageHits=(),
-            projectileHits=(),
+            projectileTriggeredSkills=(),
             abilityEntityHits=(entity(12, 11), entity(13, 23)),
         )
 
@@ -1127,7 +1129,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertTrue(actions[0].buffApplication.inheritSourceSkillCastInfo)
         self.assertEqual(actions[1].resourceGain.resource, "sp")
         self.assertEqual(actions[1].resourceGain.amount.value, 2)
-        self.assertEqual(actions[2].projectileLaunch.hitSkillId, "skill.projectile.hit")
+        self.assertEqual(
+            actions[2].projectileLaunch.skillTriggers,
+            (ProjectileSkillTriggerSource("hit", "skill.projectile.hit"),),
+        )
         self.assertEqual(actions[3].abilityEntitySpawn.skillId, "skill.entity.hit")
 
     def test_conditional_audit_preserves_entity_and_buff_stack_conditions(self) -> None:
@@ -1590,7 +1595,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             unresolvedCombatActions=("SpawnAbilityEntity", "CreateBuffAction"),
             skillId="root",
             directDamageHits=(),
-            projectileHits=(),
+            projectileTriggeredSkills=(),
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=10,
@@ -1599,7 +1604,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     directDamageHits=(
                         SimpleNamespace(startFrame=2, actionIndex=0, damageUnits=(unit,)),
                     ),
-                    projectileHits=(),
+                    projectileTriggeredSkills=(),
                     nestedAbilityEntityHits=(),
                 ),
             ),
@@ -1671,7 +1676,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             unresolvedCombatActions=("CreateBuffAction",),
             skillId="fixture.ultimate",
             directDamageHits=(),
-            projectileHits=(),
+            projectileTriggeredSkills=(),
             abilityEntityHits=(),
         )
 
@@ -1743,7 +1748,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             unresolvedCombatActions=("IfElseAction", "SpawnAbilityEntity"),
             skillId="root",
             directDamageHits=(),
-            projectileHits=(),
+            projectileTriggeredSkills=(),
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=12,
@@ -1752,7 +1757,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     directDamageHits=(
                         SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=(unit,)),
                     ),
-                    projectileHits=(),
+                    projectileTriggeredSkills=(),
                     nestedAbilityEntityHits=(),
                 ),
             ),
@@ -1885,7 +1890,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
             skillId="root",
             directDamageHits=(),
-            projectileHits=(),
+            projectileTriggeredSkills=(),
             abilityEntityHits=(
                 SimpleNamespace(
                     spawnFrame=12,
@@ -1894,7 +1899,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     directDamageHits=(
                         SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=(unit,)),
                     ),
-                    projectileHits=(),
+                    projectileTriggeredSkills=(),
                     nestedAbilityEntityHits=(),
                 ),
             ),
@@ -2164,7 +2169,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported value 'FutureUnknownType'"):
             parse_buff_lifecycle(buff, "unknown_buff.json", {})
 
-    def test_projectile_without_hit_skill_is_preserved_as_a_launch(self) -> None:
+    def test_projectile_without_triggered_skill_is_preserved_as_a_launch(self) -> None:
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -2187,8 +2192,31 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(launches), 1)
         self.assertEqual(launches[0].launchFrame, 9)
-        self.assertFalse(launches[0].castSkillOnHit)
-        self.assertIsNone(launches[0].hitSkillId)
+        self.assertEqual(launches[0].skillTriggers, ())
+
+    def test_projectile_events_follow_switches_and_ignore_disabled_residual_ids(self) -> None:
+        payload = parse_projectile_launch_payload(
+            {
+                "projectileId": "projectile.test",
+                "castSkillOnHit": False,
+                "projectileSkillId": "stale.hit.skill",
+                "castSkillOnBlock": True,
+                "skillIdOnBlock": "skill.block",
+                "castSkillOnReach": True,
+                "skillIdOnReach": "skill.reach",
+                "castSkillOnFinish": False,
+                "skillIdOnFinish": "stale.finish.skill",
+            },
+            "projectile",
+        )
+
+        self.assertEqual(
+            payload.skillTriggers,
+            (
+                ProjectileSkillTriggerSource("block", "skill.block"),
+                ProjectileSkillTriggerSource("reach", "skill.reach"),
+            ),
+        )
 
     def test_ability_entity_without_child_skill_is_kept_as_non_combat_auxiliary_action(self) -> None:
         root = {
@@ -2278,16 +2306,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             directDamageHits=(
                 SimpleNamespace(startFrame=2, actionIndex=3, damageUnits=damage_units),
             ),
-            projectileHits=(
+            projectileTriggeredSkills=(
                 SimpleNamespace(
                     launchFrame=5,
                     actionOrder=(1,),
                     assumedTravelFrames=0,
-                    hitSkillId="projectile_hit",
+                    triggerSkillId="projectile_hit",
                     directDamageHits=(
                         SimpleNamespace(startFrame=3, actionIndex=0, damageUnits=damage_units),
                     ),
-                    nestedProjectileHits=(),
+                    nestedProjectileTriggeredSkills=(),
                 ),
             ),
             abilityEntityHits=(
@@ -2298,7 +2326,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     directDamageHits=(
                         SimpleNamespace(startFrame=4, actionIndex=0, damageUnits=damage_units),
                     ),
-                    projectileHits=(),
+                    projectileTriggeredSkills=(),
                     nestedAbilityEntityHits=(),
                 ),
             ),
@@ -2317,16 +2345,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             directDamageHits=(
                 SimpleNamespace(startFrame=5, actionIndex=8, damageUnits=damage_units),
             ),
-            projectileHits=(
+            projectileTriggeredSkills=(
                 SimpleNamespace(
                     launchFrame=5,
                     actionOrder=(2,),
                     assumedTravelFrames=0,
-                    hitSkillId="projectile_hit",
+                    triggerSkillId="projectile_hit",
                     directDamageHits=(
                         SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=damage_units),
                     ),
-                    nestedProjectileHits=(),
+                    nestedProjectileTriggeredSkills=(),
                 ),
             ),
             abilityEntityHits=(
@@ -2337,7 +2365,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     directDamageHits=(
                         SimpleNamespace(startFrame=0, actionIndex=0, damageUnits=damage_units),
                     ),
-                    projectileHits=(),
+                    projectileTriggeredSkills=(),
                     nestedAbilityEntityHits=(),
                 ),
             ),
@@ -2395,10 +2423,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (source_dir / "child_hit.json").write_text(json.dumps(child), encoding="utf-8")
             (source_dir / "nested_hit.json").write_text(json.dumps(nested), encoding="utf-8")
 
-            hits = resolve_projectile_hits(parent, "parent.json", source_dir)
+            hits = resolve_projectile_triggered_skills(parent, "parent.json", source_dir)
 
         self.assertEqual(hits[0].actionOrder, (7,))
-        self.assertEqual(hits[0].nestedProjectileHits[0].actionOrder, (7, 2))
+        self.assertEqual(hits[0].nestedProjectileTriggeredSkills[0].actionOrder, (7, 2))
 
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")

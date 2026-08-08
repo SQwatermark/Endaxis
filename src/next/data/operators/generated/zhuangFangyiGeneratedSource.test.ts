@@ -4,11 +4,30 @@
  */
 import { describe, expect, it } from 'vitest';
 import { zhuangFangyiGeneratedSource } from './zhuang-fangyi.generated';
+import type {
+  GeneratedConditionalActionSource,
+  GeneratedProjectileLaunchPayload,
+} from './generatedOperatorSource';
 
 function requireBuff(id: string) {
   const buff = zhuangFangyiGeneratedSource.buffDefinitions.find(item => item.buffId === id);
   if (buff === undefined) throw new Error(`missing generated fixture '${id}'`);
   return buff;
+}
+
+function collectConditionalProjectileLaunches(
+  conditions: readonly GeneratedConditionalActionSource[],
+): GeneratedProjectileLaunchPayload[] {
+  const launches: GeneratedProjectileLaunchPayload[] = [];
+  for (const condition of conditions) {
+    for (const action of [...condition.succeedActions, ...condition.failActions]) {
+      if (action.projectileLaunch !== undefined) launches.push(action.projectileLaunch);
+      if (action.nestedCondition !== undefined) {
+        launches.push(...collectConditionalProjectileLaunches([action.nestedCondition]));
+      }
+    }
+  }
+  return launches;
 }
 
 describe('zhuangFangyiGeneratedSource', () => {
@@ -43,5 +62,22 @@ describe('zhuangFangyiGeneratedSource', () => {
       'remain_sword_limit',
       'final_rate',
     ]);
+  });
+
+  it('preserves sword generation as a conditional projectile reach event', () => {
+    const skill = zhuangFangyiGeneratedSource.skills.find(item => item.key === 'battleSkill');
+    if (skill === undefined) throw new Error('missing generated battleSkill fixture');
+
+    const launches = collectConditionalProjectileLaunches(skill.conditionalActions).filter(
+      launch => launch.projectileId === 'projectile_chr_0030_zhuangfy_normal_skill_gene_sword',
+    );
+
+    expect(launches.length).toBeGreaterThan(0);
+    expect(launches.every(launch => launch.skillTriggers.length === 1)).toBe(true);
+    expect(launches.every(launch => launch.skillTriggers[0]?.event === 'reach')).toBe(true);
+    expect(launches.every(launch =>
+      launch.skillTriggers[0]?.skillId ===
+      'chr_0030_zhuangfy_normal_skill_gene_sword_projhit',
+    )).toBe(true);
   });
 });

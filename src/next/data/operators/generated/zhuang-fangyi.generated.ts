@@ -1996,17 +1996,25 @@ export const zhuangFangyiGeneratedSource = {
         {
           "launchFrame": 6,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack1_projhit"
+            }
+          ]
         },
         {
           "launchFrame": 8,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack1_projhit"
+            }
+          ]
         }
       ],
-      "projectileHits": [
+      "projectileTriggeredSkills": [
         {
           "launchFrame": 6,
           "actionOrder": [
@@ -2014,7 +2022,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
-          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack1_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
           "damageUnits": [
             {
@@ -2085,7 +2094,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         },
         {
           "launchFrame": 8,
@@ -2094,7 +2103,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack1",
-          "hitSkillId": "chr_0030_zhuangfy_attack1_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack1_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack1_projhit.json",
           "damageUnits": [
             {
@@ -2165,7 +2175,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         }
       ],
       "abilityEntityHits": [],
@@ -2629,17 +2639,25 @@ export const zhuangFangyiGeneratedSource = {
         {
           "launchFrame": 2,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+            }
+          ]
         },
         {
           "launchFrame": 2,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack2_sword_projhit"
+            }
+          ]
         }
       ],
-      "projectileHits": [
+      "projectileTriggeredSkills": [
         {
           "launchFrame": 2,
           "actionOrder": [
@@ -2647,7 +2665,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
           "damageUnits": [
             {
@@ -2718,7 +2737,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         },
         {
           "launchFrame": 2,
@@ -2727,7 +2746,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "hitSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack2_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack2_sword_projhit.json",
           "damageUnits": [
             {
@@ -2798,7 +2818,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         }
       ],
       "abilityEntityHits": [
@@ -2956,7 +2976,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -3405,29 +3425,45 @@ export const zhuangFangyiGeneratedSource = {
         {
           "launchFrame": 14,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ]
         },
         {
           "launchFrame": 14,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ]
         },
         {
           "launchFrame": 16,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ]
         },
         {
           "launchFrame": 16,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_attack3_sword_projhit"
+            }
+          ]
         }
       ],
-      "projectileHits": [
+      "projectileTriggeredSkills": [
         {
           "launchFrame": 14,
           "actionOrder": [
@@ -3435,7 +3471,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3506,7 +3543,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         },
         {
           "launchFrame": 14,
@@ -3515,7 +3552,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3586,7 +3624,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         },
         {
           "launchFrame": 16,
@@ -3595,7 +3633,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3666,7 +3705,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         },
         {
           "launchFrame": 16,
@@ -3675,7 +3714,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
-          "hitSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_attack3_sword_projhit",
           "sourceFile": "chr_0030_zhuangfy_attack3_sword_projhit.json",
           "damageUnits": [
             {
@@ -3746,7 +3786,7 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         }
       ],
       "abilityEntityHits": [],
@@ -4113,7 +4153,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 11,
@@ -4269,7 +4309,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -4743,7 +4783,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 20,
@@ -4937,7 +4977,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction",
@@ -6060,7 +6100,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 12,
@@ -6126,7 +6166,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -6197,7 +6237,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -6268,7 +6308,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -6339,7 +6379,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -7464,7 +7504,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 10,
@@ -7530,7 +7570,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -7601,7 +7641,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -7672,7 +7712,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -7743,7 +7783,7 @@ export const zhuangFangyiGeneratedSource = {
           "auxiliaryActions": [],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction"
@@ -8234,7 +8274,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 3,
@@ -8354,7 +8394,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "DamageAction",
@@ -8894,7 +8934,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_common_damage_immune_medium",
@@ -9199,7 +9239,7 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [],
       "patch": {
@@ -10084,8 +10124,12 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 8,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                      "castSkillOnHit": false,
-                      "hitSkillId": null
+                      "skillTriggers": [
+                        {
+                          "event": "reach",
+                          "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                        }
+                      ]
                     }
                   },
                   {
@@ -10250,8 +10294,12 @@ export const zhuangFangyiGeneratedSource = {
                     "actionIndex": 3,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                      "castSkillOnHit": false,
-                      "hitSkillId": null
+                      "skillTriggers": [
+                        {
+                          "event": "reach",
+                          "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                        }
+                      ]
                     }
                   },
                   {
@@ -10663,7 +10711,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -11589,8 +11637,12 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 1,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                            "castSkillOnHit": false,
-                            "hitSkillId": null
+                            "skillTriggers": [
+                              {
+                                "event": "reach",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                              }
+                            ]
                           }
                         },
                         {
@@ -11618,8 +11670,12 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 1,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                            "castSkillOnHit": false,
-                            "hitSkillId": null
+                            "skillTriggers": [
+                              {
+                                "event": "reach",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                              }
+                            ]
                           }
                         },
                         {
@@ -11947,8 +12003,12 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 8,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                            "castSkillOnHit": false,
-                            "hitSkillId": null
+                            "skillTriggers": [
+                              {
+                                "event": "reach",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                              }
+                            ]
                           }
                         },
                         {
@@ -12119,8 +12179,12 @@ export const zhuangFangyiGeneratedSource = {
                           "actionIndex": 3,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
-                            "castSkillOnHit": false,
-                            "hitSkillId": null
+                            "skillTriggers": [
+                              {
+                                "event": "reach",
+                                "skillId": "chr_0030_zhuangfy_normal_skill_gene_sword_projhit"
+                              }
+                            ]
                           }
                         },
                         {
@@ -12352,7 +12416,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [
         {
           "spawnFrame": 15,
@@ -12627,7 +12691,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "resourceGains": [],
           "projectileLaunches": [],
-          "projectileHits": [],
+          "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "CreateBuffAction",
@@ -13818,7 +13882,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_common_pulse_pulse_conduct_triggered"
@@ -14681,11 +14745,15 @@ export const zhuangFangyiGeneratedSource = {
         {
           "launchFrame": 24,
           "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
-          "castSkillOnHit": true,
-          "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit"
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0030_zhuangfy_combo_skill_ring_projhit"
+            }
+          ]
         }
       ],
-      "projectileHits": [
+      "projectileTriggeredSkills": [
         {
           "launchFrame": 24,
           "actionOrder": [
@@ -14693,7 +14761,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "assumedTravelFrames": 0,
           "projectileId": "projectile_chr_0030_zhuangfy_combo_skill_ring",
-          "hitSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0030_zhuangfy_combo_skill_ring_projhit",
           "sourceFile": "chr_0030_zhuangfy_combo_skill_ring_projhit.json",
           "damageUnits": [],
           "directDamageHits": [],
@@ -14704,7 +14773,7 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "cycleTruncated": false,
-          "nestedProjectileHits": []
+          "nestedProjectileTriggeredSkills": []
         }
       ],
       "abilityEntityHits": [],
@@ -15444,7 +15513,7 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileHits": [],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0030_zhuangfy_potential5_vfx",
