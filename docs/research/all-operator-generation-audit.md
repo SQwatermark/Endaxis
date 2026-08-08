@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：204 个。
+- 无角色专用声明即可进入通用 DSL：205 个。
 - 当前整名干员完整直转：1 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -37,7 +37,7 @@
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      7 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      7 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      7 | 否       |
-| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |      6 | 否       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |      7 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      8 |      7 | 否       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     10 |      8 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
@@ -59,17 +59,17 @@
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
 | `source-data-missing`       |     21 |
-| `buff-source-or-target`     |     18 |
+| `buff-source-or-target`     |     16 |
 | `parser-channeling`         |     13 |
 | `condition-buff-stack`      |     11 |
 | `root-action-coverage`      |      8 |
 | `condition-other`           |      7 |
 | `condition-tag`             |      6 |
 | `conditional-leaf`          |      5 |
+| `other`                     |      3 |
 | `parser-damage-calculation` |      3 |
 | `condition-distance`        |      2 |
 | `condition-entity-count`    |      2 |
-| `other`                     |      2 |
 | `projectile-child-actions`  |      2 |
 | `condition-main-operator`   |      1 |
 | `parser-assignment-shape`   |      1 |
@@ -85,6 +85,9 @@
 中的条件仍需保留序列短路边界。第五轮依据 TargetSource.Target 直接读取技能输入目标的原生语义，
 将其在固定单敌人、技能必有输入目标的模型下归约，入口增至 126 个；Context 命名目标组仍需先完成
 生产者数据流分析。剩余实体数量、Buff 上下文目标和复杂投射物子行为继续严格阻塞。
+近期补齐的 `CheckHp` 会在动作帧读取当前生命账本，不能在生成时读取面板快照；目前只编译
+已确认指向唯一敌人的 `Context/smart_target`。投射物命中子技能中的空组 `Target` 同样由
+其父级命中上下文确定为唯一敌人，但根技能和命名目标组不会沿用这一归约。
 能力实体计数是庄方宜闭环所需能力，却不是全量覆盖率最高的第一批工作。
 管理员的 20 个入口源文件当前全部缺失；另外还有一项诀的子能力实体文件名不一致，二者应作为
 数据导出问题处理，而不是在生成器中添加回退。

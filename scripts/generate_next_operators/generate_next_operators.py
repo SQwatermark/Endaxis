@@ -5443,6 +5443,9 @@ def compile_buff_application_values(
         target = "caster"
     elif root_skill_context and target_source == "Owner" and not target_group_key:
         target = "caster"
+    elif not root_skill_context and target_source == "Target" and not target_group_key:
+        # 投射物命中子技能的普通 Target 就是触发该子技能的唯一命中目标。
+        target = "enemy"
     elif target_source == "Context" and target_group_key == "smart_target":
         target = "enemy"
     else:
@@ -5469,7 +5472,12 @@ def compile_buff_application_values(
     return "\n".join(lines)
 
 
-def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
+def compile_buff_application(
+    action: AuxiliaryActionSource,
+    path: str,
+    *,
+    root_skill_context: bool = True,
+) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
         raise ValueError(f"{path}: expected parsed CreateBuffAction")
@@ -5483,7 +5491,7 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
         count=action.count,
         buff_source=action.buffSource,
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
-        root_skill_context=True,
+        root_skill_context=root_skill_context,
         path=path,
     )
 
@@ -6760,6 +6768,7 @@ def compile_resolved_sequence(
             step_lines = compile_buff_application(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].buffApplication",
+                root_skill_context=item.sourcePath == (skill.skillId,),
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")

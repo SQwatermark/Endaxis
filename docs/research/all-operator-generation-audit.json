@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 204,
+    "compiledCount": 205,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
@@ -17,7 +17,7 @@
       "condition-tag": 6,
       "projectile-data": 1,
       "condition-other": 7,
-      "buff-source-or-target": 18,
+      "buff-source-or-target": 16,
       "condition-buff-stack": 11,
       "root-action-coverage": 8,
       "parser-damage-calculation": 3,
@@ -25,7 +25,7 @@
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
-      "other": 2,
+      "other": 3,
       "source-data-missing": 21
     },
     "unresolvedActionPresence": {
@@ -1041,11 +1041,11 @@
       "operatorName": "Yvonne",
       "skillCount": 16,
       "parsedCount": 16,
-      "compiledCount": 6,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 2,
         "condition-buff-stack": 7,
+        "buff-source-or-target": 1,
         "other": 1
       }
     },
@@ -1106,7 +1106,7 @@
       "complete": false,
       "blockerKinds": {
         "root-action-coverage": 1,
-        "buff-source-or-target": 1
+        "other": 1
       }
     },
     {
@@ -3534,9 +3534,9 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_power_attack",
       "skillType": "finisher",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "power_attack.schedule[3].buffApplication: unsupported Buff target 'Target'/''",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 2,
@@ -4344,8 +4344,8 @@
       "skillId": "chr_0022_bounda_ultimate_skill",
       "skillType": "ultimate",
       "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[2].buffApplication: unsupported Buff target 'Target'/''",
+      "blockerKind": "other",
+      "blocker": "ultimate_skill.schedule[7].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 1,

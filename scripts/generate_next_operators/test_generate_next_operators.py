@@ -19,6 +19,7 @@ from generate_next_operators import (
     collect_once_resource_gain_gates,
     build_blackboard_provenance,
     compile_skill_entries,
+    compile_buff_application_values,
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
     compile_combat_condition_group,
@@ -2288,6 +2289,30 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "unsupported health target"):
             compile_combat_condition_group((condition,), "fixture.conditions")
+
+    def test_projectile_child_buff_target_resolves_to_the_hit_enemy(self) -> None:
+        arguments = {
+            "buff_id": "buff.example",
+            "blackboard_assignments": {},
+            "target_source": "Target",
+            "target_group_key": "",
+            "count": ScalarSource(1, None, None),
+            "buff_source": "ActionSource",
+            "inherit_source_skill_cast_info": True,
+            "path": "fixture.buff",
+        }
+
+        compiled = compile_buff_application_values(
+            **arguments,
+            root_skill_context=False,
+        )
+
+        self.assertIn("target: 'enemy'", compiled)
+        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
+            compile_buff_application_values(
+                **arguments,
+                root_skill_context=True,
+            )
 
     def test_condition_compiler_emits_action_blackboard_and_enemy_buff_conditions(self) -> None:
         compare = SimpleNamespace(
