@@ -4424,14 +4424,19 @@ def compile_buff_application_values(
     count: ScalarSource,
     buff_source: str,
     inherit_source_skill_cast_info: bool,
+    root_skill_context: bool,
     path: str,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if count.blackboardKey is not None or count.value != 1:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
-    if buff_source != "ActionSource":
+    # 根 SkillData 中 ActionSource 与 ActionOwner 都是施法干员；嵌套动作尚不能做相同假设。
+    supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
+    if buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
     if target_source == "Source" and not target_group_key:
+        target = "caster"
+    elif root_skill_context and target_source == "Owner" and not target_group_key:
         target = "caster"
     elif target_source == "Context" and target_group_key == "smart_target":
         target = "enemy"
@@ -4473,6 +4478,7 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
         count=action.count,
         buff_source=action.buffSource,
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
+        root_skill_context=True,
         path=path,
     )
 
@@ -4528,6 +4534,7 @@ def compile_conditional_buff_application(
             count=payload.count,
             buff_source=payload.buffSource,
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
+            root_skill_context=False,
             path=f"{path}.buffs[{index}]",
         )
         for index, buff in enumerate(payload.buffs)

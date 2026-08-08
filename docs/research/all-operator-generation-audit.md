@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：269 个。
-- 无角色专用声明即可进入通用 DSL：33 个。
+- 无角色专用声明即可进入通用 DSL：60 个。
 - 当前整名干员完整直转：0 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -21,35 +21,35 @@
 
 | 干员           | 角色 ID             | 入口 | 已解析 | 已编译 | 完整直转 |
 | -------------- | ------------------- | ---: | -----: | -----: | -------- |
-| Tangtang       | `chr_0027_tangtang` |   11 |      6 |      3 | 否       |
-| Perlica        | `chr_0004_pelica`   |    9 |      9 |      2 | 否       |
-| Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      2 | 否       |
-| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      1 | 否       |
-| Arclight       | `chr_0007_ikut`     |   10 |      9 |      1 | 否       |
-| Ember          | `chr_0009_azrila`   |    9 |      9 |      3 | 否       |
-| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      1 | 否       |
+| Tangtang       | `chr_0027_tangtang` |   11 |      6 |      4 | 否       |
+| Perlica        | `chr_0004_pelica`   |    9 |      9 |      4 | 否       |
+| Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      4 | 否       |
+| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      2 | 否       |
+| Arclight       | `chr_0007_ikut`     |   10 |      9 |      2 | 否       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      4 | 否       |
+| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      2 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      1 | 否       |
-| Gilberta       | `chr_0013_aglina`   |    9 |      7 |      1 | 否       |
-| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      1 | 否       |
-| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      0 | 否       |
+| Gilberta       | `chr_0013_aglina`   |    9 |      7 |      2 | 否       |
+| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      2 | 否       |
+| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      1 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      1 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      1 | 否       |
-| Estella        | `chr_0021_whiten`   |    9 |      9 |      0 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     14 |      3 | 否       |
+| Estella        | `chr_0021_whiten`   |    9 |      9 |      2 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      0 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      1 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |      7 |      2 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |      0 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      8 |      1 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      8 |      2 | 否       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     10 |      1 | 否       |
-| Akekuri        | `chr_0019_karin`    |    9 |      9 |      1 | 否       |
-| Catcher        | `chr_0020_meurs`    |    9 |      9 |      1 | 否       |
-| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      2 | 否       |
+| Akekuri        | `chr_0019_karin`    |    9 |      9 |      2 | 否       |
+| Catcher        | `chr_0020_meurs`    |    9 |      9 |      2 | 否       |
+| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      3 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      0 | 否       |
-| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      1 | 否       |
-| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      0 | 否       |
-| Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |      5 | 否       |
+| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      3 | 否       |
+| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      2 | 否       |
+| Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |      6 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      1 | 否       |
-| Camille        | `chr_0033_camille`  |   12 |     10 |      1 | 否       |
+| Camille        | `chr_0033_camille`  |   12 |     10 |      2 | 否       |
 
 ## 共通阻塞簇
 
@@ -58,26 +58,27 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
-| `condition-main-operator`   |     80 |
-| `buff-source-or-target`     |     52 |
+| `condition-main-operator`   |     84 |
 | `projectile-child-actions`  |     44 |
 | `source-data-missing`       |     21 |
-| `condition-entity-count`    |     14 |
+| `condition-entity-count`    |     16 |
+| `buff-source-or-target`     |     14 |
 | `parser-channeling`         |     11 |
-| `condition-buff-stack`      |      9 |
+| `condition-buff-stack`      |     10 |
+| `dynamic-scalar`            |     10 |
 | `root-action-coverage`      |      9 |
-| `dynamic-scalar`            |      8 |
 | `condition-target-identity` |      7 |
 | `condition-tag`             |      4 |
+| `conditional-leaf`          |      4 |
+| `other`                     |      4 |
 | `parser-damage-calculation` |      4 |
-| `conditional-leaf`          |      3 |
-| `other`                     |      3 |
 | `condition-other`           |      2 |
 | `parser-tick-interval`      |      2 |
 | `parser-assignment-shape`   |      1 |
 | `projectile-data`           |      1 |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
+第二轮只在根技能上下文折叠 `ActionOwner/Owner`，入口进一步增至 60 个；嵌套分支仍严格拒绝。
 Buff 来源/目标和投射物子技能副作用是后续覆盖面更大的通用编译问题。主控身份条件虽出现最多，
 但必须先确认其分支副作用，不能统一常量折叠。
 能力实体计数是庄方宜闭环所需能力，却不是全量覆盖率最高的第一批工作。

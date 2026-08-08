@@ -460,6 +460,58 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("inheritSourceSkillCastInfo: true", source)
 
+    def test_root_skill_buff_application_folds_owner_to_caster(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionOwner",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("target: 'caster'", source)
+
+    def test_conditional_buff_application_does_not_assume_action_owner_is_caster(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        application = SimpleNamespace(
+            buffs=(SimpleNamespace(buffId="buff.fixture", blackboardAssignments={}),),
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionOwner",
+            inheritSourceSkillCastInfo=False,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    nestedCondition=None,
+                    buffApplication=application,
+                ),
+            ),
+            failActions=(),
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported Buff source 'ActionOwner'"):
+            compile_conditional_action(action, "fixture.condition")
+
     def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
         root = {
             "actionGroupData": {
