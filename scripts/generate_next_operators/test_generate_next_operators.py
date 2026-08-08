@@ -280,7 +280,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "checkAlive": True,
                 },
                 "validatorData": [],
-                "postProcessorData": [],
+                "postProcessorData": [
+                    {
+                        "$type": "Beyond.Gameplay.Core.Selector+PriorityFilter+Data, Gameplay.Beyond"
+                    }
+                ],
             },
             "selectorDirection": "SourceForward",
             "target": "ActionSource",
@@ -339,6 +343,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual([write.targetGroupKey for write in writes], ["tar", "total_tar"])
         self.assertEqual(writes[0].finderType, "HitBoxFinder")
         self.assertEqual(writes[0].validatorTypes, ())
+        self.assertEqual(writes[0].postProcessorTypes, ("PriorityFilter",))
         self.assertIn("succeedActions", writes[0].actionPath)
         self.assertEqual(writes[1].inputTargets[0].targetGroupKey, "tar")
 

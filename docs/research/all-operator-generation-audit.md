@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：282 个。
-- 无角色专用声明即可进入通用 DSL：243 个。
-- 当前整名干员完整直转：5 名。
+- 无角色专用声明即可进入通用 DSL：244 个。
+- 当前整名干员完整直转：6 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -31,7 +31,7 @@
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
-| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      8 | 否       |
+| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      6 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     13 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
@@ -65,9 +65,9 @@
 | `conditional-leaf`         |      3 |
 | `other`                    |      3 |
 | `root-action-coverage`     |      3 |
-| `condition-entity-count`   |      2 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
+| `condition-entity-count`   |      1 |
 | `condition-main-operator`  |      1 |
 | `parser-assignment-shape`  |      1 |
 | `projectile-data`          |      1 |

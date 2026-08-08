@@ -7309,7 +7309,9 @@ def resolve_latest_target_group_write(
 
 def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) -> bool:
     """只接受已能在固定单敌人模型下闭环的目标查找形状。"""
-    if write.validatorTypes or write.postProcessorTypes:
+    if write.validatorTypes or any(
+        processor != "PriorityFilter" for processor in write.postProcessorTypes
+    ):
         return False
     if write.finderType == "MainTargetFinder":
         return True

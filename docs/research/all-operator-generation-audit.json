@@ -7,12 +7,12 @@
   },
   "summary": {
     "parsedCount": 282,
-    "compiledCount": 243,
-    "completeOperatorCount": 5,
+    "compiledCount": 244,
+    "completeOperatorCount": 6,
     "blockerKinds": {
       "parser-assignment-shape": 1,
       "parser-tick-interval": 2,
-      "condition-entity-count": 2,
+      "condition-entity-count": 1,
       "projectile-child-actions": 2,
       "buff-source-or-target": 17,
       "projectile-data": 1,
@@ -955,11 +955,9 @@
       "operatorName": "Lifeng",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "condition-entity-count": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0023_antal",
@@ -2653,9 +2651,9 @@
       "operatorName": "Lifeng",
       "skillId": "chr_0015_lifeng_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-entity-count",
-      "blocker": "ultimate_skill.schedule[2].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
       "conditionCount": 2,
       "referencedBuffCount": 1,
