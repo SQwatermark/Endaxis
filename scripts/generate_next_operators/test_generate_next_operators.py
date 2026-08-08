@@ -28,6 +28,7 @@ from generate_next_operators import (
     compile_resolved_sequence,
     compile_combat_condition_group,
     compile_conditional_action,
+    compile_immediate_projectile_children,
     compile_damage_units_step,
     collect_compilable_conditional_action_types,
     AuxiliaryActionSource,
@@ -972,6 +973,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(marked.projectedProjectileLaunches), 1)
         self.assertEqual(compile_conditional_action(marked, "fixture.condition"), "sequence()")
+
+    def test_immediate_projectile_child_preserves_infliction_before_damage(self) -> None:
+        damage = TimedDamageSource(
+            0,
+            0,
+            1,
+            (
+                DamageUnitSource(
+                    "Fire",
+                    "Hp",
+                    "standard",
+                    ScalarSource(1.5, None, None),
+                    None,
+                    None,
+                ),
+            ),
+        )
+        hit = SimpleNamespace(
+            assumedTravelFrames=0,
+            cycleTruncated=False,
+            conditionalActions=(),
+            auxiliaryActions=(),
+            resourceGains=(),
+            nestedProjectileTriggeredSkills=(),
+            abilityEntityHits=(),
+            directDamageHits=(damage,),
+            inflictions=(TimedInflictionSource(0, 0, 0, "heat", False),),
+            combatActions=("DamageAction", "SpellInfliction"),
+        )
+
+        compiled = compile_immediate_projectile_children(
+            (hit,), ("normalSkill",), frozenset(), "fixture.projectile"
+        )
+
+        self.assertIsNotNone(compiled)
+        self.assertLess(compiled.index("applyElementalInfliction"), compiled.index("dealDamage"))
+        self.assertIn("percentages([150])", compiled)
 
     def test_conditional_compiler_rejects_divergent_projectile_children(self) -> None:
         launch = ProjectileLaunchPayload(

@@ -6487,6 +6487,82 @@ def compile_conditional_buff_application(
     return "\n".join(lines)
 
 
+def projectile_children_are_immediate(
+    triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
+) -> bool:
+    """确认投射物命中子技能无需跨帧调度或递归展开。"""
+    if len(triggered_skills) != 1:
+        return False
+    hit = triggered_skills[0]
+    required_fields = (
+        "assumedTravelFrames",
+        "cycleTruncated",
+        "conditionalActions",
+        "auxiliaryActions",
+        "resourceGains",
+        "nestedProjectileTriggeredSkills",
+        "abilityEntityHits",
+        "directDamageHits",
+        "inflictions",
+        "combatActions",
+    )
+    if any(not hasattr(hit, field) for field in required_fields):
+        return False
+    if (
+        hit.assumedTravelFrames != 0
+        or hit.cycleTruncated
+        or hit.conditionalActions
+        or hit.auxiliaryActions
+        or hit.resourceGains
+        or hit.nestedProjectileTriggeredSkills
+        or hit.abilityEntityHits
+        or any(damage.startFrame != 0 for damage in hit.directDamageHits)
+        or any(infliction.startFrame != 0 for infliction in hit.inflictions)
+    ):
+        return False
+    expected_actions = {
+        *({"DamageAction"} if hit.directDamageHits else set()),
+        *({"SpellInfliction"} if hit.inflictions else set()),
+    }
+    return bool(expected_actions) and set(hit.combatActions) == expected_actions
+
+
+def compile_immediate_projectile_children(
+    triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
+    damage_tags: tuple[str, ...],
+    runtime_blackboard_keys: frozenset[str],
+    path: str,
+) -> str | None:
+    """编译命中帧同步完成的投射物子技能；延迟、递归与实体生成继续留给调度层。"""
+
+    if not projectile_children_are_immediate(triggered_skills):
+        return None
+    hit = triggered_skills[0]
+
+    ordered_steps: list[tuple[int, str]] = []
+    for index, damage in enumerate(hit.directDamageHits):
+        compiled = "\n".join(
+            compile_damage_units_step(
+                damage.damageUnits,
+                damage_tags,
+                f"{path}.triggeredSkills[0].directDamageHits[{index}]",
+                runtime_blackboard_keys,
+            )
+        )
+        ordered_steps.append((damage.actionIndex, compiled))
+    ordered_steps.extend(
+        (infliction.actionIndex, compile_infliction(infliction))
+        for infliction in hit.inflictions
+    )
+    lines = ["sequence("]
+    for _, source in sorted(ordered_steps, key=lambda item: item[0]):
+        item_lines = indent_source(source, 2)
+        item_lines[-1] += ","
+        lines.extend(item_lines)
+    lines.append(")")
+    return "\n".join(lines)
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource,
     path: str,
@@ -6555,6 +6631,14 @@ def compile_conditional_branch_action(
             projected_projectile_launches, projection
         ):
             return "sequence()"
+        compiled = compile_immediate_projectile_children(
+            projection.triggeredSkills,
+            damage_tags,
+            runtime_blackboard_keys,
+            path,
+        )
+        if compiled is not None:
+            return compiled
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     if getattr(action, "damageUnits", None) is not None:
         return "\n".join(
@@ -7036,6 +7120,10 @@ def collect_compilable_conditional_action_types(
                     projectile_launch,
                     getattr(branch_action, "projectileTriggeredSkills", None) or (),
                 ),
+            ):
+                result.add("LaunchProjectile")
+            elif projectile_launch is not None and projectile_children_are_immediate(
+                getattr(branch_action, "projectileTriggeredSkills", None) or ()
             ):
                 result.add("LaunchProjectile")
 
