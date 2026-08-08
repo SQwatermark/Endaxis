@@ -51,4 +51,4 @@ Next 使用 `once(scopeKey, body)` 表达该控制流：
 ## 当前验证结果
 
 全干员审计中，规则使 `chr_0009_azrila_attack4` 和 `chr_0020_meurs_attack4` 从
-`root-action-coverage` 阻塞进入通用 DSL 编译；`chr_0014_aurora_attack3` 也越过动作覆盖检查，随后由独立的动态倍率缺口继续阻塞。
+`root-action-coverage` 阻塞进入通用 DSL 编译；`chr_0014_aurora_attack3` 也越过动作覆盖检查，并进一步暴露出 `ChannelingAction` 内黑板计算未被顶层解析器展开的问题。后续统一该遍历规则后，该技能已可直接编译。

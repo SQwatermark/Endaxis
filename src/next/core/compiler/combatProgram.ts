@@ -45,14 +45,14 @@ export interface ResolvedCombatStepParameters {
     attackScale: number | ActionValueOperand;
     calculationMultiplier?: number;
     tags: readonly DamageTag[];
-    stagger?: number;
+    stagger?: number | ActionValueOperand;
     attackScalePerStatusStack?: {
       statusKey: string;
       target: 'caster' | 'enemy';
       coefficient: number;
     };
   };
-  dealStagger: { value: number };
+  dealStagger: { value: number | ActionValueOperand };
   applyBuff: CombatStepParameters['applyBuff'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];

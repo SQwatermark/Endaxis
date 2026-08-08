@@ -3,6 +3,7 @@
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ActionValueOperand } from '../../game-data/operatorDefinition';
 import { calculateBreakingAttackValue } from '../damage/breakingAttackDamage';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
@@ -88,7 +89,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
     if (step.kind === 'dealStagger') {
-      this.#executePoise(step, step.parameters.value);
+      this.#executePoise(
+        step,
+        this.#resolveActionValue(step.parameters.value, operationContext, 'dynamic stagger value'),
+      );
       return true;
     }
     if (step.kind !== 'dealDamage') {
@@ -172,7 +176,14 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     });
 
     if (step.parameters.stagger !== undefined) {
-      this.#executePoise(step, step.parameters.stagger);
+      this.#executePoise(
+        step,
+        this.#resolveActionValue(
+          step.parameters.stagger,
+          operationContext,
+          'dynamic stagger value',
+        ),
+      );
     }
     return true;
   }
@@ -192,6 +203,17 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       emitSourceEvent: this.dependencies.emitPoiseSourceEvent,
       emitTargetEvent: this.dependencies.emitPoiseTargetEvent,
     });
+  }
+
+  #resolveActionValue(
+    value: number | ActionValueOperand,
+    operationContext: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+    missingContextMessage: string,
+  ): number {
+    if (typeof value === 'number') return value;
+    if (operationContext === undefined)
+      throw new Error(`${missingContextMessage} requires an action blackboard`);
+    return resolveActionValueOperand(value, operationContext.blackboard);
   }
 
   evaluate(

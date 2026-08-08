@@ -495,6 +495,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ["step('dealStagger', {", "  value: [20, 30],", "})"],
         )
 
+    def test_damage_compiler_preserves_runtime_blackboard_stagger(self) -> None:
+        health = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        poise = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Poise",
+            calculation="standard",
+            attackScale=ScalarSource(0, None, (0,)),
+            calculationMultiplier=None,
+            poiseValue=ScalarSource(0, "poise_once", None),
+        )
+
+        source = compile_damage_units_step(
+            (health, poise),
+            ("comboSkill",),
+            "fixture.dynamic-poise",
+            frozenset({"poise_once"}),
+        )
+
+        self.assertIn("  stagger: { kind: 'blackboard', key: 'poise_once' },", source)
+
     def test_damage_compiler_rejects_poise_before_health(self) -> None:
         poise = DamageUnitSource(
             damageType="Cryst",
@@ -1729,6 +1756,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(calculations[0].operation, "Multiply")
         self.assertEqual(calculations[0].left.levelValues, (0.2, 0.3))
         self.assertEqual(calculations[0].right.levelValues, (6, 6))
+
+    def test_blackboard_calculation_flattens_single_enemy_channel(self) -> None:
+        calculation = {
+            "$type": "Example.SimpleCalcBBAction+Data, Example",
+            "serverActionIndex": 4,
+            "key": "split_scale",
+            "operation": "Multiply",
+            "value1": {
+                "useBlackboardKey": True,
+                "value": 0,
+                "blackboardKey": "attack_scale",
+            },
+            "value2": {
+                "useBlackboardKey": False,
+                "value": 0.4,
+                "blackboardKey": "",
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 21,
+                        "_endFrame": 27,
+                        "_sequenceActionData": {
+                            "$type": "Example.ChannelingAction+Data, Example",
+                            "isEnable": True,
+                            "priorityLevel": "Default",
+                            "priorityOffset": 0,
+                            "serverActionIndex": 3,
+                            "targetSettings": {},
+                            "executeEachFrame": True,
+                            "triggerInterval": 0.033,
+                            "maxCountPerTarget": 1,
+                            "targetTriggerInterval": 0,
+                            "actionOnTick": {"actionData": [calculation]},
+                        },
+                    }
+                ]
+            }
+        }
+
+        calculations = parse_blackboard_calculations(
+            root,
+            "skill.json",
+            {"attack_scale": (0.42, 0.84)},
+        )
+
+        self.assertEqual(len(calculations), 1)
+        self.assertEqual(calculations[0].startFrame, 21)
+        self.assertEqual(calculations[0].actionIndex, 4)
+        self.assertEqual(calculations[0].key, "split_scale")
+        self.assertEqual(calculations[0].left.levelValues, (0.42, 0.84))
+        self.assertEqual(calculations[0].right.value, 0.4)
 
     def test_conditional_audit_preserves_blackboard_comparison_and_branches(self) -> None:
         root = {

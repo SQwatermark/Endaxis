@@ -156,6 +156,47 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(receipt.entries.map(entry => entry.event)).toEqual(['PoiseApplied']);
   });
 
+  it('resolves dynamic stagger from the current action blackboard', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxPoise: 100,
+      poise: 100,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'mifu',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: vi.fn(),
+      resolveRuntimeSnapshot: vi.fn(),
+      applyDamageModifiers: vi.fn(),
+      addInstantAttributeModifier: vi.fn(),
+      clearInstantAttributeModifiers: vi.fn(),
+      emitPreparationEvent: vi.fn(),
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: vi.fn(),
+      emitHealthTargetEvent: vi.fn(),
+      emitPoiseSourceEvent: vi.fn(),
+      emitPoiseTargetEvent: vi.fn(),
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute(
+      {
+        kind: 'dealStagger',
+        parameters: { value: { kind: 'blackboard', key: 'poise' } },
+      },
+      { blackboard: new ActionBlackboard({ poise: 25 }) },
+    );
+
+    expect(targetVitals.poise).toBe(75);
+  });
+
   it('drives preparation events and both modifier stages before the formula', () => {
     const order: string[] = [];
     let attack = 100;

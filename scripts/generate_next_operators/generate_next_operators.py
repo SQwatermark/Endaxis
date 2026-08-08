@@ -2406,7 +2406,10 @@ def parse_blackboard_calculations(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
-        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+        for action in walk_single_enemy_actions(
+            timeline.get("_sequenceActionData"),
+            f"{source_name}.timelineActions[{timeline_index}]",
+        ):
             if action_name(action["$type"]) != "SimpleCalcBBAction":
                 continue
             payload = parse_blackboard_calculation_payload(
@@ -6415,10 +6418,18 @@ def compile_damage_units_step(
         poise = poise_units[0].poiseValue
         if poise is None:
             raise ValueError(f"{path}: Poise unit has no value")
+        if poise.blackboardKey in runtime_blackboard_keys:
+            value = (
+                "{ kind: 'blackboard', key: "
+                f"{ts_inline_literal(poise.blackboardKey)} }}"
+            )
+        else:
+            value = ts_inline_literal(
+                compact_level_values(require_level_values(poise, f"{path}.stagger"))
+            )
         return [
             "step('dealStagger', {",
-            "  value: "
-            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))},",
+            f"  value: {value},",
             "})",
         ]
     if tuple(unit.attributeType for unit in damage_units) not in {("Hp",), ("Hp", "Poise")}:
@@ -6454,10 +6465,16 @@ def compile_damage_units_step(
         poise = poise_units[0].poiseValue
         if poise is None:
             raise ValueError(f"{path}: Poise unit has no value")
-        fields.append(
-            "stagger: "
-            f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))}"
-        )
+        if poise.blackboardKey in runtime_blackboard_keys:
+            fields.append(
+                "stagger: { kind: 'blackboard', key: "
+                f"{ts_inline_literal(poise.blackboardKey)} }}"
+            )
+        else:
+            fields.append(
+                "stagger: "
+                f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))}"
+            )
     return ["step('dealDamage', {", *(f"  {field}," for field in fields), "})"]
 
 

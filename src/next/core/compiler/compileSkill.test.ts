@@ -98,6 +98,43 @@ describe('compileSkill', () => {
     });
   });
 
+  it('keeps dynamic stagger operands for runtime blackboard evaluation', () => {
+    const skill = {
+      key: 'dynamic-stagger',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'physical',
+                  attackScale: 1,
+                  tags: ['comboSkill'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'comboSkill',
+      skillType: 'comboSkill',
+      skillLevel: 1,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
+      parameters: { stagger: { kind: 'blackboard', key: 'poise' } },
+    });
+  });
+
   it('preserves a dynamic damage multiplier for runtime resolution', () => {
     const skill = {
       key: 'dynamic-damage',

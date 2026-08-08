@@ -367,7 +367,11 @@ function validateCombatStepParameters(
         );
       }
       if (parameters.stagger !== undefined) {
-        validateLevelValues(parameters.stagger, `${path}.stagger`, issues);
+        if (isObject(parameters.stagger) && !Array.isArray(parameters.stagger)) {
+          validateActionValueOperand(parameters.stagger, `${path}.stagger`, issues);
+        } else {
+          validateLevelValues(parameters.stagger, `${path}.stagger`, issues);
+        }
       }
       if (parameters.attackScalePerStatusStack !== undefined) {
         if (!isObject(parameters.attackScalePerStatusStack)) {
@@ -397,7 +401,11 @@ function validateCombatStepParameters(
       }
       break;
     case 'dealStagger':
-      validateLevelValues(parameters.value, `${path}.value`, issues);
+      if (isObject(parameters.value) && !Array.isArray(parameters.value)) {
+        validateActionValueOperand(parameters.value, `${path}.value`, issues);
+      } else {
+        validateLevelValues(parameters.value, `${path}.value`, issues);
+      }
       break;
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);

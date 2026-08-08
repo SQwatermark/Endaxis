@@ -120,7 +120,7 @@ function resolveStep(
           ...(step.parameters.stagger === undefined
             ? {}
             : {
-                stagger: resolveLevelValue(
+                stagger: resolveLevelValueOrActionOperand(
                   step.parameters.stagger,
                   skillLevel,
                   `${path}.parameters.stagger`,
@@ -145,7 +145,11 @@ function resolveStep(
         ...keyed,
         kind: step.kind,
         parameters: {
-          value: resolveLevelValue(step.parameters.value, skillLevel, `${path}.parameters.value`),
+          value: resolveLevelValueOrActionOperand(
+            step.parameters.value,
+            skillLevel,
+            `${path}.parameters.value`,
+          ),
         },
       };
     case 'changeResource':

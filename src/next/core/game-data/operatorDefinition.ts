@@ -126,8 +126,8 @@ export interface DealDamageParameters {
   /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
   calculationMultiplier?: LevelValues;
   tags: readonly DamageTag[];
-  /** 同一次命中在生命伤害之后结算的失衡伤害。 */
-  stagger?: LevelValues;
+  /** 同一次命中在生命伤害之后结算的失衡伤害；原生同样允许从动作黑板读取。 */
+  stagger?: LevelValues | ActionValueOperand;
   /** 每层语义化战斗状态提供的额外攻击倍率。 */
   attackScalePerStatusStack?: {
     statusKey: string;
@@ -294,7 +294,7 @@ export interface CombatStepParameters {
   };
   dealDamage: DealDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
-  dealStagger: { value: LevelValues };
+  dealStagger: { value: LevelValues | ActionValueOperand };
   applyBuff: {
     buffId: string;
     target: CombatTarget;

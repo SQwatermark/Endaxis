@@ -7,22 +7,21 @@
   },
   "summary": {
     "parsedCount": 269,
-    "compiledCount": 198,
+    "compiledCount": 199,
     "completeOperatorCount": 1,
     "blockerKinds": {
       "parser-assignment-shape": 1,
-      "parser-channeling": 11,
-      "parser-tick-interval": 2,
+      "parser-channeling": 13,
+      "parser-tick-interval": 1,
       "projectile-child-actions": 2,
       "condition-tag": 6,
       "projectile-data": 1,
       "condition-other": 7,
-      "buff-source-or-target": 22,
+      "buff-source-or-target": 23,
       "condition-buff-stack": 11,
       "root-action-coverage": 8,
-      "parser-damage-calculation": 4,
+      "parser-damage-calculation": 3,
       "conditional-leaf": 5,
-      "dynamic-scalar": 2,
       "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
@@ -952,11 +951,10 @@
       "operatorName": "Snowshine",
       "skillCount": 8,
       "parsedCount": 8,
-      "compiledCount": 4,
+      "compiledCount": 5,
       "complete": false,
       "blockerKinds": {
         "conditional-leaf": 2,
-        "dynamic-scalar": 1,
         "root-action-coverage": 1
       }
     },
@@ -1071,10 +1069,10 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "dynamic-scalar": 1,
+        "buff-source-or-target": 1,
         "condition-buff-stack": 1,
         "condition-tag": 1,
-        "parser-damage-calculation": 1
+        "parser-channeling": 1
       }
     },
     {
@@ -1133,9 +1131,8 @@
       "blockerKinds": {
         "conditional-leaf": 1,
         "condition-other": 1,
-        "parser-tick-interval": 1,
-        "buff-source-or-target": 2,
-        "parser-channeling": 1
+        "parser-channeling": 2,
+        "buff-source-or-target": 2
       }
     },
     {
@@ -2475,9 +2472,9 @@
       "operatorName": "Snowshine",
       "skillId": "chr_0014_aurora_attack3",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "attack3.resolvedDamageHits[0].attackScale: scalar has no resolved level values",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -3806,8 +3803,8 @@
       "skillId": "chr_0028_wulfa_combo_2_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "combo_2_skill.resolvedDamageHits[0].attackScale: scalar has no resolved level values",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "combo_2_skill.schedule[18].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Owner'/''",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 4,
       "referencedBuffCount": 6,
@@ -3946,8 +3943,8 @@
       "skillId": "chr_0028_wulfa_ultimate_skill",
       "skillType": "ultimate",
       "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-damage-calculation",
-      "blocker": "ValueError: chr_0028_wulfa_ultimate_skill.json.DamageAction.damageUnits[0]: unsupported calculation DefiniteValueCalculation",
+      "blockerKind": "parser-channeling",
+      "blocker": "ValueError: chr_0028_wulfa_ultimate_skill.json.timelineActions[65].actionData[0].ChannelingAction: only one trigger per target is supported",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -4713,8 +4710,8 @@
       "skillId": "chr_0025_ardelia_power_attack",
       "skillType": "finisher",
       "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-tick-interval",
-      "blocker": "ValueError: chr_0025_ardelia_power_attack.json.timelineActions[8]._sequenceActionData.actionData.[0].tickInterval: does not align to combat frames",
+      "blockerKind": "parser-channeling",
+      "blocker": "ValueError: chr_0025_ardelia_power_attack.json.timelineActions[10].actionData[0].ChannelingAction: only one trigger per target is supported",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,
