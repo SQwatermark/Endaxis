@@ -1642,6 +1642,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             count=ScalarSource(1, None, None),
             buffSource="ActionOwner",
             inheritSourceSkillCastInfo=False,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
             blackboardAssignments={},
             nestedCombatActions=(),
         )
@@ -1693,6 +1696,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", source)
         self.assertIn("source: 'enemy'", source)
 
+    def test_buff_application_compiles_unfiltered_instant_team_search_as_party(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="InstantSearch",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+            targetFinderType="CharacterTeamFinder",
+        )
+
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("target: 'party'", source)
+
+        with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
+            compile_buff_application(
+                replace(action, targetValidatorTypes=("MainCharacterValidator",)),
+                "fixture",
+            )
+
     def test_root_skill_buff_application_accepts_proven_enemy_context(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=9,
@@ -1735,6 +1766,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             count=ScalarSource(1, None, None),
             buffSource="ActionOwner",
             inheritSourceSkillCastInfo=False,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
         )
         action = SimpleNamespace(
             conditions=(condition,),
@@ -4680,6 +4714,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             count=ScalarSource(1, None, None),
             buffSource="ActionSource",
             inheritSourceSkillCastInfo=True,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
         )
         action = SimpleNamespace(
             conditions=(condition,),
@@ -4731,6 +4768,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         count=ScalarSource(1, None, None),
                         buffSource="ActionSource",
                         inheritSourceSkillCastInfo=True,
+                        targetFinderType=None,
+                        targetValidatorTypes=(),
+                        targetPostProcessorTypes=(),
                     ),
                 ),
             ),
@@ -4794,6 +4834,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         count=ScalarSource(1, None, None),
                         buffSource="ActionSource",
                         inheritSourceSkillCastInfo=True,
+                        targetFinderType=None,
+                        targetValidatorTypes=(),
+                        targetPostProcessorTypes=(),
                     ),
                 ),
             ),

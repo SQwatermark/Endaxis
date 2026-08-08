@@ -53,6 +53,7 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 
 - Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。
 - Buff 施加单独支持 `party` 集合目标：只有未附带筛选器或后处理器的 `CharacterTeamFinder` 目标组才能归约为当前全部存活干员。Buff 查询、结束和条件仍要求 `caster/enemy` 单一实体；主控筛选、召唤物和父级上下文目标不得借用 `party` 近似。
+- `InstantSearch` Buff 目标会在中间层保留 finder、validator 与 post-processor 类型；目前也只有无过滤、无后处理的 `CharacterTeamFinder` 能直接归约为 `party`，其他即时搜索继续显式阻塞。
 - `TargetSource.Source/Owner` 按原生分派忽略不会被读取的 `targetGroupKey`；根技能的 `CreateBuffAction.buffSource=InputTarget` 则归约为唯一敌人来源。两者都来自目标解析证据，不把命名组猜成实际目标。
 - 技能释放条件只用于合法性诊断。即使条件、费用或冷却不满足，用户排入时间轴的技能仍会进入模拟并产生结果。
 - 当前战斗模型只有一个敌人。佩丽卡连携的多目标递归弹射必须在清单中显式声明忽略，并由生成器校验它确实是同一投射物和命中技能形成的递归分支。

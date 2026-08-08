@@ -135,6 +135,9 @@ class AuxiliaryActionSource:
     blackboardAssignments: dict[str, ScalarSource]
     nestedCombatActions: tuple[str, ...]
     buffSourceContextKey: str | None = None
+    targetFinderType: str | None = None
+    targetValidatorTypes: tuple[str, ...] = ()
+    targetPostProcessorTypes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -576,6 +579,9 @@ class BuffApplicationPayload:
     buffSource: str
     buffSourceContextKey: str
     inheritSourceSkillCastInfo: bool
+    targetFinderType: str | None
+    targetValidatorTypes: tuple[str, ...]
+    targetPostProcessorTypes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -933,6 +939,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "globalCooldown",
         "skillHasHit",
         "nestedCondition",
+        "targetFinderType",
         "onceScopeKey",
         "onceActions",
         "blackboardCalculation",
@@ -960,6 +967,8 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "executionFrames",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
+        "targetValidatorTypes",
+        "targetPostProcessorTypes",
     }
 )
 
@@ -2199,6 +2208,23 @@ def parse_buff_application_payload(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> BuffApplicationPayload:
     target_settings = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    target_source = str(target_settings.get("targetSource", ""))
+    target_finder_type: str | None = None
+    target_validator_types: tuple[str, ...] = ()
+    target_post_processor_types: tuple[str, ...] = ()
+    if target_source == "InstantSearch":
+        (
+            target_finder_type,
+            _,
+            _,
+            _,
+            target_validator_types,
+            target_post_processor_types,
+        ) = parse_selector_summary(
+            target_settings.get("selectorData"),
+            f"{path}.targetSettings.selectorData",
+            finder_required=True,
+        )
     buff_source = action.get("buffSource")
     if not isinstance(buff_source, str) or not buff_source:
         raise ValueError(f"{path}.buffSource: expected non-empty string")
@@ -2211,7 +2237,7 @@ def parse_buff_application_payload(
         buffs=parse_buff_application_entries(
             action.get("buffs"), f"{path}.buffs", inherited_blackboard
         ),
-        targetSource=str(target_settings.get("targetSource", "")),
+        targetSource=target_source,
         targetGroupKey=str(target_settings.get("targetGroupKey", "")),
         count=parse_scalar(action.get("count"), f"{path}.count", inherited_blackboard),
         buffSource=buff_source,
@@ -2220,6 +2246,9 @@ def parse_buff_application_payload(
             action.get("inheritSourceSkillCastInfo"),
             f"{path}.inheritSourceSkillCastInfo",
         ),
+        targetFinderType=target_finder_type,
+        targetValidatorTypes=target_validator_types,
+        targetPostProcessorTypes=target_post_processor_types,
     )
 
 
@@ -4791,6 +4820,9 @@ def parse_auxiliary_actions(
                             inheritSourceSkillCastInfo=payload.inheritSourceSkillCastInfo,
                             blackboardAssignments=buff.blackboardAssignments,
                             nestedCombatActions=(),
+                            targetFinderType=payload.targetFinderType,
+                            targetValidatorTypes=payload.targetValidatorTypes,
+                            targetPostProcessorTypes=payload.targetPostProcessorTypes,
                         )
                     )
             elif name == "SpawnAbilityEntity":
@@ -7287,6 +7319,9 @@ def compile_buff_application_values(
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
     allow_dynamic_count: bool = False,
+    target_finder_type: str | None = None,
+    target_validator_types: tuple[str, ...] = (),
+    target_post_processor_types: tuple[str, ...] = (),
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
@@ -7298,16 +7333,23 @@ def compile_buff_application_values(
         source = "enemy"
     elif buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
-    target = (
-        context_application_target
-        if target_source == "Context" and context_application_target is not None
-        else resolve_fixed_combat_target(
+    target: Literal["caster", "enemy", "party"] | None
+    if target_source == "Context" and context_application_target is not None:
+        target = context_application_target
+    elif (
+        target_source == "InstantSearch"
+        and target_finder_type == "CharacterTeamFinder"
+        and not target_validator_types
+        and not target_post_processor_types
+    ):
+        target = "party"
+    else:
+        target = resolve_fixed_combat_target(
             target_source,
             target_group_key,
             root_skill_context=root_skill_context,
             input_target="enemy" if root_skill_context else input_target,
         )
-    )
     if target is None:
         raise ValueError(
             f"{path}: unsupported Buff target "
@@ -7360,6 +7402,9 @@ def compile_buff_application(
         root_skill_context=root_skill_context,
         context_application_target=context_application_target,
         input_target=input_target,
+        target_finder_type=action.targetFinderType,
+        target_validator_types=action.targetValidatorTypes,
+        target_post_processor_types=action.targetPostProcessorTypes,
         path=path,
     )
 
@@ -7502,6 +7547,9 @@ def compile_conditional_buff_application(
             input_target=input_target,
             path=f"{path}.buffs[{index}]",
             allow_dynamic_count=has_dynamic_count,
+            target_finder_type=payload.targetFinderType,
+            target_validator_types=payload.targetValidatorTypes,
+            target_post_processor_types=payload.targetPostProcessorTypes,
         )
         for index, buff in enumerate(payload.buffs)
         if buff.buffId not in ignored_buff_ids
@@ -9757,7 +9805,9 @@ def render_report(
             and not skill.conditionalActions
             for skill in skills
         ),
-        "buffDefinitions": [asdict(definition) for definition in buff_definitions],
+        "buffDefinitions": [
+            serialize_audit_value(definition) for definition in buff_definitions
+        ],
         "skills": [
             {
                 "key": skill.key,
@@ -9769,7 +9819,9 @@ def render_report(
                 "conditionalActions": [
                     serialize_audit_value(action) for action in skill.conditionalActions
                 ],
-                "auxiliaryActions": [asdict(action) for action in skill.auxiliaryActions],
+                "auxiliaryActions": [
+                    serialize_audit_value(action) for action in skill.auxiliaryActions
+                ],
                 "blackboardCalculations": [
                     asdict(calculation) for calculation in skill.blackboardCalculations
                 ],

@@ -701,15 +701,6 @@
             {
               "actionType": "CreateTimedMarker",
               "actionIndex": 9,
-              "nestedCondition": null,
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -721,21 +712,10 @@
                 },
                 "autoFinishByAction": false,
                 "useTimeDilationDt": false
-              },
-              "globalCooldownApplication": null,
-              "resourceGain": null,
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
-              "damageUnits": null
+              }
             }
           ],
-          "failActions": [],
-          "executionFrames": [],
-          "projectedAbilityEntitySpawns": [],
-          "projectedProjectileLaunches": []
+          "failActions": []
         },
         {
           "startFrame": 3,
@@ -764,40 +744,13 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": [],
-              "entityCount": null,
-              "buffStack": null,
-              "health": null,
-              "mainOperator": null,
-              "targetIdentity": null,
-              "distance": null,
-              "entityTag": null,
-              "timedMarker": null,
-              "globalCooldown": null,
-              "skillHasHit": null
+              "skillTypes": []
             }
           ],
           "succeedActions": [
             {
               "actionType": "DamageAction",
               "actionIndex": 0,
-              "nestedCondition": null,
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
-              "timedMarkerApplication": null,
-              "globalCooldownApplication": null,
-              "resourceGain": null,
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -851,34 +804,13 @@
                         0.0
                       ]
                     },
-                    "skillTypes": [],
-                    "entityCount": null,
-                    "buffStack": null,
-                    "health": null,
-                    "mainOperator": null,
-                    "targetIdentity": null,
-                    "distance": null,
-                    "entityTag": null,
-                    "timedMarker": null,
-                    "globalCooldown": null,
-                    "skillHasHit": null
+                    "skillTypes": []
                   }
                 ],
                 "succeedActions": [
                   {
                     "actionType": "ObtainCostAction",
                     "actionIndex": 0,
-                    "nestedCondition": null,
-                    "onceScopeKey": null,
-                    "onceActions": null,
-                    "blackboardCalculation": null,
-                    "blackboardMutation": null,
-                    "buffBlackboardRead": null,
-                    "buffFinish": null,
-                    "buffStackRead": null,
-                    "buffApplication": null,
-                    "timedMarkerApplication": null,
-                    "globalCooldownApplication": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -900,60 +832,17 @@
                       "useUltimateRecoveryTag": false,
                       "ultimateRecoveryTagId": 0,
                       "ignoreUltimateGainScalar": false
-                    },
-                    "infliction": null,
-                    "projectileLaunch": null,
-                    "projectileTriggeredSkills": null,
-                    "abilityEntitySpawn": null,
-                    "auraAbilityEntityHits": null,
-                    "damageUnits": null
+                    }
                   }
                 ],
-                "failActions": [],
-                "executionFrames": [],
-                "projectedAbilityEntitySpawns": [],
-                "projectedProjectileLaunches": []
-              },
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
-              "timedMarkerApplication": null,
-              "globalCooldownApplication": null,
-              "resourceGain": null,
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
-              "damageUnits": null
+                "failActions": []
+              }
             }
           ],
           "failActions": [
             {
               "actionType": "DamageAction",
               "actionIndex": 0,
-              "nestedCondition": null,
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
-              "timedMarkerApplication": null,
-              "globalCooldownApplication": null,
-              "resourceGain": null,
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1007,34 +896,13 @@
                         0.0
                       ]
                     },
-                    "skillTypes": [],
-                    "entityCount": null,
-                    "buffStack": null,
-                    "health": null,
-                    "mainOperator": null,
-                    "targetIdentity": null,
-                    "distance": null,
-                    "entityTag": null,
-                    "timedMarker": null,
-                    "globalCooldown": null,
-                    "skillHasHit": null
+                    "skillTypes": []
                   }
                 ],
                 "succeedActions": [
                   {
                     "actionType": "ObtainCostAction",
                     "actionIndex": 0,
-                    "nestedCondition": null,
-                    "onceScopeKey": null,
-                    "onceActions": null,
-                    "blackboardCalculation": null,
-                    "blackboardMutation": null,
-                    "buffBlackboardRead": null,
-                    "buffFinish": null,
-                    "buffStackRead": null,
-                    "buffApplication": null,
-                    "timedMarkerApplication": null,
-                    "globalCooldownApplication": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1056,42 +924,13 @@
                       "useUltimateRecoveryTag": false,
                       "ultimateRecoveryTagId": 0,
                       "ignoreUltimateGainScalar": false
-                    },
-                    "infliction": null,
-                    "projectileLaunch": null,
-                    "projectileTriggeredSkills": null,
-                    "abilityEntitySpawn": null,
-                    "auraAbilityEntityHits": null,
-                    "damageUnits": null
+                    }
                   }
                 ],
-                "failActions": [],
-                "executionFrames": [],
-                "projectedAbilityEntitySpawns": [],
-                "projectedProjectileLaunches": []
-              },
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
-              "timedMarkerApplication": null,
-              "globalCooldownApplication": null,
-              "resourceGain": null,
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
-              "damageUnits": null
+                "failActions": []
+              }
             }
-          ],
-          "executionFrames": [],
-          "projectedAbilityEntitySpawns": [],
-          "projectedProjectileLaunches": []
+          ]
         },
         {
           "startFrame": 6,
@@ -1122,34 +961,13 @@
                   0.0
                 ]
               },
-              "skillTypes": [],
-              "entityCount": null,
-              "buffStack": null,
-              "health": null,
-              "mainOperator": null,
-              "targetIdentity": null,
-              "distance": null,
-              "entityTag": null,
-              "timedMarker": null,
-              "globalCooldown": null,
-              "skillHasHit": null
+              "skillTypes": []
             }
           ],
           "succeedActions": [
             {
               "actionType": "ObtainCostAction",
               "actionIndex": 0,
-              "nestedCondition": null,
-              "onceScopeKey": null,
-              "onceActions": null,
-              "blackboardCalculation": null,
-              "blackboardMutation": null,
-              "buffBlackboardRead": null,
-              "buffFinish": null,
-              "buffStackRead": null,
-              "buffApplication": null,
-              "timedMarkerApplication": null,
-              "globalCooldownApplication": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -1171,19 +989,10 @@
                 "useUltimateRecoveryTag": false,
                 "ultimateRecoveryTagId": 0,
                 "ignoreUltimateGainScalar": false
-              },
-              "infliction": null,
-              "projectileLaunch": null,
-              "projectileTriggeredSkills": null,
-              "abilityEntitySpawn": null,
-              "auraAbilityEntityHits": null,
-              "damageUnits": null
+              }
             }
           ],
-          "failActions": [],
-          "executionFrames": [],
-          "projectedAbilityEntitySpawns": [],
-          "projectedProjectileLaunches": []
+          "failActions": []
         }
       ],
       "blackboardCalculations": [

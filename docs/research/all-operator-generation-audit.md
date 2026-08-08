@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：248 个。
-- 当前整名干员完整直转：6 名。
+- 无角色专用声明即可进入通用 DSL：249 个。
+- 当前整名干员完整直转：7 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -41,7 +41,7 @@
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
-| Akekuri        | `chr_0019_karin`    |    9 |      9 |      8 | 否       |
+| Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
@@ -60,7 +60,7 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `source-data-missing`      |     21 |
-| `buff-source-or-target`    |     12 |
+| `buff-source-or-target`    |     11 |
 | `condition-other`          |      6 |
 | `root-action-coverage`     |      6 |
 | `other`                    |      5 |
