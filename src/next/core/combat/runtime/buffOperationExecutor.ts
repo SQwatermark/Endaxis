@@ -95,7 +95,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo === undefined) {
         throw new Error('applyBuff inherited skill-cast info requires a skill runtime context');
       }
-      return target.apply({
+      if (step.parameters.count !== undefined && context === undefined) {
+        throw new Error('applyBuff runtime count requires a combat operation context');
+      }
+      const count =
+        step.parameters.count === undefined
+          ? 1
+          : resolveActionValueOperand(step.parameters.count, context!.blackboard);
+      if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
+      const request: BuffApplicationRequest = {
         buffId: step.parameters.buffId,
         sourceId:
           step.parameters.source === undefined
@@ -110,7 +118,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         ...(step.parameters.inheritSourceSkillCastInfo
           ? { skillCastInfo: context!.skillCastInfo! }
           : {}),
-      });
+      };
+      // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
+      for (let repetition = 0; repetition < count; repetition += 1) target.apply(request);
+      return true;
     }
 
     if (step.kind === 'readBuffBlackboard') {

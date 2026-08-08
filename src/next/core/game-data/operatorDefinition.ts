@@ -322,6 +322,8 @@ export interface CombatStepParameters {
   applyBuff: {
     buffId: string;
     target: CombatTarget;
+    /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
+    count?: ActionValueOperand;
     /**
      * Buff 的来源实体；省略时沿用当前动作来源。
      * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。

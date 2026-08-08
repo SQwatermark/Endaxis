@@ -154,6 +154,46 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('repeats a Buff using the runtime action-blackboard count', () => {
+    const applied: unknown[] = [];
+    const target = {
+      ownerId: 'enemy-1',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const blackboard = new ActionBlackboard({ count: 2.5 });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'stack-marker',
+            target: 'enemy',
+            count: { kind: 'blackboard', key: 'count' },
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(applied).toHaveLength(3);
+  });
+
   it('forwards the current skill-cast snapshot only when the action requests it', () => {
     const applied: unknown[] = [];
     const target = {

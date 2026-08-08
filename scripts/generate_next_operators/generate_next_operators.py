@@ -6291,9 +6291,10 @@ def compile_buff_application_values(
     path: str,
     context_target_is_enemy: bool = False,
     input_target: Literal["enemy"] | None = None,
+    allow_dynamic_count: bool = False,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
-    if count.blackboardKey is not None or count.value != 1:
+    if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
     # 根 SkillData 中 ActionSource 与 ActionOwner 都是施法干员；嵌套动作尚不能做相同假设。
     supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
@@ -6318,6 +6319,8 @@ def compile_buff_application_values(
         "  inheritSourceSkillCastInfo: "
         f"{ts_inline_literal(inherit_source_skill_cast_info)},",
     ]
+    if count.blackboardKey is not None or count.value != 1:
+        lines.append(f"  count: {compile_condition_operand(count, f'{path}.count')},")
     if blackboard_assignments:
         lines.append("  blackboardAssignments: {")
         for key, value in blackboard_assignments.items():
@@ -6477,6 +6480,11 @@ def compile_conditional_buff_application(
     input_target: Literal["enemy"] | None = None,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
+    has_dynamic_count = payload.count.blackboardKey is not None or payload.count.value != 1
+    if has_dynamic_count and len(payload.buffs) != 1:
+        raise ValueError(
+            f"{path}: repeated multi-Buff application requires a grouped repeat sequence"
+        )
     compiled = [
         compile_buff_application_values(
             buff_id=buff.buffId,
@@ -6490,6 +6498,7 @@ def compile_conditional_buff_application(
             context_target_is_enemy=context_target_is_enemy,
             input_target=input_target,
             path=f"{path}.buffs[{index}]",
+            allow_dynamic_count=has_dynamic_count,
         )
         for index, buff in enumerate(payload.buffs)
         if buff.buffId not in ignored_buff_ids

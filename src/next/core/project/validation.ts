@@ -442,6 +442,9 @@ function validateCombatStepParameters(
     case 'applyBuff':
       requireString(parameters, 'buffId', path, issues);
       requireTarget();
+      if (parameters.count !== undefined) {
+        validateActionValueOperand(parameters.count, `${path}.count`, issues);
+      }
       if (parameters.source !== undefined && !combatTargets.has(String(parameters.source))) {
         issues.push({
           path: `${path}.source`,

@@ -2974,6 +2974,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'enemy'", root_compiled)
 
+    def test_single_buff_application_can_use_a_runtime_count(self) -> None:
+        arguments = {
+            "buff_id": "buff.example",
+            "blackboard_assignments": {},
+            "target_source": "Target",
+            "target_group_key": "",
+            "count": ScalarSource(1, "buff_stack", None),
+            "buff_source": "ActionSource",
+            "inherit_source_skill_cast_info": True,
+            "root_skill_context": False,
+            "input_target": "enemy",
+            "path": "fixture.buff",
+        }
+
+        compiled = compile_buff_application_values(
+            **arguments,
+            allow_dynamic_count=True,
+        )
+
+        self.assertIn("count: { kind: 'blackboard', key: 'buff_stack' }", compiled)
+        with self.assertRaisesRegex(ValueError, "literal application count"):
+            compile_buff_application_values(**arguments)
+
     def test_entity_tag_condition_preserves_query_and_requires_target_provenance(self) -> None:
         root = {
             "actionGroupData": {
