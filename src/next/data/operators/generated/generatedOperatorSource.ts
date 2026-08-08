@@ -245,6 +245,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly combatActions: readonly string[];
   /** 数据源中存在但生成器尚未结构化解析的 Buff 根载荷；非空时不得视为完整行为定义。 */
   readonly unparsedPayloads: readonly GeneratedUnparsedBuffPayloadSource[];
+  /** Buff 生效期间注册的区域持续动作；仍需专用运行时消费。 */
+  readonly auraActions: readonly GeneratedAuraActionSource[];
 }
 
 export interface GeneratedUnparsedBuffPayloadSource {
@@ -376,10 +378,12 @@ export interface GeneratedAuraTargetFilterSource {
 
 /** 区域持续动作的审计事实；生命周期闭环前不得直接近似成一次 Buff 应用。 */
 export interface GeneratedAuraActionSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
+  readonly startFrame: number | null;
+  readonly endFrame: number | null;
   readonly actionIndex: number;
   readonly sourceFile: string;
+  readonly activationSource: 'timeline' | 'buffEvent' | 'abilityEvent';
+  readonly activationEvent: string | null;
   readonly actionPath: readonly string[];
   readonly priorityLevel: string;
   readonly priorityOffset: number;

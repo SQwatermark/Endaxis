@@ -331,6 +331,7 @@ class BuffDefinitionSource:
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
     unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
+    auraActions: tuple["AuraActionSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -619,10 +620,12 @@ class AuraTargetFilterSource:
 class AuraActionSource:
     """区域持续动作的审计事实；在生命周期语义闭环前不直接生成 DSL。"""
 
-    startFrame: int
-    endFrame: int
+    startFrame: int | None
+    endFrame: int | None
     actionIndex: int
     sourceFile: str
+    activationSource: Literal["timeline", "buffEvent", "abilityEvent"]
+    activationEvent: str | None
     actionPath: tuple[str, ...]
     priorityLevel: str
     priorityOffset: int
@@ -4272,6 +4275,7 @@ def resolve_buff_definitions(
                 )
             ),
             unparsedPayloads=collect_unparsed_buff_payloads(buff, source_file),
+            auraActions=parse_buff_aura_actions(buff, source_file, blackboard),
         )
         pending.extend(
             child_id
@@ -4532,6 +4536,8 @@ def parse_aura_actions(
                     endFrame=end_frame,
                     actionIndex=require_server_action_index(value, action_path),
                     sourceFile=source_name,
+                    activationSource="timeline",
+                    activationEvent=None,
                     actionPath=path,
                     priorityLevel=priority_level,
                     priorityOffset=priority_offset,
@@ -4674,6 +4680,64 @@ def parse_aura_actions(
             end_frame,
             (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
         )
+    return tuple(result)
+
+
+def parse_buff_aura_actions(
+    buff: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[AuraActionSource, ...]:
+    """读取 Buff 事件注册的光环；它们由事件和 Buff 生命周期定时，不属于技能帧。"""
+    result: list[AuraActionSource] = []
+    for activation_source, field, event_key in (
+        ("buffEvent", "buffEventAction", "buffEvent"),
+        ("abilityEvent", "abilityEventAction", "abilityEvent"),
+    ):
+        for event_index, raw_event in enumerate(
+            require_list(buff.get(field, []), f"{source_name}.{field}")
+        ):
+            event_path = f"{source_name}.{field}[{event_index}]"
+            event = require_dict(raw_event, event_path)
+            event_name = event.get(event_key)
+            if not isinstance(event_name, str) or not event_name:
+                raise ValueError(f"{event_path}.{event_key}: expected non-empty string")
+            for action_index, raw_sequence in enumerate(
+                require_list(event.get("actions"), f"{event_path}.actions")
+            ):
+                sequence_path = f"{event_path}.actions[{action_index}]"
+                sequence = require_dict(raw_sequence, sequence_path)
+                synthetic_root = {
+                    "actionGroupData": {
+                        "timelineActions": [
+                            {
+                                "_startFrame": 0,
+                                "_endFrame": 0,
+                                "_sequenceActionData": sequence,
+                            }
+                        ]
+                    }
+                }
+                for aura in parse_aura_actions(
+                    synthetic_root, source_name, inherited_blackboard
+                ):
+                    result.append(
+                        replace(
+                            aura,
+                            startFrame=None,
+                            endFrame=None,
+                            activationSource=cast(
+                                Literal["buffEvent", "abilityEvent"],
+                                activation_source,
+                            ),
+                            activationEvent=event_name,
+                            actionPath=(
+                                f"{field}[{event_index}]",
+                                f"actions[{action_index}]",
+                                *aura.actionPath[2:],
+                            ),
+                        )
+                    )
     return tuple(result)
 
 

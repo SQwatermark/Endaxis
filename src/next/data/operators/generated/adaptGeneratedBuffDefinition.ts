@@ -118,6 +118,7 @@ function presentBehaviorFields(source: GeneratedBuffDefinitionSource): string[] 
     'eventActions',
     'resourceGains',
     'combatActions',
+    'auraActions',
   ] as const;
   return fields.filter(field => source[field].length > 0);
 }

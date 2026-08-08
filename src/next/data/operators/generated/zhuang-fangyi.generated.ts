@@ -74,7 +74,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -151,7 +152,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -387,7 +389,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -484,7 +487,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -549,7 +553,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -1060,7 +1065,8 @@ export const zhuangFangyiGeneratedSource = {
         "ObtainCostAction",
         "SwitchAction"
       ],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -1113,7 +1119,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -1166,7 +1173,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -1416,7 +1424,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -1524,7 +1533,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -1590,7 +1600,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -1655,7 +1666,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -1747,7 +1759,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -1811,7 +1824,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -1831,7 +1845,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1851,7 +1866,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1871,7 +1887,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1891,7 +1908,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -1911,7 +1929,8 @@ export const zhuangFangyiGeneratedSource = {
       "eventActions": [],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": []
+      "unparsedPayloads": [],
+      "auraActions": []
     }
   ],
   "skills": [

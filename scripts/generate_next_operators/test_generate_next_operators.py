@@ -1744,8 +1744,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             },
             "applyTags": [{"tagId": -1486085048}],
             "timelineActions": [],
-            "buffEventAction": [],
+            "buffEventAction": [
+                {
+                    "buffEvent": "DuringBuffEnable",
+                    "actions": [
+                        {
+                            "actionData": [aura_action_fixture()],
+                        }
+                    ],
+                }
+            ],
         }
+        buff["buffEventAction"][0]["actions"][0]["actionData"][0]["buffInput"][0][
+            "buffId"
+        ] = "buff.missing"
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
             (path / "buff.test.json").write_text(json.dumps(buff), encoding="utf-8")
@@ -1766,6 +1778,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].attributeModifiers[0].value.value, 0.5)
         self.assertEqual(definitions[1].combatActions, ())
         self.assertEqual(definitions[1].unparsedPayloads, ())
+        self.assertEqual(len(definitions[1].auraActions), 1)
+        aura = definitions[1].auraActions[0]
+        self.assertEqual(aura.sourceFile, "buff.test.json")
+        self.assertIsNone(aura.startFrame)
+        self.assertIsNone(aura.endFrame)
+        self.assertEqual(aura.activationSource, "buffEvent")
+        self.assertEqual(aura.activationEvent, "DuringBuffEnable")
 
     def test_buff_definitions_parse_ability_events_and_report_other_root_payloads(self) -> None:
         buff = {
