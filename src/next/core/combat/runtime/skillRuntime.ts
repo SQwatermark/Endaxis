@@ -50,6 +50,8 @@ interface SkillRuntimeDependencies {
   readonly receipt: CombatReceiptSink;
   readonly operations: CombatOperationExecutor;
   readonly allocateSkillCastId: () => number;
+  /** 干员实体级黑板由同一能力系统下的所有技能共享，技能 direct blackboard 仅回退读取它。 */
+  readonly entityBlackboard?: ActionBlackboard;
 }
 
 class RuntimeOperationStep extends CombatStep {
@@ -106,7 +108,7 @@ export class SkillRuntime {
   readonly #program: CompiledSkillProgram;
   readonly #dependencies: SkillRuntimeDependencies;
   readonly #context: CombatExecutionContext = {};
-  readonly #blackboard = new ActionBlackboard();
+  readonly #blackboard: ActionBlackboard;
   readonly #operationContext: CombatOperationContext;
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
@@ -119,6 +121,7 @@ export class SkillRuntime {
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
     this.#dependencies = dependencies;
+    this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,

@@ -30,4 +30,23 @@ describe('ActionBlackboard', () => {
     expect(blackboard.getNumber('count')).toBe(4.00002);
     expect(blackboard.assignDynamic('missing', 0)).toBe(true);
   });
+
+  it('shares entity values across skill blackboards without mixing skill snapshots', () => {
+    const entityBlackboard = new ActionBlackboard({ EntityBB_SwordNum: 2 });
+    const firstSkill = new ActionBlackboard(
+      { localCount: 1, EntityBB_SwordNum: 8 },
+      entityBlackboard,
+    );
+    const secondSkill = new ActionBlackboard(undefined, entityBlackboard);
+
+    expect(firstSkill.getNumber('EntityBB_SwordNum')).toBe(8);
+    expect(secondSkill.getNumber('EntityBB_SwordNum')).toBe(2);
+    expect(firstSkill.assignDynamic('EntityBB_SwordNum', 3)).toBe(true);
+    expect(secondSkill.getNumber('EntityBB_SwordNum')).toBe(3);
+
+    firstSkill.restore({ localCount: 4 });
+    expect(firstSkill.snapshot()).toEqual({ localCount: 4 });
+    expect(firstSkill.getNumber('EntityBB_SwordNum')).toBe(3);
+    expect(secondSkill.getNumber('localCount')).toBeUndefined();
+  });
 });

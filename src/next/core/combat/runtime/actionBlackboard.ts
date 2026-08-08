@@ -1,18 +1,24 @@
 /**
- * 同一行为实例内多个数据驱动步骤共享值的受控容器。
- * 键和值只在实例生命周期内有效，不能作为跨技能全局状态或持久化身份使用。
+ * 管理技能 direct blackboard，并按原生查找顺序回退读取干员 entity blackboard。
+ * 普通键随技能实例重置；`EntityBB_` 动态写入会路由到同一干员共享的实体黑板。
  */
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
 
 export type ActionBlackboardValue = string | number | null;
 
 const FLOAT_ASSIGNMENT_EPSILON = 0.00001;
+const ENTITY_BLACKBOARD_PREFIX = 'EntityBB_';
 
-/** 数据驱动战斗行为使用的、按运行时实例隔离的可变值。 */
+/** 数据驱动战斗行为使用的分层可变值容器，不承担存档持久化。 */
 export class ActionBlackboard {
   readonly #values = new Map<string, ActionBlackboardValue>();
+  readonly #entityBlackboard?: ActionBlackboard;
 
-  constructor(values?: Readonly<Record<string, ActionBlackboardValue>>) {
+  constructor(
+    values?: Readonly<Record<string, ActionBlackboardValue>>,
+    entityBlackboard?: ActionBlackboard,
+  ) {
+    this.#entityBlackboard = entityBlackboard;
     this.assign(values);
   }
 
@@ -22,21 +28,24 @@ export class ActionBlackboard {
   }
 
   getString(key: string): string | undefined {
-    const value = this.#values.get(key);
+    const value = this.#getValue(key);
     return typeof value === 'string' ? value : undefined;
   }
 
   getNumber(key: string): number | undefined {
-    const value = this.#values.get(key);
+    const value = this.#getValue(key);
     return typeof value === 'number' ? value : undefined;
   }
 
   assignDynamic(key: string, value: number): boolean {
-    const current = this.getNumber(key);
-    if (current !== undefined && Math.abs(current - value) <= FLOAT_ASSIGNMENT_EPSILON) {
+    const target = key.startsWith(ENTITY_BLACKBOARD_PREFIX)
+      ? (this.#entityBlackboard ?? this)
+      : this;
+    const current = target.#getDirectValue(key);
+    if (typeof current === 'number' && Math.abs(current - value) <= FLOAT_ASSIGNMENT_EPSILON) {
       return false;
     }
-    this.#values.set(key, value);
+    target.#values.set(key, value);
     return true;
   }
 
@@ -47,6 +56,17 @@ export class ActionBlackboard {
   restore(values: Readonly<Record<string, ActionBlackboardValue>>): void {
     this.#values.clear();
     this.assign(values);
+  }
+
+  #getValue(key: string): ActionBlackboardValue | undefined {
+    if (this.#values.has(key)) return this.#values.get(key);
+    return this.#entityBlackboard === undefined
+      ? undefined
+      : this.#entityBlackboard.#getDirectValue(key);
+  }
+
+  #getDirectValue(key: string): ActionBlackboardValue | undefined {
+    return this.#values.get(key);
   }
 }
 

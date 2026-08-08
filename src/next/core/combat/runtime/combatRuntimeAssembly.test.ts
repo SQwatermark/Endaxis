@@ -281,6 +281,100 @@ describe('CombatRuntimeAssembly', () => {
     expect(reachedBranch).toBe(true);
   });
 
+  it('shares entity blackboard values between different skills of one operator', () => {
+    let reachedBranch = false;
+    const writer = skill({
+      skillId: 'writer',
+      costFrame: undefined,
+      costs: [],
+      timelineBlockFrames: 1,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'modifyActionValue',
+                parameters: {
+                  key: 'EntityBB_SwordNum',
+                  operation: 'add',
+                  value: { kind: 'constant', value: 1 },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const reader = skill({
+      skillId: 'reader',
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
+                    operator: 'greaterOrEqual',
+                    right: { kind: 'constant', value: 1 },
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'reached', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            canGainUntaggedUltimateEnergy: true,
+          },
+        ],
+      },
+      enemyBuffs: emptyEnemyBuffs,
+      operators: [{ operatorId: 'operator', skills: [writer, reader] }],
+      createOperationExecutor: () => ({
+        execute: step => {
+          reachedBranch ||= step.kind === 'setContextFlag';
+          return true;
+        },
+        evaluate: () => false,
+      }),
+    });
+
+    expect(assembly.tryStartSkill('operator', 'writer')).toBe(true);
+    assembly.advanceFrame();
+    expect(assembly.tryStartSkill('operator', 'reader')).toBe(true);
+    expect(reachedBranch).toBe(true);
+  });
+
   it('routes caster Buff identity operations to that operator Buff runtime', () => {
     const casterBuffs = new CombatBuffContainer('operator', new CombatAttributeSet());
     const previous = casterBuffs.add({ id: 'sword-trigger', stackingType: 'unique' }, 'operator');

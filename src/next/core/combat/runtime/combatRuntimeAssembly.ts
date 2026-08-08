@@ -6,6 +6,7 @@ import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
+import { ActionBlackboard } from './actionBlackboard';
 import { BuffOperationExecutor, type BuffOperationTarget } from './buffOperationExecutor';
 import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
@@ -69,8 +70,14 @@ export class CombatRuntimeAssembly {
       if (this.#abilitySystems.has(operator.operatorId)) {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
+      const entityBlackboard = new ActionBlackboard();
       const skills = operator.skills.map(program =>
-        this.#createSkillRuntime(operator, program, options.createOperationExecutor),
+        this.#createSkillRuntime(
+          operator,
+          program,
+          entityBlackboard,
+          options.createOperationExecutor,
+        ),
       );
       this.#abilitySystems.set(
         operator.operatorId,
@@ -115,6 +122,7 @@ export class CombatRuntimeAssembly {
   #createSkillRuntime(
     operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
+    entityBlackboard: ActionBlackboard,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
   ): SkillRuntime {
     const operatorId = operator.operatorId;
@@ -159,6 +167,7 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       operations,
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
+      entityBlackboard,
     });
     return runtime;
   }
