@@ -4023,6 +4023,17 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
     return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
 
 
+def root_target_group_writes_for_condition(
+    skill: SkillSource,
+    item: ResolvedScheduleItemSource,
+    condition: ConditionalActionSource,
+) -> tuple[TargetGroupWriteSource, ...]:
+    """只把根技能目标组目录交给根条件；递归子技能拥有独立动作上下文。"""
+    if item.sourcePath != condition.actionPath:
+        return ()
+    return getattr(skill, "targetGroupWrites", ())
+
+
 def collect_projectile_schedule(
     hit: ProjectileTriggeredSkillSource,
     result: list[ResolvedScheduleItemSource],
@@ -5955,13 +5966,16 @@ def compile_resolved_sequence(
             )
         elif item.itemType == "condition":
             payload = cast(ConditionalActionSource, item.payload)
+            target_group_writes = root_target_group_writes_for_condition(
+                skill, item, payload
+            )
             compiled_condition = compile_conditional_action(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
                 ignored_buff_ids,
                 damage_tags,
                 runtime_blackboard_keys,
-                target_group_writes=getattr(skill, "targetGroupWrites", ()),
+                target_group_writes=target_group_writes,
             )
             if compiled_condition == "sequence()":
                 continue

@@ -14,6 +14,7 @@ from generate_next_operators import (
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_resolved_schedule,
+    root_target_group_writes_for_condition,
     collect_timed_marker_damage_gates,
     collect_once_resource_gain_gates,
     build_blackboard_provenance,
@@ -94,6 +95,24 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_child_condition_does_not_read_root_target_group_writes(self) -> None:
+        writes = (SimpleNamespace(targetGroupKey="tar"),)
+        skill = SimpleNamespace(targetGroupWrites=writes)
+        condition = SimpleNamespace(actionPath=("timelineActions[0]",))
+        root_item = SimpleNamespace(sourcePath=condition.actionPath)
+        child_item = SimpleNamespace(
+            sourcePath=("child.skill", *condition.actionPath)
+        )
+
+        self.assertIs(
+            root_target_group_writes_for_condition(skill, root_item, condition),
+            writes,
+        )
+        self.assertEqual(
+            root_target_group_writes_for_condition(skill, child_item, condition),
+            (),
+        )
+
     def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
         find_action = {
             "$type": "Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond",
