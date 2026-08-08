@@ -1165,6 +1165,7 @@
       "resourceGains": [],
       "combatActions": [
         "CreateBuffAction",
+        "CreateTimedMarker",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"
@@ -7142,6 +7143,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7235,6 +7237,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7328,6 +7331,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7421,6 +7425,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -8772,6 +8777,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -8865,6 +8871,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -8958,6 +8965,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -9051,6 +9059,7 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -15253,6 +15262,7 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [
             "CreateBuffAction",
+            "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"
@@ -15684,6 +15694,7 @@
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "CreateBuffAction",
+            "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"

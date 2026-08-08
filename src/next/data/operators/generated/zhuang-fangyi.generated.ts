@@ -1019,6 +1019,7 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [
         "CreateBuffAction",
+        "CreateTimedMarker",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"
@@ -7515,6 +7516,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7608,6 +7610,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7701,6 +7704,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -7794,6 +7798,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -9326,6 +9331,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -9419,6 +9425,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -9512,6 +9519,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -9605,6 +9613,7 @@ export const zhuangFangyiGeneratedSource = {
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
+            "CreateTimedMarker",
             "DamageAction"
           ],
           "cycleTruncated": false,
@@ -17148,6 +17157,7 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [
             "CreateBuffAction",
+            "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"
@@ -17564,6 +17574,7 @@ export const zhuangFangyiGeneratedSource = {
           "nestedAbilityEntityHits": [],
           "combatActions": [
             "CreateBuffAction",
+            "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
             "SpellInfliction"
@@ -19560,8 +19571,7 @@ export const zhuangFangyiGeneratedSource = {
             "CameraImpulseAction",
             "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
-            "CreateTimedMarker"
+            "FAnimationCurve"
           ]
         },
         {

@@ -16,6 +16,7 @@ from generate_next_operators import (
     collect_resolved_schedule,
     root_target_group_writes_for_condition,
     collect_timed_marker_damage_gates,
+    collect_consumed_root_timed_marker_action_ids,
     collect_once_resource_gain_gates,
     build_blackboard_provenance,
     compile_skill_entries,
@@ -1066,6 +1067,35 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         create["markerId"]["blackboardKey"] = "other_key"
         with self.assertRaisesRegex(ValueError, "unsupported timed marker damage gate"):
             collect_timed_marker_damage_gates(root, "skill")
+
+    def test_consumed_root_timed_marker_is_removed_from_timeline_audit(self) -> None:
+        marker = {
+            "$type": "Example.CreateTimedMarker+Data, Example",
+            "isEnable": True,
+            "markerId": {
+                "useBlackboardKey": False,
+                "value": "zhuangfy_combo_ult_tar",
+                "blackboardKey": "",
+            },
+        }
+        root = {
+            "skillId": "chr_0030_zhuangfy_combo_skill_ult",
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {"actionData": [marker]},
+                    }
+                ]
+            },
+        }
+
+        consumed = collect_consumed_root_timed_marker_action_ids(root, "skill")
+        timeline = parse_timeline(root, "skill", consumed)
+
+        self.assertEqual(consumed, frozenset({id(marker)}))
+        self.assertEqual(timeline[0].actionTypes, ())
 
     def test_extend_buff_action_preserves_exact_native_interval_and_identity(self) -> None:
         root = {
@@ -3873,7 +3903,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "buffSource": "ActionSource",
                                     "inheritSourceSkillCastInfo": True,
-                                }
+                                },
+                                {
+                                    "$type": "Example.CreateTimedMarker+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "isEnable": True,
+                                },
                             ]
                         }
                     ],
@@ -3903,8 +3938,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(lifecycle.maxStackCount.levelValues, (4.0,))
         self.assertEqual(event.eventSource, "buff")
         self.assertEqual(event.event, "OnBuffTrigger")
-        self.assertEqual(event.orderedActionTypes, ("CreateBuffAction",))
-        self.assertEqual(event.combatActions, ("CreateBuffAction",))
+        self.assertEqual(
+            event.orderedActionTypes,
+            ("CreateBuffAction", "CreateTimedMarker"),
+        )
+        self.assertEqual(
+            event.combatActions,
+            ("CreateBuffAction", "CreateTimedMarker"),
+        )
         self.assertEqual(event.createdBuffIds, ("child_buff",))
         self.assertEqual(len(event.buffApplications), 1)
         application = event.buffApplications[0]

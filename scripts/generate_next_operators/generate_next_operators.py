@@ -883,11 +883,26 @@ COMBAT_ACTION_NAMES = {
     *SEQUENCE_GUARD_ACTION_NAMES,
 }
 
+# 标记本身不造成伤害，但会改变后续条件、事件冷却或时间轴控制，必须参与完备性审计。
+STATEFUL_COMBAT_ACTION_NAMES = {"CreateTimedMarker"}
+AUDITED_COMBAT_ACTION_NAMES = COMBAT_ACTION_NAMES | STATEFUL_COMBAT_ACTION_NAMES
+
+# 这些根级标记已由专用单敌人投影等价消费；这里只阻止完备性审计重复计数。
+CONSUMED_ROOT_TIMED_MARKERS = {
+    (
+        "chr_0030_zhuangfy_combo_skill_ult",
+        "zhuangfy_combo_ult_tar",
+    ),
+}
+
 # IfElse 与序列守卫本身只组织控制流；是否影响战斗取决于其子树中的实际效果动作。
 COMBAT_EFFECT_ACTION_NAMES = COMBAT_ACTION_NAMES - {
     "IfElseAction",
     *SEQUENCE_GUARD_ACTION_NAMES,
 }
+AUDITED_COMBAT_EFFECT_ACTION_NAMES = (
+    COMBAT_EFFECT_ACTION_NAMES | STATEFUL_COMBAT_ACTION_NAMES
+)
 
 # 这些运行时动作已单独解析，不进入 unresolvedCombatActions，但必须出现在条件分支审计中。
 CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
@@ -1188,7 +1203,7 @@ def parse_target_reference(value: Any, path: str) -> TargetReferenceSource:
 
 def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
     name = action_name(str(action.get("$type", "")))
-    if name not in COMBAT_ACTION_NAMES or name == "IfElseAction":
+    if name not in AUDITED_COMBAT_ACTION_NAMES or name == "IfElseAction":
         return None
     if name == "DamageAction":
         payload = action.get("damageUnits")
@@ -1265,7 +1280,10 @@ def contains_combat_effect(value: Any) -> bool:
         if value.get("isEnable") is False:
             return False
         type_name = value.get("$type")
-        if isinstance(type_name, str) and action_name(type_name) in COMBAT_EFFECT_ACTION_NAMES:
+        if (
+            isinstance(type_name, str)
+            and action_name(type_name) in AUDITED_COMBAT_EFFECT_ACTION_NAMES
+        ):
             return True
         return any(contains_combat_effect(child) for child in value.values())
     if isinstance(value, list):
@@ -3344,7 +3362,7 @@ def parse_buff_event_actions(
                             {
                                 name
                                 for name in ordered_action_types
-                                if name in COMBAT_ACTION_NAMES
+                                if name in AUDITED_COMBAT_ACTION_NAMES
                             }
                         )
                     ),
@@ -3457,7 +3475,7 @@ def resolve_buff_definitions(
                     {
                         action_name(item["$type"])
                         for item in walk_actions(adapted_root.get("actionGroupData"))
-                        if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                        if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
                     }
                 )
             ),
@@ -3653,7 +3671,7 @@ def parse_auxiliary_actions(
                         {
                             action_name(item["$type"])
                             for item in walk_actions(child.get("actionGroupData"))
-                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                            if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
                         }
                     )
                 )
@@ -3900,7 +3918,7 @@ def resolve_projectile_payload_triggers(
                         {
                             action_name(item["$type"])
                             for item in walk_actions(trigger_root.get("actionGroupData"))
-                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                            if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
                         }
                     )
                 ),
@@ -4185,7 +4203,7 @@ def resolve_ability_entity_payload(
             {
                 action_name(item["$type"])
                 for item in walk_actions(child.get("actionGroupData"))
-                if action_name(item["$type"]) in COMBAT_ACTION_NAMES
+                if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
             }
         )
     )
@@ -4862,14 +4880,42 @@ def collect_ability_entity_schedule(
         collect_ability_entity_schedule(nested, result)
 
 
-def parse_timeline(root: dict[str, Any], source_name: str) -> tuple[TimelineActionSource, ...]:
+def collect_consumed_root_timed_marker_action_ids(
+    root: dict[str, Any], source_name: str
+) -> frozenset[int]:
+    """定位已由专用投影消费的根级标记；未知形状仍进入严格审计。"""
+    skill_id = root.get("skillId")
+    if not isinstance(skill_id, str):
+        raise ValueError(f"{source_name}.skillId: expected string")
+    result: set[int] = set()
+    for action in walk_actions(root.get("actionGroupData")):
+        if action_name(str(action.get("$type", ""))) != "CreateTimedMarker":
+            continue
+        marker = require_dict(action.get("markerId"), f"{source_name}.CreateTimedMarker.markerId")
+        if marker.get("useBlackboardKey") is not False:
+            continue
+        marker_id = marker.get("value")
+        if (skill_id, marker_id) in CONSUMED_ROOT_TIMED_MARKERS:
+            result.add(id(action))
+    return frozenset(result)
+
+
+def parse_timeline(
+    root: dict[str, Any],
+    source_name: str,
+    consumed_action_ids: frozenset[int] = frozenset(),
+) -> tuple[TimelineActionSource, ...]:
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
     result: list[TimelineActionSource] = []
     for index, raw in enumerate(timeline):
         item = require_dict(raw, f"{source_name}.timelineActions[{index}]")
         sequence = require_dict(item.get("_sequenceActionData"), f"{source_name}.timelineActions[{index}]._sequenceActionData")
-        types = tuple(action_name(action["$type"]) for action in walk_actions(sequence))
+        types = tuple(
+            action_name(action["$type"])
+            for action in walk_actions(sequence)
+            if id(action) not in consumed_action_ids
+        )
         result.append(
             TimelineActionSource(
                 startFrame=require_non_negative_int(item.get("_startFrame"), f"{source_name}.timelineActions[{index}]._startFrame"),
@@ -5052,7 +5098,7 @@ def collect_unresolved_combat_actions(
     action_counts = Counter(
         action_type for item in timeline for action_type in item.actionTypes
     )
-    return tuple(sorted(name for name in action_counts if name in COMBAT_ACTION_NAMES))
+    return tuple(sorted(name for name in action_counts if name in AUDITED_COMBAT_ACTION_NAMES))
 
 
 def collect_windows(root: dict[str, Any], source_name: str) -> tuple[tuple[dict[str, Any], ...], tuple[dict[str, Any], ...]]:
@@ -5144,7 +5190,11 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
     resolved_blackboard = resolve_skill_blackboard(root, source_name, patch)
     cast = require_dict(root.get("castData"), f"{source_name}.castData")
     cost = require_dict(cast.get("costData"), f"{source_name}.castData.costData")
-    timeline = parse_timeline(root, source_name)
+    timeline = parse_timeline(
+        root,
+        source_name,
+        collect_consumed_root_timed_marker_action_ids(root, source_name),
+    )
     allows, caches = collect_windows(root, source_name)
     exclusive = require_non_negative_int(root.get("exclusiveFrame"), f"{source_name}.exclusiveFrame")
     block_frame, block_source = derive_timeline_block(exclusive, allows)
