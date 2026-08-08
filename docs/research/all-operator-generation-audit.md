@@ -11,8 +11,8 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：245 个。
-- 当前整名干员完整直转：6 名。
+- 无角色专用声明即可进入通用 DSL：244 个。
+- 当前整名干员完整直转：5 名。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -23,7 +23,7 @@
 | -------------- | ------------------- | ---: | -----: | -----: | -------- |
 | Tangtang       | `chr_0027_tangtang` |   11 |     10 |      8 | 否       |
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
-| Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |     10 | 是       |
+| Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
@@ -61,12 +61,12 @@
 | `source-data-missing`      |     21 |
 | `buff-source-or-target`    |     17 |
 | `condition-other`          |      6 |
+| `root-action-coverage`     |      6 |
 | `other`                    |      4 |
-| `condition-distance`       |      3 |
 | `conditional-leaf`         |      3 |
-| `root-action-coverage`     |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
+| `condition-distance`       |      1 |
 | `condition-entity-count`   |      1 |
 | `projectile-data`          |      1 |
 
@@ -153,6 +153,7 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
 | `SwitchAction`                |          4 |
+| `AuraAction`                  |          3 |
 | `CheckDistanceCondition`      |          2 |
 | `FractureAction`              |          2 |
 | `AddGlobalCDTimer`            |          1 |

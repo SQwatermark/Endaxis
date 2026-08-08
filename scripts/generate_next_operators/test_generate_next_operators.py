@@ -4274,6 +4274,27 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("SwitchAction", unresolved)
         self.assertIn("DamageAction", unresolved)
 
+    def test_aura_action_is_a_combat_coverage_requirement(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 30,
+                        "_sequenceActionData": {
+                            "$type": "Example.AuraAction+Data, Example",
+                            "isEnable": True,
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertIn(
+            "AuraAction",
+            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
+        )
+
     def test_condition_compiler_rejects_enemy_main_operator_checks(self) -> None:
         condition = ConditionSource(
             sourceType="CheckMainCharacterCondition",

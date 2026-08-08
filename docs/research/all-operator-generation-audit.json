@@ -7,18 +7,18 @@
   },
   "summary": {
     "parsedCount": 283,
-    "compiledCount": 245,
-    "completeOperatorCount": 6,
+    "compiledCount": 244,
+    "completeOperatorCount": 5,
     "blockerKinds": {
       "other": 4,
       "parser-tick-interval": 2,
       "condition-entity-count": 1,
       "projectile-child-actions": 2,
+      "root-action-coverage": 6,
       "buff-source-or-target": 17,
       "projectile-data": 1,
-      "condition-distance": 3,
+      "condition-distance": 1,
       "conditional-leaf": 3,
-      "root-action-coverage": 3,
       "condition-other": 6,
       "source-data-missing": 21
     },
@@ -31,6 +31,7 @@
       "CheckDistanceCondition": 2,
       "SpawnAbilityEntity": 27,
       "SpellInfliction": 12,
+      "AuraAction": 3,
       "FractureAction": 2,
       "SwitchAction": 4,
       "CheckMainCharacterCondition": 1,
@@ -868,9 +869,11 @@
       "operatorName": "Chen Qianyu",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 10,
-      "complete": true,
-      "blockerKinds": {}
+      "compiledCount": 9,
+      "complete": false,
+      "blockerKinds": {
+        "root-action-coverage": 1
+      }
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -944,7 +947,7 @@
       "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "condition-distance": 1,
+        "root-action-coverage": 1,
         "conditional-leaf": 1
       }
     },
@@ -1064,7 +1067,7 @@
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "condition-distance": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -1454,10 +1457,10 @@
       "operatorName": "Chen Qianyu",
       "skillId": "chr_0005_chen_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "stage": "dsl-blocked",
+      "blockerKind": "root-action-coverage",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
+      "unresolvedActions": ["AuraAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2498,16 +2501,17 @@
       "skillId": "chr_0014_aurora_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "normal_skill.schedule[4].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
       "unresolvedActions": [
+        "AuraAction",
         "CreateBuffAction",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction",
         "SpellInfliction"
       ],
-      "conditionCount": 3,
+      "conditionCount": 4,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0
@@ -4202,9 +4206,9 @@
       "skillId": "chr_0020_meurs_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "normal_skill.schedule[3].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
+      "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,

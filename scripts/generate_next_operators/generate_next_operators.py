@@ -936,6 +936,7 @@ COMBAT_ACTION_NAMES = {
     "IfElseAction",
     "SwitchAction",
     "FractureAction",
+    "AuraAction",
     # 条件直接位于 SequenceAction 时会以 false 截断后续动作；在保留序列边界前必须视为战斗动作。
     *SEQUENCE_GUARD_ACTION_NAMES,
 }
