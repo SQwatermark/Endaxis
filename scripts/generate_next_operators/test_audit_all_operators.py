@@ -77,6 +77,10 @@ class AuditAllOperatorsTests(unittest.TestCase):
             "condition-main-operator",
         )
         self.assertEqual(
+            classify_blocker("CheckDistanceCondition targets are not covered"),
+            "condition-distance",
+        )
+        self.assertEqual(
             classify_blocker("projectile child combat actions are not projected"),
             "projectile-child-actions",
         )

@@ -2643,7 +2643,45 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "distance": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "distance": 10.0,
+                "lessThan": true,
+                "includeTargetRadius": true,
+                "containsHittableObject": false
+              }
             }
           ],
           "succeedActions": [
@@ -4512,7 +4550,45 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "distance": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "distance": 10.0,
+                "lessThan": true,
+                "includeTargetRadius": true,
+                "containsHittableObject": false
+              }
             }
           ],
           "succeedActions": [
@@ -5260,7 +5336,45 @@ export const zhuangFangyiGeneratedSource = {
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "distance": {
+                      "source": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "distance": 3.0,
+                      "lessThan": false,
+                      "includeTargetRadius": true,
+                      "containsHittableObject": true
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -5290,7 +5404,45 @@ export const zhuangFangyiGeneratedSource = {
                           "comparison": null,
                           "left": null,
                           "right": null,
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "distance": {
+                            "source": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "distance": 10.0,
+                            "lessThan": false,
+                            "includeTargetRadius": true,
+                            "containsHittableObject": false
+                          }
                         }
                       ],
                       "succeedActions": [
@@ -6280,7 +6432,45 @@ export const zhuangFangyiGeneratedSource = {
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "distance": {
+                      "source": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "distance": 12.0,
+                      "lessThan": true,
+                      "includeTargetRadius": true,
+                      "containsHittableObject": true
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -7849,7 +8039,45 @@ export const zhuangFangyiGeneratedSource = {
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "distance": {
+                      "source": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "distance": 12.0,
+                      "lessThan": true,
+                      "includeTargetRadius": true,
+                      "containsHittableObject": true
+                    }
                   }
                 ],
                 "succeedActions": [
@@ -9361,7 +9589,45 @@ export const zhuangFangyiGeneratedSource = {
                     "comparison": null,
                     "left": null,
                     "right": null,
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "distance": {
+                      "source": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "distance": 12.0,
+                      "lessThan": true,
+                      "includeTargetRadius": true,
+                      "containsHittableObject": true
+                    }
                   }
                 ],
                 "succeedActions": [

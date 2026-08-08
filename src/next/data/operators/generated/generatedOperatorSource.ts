@@ -294,6 +294,39 @@ export interface GeneratedMainOperatorConditionSource {
   readonly targetGroupKey: string;
 }
 
+/** 原生 TargetSettings 的审计投影；用于证明目标身份和距离折叠，而不是运行时选目标。 */
+export interface GeneratedTargetReferenceSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly selectorOwner: string;
+  readonly ownerContextKey: string;
+  readonly centerType: string;
+  readonly centerContextKey: string;
+  readonly centerToGround: boolean;
+  readonly target: string;
+  readonly targetContextKey: string;
+  readonly enableAdvancedDirection: boolean;
+  readonly selectorDirection: string;
+  readonly finderType: string | null;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+}
+
+export interface GeneratedTargetIdentityConditionSource {
+  readonly first: GeneratedTargetReferenceSource;
+  readonly second: GeneratedTargetReferenceSource;
+}
+
+/** 原生距离条件使用三维距离；lessThan=true 的实际边界为小于等于。 */
+export interface GeneratedDistanceConditionSource {
+  readonly source: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly distance: number;
+  readonly lessThan: boolean;
+  readonly includeTargetRadius: boolean;
+  readonly containsHittableObject: boolean;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -304,6 +337,8 @@ export interface GeneratedConditionSource {
   readonly entityCount?: GeneratedEntityCountConditionSource;
   readonly buffStack?: GeneratedBuffStackConditionSource;
   readonly mainOperator?: GeneratedMainOperatorConditionSource;
+  readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
+  readonly distance?: GeneratedDistanceConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {

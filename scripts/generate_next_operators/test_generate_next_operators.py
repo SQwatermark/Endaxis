@@ -98,6 +98,40 @@ from generate_next_operators import (
 )
 
 
+def target_settings_fixture(
+    target_source: str,
+    *,
+    finder_type: str | None = None,
+    validator_types: tuple[str, ...] = (),
+) -> dict:
+    selector = {
+        "validatorData": [
+            {"$type": f"Example.Selector+{validator_type}+Data, Example"}
+            for validator_type in validator_types
+        ],
+        "postProcessorData": [],
+    }
+    if finder_type is not None:
+        selector["finderData"] = {
+            "$type": f"Example.Selector+{finder_type}+Data, Example"
+        }
+    return {
+        "targetSource": target_source,
+        "targetGroupKey": "",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionSource",
+        "centerContextKey": "",
+        "centerToGround": False,
+        "selectorData": selector,
+        "enableAdvancedDirection": False,
+        "advancedDirection": {},
+        "selectorDirection": "SourceForward",
+        "target": "ActionSource",
+        "targetContextKey": "",
+    }
+
+
 class GenerateNextOperatorsTests(unittest.TestCase):
     def test_skill_blackboard_uses_static_defaults_and_patch_overrides(self) -> None:
         root = {
@@ -1892,32 +1926,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
     def test_target_equality_between_input_and_main_target_is_guaranteed(self) -> None:
-        def target_settings(target_source: str, *, finder: bool = False) -> dict:
-            selector = {"validatorData": [], "postProcessorData": []}
-            if finder:
-                selector["finderData"] = {
-                    "$type": "Example.Selector+MainTargetFinder+Data, Example"
-                }
-            return {
-                "targetSource": target_source,
-                "targetGroupKey": "",
-                "selectorOwner": "ActionOwner",
-                "ownerContextKey": "",
-                "centerType": "ActionSource",
-                "centerContextKey": "",
-                "centerToGround": False,
-                "selectorData": selector,
-                "enableAdvancedDirection": False,
-                "advancedDirection": {},
-                "selectorDirection": "SourceForward",
-                "target": "ActionSource",
-                "targetContextKey": "",
-            }
-
         condition = {
             "$type": "Example.CheckTargetsEqual+Data, Example",
-            "firstTargetSettings": target_settings("Target"),
-            "secondTargetSettings": target_settings("InstantSearch", finder=True),
+            "firstTargetSettings": target_settings_fixture("Target"),
+            "secondTargetSettings": target_settings_fixture(
+                "InstantSearch", finder_type="MainTargetFinder"
+            ),
         }
         root = {
             "actionGroupData": {
@@ -1961,6 +1975,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertFalse(is_guaranteed_single_enemy_condition(filtered))
         with self.assertRaisesRegex(ValueError, "unsupported condition type"):
             compile_combat_condition_group((filtered,), "fixture.conditions")
+
+    def test_root_operator_enemy_distance_uses_zero_distance_model(self) -> None:
+        condition = {
+            "$type": "Example.CheckDistanceCondition+Data, Example",
+            "source": target_settings_fixture("Owner"),
+            "target": target_settings_fixture("Target"),
+            "distance": 10.0,
+            "lessThan": True,
+            "includeTargetRadius": True,
+            "containsHittableObj": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        with self.assertRaisesRegex(ValueError, "zero-distance model"):
+            compile_combat_condition_group((parsed,), "fixture.conditions")
+        self.assertEqual(
+            compile_combat_condition_group(
+                (parsed,), "fixture.conditions", root_skill_context=True
+            ),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
+        condition["lessThan"] = False
+        farther_than = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+        self.assertEqual(
+            compile_combat_condition_group(
+                (farther_than,), "fixture.conditions", root_skill_context=True
+            ),
+            "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }",
+        )
 
     def test_direct_main_operator_guard_remains_an_unresolved_root_action(self) -> None:
         root = {

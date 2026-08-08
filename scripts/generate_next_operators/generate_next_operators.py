@@ -381,8 +381,8 @@ class MainOperatorConditionSource:
 
 
 @dataclass(frozen=True)
-class TargetIdentityReferenceSource:
-    """参与目标身份比较的一个原生目标引用；保留证明单敌人等价性所需的选择器语义。"""
+class TargetReferenceSource:
+    """一个原生 TargetSettings 引用；保留证明目标身份与位置所需的选择器语义。"""
 
     targetSource: str
     targetGroupKey: str
@@ -402,8 +402,18 @@ class TargetIdentityReferenceSource:
 
 @dataclass(frozen=True)
 class TargetIdentityConditionSource:
-    first: TargetIdentityReferenceSource
-    second: TargetIdentityReferenceSource
+    first: TargetReferenceSource
+    second: TargetReferenceSource
+
+
+@dataclass(frozen=True)
+class DistanceConditionSource:
+    source: TargetReferenceSource
+    target: TargetReferenceSource
+    distance: float
+    lessThan: bool
+    includeTargetRadius: bool
+    containsHittableObject: bool
 
 
 @dataclass(frozen=True)
@@ -418,6 +428,7 @@ class ConditionSource:
     buffStack: BuffStackConditionSource | None = None
     mainOperator: MainOperatorConditionSource | None = None
     targetIdentity: TargetIdentityConditionSource | None = None
+    distance: DistanceConditionSource | None = None
 
 
 @dataclass(frozen=True)
@@ -715,6 +726,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "buffStack",
         "mainOperator",
         "targetIdentity",
+        "distance",
         "nestedCondition",
         "blackboardCalculation",
         "blackboardMutation",
@@ -1036,10 +1048,8 @@ def parse_selector_summary(
     )
 
 
-def parse_target_identity_reference(
-    value: Any, path: str
-) -> TargetIdentityReferenceSource:
-    """解析身份比较使用的完整目标设置；未知字段必须阻止生成，不能被当作等价目标忽略。"""
+def parse_target_reference(value: Any, path: str) -> TargetReferenceSource:
+    """解析完整目标设置；未知字段必须阻止生成，不能被当作既有目标语义忽略。"""
     target = require_dict(value, path)
     if set(target) != TARGET_GROUP_MERGE_INPUT_FIELDS:
         raise ValueError(f"{path}: unexpected fields {sorted(target)}")
@@ -1074,7 +1084,7 @@ def parse_target_identity_reference(
         f"{path}.selectorData",
         finder_required=target_source == "InstantSearch",
     )
-    return TargetIdentityReferenceSource(
+    return TargetReferenceSource(
         targetSource=target_source,
         targetGroupKey=target_group_key,
         selectorOwner=selector_owner,
@@ -2042,13 +2052,39 @@ def parse_conditional_actions(
                 right=None,
                 skillTypes=(),
                 targetIdentity=TargetIdentityConditionSource(
-                    first=parse_target_identity_reference(
+                    first=parse_target_reference(
                         condition.get("firstTargetSettings"),
                         f"{path}.firstTargetSettings",
                     ),
-                    second=parse_target_identity_reference(
+                    second=parse_target_reference(
                         condition.get("secondTargetSettings"),
                         f"{path}.secondTargetSettings",
+                    ),
+                ),
+            )
+        if condition_type == "CheckDistanceCondition":
+            raw_distance = condition.get("distance")
+            if not isinstance(raw_distance, (int, float)) or isinstance(raw_distance, bool):
+                raise ValueError(f"{path}.distance: expected number")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                distance=DistanceConditionSource(
+                    source=parse_target_reference(condition.get("source"), f"{path}.source"),
+                    target=parse_target_reference(condition.get("target"), f"{path}.target"),
+                    distance=float(raw_distance),
+                    lessThan=require_bool(condition.get("lessThan"), f"{path}.lessThan"),
+                    includeTargetRadius=require_bool(
+                        condition.get("includeTargetRadius"),
+                        f"{path}.includeTargetRadius",
+                    ),
+                    containsHittableObject=require_bool(
+                        condition.get("containsHittableObj"),
+                        f"{path}.containsHittableObj",
                     ),
                 ),
             )
@@ -4751,6 +4787,7 @@ def compile_combat_condition(
     path: str,
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
     if is_guaranteed_single_enemy_condition(
@@ -4759,6 +4796,21 @@ def compile_combat_condition(
         return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
+    if source.sourceType == "CheckDistanceCondition":
+        distance = source.distance
+        if distance is None:
+            raise ValueError(f"{path}: missing distance condition payload")
+        result = evaluate_zero_distance_condition(
+            distance,
+            root_skill_context=root_skill_context,
+        )
+        if result is True:
+            return "{ kind: 'singleEnemyPresent' }"
+        if result is False:
+            return "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }"
+        raise ValueError(
+            f"{path}: CheckDistanceCondition targets are not covered by the zero-distance model"
+        )
     if source.sourceType == "CheckMainCharacterCondition":
         main_operator = source.mainOperator
         if main_operator is None:
@@ -4845,6 +4897,7 @@ def compile_combat_condition_group(
     path: str,
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
@@ -4855,6 +4908,7 @@ def compile_combat_condition_group(
             f"{path}[{index}]",
             action,
             target_group_writes,
+            root_skill_context,
         )
         for index, condition in enumerate(conditions)
     ]
@@ -5221,6 +5275,7 @@ def compile_conditional_branch_action(
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if getattr(action, "nestedCondition", None) is not None:
@@ -5231,6 +5286,7 @@ def compile_conditional_branch_action(
             damage_tags,
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
         )
     if getattr(action, "damageUnits", None) is not None:
         return "\n".join(
@@ -5269,6 +5325,7 @@ def compile_conditional_branch(
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5283,6 +5340,7 @@ def compile_conditional_branch(
             damage_tags,
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
         )
         if compiled == "sequence()":
             continue
@@ -5303,6 +5361,7 @@ def compile_conditional_action(
     damage_tags: tuple[str, ...] = (),
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     condition = compile_combat_condition_group(
@@ -5310,6 +5369,7 @@ def compile_conditional_action(
         f"{path}.conditions",
         action,
         target_group_writes,
+        root_skill_context,
     )
     succeed = compile_conditional_branch(
         action.succeedActions,
@@ -5318,6 +5378,7 @@ def compile_conditional_action(
         damage_tags,
         runtime_blackboard_keys,
         target_group_writes=target_group_writes,
+        root_skill_context=root_skill_context,
     )
     fail = (
         compile_conditional_branch(
@@ -5327,6 +5388,7 @@ def compile_conditional_action(
             damage_tags,
             runtime_blackboard_keys,
             target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
         )
         if action.failActions
         else None
@@ -5412,10 +5474,8 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
     )
 
 
-def target_identity_reference_guarantees_single_enemy(
-    reference: TargetIdentityReferenceSource,
-) -> bool:
-    """仅接受不带筛选或重定向、且必然指向唯一敌人的目标引用。"""
+def target_reference_is_plain(reference: TargetReferenceSource) -> bool:
+    """目标引用未附带会改变身份或位置的上下文、校验器和后处理器。"""
     if (
         reference.targetGroupKey
         or reference.selectorOwner != "ActionOwner"
@@ -5431,6 +5491,15 @@ def target_identity_reference_guarantees_single_enemy(
         or reference.postProcessorTypes
     ):
         return False
+    return True
+
+
+def target_identity_reference_guarantees_single_enemy(
+    reference: TargetReferenceSource,
+) -> bool:
+    """仅接受不带筛选或重定向、且必然指向唯一敌人的目标引用。"""
+    if not target_reference_is_plain(reference):
+        return False
     return (
         reference.targetSource in {"Target", "MainTarget"}
         and reference.finderType is None
@@ -5438,6 +5507,35 @@ def target_identity_reference_guarantees_single_enemy(
         reference.targetSource == "InstantSearch"
         and reference.finderType == "MainTargetFinder"
     )
+
+
+def zero_distance_target_role(reference: TargetReferenceSource) -> str | None:
+    """把根干员技能中的普通目标引用归类为共点的施法者或唯一敌人。"""
+    if not target_reference_is_plain(reference):
+        return None
+    if reference.targetSource in {"Owner", "Source"} and reference.finderType is None:
+        return "caster"
+    if target_identity_reference_guarantees_single_enemy(reference):
+        return "enemy"
+    return None
+
+
+def evaluate_zero_distance_condition(
+    condition: DistanceConditionSource,
+    *,
+    root_skill_context: bool,
+) -> bool | None:
+    """仅在根干员技能的施法者与唯一敌人共点假设下折叠距离比较。"""
+    if not root_skill_context or condition.distance < 0:
+        return None
+    roles = {
+        zero_distance_target_role(condition.source),
+        zero_distance_target_role(condition.target),
+    }
+    if None in roles or roles != {"caster", "enemy"}:
+        return None
+    # 原生 lessThan 分支实际使用 <=；半径只会把共点距离进一步减小。
+    return condition.lessThan
 
 
 def is_guaranteed_single_enemy_condition(
@@ -6159,6 +6257,7 @@ def compile_resolved_sequence(
                 damage_tags,
                 runtime_blackboard_keys,
                 target_group_writes=target_group_writes,
+                root_skill_context=item.sourcePath == payload.actionPath,
             )
             if compiled_condition == "sequence()":
                 continue
