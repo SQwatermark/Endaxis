@@ -57,6 +57,53 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('forwards the current skill-cast snapshot only when the action requests it', () => {
+    const applied: unknown[] = [];
+    const target = {
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      getCountByTags: () => 0,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const skillCastInfo = {
+      skillCastId: 7,
+      originSkillId: 'ultimate',
+      nonReturnedSpCost: 90,
+    };
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'ultimate-base',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+        { blackboard: new ActionBlackboard(), skillCastInfo },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      {
+        buffId: 'ultimate-base',
+        sourceId: 'operator',
+        blackboardValues: {},
+        skillCastInfo,
+      },
+    ]);
+  });
+
   it('keeps legacy applyBuff timing fields on the existing delegate path', () => {
     const calls: string[] = [];
     const executor = new BuffOperationExecutor({

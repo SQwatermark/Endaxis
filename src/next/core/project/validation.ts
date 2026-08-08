@@ -403,6 +403,15 @@ function validateCombatStepParameters(
           }
         }
       }
+      if (
+        parameters.inheritSourceSkillCastInfo !== undefined &&
+        typeof parameters.inheritSourceSkillCastInfo !== 'boolean'
+      ) {
+        issues.push({
+          path: `${path}.inheritSourceSkillCastInfo`,
+          message: 'expected boolean',
+        });
+      }
       if (parameters.durationSeconds !== undefined)
         requireFiniteNumber(parameters.durationSeconds, `${path}.durationSeconds`, issues);
       if (parameters.effectiveness !== undefined)

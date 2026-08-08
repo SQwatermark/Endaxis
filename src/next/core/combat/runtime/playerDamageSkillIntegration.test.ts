@@ -151,7 +151,7 @@ describe('Perlica standard damage slice', () => {
         skillLevel: 12,
         skill: findPerlicaBattleSkill(),
       }),
-      { clock, resources, receipt, operations },
+      { clock, resources, receipt, operations, allocateSkillCastId: () => 1 },
     );
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);

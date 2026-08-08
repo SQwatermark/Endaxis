@@ -317,7 +317,7 @@ describe('SkillResourceOperationExecutor', () => {
         skillLevel: 12,
         skill: findSkill('battleSkill'),
       }),
-      { clock, resources, receipt, operations },
+      { clock, resources, receipt, operations, allocateSkillCastId: () => 1 },
     );
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);

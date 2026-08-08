@@ -10,6 +10,7 @@ import type { ActionBlackboard } from './actionBlackboard';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' }>;
 
@@ -46,6 +47,7 @@ export interface BuffApplicationRequest {
   readonly buffId: string;
   readonly sourceId: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
+  readonly skillCastInfo?: CombatSkillCastInfo;
 }
 
 export interface BuffOperationDependencies {
@@ -79,7 +81,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       const assignments = step.parameters.blackboardAssignments ?? {};
       if (Object.keys(assignments).length > 0 && context === undefined) {
-        throw new Error('applyBuff blackboard assignments require a combat operation context');
+        throw new Error('applyBuff runtime values require a combat operation context');
+      }
+      if (step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo === undefined) {
+        throw new Error('applyBuff inherited skill-cast info requires a skill runtime context');
       }
       return target.apply({
         buffId: step.parameters.buffId,
@@ -90,6 +95,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             resolveActionValueOperand(operand, context!.blackboard),
           ]),
         ),
+        ...(step.parameters.inheritSourceSkillCastInfo
+          ? { skillCastInfo: context!.skillCastInfo! }
+          : {}),
       });
     }
 

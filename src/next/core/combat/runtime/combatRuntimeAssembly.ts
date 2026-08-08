@@ -14,6 +14,7 @@ import { CombatResources, type CombatResourceSnapshot } from './combatResources'
 import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+import { SkillCastIdAllocator } from './skillCastInfo';
 
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -57,6 +58,7 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #enemyBuffs: BuffOperationTarget;
+  readonly #skillCastIds = new SkillCastIdAllocator();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
@@ -156,6 +158,7 @@ export class CombatRuntimeAssembly {
       resources: this.resources,
       receipt: this.receipt,
       operations,
+      allocateSkillCastId: () => this.#skillCastIds.allocate(),
     });
     return runtime;
   }

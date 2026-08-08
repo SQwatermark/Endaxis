@@ -34,6 +34,7 @@ export class CatalogBuffOperationTarget<Key extends string>
     return (
       this.container.add(definition, request.sourceId, {
         blackboardValues: request.blackboardValues,
+        ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
       }) !== null
     );
   }

@@ -58,7 +58,7 @@ from generate_next_operators import (
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
-    def test_buff_application_compiler_rejects_unmodeled_inherited_cast_identity(self) -> None:
+    def test_buff_application_compiler_preserves_inherited_cast_identity(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=0,
             endFrame=0,
@@ -75,8 +75,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             nestedCombatActions=(),
         )
 
-        with self.assertRaisesRegex(ValueError, "inherited skill-cast identity"):
-            compile_buff_application(action, "fixture")
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("inheritSourceSkillCastInfo: true", source)
 
     def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
         root = {
@@ -1424,7 +1425,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     targetGroupKey="",
                     count=ScalarSource(1, None, None),
                     buffSource="ActionSource",
-                    inheritSourceSkillCastInfo=False,
+                    inheritSourceSkillCastInfo=True,
                     blackboardAssignments={
                         "duration": ScalarSource(0, "duration", (25, 25)),
                     },

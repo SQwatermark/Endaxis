@@ -18,6 +18,7 @@ import type {
   PlayerDamageContext,
 } from '../damage/playerDamageContext';
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
+import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import {
   SharedSpGainModifier,
   type SharedSpGainAttribute,
@@ -148,6 +149,8 @@ export interface CombatBuffDefinition<Key extends string> {
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
 export interface CombatBuffAddOptions {
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
+  /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
+  readonly skillCastInfo?: CombatSkillCastInfo;
 }
 
 /** 一个实体上某项 Buff 的独立运行时实例。 */
@@ -155,6 +158,8 @@ export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
+  /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
+  readonly skillCastInfo: CombatSkillCastInfo | null;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];
   readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
   #passedTime = 0;
@@ -180,6 +185,7 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard);
     this.blackboard.assign(options?.blackboardValues);
+    this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     this.priority = resolveBuffPriority(definition, this.blackboard);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
     this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);

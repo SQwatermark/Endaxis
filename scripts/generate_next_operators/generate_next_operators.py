@@ -3129,8 +3129,8 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
     if action.buffSource != "ActionSource":
         raise ValueError(f"{path}: unsupported Buff source {action.buffSource!r}")
-    if action.inheritSourceSkillCastInfo is not False:
-        raise ValueError(f"{path}: inherited skill-cast identity is not modeled yet")
+    if action.inheritSourceSkillCastInfo is None:
+        raise ValueError(f"{path}: missing inherited skill-cast identity flag")
     if action.targetSource == "Source" and not action.targetGroupKey:
         target = "caster"
     elif action.targetSource == "Context" and action.targetGroupKey == "smart_target":
@@ -3144,6 +3144,8 @@ def compile_buff_application(action: AuxiliaryActionSource, path: str) -> str:
         "step('applyBuff', {",
         f"  buffId: {ts_inline_literal(action.sourceId)},",
         f"  target: {ts_inline_literal(target)},",
+        "  inheritSourceSkillCastInfo: "
+        f"{ts_inline_literal(action.inheritSourceSkillCastInfo)},",
     ]
     if action.blackboardAssignments:
         lines.append("  blackboardAssignments: {")

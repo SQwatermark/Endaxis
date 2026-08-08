@@ -64,4 +64,29 @@ describe('CatalogBuffOperationTarget', () => {
     target.advanceFrame();
     expect(container.getCountById(definition.id)).toBe(0);
   });
+
+  it('stores the supplied skill-cast snapshot on the created Buff instance', () => {
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const definition: CombatBuffDefinition<never> = {
+      id: 'inherited-cast',
+      stackingType: 'unique',
+    };
+    const target = new CatalogBuffOperationTarget(container, {
+      get: () => definition,
+    });
+    const skillCastInfo = {
+      skillCastId: 3,
+      originSkillId: 'battleSkill',
+      nonReturnedSpCost: 90,
+    };
+
+    target.apply({
+      buffId: definition.id,
+      sourceId: 'operator',
+      blackboardValues: {},
+      skillCastInfo,
+    });
+
+    expect(container.buffs[0]?.skillCastInfo).toEqual(skillCastInfo);
+  });
 });

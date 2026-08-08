@@ -17,7 +17,7 @@ function findPerlicaSkill(key: string): SkillDefinition {
   throw new Error(`missing Perlica skill '${key}'`);
 }
 
-function createBattleSkillRuntime(initialSp: number) {
+function createBattleSkillRuntime(initialSp: number, costFrame?: number) {
   const clock = new CombatClock();
   const resources = new CombatResources({
     sp: initialSp,
@@ -47,9 +47,19 @@ function createBattleSkillRuntime(initialSp: number) {
     skillGroupKey: 'battleSkill',
     skillType: 'battleSkill',
     skillLevel: 12,
-    skill: findPerlicaSkill('battleSkill'),
+    skill:
+      costFrame === undefined
+        ? findPerlicaSkill('battleSkill')
+        : { ...findPerlicaSkill('battleSkill'), costFrame },
   });
-  const runtime = new SkillRuntime(compiledProgram, { clock, resources, receipt, operations });
+  let nextSkillCastId = 1;
+  const runtime = new SkillRuntime(compiledProgram, {
+    clock,
+    resources,
+    receipt,
+    operations,
+    allocateSkillCastId: () => nextSkillCastId++,
+  });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
   return { clock, resources, receipt, operations, runtime, simulation };
@@ -64,17 +74,24 @@ describe('SkillRuntime', () => {
     expect(second.runtime.operationContext.blackboard.getNumber('count')).toBeUndefined();
 
     first.runtime.tryStart();
+    expect(first.runtime.skillCastInfo).toEqual({
+      skillCastId: 1,
+      originSkillId: 'battleSkill',
+      nonReturnedSpCost: 100,
+    });
     first.runtime.operationContext.blackboard.assignDynamic('count', 3);
     first.runtime.end();
     first.runtime.tryStart();
 
     expect(first.runtime.operationContext.blackboard.getNumber('count')).toBeUndefined();
+    expect(first.runtime.skillCastInfo.skillCastId).toBe(2);
   });
 
   it('applies frame-zero cost during the native initial tick', () => {
     const fixture = createBattleSkillRuntime(300);
 
     expect(fixture.runtime.tryStart()).toBe(true);
+    expect(fixture.runtime.skillCastInfo.nonReturnedSpCost).toBe(100);
 
     expect(fixture.runtime.appliedCost).toBe(true);
     expect(fixture.resources.sp).toBe(200);
@@ -82,6 +99,18 @@ describe('SkillRuntime', () => {
       'SkillStarted',
       'SkillCostApplied',
     ]);
+  });
+
+  it('updates the current skill-cast info only when delayed cost is actually paid', () => {
+    const fixture = createBattleSkillRuntime(300, 3);
+
+    fixture.runtime.tryStart();
+    expect(fixture.runtime.skillCastInfo.nonReturnedSpCost).toBe(0);
+    expect(fixture.resources.sp).toBe(300);
+
+    fixture.simulation.advanceFrames(3);
+    expect(fixture.runtime.skillCastInfo.nonReturnedSpCost).toBe(100);
+    expect(fixture.resources.sp).toBe(200);
   });
 
   it('executes Perlica hit steps in source order at relative frame 13', () => {
@@ -157,6 +186,7 @@ describe('SkillRuntime', () => {
       resources,
       receipt,
       operations,
+      allocateSkillCastId: () => 1,
     });
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);
