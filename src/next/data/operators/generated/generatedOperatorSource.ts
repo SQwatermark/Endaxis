@@ -223,7 +223,6 @@ export interface GeneratedBuffDefinitionSource {
 
 export interface GeneratedUnparsedBuffPayloadSource {
   readonly field:
-    | 'abilityEventAction'
     | 'damageModifier'
     | 'globalModifier'
     | 'healModifier'
@@ -470,7 +469,11 @@ export interface GeneratedDeclaredBlackboardValueSource {
 }
 
 export interface GeneratedBuffEventActionSource {
+  /** 事件由 Buff 生命周期还是 Buff 宿主实体发出。 */
+  readonly eventSource: 'buff' | 'ability';
   readonly event: string;
+  /** 启用动作按原生 SequenceAction 的执行顺序排列，不能用 combatActions 代替。 */
+  readonly orderedActionTypes: readonly string[];
   readonly combatActions: readonly string[];
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   readonly createdBuffIds: readonly string[];

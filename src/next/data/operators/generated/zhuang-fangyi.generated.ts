@@ -61,7 +61,11 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "FinishOwnerAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -121,13 +125,22 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ShowHideActorAction",
+            "EffectAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "EffectAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -252,7 +265,14 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "SimpleCalcBBAction",
+            "FindTargetAction",
+            "IfElseAction",
+            "FindTargetAction"
+          ],
           "combatActions": [
             "IfElseAction"
           ],
@@ -260,7 +280,14 @@ export const zhuangFangyiGeneratedSource = {
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "CompareFloat",
+            "PickTargetAction",
+            "CreateBuffAction",
+            "ModifyDynamicBlackboard"
+          ],
           "combatActions": [
             "CreateBuffAction"
           ],
@@ -270,7 +297,12 @@ export const zhuangFangyiGeneratedSource = {
           ]
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "FindTargetAction",
+            "FinishBuffAdvanced"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -332,28 +364,47 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ForceTargetInFightAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "FindTargetAction",
+            "SpawnAbilityEntity"
+          ],
           "combatActions": [
             "SpawnAbilityEntity"
           ],
           "damageUnits": [],
           "createdBuffIds": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnOwnerHpZero",
+          "orderedActionTypes": [
+            "FindTargetAction",
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "createdBuffIds": [
+            "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar"
+          ]
         }
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "abilityEventAction",
-          "entryCount": 1
-        }
-      ]
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -405,7 +456,11 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "TogglableAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -1045,13 +1100,27 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "TagQueryListenerAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "SwitchModeAction",
+            "CreateBuffAction",
+            "CharWeaponVisibleAction",
+            "TogglableAction",
+            "SetSuperArmorAction",
+            "OverrideMultiDashLimit",
+            "RefrainObtainUsp"
+          ],
           "combatActions": [
             "CreateBuffAction"
           ],
@@ -1061,13 +1130,22 @@ export const zhuangFangyiGeneratedSource = {
           ]
         },
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ChangeSkillAction",
+            "ChangeSkillAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
           "combatActions": [
             "CreateBuffAction"
           ],
@@ -1078,7 +1156,13 @@ export const zhuangFangyiGeneratedSource = {
           ]
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "BombClearAction",
+            "IfElseAction",
+            "SetSkillCdAtOnce"
+          ],
           "combatActions": [
             "IfElseAction"
           ],
@@ -1086,7 +1170,11 @@ export const zhuangFangyiGeneratedSource = {
           "createdBuffIds": []
         },
         {
+          "eventSource": "buff",
           "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
           "combatActions": [
             "CreateBuffAction"
           ],
@@ -1150,20 +1238,37 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "TogglableAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnAddedBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext",
+            "NotNextCheckAction",
+            "CheckMainCharacterCondition",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "createdBuffIds": [
+            "buff_chr_0030_zhuangfy_dash_hide"
+          ]
         }
       ],
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "abilityEventAction",
-          "entryCount": 1
-        }
-      ]
+      "unparsedPayloads": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -1215,7 +1320,12 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "EffectAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -1275,7 +1385,11 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ShowHideActorAction"
+          ],
           "combatActions": [],
           "damageUnits": [],
           "createdBuffIds": []
@@ -1335,7 +1449,11 @@ export const zhuangFangyiGeneratedSource = {
       "buffFinishes": [],
       "eventActions": [
         {
+          "eventSource": "buff",
           "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
           "combatActions": [
             "CreateBuffAction"
           ],

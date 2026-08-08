@@ -318,7 +318,9 @@ class BuffAttributeModifierSource:
 
 @dataclass(frozen=True)
 class BuffEventActionSource:
+    eventSource: Literal["buff", "ability"]
     event: str
+    orderedActionTypes: tuple[str, ...]
     combatActions: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
     createdBuffIds: tuple[str, ...]
@@ -2296,43 +2298,54 @@ def parse_buff_event_actions(
     source_name: str,
     blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[BuffEventActionSource, ...]:
-    """保留 Buff 事件槽中的动作事实；被创建 Buff 的定义由中央目录解析。"""
+    """保留 Buff 与宿主实体事件中的动作事实；子 Buff 定义由中央目录递归解析。"""
     result: list[BuffEventActionSource] = []
-    for event_index, raw_event in enumerate(
-        require_list(buff.get("buffEventAction"), f"{source_name}.buffEventAction")
+    for event_source, field, event_key in (
+        ("buff", "buffEventAction", "buffEvent"),
+        ("ability", "abilityEventAction", "abilityEvent"),
     ):
-        event = require_dict(raw_event, f"{source_name}.buffEventAction[{event_index}]")
-        event_name = event.get("buffEvent")
-        if not isinstance(event_name, str) or not event_name:
-            raise ValueError(
-                f"{source_name}.buffEventAction[{event_index}].buffEvent: expected string"
+        for event_index, raw_event in enumerate(
+            require_list(buff.get(field, []), f"{source_name}.{field}")
+        ):
+            event_path = f"{source_name}.{field}[{event_index}]"
+            event = require_dict(raw_event, event_path)
+            event_name = event.get(event_key)
+            if not isinstance(event_name, str) or not event_name:
+                raise ValueError(f"{event_path}.{event_key}: expected string")
+            actions = event.get("actions")
+            action_root = {"actionGroupData": {"actions": actions}}
+            walked_actions = [
+                item
+                for item in walk_unconditional_actions(actions)
+                if item.get("isEnable") is not False
+            ]
+            ordered_action_types = tuple(
+                action_name(item["$type"]) for item in walked_actions
             )
-        actions = event.get("actions")
-        action_root = {"actionGroupData": {"actions": actions}}
-        walked_actions = list(walk_unconditional_actions(actions))
-        result.append(
-            BuffEventActionSource(
-                event=event_name,
-                combatActions=tuple(
-                    sorted(
-                        {
-                            action_name(item["$type"])
-                            for item in walked_actions
-                            if action_name(item["$type"]) in COMBAT_ACTION_NAMES
-                        }
-                    )
-                ),
-                damageUnits=parse_damage_units(
-                    action_root, f"{source_name}.{event_name}", blackboard
-                ),
-                createdBuffIds=collect_created_buff_ids(actions, source_name),
+            result.append(
+                BuffEventActionSource(
+                    eventSource=cast(Literal["buff", "ability"], event_source),
+                    event=event_name,
+                    orderedActionTypes=ordered_action_types,
+                    combatActions=tuple(
+                        sorted(
+                            {
+                                name
+                                for name in ordered_action_types
+                                if name in COMBAT_ACTION_NAMES
+                            }
+                        )
+                    ),
+                    damageUnits=parse_damage_units(
+                        action_root, f"{source_name}.{event_name}", blackboard
+                    ),
+                    createdBuffIds=collect_created_buff_ids(actions, source_name),
+                )
             )
-        )
     return tuple(result)
 
 
 UNPARSED_BUFF_PAYLOAD_FIELDS = (
-    "abilityEventAction",
     "damageModifier",
     "globalModifier",
     "healModifier",

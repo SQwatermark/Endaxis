@@ -411,7 +411,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].combatActions, ())
         self.assertEqual(definitions[1].unparsedPayloads, ())
 
-    def test_buff_definitions_report_nonempty_unparsed_root_payloads(self) -> None:
+    def test_buff_definitions_parse_ability_events_and_report_other_root_payloads(self) -> None:
         buff = {
             "lifeType": "Infinity",
             "duration": {
@@ -465,7 +465,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(
             tuple((item.field, item.entryCount) for item in definition.unparsedPayloads),
-            (("abilityEventAction", 2),),
+            (),
+        )
+        self.assertEqual(
+            tuple((item.eventSource, item.event) for item in definition.eventActions),
+            (("ability", "OnAddedBuff"), ("ability", "OnOwnerHpZero")),
         )
         self.assertEqual(definition.extendTagIds, (123,))
 
@@ -2020,9 +2024,83 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(lifecycle.stackingType, "Stack")
         self.assertEqual(lifecycle.maxStackCount.blackboardKey, "max_stack")
         self.assertEqual(lifecycle.maxStackCount.levelValues, (4.0,))
+        self.assertEqual(event.eventSource, "buff")
         self.assertEqual(event.event, "OnBuffTrigger")
+        self.assertEqual(event.orderedActionTypes, ("CreateBuffAction",))
         self.assertEqual(event.combatActions, ("CreateBuffAction",))
         self.assertEqual(event.createdBuffIds, ("child_buff",))
+
+    def test_buff_ability_event_actions_preserve_source_and_order(self) -> None:
+        buff = {
+            "lifeType": "Infinity",
+            "duration": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "triggerInterval": {
+                "useBlackboardKey": False,
+                "value": -1,
+                "blackboardKey": "",
+            },
+            "waitFirstTriggerInterval": False,
+            "maxTriggerCnt": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "Stack",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "negatePriority": False,
+                "priority": 0,
+                "useMaxStackCntKey": False,
+                "maxStackCntKey": "",
+                "maxStackCnt": 1,
+                "isNeedStackEffect": False,
+            },
+            "blackboard": [],
+            "attributeModifier": {
+                "isConvertedAttribute": False,
+                "attributeModifiers": [],
+            },
+            "applyTags": [],
+            "timelineActions": [],
+            "buffEventAction": [],
+            "abilityEventAction": [
+                {
+                    "abilityEvent": "OnOwnerHpZero",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CompareFloat+Data, Example",
+                                    "serverActionIndex": 0,
+                                    "isEnable": True,
+                                },
+                                {
+                                    "$type": "Example.CreateBuffAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "isEnable": False,
+                                    "buffs": [],
+                                },
+                                {
+                                    "$type": "Example.SpawnAbilityEntity+Data, Example",
+                                    "serverActionIndex": 2,
+                                    "isEnable": True,
+                                },
+                            ]
+                        }
+                    ],
+                }
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            (path / "ability_event_buff.json").write_text(json.dumps(buff), encoding="utf-8")
+            definition = resolve_buff_definitions(("ability_event_buff",), path)[0]
+
+        self.assertEqual(definition.unparsedPayloads, ())
+        self.assertEqual(len(definition.eventActions), 1)
+        event = definition.eventActions[0]
+        self.assertEqual(event.eventSource, "ability")
+        self.assertEqual(event.event, "OnOwnerHpZero")
+        self.assertEqual(event.orderedActionTypes, ("CompareFloat", "SpawnAbilityEntity"))
 
     def test_buff_lifecycle_rejects_unknown_stacking_type(self) -> None:
         buff = {
