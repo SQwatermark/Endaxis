@@ -14,6 +14,7 @@ const emptyEnemyBuffs = {
   finishByIds: () => 0,
   holdByIds: () => ({ release: () => undefined }),
   getCountByTags: () => 0,
+  matchesEntityTags: () => false,
   findFirstByTags: () => undefined,
   finishByTags: () => 0,
 };
@@ -33,6 +34,8 @@ function asBuffRuntime(container: CombatBuffContainer<string>) {
     holdByIds: (ids: readonly string[]) => container.holdByIds(ids),
     getCountByTags: (...args: Parameters<typeof container.getCountByTags>) =>
       container.getCountByTags(...args),
+    matchesEntityTags: (...args: Parameters<typeof container.matchesEntityTags>) =>
+      container.matchesEntityTags(...args),
     findFirstByTags: (...args: Parameters<typeof container.findFirstByTags>) =>
       container.findFirstByTags(...args),
     finishByTags: (...args: Parameters<typeof container.finishByTags>) =>

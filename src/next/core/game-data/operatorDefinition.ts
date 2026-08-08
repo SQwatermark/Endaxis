@@ -176,6 +176,13 @@ export type CombatCondition =
       value: ActionValueOperand;
     }
   | {
+      /** 查询目标实体当前持有的 GameplayTag；它与 Buff 身份、数量和层数无关。 */
+      kind: 'entityTagMatch';
+      target: CombatTarget;
+      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      tagIds: readonly number[];
+    }
+  | {
       /** 按目录 Buff 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
       kind: 'buffIdStackCompare';
       target: CombatTarget;
@@ -213,6 +220,7 @@ export const COMBAT_CONDITION_KINDS = [
   'actionValueCompare',
   'statusActive',
   'buffStackCompare',
+  'entityTagMatch',
   'buffIdStackCompare',
   'elementalInflictionPresent',
   'elementalReactionActive',

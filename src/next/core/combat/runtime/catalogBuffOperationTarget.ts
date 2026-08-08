@@ -67,6 +67,14 @@ export class CatalogBuffOperationTarget<Key extends string>
     return this.container.getCountByTags(tags, type, exact);
   }
 
+  matchesEntityTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): boolean {
+    return this.container.matchesEntityTags(tags, type, exact);
+  }
+
   findFirstByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,

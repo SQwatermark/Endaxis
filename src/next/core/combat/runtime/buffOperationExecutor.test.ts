@@ -21,6 +21,7 @@ describe('BuffOperationExecutor', () => {
         finishByIds: () => 0,
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 2,
+        matchesEntityTags: () => false,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       }),
@@ -58,6 +59,7 @@ describe('BuffOperationExecutor', () => {
       finishByIds: () => 0,
       holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
+      matchesEntityTags: () => false,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
     };
@@ -104,6 +106,7 @@ describe('BuffOperationExecutor', () => {
       finishByIds: () => 0,
       holdByIds: () => ({ release: () => undefined }),
       getCountByTags: () => 0,
+      matchesEntityTags: () => false,
       findFirstByTags: () => undefined,
       finishByTags: () => 0,
     };
@@ -154,6 +157,7 @@ describe('BuffOperationExecutor', () => {
         finishByIds: () => 0,
         holdByIds: () => ({ release: () => undefined }),
         getCountByTags: () => 0,
+        matchesEntityTags: () => false,
         findFirstByTags: () => undefined,
         finishByTags: () => 0,
       }),
@@ -214,6 +218,47 @@ describe('BuffOperationExecutor', () => {
     expect(
       executor.evaluate({ ...condition, value: { kind: 'blackboard', key: 'threshold' } }, context),
     ).toBe(false);
+  });
+
+  it('queries the entity tag container instead of buff classification tags', () => {
+    const parentPath = 'combat/state/special';
+    const childPath = 'combat/state/special/enhanced';
+    const classificationPath = 'buff/classification/enhancement';
+    const target = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([parentPath, childPath, classificationPath]),
+    );
+    target.add(
+      {
+        id: 'enhanced-state',
+        stackingType: 'unlimited',
+        applyTags: [gameplayTagIdFromPath(classificationPath)],
+      },
+      'operator',
+    );
+    target.addEntityTags([gameplayTagIdFromPath(childPath)]);
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const condition = {
+      kind: 'entityTagMatch' as const,
+      target: 'caster' as const,
+      tagQueryType: 'hasAny' as const,
+      tagIds: [gameplayTagIdFromPath(parentPath)],
+    };
+
+    expect(executor.evaluate(condition)).toBe(true);
+    expect(
+      executor.evaluate({
+        ...condition,
+        tagIds: [gameplayTagIdFromPath(classificationPath)],
+      }),
+    ).toBe(false);
+    target.removeEntityTags([gameplayTagIdFromPath(childPath)]);
+    expect(executor.evaluate(condition)).toBe(false);
   });
 
   it('reads the first matching active buff and writes its value to the action blackboard', () => {

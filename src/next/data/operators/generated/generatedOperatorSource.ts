@@ -298,6 +298,23 @@ export interface GeneratedMainOperatorConditionSource {
   readonly targetGroupKey: string;
 }
 
+/** 原生生命值条件；阈值可以来自技能动作黑板。 */
+export interface GeneratedHealthConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly comparison: string;
+  readonly isRatio: boolean;
+  readonly value: GeneratedScalarSource;
+}
+
+/** 原生实体 GameplayTag 查询；与 Buff 身份和层数查询保持独立。 */
+export interface GeneratedEntityTagConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly tagQueryType: string;
+  readonly tagIds: readonly number[];
+}
+
 /** 原生 TargetSettings 的审计投影；用于证明目标身份和距离折叠，而不是运行时选目标。 */
 export interface GeneratedTargetReferenceSource {
   readonly targetSource: string;
@@ -340,9 +357,11 @@ export interface GeneratedConditionSource {
   readonly skillTypes: readonly string[];
   readonly entityCount?: GeneratedEntityCountConditionSource;
   readonly buffStack?: GeneratedBuffStackConditionSource;
+  readonly health?: GeneratedHealthConditionSource;
   readonly mainOperator?: GeneratedMainOperatorConditionSource;
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
+  readonly entityTag?: GeneratedEntityTagConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {

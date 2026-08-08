@@ -2379,6 +2379,63 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 root_skill_context=True,
             )
 
+    def test_entity_tag_condition_preserves_query_and_requires_target_provenance(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckTagMatch+Data, Example",
+                                                "checkTarget": {
+                                                    "targetSource": "Target",
+                                                    "targetGroupKey": "ignored_by_native_action",
+                                                },
+                                                "query": {
+                                                    "queryType": "ExceptAny",
+                                                    "tags": [{"tagId": 11}, {"tagId": 22}],
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(root, "skill.json", {})[0].conditions[0]
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            input_target="enemy",
+        )
+
+        self.assertTrue(condition.supported)
+        self.assertEqual(condition.entityTag.targetSource, "Target")
+        self.assertEqual(condition.entityTag.tagQueryType, "exceptAny")
+        self.assertEqual(condition.entityTag.tagIds, (11, 22))
+        self.assertIn("kind: 'entityTagMatch'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+        with self.assertRaisesRegex(ValueError, "unsupported entity tag target"):
+            compile_combat_condition_group((condition,), "fixture.conditions")
+
     def test_projectile_child_buff_condition_reads_the_hit_enemy(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",

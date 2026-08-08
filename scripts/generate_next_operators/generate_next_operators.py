@@ -448,6 +448,15 @@ class ConditionSource:
     mainOperator: MainOperatorConditionSource | None = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
+    entityTag: "EntityTagConditionSource | None" = None
+
+
+@dataclass(frozen=True)
+class EntityTagConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    tagQueryType: str
+    tagIds: tuple[int, ...]
 
 
 @dataclass(frozen=True)
@@ -760,6 +769,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "mainOperator",
         "targetIdentity",
         "distance",
+        "entityTag",
         "nestedCondition",
         "onceScopeKey",
         "onceActions",
@@ -2110,6 +2120,26 @@ def parse_conditional_actions(
                         inherited_blackboard,
                     ),
                     limitSkillCastId=False,
+                ),
+            )
+        if condition_type == "CheckTagMatch":
+            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+            query_type, tag_ids = parse_tag_query(
+                condition.get("query"),
+                f"{path}.query",
+            )
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=bool(tag_ids),
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                entityTag=EntityTagConditionSource(
+                    targetSource=str(target.get("targetSource", "")),
+                    targetGroupKey=str(target.get("targetGroupKey", "")),
+                    tagQueryType=query_type,
+                    tagIds=tag_ids,
                 ),
             )
         if condition_type == "CheckHp":
@@ -5164,6 +5194,50 @@ def compile_combat_condition(
                 f"  valueType: {ts_inline_literal('ratio' if health.isRatio else 'current')},",
                 f"  operator: {ts_inline_literal(operator)},",
                 f"  value: {compile_condition_operand(health.value, f'{path}.value')},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckTagMatch":
+        entity_tag = source.entityTag
+        if entity_tag is None:
+            raise ValueError(f"{path}: missing entity tag condition payload")
+        target: Literal["caster", "enemy"] | None = None
+        if entity_tag.targetSource == "Source" and not entity_tag.targetGroupKey:
+            target = "caster"
+        elif (
+            root_skill_context
+            and entity_tag.targetSource == "Owner"
+            and not entity_tag.targetGroupKey
+        ):
+            target = "caster"
+        elif entity_tag.targetSource == "Target" and input_target == "enemy":
+            # 原生 Target 来源忽略 targetGroupKey，直接读取当前动作收到的目标。
+            target = "enemy"
+        elif (
+            entity_tag.targetSource == "Context"
+            and entity_tag.targetGroupKey == "smart_target"
+        ):
+            target = "enemy"
+        elif entity_tag.targetSource == "Context" and action is not None:
+            write = resolve_latest_target_group_write(
+                action,
+                entity_tag.targetGroupKey,
+                target_group_writes,
+            )
+            if write is not None and target_group_write_guarantees_single_enemy(write):
+                target = "enemy"
+        if target is None:
+            raise ValueError(
+                f"{path}: unsupported entity tag target "
+                f"{entity_tag.targetSource!r}/{entity_tag.targetGroupKey!r}"
+            )
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'entityTagMatch',",
+                f"  target: {ts_inline_literal(target)},",
+                f"  tagQueryType: {ts_inline_literal(entity_tag.tagQueryType)},",
+                f"  tagIds: {ts_inline_literal(entity_tag.tagIds)},",
                 "}",
             ]
         )

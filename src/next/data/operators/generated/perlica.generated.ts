@@ -5176,11 +5176,19 @@ export const perlicaGeneratedSource = {
                 },
                 {
                   "sourceType": "CheckTagMatch",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "entityTag": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "tagQueryType": "hasAny",
+                    "tagIds": [
+                      1075718177
+                    ]
+                  }
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -5413,11 +5421,19 @@ export const perlicaGeneratedSource = {
                             },
                             {
                               "sourceType": "CheckTagMatch",
-                              "supported": false,
+                              "supported": true,
                               "comparison": null,
                               "left": null,
                               "right": null,
-                              "skillTypes": []
+                              "skillTypes": [],
+                              "entityTag": {
+                                "targetSource": "Target",
+                                "targetGroupKey": "",
+                                "tagQueryType": "hasAny",
+                                "tagIds": [
+                                  1075718177
+                                ]
+                              }
                             },
                             {
                               "sourceType": "CompareFloat",

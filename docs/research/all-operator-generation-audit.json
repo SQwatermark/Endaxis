@@ -14,18 +14,17 @@
       "parser-channeling": 13,
       "parser-tick-interval": 1,
       "projectile-child-actions": 2,
-      "condition-tag": 6,
+      "conditional-leaf": 6,
       "projectile-data": 1,
+      "condition-distance": 3,
       "condition-other": 7,
-      "buff-source-or-target": 18,
+      "buff-source-or-target": 21,
       "condition-buff-stack": 9,
       "root-action-coverage": 8,
       "parser-damage-calculation": 3,
-      "conditional-leaf": 5,
-      "condition-distance": 2,
       "condition-entity-count": 2,
       "condition-main-operator": 1,
-      "other": 2,
+      "other": 3,
       "source-data-missing": 21
     },
     "unresolvedActionPresence": {
@@ -882,7 +881,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "condition-tag": 1,
+        "conditional-leaf": 1,
         "projectile-data": 1
       }
     },
@@ -895,7 +894,7 @@
       "complete": false,
       "blockerKinds": {
         "parser-channeling": 1,
-        "condition-tag": 1,
+        "condition-distance": 1,
         "condition-other": 1
       }
     },
@@ -1006,7 +1005,7 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "condition-tag": 1,
+        "buff-source-or-target": 1,
         "other": 1
       }
     },
@@ -1070,7 +1069,7 @@
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "condition-tag": 1,
+        "other": 1,
         "parser-channeling": 1
       }
     },
@@ -1186,9 +1185,8 @@
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "condition-tag": 2,
-        "parser-channeling": 2,
-        "buff-source-or-target": 1
+        "buff-source-or-target": 3,
+        "parser-channeling": 2
       }
     }
   ],
@@ -1717,8 +1715,8 @@
       "skillId": "chr_0006_wolfgd_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "normal_skill.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "conditional-leaf",
+      "blocker": "normal_skill.schedule[3].conditionalAction.succeedActions[0]: unsupported conditional leaf 'LaunchProjectile'",
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 3,
       "referencedBuffCount": 2,
@@ -1857,8 +1855,8 @@
       "skillId": "chr_0007_ikut_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "normal_skill.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "condition-distance",
+      "blocker": "normal_skill.schedule[6].conditionalAction.conditions[0]: CheckDistanceCondition targets are not covered by the zero-distance model",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
@@ -3024,8 +3022,8 @@
       "skillId": "chr_0021_whiten_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "combo_skill.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[0].nestedCondition.succeedActions[1].buffs[0]: unsupported Buff target 'Target'/''",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 1,
@@ -3926,8 +3924,8 @@
       "skillId": "chr_0028_wulfa_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "normal_skill.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "other",
+      "blocker": "normal_skill.schedule[14].conditionalAction.conditions[0]: unsupported Buff stack query target or identity",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 5,
       "referencedBuffCount": 4,
@@ -5411,8 +5409,8 @@
       "skillId": "chr_0033_camille_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "combo_skill.schedule[2].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "combo_skill.schedule[2].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 1,
@@ -5425,8 +5423,8 @@
       "skillId": "chr_0033_camille_combo_skill_2",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-tag",
-      "blocker": "combo_skill_2.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTagMatch'",
+      "blockerKind": "buff-source-or-target",
+      "blocker": "combo_skill_2.schedule[4].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 1,

@@ -174,6 +174,17 @@ function validateCombatCondition(value: unknown, path: string, issues: Validatio
       requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
       validateActionValueOperand(value.value, `${path}.value`, issues);
       break;
+    case 'entityTagMatch':
+      requireEnum(value.target, combatTargets, `${path}.target`, issues);
+      requireEnum(value.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
+      if (!Array.isArray(value.tagIds) || value.tagIds.length === 0) {
+        issues.push({ path: `${path}.tagIds`, message: 'expected a non-empty array' });
+      } else {
+        value.tagIds.forEach((tagId, index) =>
+          requireInteger(tagId, `${path}.tagIds[${index}]`, issues),
+        );
+      }
+      break;
     case 'buffIdStackCompare':
       requireEnum(value.target, combatTargets, `${path}.target`, issues);
       validateNonEmptyStringArray(value.buffIds, `${path}.buffIds`, issues);

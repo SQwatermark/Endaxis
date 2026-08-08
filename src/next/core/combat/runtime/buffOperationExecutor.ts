@@ -29,6 +29,11 @@ export interface BuffOperationTarget {
     type: GameplayTagQueryType,
     exact?: boolean,
   ): number;
+  matchesEntityTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): boolean;
   findFirstByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,
@@ -193,6 +198,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         resolveActionValueOperand(condition.value, context.blackboard),
         condition.operator,
       );
+    }
+    if (condition.kind === 'entityTagMatch') {
+      return this.dependencies
+        .resolveTarget(condition.target)
+        .matchesEntityTags(condition.tagIds.map(gameplayTagId), condition.tagQueryType);
     }
     if (condition.kind === 'buffIdStackCompare') {
       const count = this.dependencies

@@ -711,7 +711,8 @@
               "health": null,
               "mainOperator": null,
               "targetIdentity": null,
-              "distance": null
+              "distance": null,
+              "entityTag": null
             }
           ],
           "succeedActions": [
@@ -790,7 +791,8 @@
                     "health": null,
                     "mainOperator": null,
                     "targetIdentity": null,
-                    "distance": null
+                    "distance": null,
+                    "entityTag": null
                   }
                 ],
                 "succeedActions": [
@@ -932,7 +934,8 @@
                     "health": null,
                     "mainOperator": null,
                     "targetIdentity": null,
-                    "distance": null
+                    "distance": null,
+                    "entityTag": null
                   }
                 ],
                 "succeedActions": [
@@ -1037,7 +1040,8 @@
               "health": null,
               "mainOperator": null,
               "targetIdentity": null,
-              "distance": null
+              "distance": null,
+              "entityTag": null
             }
           ],
           "succeedActions": [

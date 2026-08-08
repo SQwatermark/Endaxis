@@ -58,18 +58,17 @@
 
 | 阻塞类别                    | 技能数 |
 | --------------------------- | -----: |
+| `buff-source-or-target`     |     21 |
 | `source-data-missing`       |     21 |
-| `buff-source-or-target`     |     18 |
 | `parser-channeling`         |     13 |
 | `condition-buff-stack`      |      9 |
 | `root-action-coverage`      |      8 |
 | `condition-other`           |      7 |
-| `condition-tag`             |      6 |
-| `conditional-leaf`          |      5 |
+| `conditional-leaf`          |      6 |
+| `condition-distance`        |      3 |
+| `other`                     |      3 |
 | `parser-damage-calculation` |      3 |
-| `condition-distance`        |      2 |
 | `condition-entity-count`    |      2 |
-| `other`                     |      2 |
 | `projectile-child-actions`  |      2 |
 | `condition-main-operator`   |      1 |
 | `parser-assignment-shape`   |      1 |

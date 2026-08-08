@@ -601,6 +601,15 @@ export class CombatBuffContainer<Key extends string> {
     }
   }
 
+  /** 按原生父级展开规则查询当前实体标签，不把 Buff 分类标签另行计数。 */
+  matchesEntityTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact = false,
+  ): boolean {
+    return this.tagRegistry.query(this.#entityTagCounts.keys(), tags, type, exact);
+  }
+
   /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */
   getCountByTags(
     tags: readonly GameplayTagId[],
