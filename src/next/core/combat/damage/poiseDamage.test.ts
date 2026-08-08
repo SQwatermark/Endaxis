@@ -63,7 +63,15 @@ describe('poise damage', () => {
         calculatedDamage: 30,
         requestedDelta: -60,
         actualDelta: -40,
-        remainingPoise: 0,
+        previousPoise: 40,
+        currentPoise: 0,
+        cancelled: false,
+        cancelledByImmunity: false,
+        poiseImmune: false,
+        ignorePoiseImmune: false,
+        brokePoise: true,
+        inPoiseRecovery: true,
+        hasPoiseBrokenTag: true,
       },
     });
   });
@@ -72,6 +80,7 @@ describe('poise damage', () => {
     const target = createTarget({ poiseImmune: true });
     const events: string[] = [];
 
+    const receipt = new CombatReceiptCollector();
     const result = executePoiseDamage({
       sourceId: 'operator',
       targetId: 'enemy',
@@ -80,7 +89,7 @@ describe('poise damage', () => {
       outputMultiplier: 1,
       takenMultiplier: 1,
       clock: new CombatClock(),
-      receipt: new CombatReceiptCollector(),
+      receipt,
       emitSourceEvent: event => events.push(`source:${event}`),
       emitTargetEvent: event => events.push(`target:${event}`),
     });
@@ -88,6 +97,15 @@ describe('poise damage', () => {
     expect(events).toEqual(['source:beforeOutputPoiseDamage', 'target:beforeTakePoiseDamage']);
     expect(result).toMatchObject({ cancelled: true, actualDelta: 0 });
     expect(target.poise).toBe(100);
+    expect(receipt.entries[0]?.data).toMatchObject({
+      previousPoise: 100,
+      currentPoise: 100,
+      cancelled: true,
+      cancelledByImmunity: true,
+      poiseImmune: true,
+      ignorePoiseImmune: false,
+      brokePoise: false,
+    });
   });
 
   it('does not repeat the epsilon filter after before-events mutate the delta', () => {

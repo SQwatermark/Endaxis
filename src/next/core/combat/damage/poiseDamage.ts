@@ -80,8 +80,9 @@ export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageE
   input.emitTargetEvent('beforeTakePoiseDamage', modifier);
 
   const previousPoise = input.target.poise;
-  modifier.cancelled =
+  const cancelledByImmunity =
     modifier.finalDelta < 0 && input.target.poiseImmune && !modifier.ignorePoiseImmune;
+  modifier.cancelled = cancelledByImmunity;
   let brokePoise = false;
   if (!modifier.cancelled && input.target.hasPoise) {
     modifier.actualDelta = input.target.applyPoiseDelta(modifier.finalDelta);
@@ -101,8 +102,13 @@ export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageE
       calculatedDamage,
       requestedDelta: modifier.finalDelta,
       actualDelta: modifier.actualDelta,
+      previousPoise,
+      currentPoise: input.target.poise,
       cancelled: modifier.cancelled,
-      remainingPoise: input.target.poise,
+      cancelledByImmunity,
+      poiseImmune: input.target.poiseImmune,
+      ignorePoiseImmune: modifier.ignorePoiseImmune,
+      brokePoise,
       inPoiseRecovery: input.target.inPoiseRecovery,
       hasPoiseBrokenTag: input.target.hasPoiseBrokenTag,
     },
