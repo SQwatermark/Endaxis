@@ -68,6 +68,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -133,6 +134,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -143,6 +145,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -277,6 +280,7 @@ export const zhuangFangyiGeneratedSource = {
             "IfElseAction"
           ],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -292,6 +296,77 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 9,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "swordIndex": {
+                        "value": 0.0,
+                        "blackboardKey": "swordIndex",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "swordCnt": {
+                        "value": 0.0,
+                        "blackboardKey": "EntityBB_SwordNum",
+                        "levelValues": null
+                      },
+                      "atk_scale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "poise": {
+                        "value": 0.0,
+                        "blackboardKey": "poise",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "usp_extra": {
+                        "value": 0.0,
+                        "blackboardKey": "usp_extra",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "remain_sword_limit": {
+                        "value": 0.0,
+                        "blackboardKey": "remain_sword_limit",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "final_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "final_rate",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "swordInst",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_sword_triggerd"
           ]
@@ -305,6 +380,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -371,6 +447,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -384,6 +461,7 @@ export const zhuangFangyiGeneratedSource = {
             "SpawnAbilityEntity"
           ],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -397,6 +475,7 @@ export const zhuangFangyiGeneratedSource = {
             "IfElseAction"
           ],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar"
           ]
@@ -463,6 +542,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -1107,6 +1187,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -1125,6 +1206,29 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 3,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionOwner",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_hide_model_holder"
           ]
@@ -1138,6 +1242,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -1150,6 +1255,34 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 15,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  },
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_body_vfx",
             "buff_chr_0030_zhuangfy_ult_env_vfx"
@@ -1167,6 +1300,7 @@ export const zhuangFangyiGeneratedSource = {
             "IfElseAction"
           ],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -1179,6 +1313,29 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 24,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_skill_free"
           ]
@@ -1246,6 +1403,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         },
         {
@@ -1261,6 +1419,29 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 9,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_dash_hide",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_dash_hide"
           ]
@@ -1328,6 +1509,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -1392,6 +1574,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "combatActions": [],
           "damageUnits": [],
+          "buffApplications": [],
           "createdBuffIds": []
         }
       ],
@@ -1458,6 +1641,29 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction"
           ],
           "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionOwner",
+                "inheritSourceSkillCastInfo": false
+              }
+            }
+          ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_hide_model"
           ]

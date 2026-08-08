@@ -476,7 +476,14 @@ export interface GeneratedBuffEventActionSource {
   readonly orderedActionTypes: readonly string[];
   readonly combatActions: readonly string[];
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
+  /** 事件顶层按顺序直接创建的 Buff；条件分支内的创建动作由条件树保存。 */
+  readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
   readonly createdBuffIds: readonly string[];
+}
+
+export interface GeneratedEventBuffApplicationSource {
+  readonly actionIndex: number;
+  readonly payload: GeneratedBuffApplicationPayload;
 }
 
 export interface GeneratedSkillSource {

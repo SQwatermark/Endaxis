@@ -323,7 +323,14 @@ class BuffEventActionSource:
     orderedActionTypes: tuple[str, ...]
     combatActions: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
+    buffApplications: tuple["EventBuffApplicationSource", ...]
     createdBuffIds: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class EventBuffApplicationSource:
+    actionIndex: int
+    payload: BuffApplicationPayload
 
 
 @dataclass(frozen=True)
@@ -2322,6 +2329,14 @@ def parse_buff_event_actions(
             ordered_action_types = tuple(
                 action_name(item["$type"]) for item in walked_actions
             )
+            buff_applications = tuple(
+                EventBuffApplicationSource(
+                    actionIndex=require_server_action_index(item, event_path),
+                    payload=parse_buff_application_payload(item, event_path, blackboard),
+                )
+                for item in walked_actions
+                if action_name(item["$type"]) == "CreateBuffAction"
+            )
             result.append(
                 BuffEventActionSource(
                     eventSource=cast(Literal["buff", "ability"], event_source),
@@ -2339,6 +2354,7 @@ def parse_buff_event_actions(
                     damageUnits=parse_damage_units(
                         action_root, f"{source_name}.{event_name}", blackboard
                     ),
+                    buffApplications=buff_applications,
                     createdBuffIds=collect_created_buff_ids(actions, source_name),
                 )
             )

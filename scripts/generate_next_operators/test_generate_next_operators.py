@@ -480,7 +480,19 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 actions.append(
                     {
                         "$type": "Example.CreateBuffAction+Data, Example",
+                        "serverActionIndex": 0,
                         "buffs": [{"buffId": child_id, "assignItems": []}],
+                        "targetSettings": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                        },
+                        "count": {
+                            "useBlackboardKey": False,
+                            "value": 1,
+                            "blackboardKey": "",
+                        },
+                        "buffSource": "ActionSource",
+                        "inheritSourceSkillCastInfo": True,
                     }
                 )
             return {
@@ -1996,6 +2008,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "serverActionIndex": 0,
                                     "isEnable": True,
                                     "buffs": [{"buffId": "child_buff", "assignItems": []}],
+                                    "targetSettings": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                    },
+                                    "count": {
+                                        "useBlackboardKey": False,
+                                        "value": 1,
+                                        "blackboardKey": "",
+                                    },
+                                    "buffSource": "ActionSource",
+                                    "inheritSourceSkillCastInfo": True,
                                 }
                             ]
                         }
@@ -2029,6 +2052,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(event.orderedActionTypes, ("CreateBuffAction",))
         self.assertEqual(event.combatActions, ("CreateBuffAction",))
         self.assertEqual(event.createdBuffIds, ("child_buff",))
+        self.assertEqual(len(event.buffApplications), 1)
+        application = event.buffApplications[0]
+        self.assertEqual(application.actionIndex, 0)
+        self.assertEqual(application.payload.targetSource, "Source")
+        self.assertEqual(application.payload.count.value, 1)
+        self.assertTrue(application.payload.inheritSourceSkillCastInfo)
 
     def test_buff_ability_event_actions_preserve_source_and_order(self) -> None:
         buff = {
