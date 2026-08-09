@@ -229,6 +229,86 @@ export function moveSkillCast(
   return { ...scenario, tracks };
 }
 
+interface LocatedSkillCast {
+  readonly trackIndex: TrackIndex;
+  readonly castIndex: number;
+  readonly cast: TrackDocument['skillCasts'][number];
+}
+
+function locateSkillCasts(
+  scenario: ScenarioDocument,
+  skillCastIds: ReadonlySet<string>,
+): LocatedSkillCast[] {
+  const located: LocatedSkillCast[] = [];
+  for (const [trackIndex, track] of scenario.tracks.entries()) {
+    if (track === null) continue;
+    for (const [castIndex, cast] of track.skillCasts.entries()) {
+      if (!skillCastIds.has(cast.id)) continue;
+      located.push({ trackIndex: trackIndex as TrackIndex, castIndex, cast });
+    }
+  }
+  return located;
+}
+
+/**
+ * 让当前选择集按同一帧差整体移动，保持跨轨道动作之间的相对位置。
+ * 选择中包含锁定动作时整组不移动；边界按动作起始帧统一收缩位移量，避免逐项截断后挤乱布局。
+ */
+export function moveSkillCasts(
+  scenario: ScenarioDocument,
+  skillCastIds: ReadonlySet<string>,
+  anchorTrackIndex: TrackIndex,
+  anchorSkillCastId: string,
+  requestedAnchorStartFrame: number,
+): ScenarioDocument {
+  if (!Number.isInteger(requestedAnchorStartFrame) || requestedAnchorStartFrame < 0) {
+    throw new RangeError('requestedAnchorStartFrame must be a non-negative integer');
+  }
+  if (!skillCastIds.has(anchorSkillCastId)) {
+    throw new Error(`selection does not contain anchor skill cast '${anchorSkillCastId}'`);
+  }
+
+  const anchor = locateSkillCast(scenario, anchorTrackIndex, anchorSkillCastId).cast;
+  const located = locateSkillCasts(scenario, skillCastIds);
+  if (located.length !== skillCastIds.size) {
+    throw new Error('selection contains a missing or duplicate skill cast identity');
+  }
+  if (located.some(value => value.cast.editable.locked)) return scenario;
+
+  const requestedDelta = requestedAnchorStartFrame - anchor.placement.startFrame;
+  const minimumStartFrame = Math.min(...located.map(value => value.cast.placement.startFrame));
+  const maximumStartFrame = Math.max(...located.map(value => value.cast.placement.startFrame));
+  const delta = Math.max(
+    -minimumStartFrame,
+    Math.min(scenario.battle.durationFrames - maximumStartFrame, requestedDelta),
+  );
+  if (delta === 0) return scenario;
+
+  const castIndexesByTrack = new Map<TrackIndex, Set<number>>();
+  for (const value of located) {
+    const castIndexes = castIndexesByTrack.get(value.trackIndex) ?? new Set();
+    castIndexes.add(value.castIndex);
+    castIndexesByTrack.set(value.trackIndex, castIndexes);
+  }
+  const tracks = scenario.tracks.map((track, trackIndex) => {
+    if (track === null) return null;
+    const castIndexes = castIndexesByTrack.get(trackIndex as TrackIndex);
+    if (castIndexes === undefined) return track;
+    return {
+      ...track,
+      skillCasts: track.skillCasts.map((cast, castIndex) =>
+        castIndexes.has(castIndex)
+          ? {
+              ...cast,
+              placement: { startFrame: cast.placement.startFrame + delta },
+            }
+          : cast,
+      ),
+    };
+  }) as ScenarioDocument['tracks'];
+  return { ...scenario, tracks };
+}
+
 function requireNonNegativeNumber(value: unknown, field: string, integer: boolean): void {
   if (
     typeof value !== 'number' ||

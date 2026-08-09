@@ -3,6 +3,7 @@ import { createEmptyScenario } from '../../core/project/createProject';
 import type { SkillCastDocument } from '../../core/project/schema';
 import {
   moveSkillCast,
+  moveSkillCasts,
   removeSkillCast,
   removeSkillCasts,
   setTrackGear,
@@ -350,5 +351,63 @@ describe('moveSkillCast', () => {
     const original = scenario();
     expect(removeSkillCasts(original, new Set())).toBe(original);
     expect(removeSkillCasts(original, new Set(['missing']))).toBe(original);
+  });
+});
+
+describe('moveSkillCasts', () => {
+  function multiTrackScenario() {
+    const value = scenario();
+    value.tracks[0]!.skillCasts.push({
+      ...cast(),
+      id: 'cast:2',
+      placement: { startFrame: 60 },
+    });
+    value.tracks[1] = {
+      operatorBuildId: null,
+      weaponBuildId: null,
+      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [{ ...cast(), id: 'cast:3', placement: { startFrame: 90 } }],
+    };
+    value.battle.durationFrames = 120;
+    return value;
+  }
+
+  it('moves selected casts across tracks while preserving their relative positions', () => {
+    const original = multiTrackScenario();
+    const moved = moveSkillCasts(original, new Set(['cast:1', 'cast:3']), 0, 'cast:1', 45);
+
+    expect(moved.tracks[0]!.skillCasts.map(value => value.placement.startFrame)).toEqual([45, 60]);
+    expect(moved.tracks[1]!.skillCasts[0]!.placement.startFrame).toBe(105);
+    expect(original.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(30);
+  });
+
+  it('clamps the shared delta at both timeline boundaries', () => {
+    const original = multiTrackScenario();
+    const selection = new Set(['cast:1', 'cast:3']);
+    const movedLeft = moveSkillCasts(original, selection, 0, 'cast:1', 0);
+    const movedRight = moveSkillCasts(original, selection, 0, 'cast:1', 100);
+
+    expect(movedLeft.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(0);
+    expect(movedLeft.tracks[1]!.skillCasts[0]!.placement.startFrame).toBe(60);
+    expect(movedRight.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(60);
+    expect(movedRight.tracks[1]!.skillCasts[0]!.placement.startFrame).toBe(120);
+  });
+
+  it('keeps the whole selection unchanged when any selected cast is locked', () => {
+    const original = multiTrackScenario();
+    original.tracks[1]!.skillCasts[0]!.editable.locked = true;
+
+    expect(moveSkillCasts(original, new Set(['cast:1', 'cast:3']), 0, 'cast:1', 45)).toBe(original);
+  });
+
+  it('rejects stale selections and anchors outside the selection', () => {
+    const original = multiTrackScenario();
+    expect(() => moveSkillCasts(original, new Set(['cast:1', 'missing']), 0, 'cast:1', 45)).toThrow(
+      'missing or duplicate',
+    );
+    expect(() => moveSkillCasts(original, new Set(['cast:3']), 0, 'cast:1', 45)).toThrow(
+      'does not contain anchor',
+    );
   });
 });

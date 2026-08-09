@@ -54,7 +54,7 @@ import {
   type TimelineActionClipboard,
 } from './timelineClipboard';
 import {
-  moveSkillCast,
+  moveSkillCasts,
   swapTimelineTracks,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
@@ -77,7 +77,13 @@ const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
-  | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number }
+  | {
+      kind: 'skillCast';
+      trackIndex: TrackIndex;
+      skillCastId: string;
+      skillCastIds: readonly string[];
+      pointerOffsetFrames: number;
+    }
   | { kind: 'trackOrder'; trackIndex: TrackIndex };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
@@ -409,12 +415,22 @@ function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: stri
 }
 
 function beginCastDrag(event: DragEvent, trackIndex: TrackIndex, skillCastId: string): void {
+  const selection = actionSelection.value.selectedIds.has(skillCastId)
+    ? { ...actionSelection.value, primaryId: skillCastId }
+    : selectTimelineAction(actionSelection.value, skillCastId, false);
+  applyActionSelection(selection);
   const block = event.currentTarget as HTMLElement;
   const pointerOffsetFrames = Math.max(
     0,
     Math.round((event.clientX - block.getBoundingClientRect().left) / pxPerFrame),
   );
-  dragPayload.value = { kind: 'skillCast', trackIndex, skillCastId, pointerOffsetFrames };
+  dragPayload.value = {
+    kind: 'skillCast',
+    trackIndex,
+    skillCastId,
+    skillCastIds: [...selection.selectedIds],
+    pointerOffsetFrames,
+  };
   if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
 }
 
@@ -468,10 +484,13 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     return;
   }
   if (payload.trackIndex !== trackIndex) return;
-  commitScenario('moveSkillCast', current =>
-    moveSkillCast(current, trackIndex, payload.skillCastId, frame),
+  commitScenario('moveSkillCasts', current =>
+    moveSkillCasts(current, new Set(payload.skillCastIds), trackIndex, payload.skillCastId, frame),
   );
-  applyActionSelection(selectTimelineAction(actionSelection.value, payload.skillCastId, false));
+  applyActionSelection({
+    selectedIds: new Set(payload.skillCastIds),
+    primaryId: payload.skillCastId,
+  });
 }
 
 function resetScenario(): void {
