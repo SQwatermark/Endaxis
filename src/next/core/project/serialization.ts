@@ -5,7 +5,9 @@
 import type { EndaxisProjectDocument, JsonObject } from './schema';
 import { PROJECT_SCHEMA_VERSION } from './schema';
 import type { LegacyProjectImporter } from './migration';
-import { validateProjectDocument, type ValidationIssue } from './validation';
+import { validateProjectDocument, type ValidationIssue, type ValidationResult } from './validation';
+import type { GameDataRepository } from '../game-data/gameDataRepository';
+import { validateProjectWithGameData } from './catalogValidation';
 
 /** 只做结构识别的输入类别，不代表文档已经通过完整校验。 */
 export type ProjectInputKind = 'current' | 'legacy' | 'unsupported';
@@ -28,6 +30,14 @@ export type ParseProjectResult =
 /** 解析项目时可选注入的旧格式迁移器。 */
 export interface ParseProjectOptions {
   legacyImporter?: LegacyProjectImporter;
+  /** 提供后，加载流程还会校验 build 与机制的版本化目录引用。 */
+  gameDataRepository?: GameDataRepository;
+}
+
+function validateLoadedProject(value: unknown, options: ParseProjectOptions): ValidationResult {
+  return options.gameDataRepository === undefined
+    ? validateProjectDocument(value)
+    : validateProjectWithGameData(value, options.gameDataRepository);
 }
 
 function isObject(value: unknown): value is JsonObject {
@@ -68,7 +78,7 @@ export function parseProjectDocument(
     if (options.legacyImporter) {
       const migration = options.legacyImporter.migrate(value);
       if (!migration.ok) return { ok: false, kind: 'migration-failed', errors: migration.errors };
-      const migratedValidation = validateProjectDocument(migration.value);
+      const migratedValidation = validateLoadedProject(migration.value, options);
       if (!migratedValidation.ok) {
         return { ok: false, kind: 'invalid-document', issues: migratedValidation.issues };
       }
@@ -88,7 +98,7 @@ export function parseProjectDocument(
     };
   }
 
-  const validation = validateProjectDocument(value);
+  const validation = validateLoadedProject(value, options);
   if (!validation.ok) return { ok: false, kind: 'invalid-document', issues: validation.issues };
   return validation;
 }

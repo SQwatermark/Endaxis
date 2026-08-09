@@ -256,17 +256,17 @@ function resolveStep(
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        whenTrue: resolveSequence(step.whenTrue, skillLevel, `${path}.whenTrue`),
+        whenTrue: compileActionSequence(step.whenTrue, skillLevel, `${path}.whenTrue`),
         ...(step.whenFalse === undefined
           ? {}
-          : { whenFalse: resolveSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
+          : { whenFalse: compileActionSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
       };
     case 'once':
       return {
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        body: resolveSequence(step.body, skillLevel, `${path}.body`),
+        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
       };
     case 'readBuffBlackboard':
       return {
@@ -362,10 +362,11 @@ function resolveStep(
   }
 }
 
-function resolveSequence(
+/** 将任意目录来源的等级化动作序列解析为运行时序列。 */
+export function compileActionSequence(
   sequence: ActionSequenceDefinition,
   skillLevel: number,
-  path: string,
+  path = 'sequence',
 ): ResolvedActionSequence {
   return {
     steps: sequence.steps.map((step, index) =>
@@ -431,7 +432,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({
       startFrame: scheduled.startFrame,
       ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
-      sequence: resolveSequence(
+      sequence: compileActionSequence(
         scheduled.sequence,
         input.skillLevel,
         `scheduledSequences[${index}].sequence`,

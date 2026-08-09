@@ -35,19 +35,21 @@ export interface OperatorBuildDocument {
   baseStatOverrides?: Record<string, number>;
 }
 
-/** 一把武器的等级、突破、潜能与词条等级配置。 */
+/** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器目录定义决定。 */
 export interface WeaponBuildDocument {
   id: string;
+  /** 引用当前游戏数据版本中的 `WeaponDefinition.slug`。 */
   weaponSlug: string;
   level: number;
   tuned: boolean;
   potential: number;
-  skillLevels: [number, number, number];
+  traitLevels: number[];
 }
 
 /** 一件装备的目录身份与精锻等级配置。 */
 export interface GearBuildDocument {
   id: string;
+  /** 引用当前游戏数据版本中的 `GearDefinition.slug`。 */
   gearSlug: string;
   artificingLevels: number[];
 }

@@ -46,11 +46,11 @@ export function validateWeaponBuild(
   requirePositiveInteger(value.level, `${path}.level`, issues);
   requireBoolean(value.tuned, `${path}.tuned`, issues);
   requireNonNegativeInteger(value.potential, `${path}.potential`, issues);
-  if (!Array.isArray(value.skillLevels) || value.skillLevels.length !== 3) {
-    issues.push({ path: `${path}.skillLevels`, message: 'expected exactly three skill levels' });
+  if (!Array.isArray(value.traitLevels)) {
+    issues.push({ path: `${path}.traitLevels`, message: 'expected an array' });
   } else {
-    value.skillLevels.forEach((level, index) =>
-      requirePositiveInteger(level, `${path}.skillLevels[${index}]`, issues),
+    value.traitLevels.forEach((level, index) =>
+      requirePositiveInteger(level, `${path}.traitLevels[${index}]`, issues),
     );
   }
 }

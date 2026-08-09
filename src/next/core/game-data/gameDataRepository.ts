@@ -3,16 +3,7 @@
  * 具体数据源由应用层注入；核心不得借此读取项目状态、UI 状态或可变运行时对象。
  */
 import type { OperatorDefinition } from './operatorDefinition';
-
-/** 尚未展开的武器目录引用；面板解析器负责读取其完整定义。 */
-export interface WeaponDefinitionRef {
-  slug: string;
-}
-
-/** 尚未展开的装备目录引用；面板解析器负责读取其完整定义。 */
-export interface GearDefinitionRef {
-  slug: string;
-}
+import type { GearDefinition, GearSetDefinition, WeaponDefinition } from './equipmentDefinition';
 
 export const MECHANIC_FAMILIES = ['stage', 'contingencyContract', 'seasonTower', 'custom'] as const;
 /** 决定一项场景机制由哪类 Adapter 解释。 */
@@ -40,7 +31,8 @@ export interface MechanicDefinitionRef {
 /** 新核心使用的只读游戏数据边界。 */
 export interface GameDataRepository {
   getOperator(slug: string): OperatorDefinition | null;
-  getWeapon(slug: string): WeaponDefinitionRef | null;
-  getGear(slug: string): GearDefinitionRef | null;
+  getWeapon(slug: string): WeaponDefinition | null;
+  getGear(slug: string): GearDefinition | null;
+  getGearSet(slug: string): GearSetDefinition | null;
   getMechanic(id: string): MechanicDefinitionRef | null;
 }
