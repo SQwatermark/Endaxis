@@ -65,6 +65,7 @@ import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keybo
 import { basicAttackSegmentLabel } from './timelineSkillLabels';
 import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
 import { useTimelineViewportPan } from './useTimelineViewportPan';
+import { handleTimelineEditorShortcut } from './timelineKeyboardShortcuts';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -134,8 +135,8 @@ onScopeDispose(() => {
 function commitScenario(
   commandName: string,
   command: (current: ScenarioDocument) => ScenarioDocument,
-) {
-  scenarioSession.commit(commandName, command);
+): boolean {
+  return scenarioSession.commit(commandName, command);
 }
 
 const {
@@ -501,11 +502,12 @@ function resetScenario(): void {
   contextMenuTarget.value = null;
 }
 
-function restoreEditorHistory(direction: 'undo' | 'redo'): void {
+function restoreEditorHistory(direction: 'undo' | 'redo'): boolean {
   const restored = direction === 'undo' ? scenarioSession.undo() : scenarioSession.redo();
-  if (!restored) return;
+  if (!restored) return false;
   clearTimelineSelection();
   contextMenuTarget.value = null;
+  return true;
 }
 
 function openCastContextMenu(event: MouseEvent, trackIndex: TrackIndex, skillCastId: string): void {
@@ -570,6 +572,32 @@ function copySelectedActions(): boolean {
   return timelineClipboard.value !== null;
 }
 
+function deleteSelectedActions(): boolean {
+  const deleted = deleteSelectedTimelineActions(scenarioSession, actionSelection.value);
+  if (deleted) clearTimelineSelection();
+  return deleted;
+}
+
+function nudgeSelectedActions(deltaFrames: -1 | 1): boolean {
+  const selection = actionSelection.value;
+  const anchorSkillCastId = selection.primaryId ?? selection.selectedIds.values().next().value;
+  if (anchorSkillCastId === undefined) return false;
+  for (const [trackIndex, track] of scenario.value.tracks.entries()) {
+    const anchor = track?.skillCasts.find(cast => cast.id === anchorSkillCastId);
+    if (anchor === undefined) continue;
+    return commitScenario('moveSkillCasts', current =>
+      moveSkillCasts(
+        current,
+        selection.selectedIds,
+        trackIndex as TrackIndex,
+        anchorSkillCastId,
+        Math.max(0, anchor.placement.startFrame + deltaFrames),
+      ),
+    );
+  }
+  return false;
+}
+
 const hasModalPanel = computed(
   () =>
     operatorDialogTrack.value !== null ||
@@ -594,16 +622,20 @@ useKeyboardShortcutScope({
   priority: 10,
   active: () => !hasModalPanel.value && contextMenuTarget.value === null,
   handle: event => {
-    if (isTextEditingTarget(event.target) || event.altKey || !(event.ctrlKey || event.metaKey)) {
-      return false;
-    }
-    const key = event.key.toLowerCase();
-    if (key === 'c') return copySelectedActions();
-    if (key === 'v' && timelineClipboard.value !== null) {
-      pasteClipboardAtCursor();
-      return true;
-    }
-    return false;
+    if (isTextEditingTarget(event.target)) return false;
+    return handleTimelineEditorShortcut(event, {
+      undo: () => restoreEditorHistory('undo'),
+      redo: () => restoreEditorHistory('redo'),
+      copy: copySelectedActions,
+      paste: () => {
+        if (timelineClipboard.value === null) return false;
+        pasteClipboardAtCursor();
+        return true;
+      },
+      delete: deleteSelectedActions,
+      nudgeLeft: () => nudgeSelectedActions(-1),
+      nudgeRight: () => nudgeSelectedActions(1),
+    });
   },
 });
 
