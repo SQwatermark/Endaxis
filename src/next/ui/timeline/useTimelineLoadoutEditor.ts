@@ -15,6 +15,11 @@ import type {
 import type { GameDataBrowser, GameDataRepository } from '../../core/game-data/gameDataRepository';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
 import {
+  resolveOperatorPanel,
+  type ResolvedOperatorPanel,
+} from '../../core/compiler/resolveOperatorPanel';
+import { resolveScenarioBuilds } from '../../core/compiler/resolveScenarioBuilds';
+import {
   updateTrackGearBuild,
   updateTrackOperatorBuild,
   updateTrackWeaponBuild,
@@ -46,6 +51,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   const showOperatorBuildDialog = ref(false);
   const showWeaponBuildDialog = ref(false);
   const showGearBuildDialog = ref(false);
+  const panelDialogTrack = ref<TrackIndex | null>(null);
 
   function commit(commandName: string, command: ScenarioCommand): void {
     options.session.commit(commandName, command);
@@ -92,6 +98,31 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
       ? null
       : (loadoutModels.value[target.trackIndex]?.gears[target.slot] ?? null);
   });
+  const panelResolution = computed<{
+    readonly panels: ReadonlyMap<TrackIndex, ResolvedOperatorPanel>;
+    readonly error: string | null;
+  }>(() => {
+    try {
+      return {
+        panels: new Map(
+          resolveScenarioBuilds(options.scenario.value, options.gameData).map(build => [
+            build.trackIndex,
+            resolveOperatorPanel(build),
+          ]),
+        ),
+        error: null,
+      };
+    } catch (error) {
+      return {
+        panels: new Map(),
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+  const selectedPanel = computed(() => {
+    const trackIndex = panelDialogTrack.value;
+    return trackIndex === null ? null : (panelResolution.value.panels.get(trackIndex) ?? null);
+  });
 
   function openOperatorDialog(trackIndex = options.selectedTrack.value): void {
     options.selectedTrack.value = trackIndex;
@@ -132,6 +163,13 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     options.selectedTrack.value = trackIndex;
     options.clearTimelineSelection();
     weaponDialogTrack.value = trackIndex;
+  }
+
+  function openPanelDialog(trackIndex = options.selectedTrack.value): void {
+    if (!panelResolution.value.panels.has(trackIndex)) return;
+    options.selectedTrack.value = trackIndex;
+    options.clearTimelineSelection();
+    panelDialogTrack.value = trackIndex;
   }
 
   function selectWeapon(slug: string): void {
@@ -236,6 +274,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     showOperatorBuildDialog,
     showWeaponBuildDialog,
     showGearBuildDialog,
+    panelDialogTrack,
     loadoutModels,
     selectedLoadoutModel,
     selectedWeaponSlug,
@@ -243,11 +282,14 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     selectedGearSlug,
     selectableGears,
     selectedGearBuild,
+    panelResolution,
+    selectedPanel,
     openOperatorDialog,
     selectTrack,
     selectOperator,
     clearOperator,
     openWeaponDialog,
+    openPanelDialog,
     selectWeapon,
     clearWeapon,
     openGearDialog,

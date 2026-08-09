@@ -1263,6 +1263,11 @@
     "weaponTab": "武器",
     "gearTab": "装备",
     "skillLibrary": "干员技能库",
+    "panel": {
+      "trustNode": "天赋阵列 {node}",
+      "staggerDamage": "失衡伤害加成",
+      "unavailable": "属性详情暂不可用：{reason}"
+    },
     "operatorSupport": {
       "partial": "该干员数据未完全转换",
       "scopedCapability": "{capability}（技能组：{groups}）",

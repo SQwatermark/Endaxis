@@ -9,6 +9,7 @@ import {
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
+import NextOperatorPanelDialog from './components/NextOperatorPanelDialog.vue';
 import NextOperatorBuildDialog from './components/NextOperatorBuildDialog.vue';
 import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
@@ -132,6 +133,7 @@ const {
   showOperatorBuildDialog,
   showWeaponBuildDialog,
   showGearBuildDialog,
+  panelDialogTrack,
   loadoutModels,
   selectedLoadoutModel,
   selectedWeaponSlug,
@@ -139,11 +141,14 @@ const {
   selectedGearSlug,
   selectableGears,
   selectedGearBuild,
+  panelResolution,
+  selectedPanel,
   openOperatorDialog,
   selectTrack,
   selectOperator,
   clearOperator,
   openWeaponDialog,
+  openPanelDialog,
   selectWeapon,
   clearWeapon,
   openGearDialog,
@@ -178,6 +183,15 @@ const ids: TimelineDocumentIdAllocator = {
 };
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const panelDialogOperator = computed(() => {
+  const trackIndex = panelDialogTrack.value;
+  return trackIndex === null
+    ? null
+    : (loadoutModels.value[trackIndex]?.operator?.definition ?? null);
+});
+const panelDialogOperatorName = computed(() =>
+  operatorName(panelDialogOperator.value?.slug ?? null),
+);
 const selectedCastModel = computed(() => {
   if (selectedCastId.value === null) return null;
   for (const trackModel of viewModel.value.tracks) {
@@ -521,7 +535,8 @@ const hasModalPanel = computed(
     gearDialogTarget.value !== null ||
     showOperatorBuildDialog.value ||
     showWeaponBuildDialog.value ||
-    showGearBuildDialog.value,
+    showGearBuildDialog.value ||
+    panelDialogTrack.value !== null,
 );
 
 useKeyboardShortcutScope({
@@ -574,6 +589,10 @@ function updateSelectedCast(
   commitScenario('updateSkillCastField', current =>
     updateSkillCastBasicField(current, selected.trackIndex, selected.cast.id, field, value),
   );
+}
+
+function setPanelDialogVisible(visible: boolean): void {
+  if (!visible) panelDialogTrack.value = null;
 }
 </script>
 
@@ -760,6 +779,8 @@ function updateSelectedCast(
               :selected="selectedTrack === track.trackIndex"
               :can-move-up="track.trackIndex > 0"
               :can-move-down="track.trackIndex < 3"
+              :stat-details-available="panelResolution.panels.has(track.trackIndex)"
+              :stat-details-error="panelResolution.error"
               :weapon-icon="loadoutModels[track.trackIndex]?.weapon?.definition.iconPath ?? null"
               :gear-icons="{
                 armor: loadoutModels[track.trackIndex]?.gears.armor?.definition.iconPath ?? null,
@@ -782,6 +803,7 @@ function updateSelectedCast(
               @move-down="moveTrack(track.trackIndex, 1)"
               @reorder-drag-start="beginTrackOrderDrag($event, track.trackIndex)"
               @reorder-drop="dropTrackOrder($event, track.trackIndex)"
+              @stats="openPanelDialog(track.trackIndex)"
               @weapon="openWeaponDialog(track.trackIndex)"
               @gear="openGearDialog(track.trackIndex, $event)"
             />
@@ -917,6 +939,13 @@ function updateSelectedCast(
     :gears="selectedLoadoutModel.gears"
     @update:visible="showGearBuildDialog = $event"
     @update="updateGearBuild"
+  />
+  <NextOperatorPanelDialog
+    :visible="panelDialogTrack !== null"
+    :panel="selectedPanel"
+    :operator="panelDialogOperator"
+    :operator-name="panelDialogOperatorName"
+    @update:visible="setPanelDialogVisible"
   />
 </template>
 

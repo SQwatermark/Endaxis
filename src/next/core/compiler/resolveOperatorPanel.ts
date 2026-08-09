@@ -286,6 +286,24 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
       operation: 'base',
       value: values.operatorBaseHealth,
     },
+    {
+      source: operatorSource,
+      stat: 'criticalRate',
+      operation: 'base',
+      value: 0.05,
+    },
+    {
+      source: operatorSource,
+      stat: 'criticalDamage',
+      operation: 'base',
+      value: 0.5,
+    },
+    {
+      source: operatorSource,
+      stat: 'ultimateEnergyGainEfficiency',
+      operation: 'base',
+      value: 1,
+    },
   );
 
   const trust = build.operator.trustAttributeBonus ?? DEFAULT_TRUST_BONUS;

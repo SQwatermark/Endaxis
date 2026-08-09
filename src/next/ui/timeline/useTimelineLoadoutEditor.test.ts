@@ -64,4 +64,19 @@ describe('useTimelineLoadoutEditor', () => {
     expect(editor.weaponDialogTrack.value).toBeNull();
     expect(editor.gearDialogTarget.value).toBeNull();
   });
+
+  it('属性详情使用当前构筑解析出的面板', () => {
+    const { editor, clearTimelineSelection } = createEditor();
+    editor.openOperatorDialog(0);
+    editor.selectOperator(perlica.slug);
+
+    expect(editor.panelResolution.value.error).toBeNull();
+    expect(editor.panelResolution.value.panels.get(0)?.attack).toBe(706);
+
+    editor.openPanelDialog(0);
+
+    expect(editor.panelDialogTrack.value).toBe(0);
+    expect(editor.selectedPanel.value).toBe(editor.panelResolution.value.panels.get(0));
+    expect(clearTimelineSelection).toHaveBeenCalledTimes(2);
+  });
 });

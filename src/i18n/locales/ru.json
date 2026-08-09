@@ -1140,6 +1140,11 @@
     "weaponTab": "Оружие",
     "gearTab": "Снаряжение",
     "skillLibrary": "Библиотека навыков",
+    "panel": {
+      "trustNode": "Узел массива талантов {node}",
+      "staggerDamage": "Бонус урона по стойкости",
+      "unavailable": "Параметры недоступны: {reason}"
+    },
     "operatorSupport": {
       "partial": "Данные этого оператора преобразованы не полностью",
       "scopedCapability": "{capability} (группы навыков: {groups})",

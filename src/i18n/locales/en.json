@@ -1263,6 +1263,11 @@
     "weaponTab": "Weapon",
     "gearTab": "Gear",
     "skillLibrary": "Skill library",
+    "panel": {
+      "trustNode": "Talent Array {node}",
+      "staggerDamage": "Stagger Damage Bonus",
+      "unavailable": "Stats unavailable: {reason}"
+    },
     "operatorSupport": {
       "partial": "This operator's data is not fully converted",
       "scopedCapability": "{capability} (skill groups: {groups})",

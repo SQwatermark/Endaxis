@@ -17,6 +17,7 @@ const props = defineProps<{
   canMoveUp: boolean;
   canMoveDown: boolean;
   statDetailsAvailable?: boolean;
+  statDetailsError?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -107,7 +108,11 @@ function selectHeader(): void {
         type="button"
         class="stat-detail-button"
         :disabled="!statDetailsAvailable"
-        :title="$t('statDetail.button')"
+        :title="
+          statDetailsError
+            ? $t('nextTimeline.panel.unavailable', { reason: statDetailsError })
+            : $t('statDetail.button')
+        "
         @click.stop="$emit('stats')"
       >
         {{ $t('statDetail.button') }}
