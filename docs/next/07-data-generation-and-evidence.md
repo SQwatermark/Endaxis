@@ -98,6 +98,7 @@ Curated 不是自由手写规则的许可，而是可审计的证据补丁。
 
 - `docs/research/all-operator-generation-audit.md`
 - `docs/research/all-operator-recursive-mechanism-audit.md`
+- `docs/research/operator-build-attribute-potential-audit.md`
 - `docs/research/perlica-next-evidence.md`
 - `docs/research/arcane-next-evidence.md`
 - `docs/research/zhuang-fangyi-next-evidence.md`

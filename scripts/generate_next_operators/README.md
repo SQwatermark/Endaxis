@@ -42,6 +42,7 @@
 - `action_payload_parser.py`：解析标量、伤害、Buff、资源、投射物和能力实体等可复用动作载荷。
 - `conditional_parser.py`：保留条件动作及其有序成功、失败分支，生成可审计控制流中间层。
 - `progression_renderer.py`：将已解析的天赋、潜能来源事实转换为 `OperatorDefinition` 养成片段；后续全干员养成转换统一从这里扩展。
+- `audit_operator_progression.py`：盘点全干员天赋/潜能载荷，并单独审计潜能中的四维属性加点是否能够完整转换。
 - `audit_all_operators.py`：对全部干员入口执行严格解析与试编译，记录覆盖率和首个阻塞原因，不保存试编译产生的最终 DSL。
 - `operators.json`：只保存稳定身份映射与无法由原始数据唯一决定的项目语义，不充当数值数据库。
 
@@ -75,6 +76,20 @@ python scripts/generate_next_operators/generate_next_operators.py --check
 ```powershell
 python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 ```
+
+审计全干员天赋/潜能载荷：
+
+```powershell
+python scripts/generate_next_operators/audit_operator_progression.py `
+  --json-output docs/research/all-operator-progression-audit.json
+```
+
+潜能中的 `attrModifier` 只有在每条数据均为已确认的永久四维加点
+（条目 `modifyType = 4`、`modifierType = 5`、`modifyAttributeType = 0`，
+目标为力量/敏捷/智识/意志）时，
+才允许由清单中的 `compile: "buildAttributes"` 生成 `addBuildAttribute`。
+严格模式遇到混合载荷、未知字段、未知属性或修正模式会立即失败；全量审计使用宽松模式，
+会保留可识别的四维部分，同时把整个潜能标记为未完整转换，不会静默吞掉其他属性。
 
 ## 当前边界
 

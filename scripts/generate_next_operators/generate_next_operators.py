@@ -99,7 +99,12 @@ from source_utils import (
     ts_inline_literal,
     ts_literal,
 )
-from progression_renderer import render_potentials, render_talents, skill_id_by_key
+from progression_renderer import (
+    BUILD_ATTRIBUTE_TYPES,
+    render_potentials,
+    render_talents,
+    skill_id_by_key,
+)
 from action_kinds import (
     AUDITED_COMBAT_ACTION_NAMES,
     AUDITED_COMBAT_EFFECT_ACTION_NAMES,
@@ -7045,7 +7050,6 @@ def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) 
 WEAPON_TYPE_MAP = {2: "arts-unit"}
 ELEMENT_TYPE_MAP = {"Pulse": "electric"}
 PROFESSION_MAP = {5: "caster"}
-ATTRIBUTE_TYPE_MAP = {39: "strength", 40: "agility", 41: "intellect", 42: "will"}
 PANEL_ATTRIBUTE_TYPES = {
     "strength": 39,
     "agility": 40,
@@ -7118,7 +7122,7 @@ def parse_trust_attribute_bonus(
             modifier = require_dict(raw_modifier, modifier_path)
             if modifier.get("modifierType") != 5 or modifier.get("modifyAttributeType") != 0:
                 raise ValueError(f"{modifier_path}: unsupported trust attribute modifier mode")
-            attribute = ATTRIBUTE_TYPE_MAP.get(modifier.get("attrType"))
+            attribute = BUILD_ATTRIBUTE_TYPES.get(modifier.get("attrType"))
             if attribute is None:
                 raise ValueError(
                     f"{modifier_path}.attrType: unsupported attribute {modifier.get('attrType')!r}"

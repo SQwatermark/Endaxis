@@ -5,12 +5,203 @@
 
 from __future__ import annotations
 
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, Literal
 
 from source_models import SkillSource
-from source_utils import require_dict, require_list, require_non_negative_int, table_row, ts_inline_literal
+from source_utils import (
+    require_dict,
+    require_list,
+    require_non_negative_int,
+    require_number,
+    table_row,
+    ts_inline_literal,
+)
 
-__all__ = ["render_potentials", "render_talents", "skill_id_by_key"]
+__all__ = [
+    "BuildAttributeProgressionResult",
+    "BUILD_ATTRIBUTE_TYPES",
+    "ProgressionConversionIssue",
+    "parse_build_attribute_progression",
+    "render_potentials",
+    "render_talents",
+    "skill_id_by_key",
+]
+
+
+BuildAttributeName = Literal["strength", "agility", "intellect", "will"]
+BUILD_ATTRIBUTE_TYPES: dict[int, BuildAttributeName] = {
+    39: "strength",
+    40: "agility",
+    41: "intellect",
+    42: "will",
+}
+EFFECT_ENTRY_FIELDS = {
+    "activeCondition",
+    "attachBuff",
+    "attachSkill",
+    "attrModifier",
+    "modifyType",
+    "skillBbModifier",
+    "skillParamModifier",
+}
+ATTRIBUTE_MODIFIER_FIELDS = {
+    "attrType",
+    "attrValue",
+    "modifierType",
+    "modifyAttributeType",
+}
+
+
+@dataclass(frozen=True)
+class ProgressionConversionIssue:
+    """宽松转换保留的稳定缺口；详细来源路径只进入审计产物。"""
+
+    code: str
+    path: str
+    detail: str
+
+
+@dataclass(frozen=True)
+class BuildAttributeProgressionResult:
+    """潜能永久四维加点的可转换部分及未转换能力。"""
+
+    modifiers: tuple[tuple[BuildAttributeName, int], ...]
+    issues: tuple[ProgressionConversionIssue, ...]
+    missing_capabilities: tuple[Literal["potentialEffects"], ...]
+
+
+def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
+    kinds: list[str] = []
+    if require_list(entry.get("activeCondition"), f"{path}.activeCondition"):
+        kinds.append("activeCondition")
+    if require_dict(entry.get("attachBuff"), f"{path}.attachBuff").get("buffId"):
+        kinds.append("attachBuff")
+    if require_dict(entry.get("attachSkill"), f"{path}.attachSkill").get("skillId"):
+        kinds.append("attachSkill")
+    if require_dict(entry.get("attrModifier"), f"{path}.attrModifier").get("attrType"):
+        kinds.append("attrModifier")
+    if require_dict(entry.get("skillBbModifier"), f"{path}.skillBbModifier").get("skillId"):
+        kinds.append("skillBbModifier")
+    if require_dict(entry.get("skillParamModifier"), f"{path}.skillParamModifier").get(
+        "skillId"
+    ):
+        kinds.append("skillParamModifier")
+    return tuple(kinds)
+
+
+def parse_build_attribute_progression(
+    raw_entries: Any,
+    path: str,
+    *,
+    mode: Literal["strict", "lenient"] = "strict",
+) -> BuildAttributeProgressionResult:
+    """解析潜能中的永久四维加点；宽松模式绝不把未识别载荷伪装成已转换。"""
+    if mode not in {"strict", "lenient"}:
+        raise ValueError(f"{path}: unsupported progression conversion mode {mode!r}")
+    modifiers: list[tuple[BuildAttributeName, int]] = []
+    issues: list[ProgressionConversionIssue] = []
+
+    def reject(code: str, issue_path: str, detail: str) -> None:
+        if mode == "strict":
+            raise ValueError(f"{issue_path}: {detail}")
+        issues.append(ProgressionConversionIssue(code, issue_path, detail))
+
+    for index, raw_entry in enumerate(require_list(raw_entries, path)):
+        entry_path = f"{path}[{index}]"
+        entry = require_dict(raw_entry, entry_path)
+        unknown_fields = sorted(set(entry).difference(EFFECT_ENTRY_FIELDS))
+        if unknown_fields:
+            reject("unknown-effect-fields", entry_path, f"unknown fields {unknown_fields!r}")
+            continue
+        payload_kinds = _effect_payload_kinds(entry, entry_path)
+        if payload_kinds != ("attrModifier",):
+            reject(
+                "unsupported-payload-combination",
+                entry_path,
+                f"expected only attrModifier, got {list(payload_kinds)!r}",
+            )
+            continue
+        if entry.get("modifyType") != 4:
+            reject(
+                "unsupported-effect-modify-type",
+                f"{entry_path}.modifyType",
+                "expected modifyType=4",
+            )
+            continue
+        modifier_path = f"{entry_path}.attrModifier"
+        modifier = require_dict(entry.get("attrModifier"), modifier_path)
+        unknown_modifier_fields = sorted(set(modifier).difference(ATTRIBUTE_MODIFIER_FIELDS))
+        if unknown_modifier_fields:
+            reject(
+                "unknown-attribute-modifier-fields",
+                modifier_path,
+                f"unknown fields {unknown_modifier_fields!r}",
+            )
+            continue
+        if modifier.get("modifierType") != 5 or modifier.get("modifyAttributeType") != 0:
+            reject(
+                "unsupported-attribute-modifier-mode",
+                modifier_path,
+                "expected modifierType=5 and modifyAttributeType=0",
+            )
+            continue
+        attribute = BUILD_ATTRIBUTE_TYPES.get(modifier.get("attrType"))
+        if attribute is None:
+            reject(
+                "unsupported-attribute-type",
+                f"{modifier_path}.attrType",
+                f"unsupported build attribute {modifier.get('attrType')!r}",
+            )
+            continue
+        if any(existing == attribute for existing, _ in modifiers):
+            reject(
+                "duplicate-build-attribute",
+                modifier_path,
+                f"duplicate build attribute {attribute!r}",
+            )
+            continue
+        value = require_number(modifier.get("attrValue"), f"{modifier_path}.attrValue")
+        if not value.is_integer():
+            reject(
+                "non-integer-build-attribute",
+                f"{modifier_path}.attrValue",
+                f"expected integer build attribute value, got {value!r}",
+            )
+            continue
+        modifiers.append((attribute, int(value)))
+
+    return BuildAttributeProgressionResult(
+        modifiers=tuple(modifiers),
+        issues=tuple(issues),
+        missing_capabilities=("potentialEffects",) if issues else (),
+    )
+
+
+def _render_build_attribute_modifiers(result: BuildAttributeProgressionResult) -> str:
+    if not result.modifiers:
+        raise ValueError("build attribute potential: expected at least one converted modifier")
+    grouped: list[tuple[int, list[BuildAttributeName]]] = []
+    for attribute, value in result.modifiers:
+        group = next((item for item in grouped if item[0] == value), None)
+        if group is None:
+            grouped.append((value, [attribute]))
+        else:
+            group[1].append(attribute)
+    lines = ["  modifiers: ["]
+    for value, attributes in grouped:
+        lines.extend(
+            [
+                "    {",
+                "      kind: 'addBuildAttribute',",
+                f"      attributes: {ts_inline_literal(attributes)},",
+                f"      value: {ts_inline_literal(value)},",
+                "    },",
+            ]
+        )
+    lines.append("  ],")
+    return "\n".join(lines)
+
 
 def skill_id_by_key(skills: list[SkillSource], key: str) -> str:
     matches = [skill.skillId for skill in skills if skill.key == key]
@@ -127,12 +318,23 @@ def render_potentials(
         effect_id = str(unlock["potentialEffectId"])
         effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
         data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-        if len(data_list) != 1:
-            raise ValueError(f"{effect_id}: expected one effect entry")
-        data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
         key = str(config["key"])
         kind = config.get("compile")
-        if kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
+        data: dict[str, Any] | None = None
+        if kind != "buildAttributes":
+            if len(data_list) != 1:
+                raise ValueError(f"{effect_id}: expected one effect entry")
+            data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
+        if kind == "buildAttributes":
+            body = _render_build_attribute_modifiers(
+                parse_build_attribute_progression(
+                    data_list,
+                    f"PotentialTalentEffectTable.{effect_id}.dataList",
+                    mode="strict",
+                )
+            )
+        elif kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
+            assert data is not None
             modifier = require_dict(data.get("skillBbModifier"), f"{effect_id}.skillBbModifier")
             value = float(modifier["floatValue"])
             if kind == "multiplyReactionDuration":
@@ -181,6 +383,7 @@ def render_potentials(
                     ]
                 )
         elif kind == "multiplyUltimateCost":
+            assert data is not None
             modifier = require_dict(data.get("skillParamModifier"), f"{effect_id}.skillParamModifier")
             if modifier.get("skillId") != ultimate_skill_id or modifier.get("paramType") != 1:
                 raise ValueError(f"{effect_id}: unexpected ultimate cost modifier target")
@@ -198,6 +401,7 @@ def render_potentials(
                 ]
             )
         elif kind == "attackAfterReaction":
+            assert data is not None
             attach = require_dict(data.get("attachBuff"), f"{effect_id}.attachBuff")
             values = {str(item["key"]): float(item["value"]) for item in require_list(attach.get("blackboard"), "attachBuff.blackboard")}
             buff_id = attach.get("buffId")
@@ -237,5 +441,3 @@ def render_potentials(
             )
         )
     return result
-
-

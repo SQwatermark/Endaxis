@@ -46,6 +46,7 @@
 
 - [全干员生成审计](../research/all-operator-generation-audit.md)
 - [全干员递归机制审计](../research/all-operator-recursive-mechanism-audit.md)
+- [潜能四维属性转换审计](../research/operator-build-attribute-potential-audit.md)
 - `docs/research/*.json`：机器可读覆盖结果
 - `scripts/generate_next_operators/README.md`：生成器使用方式
 

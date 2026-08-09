@@ -1,0 +1,4539 @@
+{
+  "schemaVersion": 2,
+  "summary": {
+    "operatorCount": 29,
+    "effectCount": 259,
+    "entryCounts": [
+      {
+        "source": "potential",
+        "payloadKind": "activeCondition",
+        "count": 2
+      },
+      {
+        "source": "potential",
+        "payloadKind": "attachBuff",
+        "count": 16
+      },
+      {
+        "source": "potential",
+        "payloadKind": "attrModifier",
+        "count": 56
+      },
+      {
+        "source": "potential",
+        "payloadKind": "skillBbModifier",
+        "count": 210
+      },
+      {
+        "source": "potential",
+        "payloadKind": "skillParamModifier",
+        "count": 34
+      },
+      {
+        "source": "talent",
+        "payloadKind": "activeCondition",
+        "count": 4
+      },
+      {
+        "source": "talent",
+        "payloadKind": "attachBuff",
+        "count": 41
+      },
+      {
+        "source": "talent",
+        "payloadKind": "attachSkill",
+        "count": 28
+      },
+      {
+        "source": "talent",
+        "payloadKind": "skillBbModifier",
+        "count": 161
+      },
+      {
+        "source": "talent",
+        "payloadKind": "skillParamModifier",
+        "count": 4
+      }
+    ],
+    "combinationCounts": [
+      {
+        "source": "potential",
+        "payloadKinds": ["activeCondition", "skillBbModifier"],
+        "count": 2
+      },
+      {
+        "source": "potential",
+        "payloadKinds": ["attachBuff"],
+        "count": 16
+      },
+      {
+        "source": "potential",
+        "payloadKinds": ["attrModifier"],
+        "count": 56
+      },
+      {
+        "source": "potential",
+        "payloadKinds": ["skillBbModifier"],
+        "count": 208
+      },
+      {
+        "source": "potential",
+        "payloadKinds": ["skillParamModifier"],
+        "count": 34
+      },
+      {
+        "source": "talent",
+        "payloadKinds": ["activeCondition", "skillParamModifier"],
+        "count": 4
+      },
+      {
+        "source": "talent",
+        "payloadKinds": ["attachBuff"],
+        "count": 41
+      },
+      {
+        "source": "talent",
+        "payloadKinds": ["attachSkill"],
+        "count": 28
+      },
+      {
+        "source": "talent",
+        "payloadKinds": ["skillBbModifier"],
+        "count": 161
+      }
+    ],
+    "buildAttributePotentialCounts": {
+      "complete": 9,
+      "partial": 17
+    }
+  },
+  "operators": [
+    {
+      "characterId": "chr_0004_pelica",
+      "name": "Perlica",
+      "talentEffectCount": 3,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0004_pelica_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0004_pelica_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0005_chen",
+      "name": "Chen Qianyu",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0005_chen_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0005_chen_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 50"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0005_chen_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0005_chen_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0006_wolfgd",
+      "name": "Wulfgard",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0006_wolfgd_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 15
+              },
+              {
+                "attribute": "agility",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0006_wolfgd_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0006_wolfgd_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0007_ikut",
+      "name": "Arclight",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0007_ikut_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 15
+              },
+              {
+                "attribute": "intellect",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0007_ikut_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0007_ikut_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0009_azrila",
+      "name": "Ember",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0009_azrila_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 20
+              },
+              {
+                "attribute": "will",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0009_azrila_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0009_azrila_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0011_seraph",
+      "name": "Xaihi",
+      "talentEffectCount": 3,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0011_seraph_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0011_seraph_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "intellect",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0011_seraph_potential_4.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 29"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0011_seraph_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0012_avywen",
+      "name": "Avywenna",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0012_avywen_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0012_avywen_potential_3.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 52"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0012_avywen_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0012_avywen_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0013_aglina",
+      "name": "Gilberta",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0013_aglina_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0013_aglina_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0014_aurora",
+      "name": "Snowshine",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0014_aurora_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0014_aurora_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0014_aurora_potential_4.dataList[0].attrModifier.attrType",
+                "detail": "unsupported build attribute 3"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0014_aurora_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0015_lifeng",
+      "name": "Lifeng",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0015_lifeng_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 15
+              },
+              {
+                "attribute": "agility",
+                "value": 15
+              },
+              {
+                "attribute": "intellect",
+                "value": 15
+              },
+              {
+                "attribute": "will",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0015_lifeng_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0015_lifeng_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0016_laevat",
+      "name": "Laevatain",
+      "talentEffectCount": 5,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0016_laevat_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_talent_1_3",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "intellect",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0016_laevat_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 17"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0016_laevat_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0016_laevat_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0017_yvonne",
+      "name": "Yvonne",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0017_yvonne_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "intellect",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0017_yvonne_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 9"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0017_yvonne_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0017_yvonne_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0018_dapan",
+      "name": "Da Pan",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0018_dapan_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0018_dapan_potential_3.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 50"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0018_dapan_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0018_dapan_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0019_karin",
+      "name": "Akekuri",
+      "talentEffectCount": 3,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0019_karin_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 10
+              },
+              {
+                "attribute": "intellect",
+                "value": 10
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0019_karin_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0019_karin_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0020_meurs",
+      "name": "Catcher",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0020_meurs_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 10
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0020_meurs_potential_2.dataList[0].attrModifier.attrType",
+                "detail": "unsupported build attribute 3"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0020_meurs_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0020_meurs_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0021_whiten",
+      "name": "Estella",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0021_whiten_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0021_whiten_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 10
+              },
+              {
+                "attribute": "strength",
+                "value": 10
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0021_whiten_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0022_bounda",
+      "name": "Fluorite",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0022_bounda_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 10
+              },
+              {
+                "attribute": "intellect",
+                "value": 10
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0022_bounda_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0022_bounda_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0023_antal",
+      "name": "Antal",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0023_antal_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0023_antal_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "intellect",
+                "value": 10
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-modifier-mode",
+                "path": "PotentialTalentEffectTable.chr_0023_antal_potential_4.dataList[1].attrModifier",
+                "detail": "expected modifierType=5 and modifyAttributeType=0"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0023_antal_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0024_deepfin",
+      "name": "Alesh",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0024_deepfin_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 15
+              },
+              {
+                "attribute": "intellect",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0024_deepfin_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0024_deepfin_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0025_ardelia",
+      "name": "Ardelia",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0025_ardelia_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_talent_1_3",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0025_ardelia_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0026_lastrite",
+      "name": "Last Rite",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0026_lastrite_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0026_lastrite_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 53"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0026_lastrite_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0026_lastrite_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0027_tangtang",
+      "name": "Tangtang",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0027_tangtang_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0027_tangtang_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 53"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0027_tangtang_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0027_tangtang_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0028_wulfa",
+      "name": "Rossi",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0028_wulfa_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 7,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0028_wulfa_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 9"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0028_wulfa_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0028_wulfa_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0029_pograni",
+      "name": "Pogranichnik",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0029_pograni_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0029_pograni_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 50"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0029_pograni_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0029_pograni_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0030_zhuangfy",
+      "name": "Zhuang Fangyi",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0030_zhuangfy_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "will",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0030_zhuangfy_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 32"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0030_zhuangfy_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0031_mifu",
+      "name": "Mifu",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0031_mifu_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "strength",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0031_mifu_potential_2.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 87"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0031_mifu_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0031_mifu_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0032_lizhiyan",
+      "name": "Arcane",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0032_lizhiyan_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["activeCondition", "skillParamModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["activeCondition", "skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["activeCondition", "skillParamModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["activeCondition", "skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["activeCondition", "skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["activeCondition", "skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "intellect",
+                "value": 15
+              },
+              {
+                "attribute": "will",
+                "value": 15
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_0032_lizhiyan_potential_2.dataList[2].attrModifier.attrType",
+                "detail": "unsupported build attribute 87"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0032_lizhiyan_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_0033_camille",
+      "name": "Camille",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_0033_camille_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 7,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 7,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 20
+              },
+              {
+                "attribute": "intellect",
+                "value": 20
+              }
+            ],
+            "missingCapabilities": [],
+            "issues": []
+          }
+        },
+        {
+          "effectId": "chr_0033_camille_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 3,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 4,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 5,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 6,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 7,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 8,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 9,
+              "payloadKinds": ["skillBbModifier"]
+            },
+            {
+              "index": 10,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillParamModifier"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_0033_camille_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["skillBbModifier"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterId": "chr_9000_endmin",
+      "name": "Endministrator",
+      "talentEffectCount": 4,
+      "potentialEffectCount": 5,
+      "effects": [
+        {
+          "effectId": "chr_9000_endmin_talent_1_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_talent_1_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_talent_2_1",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_talent_2_2",
+          "source": "talent",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachSkill"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_potential_1",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_potential_2",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_potential_3",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        },
+        {
+          "effectId": "chr_9000_endmin_potential_4",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 1,
+              "payloadKinds": ["attrModifier"]
+            },
+            {
+              "index": 2,
+              "payloadKinds": ["attrModifier"]
+            }
+          ],
+          "buildAttributeConversion": {
+            "status": "partial",
+            "modifiers": [
+              {
+                "attribute": "agility",
+                "value": 25
+              }
+            ],
+            "missingCapabilities": ["potentialEffects"],
+            "issues": [
+              {
+                "code": "unsupported-attribute-modifier-mode",
+                "path": "PotentialTalentEffectTable.chr_9000_endmin_potential_4.dataList[0].attrModifier",
+                "detail": "expected modifierType=5 and modifyAttributeType=0"
+              },
+              {
+                "code": "unsupported-attribute-type",
+                "path": "PotentialTalentEffectTable.chr_9000_endmin_potential_4.dataList[1].attrModifier.attrType",
+                "detail": "unsupported build attribute 60"
+              }
+            ]
+          }
+        },
+        {
+          "effectId": "chr_9000_endmin_potential_5",
+          "source": "potential",
+          "entries": [
+            {
+              "index": 0,
+              "payloadKinds": ["attachBuff"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
