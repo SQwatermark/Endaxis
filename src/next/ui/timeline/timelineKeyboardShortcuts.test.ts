@@ -24,6 +24,7 @@ function commands() {
     nudgeRight: command(),
     toggleSnapPrecision: command(),
     toggleCursorGuide: command(),
+    toggleConnectionTool: command(),
     cycleTrack: vi.fn((_direction: -1 | 1) => true),
   };
 }
@@ -39,6 +40,7 @@ describe('handleTimelineEditorShortcut', () => {
     ['D', keyboardEvent('d'), 'nudgeRight'],
     ['Alt+S', keyboardEvent('s', { altKey: true }), 'toggleSnapPrecision'],
     ['Ctrl+G', keyboardEvent('g', { ctrlKey: true }), 'toggleCursorGuide'],
+    ['Alt+L', keyboardEvent('l', { altKey: true }), 'toggleConnectionTool'],
     ['Tab', keyboardEvent('Tab'), 'cycleTrack'],
     ['Shift+Tab', keyboardEvent('Tab', { shiftKey: true }), 'cycleTrack'],
   ])('maps %s to the expected editor command', (_name, event, commandName) => {

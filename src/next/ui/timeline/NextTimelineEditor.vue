@@ -19,6 +19,7 @@ import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
+import TimelineConnectionLayer from './components/TimelineConnectionLayer.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -74,12 +75,18 @@ import {
 } from './timelineSnap';
 import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
 import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
+import {
+  createSkillCastConnection,
+  removeTimelineConnection,
+  type TimelineConnectionPort,
+} from './timelineConnections';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(true);
+const connectionToolEnabled = ref(false);
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
@@ -88,6 +95,11 @@ const cursorFrame = ref(30);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
+const connectionDrag = ref<{
+  skillCastId: string;
+  port: TimelineConnectionPort;
+  pointer: { x: number; y: number };
+} | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | {
@@ -142,6 +154,7 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
 });
 onScopeDispose(() => {
   unsubscribeScenarioSession();
+  cancelConnectionDrag();
 });
 
 function commitScenario(
@@ -335,6 +348,78 @@ function applyActionSelection(selection: TimelineActionSelection): void {
 
 function clearTimelineSelection(): void {
   applyActionSelection(createEmptyTimelineActionSelection());
+}
+
+function pointerInTimelineSurface(event: PointerEvent): { x: number; y: number } | null {
+  const surface = timelineSurface.value;
+  if (surface === null) return null;
+  const rect = surface.getBoundingClientRect();
+  return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+}
+
+function updateConnectionDrag(event: PointerEvent): void {
+  const pointer = pointerInTimelineSurface(event);
+  if (pointer === null || connectionDrag.value === null) return;
+  connectionDrag.value = { ...connectionDrag.value, pointer };
+}
+
+function cancelConnectionDrag(): void {
+  connectionDrag.value = null;
+  window.removeEventListener('pointermove', updateConnectionDrag);
+  window.removeEventListener('pointerup', finishConnectionDrag);
+  window.removeEventListener('pointercancel', cancelConnectionDrag);
+}
+
+function finishConnectionDrag(event: PointerEvent): void {
+  const drag = connectionDrag.value;
+  cancelConnectionDrag();
+  if (drag === null) return;
+
+  const target = document
+    .elementsFromPoint(event.clientX, event.clientY)
+    .map(element =>
+      element.closest<HTMLElement>('[data-connection-action-id][data-connection-port]'),
+    )
+    .find((element): element is HTMLElement => element !== null);
+  const targetSkillCastId = target?.dataset.connectionActionId;
+  const targetPort = target?.dataset.connectionPort as TimelineConnectionPort | undefined;
+  if (targetSkillCastId === undefined || targetPort === undefined) return;
+
+  commitScenario('createTimelineConnection', current =>
+    createSkillCastConnection(current, {
+      id: ids.allocate('connection'),
+      fromSkillCastId: drag.skillCastId,
+      fromPort: drag.port,
+      toSkillCastId: targetSkillCastId,
+      toPort: targetPort,
+    }),
+  );
+}
+
+function beginConnectionDrag(
+  event: PointerEvent,
+  skillCastId: string,
+  port: TimelineConnectionPort,
+): void {
+  if (!connectionToolEnabled.value) return;
+  const pointer = pointerInTimelineSurface(event);
+  if (pointer === null) return;
+  connectionDrag.value = { skillCastId, port, pointer };
+  window.addEventListener('pointermove', updateConnectionDrag);
+  window.addEventListener('pointerup', finishConnectionDrag);
+  window.addEventListener('pointercancel', cancelConnectionDrag);
+}
+
+function toggleConnectionTool(): boolean {
+  connectionToolEnabled.value = !connectionToolEnabled.value;
+  if (!connectionToolEnabled.value) cancelConnectionDrag();
+  return true;
+}
+
+function deleteTimelineConnection(connectionId: string): void {
+  commitScenario('removeTimelineConnection', current =>
+    removeTimelineConnection(current, connectionId),
+  );
 }
 
 function handleActionSelection(event: MouseEvent, skillCastId: string): void {
@@ -728,6 +813,7 @@ useKeyboardShortcutScope({
       nudgeRight: () => nudgeSelectedActions(1),
       toggleSnapPrecision,
       toggleCursorGuide,
+      toggleConnectionTool,
       cycleTrack: cycleOccupiedTrack,
     });
   },
@@ -923,6 +1009,7 @@ function setPanelDialogVisible(visible: boolean): void {
               :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
               :zoom-percent="timelineZoomPercent"
               :cursor-guide-enabled="showCursorGuide"
+              :connection-tool-enabled="connectionToolEnabled"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
                 cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
@@ -936,6 +1023,7 @@ function setPanelDialogVisible(visible: boolean): void {
               }"
               @toggle-snap-precision="toggleSnapPrecision"
               @toggle-cursor-guide="toggleCursorGuide"
+              @toggle-connection-tool="toggleConnectionTool"
               @update-zoom-percent="updateTimelineZoomPercent"
             />
           </div>
@@ -947,6 +1035,13 @@ function setPanelDialogVisible(visible: boolean): void {
             :cursor-frame="cursorFrame"
             :px-per-frame="pxPerFrame"
             @seek="cursorFrame = $event"
+          />
+          <TimelineConnectionLayer
+            :scenario="scenario"
+            :px-per-frame="pxPerFrame"
+            :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
+            :preview="connectionDrag"
+            @remove="deleteTimelineConnection"
           />
 
           <div
@@ -1023,7 +1118,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 :disabled="cast.disabled"
                 :locked="cast.locked"
                 :color="cast.color"
+                :connection-tool-enabled="connectionToolEnabled"
                 @select="handleActionSelection($event, cast.id)"
+                @connection-pointer-down="
+                  (event, port) => beginConnectionDrag(event, cast.id, port)
+                "
                 @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
                 @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />

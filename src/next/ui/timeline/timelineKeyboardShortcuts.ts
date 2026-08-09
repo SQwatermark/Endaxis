@@ -12,6 +12,7 @@ export interface TimelineKeyboardCommands {
   readonly nudgeRight: () => boolean;
   readonly toggleSnapPrecision: () => boolean;
   readonly toggleCursorGuide: () => boolean;
+  readonly toggleConnectionTool: () => boolean;
   readonly cycleTrack: (direction: -1 | 1) => boolean;
 }
 
@@ -27,6 +28,9 @@ export function handleTimelineEditorShortcut(
     return commands.cycleTrack(event.shiftKey ? -1 : 1);
   }
   if (event.altKey) {
+    if (!event.ctrlKey && !event.metaKey && !event.shiftKey && key === 'l') {
+      return commands.toggleConnectionTool();
+    }
     if (!event.ctrlKey && !event.metaKey && !event.shiftKey && key === 's') {
       return commands.toggleSnapPrecision();
     }

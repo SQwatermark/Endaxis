@@ -7,6 +7,7 @@ defineProps<{
   snapLabel: string;
   zoomPercent: number;
   cursorGuideEnabled: boolean;
+  connectionToolEnabled: boolean;
   labels: {
     initialGauge: string;
     cursorGuide: string;
@@ -21,6 +22,7 @@ defineProps<{
 const emit = defineEmits<{
   toggleSnapPrecision: [];
   toggleCursorGuide: [];
+  toggleConnectionTool: [];
   updateZoomPercent: [percent: number];
 }>();
 </script>
@@ -57,7 +59,13 @@ const emit = defineEmits<{
       >
         {{ snapLabel }}
       </button>
-      <button type="button" class="mini-tool-button" disabled :title="labels.connectionTool">
+      <button
+        type="button"
+        class="mini-tool-button"
+        :class="{ 'is-active': connectionToolEnabled }"
+        :title="labels.connectionTool"
+        @click="emit('toggleConnectionTool')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 4h14c3 0 3 8 0 8H5c-3 0-3 8 0 8h14" />
           <circle cx="5" cy="4" r="2" />

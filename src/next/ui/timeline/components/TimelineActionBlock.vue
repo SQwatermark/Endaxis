@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
+import type { TimelineConnectionPort } from '../timelineConnections';
 
 const props = defineProps<{
   actionId: string;
@@ -18,13 +19,17 @@ const props = defineProps<{
   disabled?: boolean;
   locked?: boolean;
   color?: string | null;
+  connectionToolEnabled?: boolean;
 }>();
 
 defineEmits<{
   select: [event: MouseEvent];
   dragstart: [event: DragEvent];
   contextmenu: [event: MouseEvent];
+  connectionPointerDown: [event: PointerEvent, port: TimelineConnectionPort];
 }>();
+
+const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
 
 const blockStyle = computed(() => ({
   left: `${props.left}px`,
@@ -42,11 +47,12 @@ const blockStyle = computed(() => ({
       'is-selected': selected,
       'is-disabled': disabled,
       'is-locked': locked,
+      'is-connection-tool': connectionToolEnabled,
     }"
     :data-skill-type="skillType"
     :style="blockStyle"
     :title="label"
-    :draggable="!locked"
+    :draggable="!locked && !connectionToolEnabled"
     @click.stop="$emit('select', $event)"
     @contextmenu.prevent.stop="$emit('contextmenu', $event)"
     @dragstart="$emit('dragstart', $event)"
@@ -54,6 +60,16 @@ const blockStyle = computed(() => ({
     <span class="action-label">{{ label }}</span>
     <span v-if="locked" class="status-mark lock-mark" aria-label="locked"></span>
     <span v-if="disabled" class="status-mark disabled-mark" aria-label="disabled"></span>
+    <span
+      v-for="port in connectionPorts"
+      v-show="connectionToolEnabled"
+      :key="port"
+      class="connection-port"
+      :class="`connection-port--${port}`"
+      :data-connection-action-id="actionId"
+      :data-connection-port="port"
+      @pointerdown.stop.prevent="$emit('connectionPointerDown', $event, port)"
+    ></span>
   </button>
 </template>
 
@@ -108,6 +124,50 @@ const blockStyle = computed(() => ({
 
 .timeline-action-block.is-locked {
   cursor: not-allowed;
+}
+
+.timeline-action-block.is-connection-tool {
+  cursor: default;
+}
+
+.connection-port {
+  position: absolute;
+  z-index: 3;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--action-accent);
+  box-shadow: 0 0 0 1px var(--ea-workbench-bg);
+  cursor: crosshair;
+}
+
+.connection-port:hover {
+  background: var(--ea-gold);
+  transform: scale(1.2);
+}
+
+.connection-port--top {
+  top: -5px;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.connection-port--right {
+  top: 50%;
+  right: -5px;
+  translate: 0 -50%;
+}
+
+.connection-port--bottom {
+  bottom: -5px;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.connection-port--left {
+  top: 50%;
+  left: -5px;
+  translate: 0 -50%;
 }
 
 .timeline-action-block[data-skill-type='battleSkill'] {
