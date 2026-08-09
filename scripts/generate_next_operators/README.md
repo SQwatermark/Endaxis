@@ -92,6 +92,10 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 其他已支持属性当前只接受基础加算槽。
 严格模式遇到混合载荷、未知字段、未知属性或修正模式会立即失败；全量审计使用宽松模式，
 会保留可识别的四维部分，同时把整个潜能标记为未完整转换，不会静默吞掉其他属性。
+语义已确认但尚无等价运行时消费链的属性会在
+`staticAttributeConversion.attributeFacts[].runtimeClosure` 中记录原生公式槽、消费点、Next 阻塞项和
+禁止的近似方案，并汇总到 `summary.runtimeClosureGaps`。当前详细结论见
+`docs/research/operator-progression-runtime-closure-gaps.md`。
 
 ## 当前边界
 

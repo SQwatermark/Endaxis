@@ -43,6 +43,32 @@ EFFECT_PAYLOAD_KINDS = (
     "skillParamModifier",
 )
 
+# 这些属性的原生身份已经确认，但当前 Next 尚无方向与生命周期均等价的消费链。
+# 审计保留结构化缺口，避免后续维护者把“已知但不可转换”误当成未知枚举。
+NEXT_RUNTIME_CLOSURE_GAPS: dict[int, dict[str, Any]] = {
+    29: {
+        "nativeFormulaSlot": "BaseAddition",
+        "nativeConsumer": "healing output calculation",
+        "nextStatus": "missing-runtime-consumer",
+        "blockers": [
+            "healing operation executor",
+            "healing formula and source/target snapshots",
+            "healing event lifecycle",
+        ],
+        "forbiddenApproximation": "panel stat or damage modifier",
+    },
+    60: {
+        "nativeFormulaSlot": "BaseAddition",
+        "nativeConsumer": "ether damage defender resistance factor",
+        "nextStatus": "missing-operator-defender-runtime",
+        "blockers": [
+            "operator incoming-damage snapshot",
+            "operator incoming-damage execution path",
+        ],
+        "forbiddenApproximation": "enemy defender resistance snapshot",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -54,6 +80,38 @@ def parse_args() -> argparse.Namespace:
 def load_table(tables: Path, name: str) -> dict[str, Any]:
     path = tables / name
     return require_dict(json.loads(path.read_text(encoding="utf-8")), str(path))
+
+
+def render_json(value: Any, indent: int = 0) -> str:
+    """稳定输出审计 JSON；标量数组保持单行，避免重建报告产生无意义格式差异。"""
+    prefix = " " * indent
+    child_prefix = " " * (indent + 2)
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        lines = ["{"]
+        items = list(value.items())
+        for index, (key, item) in enumerate(items):
+            rendered = render_json(item, indent + 2)
+            comma = "," if index + 1 < len(items) else ""
+            lines.append(
+                f"{child_prefix}{json.dumps(key, ensure_ascii=False)}: {rendered}{comma}"
+            )
+        lines.append(f"{prefix}}}")
+        return "\n".join(lines)
+    if isinstance(value, list):
+        if not value:
+            return "[]"
+        if all(not isinstance(item, (dict, list)) for item in value):
+            return json.dumps(value, ensure_ascii=False)
+        lines = ["["]
+        for index, item in enumerate(value):
+            rendered = render_json(item, indent + 2)
+            comma = "," if index + 1 < len(value) else ""
+            lines.append(f"{child_prefix}{rendered}{comma}")
+        lines.append(f"{prefix}]")
+        return "\n".join(lines)
+    return json.dumps(value, ensure_ascii=False)
 
 
 def effect_payload_kinds(value: Any, path: str) -> tuple[str, ...]:
@@ -175,6 +233,8 @@ def audit_effect(
                     ),
                 }
             )
+            if attr_type in NEXT_RUNTIME_CLOSURE_GAPS:
+                attribute_facts[-1]["runtimeClosure"] = NEXT_RUNTIME_CLOSURE_GAPS[attr_type]
     result = {"effectId": effect_id, "source": source, "entries": entries}
     if source == "potential" and any(
         "attrModifier" in entry["payloadKinds"] for entry in entries
@@ -238,6 +298,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
     entry_counts: Counter[tuple[str, str]] = Counter()
     combination_counts: Counter[tuple[str, tuple[str, ...]]] = Counter()
     static_attribute_status_counts: Counter[str] = Counter()
+    runtime_closure_gap_counts: Counter[int] = Counter()
     for character_id in sorted(set(characters).difference(OBSOLETE_CHARACTER_IDS)):
         character = require_dict(characters[character_id], f"CharacterTable.{character_id}")
         growth = require_dict(growth_table.get(character_id), f"CharGrowthTable.{character_id}")
@@ -263,6 +324,9 @@ def build_audit(tables: Path) -> dict[str, Any]:
             conversion = effect.get("staticAttributeConversion")
             if conversion is not None:
                 static_attribute_status_counts[conversion["status"]] += 1
+                for fact in conversion["attributeFacts"]:
+                    if "runtimeClosure" in fact:
+                        runtime_closure_gap_counts[fact["attrType"]] += 1
             for entry in effect["entries"]:
                 kinds = tuple(entry["payloadKinds"])
                 combination_counts[(source, kinds)] += 1
@@ -279,7 +343,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
         )
 
     return {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "summary": {
             "operatorCount": len(operators),
             "effectCount": sum(len(operator["effects"]) for operator in operators),
@@ -294,6 +358,14 @@ def build_audit(tables: Path) -> dict[str, Any]:
             "staticAttributePotentialCounts": dict(
                 sorted(static_attribute_status_counts.items())
             ),
+            "runtimeClosureGaps": [
+                {
+                    "attrType": attr_type,
+                    "occurrenceCount": count,
+                    **NEXT_RUNTIME_CLOSURE_GAPS[attr_type],
+                }
+                for attr_type, count in sorted(runtime_closure_gap_counts.items())
+            ],
         },
         "operators": operators,
     }
@@ -306,7 +378,7 @@ def main() -> None:
     if args.json_output is not None:
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
         args.json_output.write_text(
-            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+            render_json(document) + "\n",
             encoding="utf-8",
         )
     print(

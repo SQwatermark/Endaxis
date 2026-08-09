@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "summary": {
     "operatorCount": 29,
     "effectCount": 259,
@@ -105,7 +105,34 @@
     "staticAttributePotentialCounts": {
       "complete": 24,
       "partial": 2
-    }
+    },
+    "runtimeClosureGaps": [
+      {
+        "attrType": 29,
+        "occurrenceCount": 1,
+        "nativeFormulaSlot": "BaseAddition",
+        "nativeConsumer": "healing output calculation",
+        "nextStatus": "missing-runtime-consumer",
+        "blockers": [
+          "healing operation executor",
+          "healing formula and source/target snapshots",
+          "healing event lifecycle"
+        ],
+        "forbiddenApproximation": "panel stat or damage modifier"
+      },
+      {
+        "attrType": 60,
+        "occurrenceCount": 1,
+        "nativeFormulaSlot": "BaseAddition",
+        "nativeConsumer": "ether damage defender resistance factor",
+        "nextStatus": "missing-operator-defender-runtime",
+        "blockers": [
+          "operator incoming-damage snapshot",
+          "operator incoming-damage execution path"
+        ],
+        "forbiddenApproximation": "enemy defender resistance snapshot"
+      }
+    ]
   },
   "operators": [
     {
@@ -1029,7 +1056,18 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.1,
-                "nextTarget": null
+                "nextTarget": null,
+                "runtimeClosure": {
+                  "nativeFormulaSlot": "BaseAddition",
+                  "nativeConsumer": "healing output calculation",
+                  "nextStatus": "missing-runtime-consumer",
+                  "blockers": [
+                    "healing operation executor",
+                    "healing formula and source/target snapshots",
+                    "healing event lifecycle"
+                  ],
+                  "forbiddenApproximation": "panel stat or damage modifier"
+                }
               }
             ],
             "modifiers": [
@@ -5352,7 +5390,17 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": -0.1,
-                "nextTarget": null
+                "nextTarget": null,
+                "runtimeClosure": {
+                  "nativeFormulaSlot": "BaseAddition",
+                  "nativeConsumer": "ether damage defender resistance factor",
+                  "nextStatus": "missing-operator-defender-runtime",
+                  "blockers": [
+                    "operator incoming-damage snapshot",
+                    "operator incoming-damage execution path"
+                  ],
+                  "forbiddenApproximation": "enemy defender resistance snapshot"
+                }
               },
               {
                 "entryIndex": 2,

@@ -116,3 +116,9 @@
 
 管理员第四潜能同时包含可转换的最大生命 `+10%` 和未支持的以太承伤倍率 `-10%`，因此审计
 会保留生命 modifier，但整个潜能仍标为 `partial`；局部成功不能掩盖同一效果中的剩余能力。
+
+这两项并非相同层面的简单字段缺失：`HealOutputIncrease` 缺少完整治疗执行链，
+`EtherDamageTakenScalar` 则缺少干员作为防御方的受击路径；现有敌人承伤快照方向相反，不能复用。
+完整证据、禁止的近似方案与重新开放转换的条件见
+`docs/research/operator-progression-runtime-closure-gaps.md`。机器审计同步在
+`attributeFacts[].runtimeClosure` 和 `summary.runtimeClosureGaps` 中保留这些信息。

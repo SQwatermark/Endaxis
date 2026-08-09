@@ -5,7 +5,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 import unittest
 
-from audit_operator_progression import audit_effect
+from audit_operator_progression import audit_effect, render_json
 from progression_renderer import parse_static_attribute_progression, render_potentials
 
 
@@ -45,6 +45,12 @@ def effect_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_audit_json_keeps_scalar_arrays_compact(self) -> None:
+        self.assertEqual(
+            render_json({"items": ["a", "b"], "rows": [{"value": 1}]}),
+            '{\n  "items": ["a", "b"],\n  "rows": [\n    {\n      "value": 1\n    }\n  ]\n}',
+        )
+
     def test_parses_source_confirmed_build_attributes(self) -> None:
         result = parse_static_attribute_progression(
             [
@@ -271,9 +277,43 @@ class ProgressionRendererTests(unittest.TestCase):
                 "modifyAttributeType": 0,
                 "value": 0.15,
                 "nextTarget": None,
+                "runtimeClosure": {
+                    "nativeFormulaSlot": "BaseAddition",
+                    "nativeConsumer": "healing output calculation",
+                    "nextStatus": "missing-runtime-consumer",
+                    "blockers": [
+                        "healing operation executor",
+                        "healing formula and source/target snapshots",
+                        "healing event lifecycle",
+                    ],
+                    "forbiddenApproximation": "panel stat or damage modifier",
+                },
             },
         )
         self.assertEqual(conversion["missingCapabilities"], ["potentialEffects"])
+
+    def test_audit_distinguishes_operator_damage_taken_from_enemy_snapshot(self) -> None:
+        effect = audit_effect(
+            "effect.ether-taken",
+            {"effect.ether-taken": {"dataList": [effect_entry(attr_type=60, value=-0.1)]}},
+            source="potential",
+        )
+
+        fact = effect["staticAttributeConversion"]["attributeFacts"][0]
+        self.assertIsNone(fact["nextTarget"])
+        self.assertEqual(
+            fact["runtimeClosure"],
+            {
+                "nativeFormulaSlot": "BaseAddition",
+                "nativeConsumer": "ether damage defender resistance factor",
+                "nextStatus": "missing-operator-defender-runtime",
+                "blockers": [
+                    "operator incoming-damage snapshot",
+                    "operator incoming-damage execution path",
+                ],
+                "forbiddenApproximation": "enemy defender resistance snapshot",
+            },
+        )
 
 
 if __name__ == "__main__":
