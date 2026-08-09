@@ -4,3 +4,4 @@
  */
 export * from './core';
 export * from './data/operators';
+export * from './ui/timeline';
