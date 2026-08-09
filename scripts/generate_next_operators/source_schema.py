@@ -1,0 +1,154 @@
+"""定义解包动作结构的严格字段白名单与已知类型集合。
+
+解析器依靠这些约束在数据版本变化时尽早报错，禁止把未知字段静默吞掉。
+"""
+
+from __future__ import annotations
+__all__ = [
+    "TARGET_GROUP_FIND_ACTION_FIELDS",
+    "TARGET_GROUP_MERGE_ACTION_FIELDS",
+    "TARGET_GROUP_MERGE_INPUT_FIELDS",
+    "AURA_ACTION_FIELDS",
+    "AURA_SHAPE_FIELDS",
+    "AURA_TARGET_FILTER_FIELDS",
+    "AURA_SEQUENCE_FIELDS",
+    "KNOWN_TARGET_FINDER_TYPES",
+    "KNOWN_TARGET_VALIDATOR_TYPES",
+    "KNOWN_TARGET_POST_PROCESSOR_TYPES",
+]
+
+
+TARGET_GROUP_FIND_ACTION_FIELDS = {
+    "$type",
+    "advancedSelectorDirection",
+    "center",
+    "centerContextKey",
+    "centerMountPoint",
+    "centerToGround",
+    "contextKey",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "selectorData",
+    "selectorDirection",
+    "selectorOwner",
+    "selectorOwnerContextKey",
+    "serverActionIndex",
+    "target",
+    "targetGroupKey",
+    "useAdvancedDirectionSetting",
+    "useCenterEntityMountPoint",
+}
+TARGET_GROUP_MERGE_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "targetGroupKey",
+    "targets",
+}
+TARGET_GROUP_MERGE_INPUT_FIELDS = {
+    "advancedDirection",
+    "centerContextKey",
+    "centerToGround",
+    "centerType",
+    "enableAdvancedDirection",
+    "ownerContextKey",
+    "selectorData",
+    "selectorDirection",
+    "selectorOwner",
+    "target",
+    "targetContextKey",
+    "targetGroupKey",
+    "targetSource",
+}
+AURA_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "auraDebugName",
+    "auraType",
+    "auraRoot",
+    "fixedWhenStart",
+    "shapeData",
+    "excludeColliderOptions",
+    "targetObjectType",
+    "targetFilter",
+    "excludeOwner",
+    "includeUnmarkable",
+    "limitInfluenceCountPerTarget",
+    "maxInfluenceCountPerTarget",
+    "buffSource",
+    "buffInput",
+    "overrideBuffIconDuration",
+    "buffIconDurationSource",
+    "inheritSourceSkillCastId",
+    "actionInAura",
+    "actionWhenExitAura",
+}
+AURA_SHAPE_FIELDS = {
+    "_shape",
+    "_rotationOffset",
+    "_useExtentKey",
+    "_extent",
+    "_extentXKey",
+    "_extentYKey",
+    "_extentZKey",
+    "_useCenterKey",
+    "_center",
+    "_centerXKey",
+    "_centerYKey",
+    "_centerZKey",
+    "_heightKey",
+    "_height",
+    "_radiusKey",
+    "_radius",
+}
+AURA_TARGET_FILTER_FIELDS = {
+    "checkAlive",
+    "autoSetTargetFaction",
+    "factionTarget",
+    "targetFactionType",
+    "filterObjectType",
+    "objectType",
+    "filterSlot",
+    "slotIndex",
+    "filterGameplayTag",
+    "tagQuery",
+}
+AURA_SEQUENCE_FIELDS = {
+    "actionData",
+    "onlyExecuteWhenSourceIsMainChar",
+    "onlyExecuteWhenSourceIsGuard",
+}
+KNOWN_TARGET_FINDER_TYPES = {
+    "CharacterTeamFinder",
+    "FixedPointFinder",
+    "HitBoxFinder",
+    "InFightEnemyFinder",
+    "MainTargetFinder",
+    "OwnerSpawnedEntityFinder",
+    "PointFinder",
+    "RandomPointFinder",
+    "SmartTargetFinder",
+    "SnapPointFinder",
+    "SourceFinder",
+}
+KNOWN_TARGET_VALIDATOR_TYPES = {
+    "DistanceValidator",
+    "HittableObjectValidator",
+    "MainCharacterValidator",
+    "SkillCastIdValidator",
+    "TagValidator",
+    "TargetContainsValidator",
+}
+KNOWN_TARGET_POST_PROCESSOR_TYPES = {
+    "ConvertToSlot",
+    "ExcludeTarget",
+    "PriorityFilter",
+    "ShuffleTarget",
+}
+
