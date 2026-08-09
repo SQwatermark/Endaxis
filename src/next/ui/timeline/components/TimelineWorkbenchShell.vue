@@ -25,6 +25,7 @@ const bottomHeight = ref(240);
 const bottomTool = ref<'global' | 'contract' | 'enemy'>('enemy');
 const rightTool = ref<'inspector' | 'battleLog'>('inspector');
 const resizing = ref<'left' | 'right' | 'bottom' | null>(null);
+let stopResize: (() => void) | null = null;
 
 const layoutStyle = computed(() => ({
   gridTemplateColumns: `48px ${leftCollapsed.value ? 0 : leftWidth.value}px ${leftCollapsed.value ? 0 : 1}px minmax(540px, 1fr) ${rightCollapsed.value ? 0 : 1}px ${rightCollapsed.value ? 0 : rightWidth.value}px 48px`,
@@ -62,6 +63,7 @@ function selectRight(tool: typeof rightTool.value): void {
 
 function beginResize(target: NonNullable<typeof resizing.value>, event: PointerEvent): void {
   event.preventDefault();
+  stopResize?.();
   resizing.value = target;
   const startX = event.clientX;
   const startY = event.clientY;
@@ -81,13 +83,17 @@ function beginResize(target: NonNullable<typeof resizing.value>, event: PointerE
     resizing.value = null;
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', finish);
+    window.removeEventListener('pointercancel', finish);
+    stopResize = null;
   };
+  stopResize = finish;
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', finish);
+  window.addEventListener('pointercancel', finish);
 }
 
 onBeforeUnmount(() => {
-  resizing.value = null;
+  stopResize?.();
 });
 </script>
 
