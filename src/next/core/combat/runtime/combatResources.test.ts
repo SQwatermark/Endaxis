@@ -32,6 +32,73 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('returns a complete snapshot deeply isolated from runtime state', () => {
+    const allowedTag = gameplayTagId(264623624);
+    const initial = {
+      sp: 100,
+      maxSp: 300,
+      returnedSp: 10,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 20,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1.5,
+          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+        },
+      ],
+    };
+    const resources = new CombatResources(initial);
+
+    initial.sharedSpGain.baseGainEfficiency = 2;
+    initial.normalSkillUltimateEnergy.selfGainPerSp = 2;
+    initial.squad[0]!.allowedUltimateEnergyRecoveryTagIds.clear();
+    resources.pay('source', [{ resource: 'sp', value: 40 }]);
+    resources.changeUltimateEnergy('source', 10, { recoveryTagId: allowedTag });
+
+    const snapshot = resources.snapshot();
+    expect(snapshot).toEqual({
+      sp: 60,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 1 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 35,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1.5,
+          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+        },
+      ],
+    });
+
+    (snapshot.sharedSpGain as { baseGainEfficiency: number }).baseGainEfficiency = 3;
+    (snapshot.spRecovery as { pauseRemaining: number }).pauseRemaining = 9;
+    (snapshot.normalSkillUltimateEnergy as { selfGainPerSp: number }).selfGainPerSp = 3;
+    (snapshot.squad[0]!.allowedUltimateEnergyRecoveryTagIds as Set<typeof allowedTag>).clear();
+
+    expect(resources.snapshot()).toEqual({
+      ...snapshot,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 10, pauseDuration: 1, pauseRemaining: 1 },
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.1, otherGainPerSp: 0.2 },
+      squad: [
+        {
+          ...snapshot.squad[0],
+          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+        },
+      ],
+    });
+  });
+
   it('持有一次战斗唯一的共享 SP 效率注册表', () => {
     const resources = createResources();
     const modifier = new SharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false);

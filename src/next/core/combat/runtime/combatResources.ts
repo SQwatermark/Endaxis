@@ -156,12 +156,12 @@ export class CombatResources {
     this.#sp = snapshot.sp;
     this.#maxSp = snapshot.maxSp;
     this.#returnedSp = snapshot.returnedSp;
-    this.sharedSpGainModifiers = new SharedSpGainModifierSet(snapshot.sharedSpGain);
+    this.sharedSpGainModifiers = new SharedSpGainModifierSet({ ...snapshot.sharedSpGain });
     this.#spRecoveryPerSecond = snapshot.spRecovery.valuePerSecond;
     this.#spRecoveryPauseDuration = snapshot.spRecovery.pauseDuration;
     this.#spRecoveryPauseRemaining = snapshot.spRecovery.pauseRemaining;
     this.#ultimateEnergySystemUnlocked = snapshot.ultimateEnergySystemUnlocked;
-    this.#normalSkillUltimateEnergy = snapshot.normalSkillUltimateEnergy;
+    this.#normalSkillUltimateEnergy = { ...snapshot.normalSkillUltimateEnergy };
     this.#squad = snapshot.squad.map((member, index) => {
       if (member.operatorId.length === 0) {
         throw new Error(`squad[${index}].operatorId must not be empty`);
@@ -200,6 +200,33 @@ export class CombatResources {
 
   get spRecoveryPauseRemaining(): number {
     return this.#spRecoveryPauseRemaining;
+  }
+
+  /** 读取当前完整账本；所有复合值均与运行时状态隔离。 */
+  snapshot(): CombatResourceSnapshot {
+    return {
+      sp: this.#sp,
+      maxSp: this.#maxSp,
+      returnedSp: this.#returnedSp,
+      sharedSpGain: { ...this.sharedSpGainModifiers.settings },
+      spRecovery: {
+        valuePerSecond: this.#spRecoveryPerSecond,
+        pauseDuration: this.#spRecoveryPauseDuration,
+        pauseRemaining: this.#spRecoveryPauseRemaining,
+      },
+      ultimateEnergySystemUnlocked: this.#ultimateEnergySystemUnlocked,
+      squad: this.#squad.map(member => ({
+        operatorId: member.operatorId,
+        ultimateEnergy: member.ultimateEnergy,
+        maxUltimateEnergy: member.maxUltimateEnergy,
+        ultimateEnergyGainMultiplier: member.ultimateEnergyGainMultiplier,
+        allowedUltimateEnergyRecoveryTagIds:
+          member.allowedUltimateEnergyRecoveryTagIds === null
+            ? null
+            : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+      })),
+      normalSkillUltimateEnergy: { ...this.#normalSkillUltimateEnergy },
+    };
   }
 
   gainSp(

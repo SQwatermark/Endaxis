@@ -4,6 +4,8 @@ import type { CombatOperationExecutor } from '../core/combat/runtime/skillRuntim
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import { createEmptyScenario } from '../core/project/createProject';
 import type { ScenarioDocument } from '../core/project/schema';
+import { perlica } from '../data/operators/perlica';
+import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runScenarioSimulation } from './runScenarioSimulation';
 
 function createScenario(): ScenarioDocument {
@@ -55,6 +57,56 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
   };
 }
 
+function createUltimateScenario(): ScenarioDocument {
+  const scenario = createScenario();
+  scenario.builds.operators.perlica = {
+    id: 'perlica',
+    operatorSlug: perlica.slug,
+    level: 90,
+    promoted: true,
+    potential: 0,
+    trustLevel: 4,
+    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+    talentStates: {},
+  };
+  scenario.tracks[0] = {
+    operatorBuildId: 'perlica',
+    weaponBuildId: null,
+    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 100 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: perlica,
+    skillGroupKey: 'ultimate',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+}
+
+function ultimateOptions(): CompileScenarioRuntimeAssemblyOptions {
+  const settings = options();
+  return {
+    ...settings,
+    catalog: { getOperator: slug => (slug === perlica.slug ? perlica : null) },
+    resources: {
+      ...settings.resources,
+      operators: new Map([
+        [
+          'perlica',
+          {
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      ]),
+    },
+  };
+}
+
 describe('runScenarioSimulation', () => {
   it('compiles a scenario, advances to the exact end frame, and returns immutable receipts', () => {
     const result = runScenarioSimulation({
@@ -70,10 +122,31 @@ describe('runScenarioSimulation', () => {
       event: 'SpChanged',
       data: { currentValue: 3 },
     });
+    expect(result.finalResources.sp).toBe(3);
+    expect(result.finalResources.spRecovery).toEqual({
+      valuePerSecond: 30,
+      pauseDuration: 1.5,
+      pauseRemaining: 0,
+    });
     expect(Object.isFrozen(result)).toBe(true);
     expect(Object.isFrozen(result.receiptEntries)).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0])).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0]!.data)).toBe(true);
+  });
+
+  it('returns ultimate energy after an ultimate skill pays its cost', () => {
+    const result = runScenarioSimulation({
+      scenario: createUltimateScenario(),
+      options: ultimateOptions(),
+      endFrame: 1,
+    });
+
+    expect(result.finalResources.squad).toHaveLength(1);
+    expect(result.finalResources.squad[0]).toMatchObject({
+      operatorId: 'perlica',
+      ultimateEnergy: 20,
+      maxUltimateEnergy: 100,
+    });
   });
 
   it.each([-1, 1.5, Number.NaN])('rejects invalid endFrame %s before compilation', endFrame => {
@@ -106,6 +179,7 @@ describe('runScenarioSimulation', () => {
       endFrame: 0,
     });
 
-    expect(result).toEqual({ frame: 0, receiptEntries: [] });
+    expect(result).toMatchObject({ frame: 0, receiptEntries: [] });
+    expect(result.finalResources.sp).toBe(0);
   });
 });
