@@ -114,15 +114,22 @@ function getGameEnumValue(
   key: string | null | undefined,
   locale?: string | null,
 ) {
-  const normalizedKey = String(key || '')
-    .trim()
-    .toLowerCase();
+  const sourceKey = String(key || '').trim();
+  const compactKey = sourceKey.replace(/\s+/g, '');
+  const normalizedKey = compactKey.toLowerCase();
   const terms = gameLocaleRegistry.getFamily(
     normalizeLocale(locale ?? i18n.global.locale.value),
     'terms',
   ).enums as LocaleTable;
   const table = terms[group] as Record<string, string> | undefined;
-  return table?.[normalizedKey] || table?.[normalizedKey.replace(/\s+/g, '')] || null;
+  if (!table) return null;
+  return (
+    table[sourceKey] ||
+    table[compactKey] ||
+    table[normalizedKey] ||
+    Object.entries(table).find(([candidate]) => candidate.toLowerCase() === normalizedKey)?.[1] ||
+    null
+  );
 }
 
 export function getOperatorGameName(slug: string, locale?: string | null) {

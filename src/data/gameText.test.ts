@@ -4,6 +4,7 @@ import {
   getOperatorCombatSkillDescription,
   getOperatorCombatSkillFormKeys,
   getOperatorFormName,
+  getOperatorUiLabel,
   getWeaponGameName,
   getWeaponSkillDescription,
   getWeaponSkillName,
@@ -50,5 +51,10 @@ describe('game text localization', () => {
     expect(getOperatorCombatSkillDescription('arcane', 'comboSkill', 'zh-CN', 'will')).toContain(
       '阵诀·意',
     );
+  });
+
+  test('zh resolves camelCase operator UI enum keys without an English fallback', () => {
+    expect(getOperatorUiLabel('fullyPromoted', 'zh-CN')).toBe('满精英化');
+    expect(getOperatorUiLabel('promotionUnavailable', 'zh-CN')).toBe('无法精英化');
   });
 });

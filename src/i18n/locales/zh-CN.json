@@ -1263,6 +1263,17 @@
     "weaponTab": "武器",
     "gearTab": "装备",
     "skillLibrary": "干员技能库",
+    "operatorSupport": {
+      "partial": "该干员数据未完全转换",
+      "scopedCapability": "{capability}（技能组：{groups}）",
+      "capabilities": {
+        "skillBehavior": "部分技能效果缺失",
+        "skillAvailability": "部分技能释放条件缺失",
+        "talentEffects": "部分天赋效果缺失",
+        "potentialEffects": "部分潜能效果缺失",
+        "runtimeDependencies": "部分战斗依赖尚未支持"
+      }
+    },
     "weaponDialog": {
       "title": "选择武器",
       "searchPlaceholder": "搜索武器名称、类型或星级",

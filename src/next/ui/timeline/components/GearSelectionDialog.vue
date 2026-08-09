@@ -51,6 +51,7 @@ const emit = defineEmits<{
 interface GearListItem {
   readonly definition: GearDefinition;
   readonly name: string;
+  readonly gearSetSlug: string | null;
   readonly gearSetName: string;
   readonly isPartial: boolean;
   readonly supportSummary: string;
@@ -63,14 +64,19 @@ interface GearLevelGroup {
 
 const { locale, t } = useI18n({ useScope: 'global' });
 const searchQuery = ref('');
+const gearSetFilter = ref('ALL');
+const levelFilter = ref<number | 'ALL'>('ALL');
 const refineTier = ref(3);
 const refineTiers = [0, 1, 2, 3] as const;
+const NO_SET_FILTER = '__NO_SET__';
 
 watch(
   () => [props.visible, props.activeSlotKey, props.selectedSlug] as const,
   ([visible]) => {
     if (!visible) return;
     searchQuery.value = '';
+    gearSetFilter.value = 'ALL';
+    levelFilter.value = 'ALL';
     refineTier.value = props.selectedSlug === null ? 3 : currentArtificingTier.value;
   },
 );
@@ -88,17 +94,18 @@ const currentArtificingTier = computed(() => {
 
 const gearItems = computed<readonly GearListItem[]>(() =>
   props.gears.map(definition => {
+    const gearSetSlug =
+      definition.gearSetSlug && definition.gearSetSlug !== 'no-set-bonuses'
+        ? definition.gearSetSlug
+        : null;
     const gearSupport = getSharedEquipmentSupport('gear', definition.slug);
-    const setSupport = definition.gearSetSlug
-      ? getSharedEquipmentSupport('gearSet', definition.gearSetSlug)
-      : null;
+    const setSupport = gearSetSlug ? getSharedEquipmentSupport('gearSet', gearSetSlug) : null;
     const issues = [...(gearSupport?.issues ?? []), ...(setSupport?.issues ?? [])];
     return {
       definition,
       name: getGearPieceGameName(definition.slug, locale.value),
-      gearSetName: definition.gearSetSlug
-        ? getGearSetGameName(definition.gearSetSlug, locale.value)
-        : props.labels.noSet,
+      gearSetSlug,
+      gearSetName: gearSetSlug ? getGearSetGameName(gearSetSlug, locale.value) : props.labels.noSet,
       isPartial: gearSupport?.completeness === 'partial' || setSupport?.completeness === 'partial',
       supportSummary: [
         ...new Set(issues.map(issue => `${issue.sourceKind}.${issue.path}: ${issue.message}`)),
@@ -107,9 +114,36 @@ const gearItems = computed<readonly GearListItem[]>(() =>
   }),
 );
 
+const gearSets = computed(() => {
+  const names = new Map<string, string>();
+  for (const item of gearItems.value) {
+    if (item.gearSetSlug !== null) names.set(item.gearSetSlug, item.gearSetName);
+  }
+  return [...names.entries()]
+    .map(([slug, name]) => ({ slug, name }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+});
+
+const levels = computed(() =>
+  [...new Set(gearItems.value.map(item => item.definition.levelRequirement))].sort(
+    (left, right) => right - left,
+  ),
+);
+
 const groups = computed<readonly GearLevelGroup[]>(() => {
   const query = normalizeSearchText(searchQuery.value);
   const filtered = gearItems.value.filter(item => {
+    if (
+      gearSetFilter.value !== 'ALL' &&
+      (gearSetFilter.value === NO_SET_FILTER
+        ? item.gearSetSlug !== null
+        : item.gearSetSlug !== gearSetFilter.value)
+    ) {
+      return false;
+    }
+    if (levelFilter.value !== 'ALL' && item.definition.levelRequirement !== levelFilter.value) {
+      return false;
+    }
     if (query.length === 0) return true;
     return [
       item.definition.slug,
@@ -208,6 +242,59 @@ function clearGear(): void {
             </button>
           </div>
         </div>
+      </div>
+      <div class="element-filters">
+        <button
+          type="button"
+          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+          :class="{ 'is-active': gearSetFilter === 'ALL' }"
+          :style="{ '--ea-btn-accent': '#2dd4bf' }"
+          @click="gearSetFilter = 'ALL'"
+        >
+          {{ t('timelineGrid.equipmentDialog.allCategories') }}
+        </button>
+        <button
+          type="button"
+          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+          :class="{ 'is-active': gearSetFilter === NO_SET_FILTER }"
+          :style="{ '--ea-btn-accent': '#888' }"
+          @click="gearSetFilter = NO_SET_FILTER"
+        >
+          {{ labels.noSet }}
+        </button>
+        <button
+          v-for="gearSet in gearSets"
+          :key="gearSet.slug"
+          type="button"
+          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+          :class="{ 'is-active': gearSetFilter === gearSet.slug }"
+          :style="{ '--ea-btn-accent': '#2dd4bf' }"
+          @click="gearSetFilter = gearSet.slug"
+        >
+          {{ gearSet.name }}
+        </button>
+      </div>
+      <div class="element-filters">
+        <button
+          type="button"
+          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+          :class="{ 'is-active': levelFilter === 'ALL' }"
+          :style="{ '--ea-btn-accent': '#2dd4bf' }"
+          @click="levelFilter = 'ALL'"
+        >
+          {{ t('timelineGrid.equipmentDialog.allLevels') }}
+        </button>
+        <button
+          v-for="level in levels"
+          :key="level"
+          type="button"
+          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+          :class="{ 'is-active': levelFilter === level }"
+          :style="{ '--ea-btn-accent': getEquipmentLevelColor(level) }"
+          @click="levelFilter = level"
+        >
+          Lv{{ level }}
+        </button>
       </div>
     </div>
 

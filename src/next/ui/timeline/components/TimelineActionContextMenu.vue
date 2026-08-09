@@ -5,6 +5,7 @@
  */
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CopyDocument } from '@element-plus/icons-vue';
 
 const props = defineProps<{
   visible: boolean;
@@ -18,6 +19,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: [];
+  copy: [];
   delete: [];
   toggleLock: [];
   toggleDisabled: [];
@@ -85,6 +87,11 @@ onBeforeUnmount(() => {
       @wheel.stop
     >
       <div class="menu-header" :title="label">{{ label }}</div>
+      <button class="menu-item" type="button" role="menuitem" @click="$emit('copy')">
+        <el-icon><CopyDocument /></el-icon>
+        <span>{{ t('common.copy') }}</span>
+        <kbd>Ctrl+C</kbd>
+      </button>
       <button class="menu-item delete-item" type="button" role="menuitem" @click="$emit('delete')">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"></polyline>

@@ -1140,6 +1140,17 @@
     "weaponTab": "Оружие",
     "gearTab": "Снаряжение",
     "skillLibrary": "Библиотека навыков",
+    "operatorSupport": {
+      "partial": "Данные этого оператора преобразованы не полностью",
+      "scopedCapability": "{capability} (группы навыков: {groups})",
+      "capabilities": {
+        "skillBehavior": "Некоторые эффекты навыков отсутствуют",
+        "skillAvailability": "Некоторые условия навыков отсутствуют",
+        "talentEffects": "Некоторые эффекты талантов отсутствуют",
+        "potentialEffects": "Некоторые эффекты потенциала отсутствуют",
+        "runtimeDependencies": "Некоторые боевые зависимости не поддерживаются"
+      }
+    },
     "weaponDialog": {
       "title": "Выбор оружия",
       "searchPlaceholder": "Поиск по названию, типу или редкости",

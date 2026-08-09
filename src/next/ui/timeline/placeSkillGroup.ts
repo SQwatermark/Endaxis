@@ -14,8 +14,11 @@ import type {
 } from '../../core/project/schema';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
+export type TimelineDocumentIdKind =
+  'skillCast' | 'placementGroup' | 'scheduledSequence' | 'hit' | 'customBar' | 'connection';
+
 export interface TimelineDocumentIdAllocator {
-  allocate(kind: 'skillCast' | 'placementGroup' | 'scheduledSequence' | 'hit'): string;
+  allocate(kind: TimelineDocumentIdKind): string;
 }
 
 export interface PlaceSkillGroupInput {

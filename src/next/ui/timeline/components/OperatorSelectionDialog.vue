@@ -19,6 +19,8 @@ import type {
   OperatorDefinition,
   OperatorRole,
 } from '../../../core/game-data/operatorDefinition';
+import { projectOperatorSupport } from '../operatorSupportViewModel';
+import OperatorSupportNotice from './OperatorSupportNotice.vue';
 
 const props = defineProps<{
   visible: boolean;
@@ -117,6 +119,7 @@ const operatorItems = computed(() =>
       ]
         .map(normalizeSearchText)
         .filter(Boolean),
+      support: projectOperatorSupport(operator),
     };
   }),
 );
@@ -244,6 +247,7 @@ function clear(): void {
               class="card-avatar-wrapper"
               :style="operator.rarity === 6 ? {} : { borderColor: rarityColor(operator.rarity) }"
             >
+              <OperatorSupportNotice :support="operator.support" compact />
               <img :src="operator.avatar" alt="" loading="lazy" />
               <div
                 class="element-badge"

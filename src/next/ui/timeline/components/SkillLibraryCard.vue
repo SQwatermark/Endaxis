@@ -30,11 +30,10 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
       <div class="card-edge"></div>
       <div class="card-body">
         <div class="skill-meta">
-          <span v-if="typeLabel" class="skill-type">{{ typeLabel }}</span>
-          <span v-else class="skill-type-empty"></span>
+          <span class="skill-secondary">{{ name }}</span>
           <span class="skill-time">{{ duration }}s</span>
         </div>
-        <div class="skill-name">{{ name }}</div>
+        <div class="skill-primary">{{ typeLabel || name }}</div>
       </div>
 
       <div v-if="icon" class="card-bg-deco">
@@ -144,14 +143,6 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
   box-shadow: 0 0 10px color-mix(in srgb, var(--ea-gold) 12%, transparent);
 }
 
-.skill-type-empty {
-  height: 9px;
-  flex: 1;
-}
-.skill-card:not(:has(.skill-type)) .skill-name {
-  font-size: 14px;
-  margin-top: 2px;
-}
 .card-edge {
   position: absolute;
   inset: 0 auto 0 0;
@@ -173,13 +164,14 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
   align-items: center;
   margin-bottom: 2px;
 }
-.skill-type {
+.skill-secondary {
+  max-width: calc(100% - 52px);
+  overflow: hidden;
   font-size: 9px;
-  color: var(--accent-color);
-  filter: brightness(0.8);
-  font-weight: bold;
-  text-transform: uppercase;
-  opacity: 0.6;
+  color: var(--ea-fg-muted, rgba(255, 255, 255, 0.48));
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .skill-time {
   position: absolute;
@@ -202,10 +194,10 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
   background: var(--accent-color);
   opacity: 0.4;
 }
-.skill-name {
-  font-size: 13px;
+.skill-primary {
+  font-size: 15px;
   color: var(--ea-fg, rgba(255, 255, 255, 0.9));
-  font-weight: bold;
+  font-weight: 800;
   margin-top: 2px;
   padding-right: 65px;
   white-space: nowrap;
@@ -262,12 +254,10 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
 :global(html[data-theme='light']) .skill-card:hover {
   background: var(--ea-surface-soft);
 }
-:global(html[data-theme='light']) .skill-name {
+:global(html[data-theme='light']) .skill-primary {
   color: var(--ea-fg);
 }
-:global(html[data-theme='light']) .skill-type {
-  filter: none;
-  opacity: 0.95;
+:global(html[data-theme='light']) .skill-secondary {
   color: var(--ea-fg-secondary);
 }
 :global(html[data-theme='light']) .weapon-icon-inner {

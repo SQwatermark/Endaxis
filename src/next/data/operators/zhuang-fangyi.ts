@@ -490,4 +490,8 @@ export const zhuangFangyi: OperatorDefinition = {
     },
     { key: 'enhancedElectricResistanceIgnore', levels: 1, modifiers: [] },
   ],
+  conversionSupport: {
+    completeness: 'partial',
+    missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }],
+  },
 };

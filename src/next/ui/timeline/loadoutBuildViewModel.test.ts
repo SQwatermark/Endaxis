@@ -14,6 +14,7 @@ const weapon = sharedWeaponDefinitions.find(value => value.weaponType === perlic
 const armor = sharedGearDefinitions.find(value => value.slotType === 'armor')!;
 const accessory = sharedGearDefinitions.find(value => value.slotType === 'accessory')!;
 const repository = createGameDataRepository({
+  revision: 'fixture',
   operators: [perlica],
   weapons: [weapon],
   gears: [armor, accessory],

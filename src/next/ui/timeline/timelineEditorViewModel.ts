@@ -9,6 +9,7 @@ import type {
   SkillCastDocument,
   TrackIndex,
 } from '../../core/project/schema';
+import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
 
 /** UI 投影读取干员目录的最小端口。 */
 export interface TimelineOperatorCatalog {
@@ -44,6 +45,7 @@ export interface TimelineTrackViewModel {
   readonly trackIndex: TrackIndex;
   readonly operatorBuildId: string | null;
   readonly operatorSlug: string | null;
+  readonly operatorSupport: OperatorSupportViewModel | null;
   readonly skillLibrary: readonly TimelineSkillLibraryEntryViewModel[];
   readonly skillCasts: readonly TimelineSkillCastViewModel[];
   readonly issues: readonly string[];
@@ -94,6 +96,7 @@ function projectTrack(
       trackIndex,
       operatorBuildId: null,
       operatorSlug: null,
+      operatorSupport: null,
       skillLibrary: [],
       skillCasts: [],
       issues: [],
@@ -138,6 +141,7 @@ function projectTrack(
     trackIndex,
     operatorBuildId: track.operatorBuildId,
     operatorSlug: operatorBuild?.operatorSlug ?? null,
+    operatorSupport: operator === null ? null : projectOperatorSupport(operator),
     skillLibrary,
     skillCasts: track.skillCasts.map(skillCast => projectSkillCast(skillCast, operator, issues)),
     issues,

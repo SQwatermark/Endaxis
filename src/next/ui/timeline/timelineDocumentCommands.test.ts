@@ -8,10 +8,31 @@ import {
   setTrackGear,
   setTrackOperator,
   setTrackWeapon,
+  swapTimelineTracks,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
 } from './timelineDocumentCommands';
+
+describe('swapTimelineTracks', () => {
+  it('swaps complete track slots and remaps control switches', () => {
+    const original = createEmptyScenario('scenario:tracks', '轨道排序样本');
+    original.tracks[0] = { ...scenario().tracks[0]!, operatorBuildId: 'operator:a' };
+    original.tracks[1] = { ...scenario().tracks[0]!, operatorBuildId: 'operator:b' };
+    original.battle.controlSwitches = [
+      { id: 'switch:a', frame: 0, trackIndex: 0 },
+      { id: 'switch:b', frame: 30, trackIndex: 1 },
+      { id: 'switch:c', frame: 60, trackIndex: 2 },
+    ];
+
+    const swapped = swapTimelineTracks(original, 0, 1);
+
+    expect(swapped.tracks[0]?.operatorBuildId).toBe('operator:b');
+    expect(swapped.tracks[1]?.operatorBuildId).toBe('operator:a');
+    expect(swapped.battle.controlSwitches.map(value => value.trackIndex)).toEqual([1, 0, 2]);
+    expect(original.tracks[0]?.operatorBuildId).toBe('operator:a');
+  });
+});
 
 const perlicaBuild = {
   id: 'operator:perlica',

@@ -13,6 +13,34 @@ import type {
   WeaponBuildDocument,
 } from '../../core/project/schema';
 
+/**
+ * 交换两条轨道及其视觉顺序，并让主控切换事件继续指向原来的干员轨道。
+ * 技能块和配装随轨道对象一起移动，不需要逐项改写引用。
+ */
+export function swapTimelineTracks(
+  scenario: ScenarioDocument,
+  leftIndex: TrackIndex,
+  rightIndex: TrackIndex,
+): ScenarioDocument {
+  if (leftIndex === rightIndex) return scenario;
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  [tracks[leftIndex], tracks[rightIndex]] = [tracks[rightIndex], tracks[leftIndex]];
+  const controlSwitches = scenario.battle.controlSwitches.map(controlSwitch => ({
+    ...controlSwitch,
+    trackIndex:
+      controlSwitch.trackIndex === leftIndex
+        ? rightIndex
+        : controlSwitch.trackIndex === rightIndex
+          ? leftIndex
+          : controlSwitch.trackIndex,
+  }));
+  return {
+    ...scenario,
+    tracks,
+    battle: { ...scenario.battle, controlSwitches },
+  };
+}
+
 export type BasicEditableSkillCastField =
   | 'durationFrames'
   | 'cooldownFrames'

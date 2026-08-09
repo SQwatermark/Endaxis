@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { RefreshLeft, RefreshRight } from '@element-plus/icons-vue';
 import {
   getEnemyGameName,
   getOperatorCombatSkillName,
@@ -17,6 +16,8 @@ import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
+import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
+import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
@@ -47,22 +48,32 @@ import {
   type TimelineActionSelection,
 } from './timelineActionSelection';
 import {
+  copyTimelineActions,
+  pasteTimelineActions,
+  type TimelineActionClipboard,
+} from './timelineClipboard';
+import {
   moveSkillCast,
+  swapTimelineTracks,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
   type BasicEditableSkillCastField,
 } from './timelineDocumentCommands';
+import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
+import { basicAttackSegmentLabel } from './timelineSkillLabels';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
+const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
-  | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
+  | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number }
+  | { kind: 'trackOrder'; trackIndex: TrackIndex };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
 const contextMenuTarget = ref<{
@@ -179,12 +190,7 @@ const selectedCastModel = computed(() => {
         trackIndex: trackModel.trackIndex,
         cast,
         skillType: castModel.skillType,
-        label:
-          cast.source.kind === 'operatorSkill'
-            ? skillName(cast.source.skillGroupKey, trackModel.operatorSlug)
-            : cast.source.kind === 'custom'
-              ? cast.source.name
-              : cast.source.skillKey,
+        label: timelineCastLabel(castModel, trackModel),
       };
     }
   }
@@ -229,6 +235,25 @@ function skillTypeLabel(skillType: string): string {
   return t(`skillType.${displayType}`);
 }
 
+function timelineCastLabel(
+  cast: (typeof viewModel.value.tracks)[number]['skillCasts'][number],
+  track: (typeof viewModel.value.tracks)[number],
+): string {
+  const source = cast.source;
+  if (source.kind === 'custom') return source.name;
+  if (source.kind === 'weaponSkill') return source.skillKey;
+  const entry = track.skillLibrary.find(
+    candidate => candidate.skillGroupKey === source.skillGroupKey,
+  );
+  const segmentLabel =
+    entry === undefined
+      ? null
+      : basicAttackSegmentLabel(entry, source.skillKey, t('skillType.heavyAttack'));
+  return (
+    segmentLabel ?? (cast.skillType === null ? source.skillKey : skillTypeLabel(cast.skillType))
+  );
+}
+
 function skillAccentColor(skillType: string): string {
   return (
     {
@@ -242,10 +267,21 @@ function skillAccentColor(skillType: string): string {
   );
 }
 
-function skillDisplayIcon(skillType: string): string {
-  return ['basicAttack', 'finisher', 'plungingAttack'].includes(skillType)
-    ? '/icons/icon_attack_pistol.webp'
-    : '';
+function skillDisplayIcon(skillType: string, operatorSlug: string | null): string {
+  if (operatorSlug === null) return '';
+  if (skillType === 'battleSkill') return `/operators/${operatorSlug}/battle.webp`;
+  if (skillType === 'comboSkill') return `/operators/${operatorSlug}/combo.webp`;
+  if (skillType === 'ultimate') return `/operators/${operatorSlug}/ultimate.webp`;
+  const weaponType = nextGameDataRepository.getOperator(operatorSlug)?.weaponType ?? 'sword';
+  return (
+    {
+      sword: '/icons/icon_attack_sword.webp',
+      greatsword: '/icons/icon_attack_claym.webp',
+      polearm: '/icons/icon_attack_lance.webp',
+      handcannon: '/icons/icon_attack_pistol.webp',
+      'arts-unit': '/icons/icon_attack_funnel.webp',
+    }[weaponType] ?? '/icons/default_icon.webp'
+  );
 }
 
 function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number {
@@ -271,13 +307,14 @@ function handleActionSelection(event: MouseEvent, skillCastId: string): void {
 function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
   return entry.skills.map((skill, index) => ({
     id: skill.skillKey,
-    label: `${index + 1}A`,
+    label:
+      basicAttackSegmentLabel(entry, skill.skillKey, t('skillType.heavyAttack')) ?? `A${index + 1}`,
     selected: false,
     disabled: false,
   }));
 }
 
-function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void {
+function selectTimelinePosition(event: MouseEvent): void {
   const lane = event.currentTarget as HTMLElement;
   cursorFrame.value = Math.max(
     0,
@@ -290,7 +327,6 @@ function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void
       ),
     ),
   );
-  selectedTrack.value = trackIndex;
   clearTimelineSelection();
 }
 
@@ -313,7 +349,6 @@ function placeGroup(
     ids,
   });
   commitScenario('placeSkillGroup', () => result.scenario);
-  selectedTrack.value = trackIndex;
   const lastPlacedId = result.skillCastIds.at(-1);
   if (lastPlacedId === undefined) clearTimelineSelection();
   else applyActionSelection(selectTimelineAction(actionSelection.value, lastPlacedId, false));
@@ -346,10 +381,34 @@ function beginCastDrag(event: DragEvent, trackIndex: TrackIndex, skillCastId: st
   if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
 }
 
+function beginTrackOrderDrag(event: DragEvent, trackIndex: TrackIndex): void {
+  dragPayload.value = { kind: 'trackOrder', trackIndex };
+  if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
+}
+
+function swapTrackOrder(fromIndex: TrackIndex, toIndex: TrackIndex): void {
+  if (fromIndex === toIndex) return;
+  commitScenario('swapTimelineTracks', current => swapTimelineTracks(current, fromIndex, toIndex));
+  if (selectedTrack.value === fromIndex) selectedTrack.value = toIndex;
+  else if (selectedTrack.value === toIndex) selectedTrack.value = fromIndex;
+}
+
+function dropTrackOrder(event: DragEvent, trackIndex: TrackIndex): void {
+  const payload = dragPayload.value;
+  if (payload?.kind !== 'trackOrder') return;
+  event.preventDefault();
+  dragPayload.value = null;
+  swapTrackOrder(payload.trackIndex, trackIndex);
+}
+
 function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
   const payload = dragPayload.value;
   dragPayload.value = null;
   if (payload === null) return;
+  if (payload.kind === 'trackOrder') {
+    swapTrackOrder(payload.trackIndex, trackIndex);
+    return;
+  }
   const lane = event.currentTarget as HTMLElement;
   const pointerFrame = Math.max(
     0,
@@ -375,7 +434,6 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
   commitScenario('moveSkillCast', current =>
     moveSkillCast(current, trackIndex, payload.skillCastId, frame),
   );
-  selectedTrack.value = trackIndex;
   applyActionSelection(selectTimelineAction(actionSelection.value, payload.skillCastId, false));
 }
 
@@ -395,7 +453,6 @@ function restoreEditorHistory(direction: 'undo' | 'redo'): void {
 }
 
 function openCastContextMenu(event: MouseEvent, trackIndex: TrackIndex, skillCastId: string): void {
-  selectedTrack.value = trackIndex;
   if (actionSelection.value.selectedIds.has(skillCastId)) {
     applyActionSelection({ ...actionSelection.value, primaryId: skillCastId });
   } else {
@@ -432,6 +489,71 @@ function deleteContextCast(): void {
   deleteSelectedTimelineActions(scenarioSession, selection);
   clearTimelineSelection();
   contextMenuTarget.value = null;
+}
+
+function copyContextSelection(): void {
+  copySelectedActions();
+  contextMenuTarget.value = null;
+}
+
+function pasteClipboardAtCursor(): void {
+  const clipboard = timelineClipboard.value;
+  if (clipboard === null) return;
+  const result = pasteTimelineActions(scenario.value, clipboard, cursorFrame.value, ids);
+  if (result.skillCastIds.length === 0) return;
+  commitScenario('pasteSkillCasts', () => result.scenario);
+  applyActionSelection({
+    selectedIds: new Set(result.skillCastIds),
+    primaryId: result.skillCastIds.at(-1) ?? null,
+  });
+}
+
+function copySelectedActions(): boolean {
+  if (actionSelection.value.selectedIds.size === 0) return false;
+  timelineClipboard.value = copyTimelineActions(scenario.value, actionSelection.value.selectedIds);
+  return timelineClipboard.value !== null;
+}
+
+const hasModalPanel = computed(
+  () =>
+    operatorDialogTrack.value !== null ||
+    weaponDialogTrack.value !== null ||
+    gearDialogTarget.value !== null ||
+    showOperatorBuildDialog.value ||
+    showWeaponBuildDialog.value ||
+    showGearBuildDialog.value,
+);
+
+useKeyboardShortcutScope({
+  id: 'next-timeline-overlay',
+  priority: 100,
+  active: () => hasModalPanel.value || contextMenuTarget.value !== null,
+  handle: () => false,
+  blockLowerScopes: true,
+});
+
+useKeyboardShortcutScope({
+  id: 'next-timeline-editor',
+  priority: 10,
+  active: () => !hasModalPanel.value && contextMenuTarget.value === null,
+  handle: event => {
+    if (isTextEditingTarget(event.target) || event.altKey || !(event.ctrlKey || event.metaKey)) {
+      return false;
+    }
+    const key = event.key.toLowerCase();
+    if (key === 'c') return copySelectedActions();
+    if (key === 'v' && timelineClipboard.value !== null) {
+      pasteClipboardAtCursor();
+      return true;
+    }
+    return false;
+  },
+});
+
+function moveTrack(trackIndex: TrackIndex, direction: -1 | 1): void {
+  const targetIndex = (trackIndex + direction) as TrackIndex;
+  if (targetIndex < 0 || targetIndex > 3) return;
+  swapTrackOrder(trackIndex, targetIndex);
 }
 
 function setContextCastColor(color: string | null): void {
@@ -507,11 +629,9 @@ function updateSelectedCast(
             :name="skillName(entry.skillGroupKey, selectedTrackModel.operatorSlug)"
             :type-label="skillTypeLabel(entry.skillType)"
             :duration="skillDurationSeconds(entry)"
-            :icon="skillDisplayIcon(entry.skillType)"
+            :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
             :accent-color="skillAccentColor(entry.skillType)"
             :segments="skillSegments(entry)"
-            @select="placeGroup(entry.skillGroupKey)"
-            @select-segment="placeGroup(entry.skillGroupKey, $event)"
             @dragstart="beginSkillDrag($event, entry.skillGroupKey)"
             @dragstart-segment="beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey)"
           />
@@ -574,49 +694,48 @@ function updateSelectedCast(
     </template>
 
     <template #header>
-      <div class="scenario-tools">
-        <button
-          type="button"
-          class="icon-button"
-          :disabled="!canUndo"
-          :title="t('timeline.shortcuts.items.undo')"
-          @click="restoreEditorHistory('undo')"
-        >
-          <el-icon><RefreshLeft /></el-icon>
-        </button>
-        <button
-          type="button"
-          class="icon-button"
-          :disabled="!canRedo"
-          :title="t('timeline.shortcuts.items.redo')"
-          @click="restoreEditorHistory('redo')"
-        >
-          <el-icon><RefreshRight /></el-icon>
-        </button>
-        <button type="button" class="icon-button" disabled title="重命名">✎</button>
-        <button type="button" class="icon-button" disabled title="复制">▣</button>
-        <div class="scenario-title">
-          <span>[</span><strong>{{ scenario.name }}</strong
-          ><span>]</span>
-        </div>
-        <button type="button" class="scenario-tab is-active">01</button>
-        <button type="button" class="icon-button" disabled title="新增">+</button>
-      </div>
-      <div class="header-actions">
-        <span>{{ t('nextTimeline.cursorFrame', { frame: cursorFrame }) }}</span>
-        <button type="button" disabled :title="t('nextTimeline.simulationPending')">
-          {{ t('nextTimeline.simulate') }}
-        </button>
-        <button type="button" @click="resetScenario">{{ t('nextTimeline.reset') }}</button>
-      </div>
+      <TimelineHeaderToolbar
+        :scenario-name="scenario.name"
+        :cursor-text="t('nextTimeline.cursorFrame', { frame: cursorFrame })"
+        :can-undo="canUndo"
+        :can-redo="canRedo"
+        :can-paste="timelineClipboard !== null"
+        :labels="{
+          undo: t('timeline.shortcuts.items.undo'),
+          redo: t('timeline.shortcuts.items.redo'),
+          paste: t('common.paste'),
+          rename: t('timeline.scenario.renameTooltip'),
+          duplicate: t('timeline.scenario.duplicateTooltip'),
+          add: t('timeline.scenario.addTooltip'),
+          analysis: t('timeline.analysis.button'),
+          export: t('common.export'),
+          more: t('timeline.header.more'),
+          reset: t('common.reset'),
+        }"
+        @undo="restoreEditorHistory('undo')"
+        @redo="restoreEditorHistory('redo')"
+        @paste="pasteClipboardAtCursor"
+        @reset="resetScenario"
+      />
     </template>
 
     <div class="timeline-workspace">
       <div class="timeline-scroll">
         <div class="timeline-surface" :style="{ width: `${180 + timelineWidth}px` }">
           <div class="corner-placeholder">
-            <span class="corner-tools">⚡　⊕　⌗</span>
-            <span class="zoom-label">SCALE　100%</span>
+            <TimelineCornerToolbar
+              :labels="{
+                initialGauge: t('timelineGrid.toolbar.initialGauge'),
+                cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
+                boxSelect: t('timelineGrid.toolbar.boxSelect'),
+                snapPrecision: t('timelineGrid.toolbar.snapPrecision'),
+                connectionTool: t('timelineGrid.toolbar.connectionTool'),
+                buffLayout: t('timelineGrid.toolbar.buffLayoutMode', {
+                  mode: t('timelineGrid.toolbar.buffLayoutCompact'),
+                }),
+                zoom: 'SCALE',
+              }"
+            />
           </div>
           <TimelineRuler
             class="timeline-ruler"
@@ -639,6 +758,8 @@ function updateSelectedCast(
               :track="track"
               :name="operatorName(track.operatorSlug)"
               :selected="selectedTrack === track.trackIndex"
+              :can-move-up="track.trackIndex > 0"
+              :can-move-down="track.trackIndex < 3"
               :weapon-icon="loadoutModels[track.trackIndex]?.weapon?.definition.iconPath ?? null"
               :gear-icons="{
                 armor: loadoutModels[track.trackIndex]?.gears.armor?.definition.iconPath ?? null,
@@ -656,13 +777,18 @@ function updateSelectedCast(
                 accessory2: t('timelineGrid.equipmentSlot.accessory2'),
               }"
               @select="selectTrack(track.trackIndex)"
+              @operator="openOperatorDialog(track.trackIndex)"
+              @move-up="moveTrack(track.trackIndex, -1)"
+              @move-down="moveTrack(track.trackIndex, 1)"
+              @reorder-drag-start="beginTrackOrderDrag($event, track.trackIndex)"
+              @reorder-drop="dropTrackOrder($event, track.trackIndex)"
               @weapon="openWeaponDialog(track.trackIndex)"
               @gear="openGearDialog(track.trackIndex, $event)"
             />
             <div
               class="track-lane"
               :style="{ width: `${timelineWidth}px` }"
-              @click="selectTimelinePosition($event, track.trackIndex)"
+              @click="selectTimelinePosition($event)"
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
@@ -678,11 +804,7 @@ function updateSelectedCast(
               <TimelineActionBlock
                 v-for="cast in track.skillCasts"
                 :key="cast.id"
-                :label="
-                  cast.source.kind === 'operatorSkill'
-                    ? skillName(cast.source.skillGroupKey, track.operatorSlug)
-                    : cast.source.kind
-                "
+                :label="timelineCastLabel(cast, track)"
                 :skill-type="cast.skillType"
                 :left="frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)"
                 :width="cast.durationFrames * pxPerFrame"
@@ -690,10 +812,7 @@ function updateSelectedCast(
                 :disabled="cast.disabled"
                 :locked="cast.locked"
                 :color="cast.color"
-                @select="
-                  selectedTrack = track.trackIndex;
-                  handleActionSelection($event, cast.id);
-                "
+                @select="handleActionSelection($event, cast.id)"
                 @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
                 @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />
@@ -726,6 +845,7 @@ function updateSelectedCast(
     :disabled="selectedCastModel?.cast.editable.disabled ?? false"
     :color="selectedCastModel?.cast.editable.color ?? null"
     @close="contextMenuTarget = null"
+    @copy="copyContextSelection"
     @delete="deleteContextCast"
     @toggle-lock="toggleContextCastField('locked')"
     @toggle-disabled="toggleContextCastField('disabled')"
@@ -801,35 +921,6 @@ function updateSelectedCast(
 </template>
 
 <style scoped>
-.scenario-tools,
-.header-actions {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.scenario-tools {
-  flex: 1;
-  padding-left: 8px;
-}
-
-.header-actions {
-  padding-right: 10px;
-  color: var(--ea-fg-muted);
-  font-size: 12px;
-}
-
-.scenario-title {
-  width: 150px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--ea-fg);
-  white-space: nowrap;
-  overflow: hidden;
-}
-
 button {
   height: 28px;
   border: 1px solid var(--ea-border);
@@ -849,25 +940,6 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.38;
   cursor: not-allowed;
-}
-
-.icon-button {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-.scenario-tab {
-  min-width: 40px;
-  height: 24px;
-  padding: 0 8px;
-}
-
-.scenario-tab.is-active {
-  background: var(--ea-tab-active-bg);
-  color: var(--ea-tab-active-fg);
 }
 
 .skill-sidebar {
@@ -958,24 +1030,11 @@ button:disabled {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 12px;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 5px 8px;
   border-right: 1px solid var(--ea-border);
   border-bottom: 1px solid var(--ea-border);
   background: var(--ea-workbench-header);
-}
-
-.corner-tools {
-  font-size: 11px;
-  color: var(--ea-fg-muted);
-}
-
-.zoom-label {
-  color: var(--ea-fg-subtle);
-  font:
-    8px/1 Consolas,
-    monospace;
 }
 
 .timeline-ruler {
@@ -1004,10 +1063,6 @@ button:disabled {
   border-bottom: 1px solid var(--ea-border-soft);
 }
 
-.track-row.selected {
-  background: var(--ea-track-row-active);
-}
-
 .track-identity {
   position: sticky;
   left: 0;
@@ -1018,6 +1073,26 @@ button:disabled {
   position: relative;
   height: 160px;
   overflow: hidden;
+}
+
+.track-lane::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 53px;
+  right: 0;
+  left: 0;
+  height: 54px;
+  box-sizing: border-box;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  background: var(--ea-grid-wash, rgba(255, 255, 255, 0.025));
+  pointer-events: none;
+}
+
+.track-row.selected .track-lane::before {
+  border-color: var(--ea-border-strong);
+  border-style: dashed;
 }
 
 .prep-zone {

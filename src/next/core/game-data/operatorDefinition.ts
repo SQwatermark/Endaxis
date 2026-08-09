@@ -90,6 +90,29 @@ export const SKILL_LEVEL_SOURCES = [
 /** 指明一个技能组从干员养成方案的哪个字段读取等级。 */
 export type SkillLevelSource = (typeof SKILL_LEVEL_SOURCES)[number];
 
+export const OPERATOR_MISSING_CAPABILITIES = [
+  'skillBehavior',
+  'skillAvailability',
+  'talentEffects',
+  'potentialEffects',
+  'runtimeDependencies',
+] as const;
+/** 宽松转换允许省略、但必须向使用者声明的能力类别。 */
+export type OperatorMissingCapability = (typeof OPERATOR_MISSING_CAPABILITIES)[number];
+
+/**
+ * 干员定义相对原始数据的转换支持状态。
+ * 这里只保存稳定、非本地化的能力摘要；解析异常、文件路径等审计细节留在生成报告中。
+ */
+export interface OperatorConversionSupport {
+  readonly completeness: 'complete' | 'partial';
+  readonly missingCapabilities: readonly {
+    readonly capability: OperatorMissingCapability;
+    /** 仅当缺失能力可收窄到技能组时提供稳定技能组身份。 */
+    readonly skillGroupKeys?: readonly string[];
+  }[];
+}
+
 export const COMBAT_RESOURCES = ['sp', 'ultimateEnergy'] as const;
 /** 通用技能步骤当前允许结算的共享或个人战斗资源。 */
 export type CombatResource = (typeof COMBAT_RESOURCES)[number];
@@ -747,4 +770,6 @@ export interface OperatorDefinition {
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   talents: readonly OperatorUpgradeDefinition[];
   potentials: readonly OperatorUpgradeDefinition[];
+  /** 未提供时视为人工审核完成；宽松转换产物必须显式携带该字段。 */
+  conversionSupport?: OperatorConversionSupport;
 }

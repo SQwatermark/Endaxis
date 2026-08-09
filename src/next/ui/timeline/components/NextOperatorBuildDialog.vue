@@ -724,9 +724,24 @@ function maxOut(): void {
 :global(.operator-edit-tooltip-popper) {
   max-width: min(440px, calc(100vw - 48px));
 }
+:global(.operator-edit-tooltip-popper.el-popper.is-dark) {
+  padding: 0 !important;
+  background: #202126;
+  color: #f1f1f1;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+:global(.operator-edit-tooltip-popper.el-popper.is-dark .el-popper__arrow::before) {
+  background: #202126;
+  border-color: rgba(255, 255, 255, 0.16);
+}
 :global(.operator-edit-tooltip) {
   box-sizing: border-box;
+  min-width: 200px;
   max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding: 8px 10px 10px;
   color: #f1f1f1;
 }
@@ -734,10 +749,12 @@ function maxOut(): void {
   color: #fff;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.25;
 }
 :global(.operator-edit-tooltip-desc) {
   color: rgba(255, 255, 255, 0.82);
   font-size: 12px;
+  font-weight: 500;
   line-height: 1.45;
   white-space: pre-wrap;
 }

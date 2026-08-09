@@ -44,6 +44,10 @@ describe('projectTimelineEditor', () => {
 
     expect(viewModel.tracks).toHaveLength(4);
     expect(viewModel.tracks[0]?.operatorSlug).toBe('perlica');
+    expect(viewModel.tracks[0]?.operatorSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
     expect(viewModel.tracks[0]?.skillLibrary.map(entry => entry.skillGroupKey)).toEqual([
       'basicAttack',
       'finisher',
@@ -55,7 +59,11 @@ describe('projectTimelineEditor', () => {
     expect(viewModel.tracks[0]?.skillLibrary[0]?.level).toBe(12);
     expect(viewModel.tracks[0]?.skillLibrary[0]?.skills).toHaveLength(4);
     expect(viewModel.tracks[0]?.skillCasts[0]?.skillType).toBe('battleSkill');
-    expect(viewModel.tracks[1]).toMatchObject({ operatorSlug: null, skillLibrary: [] });
+    expect(viewModel.tracks[1]).toMatchObject({
+      operatorSlug: null,
+      operatorSupport: null,
+      skillLibrary: [],
+    });
   });
 
   it('reports broken build references instead of inventing catalog defaults', () => {

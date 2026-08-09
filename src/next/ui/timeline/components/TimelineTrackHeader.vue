@@ -5,59 +5,138 @@
  */
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
+import OperatorSupportNotice from './OperatorSupportNotice.vue';
 
-defineProps<{
+const props = defineProps<{
   track: TimelineTrackViewModel;
   name: string;
   selected: boolean;
   weaponIcon: string | null;
   gearIcons: Readonly<Record<LoadoutGearSlot, string | null>>;
   labels: Record<'weapon' | LoadoutGearSlot, string>;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  statDetailsAvailable?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [];
+  operator: [];
+  moveUp: [];
+  moveDown: [];
+  reorderDragStart: [event: DragEvent];
+  reorderDrop: [event: DragEvent];
+  stats: [];
   weapon: [];
   gear: [slot: LoadoutGearSlot];
 }>();
+
+function selectHeader(): void {
+  emit('select');
+  if (props.track.operatorSlug === null) emit('operator');
+}
 </script>
 
 <template>
-  <div class="track-header" :class="{ 'is-selected': selected }" @click="$emit('select')">
-    <span class="reorder-column" aria-hidden="true">
-      <span>⌃</span><span class="drag-handle">⠿</span><span>⌄</span>
+  <div
+    class="track-header"
+    :class="{ 'is-selected': selected }"
+    @click="selectHeader"
+    @dragover.prevent
+    @drop.prevent.stop="$emit('reorderDrop', $event)"
+  >
+    <span class="reorder-column">
+      <button
+        type="button"
+        class="reorder-button"
+        :disabled="!canMoveUp"
+        :title="$t('common.moveUp')"
+        @click.stop="$emit('moveUp')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15" /></svg>
+      </button>
+      <span
+        class="drag-handle"
+        draggable="true"
+        @dragstart.stop="$emit('reorderDragStart', $event)"
+      >
+        <svg viewBox="0 0 24 24">
+          <circle cx="8" cy="4" r="2" />
+          <circle cx="8" cy="12" r="2" />
+          <circle cx="8" cy="20" r="2" />
+          <circle cx="16" cy="4" r="2" />
+          <circle cx="16" cy="12" r="2" />
+          <circle cx="16" cy="20" r="2" />
+        </svg>
+      </span>
+      <button
+        type="button"
+        class="reorder-button"
+        :disabled="!canMoveDown"
+        :title="$t('common.moveDown')"
+        @click.stop="$emit('moveDown')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
+      </button>
     </span>
-    <span v-if="track.operatorSlug" class="operator-content">
-      <img class="avatar" :src="`/operators/${track.operatorSlug}/avatar.webp`" alt="" />
-      <span class="operator-summary">
-        <span class="operator-name">{{ name }}</span>
-        <span class="loadout-row">
-          <button
-            type="button"
-            class="weapon-slot"
-            :class="{ empty: weaponIcon === null }"
-            :title="labels.weapon"
-            @click.stop="$emit('weapon')"
-          >
-            <img v-if="weaponIcon" :src="weaponIcon" alt="" />
-            <span v-else aria-hidden="true">+</span>
-          </button>
-          <button
-            v-for="slot in ['armor', 'gloves', 'accessory1', 'accessory2'] as const"
-            :key="slot"
-            type="button"
-            class="gear-slot"
-            :class="{ empty: gearIcons[slot] === null }"
-            :title="labels[slot]"
-            @click.stop="$emit('gear', slot)"
-          >
-            <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
-            <span v-else aria-hidden="true">+</span>
-          </button>
+    <span class="identity-body">
+      <span class="operator-row">
+        <button
+          v-if="track.operatorSlug"
+          type="button"
+          class="avatar-shell avatar-trigger"
+          @click.stop="$emit('operator')"
+        >
+          <img class="avatar" :src="`/operators/${track.operatorSlug}/avatar.webp`" alt="" />
+          <span class="avatar-change-hint" aria-hidden="true">↻</span>
+        </button>
+        <span v-else class="avatar-shell"
+          ><span class="empty-avatar" aria-hidden="true"></span
+        ></span>
+        <span class="operator-name-row">
+          <span class="operator-name">{{ name }}</span>
+          <OperatorSupportNotice
+            v-if="track.operatorSlug"
+            :support="track.operatorSupport"
+            compact
+          />
         </span>
       </span>
+      <button
+        v-if="track.operatorSlug"
+        type="button"
+        class="stat-detail-button"
+        :disabled="!statDetailsAvailable"
+        :title="$t('statDetail.button')"
+        @click.stop="$emit('stats')"
+      >
+        {{ $t('statDetail.button') }}
+      </button>
+      <span v-if="track.operatorSlug" class="loadout-row">
+        <button
+          type="button"
+          class="weapon-slot"
+          :class="{ empty: weaponIcon === null }"
+          :title="labels.weapon"
+          @click.stop="$emit('weapon')"
+        >
+          <img v-if="weaponIcon" :src="weaponIcon" alt="" />
+          <span v-else aria-hidden="true">+</span>
+        </button>
+        <button
+          v-for="slot in ['armor', 'gloves', 'accessory1', 'accessory2'] as const"
+          :key="slot"
+          type="button"
+          class="gear-slot"
+          :class="{ empty: gearIcons[slot] === null }"
+          :title="labels[slot]"
+          @click.stop="$emit('gear', slot)"
+        >
+          <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
+          <span v-else aria-hidden="true">+</span>
+        </button>
+      </span>
     </span>
-    <span v-else class="empty-track"><span class="empty-avatar">+</span>{{ name }}</span>
   </div>
 </template>
 
@@ -90,37 +169,142 @@ defineEmits<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 2px;
   color: var(--ea-icon-muted);
   font-size: 11px;
 }
 
+.reorder-button,
 .drag-handle {
-  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: grab;
 }
 
-.operator-content {
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.reorder-button {
+  cursor: pointer;
+}
+
+.reorder-button:hover:not(:disabled) {
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg-secondary);
+}
+
+.reorder-button:disabled {
+  opacity: 0.2;
+}
+
+.reorder-button svg,
+.drag-handle svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.reorder-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+}
+
+.identity-body {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+.operator-row {
+  width: 100%;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 9px;
+  color: inherit;
+  text-align: left;
+}
+
+.avatar-shell {
+  position: relative;
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+
+.avatar-trigger {
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
 }
 
 .avatar,
 .empty-avatar {
+  display: block;
   width: 44px;
   height: 44px;
-  flex: 0 0 auto;
   border: 2px solid var(--ea-border-strong);
   border-radius: 50%;
+  box-sizing: border-box;
   object-fit: cover;
 }
 
-.operator-summary {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.empty-avatar {
+  position: relative;
+  border-style: dashed;
+  background: var(--ea-keycap-bg, var(--ea-fill-soft));
+}
+
+.empty-avatar::before,
+.empty-avatar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ea-icon-muted);
+  transform: translate(-50%, -50%);
+}
+
+.empty-avatar::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.avatar-change-hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.avatar-trigger:hover .avatar-change-hint {
+  opacity: 1;
+}
+
+.avatar-trigger:hover .avatar {
+  border-color: var(--ea-gold);
 }
 
 .operator-name {
@@ -131,10 +315,40 @@ defineEmits<{
   text-overflow: ellipsis;
 }
 
+.operator-name-row {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.stat-detail-button {
+  position: absolute;
+  top: 27px;
+  right: 6px;
+  height: 18px;
+  padding: 0 7px;
+  border: 1px solid color-mix(in srgb, var(--ea-gold) 40%, transparent);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--ea-gold) 12%, transparent);
+  color: var(--ea-gold);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.stat-detail-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .loadout-row {
+  position: absolute;
+  left: 6px;
+  top: calc(50% + 33px);
   display: flex;
-  align-items: center;
-  gap: 3px;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .weapon-slot,
@@ -179,22 +393,5 @@ defineEmits<{
 .gear-slot {
   width: 22px;
   height: 22px;
-}
-
-.empty-track {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--ea-fg-secondary);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.empty-avatar {
-  display: grid;
-  place-items: center;
-  border-style: dashed;
-  font-size: 24px;
-  font-weight: 400;
 }
 </style>

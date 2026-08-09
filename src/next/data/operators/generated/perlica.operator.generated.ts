@@ -324,4 +324,5 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

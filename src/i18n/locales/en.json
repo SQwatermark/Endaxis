@@ -1263,6 +1263,17 @@
     "weaponTab": "Weapon",
     "gearTab": "Gear",
     "skillLibrary": "Skill library",
+    "operatorSupport": {
+      "partial": "This operator's data is not fully converted",
+      "scopedCapability": "{capability} (skill groups: {groups})",
+      "capabilities": {
+        "skillBehavior": "Some skill effects are missing",
+        "skillAvailability": "Some skill requirements are missing",
+        "talentEffects": "Some talent effects are missing",
+        "potentialEffects": "Some potential effects are missing",
+        "runtimeDependencies": "Some combat dependencies are not supported"
+      }
+    },
     "weaponDialog": {
       "title": "Select weapon",
       "searchPlaceholder": "Search by name, type, or rarity",
