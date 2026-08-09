@@ -1,0 +1,78 @@
+import { describe, expect, it } from 'vitest';
+import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import { createEmptyScenario } from '../core/project/createProject';
+import { perlica } from '../data/operators/perlica';
+import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
+
+describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('compiles a placed pure-damage skill and returns enemy health from the same runtime', () => {
+    const scenario = createEmptyScenario('scenario:standard-damage', '标准伤害样本');
+    scenario.builds.operators.perlica = {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    };
+    scenario.tracks[0] = {
+      operatorBuildId: 'perlica',
+      weaponBuildId: null,
+      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'plungingAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:1` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 4,
+      criticalSamples: new ExplicitCriticalSampleSource([1]),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        catalog: {
+          getOperator: slug => (slug === perlica.slug ? perlica : null),
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+          operators: new Map([
+            [
+              'perlica',
+              {
+                maxUltimateEnergy: 100,
+                ultimateEnergyGainMultiplier: 1,
+                allowedUltimateEnergyRecoveryTagIds: null,
+              },
+            ],
+          ]),
+        },
+      },
+    });
+
+    const damage = result.receiptEntries.find(entry => entry.event === 'DamageApplied');
+    expect(damage).toBeDefined();
+    expect(damage?.data?.value).toBeCloseTo(635.4);
+    expect(result.finalEnemyHealth).toBeCloseTo(result.enemy.health - 635.4);
+    expect(damage?.data?.remainingHealth).toBe(result.finalEnemyHealth);
+  });
+});

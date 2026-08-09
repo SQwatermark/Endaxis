@@ -114,7 +114,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         .registerAction(event, 10, ({ event: current }) => events.push(current));
     }
 
-    const executor = environment.environment.createOperationExecutor(context);
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
 
     expect(executor.execute(damageStep)).toBe(true);
     expect(environment.enemyVitals.health).toBe(9776);
@@ -130,7 +130,7 @@ describe('StandardPlayerDamageEnvironment', () => {
 
   it('rejects poise damage instead of silently applying an incomplete model', () => {
     const environment = createEnvironment();
-    const executor = environment.environment.createOperationExecutor(createContext());
+    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
 
     expect(() =>
       executor.execute({
@@ -142,7 +142,7 @@ describe('StandardPlayerDamageEnvironment', () => {
 
   it('rejects operations outside the recovered subset', () => {
     const environment = createEnvironment();
-    const executor = environment.environment.createOperationExecutor(createContext());
+    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
 
     expect(() =>
       executor.execute({

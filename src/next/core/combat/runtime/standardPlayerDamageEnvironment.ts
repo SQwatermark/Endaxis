@@ -57,7 +57,7 @@ const strictTerminal: CombatOperationExecutor = {
 
 /** 一场模拟独占的标准生命伤害状态所有者。 */
 export class StandardPlayerDamageEnvironment {
-  readonly environment: EnvironmentOptions;
+  readonly runtimeOptions: EnvironmentOptions;
   readonly #enemyBuffs = new CombatBuffContainer('enemy', new CombatAttributeSet<string>());
   readonly #enemyBuffRuntime = new CatalogBuffOperationTarget(this.#enemyBuffs, {
     get: () => undefined,
@@ -68,7 +68,7 @@ export class StandardPlayerDamageEnvironment {
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
-    this.environment = {
+    this.runtimeOptions = {
       enemyBuffRuntime: this.#enemyBuffRuntime,
       createOperationExecutor: context => this.#createOperationExecutor(context),
       resolveVitals: target => {
@@ -85,6 +85,11 @@ export class StandardPlayerDamageEnvironment {
       throw new Error('standard player damage environment has not been bound to an enemy');
     }
     return this.#enemyVitals;
+  }
+
+  /** 尚未创建任何技能运行时的空场景返回 null，不会为读取结果而凭空创建生命账本。 */
+  get currentEnemyHealth(): number | null {
+    return this.#enemyVitals?.health ?? null;
   }
 
   /** 返回本场战斗内指定实体独占的事件中心，供后续 Buff、天赋和活动机制注册监听。 */

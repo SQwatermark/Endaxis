@@ -12,6 +12,7 @@
 8. `compileScenarioRuntimeAssembly` 将同一面板交给战斗操作执行器，`runScenarioSimulation` 也会返回本次模拟实际使用的面板；属性详情与伤害链不得另行计算。
 9. `compileScenarioEnemy` 只从项目敌人实例编译生命、防御、抗性、处决倍率和帧制失衡规则；同一结果会进入每个操作执行器上下文，并由 `runScenarioSimulation` 返回。
 10. `resolveStaticPlayerDamageSnapshots` 在每次标准伤害执行前，从上述面板和敌人程序冻结攻防快照，并按当前伤害类型与技能类型筛选静态配装增伤。动态 Buff、瞬时属性、目标状态和暴击采样仍由命中生命周期在对应阶段提供。
+11. `runStandardPlayerDamageScenarioSimulation` 已能把上述编译结果交给严格标准生命伤害环境，并从同一敌人生命账本返回最终生命与伤害回执。调用方必须显式提供随机样本源和非随机命中输入；不支持的机制不会降级执行。
 
 ## Build Resolver 的边界
 
