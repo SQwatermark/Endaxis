@@ -6,6 +6,9 @@ import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equi
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
+import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
+import NextOperatorBuildDialog from './components/NextOperatorBuildDialog.vue';
+import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
@@ -32,7 +35,13 @@ import {
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
-import { updateTrackGearBuild } from './loadoutBuildCommands';
+import {
+  updateTrackGearBuild,
+  updateTrackOperatorBuild,
+  updateTrackWeaponBuild,
+  type OperatorBuildChanges,
+  type WeaponBuildChanges,
+} from './loadoutBuildCommands';
 import {
   moveSkillCast,
   removeSkillCast,
@@ -54,6 +63,9 @@ const cursorFrame = ref(30);
 const operatorDialogTrack = ref<TrackIndex | null>(null);
 const weaponDialogTrack = ref<TrackIndex | null>(null);
 const gearDialogTarget = ref<{ trackIndex: TrackIndex; slot: TrackGearSlot } | null>(null);
+const showOperatorBuildDialog = ref(false);
+const showWeaponBuildDialog = ref(false);
+const showGearBuildDialog = ref(false);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
@@ -146,6 +158,7 @@ const loadoutModels = computed(() =>
     projectTrackLoadoutBuilds(scenario.value, trackIndex as TrackIndex, nextGameDataRepository),
   ),
 );
+const selectedLoadoutModel = computed(() => loadoutModels.value[selectedTrack.value]!);
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
 const selectedWeaponSlug = computed(() => {
   const track = scenario.value.tracks[selectedTrack.value];
@@ -410,6 +423,27 @@ function changeGearRefineTier(artificingTier: number): void {
   );
 }
 
+function updateWeaponBuild(changes: WeaponBuildChanges): void {
+  scenario.value = updateTrackWeaponBuild(scenario.value, selectedTrack.value, changes);
+}
+
+function updateOperatorBuild(changes: OperatorBuildChanges): void {
+  scenario.value = updateTrackOperatorBuild(scenario.value, selectedTrack.value, changes);
+}
+
+function updateGearBuild(
+  _slot: TrackGearSlot,
+  buildId: string,
+  artificingLevels: readonly number[],
+): void {
+  scenario.value = updateTrackGearBuild(
+    scenario.value,
+    selectedTrack.value,
+    buildId,
+    artificingLevels,
+  );
+}
+
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
   dragPayload.value = {
     kind: 'librarySkill',
@@ -549,11 +583,26 @@ function updateSelectedCast(
           <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
         </button>
         <div class="sidebar-tabs">
-          <button class="active" type="button">{{ t('nextTimeline.operatorTab') }}</button>
-          <button type="button" :disabled="selectedTrackModel.operatorSlug === null">
+          <button
+            class="active"
+            type="button"
+            :disabled="selectedLoadoutModel.operator === null"
+            @click="showOperatorBuildDialog = true"
+          >
+            {{ t('nextTimeline.operatorTab') }}
+          </button>
+          <button
+            type="button"
+            :disabled="selectedLoadoutModel.weapon === null"
+            @click="showWeaponBuildDialog = true"
+          >
             {{ t('nextTimeline.weaponTab') }}
           </button>
-          <button type="button" :disabled="selectedTrackModel.operatorSlug === null">
+          <button
+            type="button"
+            :disabled="!Object.values(selectedLoadoutModel.gears).some(Boolean)"
+            @click="showGearBuildDialog = true"
+          >
             {{ t('nextTimeline.gearTab') }}
           </button>
         </div>
@@ -772,6 +821,24 @@ function updateSelectedCast(
     @select="selectGear"
     @clear="clearGear"
     @change-refine-tier="changeGearRefineTier"
+  />
+  <NextWeaponBuildDialog
+    :visible="showWeaponBuildDialog"
+    :weapon="selectedLoadoutModel.weapon"
+    @update:visible="showWeaponBuildDialog = $event"
+    @change="updateWeaponBuild"
+  />
+  <NextOperatorBuildDialog
+    :visible="showOperatorBuildDialog"
+    :operator="selectedLoadoutModel.operator"
+    @update:visible="showOperatorBuildDialog = $event"
+    @change="updateOperatorBuild"
+  />
+  <NextGearLoadoutBuildDialog
+    :visible="showGearBuildDialog"
+    :gears="selectedLoadoutModel.gears"
+    @update:visible="showGearBuildDialog = $event"
+    @update="updateGearBuild"
   />
 </template>
 
