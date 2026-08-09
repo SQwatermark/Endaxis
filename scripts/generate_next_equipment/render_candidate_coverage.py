@@ -66,7 +66,8 @@ def render_candidate_coverage(ir: dict[str, Any]) -> str:
     lines.extend([
         "- `attributeFlat` / `attributePercent` 映射到 `attribute`；旧 `sub` 明确转换为 Next 的 `secondary`。百分比由百分数除以 100。",
         "- 攻击、生命、防御、暴击、法术强度和终结技充能效率映射到 `panelStat`。其中百分比类同样转换为小数。",
-        "- `dmgBonus` 是构筑期可确定的战斗公式输入，不等于角色面板字段；只有旧数据明确给出 `elements` 时才能映射为必填的 `damageTypes`。",
+        "- `dmgBonus` 是构筑期可确定的战斗公式输入，不等于角色面板字段。元素范围明确时按元素映射；仅按技能范围或完全无范围时，映射到除 `lifeDrain` 外的全部 DamageType。",
+        "- 旧版完全无范围的“所有技能伤害”只覆盖战技、连携技和终结技；旧 `basicAttack` 范围还包含处决和下落攻击，适配时分别显式展开。",
         "- `ampBonus` 是独立增幅乘区，不能降级为 `damageBonus`。`attributeAtkPercent` 修改四维到攻击力的换算系数，不能降级为 `attackPercent`。",
         "- 候选 IR 不保存 raw fallback。无法闭环的记录只有明确缺口，不会生成看似可用但语义变化的定义。",
         "",
@@ -82,7 +83,7 @@ def render_candidate_coverage(ir: dict[str, Any]) -> str:
 
     lines.extend([
         "",
-        "当前数据中 `ampBonus` 只用于监听已施加状态的 trigger 过滤条件，并不是装备直接提供的静态效果；`attributeAtkPercent` 在本批装备 effect 中未出现。二者仍由适配器显式拒绝近似映射，以防未来数据进入时被静默误转。",
+        "当前数据中 `ampBonus` 只用于监听已施加状态的 trigger 过滤条件，并不是装备直接提供的静态效果；`attributeAtkPercent` 在本批装备 effect 中未出现。二者仍由适配器显式拒绝近似映射，以防未来数据进入时被静默误转。无元素 `dmgBonus` 的闭环证据详见 `equipment-unscoped-dmgbonus-semantics.md`。",
         "",
         "## 当前 DSL 缺口",
         "",

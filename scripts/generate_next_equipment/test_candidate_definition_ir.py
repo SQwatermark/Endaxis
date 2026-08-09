@@ -79,9 +79,41 @@ class CandidateDefinitionIrTest(unittest.TestCase):
         })
         self.assertFalse(entry["characterPanelVisible"])
 
-    def test_reports_ambiguous_and_unsupported_static_semantics(self) -> None:
+    def test_maps_skill_scoped_damage_to_all_native_scaled_damage_types(self) -> None:
+        report = build_candidate_definition_ir(migration_ir(migration_entry({
+            "kind": "status",
+            "stat": {"modifier": "dmgBonus", "skillTypes": "ultimate"},
+            "value": 20,
+        })))
+        definition = report["entries"][0]["candidateDefinition"]
+        self.assertEqual(definition["damageTypes"], [
+            "physical", "true", "heat", "electric", "cryo", "nature", "ether",
+        ])
+        self.assertNotIn("lifeDrain", definition["damageTypes"])
+        self.assertEqual(definition["skillTypes"], "ultimate")
+
+    def test_maps_all_skill_and_legacy_basic_attack_scope_exactly(self) -> None:
+        report = build_candidate_definition_ir(migration_ir(
+            migration_entry({
+                "kind": "status", "stat": {"modifier": "dmgBonus"}, "value": 20,
+            }),
+            migration_entry({
+                "kind": "status",
+                "stat": {"modifier": "dmgBonus", "skillTypes": "basicAttack"},
+                "value": 10,
+            }, entry_id="weapon:sample:skill2.effects[0]"),
+        ))
+        self.assertEqual(
+            report["entries"][0]["candidateDefinition"]["skillTypes"],
+            ["battleSkill", "comboSkill", "ultimate"],
+        )
+        self.assertEqual(
+            report["entries"][1]["candidateDefinition"]["skillTypes"],
+            ["basicAttack", "finisher", "plungingAttack"],
+        )
+
+    def test_reports_unsupported_static_semantics(self) -> None:
         effects = [
-            {"kind": "status", "stat": {"modifier": "dmgBonus", "skillTypes": "ultimate"}, "value": 20},
             {"kind": "status", "stat": {"modifier": "ampBonus", "elements": "heat"}, "value": 10},
             {"kind": "status", "stat": {"modifier": "attributeAtkPercent"}, "value": 5},
         ]
@@ -92,7 +124,6 @@ class CandidateDefinitionIrTest(unittest.TestCase):
         self.assertEqual(
             [entry["gap"]["code"] for entry in report["entries"]],
             [
-                "damage-types-required",
                 "amplification-channel-unsupported",
                 "attribute-attack-coefficient-unsupported",
             ],

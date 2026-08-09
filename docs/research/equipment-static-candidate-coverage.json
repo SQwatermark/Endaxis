@@ -5,19 +5,16 @@
   "summary": {
     "effectCount": 1052,
     "buildStaticCount": 901,
-    "definitionReadyCount": 831,
-    "dslGapCount": 70,
+    "definitionReadyCount": 901,
+    "dslGapCount": 0,
     "outsideStaticDefinitionScopeCount": 151,
     "characterPanelVisibleReadyCount": 735,
-    "buildOnlyReadyCount": 96,
+    "buildOnlyReadyCount": 166,
     "statusCounts": {
-      "definitionReady": 831,
-      "dslGap": 70,
+      "definitionReady": 901,
       "outsideStaticDefinitionScope": 151
     },
-    "gapReasonCounts": {
-      "damage-types-required": 70
-    },
+    "gapReasonCounts": {},
     "modifierStatusCounts": {
       "artsIntensity": {
         "definitionReady": 34,
@@ -54,8 +51,7 @@
         "outsideStaticDefinitionScope": 2
       },
       "dmgBonus": {
-        "definitionReady": 96,
-        "dslGap": 70,
+        "definitionReady": 166,
         "outsideStaticDefinitionScope": 63
       },
       "flatHp": {
@@ -94,21 +90,18 @@
     },
     "groupStatusCounts": {
       "gearSet.setBonus": {
-        "definitionReady": 18,
-        "dslGap": 2,
+        "definitionReady": 20,
         "outsideStaticDefinitionScope": 29
       },
       "gearTrait.skill1": {
         "definitionReady": 242
       },
       "gearTrait.skill2": {
-        "definitionReady": 220,
-        "dslGap": 13,
+        "definitionReady": 233,
         "outsideStaticDefinitionScope": 7
       },
       "gearTrait.skill3": {
-        "definitionReady": 147,
-        "dslGap": 51,
+        "definitionReady": 198,
         "outsideStaticDefinitionScope": 14
       },
       "weaponTrait.skill1": {
@@ -118,8 +111,7 @@
         "definitionReady": 68
       },
       "weaponTrait.skill3": {
-        "definitionReady": 59,
-        "dslGap": 4,
+        "definitionReady": 63,
         "outsideStaticDefinitionScope": 101
       }
     },
@@ -127,8 +119,8 @@
       "dmgBonus": {
         "effectCount": 229,
         "buildStaticCount": 166,
-        "definitionReadyCount": 96,
-        "dslGapCount": 70,
+        "definitionReadyCount": 166,
+        "dslGapCount": 0,
         "triggerFilterCount": 0
       },
       "ampBonus": {
@@ -2431,12 +2423,14 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -3094,12 +3088,14 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.28],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -4145,12 +4141,14 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.28],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -5099,12 +5097,17 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [
+          0.16, 0.192, 0.22399999999999998, 0.256, 0.28800000000000003, 0.32, 0.35200000000000004,
+          0.384, 0.44799999999999995
+        ],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -6639,12 +6642,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.294,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -6898,12 +6903,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.147,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -6965,12 +6972,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.098,
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -7032,12 +7041,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.147,
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -7167,12 +7178,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.294,
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -7234,12 +7247,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.294,
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -7301,12 +7316,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.196,
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -8162,12 +8179,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.162,
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -8229,12 +8248,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.081,
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -8273,12 +8294,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.162,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -8340,12 +8363,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.135,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -8588,12 +8613,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.245,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -8966,12 +8993,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -9033,12 +9062,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -9100,12 +9131,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -9257,12 +9290,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -9550,12 +9585,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -9747,12 +9784,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -10131,12 +10170,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.368,
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -10334,12 +10375,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.184,
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -11076,12 +11119,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.517, 0.569, 0.621, 0.6729999999999999],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -11143,12 +11188,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -11210,12 +11257,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -11346,12 +11395,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.259, 0.285, 0.311, 0.336],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -11413,12 +11464,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.345, 0.38, 0.414, 0.449],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -11570,12 +11623,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -11843,12 +11898,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.23, 0.253, 0.276, 0.299],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -12927,12 +12984,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.276, 0.304, 0.331, 0.359],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -13107,12 +13166,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -14073,12 +14134,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.431, 0.474, 0.517, 0.561],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -14140,12 +14203,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.345, 0.38, 0.414, 0.449],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -14275,12 +14340,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.23, 0.253, 0.276, 0.299],
+        "skillTypes": ["basicAttack", "finisher", "plungingAttack"]
       }
     },
     {
@@ -14410,12 +14477,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -14477,12 +14546,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.138, 0.152, 0.166, 0.179],
+        "skillTypes": ["basicAttack", "finisher", "plungingAttack"]
       }
     },
     {
@@ -14544,12 +14615,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -14769,12 +14842,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -15130,12 +15205,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.098,
+        "skillTypes": ["basicAttack", "finisher", "plungingAttack"]
       }
     },
     {
@@ -16664,12 +16741,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.312,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -17404,12 +17483,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.228,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -17765,12 +17846,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.45, 0.495, 0.54, 0.585],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -17809,12 +17892,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.24, 0.264, 0.28800000000000003, 0.312],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -17853,12 +17938,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.14400000000000002, 0.158, 0.17300000000000001, 0.187],
+        "skillTypes": ["basicAttack", "finisher", "plungingAttack"]
       }
     },
     {
@@ -17987,12 +18074,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.43200000000000005, 0.475, 0.518, 0.562],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -18161,12 +18250,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.36, 0.396, 0.43200000000000005, 0.46799999999999997],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -18476,12 +18567,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.517, 0.569, 0.621, 0.6729999999999999],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -18769,12 +18862,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.23, 0.253, 0.276, 0.299],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -19108,12 +19203,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -19311,12 +19408,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.294,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -19378,12 +19477,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.368,
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -19422,12 +19523,14 @@
       },
       "group": "gearTrait.skill2",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.21,
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -19738,12 +19841,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.517, 0.569, 0.621, 0.6729999999999999],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -20258,12 +20363,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.431, 0.474, 0.517, 0.561],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -20393,12 +20500,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.23, 0.253, 0.276, 0.299],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -20528,12 +20637,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -21109,12 +21220,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.276, 0.304, 0.331, 0.359],
+        "skillTypes": ["basicAttack", "finisher", "plungingAttack"]
       }
     },
     {
@@ -21176,12 +21289,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.345, 0.38, 0.414, 0.449],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -21243,12 +21358,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.345, 0.38, 0.414, 0.449],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -21378,12 +21495,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -21513,12 +21632,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.276, 0.304, 0.331, 0.359],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -21580,12 +21701,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -21647,12 +21770,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.138, 0.152, 0.166, 0.179],
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -21714,12 +21839,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.517, 0.569, 0.621, 0.6729999999999999],
+        "skillTypes": "ultimate"
       }
     },
     {
@@ -21781,12 +21908,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "comboSkill"
       }
     },
     {
@@ -21916,12 +22045,14 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": [0.414, 0.455, 0.49700000000000005, 0.5379999999999999],
+        "skillTypes": "battleSkill"
       }
     },
     {
@@ -22117,12 +22248,14 @@
       },
       "group": "gearSet.setBonus",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.24,
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {
@@ -22910,12 +23043,14 @@
       },
       "group": "gearSet.setBonus",
       "buildTimeDeterminable": true,
-      "status": "dslGap",
+      "status": "definitionReady",
       "characterPanelVisible": false,
       "sourceModifier": "dmgBonus",
-      "gap": {
-        "code": "damage-types-required",
-        "detail": "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集"
+      "candidateDefinition": {
+        "kind": "damageBonus",
+        "damageTypes": ["physical", "true", "heat", "electric", "cryo", "nature", "ether"],
+        "value": 0.2,
+        "skillTypes": ["battleSkill", "comboSkill", "ultimate"]
       }
     },
     {

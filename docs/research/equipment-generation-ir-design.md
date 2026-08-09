@@ -68,7 +68,7 @@ flowchart LR
 
 - 只读取 `buildStaticContribution`，不会把事件或动态 Buff 伪装成静态修正；
 - 百分数统一转换为 Next 使用的小数，旧 `sub` 显式转换为 `secondary`；
-- `dmgBonus` 只有明确携带 `elements` 时才生成 `damageBonus`，因为当前 DSL 的 `damageTypes` 必填；
+- `dmgBonus` 携带 `elements` 时按元素生成；仅携带技能范围或完全无范围时，根据旧版过滤规则和原生 DamageScale 证据映射到除 `lifeDrain` 外的全部伤害类型；
 - `ampBonus` 与 `attributeAtkPercent` 分别属于独立伤害乘区和属性攻击系数，不能降级成近似类型；
 - 无法闭环的记录生成 `dslGap`，不会保存 raw fallback。
 

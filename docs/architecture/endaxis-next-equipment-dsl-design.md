@@ -186,7 +186,7 @@ Next 当前的 `CombatEventTrigger` 只覆盖：
 - 装备编译器将同一修饰转换为战斗属性或伤害修饰；
 - 不分别在“面板效果”和“战斗 Buff”中抄写同一个数值。
 
-这里的“静态”只表示构筑期可确定，不等于角色面板可见，也不等于当前 DSL 已经能够表达。全量严格适配审计见 `docs/research/equipment-static-candidate-coverage.md`：当前 901 条构筑期静态效果中，831 条可映射到现有 `EquipmentModifierDefinition`；其余 70 条均为未声明元素范围的 `dmgBonus`。由于现有 `damageBonus.damageTypes` 必填，且 Next 的伤害类型集合还包含旧 `elements` 未覆盖的特殊类型，生成器不得擅自把它们扩成“全部伤害”。
+这里的“静态”只表示构筑期可确定，不等于角色面板可见。全量严格适配审计见 `docs/research/equipment-static-candidate-coverage.md`：当前 901 条构筑期静态效果均可映射到现有 `EquipmentModifierDefinition`。其中 70 条未声明元素范围的 `dmgBonus` 已由旧版过滤测试与原生 DamageScale 注入链闭环：技能类型增伤独立于 DamageType，覆盖 `true` 与 `ether`，但 `lifeDrain` 最终值绕过 DamageScale，必须排除。完全无范围的“所有技能伤害”仍要显式限制为战技、连携技和终结技。
 
 `ampBonus` 属于独立伤害增幅乘区，`attributeAtkPercent` 修改四维到攻击力的换算系数。即使未来出现无条件装备样本，它们也不能分别近似改写为 `damageBonus` 或 `attackPercent`，必须先扩展明确的 DSL 原语。
 

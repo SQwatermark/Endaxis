@@ -42,13 +42,19 @@ PANEL_STAT_MAP: dict[str, tuple[str, bool]] = {
 }
 
 DAMAGE_TYPES = {"physical", "heat", "cryo", "electric", "nature"}
-SKILL_TYPE_MAP = {
-    "basicAttack": "basicAttack",
-    "battleSkill": "battleSkill",
-    "comboSkill": "comboSkill",
-    "ultimate": "ultimate",
-    "finalStrike": "finisher",
-    "dive": "plungingAttack",
+# 原生技能类型增伤由 DamageDecorateMask 选择，与 DamageType 独立；LifeDrain
+# 最终值路径明确绕过 DamageScale，因此只排除该类型。
+SKILL_SCOPED_DAMAGE_TYPES = [
+    "physical", "true", "heat", "electric", "cryo", "nature", "ether",
+]
+DEFAULT_ALL_SKILL_TYPES = ["battleSkill", "comboSkill", "ultimate"]
+SKILL_TYPE_MAP: dict[str, list[str]] = {
+    "basicAttack": ["basicAttack", "finisher", "plungingAttack"],
+    "battleSkill": ["battleSkill"],
+    "comboSkill": ["comboSkill"],
+    "ultimate": ["ultimate"],
+    "finalStrike": ["finisher"],
+    "dive": ["plungingAttack"],
 }
 
 KNOWN_STATIC_MODIFIERS = (
@@ -86,9 +92,11 @@ def _enum_values(value: Any, allowed: set[str], path: str) -> str | list[str]:
 
 def _mapped_skill_types(value: Any, path: str) -> str | list[str]:
     checked = _enum_values(value, set(SKILL_TYPE_MAP), path)
-    if isinstance(checked, list):
-        return [SKILL_TYPE_MAP[item] for item in checked]
-    return SKILL_TYPE_MAP[checked]
+    source_values = checked if isinstance(checked, list) else [checked]
+    mapped = list(dict.fromkeys(
+        target for source in source_values for target in SKILL_TYPE_MAP[source]
+    ))
+    return mapped[0] if len(mapped) == 1 else mapped
 
 
 def _reject_stat_fields(stat: dict[str, Any], allowed: set[str], path: str) -> None:
@@ -147,18 +155,18 @@ def _adapt_static_effect(effect: dict[str, Any], path: str) -> tuple[dict[str, A
 
     if modifier == "dmgBonus":
         _reject_stat_fields(stat, {"modifier", "elements", "skillTypes"}, f"{path}.stat")
-        if "elements" not in stat:
-            return None, False, _gap(
-                "damage-types-required",
-                "旧效果未限定 elements，而当前 damageBonus 强制要求 damageTypes；不能擅自扩为包含特殊伤害的全集",
-            )
         definition: dict[str, Any] = {
             "kind": "damageBonus",
-            "damageTypes": _enum_values(stat["elements"], DAMAGE_TYPES, f"{path}.stat.elements"),
+            "damageTypes": _enum_values(stat["elements"], DAMAGE_TYPES, f"{path}.stat.elements")
+            if "elements" in stat
+            else list(SKILL_SCOPED_DAMAGE_TYPES),
             "value": _scale_percent(value, f"{path}.value"),
         }
         if "skillTypes" in stat:
             definition["skillTypes"] = _mapped_skill_types(stat["skillTypes"], f"{path}.stat.skillTypes")
+        elif "elements" not in stat:
+            # 旧版“所有技能伤害”明确只覆盖战技、连携技和终结技。
+            definition["skillTypes"] = list(DEFAULT_ALL_SKILL_TYPES)
         return definition, False, None
 
     if modifier == "attributeAtkPercent":
