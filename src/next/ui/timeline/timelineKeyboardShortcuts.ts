@@ -11,6 +11,7 @@ export interface TimelineKeyboardCommands {
   readonly nudgeLeft: () => boolean;
   readonly nudgeRight: () => boolean;
   readonly toggleSnapPrecision: () => boolean;
+  readonly toggleCursorGuide: () => boolean;
   readonly cycleTrack: (direction: -1 | 1) => boolean;
 }
 
@@ -19,6 +20,9 @@ export function handleTimelineEditorShortcut(
   commands: TimelineKeyboardCommands,
 ): boolean {
   const key = event.key.toLowerCase();
+  if (!event.altKey && !event.metaKey && event.ctrlKey && !event.shiftKey && key === 'g') {
+    return commands.toggleCursorGuide();
+  }
   if (!event.altKey && !event.ctrlKey && !event.metaKey && key === 'tab') {
     return commands.cycleTrack(event.shiftKey ? -1 : 1);
   }

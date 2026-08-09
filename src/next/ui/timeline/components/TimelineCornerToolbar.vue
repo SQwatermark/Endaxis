@@ -6,6 +6,7 @@
 defineProps<{
   snapLabel: string;
   zoomPercent: number;
+  cursorGuideEnabled: boolean;
   labels: {
     initialGauge: string;
     cursorGuide: string;
@@ -19,6 +20,7 @@ defineProps<{
 
 const emit = defineEmits<{
   toggleSnapPrecision: [];
+  toggleCursorGuide: [];
   updateZoomPercent: [percent: number];
 }>();
 </script>
@@ -29,7 +31,13 @@ const emit = defineEmits<{
       <button type="button" class="mini-tool-button" disabled :title="labels.initialGauge">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8L20 9h-7V2Z" /></svg>
       </button>
-      <button type="button" class="mini-tool-button" disabled :title="labels.cursorGuide">
+      <button
+        type="button"
+        class="mini-tool-button"
+        :class="{ 'is-active': cursorGuideEnabled }"
+        :title="labels.cursorGuide"
+        @click="emit('toggleCursorGuide')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
           <path d="M12 6v12M6 12h12" />
@@ -127,6 +135,11 @@ const emit = defineEmits<{
 .mini-tool-button:disabled {
   opacity: 0.52;
   cursor: not-allowed;
+}
+
+.mini-tool-button.is-active {
+  border-color: var(--ea-gold);
+  color: var(--ea-gold);
 }
 
 .mini-tool-button svg {

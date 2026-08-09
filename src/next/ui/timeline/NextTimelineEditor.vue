@@ -79,6 +79,7 @@ const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
+const showCursorGuide = ref(true);
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
@@ -627,6 +628,11 @@ function toggleSnapPrecision(): boolean {
   return true;
 }
 
+function toggleCursorGuide(): boolean {
+  showCursorGuide.value = !showCursorGuide.value;
+  return true;
+}
+
 async function updateTimelineZoomPercent(percent: number, anchorClientX?: number): Promise<void> {
   const nextPercent = normalizeTimelineZoomPercent(percent);
   if (nextPercent === timelineZoomPercent.value) return;
@@ -721,6 +727,7 @@ useKeyboardShortcutScope({
       nudgeLeft: () => nudgeSelectedActions(-1),
       nudgeRight: () => nudgeSelectedActions(1),
       toggleSnapPrecision,
+      toggleCursorGuide,
       cycleTrack: cycleOccupiedTrack,
     });
   },
@@ -915,6 +922,7 @@ function setPanelDialogVisible(visible: boolean): void {
             <TimelineCornerToolbar
               :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
               :zoom-percent="timelineZoomPercent"
+              :cursor-guide-enabled="showCursorGuide"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
                 cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
@@ -927,6 +935,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 zoom: 'SCALE',
               }"
               @toggle-snap-precision="toggleSnapPrecision"
+              @toggle-cursor-guide="toggleCursorGuide"
               @update-zoom-percent="updateTimelineZoomPercent"
             />
           </div>
@@ -997,7 +1006,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 class="battle-start-line"
                 :style="{ left: `${scenario.battle.prepFrames * pxPerFrame}px` }"
               ></div>
-              <div class="cursor-line" :style="{ left: `${cursorLeft}px` }"></div>
+              <div
+                v-if="showCursorGuide"
+                class="cursor-line"
+                :style="{ left: `${cursorLeft}px` }"
+              ></div>
               <TimelineActionBlock
                 v-for="cast in track.skillCasts"
                 :key="cast.id"
