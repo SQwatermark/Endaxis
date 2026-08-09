@@ -1608,6 +1608,31 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(payload.buffSource, "ContextTarget")
         self.assertEqual(payload.buffSourceContextKey, "smart_target")
 
+    def test_buff_application_parses_instant_search_selector(self) -> None:
+        payload = parse_buff_application_payload(
+            {
+                "buffs": [{"buffId": "buff.fixture", "assignItems": []}],
+                "targetSettings": target_settings_fixture(
+                    "InstantSearch",
+                    finder_type="CharacterTeamFinder",
+                ),
+                "count": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "buffSource": "ActionSource",
+                "contextKey": "",
+                "inheritSourceSkillCastInfo": False,
+            },
+            "fixture.CreateBuffAction",
+            {},
+        )
+
+        self.assertEqual(payload.targetFinderType, "CharacterTeamFinder")
+        self.assertEqual(payload.targetValidatorTypes, ())
+        self.assertEqual(payload.targetPostProcessorTypes, ())
+
     def test_buff_application_compiler_preserves_inherited_cast_identity(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=0,

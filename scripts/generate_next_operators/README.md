@@ -26,6 +26,10 @@
 - `source_models.py`：解析层与审计层共享的不可变中间数据模型；只定义数据形状，不读取文件、不解释游戏语义，也不反向依赖主生成脚本。
 - `source_schema.py`：解包动作结构的字段白名单和已知类型集合；用于在数据版本变化时严格暴露未知结构。
 - `source_utils.py`：严格数据读取、基础值解析与 TypeScript 字面量渲染等无状态工具。
+- `action_kinds.py`：战斗动作分类的唯一来源，供解析器与完备性审计共同使用。
+- `target_parser.py`：严格解析目标选择器和目标引用，但不负责将其归约为单敌人语义。
+- `action_payload_parser.py`：解析标量、伤害、Buff、资源、投射物和能力实体等可复用动作载荷。
+- `conditional_parser.py`：保留条件动作及其有序成功、失败分支，生成可审计控制流中间层。
 - `progression_renderer.py`：将已解析的天赋、潜能来源事实转换为 `OperatorDefinition` 养成片段；后续全干员养成转换统一从这里扩展。
 - `audit_all_operators.py`：对全部干员入口执行严格解析与试编译，记录覆盖率和首个阻塞原因，不保存试编译产生的最终 DSL。
 - `operators.json`：只保存稳定身份映射与无法由原始数据唯一决定的项目语义，不充当数值数据库。
