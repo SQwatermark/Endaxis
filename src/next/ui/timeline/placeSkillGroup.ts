@@ -23,6 +23,8 @@ export interface PlaceSkillGroupInput {
   readonly trackIndex: TrackIndex;
   readonly operator: OperatorDefinition;
   readonly skillGroupKey: string;
+  /** 只放置技能组中的指定技能；省略时按声明顺序放置完整技能组。 */
+  readonly skillKey?: string;
   readonly startFrame: number;
   readonly ids: TimelineDocumentIdAllocator;
 }
@@ -122,7 +124,14 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
     );
   }
 
-  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const groupSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const skills =
+    input.skillKey === undefined
+      ? groupSkills
+      : groupSkills.filter(skill => skill.key === input.skillKey);
+  if (skills.length === 0) {
+    throw new Error(`skill group '${input.skillGroupKey}' has no skill '${input.skillKey ?? ''}'`);
+  }
   const placementGroupId = skills.length > 1 ? input.ids.allocate('placementGroup') : undefined;
   const created: SkillCastDocument[] = [];
   let nextStartFrame = input.startFrame;

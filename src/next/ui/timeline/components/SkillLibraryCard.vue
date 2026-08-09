@@ -50,7 +50,7 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
         class="attack-segment-chip"
         :class="{ 'is-selected': segment.selected, 'is-last': index === segments.length - 1 }"
         :draggable="!segment.disabled"
-        @dragstart="$emit('dragstart-segment', $event, segment.id)"
+        @dragstart="$emit('dragstart-segment', { event: $event, skillKey: segment.id })"
         @click.stop="$emit('select-segment', segment.id)"
       >
         {{ segment.label }}

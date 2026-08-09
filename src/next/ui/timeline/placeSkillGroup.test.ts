@@ -81,6 +81,28 @@ describe('placeSkillGroup', () => {
     expect(cast.edited).toEqual([]);
   });
 
+  it('places one selected segment without creating a placement group', () => {
+    const result = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack3',
+      startFrame: 45,
+      ids: createIds(),
+    });
+    const casts = result.scenario.tracks[0]!.skillCasts;
+
+    expect(casts).toHaveLength(1);
+    expect(casts[0]!.source).toEqual({
+      kind: 'operatorSkill',
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack3',
+    });
+    expect(casts[0]!.placement.startFrame).toBe(45);
+    expect(casts[0]!.placementGroup).toBeUndefined();
+  });
+
   it('rejects a catalog definition that does not match the track build', () => {
     const scenario = createPerlicaScenario();
     scenario.builds.operators.perlica!.operatorSlug = 'another';

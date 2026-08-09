@@ -22,6 +22,7 @@ const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
+const draggedSkill = ref<{ skillGroupKey: string; skillKey?: string } | null>(null);
 
 function createSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
@@ -142,21 +143,57 @@ function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void
   selectedCastId.value = null;
 }
 
-function placeGroup(skillGroupKey: string): void {
+function placeGroup(
+  skillGroupKey: string,
+  skillKey?: string,
+  startFrame = cursorFrame.value,
+  trackIndex = selectedTrack.value,
+): void {
   const result = placeSkillGroup({
     scenario: scenario.value,
-    trackIndex: selectedTrack.value,
+    trackIndex,
     operator: perlica,
     skillGroupKey,
-    startFrame: cursorFrame.value,
+    ...(skillKey === undefined ? {} : { skillKey }),
+    startFrame,
     ids,
   });
   scenario.value = result.scenario;
-  const placed = result.scenario.tracks[selectedTrack.value]?.skillCasts ?? [];
+  selectedTrack.value = trackIndex;
+  selectedCastId.value = result.skillCastIds.at(-1) ?? null;
+  const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
   const last = placed.at(-1);
   if (last !== undefined) {
     cursorFrame.value = last.placement.startFrame + last.editable.durationFrames;
   }
+}
+
+function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
+  draggedSkill.value = { skillGroupKey, ...(skillKey === undefined ? {} : { skillKey }) };
+  if (event.dataTransfer !== null) {
+    event.dataTransfer.effectAllowed = 'copy';
+    event.dataTransfer.setData('text/plain', skillKey ?? skillGroupKey);
+  }
+}
+
+function dropSkill(event: DragEvent, trackIndex: TrackIndex): void {
+  const skill = draggedSkill.value;
+  draggedSkill.value = null;
+  if (skill === null) return;
+  const lane = event.currentTarget as HTMLElement;
+  const frame = Math.max(
+    0,
+    Math.min(
+      scenario.value.battle.durationFrames,
+      timelinePxToFrame(
+        event.clientX - lane.getBoundingClientRect().left,
+        scenario.value.battle.prepFrames,
+        pxPerFrame,
+      ),
+    ),
+  );
+  cursorFrame.value = frame;
+  placeGroup(skill.skillGroupKey, skill.skillKey, frame, trackIndex);
 }
 
 function resetScenario(): void {
@@ -205,7 +242,9 @@ function resetScenario(): void {
             :accent-color="skillAccentColor(entry.skillType)"
             :segments="skillSegments(entry)"
             @select="placeGroup(entry.skillGroupKey)"
-            @select-segment="placeGroup(entry.skillGroupKey)"
+            @select-segment="placeGroup(entry.skillGroupKey, $event)"
+            @dragstart="beginSkillDrag($event, entry.skillGroupKey)"
+            @dragstart-segment="beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey)"
           />
         </div>
       </section>
@@ -269,6 +308,8 @@ function resetScenario(): void {
               class="track-lane"
               :style="{ width: `${timelineWidth}px` }"
               @click="selectTimelinePosition($event, track.trackIndex)"
+              @dragover.prevent
+              @drop.prevent="dropSkill($event, track.trackIndex)"
             >
               <div
                 class="prep-zone"
