@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
@@ -19,6 +20,7 @@ import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './time
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
+const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
 
 function createSampleScenario(): ScenarioDocument {
@@ -137,6 +139,7 @@ function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void
     ),
   );
   selectedTrack.value = trackIndex;
+  selectedCastId.value = null;
 }
 
 function placeGroup(skillGroupKey: string): void {
@@ -159,6 +162,7 @@ function placeGroup(skillGroupKey: string): void {
 function resetScenario(): void {
   scenario.value = createSampleScenario();
   selectedTrack.value = 0;
+  selectedCastId.value = null;
   cursorFrame.value = 30;
   nextDocumentId = 0;
 }
@@ -275,24 +279,26 @@ function resetScenario(): void {
                 :style="{ left: `${scenario.battle.prepFrames * pxPerFrame}px` }"
               ></div>
               <div class="cursor-line" :style="{ left: `${cursorLeft}px` }"></div>
-              <button
+              <TimelineActionBlock
                 v-for="cast in track.skillCasts"
                 :key="cast.id"
-                type="button"
-                class="skill-block"
-                :data-skill-type="cast.skillType"
-                :style="{
-                  left: `${frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)}px`,
-                  width: `${Math.max(48, cast.durationFrames * pxPerFrame)}px`,
-                }"
-                @click.stop="selectedTrack = track.trackIndex"
-              >
-                {{
+                :label="
                   cast.source.kind === 'operatorSkill'
                     ? skillName(cast.source.skillGroupKey, track.operatorSlug ?? perlica.slug)
                     : cast.source.kind
-                }}
-              </button>
+                "
+                :skill-type="cast.skillType"
+                :left="frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)"
+                :width="cast.durationFrames * pxPerFrame"
+                :selected="selectedCastId === cast.id"
+                :disabled="cast.disabled"
+                :locked="cast.locked"
+                :color="cast.color"
+                @select="
+                  selectedTrack = track.trackIndex;
+                  selectedCastId = cast.id;
+                "
+              />
             </div>
           </div>
         </div>
@@ -538,19 +544,6 @@ button:disabled {
   pointer-events: none;
 }
 
-.skill-block {
-  position: absolute;
-  top: 55px;
-  height: 50px;
-  min-width: 48px;
-  overflow: hidden;
-  padding: 0 8px;
-  border: 1px dashed #aaa;
-  background: #34343a;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
 .empty-panel {
   width: 100%;
   height: 100%;
@@ -558,21 +551,5 @@ button:disabled {
   place-items: center;
   color: var(--ea-fg-muted);
   font-size: 12px;
-}
-
-.skill-block[data-skill-type='battleSkill'] {
-  border-color: #ff5a5f;
-  color: #ff6b70;
-  background: #402427;
-}
-.skill-block[data-skill-type='comboSkill'] {
-  border-color: #facc15;
-  color: #fde047;
-  background: #3b351b;
-}
-.skill-block[data-skill-type='ultimate'] {
-  border-color: #22c55e;
-  color: #4ade80;
-  background: #1e3827;
 }
 </style>
