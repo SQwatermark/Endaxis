@@ -4,6 +4,7 @@
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
+import type { GameplayTagId } from '../tags/gameplayTags';
 import {
   SharedSpGainModifierSet,
   type SharedSpGainSettings,
@@ -18,8 +19,11 @@ export interface OperatorResourceSnapshot {
   readonly ultimateEnergy: number;
   readonly maxUltimateEnergy: number;
   readonly ultimateEnergyGainMultiplier: number;
-  /** 不带回复标签的正向回复是否能通过当前限制。 */
-  readonly canGainUntaggedUltimateEnergy: boolean;
+  /**
+   * 当前终结技能量回复限制聚合后的许可标签；null 表示没有限制，空集合会拦截全部正向回复。
+   * 原生由多个有效限制句柄取并集，资源账本只消费聚合结果，不负责 Buff 生命周期。
+   */
+  readonly allowedUltimateEnergyRecoveryTagIds: ReadonlySet<GameplayTagId> | null;
 }
 
 /** 普通战技消耗技力时队内终结技能量的换算参数。 */
@@ -87,6 +91,14 @@ export interface UltimateEnergyChange {
   readonly actualValue: number;
   readonly previousValue: number;
   readonly currentValue: number;
+}
+
+/** 一次终结技能量变化在原生倍率链与恢复许可中的可选语义。 */
+export interface UltimateEnergyChangeOptions {
+  readonly coefficient?: number;
+  readonly isPercentValue?: boolean;
+  readonly recoveryTagId?: GameplayTagId;
+  readonly ignoreGainMultiplier?: boolean;
 }
 
 interface OperatorResources extends Omit<OperatorResourceSnapshot, 'ultimateEnergy'> {
@@ -166,7 +178,13 @@ export class CombatResources {
       if (this.#operators.has(member.operatorId)) {
         throw new Error(`duplicate squad operator '${member.operatorId}'`);
       }
-      const runtime = { ...member };
+      const runtime = {
+        ...member,
+        allowedUltimateEnergyRecoveryTagIds:
+          member.allowedUltimateEnergyRecoveryTagIds === null
+            ? null
+            : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+      };
       this.#operators.set(member.operatorId, runtime);
       return runtime;
     });
@@ -235,15 +253,31 @@ export class CombatResources {
 
   /**
    * 应用一次以基础值表达的个人终结技能量变化。
-   * 正向变化会经过目标自身的回复倍率与无标签回能许可；负向变化不应用回复倍率。
+   * 严格按“回能效率 -> 百分比最大值 -> 系数 -> 回复标签许可”的原生顺序结算。
    */
-  changeUltimateEnergy(operatorId: string, baseValue: number): UltimateEnergyChange {
+  changeUltimateEnergy(
+    operatorId: string,
+    baseValue: number,
+    options: UltimateEnergyChangeOptions = {},
+  ): UltimateEnergyChange {
     requireFinite(baseValue, 'ultimate energy base value');
+    const coefficient = options.coefficient ?? 1;
+    requireFinite(coefficient, 'ultimate energy coefficient');
     const operator = this.#requireOperator(operatorId);
-    const requestedValue =
-      baseValue > 0 ? baseValue * operator.ultimateEnergyGainMultiplier : baseValue;
+    let requestedValue = Math.fround(baseValue);
+    if (baseValue > 0 && !options.ignoreGainMultiplier) {
+      requestedValue = Math.fround(requestedValue * operator.ultimateEnergyGainMultiplier);
+    }
+    if (options.isPercentValue) {
+      requestedValue = Math.fround(requestedValue * operator.maxUltimateEnergy);
+    }
+    requestedValue = Math.fround(requestedValue * coefficient);
     const previousValue = operator.ultimateEnergy;
-    const applied = this.#trySetUltimateEnergy(operator, previousValue + requestedValue);
+    const applied = this.#trySetUltimateEnergy(
+      operator,
+      previousValue + requestedValue,
+      options.recoveryTagId,
+    );
     return {
       operatorId,
       baseValue,
@@ -327,10 +361,17 @@ export class CombatResources {
     });
   }
 
-  #trySetUltimateEnergy(operator: OperatorResources, value: number): boolean {
+  #trySetUltimateEnergy(
+    operator: OperatorResources,
+    value: number,
+    recoveryTagId?: GameplayTagId,
+  ): boolean {
+    const restriction = operator.allowedUltimateEnergyRecoveryTagIds;
     if (
       !this.#ultimateEnergySystemUnlocked ||
-      (value > operator.ultimateEnergy && !operator.canGainUntaggedUltimateEnergy)
+      (value > operator.ultimateEnergy &&
+        restriction !== null &&
+        (recoveryTagId === undefined || !restriction.has(recoveryTagId)))
     ) {
       return false;
     }

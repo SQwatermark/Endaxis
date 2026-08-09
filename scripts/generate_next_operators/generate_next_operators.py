@@ -7261,12 +7261,6 @@ def compile_resource_gain(
         else (gain.coefficient.value,)
     )
     recipient = resource_recipient(gain.resource)
-    if gain.resource == "ultimateEnergy" and (
-        gain.isPercentValue
-        or gain.useUltimateRecoveryTag
-        or gain.ignoreUltimateGainScalar
-    ):
-        raise ValueError(f"{path}: unsupported ultimate-energy recovery options")
     fields = [
         f"resource: {ts_inline_literal(gain.resource)}",
         f"recipient: {ts_inline_literal(recipient)}",
@@ -7282,6 +7276,15 @@ def compile_resource_gain(
                 f"spGainSource: {ts_inline_literal(gain.spGainSource)}",
             ]
         )
+    else:
+        if gain.isPercentValue:
+            fields.append("isPercentValue: true")
+        if gain.useUltimateRecoveryTag:
+            fields.append(
+                f"ultimateRecoveryTagId: {ts_inline_literal(gain.ultimateRecoveryTagId)}"
+            )
+        if gain.ignoreUltimateGainScalar:
+            fields.append("ignoreUltimateEnergyGainMultiplier: true")
     if gain.amount.blackboardKey is not None:
         fields.insert(1, f"amount: {compile_condition_operand(gain.amount, f'{path}.amount')}")
         return "\n".join(

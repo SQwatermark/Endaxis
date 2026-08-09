@@ -345,6 +345,55 @@ describe('compileSkill', () => {
     });
   });
 
+  it('compiles ultimate-energy recovery options into the runtime protocol', () => {
+    const skill = {
+      key: 'taggedRecovery',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource',
+                parameters: {
+                  resource: 'ultimateEnergy',
+                  amount: [0.1, 0.2],
+                  coefficient: 0.5,
+                  recipient: 'caster',
+                  isPercentValue: true,
+                  ultimateRecoveryTagId: 264623624,
+                  ignoreUltimateEnergyGainMultiplier: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'changeResource',
+      parameters: {
+        resource: 'ultimateEnergy',
+        amount: 0.2,
+        coefficient: 0.5,
+        recipient: 'caster',
+        isPercentValue: true,
+        ultimateRecoveryTagId: 264623624,
+        ignoreUltimateEnergyGainMultiplier: true,
+      },
+    });
+  });
+
   it('rejects paid skills whose native cost frame has not been recovered', () => {
     const incomplete = {
       key: 'incomplete',

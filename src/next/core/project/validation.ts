@@ -342,6 +342,36 @@ function validateResourceChangeMetadata(
       });
     }
   }
+  for (const field of ['isPercentValue', 'ignoreUltimateEnergyGainMultiplier'] as const) {
+    if (parameters[field] !== undefined) {
+      requireBoolean(parameters[field], `${path}.${field}`, issues);
+      if (parameters.resource !== 'ultimateEnergy') {
+        issues.push({
+          path: `${path}.${field}`,
+          message: "is only valid when resource is 'ultimateEnergy'",
+        });
+      }
+    }
+  }
+  if (parameters.ultimateRecoveryTagId !== undefined) {
+    requireInteger(parameters.ultimateRecoveryTagId, `${path}.ultimateRecoveryTagId`, issues);
+    if (
+      typeof parameters.ultimateRecoveryTagId === 'number' &&
+      (parameters.ultimateRecoveryTagId < -2147483648 ||
+        parameters.ultimateRecoveryTagId > 2147483647)
+    ) {
+      issues.push({
+        path: `${path}.ultimateRecoveryTagId`,
+        message: 'expected signed 32-bit integer',
+      });
+    }
+    if (parameters.resource !== 'ultimateEnergy') {
+      issues.push({
+        path: `${path}.ultimateRecoveryTagId`,
+        message: "is only valid when resource is 'ultimateEnergy'",
+      });
+    }
+  }
 }
 
 function validateCombatStepParameters(

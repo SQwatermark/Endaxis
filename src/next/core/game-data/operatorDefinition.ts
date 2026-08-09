@@ -425,6 +425,12 @@ export interface CombatStepParameters {
     /** 仅对正向技力变化有效；省略时按普通获得处理。 */
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
+    /** 终结技能量专用：按最大能量的比例解释倍率链结果。 */
+    isPercentValue?: boolean;
+    /** 终结技能量专用：正向回复携带的许可标签。 */
+    ultimateRecoveryTagId?: number;
+    /** 终结技能量专用：跳过目标自身的回能效率。 */
+    ignoreUltimateEnergyGainMultiplier?: boolean;
   };
   /** 执行时从当前技能动作黑板读取数值，再交给同一资源账本处理。 */
   changeResourceByActionValue: {
@@ -435,6 +441,9 @@ export interface CombatStepParameters {
     recipient: ResourceRecipient;
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
+    isPercentValue?: boolean;
+    ultimateRecoveryTagId?: number;
+    ignoreUltimateEnergyGainMultiplier?: boolean;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
   gainFinisherSp: { factor: number; recipient: 'team' };

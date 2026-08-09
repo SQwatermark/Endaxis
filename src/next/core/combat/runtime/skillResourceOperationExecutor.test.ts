@@ -9,6 +9,7 @@ import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 function findSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -37,7 +38,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 90,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
       ],
     });
@@ -87,6 +88,7 @@ describe('SkillResourceOperationExecutor', () => {
   });
 
   it('records blocked caster ultimate-energy gain without changing the ledger', () => {
+    const allowedTag = gameplayTagId(264623624);
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
     const resources = new CombatResources({
@@ -103,7 +105,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 40,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 2,
-          canGainUntaggedUltimateEnergy: false,
+          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
         },
       ],
     });
@@ -139,6 +141,22 @@ describe('SkillResourceOperationExecutor', () => {
         currentValue: 40,
       },
     });
+
+    operations.execute({
+      kind: 'changeResource',
+      parameters: {
+        resource: 'ultimateEnergy',
+        amount: 10,
+        recipient: 'caster',
+        ultimateRecoveryTagId: allowedTag,
+      },
+    });
+
+    expect(resources.getUltimateEnergy('arcane')).toBe(60);
+    expect(receipt.entries[1]).toMatchObject({
+      event: 'UltimateEnergyChanged',
+      data: { requestedValue: 20, applied: true, actualValue: 20 },
+    });
   });
 
   it('records refunded team SP in the returned-SP bucket', () => {
@@ -158,7 +176,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
       ],
     });
@@ -225,7 +243,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
       ],
     });
@@ -281,14 +299,14 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
         {
           operatorId: 'ally',
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 0.5,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
       ],
     });

@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：249 个。
+- 无角色专用声明即可进入通用 DSL：250 个。
 - 当前整名干员完整直转：7 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
 
@@ -46,7 +46,7 @@
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
 | Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      5 | 否       |
-| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      7 | 否       |
+| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      8 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
@@ -63,7 +63,7 @@
 | `buff-source-or-target`    |     11 |
 | `condition-other`          |      6 |
 | `root-action-coverage`     |      6 |
-| `other`                    |      5 |
+| `other`                    |      4 |
 | `conditional-leaf`         |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |

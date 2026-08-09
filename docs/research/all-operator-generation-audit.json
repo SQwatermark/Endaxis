@@ -7,10 +7,10 @@
   },
   "summary": {
     "parsedCount": 283,
-    "compiledCount": 249,
+    "compiledCount": 250,
     "completeOperatorCount": 7,
     "blockerKinds": {
-      "other": 5,
+      "other": 4,
       "parser-tick-interval": 2,
       "condition-entity-count": 1,
       "projectile-child-actions": 2,
@@ -1108,10 +1108,10 @@
       "operatorName": "Last Rite",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "other": 2
+        "other": 1
       }
     },
     {
@@ -5047,7 +5047,7 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "combo_skill.schedule[3].resourceGain: unsupported ultimate-energy recovery options",
+      "blocker": "combo_skill.schedule[4].conditionalAction.succeedActions[0]: dynamic resource gain coefficient is not supported",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 3,
       "referencedBuffCount": 2,
@@ -5150,9 +5150,9 @@
       "operatorName": "Last Rite",
       "skillId": "chr_0026_lastrite_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[7].resourceGain: unsupported ultimate-energy recovery options",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 0,
       "referencedBuffCount": 3,

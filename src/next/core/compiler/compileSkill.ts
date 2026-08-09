@@ -202,6 +202,20 @@ function resolveStep(
           ...(step.parameters.spGainSource === undefined
             ? {}
             : { spGainSource: step.parameters.spGainSource }),
+          ...(step.parameters.isPercentValue === undefined
+            ? {}
+            : { isPercentValue: step.parameters.isPercentValue }),
+          ...(step.parameters.ultimateRecoveryTagId === undefined
+            ? {}
+            : {
+                ultimateRecoveryTagId: gameplayTagId(step.parameters.ultimateRecoveryTagId),
+              }),
+          ...(step.parameters.ignoreUltimateEnergyGainMultiplier === undefined
+            ? {}
+            : {
+                ignoreUltimateEnergyGainMultiplier:
+                  step.parameters.ignoreUltimateEnergyGainMultiplier,
+              }),
         },
       };
     case 'applyStatus':
@@ -304,12 +318,15 @@ function resolveStep(
     case 'calculateActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'changeResourceByActionValue': {
-      const { coefficient, ...parameters } = step.parameters;
+      const { coefficient, ultimateRecoveryTagId, ...parameters } = step.parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
           ...parameters,
+          ...(ultimateRecoveryTagId === undefined
+            ? {}
+            : { ultimateRecoveryTagId: gameplayTagId(ultimateRecoveryTagId) }),
           ...(coefficient === undefined
             ? {}
             : {

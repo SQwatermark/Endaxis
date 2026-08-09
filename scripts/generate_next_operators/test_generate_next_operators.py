@@ -5019,6 +5019,48 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("spGainKind: 'refund'", result)
         self.assertIn("spGainSource: 'skill'", result)
 
+    def test_conditional_action_compiler_preserves_ultimate_recovery_options(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                SimpleNamespace(
+                    actionType="ObtainCostAction",
+                    nestedCondition=None,
+                    blackboardCalculation=None,
+                    blackboardMutation=None,
+                    buffBlackboardRead=None,
+                    buffFinish=None,
+                    resourceGain=ResourceGainPayload(
+                        resource="ultimateEnergy",
+                        amount=ScalarSource(None, "usp", None),
+                        coefficient=ScalarSource(0.5, None, None),
+                        spGainKind=None,
+                        spGainSource=None,
+                        onlyMainOperator=False,
+                        isPercentValue=True,
+                        useUltimateRecoveryTag=True,
+                        ultimateRecoveryTagId=264623624,
+                        ignoreUltimateGainScalar=True,
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+
+        result = compile_conditional_action(action, "fixture.condition")
+
+        self.assertIn("changeResourceByActionValue", result)
+        self.assertIn("isPercentValue: true", result)
+        self.assertIn("ultimateRecoveryTagId: 264623624", result)
+        self.assertIn("ignoreUltimateEnergyGainMultiplier: true", result)
+
     def test_conditional_action_compiler_preserves_runtime_damage_scale(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",

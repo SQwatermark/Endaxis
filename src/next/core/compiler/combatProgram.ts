@@ -18,6 +18,7 @@ import type {
   SkillType,
   StatusModifierDefinition,
 } from '../game-data/operatorDefinition';
+import type { GameplayTagId } from '../combat/tags/gameplayTags';
 
 /** 等级数值已经展开、可供运行时直接应用的状态修正。 */
 export type ResolvedStatusModifier =
@@ -75,12 +76,16 @@ export interface ResolvedCombatStepParameters {
     recipient: ResourceRecipient;
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
+    isPercentValue?: boolean;
+    ultimateRecoveryTagId?: GameplayTagId;
+    ignoreUltimateEnergyGainMultiplier?: boolean;
   };
   changeResourceByActionValue: Omit<
     CombatStepParameters['changeResourceByActionValue'],
-    'coefficient'
+    'coefficient' | 'ultimateRecoveryTagId'
   > & {
     coefficient?: number;
+    ultimateRecoveryTagId?: GameplayTagId;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];

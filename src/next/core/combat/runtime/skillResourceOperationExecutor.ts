@@ -82,10 +82,16 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       step.parameters.resource === 'ultimateEnergy' &&
       step.parameters.recipient === 'caster'
     ) {
-      const amount = Math.fround(step.parameters.amount * (step.parameters.coefficient ?? 1));
+      const amount = Math.fround(step.parameters.amount);
       const change = this.dependencies.resources.changeUltimateEnergy(
         this.dependencies.sourceOperatorId,
         amount,
+        {
+          coefficient: step.parameters.coefficient,
+          isPercentValue: step.parameters.isPercentValue,
+          recoveryTagId: step.parameters.ultimateRecoveryTagId,
+          ignoreGainMultiplier: step.parameters.ignoreUltimateEnergyGainMultiplier,
+        },
       );
       this.#recordUltimateEnergyChange(change);
       return true;

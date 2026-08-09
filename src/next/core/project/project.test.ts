@@ -507,6 +507,29 @@ describe('V2 project document', () => {
       );
     }
 
+    const invalidUltimateOption = JSON.parse(serializeProjectDocument(project));
+    invalidUltimateOption.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
+      {
+        kind: 'changeResource',
+        parameters: {
+          resource: 'sp',
+          amount: 10,
+          recipient: 'team',
+          ultimateRecoveryTagId: 264623624,
+        },
+        edited: [],
+      },
+    );
+    const invalidUltimateOptionResult = validateProjectDocument(invalidUltimateOption);
+    expect(invalidUltimateOptionResult.ok).toBe(false);
+    if (!invalidUltimateOptionResult.ok) {
+      expect(invalidUltimateOptionResult.issues).toContainEqual(
+        expect.objectContaining({
+          path: expect.stringContaining('.parameters.ultimateRecoveryTagId'),
+        }),
+      );
+    }
+
     const invalidHitReference = JSON.parse(serializeProjectDocument(project));
     invalidHitReference.scenarios[0].connections[0].from.hitId = 'missing:hit';
     const invalidHitReferenceResult = validateProjectDocument(invalidHitReference);

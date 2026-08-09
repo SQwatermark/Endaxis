@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CombatResources } from './combatResources';
 import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 function createResources() {
   return new CombatResources({
@@ -17,14 +18,14 @@ function createResources() {
         ultimateEnergy: 0,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 1.5,
-        canGainUntaggedUltimateEnergy: true,
+        allowedUltimateEnergyRecoveryTagIds: null,
       },
       {
         operatorId: 'other',
         ultimateEnergy: 0,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 0.5,
-        canGainUntaggedUltimateEnergy: true,
+        allowedUltimateEnergyRecoveryTagIds: null,
       },
     ],
   });
@@ -189,14 +190,14 @@ describe('CombatResources', () => {
           ultimateEnergy: 99,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
         {
           operatorId: 'blocked',
           ultimateEnergy: 20,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          canGainUntaggedUltimateEnergy: false,
+          allowedUltimateEnergyRecoveryTagIds: new Set(),
         },
       ],
     });
@@ -205,6 +206,51 @@ describe('CombatResources', () => {
 
     expect(changes[0]).toMatchObject({ applied: true, actualValue: 1, currentValue: 100 });
     expect(changes[1]).toMatchObject({ applied: false, actualValue: 0, currentValue: 20 });
+  });
+
+  it('applies the native ultimate-energy scaling order and first-tag permission', () => {
+    const allowedTag = gameplayTagId(264623624);
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1.5,
+          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+        },
+      ],
+    });
+
+    const blocked = resources.changeUltimateEnergy('source', 0.1, {
+      coefficient: 2,
+      isPercentValue: true,
+    });
+    expect(blocked).toMatchObject({ applied: false, actualValue: 0 });
+    expect(blocked.requestedValue).toBeCloseTo(30);
+
+    const allowed = resources.changeUltimateEnergy('source', 0.1, {
+      coefficient: 2,
+      isPercentValue: true,
+      recoveryTagId: allowedTag,
+    });
+    expect(allowed.applied).toBe(true);
+    expect(allowed.requestedValue).toBeCloseTo(30);
+    expect(allowed.actualValue).toBeCloseTo(30);
+
+    const ignoredMultiplier = resources.changeUltimateEnergy('source', 10, {
+      ignoreGainMultiplier: true,
+      recoveryTagId: allowedTag,
+    });
+    expect(ignoredMultiplier.requestedValue).toBe(10);
+    expect(ignoredMultiplier.currentValue).toBeCloseTo(40);
   });
 
   it('marks ultimate-energy cost as paid when the locked setter rejects the write', () => {
@@ -222,7 +268,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 80,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          canGainUntaggedUltimateEnergy: true,
+          allowedUltimateEnergyRecoveryTagIds: null,
         },
       ],
     });
