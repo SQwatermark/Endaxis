@@ -3,6 +3,8 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import TimelineRuler from './components/TimelineRuler.vue';
+import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
@@ -12,6 +14,7 @@ import {
   projectTimelineEditor,
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
+import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -52,15 +55,15 @@ const viewModel = computed(() =>
   }),
 );
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
-const timelineWidth = computed(() => scenario.value.battle.durationFrames * pxPerFrame);
-const rulerMarks = computed(() =>
-  Array.from(
-    { length: Math.floor(scenario.value.battle.durationFrames / 150) + 1 },
-    (_, index) => ({
-      frame: index * 150,
-      seconds: index * 5,
-    }),
+const timelineWidth = computed(() =>
+  timelineTotalWidth(
+    scenario.value.battle.prepFrames,
+    scenario.value.battle.durationFrames,
+    pxPerFrame,
   ),
+);
+const cursorLeft = computed(() =>
+  frameToTimelinePx(cursorFrame.value, scenario.value.battle.prepFrames, pxPerFrame),
 );
 
 function operatorName(slug: string | null): string {
@@ -126,7 +129,11 @@ function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      Math.round((event.clientX - lane.getBoundingClientRect().left) / pxPerFrame),
+      timelinePxToFrame(
+        event.clientX - lane.getBoundingClientRect().left,
+        scenario.value.battle.prepFrames,
+        pxPerFrame,
+      ),
     ),
   );
   selectedTrack.value = trackIndex;
@@ -226,18 +233,20 @@ function resetScenario(): void {
 
     <div class="timeline-workspace">
       <div class="timeline-scroll">
-        <div class="timeline-content" :style="{ width: `${timelineWidth}px` }">
-          <div class="ruler">
-            <span
-              v-for="mark in rulerMarks"
-              :key="mark.frame"
-              class="ruler-mark"
-              :style="{ left: `${mark.frame * pxPerFrame}px` }"
-            >
-              {{ mark.seconds }}s
-            </span>
+        <div class="timeline-surface" :style="{ width: `${180 + timelineWidth}px` }">
+          <div class="corner-placeholder">
+            <span class="corner-tools">⚡　⊕　⌗</span>
+            <span class="zoom-label">SCALE　100%</span>
           </div>
-          <div class="cursor-line" :style="{ left: `${cursorFrame * pxPerFrame}px` }"></div>
+          <TimelineRuler
+            class="timeline-ruler"
+            :style="{ width: `${timelineWidth}px` }"
+            :prep-frames="scenario.battle.prepFrames"
+            :duration-frames="scenario.battle.durationFrames"
+            :cursor-frame="cursorFrame"
+            :px-per-frame="pxPerFrame"
+            @seek="cursorFrame = $event"
+          />
 
           <div
             v-for="track in viewModel.tracks"
@@ -245,11 +254,27 @@ function resetScenario(): void {
             class="track-row"
             :class="{ selected: selectedTrack === track.trackIndex }"
           >
-            <button class="track-identity" type="button" @click="selectedTrack = track.trackIndex">
-              <img v-if="track.operatorSlug" src="/operators/perlica/avatar.webp" alt="" />
-              <span>{{ operatorName(track.operatorSlug) }}</span>
-            </button>
-            <div class="track-lane" @click="selectTimelinePosition($event, track.trackIndex)">
+            <TimelineTrackHeader
+              class="track-identity"
+              :track="track"
+              :name="operatorName(track.operatorSlug)"
+              :selected="selectedTrack === track.trackIndex"
+              @select="selectedTrack = track.trackIndex"
+            />
+            <div
+              class="track-lane"
+              :style="{ width: `${timelineWidth}px` }"
+              @click="selectTimelinePosition($event, track.trackIndex)"
+            >
+              <div
+                class="prep-zone"
+                :style="{ width: `${scenario.battle.prepFrames * pxPerFrame}px` }"
+              ></div>
+              <div
+                class="battle-start-line"
+                :style="{ left: `${scenario.battle.prepFrames * pxPerFrame}px` }"
+              ></div>
+              <div class="cursor-line" :style="{ left: `${cursorLeft}px` }"></div>
               <button
                 v-for="cast in track.skillCasts"
                 :key="cast.id"
@@ -257,7 +282,7 @@ function resetScenario(): void {
                 class="skill-block"
                 :data-skill-type="cast.skillType"
                 :style="{
-                  left: `${cast.startFrame * pxPerFrame}px`,
+                  left: `${frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)}px`,
                   width: `${Math.max(48, cast.durationFrames * pxPerFrame)}px`,
                 }"
                 @click.stop="selectedTrack = track.trackIndex"
@@ -417,32 +442,50 @@ button:disabled {
   overflow: auto;
 }
 
-.timeline-content {
+.timeline-surface {
   position: relative;
   min-width: 100%;
   min-height: 100%;
-  padding-top: 76px;
   background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
   background-size: 60px 100%;
 }
 
-.ruler {
-  position: absolute;
-  inset: 0 0 auto;
+.corner-placeholder {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  width: 180px;
   height: 76px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 8px;
+  border-right: 1px solid var(--ea-border);
   border-bottom: 1px solid var(--ea-border);
   background: var(--ea-workbench-header);
 }
 
-.ruler-mark {
-  position: absolute;
-  bottom: 6px;
-  padding-left: 4px;
-  border-left: 1px solid #777;
+.corner-tools {
+  font-size: 11px;
   color: var(--ea-fg-muted);
+}
+
+.zoom-label {
+  color: var(--ea-fg-subtle);
   font:
-    11px/18px Consolas,
+    8px/1 Consolas,
     monospace;
+}
+
+.timeline-ruler {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-top: -76px;
+  margin-left: 180px;
 }
 
 .cursor-line {
@@ -457,6 +500,8 @@ button:disabled {
 
 .track-row {
   position: relative;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
   height: 160px;
   border-bottom: 1px solid var(--ea-border-soft);
 }
@@ -468,31 +513,29 @@ button:disabled {
 .track-identity {
   position: sticky;
   left: 0;
-  z-index: 3;
-  width: 180px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 0;
-  border-right: 3px solid transparent;
-  background: var(--ea-workbench-panel);
-}
-
-.track-row.selected .track-identity {
-  border-right-color: var(--ea-gold);
-}
-
-.track-identity img {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  object-fit: cover;
+  z-index: 6;
 }
 
 .track-lane {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+}
+
+.prep-zone {
   position: absolute;
-  inset: 0;
+  inset: 0 auto 0 0;
+  background: var(--ea-prep-fill);
+  pointer-events: none;
+}
+
+.battle-start-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ea-mark-strong);
+  pointer-events: none;
 }
 
 .skill-block {
