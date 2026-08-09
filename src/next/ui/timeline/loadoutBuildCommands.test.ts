@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument } from '../../core/project/schema';
-import { updateTrackGearBuild, updateTrackWeaponBuild } from './loadoutBuildCommands';
+import {
+  updateTrackGearBuild,
+  updateTrackOperatorBuild,
+  updateTrackWeaponBuild,
+} from './loadoutBuildCommands';
 
 function equippedScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario', 'Scenario');
@@ -39,6 +43,30 @@ function equippedScenario(): ScenarioDocument {
 }
 
 describe('loadoutBuildCommands', () => {
+  it('updates operator inputs without mutating the source document', () => {
+    const source = equippedScenario();
+    const updated = updateTrackOperatorBuild(source, 0, {
+      level: 80,
+      promoted: false,
+      potential: 2,
+      trustLevel: 3,
+      skillLevels: { basicAttack: 10 },
+      talentStates: { 0: 1 },
+    });
+
+    expect(updated.builds.operators.operator).toMatchObject({
+      id: 'operator',
+      operatorSlug: 'operator',
+      level: 80,
+      promoted: false,
+      potential: 2,
+      trustLevel: 3,
+      skillLevels: { basicAttack: 10 },
+      talentStates: { 0: 1 },
+    });
+    expect(source.builds.operators.operator!.level).toBe(90);
+  });
+
   it('updates weapon inputs without mutating the source document', () => {
     const source = equippedScenario();
     const updated = updateTrackWeaponBuild(source, 0, {
@@ -69,6 +97,9 @@ describe('loadoutBuildCommands', () => {
 
   it('rejects malformed inputs and builds that are not equipped by the track', () => {
     const scenario = equippedScenario();
+    expect(() => updateTrackOperatorBuild(scenario, 0, { potential: -1 })).toThrow(
+      'operator potential',
+    );
     expect(() => updateTrackWeaponBuild(scenario, 0, { level: 0 })).toThrow('weapon level');
     expect(() => updateTrackWeaponBuild(scenario, 0, { traitLevels: [0] })).toThrow(
       'weapon trait level 0',

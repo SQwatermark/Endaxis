@@ -4,10 +4,18 @@
  */
 import type {
   GearBuildDocument,
+  OperatorBuildDocument,
   ScenarioDocument,
   TrackIndex,
   WeaponBuildDocument,
 } from '../../core/project/schema';
+
+export type OperatorBuildChanges = Partial<
+  Pick<
+    OperatorBuildDocument,
+    'level' | 'promoted' | 'potential' | 'trustLevel' | 'skillLevels' | 'talentStates'
+  >
+>;
 
 export type WeaponBuildChanges = Partial<
   Pick<WeaponBuildDocument, 'level' | 'tuned' | 'potential' | 'traitLevels'>
@@ -17,6 +25,16 @@ function requireIntegerAtLeast(value: number, minimum: number, field: string): v
   if (!Number.isInteger(value) || value < minimum) {
     throw new RangeError(`${field} must be an integer greater than or equal to ${minimum}`);
   }
+}
+
+function getOperatorBuild(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+): OperatorBuildDocument {
+  const buildId = scenario.tracks[trackIndex]?.operatorBuildId ?? null;
+  const build = buildId === null ? undefined : scenario.builds.operators[buildId];
+  if (build === undefined) throw new Error(`track ${trackIndex} has no operator build`);
+  return build;
 }
 
 function getWeaponBuild(scenario: ScenarioDocument, trackIndex: TrackIndex): WeaponBuildDocument {
@@ -38,6 +56,46 @@ function getGearBuild(
   const build = scenario.builds.gears[buildId];
   if (build === undefined) throw new Error(`gear build '${buildId}' does not exist`);
   return build;
+}
+
+/** 更新当前轨道干员的养成输入，不改变 Build 身份和干员目录身份。 */
+export function updateTrackOperatorBuild(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  changes: OperatorBuildChanges,
+): ScenarioDocument {
+  const build = getOperatorBuild(scenario, trackIndex);
+  if (changes.level !== undefined) requireIntegerAtLeast(changes.level, 1, 'operator level');
+  if (changes.potential !== undefined) {
+    requireIntegerAtLeast(changes.potential, 0, 'operator potential');
+  }
+  if (changes.trustLevel !== undefined) {
+    requireIntegerAtLeast(changes.trustLevel, 0, 'operator trust level');
+  }
+  if (changes.skillLevels !== undefined) {
+    Object.entries(changes.skillLevels).forEach(([key, level]) =>
+      requireIntegerAtLeast(level, 1, `operator skill level '${key}'`),
+    );
+  }
+  if (changes.talentStates !== undefined) {
+    Object.entries(changes.talentStates).forEach(([key, state]) =>
+      requireIntegerAtLeast(state, 0, `operator talent state '${key}'`),
+    );
+  }
+
+  const updated = {
+    ...build,
+    ...changes,
+    ...(changes.skillLevels === undefined ? {} : { skillLevels: { ...changes.skillLevels } }),
+    ...(changes.talentStates === undefined ? {} : { talentStates: { ...changes.talentStates } }),
+  };
+  return {
+    ...scenario,
+    builds: {
+      ...scenario.builds,
+      operators: { ...scenario.builds.operators, [build.id]: updated },
+    },
+  };
 }
 
 /** 更新当前轨道已装备武器的用户输入，不改变 Build 身份和武器目录身份。 */
