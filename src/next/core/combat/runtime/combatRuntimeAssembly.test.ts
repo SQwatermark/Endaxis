@@ -5,7 +5,7 @@ import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatStatusContainer } from '../status/combatStatuses';
-import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
+import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -25,6 +25,32 @@ const emptyEnemyBuffRuntime = {
 const rejectingExecutor: CombatOperationExecutor = {
   execute: () => false,
   evaluate: () => false,
+};
+
+const testEnemy: CombatEnemyProgram = {
+  source: { kind: 'custom', level: 90 },
+  health: 1000,
+  superArmor: 0,
+  defenderAttributes: {
+    defense: 0,
+    shelterDamageMultiplier: 0,
+    breakingAttackDamageTakenMultiplier: 1,
+    resistances: {
+      physical: { percent: 0, damageTakenMultiplier: 1 },
+      heat: { percent: 0, damageTakenMultiplier: 1 },
+      electric: { percent: 0, damageTakenMultiplier: 1 },
+      cryo: { percent: 0, damageTakenMultiplier: 1 },
+      nature: { percent: 0, damageTakenMultiplier: 1 },
+      ether: { percent: 0, damageTakenMultiplier: 1 },
+    },
+  },
+  stagger: {
+    maximum: 100,
+    nodeCount: 1,
+    nodeDurationFrames: 30,
+    brokenDurationFrames: 300,
+    finisherRecovery: 100,
+  },
 };
 
 function asBuffRuntime(container: CombatBuffContainer<string>) {
@@ -73,6 +99,7 @@ function createAssembly(
   >[0]['enemyBuffRuntime'] = emptyEnemyBuffRuntime,
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
+    enemy: testEnemy,
     resources: {
       sp: 100,
       maxSp: 300,
@@ -208,6 +235,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -415,6 +443,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -486,6 +515,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -578,6 +608,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -650,6 +681,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -722,6 +754,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -808,6 +841,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 0,
         maxSp: 300,
@@ -840,6 +874,7 @@ describe('CombatRuntimeAssembly', () => {
   it('processes frame input after recovery and before the skill cost tick', () => {
     const program = skill({ costFrame: 0 });
     const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
       resources: {
         sp: 99,
         maxSp: 300,

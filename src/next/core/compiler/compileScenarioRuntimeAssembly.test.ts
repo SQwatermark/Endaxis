@@ -101,6 +101,14 @@ describe('compileScenarioRuntimeAssembly', () => {
     const compiled = compileScenarioRuntimeAssembly(createScenario(), settings);
 
     expect(compiled.resources.sp).toBe(120);
+    expect(compiled.enemy).toMatchObject({
+      source: { kind: 'custom', level: 90 },
+      health: 100000,
+      defenderAttributes: {
+        defense: 100,
+        breakingAttackDamageTakenMultiplier: 1,
+      },
+    });
     expect(compiled.resources.squad[0]).toMatchObject({
       operatorId: 'perlica',
       ultimateEnergy: 20,
@@ -161,6 +169,7 @@ describe('compileScenarioRuntimeAssembly', () => {
 
     expect(compiled.operators[0]!.equipmentContributions).toHaveLength(1);
     expect(createOperationExecutor).toHaveBeenCalled();
+    expect(createOperationExecutor.mock.calls[0]![0].enemy).toBe(compiled.enemy);
     expect(
       createOperationExecutor.mock.calls[0]![0].equipmentContributions[0]!.modifiers[0],
     ).toEqual({

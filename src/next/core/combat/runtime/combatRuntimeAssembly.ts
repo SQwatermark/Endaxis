@@ -24,6 +24,7 @@ import { StatusOperationExecutor } from './statusOperationExecutor';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatStatusRuntime } from './combatStatusRuntime';
 import type { CombatVitals } from './combatVitals';
+import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
@@ -47,9 +48,28 @@ export interface CombatOperatorProgram {
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
 export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {}
 
+/** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非目录回查。 */
+export interface CombatEnemyProgram {
+  readonly source:
+    | { readonly kind: 'catalog'; readonly enemyId: string; readonly level: number }
+    | { readonly kind: 'custom'; readonly level: number };
+  readonly health: number;
+  readonly superArmor: number;
+  readonly defenderAttributes: PlayerDamageDefenderSnapshot;
+  /** 多节点失衡尚未接入 `CombatVitals`，因此保留项目帧制原值供后续运行时消费。 */
+  readonly stagger: {
+    readonly maximum: number;
+    readonly nodeCount: number;
+    readonly nodeDurationFrames: number;
+    readonly brokenDurationFrames: number;
+    readonly finisherRecovery: number;
+  };
+}
+
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
+  readonly enemy: CombatEnemyProgram;
   readonly equipmentContributions: readonly CompiledEquipmentContribution[];
   readonly panel?: ResolvedOperatorPanel;
   readonly clock: CombatClock;
@@ -59,6 +79,8 @@ export interface CombatOperationExecutorContext {
 
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
+  /** 由场景敌人实例编译得到，操作执行器不得另行读取目录默认值。 */
+  readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
@@ -145,6 +167,7 @@ export class CombatRuntimeAssembly {
         this.#createSkillRuntime(
           operator,
           program,
+          options.enemy,
           entityBlackboard,
           statusRuntime,
           options.createOperationExecutor,
@@ -203,6 +226,7 @@ export class CombatRuntimeAssembly {
   #createSkillRuntime(
     operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
+    enemy: CombatEnemyProgram,
     entityBlackboard: ActionBlackboard,
     statusRuntime: CombatStatusRuntime | undefined,
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
@@ -218,6 +242,7 @@ export class CombatRuntimeAssembly {
 
     const baseDelegate = createDelegate({
       program,
+      enemy,
       equipmentContributions: operator.equipmentContributions ?? [],
       ...(operator.panel === undefined ? {} : { panel: operator.panel }),
       clock: this.clock,

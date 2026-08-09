@@ -4,7 +4,10 @@
  */
 import type { CombatReceiptEntry } from '../core/combat/receipt/combatReceipt';
 import type { CombatResourceSnapshot } from '../core/combat/runtime/combatResources';
-import { CombatRuntimeAssembly } from '../core/combat/runtime/combatRuntimeAssembly';
+import {
+  CombatRuntimeAssembly,
+  type CombatEnemyProgram,
+} from '../core/combat/runtime/combatRuntimeAssembly';
 import {
   compileScenarioRuntimeAssembly,
   type CompileScenarioRuntimeAssemblyOptions,
@@ -25,6 +28,8 @@ export interface RunScenarioSimulationInput {
 
 export interface ScenarioSimulationResult {
   readonly frame: number;
+  /** 本次模拟实际交给操作执行器的敌人静态输入。 */
+  readonly enemy: CombatEnemyProgram;
   /** 与本次战斗输入完全一致的静态面板，不写回项目文档。 */
   readonly operatorPanels: readonly ResolvedOperatorPanel[];
   /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
@@ -89,6 +94,7 @@ export function runScenarioSimulation(input: RunScenarioSimulationInput): Scenar
 
   return Object.freeze({
     frame: assembly.clock.frame,
+    enemy: compiled.enemy,
     operatorPanels,
     initialResources,
     finalResources: assembly.resources.snapshot(),

@@ -19,6 +19,7 @@ import { compileResolvedScenarioTimeline } from './compileScenarioTimeline';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
+import { compileScenarioEnemy } from './compileScenarioEnemy';
 
 type BuildCatalog = Pick<
   GameDataRepository,
@@ -36,7 +37,7 @@ export type CombatOperatorRuntimeBindings = Pick<
 
 type EnvironmentOptionKey = Exclude<
   keyof CombatRuntimeAssemblyOptions,
-  'resources' | 'operators' | 'inputs'
+  'resources' | 'enemy' | 'operators' | 'inputs'
 >;
 
 /** 场景无法持久化、必须由应用装配层提供的战斗环境。 */
@@ -103,6 +104,7 @@ export function compileScenarioRuntimeAssembly(
   return {
     ...options.environment,
     resources,
+    enemy: compileScenarioEnemy(scenario.enemy),
     operators,
     inputs: timeline.inputs,
   };

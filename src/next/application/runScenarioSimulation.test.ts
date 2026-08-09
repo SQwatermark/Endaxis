@@ -125,6 +125,11 @@ describe('runScenarioSimulation', () => {
     });
 
     expect(result.frame).toBe(3);
+    expect(result.enemy).toMatchObject({
+      source: { kind: 'custom', level: 90 },
+      health: 100000,
+      defenderAttributes: { defense: 100, breakingAttackDamageTakenMultiplier: 1 },
+    });
     expect(result.receiptEntries).toHaveLength(3);
     expect(result.receiptEntries.map(entry => entry.frame)).toEqual([1, 2, 3]);
     expect(result.receiptEntries.at(-1)).toMatchObject({

@@ -13,6 +13,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { CombatVitals } from './combatVitals';
+import type { CombatEnemyProgram } from './combatRuntimeAssembly';
 import { createPlayerActiveOperationExecutorForElementalTarget } from './playerActiveOperationExecutor';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
@@ -76,7 +77,38 @@ describe('Perlica standard damage slice', () => {
       emitElementalInflictionStarted: () => undefined,
     });
     const operations = createPlayerActiveOperationExecutorForElementalTarget({
-      context: { program, equipmentContributions: [], clock, resources, receipt },
+      context: {
+        program,
+        enemy: {
+          source: { kind: 'custom', level: 90 },
+          health: 1000,
+          superArmor: 0,
+          defenderAttributes: {
+            defense: 0,
+            shelterDamageMultiplier: 0,
+            breakingAttackDamageTakenMultiplier: 1,
+            resistances: {
+              physical: { percent: 0, damageTakenMultiplier: 1 },
+              heat: { percent: 0, damageTakenMultiplier: 1 },
+              electric: { percent: 0, damageTakenMultiplier: 1 },
+              cryo: { percent: 0, damageTakenMultiplier: 1 },
+              nature: { percent: 0, damageTakenMultiplier: 1 },
+              ether: { percent: 0, damageTakenMultiplier: 1 },
+            },
+          },
+          stagger: {
+            maximum: 100,
+            nodeCount: 1,
+            nodeDurationFrames: 30,
+            brokenDurationFrames: 300,
+            finisherRecovery: 100,
+          },
+        } satisfies CombatEnemyProgram,
+        equipmentContributions: [],
+        clock,
+        resources,
+        receipt,
+      },
       targetId: 'enemy',
       targetVitals,
       elementalTarget,
