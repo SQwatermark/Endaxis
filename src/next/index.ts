@@ -5,4 +5,5 @@
 export * from './core';
 export * from './application';
 export * from './data/operators';
+export * from './data/gameDataCatalog';
 export * from './ui/timeline';

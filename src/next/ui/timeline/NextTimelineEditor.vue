@@ -11,6 +11,7 @@ import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
@@ -72,11 +73,7 @@ let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
   allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
 };
-const viewModel = computed(() =>
-  projectTimelineEditor(scenario.value, {
-    getOperator: slug => (slug === perlica.slug ? perlica : null),
-  }),
-);
+const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
 const selectedCastModel = computed(() => {
   if (selectedCastId.value === null) return null;
