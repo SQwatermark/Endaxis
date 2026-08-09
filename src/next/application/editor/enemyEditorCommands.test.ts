@@ -3,6 +3,8 @@ import { createEmptyScenario } from '../../core/project/createProject';
 import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import {
   createCatalogEnemyDocument,
+  createCustomEnemyDocument,
+  replaceEnemyEditableValues,
   setScenarioEnemy,
   updateEnemyBasicField,
   updateEnemyResistance,
@@ -55,5 +57,26 @@ describe('enemyEditorCommands', () => {
     expect(updatedStagger.enemy.editable.resistances.heat).toBe(0.2);
     expect(updatedStagger.enemy.editable.stagger.maximum).toBe(500);
     expect(initial.enemy.edited).toEqual([]);
+  });
+
+  it('属性弹窗的一次确认按实际差异记录覆盖', () => {
+    const scenario = createEmptyScenario('scenario:enemy', '敌人场景');
+    const values = structuredClone(scenario.enemy.editable);
+    values.defense = 200;
+    values.stagger.brokenDurationFrames = 450;
+
+    const updated = replaceEnemyEditableValues(scenario, values);
+
+    expect(updated.enemy.edited).toEqual(['defense', 'stagger.brokenDurationFrames']);
+    expect(updated.enemy.editable.defense).toBe(200);
+    expect(updated.enemy.editable.stagger.brokenDurationFrames).toBe(450);
+    expect(replaceEnemyEditableValues(updated, updated.enemy.editable)).toBe(updated);
+  });
+
+  it('创建自定义敌人时不伪装成目录覆盖', () => {
+    expect(createCustomEnemyDocument(80)).toMatchObject({
+      source: { kind: 'custom', level: 80 },
+      edited: [],
+    });
   });
 });

@@ -3,3 +3,4 @@ export * from './runScenarioSimulation';
 export * from './editor/scenarioEditorSession';
 export * from './editor/loadoutBuildFactory';
 export * from './editor/enemyEditorCommands';
+export * from './openProject';

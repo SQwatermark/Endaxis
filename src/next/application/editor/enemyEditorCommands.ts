@@ -64,6 +64,75 @@ export function setScenarioEnemy(
   return { ...scenario, enemy };
 }
 
+/** 创建一个带明确项目默认值的自定义敌人；这些值本来就由用户决定，因此不标记为目录覆盖。 */
+export function createCustomEnemyDocument(level = 90): EnemyDocument {
+  if (!Number.isInteger(level) || level <= 0) throw new Error('enemy level must be positive');
+  return {
+    source: { kind: 'custom', level },
+    editable: {
+      hp: 100000,
+      defense: 100,
+      superArmor: 0,
+      finisherMultiplier: 1,
+      resistances: {},
+      stagger: {
+        maximum: 300,
+        nodeCount: 1,
+        nodeDurationFrames: 60,
+        brokenDurationFrames: 300,
+        finisherRecovery: 100,
+      },
+    },
+    edited: [],
+  };
+}
+
+/** 把属性弹窗的一次确认合并为一次场景修改，并逐字段记录本次新增的用户覆盖。 */
+export function replaceEnemyEditableValues(
+  scenario: ScenarioDocument,
+  values: EnemyEditableValues,
+): ScenarioDocument {
+  const current = scenario.enemy.editable;
+  const changedFields: EnemyEditableField[] = [];
+  for (const field of ['hp', 'defense', 'superArmor', 'finisherMultiplier'] as const) {
+    if (current[field] !== values[field]) changedFields.push(field);
+  }
+  const resistanceKeys = new Set([
+    ...Object.keys(current.resistances),
+    ...Object.keys(values.resistances),
+  ]);
+  if ([...resistanceKeys].some(key => current.resistances[key] !== values.resistances[key])) {
+    changedFields.push('resistances');
+  }
+  for (const field of [
+    'maximum',
+    'nodeCount',
+    'nodeDurationFrames',
+    'brokenDurationFrames',
+    'finisherRecovery',
+  ] as const) {
+    if (current.stagger[field] !== values.stagger[field]) {
+      changedFields.push(`stagger.${field}`);
+    }
+  }
+  if (changedFields.length === 0) return scenario;
+
+  return {
+    ...scenario,
+    enemy: {
+      ...scenario.enemy,
+      editable: {
+        ...values,
+        resistances: { ...values.resistances },
+        stagger: { ...values.stagger },
+      },
+      edited: changedFields.reduce<EnemyEditableField[]>(addEditedField, [
+        ...scenario.enemy.edited,
+      ]),
+    },
+  };
+}
+
 export function updateEnemyBasicField<K extends EnemyBasicEditableField>(
   scenario: ScenarioDocument,
   field: K,
