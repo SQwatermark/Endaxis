@@ -12,7 +12,13 @@ import json
 from pathlib import Path
 from typing import Any
 
-from progression_renderer import parse_build_attribute_progression
+from progression_renderer import (
+    ATTRIBUTE_TYPE_SEMANTICS,
+    BUILD_ATTRIBUTE_TYPES,
+    MODIFIER_TYPE_NAMES,
+    PANEL_STAT_ATTRIBUTE_TYPES,
+    parse_static_attribute_progression,
+)
 from source_utils import require_dict, require_list
 
 
@@ -119,6 +125,7 @@ def audit_effect(
         raise ValueError(f"PotentialTalentEffectTable: missing {effect_id}")
     effect = require_dict(effect_table[effect_id], f"PotentialTalentEffectTable.{effect_id}")
     entries = []
+    attribute_facts = []
     for index, raw_entry in enumerate(
         require_list(effect.get("dataList"), f"PotentialTalentEffectTable.{effect_id}.dataList")
     ):
@@ -127,26 +134,67 @@ def audit_effect(
             f"PotentialTalentEffectTable.{effect_id}.dataList[{index}]",
         )
         entries.append({"index": index, "payloadKinds": list(kinds)})
+        if "attrModifier" in kinds:
+            entry = require_dict(
+                raw_entry,
+                f"PotentialTalentEffectTable.{effect_id}.dataList[{index}]",
+            )
+            modifier = require_dict(
+                entry.get("attrModifier"),
+                f"PotentialTalentEffectTable.{effect_id}.dataList[{index}].attrModifier",
+            )
+            attr_type = modifier.get("attrType")
+            modifier_type = modifier.get("modifierType")
+            semantic = ATTRIBUTE_TYPE_SEMANTICS.get(attr_type)
+            attribute_facts.append(
+                {
+                    "entryIndex": index,
+                    "attrType": attr_type,
+                    "nativeName": semantic[0] if semantic is not None else None,
+                    "semantic": semantic[1] if semantic is not None else None,
+                    "modifierType": modifier_type,
+                    "modifierName": MODIFIER_TYPE_NAMES.get(modifier_type),
+                    "modifyAttributeType": modifier.get("modifyAttributeType"),
+                    "value": modifier.get("attrValue"),
+                    "nextTarget": (
+                        {"kind": "buildAttribute", "attribute": BUILD_ATTRIBUTE_TYPES[attr_type]}
+                        if attr_type in BUILD_ATTRIBUTE_TYPES
+                        else {"kind": "panelStat", "stat": PANEL_STAT_ATTRIBUTE_TYPES[attr_type]}
+                        if attr_type in PANEL_STAT_ATTRIBUTE_TYPES
+                        else None
+                    ),
+                }
+            )
     result = {"effectId": effect_id, "source": source, "entries": entries}
     if source == "potential" and any(
         "attrModifier" in entry["payloadKinds"] for entry in entries
     ):
-        conversion = parse_build_attribute_progression(
+        conversion = parse_static_attribute_progression(
             effect.get("dataList"),
             f"PotentialTalentEffectTable.{effect_id}.dataList",
             mode="lenient",
         )
-        result["buildAttributeConversion"] = {
+        converted_count = len(conversion.build_attribute_modifiers) + len(
+            conversion.panel_stat_modifiers
+        )
+        result["staticAttributeConversion"] = {
             "status": (
                 "complete"
-                if conversion.modifiers and not conversion.issues
+                if converted_count and not conversion.issues
                 else "partial"
-                if conversion.modifiers
+                if converted_count
                 else "unsupported"
             ),
+            "attributeFacts": attribute_facts,
             "modifiers": [
-                {"attribute": attribute, "value": value}
-                for attribute, value in conversion.modifiers
+                *(
+                    {"kind": "addBuildAttribute", "attribute": attribute, "value": value}
+                    for attribute, value in conversion.build_attribute_modifiers
+                ),
+                *(
+                    {"kind": "addPanelStat", "stat": stat, "value": value}
+                    for stat, value in conversion.panel_stat_modifiers
+                ),
             ],
             "missingCapabilities": list(conversion.missing_capabilities),
             "issues": [
@@ -166,7 +214,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
     operators = []
     entry_counts: Counter[tuple[str, str]] = Counter()
     combination_counts: Counter[tuple[str, tuple[str, ...]]] = Counter()
-    build_attribute_status_counts: Counter[str] = Counter()
+    static_attribute_status_counts: Counter[str] = Counter()
     for character_id in sorted(set(characters).difference(OBSOLETE_CHARACTER_IDS)):
         character = require_dict(characters[character_id], f"CharacterTable.{character_id}")
         growth = require_dict(growth_table.get(character_id), f"CharGrowthTable.{character_id}")
@@ -189,9 +237,9 @@ def build_audit(tables: Path) -> dict[str, Any]:
         ]
         for effect in effects:
             source = effect["source"]
-            conversion = effect.get("buildAttributeConversion")
+            conversion = effect.get("staticAttributeConversion")
             if conversion is not None:
-                build_attribute_status_counts[conversion["status"]] += 1
+                static_attribute_status_counts[conversion["status"]] += 1
             for entry in effect["entries"]:
                 kinds = tuple(entry["payloadKinds"])
                 combination_counts[(source, kinds)] += 1
@@ -208,7 +256,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
         )
 
     return {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "summary": {
             "operatorCount": len(operators),
             "effectCount": sum(len(operator["effects"]) for operator in operators),
@@ -220,8 +268,8 @@ def build_audit(tables: Path) -> dict[str, Any]:
                 {"source": source, "payloadKinds": list(kinds), "count": count}
                 for (source, kinds), count in sorted(combination_counts.items())
             ],
-            "buildAttributePotentialCounts": dict(
-                sorted(build_attribute_status_counts.items())
+            "staticAttributePotentialCounts": dict(
+                sorted(static_attribute_status_counts.items())
             ),
         },
         "operators": operators,

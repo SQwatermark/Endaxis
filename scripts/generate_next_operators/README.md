@@ -84,10 +84,10 @@ python scripts/generate_next_operators/audit_operator_progression.py `
   --json-output docs/research/all-operator-progression-audit.json
 ```
 
-潜能中的 `attrModifier` 只有在每条数据均为已确认的永久四维加点
-（条目 `modifyType = 4`、`modifierType = 5`、`modifyAttributeType = 0`，
-目标为力量/敏捷/智识/意志）时，
-才允许由清单中的 `compile: "buildAttributes"` 生成 `addBuildAttribute`。
+潜能中的 `attrModifier` 只有在每条数据均为已确认的永久静态属性
+（条目 `modifyType = 4`、`modifierType = 5`、`modifyAttributeType = 0`）时，
+才允许由清单中的 `compile: "staticAttributes"` 生成。目前可无损生成四维
+`addBuildAttribute` 和源石技艺强度 `addPanelStat(artsIntensity)`。
 严格模式遇到混合载荷、未知字段、未知属性或修正模式会立即失败；全量审计使用宽松模式，
 会保留可识别的四维部分，同时把整个潜能标记为未完整转换，不会静默吞掉其他属性。
 

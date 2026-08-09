@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "summary": {
     "operatorCount": 29,
     "effectCount": 259,
@@ -102,9 +102,9 @@
         "count": 161
       }
     ],
-    "buildAttributePotentialCounts": {
-      "complete": 9,
-      "partial": 17
+    "staticAttributePotentialCounts": {
+      "complete": 11,
+      "partial": 15
     }
   },
   "operators": [
@@ -265,10 +265,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 50,
+                "nativeName": "PhysicalDamageIncrease",
+                "semantic": "combat.physicalDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.08,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 15
               }
@@ -276,9 +304,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0005_chen_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 50"
+                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -398,14 +426,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 15
               }
@@ -557,14 +617,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 15
               }
@@ -722,14 +814,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 20
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
               }
@@ -877,10 +1001,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 29,
+                "nativeName": "HealOutputIncrease",
+                "semantic": "combat.healOutputIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 15
               }
@@ -888,9 +1040,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0011_seraph_potential_4.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 29"
+                "detail": "HealOutputIncrease (29) maps to combat.healOutputIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -1038,10 +1190,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 52,
+                "nativeName": "PulseDamageIncrease",
+                "semantic": "combat.electricDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.08,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 15
               }
@@ -1049,9 +1229,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0012_avywen_potential_3.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 52"
+                "detail": "PulseDamageIncrease (52) maps to combat.electricDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -1309,10 +1489,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 3,
+                "nativeName": "Def",
+                "semantic": "panel.defense",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": null
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
               }
@@ -1320,9 +1528,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0014_aurora_potential_4.dataList[0].attrModifier.attrType",
-                "detail": "unsupported build attribute 3"
+                "detail": "Def (3) maps to panel.defense, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -1420,22 +1628,84 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 2,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 3,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 15
               }
@@ -1567,10 +1837,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 17,
+                "nativeName": "NormalAttackDamageIncrease",
+                "semantic": "combat.normalAttackDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.15,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 20
               }
@@ -1578,9 +1876,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0016_laevat_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 17"
+                "detail": "NormalAttackDamageIncrease (17) maps to combat.normalAttackDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -1730,10 +2028,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 9,
+                "nativeName": "CriticalRate",
+                "semantic": "combat.criticalRate",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.07,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 20
               }
@@ -1741,9 +2067,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0017_yvonne_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 9"
+                "detail": "CriticalRate (9) maps to combat.criticalRate, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -1915,10 +2241,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 50,
+                "nativeName": "PhysicalDamageIncrease",
+                "semantic": "combat.physicalDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.08,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 15
               }
@@ -1926,9 +2280,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0018_dapan_potential_3.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 50"
+                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -2034,14 +2388,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 10
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 10
               }
@@ -2167,10 +2553,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 3,
+                "nativeName": "Def",
+                "semantic": "panel.defense",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": null
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 10
               }
@@ -2178,9 +2592,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0020_meurs_potential_2.dataList[0].attrModifier.attrType",
-                "detail": "unsupported build attribute 3"
+                "detail": "Def (3) maps to panel.defense, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -2314,14 +2728,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 10
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 10
               }
@@ -2401,14 +2847,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 10
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 10
               }
@@ -2556,10 +3034,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 10,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 1,
+                "nativeName": "MaxHp",
+                "semantic": "panel.maxHealth",
+                "modifierType": 6,
+                "modifierName": "BaseMultiplier",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 10
               }
@@ -2567,9 +3073,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-modifier-mode",
-                "path": "PotentialTalentEffectTable.chr_0023_antal_potential_4.dataList[1].attrModifier",
-                "detail": "expected modifierType=5 and modifyAttributeType=0"
+                "code": "unsupported-next-attribute",
+                "path": "PotentialTalentEffectTable.chr_0023_antal_potential_4.dataList[1].attrModifier.attrType",
+                "detail": "MaxHp (1) maps to panel.maxHealth, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -2683,14 +3189,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 15
               }
@@ -3006,10 +3544,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 53,
+                "nativeName": "CrystDamageIncrease",
+                "semantic": "combat.cryoDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 20
               }
@@ -3017,9 +3583,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0026_lastrite_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 53"
+                "detail": "CrystDamageIncrease (53) maps to combat.cryoDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -3213,10 +3779,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 53,
+                "nativeName": "CrystDamageIncrease",
+                "semantic": "combat.cryoDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 20
               }
@@ -3224,9 +3818,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0027_tangtang_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 53"
+                "detail": "CrystDamageIncrease (53) maps to combat.cryoDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -3464,10 +4058,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 9,
+                "nativeName": "CriticalRate",
+                "semantic": "combat.criticalRate",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.07,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 20
               }
@@ -3475,9 +4097,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0028_wulfa_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 9"
+                "detail": "CriticalRate (9) maps to combat.criticalRate, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -3603,10 +4225,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 50,
+                "nativeName": "PhysicalDamageIncrease",
+                "semantic": "combat.physicalDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
               }
@@ -3614,9 +4264,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0029_pograni_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 50"
+                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -3746,10 +4396,38 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 32,
+                "nativeName": "NormalSkillDamageIncrease",
+                "semantic": "combat.battleSkillDamageIncrease",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 0.15,
+                "nextTarget": null
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
               }
@@ -3757,9 +4435,9 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_0030_zhuangfy_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 32"
+                "detail": "NormalSkillDamageIncrease (32) maps to combat.battleSkillDamageIncrease, which has no exact Next upgrade modifier"
               }
             ]
           }
@@ -3921,22 +4599,52 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
-            "status": "partial",
-            "modifiers": [
+          "staticAttributeConversion": {
+            "status": "complete",
+            "attributeFacts": [
               {
-                "attribute": "strength",
-                "value": 20
+                "entryIndex": 0,
+                "attrType": 39,
+                "nativeName": "Str",
+                "semantic": "panel.strength",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "strength"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 87,
+                "nativeName": "PhysicalAndSpellInflictionEnhance",
+                "semantic": "panel.artsIntensity",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 16,
+                "nextTarget": {
+                  "kind": "panelStat",
+                  "stat": "artsIntensity"
+                }
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
+            "modifiers": [
               {
-                "code": "unsupported-attribute-type",
-                "path": "PotentialTalentEffectTable.chr_0031_mifu_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 87"
+                "kind": "addBuildAttribute",
+                "attribute": "strength",
+                "value": 20
+              },
+              {
+                "kind": "addPanelStat",
+                "stat": "artsIntensity",
+                "value": 16
               }
-            ]
+            ],
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -4112,26 +4820,71 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
-            "status": "partial",
+          "staticAttributeConversion": {
+            "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 42,
+                "nativeName": "Will",
+                "semantic": "panel.will",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 15,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "will"
+                }
+              },
+              {
+                "entryIndex": 2,
+                "attrType": 87,
+                "nativeName": "PhysicalAndSpellInflictionEnhance",
+                "semantic": "panel.artsIntensity",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 16,
+                "nextTarget": {
+                  "kind": "panelStat",
+                  "stat": "artsIntensity"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 15
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 15
+              },
+              {
+                "kind": "addPanelStat",
+                "stat": "artsIntensity",
+                "value": 16
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-attribute-type",
-                "path": "PotentialTalentEffectTable.chr_0032_lizhiyan_potential_2.dataList[2].attrModifier.attrType",
-                "detail": "unsupported build attribute 87"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -4319,14 +5072,46 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "complete",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 41,
+                "nativeName": "Wisd",
+                "semantic": "panel.intellect",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 20,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "intellect"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 20
               },
               {
+                "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 20
               }
@@ -4500,10 +5285,49 @@
               "payloadKinds": ["attrModifier"]
             }
           ],
-          "buildAttributeConversion": {
+          "staticAttributeConversion": {
             "status": "partial",
+            "attributeFacts": [
+              {
+                "entryIndex": 0,
+                "attrType": 1,
+                "nativeName": "MaxHp",
+                "semantic": "panel.maxHealth",
+                "modifierType": 6,
+                "modifierName": "BaseMultiplier",
+                "modifyAttributeType": 0,
+                "value": 0.1,
+                "nextTarget": null
+              },
+              {
+                "entryIndex": 1,
+                "attrType": 60,
+                "nativeName": "EtherDamageTakenScalar",
+                "semantic": "combat.etherDamageTakenScalar",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": -0.1,
+                "nextTarget": null
+              },
+              {
+                "entryIndex": 2,
+                "attrType": 40,
+                "nativeName": "Agi",
+                "semantic": "panel.agility",
+                "modifierType": 5,
+                "modifierName": "BaseAddition",
+                "modifyAttributeType": 0,
+                "value": 25,
+                "nextTarget": {
+                  "kind": "buildAttribute",
+                  "attribute": "agility"
+                }
+              }
+            ],
             "modifiers": [
               {
+                "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 25
               }
@@ -4511,14 +5335,14 @@
             "missingCapabilities": ["potentialEffects"],
             "issues": [
               {
-                "code": "unsupported-attribute-modifier-mode",
-                "path": "PotentialTalentEffectTable.chr_9000_endmin_potential_4.dataList[0].attrModifier",
-                "detail": "expected modifierType=5 and modifyAttributeType=0"
+                "code": "unsupported-next-attribute",
+                "path": "PotentialTalentEffectTable.chr_9000_endmin_potential_4.dataList[0].attrModifier.attrType",
+                "detail": "MaxHp (1) maps to panel.maxHealth, which has no exact Next upgrade modifier"
               },
               {
-                "code": "unsupported-attribute-type",
+                "code": "unsupported-next-attribute",
                 "path": "PotentialTalentEffectTable.chr_9000_endmin_potential_4.dataList[1].attrModifier.attrType",
-                "detail": "unsupported build attribute 60"
+                "detail": "EtherDamageTakenScalar (60) maps to combat.etherDamageTakenScalar, which has no exact Next upgrade modifier"
               }
             ]
           }

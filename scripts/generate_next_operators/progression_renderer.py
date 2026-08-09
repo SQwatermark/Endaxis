@@ -19,10 +19,13 @@ from source_utils import (
 )
 
 __all__ = [
-    "BuildAttributeProgressionResult",
+    "ATTRIBUTE_TYPE_SEMANTICS",
     "BUILD_ATTRIBUTE_TYPES",
+    "MODIFIER_TYPE_NAMES",
+    "PANEL_STAT_ATTRIBUTE_TYPES",
     "ProgressionConversionIssue",
-    "parse_build_attribute_progression",
+    "StaticAttributeProgressionResult",
+    "parse_static_attribute_progression",
     "render_potentials",
     "render_talents",
     "skill_id_by_key",
@@ -30,11 +33,44 @@ __all__ = [
 
 
 BuildAttributeName = Literal["strength", "agility", "intellect", "will"]
+PanelStatName = Literal["artsIntensity"]
 BUILD_ATTRIBUTE_TYPES: dict[int, BuildAttributeName] = {
     39: "strength",
     40: "agility",
     41: "intellect",
     42: "will",
+}
+PANEL_STAT_ATTRIBUTE_TYPES: dict[int, PanelStatName] = {87: "artsIntensity"}
+
+# 名称来自 1.4.4 元数据生成的 AttributeType；semantic 描述该值实际进入的面板或战斗维度。
+ATTRIBUTE_TYPE_SEMANTICS: dict[int, tuple[str, str]] = {
+    1: ("MaxHp", "panel.maxHealth"),
+    3: ("Def", "panel.defense"),
+    9: ("CriticalRate", "combat.criticalRate"),
+    17: ("NormalAttackDamageIncrease", "combat.normalAttackDamageIncrease"),
+    29: ("HealOutputIncrease", "combat.healOutputIncrease"),
+    32: ("NormalSkillDamageIncrease", "combat.battleSkillDamageIncrease"),
+    39: ("Str", "panel.strength"),
+    40: ("Agi", "panel.agility"),
+    41: ("Wisd", "panel.intellect"),
+    42: ("Will", "panel.will"),
+    50: ("PhysicalDamageIncrease", "combat.physicalDamageIncrease"),
+    52: ("PulseDamageIncrease", "combat.electricDamageIncrease"),
+    53: ("CrystDamageIncrease", "combat.cryoDamageIncrease"),
+    60: ("EtherDamageTakenScalar", "combat.etherDamageTakenScalar"),
+    87: ("PhysicalAndSpellInflictionEnhance", "panel.artsIntensity"),
+}
+MODIFIER_TYPE_NAMES = {
+    0: "Addition",
+    1: "Multiplier",
+    3: "FinalAddition",
+    4: "FinalMultiplier",
+    5: "BaseAddition",
+    6: "BaseMultiplier",
+    7: "BaseFinalAddition",
+    8: "BaseFinalMultiplier",
+    9: "None",
+    10: "Enum",
 }
 EFFECT_ENTRY_FIELDS = {
     "activeCondition",
@@ -63,10 +99,11 @@ class ProgressionConversionIssue:
 
 
 @dataclass(frozen=True)
-class BuildAttributeProgressionResult:
-    """潜能永久四维加点的可转换部分及未转换能力。"""
+class StaticAttributeProgressionResult:
+    """潜能静态属性的可转换部分及未转换能力。"""
 
-    modifiers: tuple[tuple[BuildAttributeName, int], ...]
+    build_attribute_modifiers: tuple[tuple[BuildAttributeName, int], ...]
+    panel_stat_modifiers: tuple[tuple[PanelStatName, int], ...]
     issues: tuple[ProgressionConversionIssue, ...]
     missing_capabilities: tuple[Literal["potentialEffects"], ...]
 
@@ -90,16 +127,17 @@ def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
     return tuple(kinds)
 
 
-def parse_build_attribute_progression(
+def parse_static_attribute_progression(
     raw_entries: Any,
     path: str,
     *,
     mode: Literal["strict", "lenient"] = "strict",
-) -> BuildAttributeProgressionResult:
-    """解析潜能中的永久四维加点；宽松模式绝不把未识别载荷伪装成已转换。"""
+) -> StaticAttributeProgressionResult:
+    """解析潜能中的永久静态属性；宽松模式绝不把未识别载荷伪装成已转换。"""
     if mode not in {"strict", "lenient"}:
         raise ValueError(f"{path}: unsupported progression conversion mode {mode!r}")
-    modifiers: list[tuple[BuildAttributeName, int]] = []
+    build_attribute_modifiers: list[tuple[BuildAttributeName, int]] = []
+    panel_stat_modifiers: list[tuple[PanelStatName, int]] = []
     issues: list[ProgressionConversionIssue] = []
 
     def reject(code: str, issue_path: str, detail: str) -> None:
@@ -139,6 +177,25 @@ def parse_build_attribute_progression(
                 f"unknown fields {unknown_modifier_fields!r}",
             )
             continue
+        attr_type = modifier.get("attrType")
+        attribute = BUILD_ATTRIBUTE_TYPES.get(attr_type)
+        panel_stat = PANEL_STAT_ATTRIBUTE_TYPES.get(attr_type)
+        semantic = ATTRIBUTE_TYPE_SEMANTICS.get(attr_type)
+        if attribute is None and panel_stat is None:
+            if semantic is None:
+                reject(
+                    "unknown-attribute-type",
+                    f"{modifier_path}.attrType",
+                    f"unknown AttributeType {attr_type!r}",
+                )
+            else:
+                native_name, semantic_name = semantic
+                reject(
+                    "unsupported-next-attribute",
+                    f"{modifier_path}.attrType",
+                    f"{native_name} ({attr_type}) maps to {semantic_name}, which has no exact Next upgrade modifier",
+                )
+            continue
         if modifier.get("modifierType") != 5 or modifier.get("modifyAttributeType") != 0:
             reject(
                 "unsupported-attribute-modifier-mode",
@@ -146,43 +203,46 @@ def parse_build_attribute_progression(
                 "expected modifierType=5 and modifyAttributeType=0",
             )
             continue
-        attribute = BUILD_ATTRIBUTE_TYPES.get(modifier.get("attrType"))
-        if attribute is None:
-            reject(
-                "unsupported-attribute-type",
-                f"{modifier_path}.attrType",
-                f"unsupported build attribute {modifier.get('attrType')!r}",
-            )
-            continue
-        if any(existing == attribute for existing, _ in modifiers):
-            reject(
-                "duplicate-build-attribute",
-                modifier_path,
-                f"duplicate build attribute {attribute!r}",
-            )
-            continue
         value = require_number(modifier.get("attrValue"), f"{modifier_path}.attrValue")
         if not value.is_integer():
             reject(
-                "non-integer-build-attribute",
+                "non-integer-static-attribute",
                 f"{modifier_path}.attrValue",
-                f"expected integer build attribute value, got {value!r}",
+                f"expected integer static attribute value, got {value!r}",
             )
             continue
-        modifiers.append((attribute, int(value)))
+        if attribute is not None:
+            if any(existing == attribute for existing, _ in build_attribute_modifiers):
+                reject(
+                    "duplicate-build-attribute",
+                    modifier_path,
+                    f"duplicate build attribute {attribute!r}",
+                )
+                continue
+            build_attribute_modifiers.append((attribute, int(value)))
+        elif panel_stat is not None:
+            if any(existing == panel_stat for existing, _ in panel_stat_modifiers):
+                reject(
+                    "duplicate-panel-stat",
+                    modifier_path,
+                    f"duplicate panel stat {panel_stat!r}",
+                )
+                continue
+            panel_stat_modifiers.append((panel_stat, int(value)))
 
-    return BuildAttributeProgressionResult(
-        modifiers=tuple(modifiers),
+    return StaticAttributeProgressionResult(
+        build_attribute_modifiers=tuple(build_attribute_modifiers),
+        panel_stat_modifiers=tuple(panel_stat_modifiers),
         issues=tuple(issues),
         missing_capabilities=("potentialEffects",) if issues else (),
     )
 
 
-def _render_build_attribute_modifiers(result: BuildAttributeProgressionResult) -> str:
-    if not result.modifiers:
-        raise ValueError("build attribute potential: expected at least one converted modifier")
+def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult) -> str:
+    if not result.build_attribute_modifiers and not result.panel_stat_modifiers:
+        raise ValueError("static attribute potential: expected at least one converted modifier")
     grouped: list[tuple[int, list[BuildAttributeName]]] = []
-    for attribute, value in result.modifiers:
+    for attribute, value in result.build_attribute_modifiers:
         group = next((item for item in grouped if item[0] == value), None)
         if group is None:
             grouped.append((value, [attribute]))
@@ -198,6 +258,10 @@ def _render_build_attribute_modifiers(result: BuildAttributeProgressionResult) -
                 f"      value: {ts_inline_literal(value)},",
                 "    },",
             ]
+        )
+    for stat, value in result.panel_stat_modifiers:
+        lines.append(
+            f"    {{ kind: 'addPanelStat', stat: {ts_inline_literal(stat)}, value: {ts_inline_literal(value)} }},"
         )
     lines.append("  ],")
     return "\n".join(lines)
@@ -321,13 +385,13 @@ def render_potentials(
         key = str(config["key"])
         kind = config.get("compile")
         data: dict[str, Any] | None = None
-        if kind != "buildAttributes":
+        if kind != "staticAttributes":
             if len(data_list) != 1:
                 raise ValueError(f"{effect_id}: expected one effect entry")
             data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
-        if kind == "buildAttributes":
-            body = _render_build_attribute_modifiers(
-                parse_build_attribute_progression(
+        if kind == "staticAttributes":
+            body = _render_static_attribute_modifiers(
+                parse_static_attribute_progression(
                     data_list,
                     f"PotentialTalentEffectTable.{effect_id}.dataList",
                     mode="strict",
