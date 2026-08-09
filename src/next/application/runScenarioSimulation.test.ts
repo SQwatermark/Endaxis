@@ -43,7 +43,12 @@ function operationExecutor(): CombatOperationExecutor {
 
 function options(): CompileScenarioRuntimeAssemblyOptions {
   return {
-    catalog: { getOperator: () => null },
+    catalog: {
+      getOperator: () => null,
+      getWeapon: () => null,
+      getGear: () => null,
+      getGearSet: () => null,
+    },
     resources: {
       sharedSpGain: { baseGainEfficiency: 1 },
       spRecoveryPauseDuration: 1.5,
@@ -91,7 +96,10 @@ function ultimateOptions(): CompileScenarioRuntimeAssemblyOptions {
   const settings = options();
   return {
     ...settings,
-    catalog: { getOperator: slug => (slug === perlica.slug ? perlica : null) },
+    catalog: {
+      ...settings.catalog,
+      getOperator: slug => (slug === perlica.slug ? perlica : null),
+    },
     resources: {
       ...settings.resources,
       operators: new Map([
@@ -186,7 +194,7 @@ describe('runScenarioSimulation', () => {
     expect(() =>
       runScenarioSimulation({
         scenario: createScenario(),
-        options: { ...settings, catalog: { getOperator } },
+        options: { ...settings, catalog: { ...settings.catalog, getOperator } },
         endFrame,
       }),
     ).toThrow('endFrame must be a non-negative integer');

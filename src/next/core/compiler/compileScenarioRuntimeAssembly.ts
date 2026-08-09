@@ -16,8 +16,12 @@ import {
   type CompileScenarioResourcesOptions,
 } from './compileScenarioResources';
 import { compileScenarioTimeline } from './compileScenarioTimeline';
+import { compileScenarioEquipment } from './compileScenarioEquipment';
 
-type OperatorCatalog = Pick<GameDataRepository, 'getOperator'>;
+type BuildCatalog = Pick<
+  GameDataRepository,
+  'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'
+>;
 
 /**
  * 已编译技能之外、单个干员进入战斗所需的可变运行时依赖。
@@ -41,7 +45,7 @@ export type CombatRuntimeEnvironmentOptions = Pick<
 
 /** 编译完整运行时装配参数所需的显式依赖。 */
 export interface CompileScenarioRuntimeAssemblyOptions {
-  readonly catalog: OperatorCatalog;
+  readonly catalog: BuildCatalog;
   readonly resources: CompileScenarioResourcesOptions;
   readonly environment: CombatRuntimeEnvironmentOptions;
   /** 以 `OperatorBuildDocument.id` 为键，不接受未上场干员。 */
@@ -77,8 +81,20 @@ export function compileScenarioRuntimeAssembly(
   options: CompileScenarioRuntimeAssemblyOptions,
 ): CombatRuntimeAssemblyOptions {
   const timeline = compileScenarioTimeline(scenario, options.catalog);
+  const equipment = new Map(
+    compileScenarioEquipment(scenario, options.catalog).map(entry => [
+      entry.operatorId,
+      entry.contributions,
+    ]),
+  );
   const resources = compileScenarioResources(scenario, options.resources);
-  const operators = bindOperatorRuntimes(timeline.operators, options.operatorRuntimeBindings);
+  const operators = bindOperatorRuntimes(
+    timeline.operators.map(operator => ({
+      ...operator,
+      equipmentContributions: equipment.get(operator.operatorId) ?? [],
+    })),
+    options.operatorRuntimeBindings,
+  );
 
   return {
     ...options.environment,

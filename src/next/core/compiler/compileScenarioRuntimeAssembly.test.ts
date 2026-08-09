@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   CombatRuntimeAssembly,
+  type CombatOperationExecutorContext,
   type EnemyBuffRuntime,
 } from '../combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
+import type { WeaponDefinition } from '../game-data/equipmentDefinition';
 import {
   compileScenarioRuntimeAssembly,
   type CompileScenarioRuntimeAssemblyOptions,
@@ -64,7 +66,12 @@ function operationExecutor(): CombatOperationExecutor {
 
 function options(): CompileScenarioRuntimeAssemblyOptions {
   return {
-    catalog: { getOperator: slug => (slug === perlica.slug ? perlica : null) },
+    catalog: {
+      getOperator: slug => (slug === perlica.slug ? perlica : null),
+      getWeapon: () => null,
+      getGear: () => null,
+      getGearSet: () => null,
+    },
     resources: {
       sharedSpGain: { baseGainEfficiency: 1 },
       spRecoveryPauseDuration: 1.5,
@@ -107,6 +114,57 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
   });
 
+  it('delivers compiled equipment contributions to the runtime operation executor', () => {
+    const scenario = createScenario();
+    const weapon: WeaponDefinition = {
+      slug: 'runtime-weapon',
+      rarity: 6,
+      weaponType: perlica.weaponType,
+      baseAttackAtLevelNodes: [1, 2, 3, 4, 5, 6],
+      traits: [
+        {
+          key: 'main-attribute',
+          levelCount: 1,
+          modifiers: [{ kind: 'attribute', attribute: 'main', operation: 'flat', value: 12 }],
+        },
+      ],
+    };
+    scenario.builds.weapons.weapon = {
+      id: 'weapon',
+      weaponSlug: weapon.slug,
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [1],
+    };
+    scenario.tracks[0]!.weaponBuildId = 'weapon';
+    const settings = options();
+    const createOperationExecutor = vi.fn((_context: CombatOperationExecutorContext) =>
+      operationExecutor(),
+    );
+    const compiled = compileScenarioRuntimeAssembly(scenario, {
+      ...settings,
+      catalog: {
+        ...settings.catalog,
+        getWeapon: slug => (slug === weapon.slug ? weapon : null),
+      },
+      environment: { ...settings.environment, createOperationExecutor },
+    });
+
+    new CombatRuntimeAssembly(compiled);
+
+    expect(compiled.operators[0]!.equipmentContributions).toHaveLength(1);
+    expect(createOperationExecutor).toHaveBeenCalled();
+    expect(
+      createOperationExecutor.mock.calls[0]![0].equipmentContributions[0]!.modifiers[0],
+    ).toEqual({
+      kind: 'attribute',
+      attribute: perlica.mainAttribute,
+      operation: 'flat',
+      value: 12,
+    });
+  });
+
   it('does not require empty runtime binding records', () => {
     const settings = options();
     expect(() => compileScenarioRuntimeAssembly(createScenario(), settings)).not.toThrow();
@@ -133,7 +191,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(() =>
       compileScenarioRuntimeAssembly(createScenario(), {
         ...settings,
-        catalog: { getOperator },
+        catalog: { ...settings.catalog, getOperator },
       }),
     ).toThrow(`operator definition '${perlica.slug}' does not exist`);
     expect(getOperator).toHaveBeenCalledWith(perlica.slug);

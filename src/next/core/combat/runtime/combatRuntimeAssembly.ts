@@ -3,6 +3,7 @@
  * 本层只负责依赖接线与原生阶段顺序，不解析项目文档，也不为尚未闭环的战斗操作提供默认行为。
  */
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
@@ -30,6 +31,8 @@ import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
+  readonly equipmentContributions?: readonly CompiledEquipmentContribution[];
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
   readonly buffRuntime?: FrameRuntime &
     BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
@@ -44,6 +47,7 @@ export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {}
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
+  readonly equipmentContributions: readonly CompiledEquipmentContribution[];
   readonly clock: CombatClock;
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptSink;
@@ -210,6 +214,7 @@ export class CombatRuntimeAssembly {
 
     const baseDelegate = createDelegate({
       program,
+      equipmentContributions: operator.equipmentContributions ?? [],
       clock: this.clock,
       resources: this.resources,
       receipt: this.receipt,

@@ -76,7 +76,7 @@ describe('Perlica standard damage slice', () => {
       emitElementalInflictionStarted: () => undefined,
     });
     const operations = createPlayerActiveOperationExecutorForElementalTarget({
-      context: { program, clock, resources, receipt },
+      context: { program, equipmentContributions: [], clock, resources, receipt },
       targetId: 'enemy',
       targetVitals,
       elementalTarget,
