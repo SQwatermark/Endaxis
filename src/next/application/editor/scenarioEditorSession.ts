@@ -16,11 +16,26 @@ export interface ScenarioEditorSnapshot {
 export type ScenarioCommand = (scenario: ScenarioDocument) => ScenarioDocument;
 export type ScenarioEditorSubscriber = (snapshot: ScenarioEditorSnapshot) => void;
 
+interface ScenarioHistoryEntry {
+  readonly commandName: string;
+  readonly before: ScenarioDocument;
+  readonly after: ScenarioDocument;
+}
+
+const DEFAULT_HISTORY_LIMIT = 50;
+
 export class ScenarioEditorSession {
   #snapshot: ScenarioEditorSnapshot;
   readonly #subscribers = new Set<ScenarioEditorSubscriber>();
+  readonly #historyLimit: number;
+  readonly #undoStack: ScenarioHistoryEntry[] = [];
+  readonly #redoStack: ScenarioHistoryEntry[] = [];
 
-  constructor(initialScenario: ScenarioDocument) {
+  constructor(initialScenario: ScenarioDocument, historyLimit = DEFAULT_HISTORY_LIMIT) {
+    if (!Number.isInteger(historyLimit) || historyLimit < 1) {
+      throw new RangeError('historyLimit must be a positive integer');
+    }
+    this.#historyLimit = historyLimit;
     this.#snapshot = {
       revision: 0,
       scenario: initialScenario,
@@ -32,22 +47,57 @@ export class ScenarioEditorSession {
     return this.#snapshot;
   }
 
+  get canUndo(): boolean {
+    return this.#undoStack.length > 0;
+  }
+
+  get canRedo(): boolean {
+    return this.#redoStack.length > 0;
+  }
+
   /**
    * 提交一个返回新文档的场景命令。返回原引用表示没有产生修改，因此不会增加修订或通知订阅者。
    * 命令必须遵守不可变更新约定；会话不会通过深拷贝掩盖原地修改。
    */
   commit(commandName: string, command: ScenarioCommand): boolean {
     if (commandName.length === 0) throw new Error('scenario command name must not be empty');
-    const nextScenario = command(this.#snapshot.scenario);
-    if (nextScenario === this.#snapshot.scenario) return false;
+    const previousScenario = this.#snapshot.scenario;
+    const nextScenario = command(previousScenario);
+    if (nextScenario === previousScenario) return false;
 
+    this.#undoStack.push({ commandName, before: previousScenario, after: nextScenario });
+    if (this.#undoStack.length > this.#historyLimit) this.#undoStack.shift();
+    this.#redoStack.length = 0;
+
+    this.#publish(nextScenario, commandName);
+    return true;
+  }
+
+  /** 撤销最近一次显式提交；没有历史时返回 `false` 且不产生空修订。 */
+  undo(): boolean {
+    const entry = this.#undoStack.pop();
+    if (entry === undefined) return false;
+    this.#redoStack.push(entry);
+    this.#publish(entry.before, `undo:${entry.commandName}`);
+    return true;
+  }
+
+  /** 重做最近一次撤销；新的有效提交会清空这条重做分支。 */
+  redo(): boolean {
+    const entry = this.#redoStack.pop();
+    if (entry === undefined) return false;
+    this.#undoStack.push(entry);
+    this.#publish(entry.after, `redo:${entry.commandName}`);
+    return true;
+  }
+
+  #publish(scenario: ScenarioDocument, lastCommand: string): void {
     this.#snapshot = {
       revision: this.#snapshot.revision + 1,
-      scenario: nextScenario,
-      lastCommand: commandName,
+      scenario,
+      lastCommand,
     };
     for (const subscriber of this.#subscribers) subscriber(this.#snapshot);
-    return true;
   }
 
   subscribe(subscriber: ScenarioEditorSubscriber): () => void {

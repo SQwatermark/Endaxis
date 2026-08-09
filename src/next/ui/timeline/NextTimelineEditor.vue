@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { RefreshLeft, RefreshRight } from '@element-plus/icons-vue';
 import {
   getEnemyGameName,
   getOperatorCombatSkillName,
@@ -89,8 +90,12 @@ function createSampleScenario(): ScenarioDocument {
 
 const scenarioSession = new ScenarioEditorSession(createSampleScenario());
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
+const canUndo = ref(scenarioSession.canUndo);
+const canRedo = ref(scenarioSession.canRedo);
 const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   scenario.value = snapshot.scenario;
+  canUndo.value = scenarioSession.canUndo;
+  canRedo.value = scenarioSession.canRedo;
 });
 onScopeDispose(unsubscribeScenarioSession);
 
@@ -354,7 +359,13 @@ function resetScenario(): void {
   selectedTrack.value = 0;
   selectedCastId.value = null;
   cursorFrame.value = 30;
-  nextDocumentId = 0;
+  contextMenuTarget.value = null;
+}
+
+function restoreEditorHistory(direction: 'undo' | 'redo'): void {
+  const restored = direction === 'undo' ? scenarioSession.undo() : scenarioSession.redo();
+  if (!restored) return;
+  selectedCastId.value = null;
   contextMenuTarget.value = null;
 }
 
@@ -534,6 +545,24 @@ function updateSelectedCast(
 
     <template #header>
       <div class="scenario-tools">
+        <button
+          type="button"
+          class="icon-button"
+          :disabled="!canUndo"
+          :title="t('timeline.shortcuts.items.undo')"
+          @click="restoreEditorHistory('undo')"
+        >
+          <el-icon><RefreshLeft /></el-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-button"
+          :disabled="!canRedo"
+          :title="t('timeline.shortcuts.items.redo')"
+          @click="restoreEditorHistory('redo')"
+        >
+          <el-icon><RefreshRight /></el-icon>
+        </button>
         <button type="button" class="icon-button" disabled title="重命名">✎</button>
         <button type="button" class="icon-button" disabled title="复制">▣</button>
         <div class="scenario-title">

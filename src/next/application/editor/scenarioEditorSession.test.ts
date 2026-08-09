@@ -46,4 +46,59 @@ describe('ScenarioEditorSession', () => {
     expect(subscriber).toHaveBeenCalledTimes(1);
     expect(subscriber.mock.calls[0]?.[0].revision).toBe(1);
   });
+
+  it('可以连续撤销和重做显式提交', () => {
+    const session = new ScenarioEditorSession(createEmptyScenario('scenario:1', '初始场景'));
+    session.commit('rename:first', scenario => ({ ...scenario, name: '第一次' }));
+    session.commit('rename:second', scenario => ({ ...scenario, name: '第二次' }));
+
+    expect(session.canUndo).toBe(true);
+    expect(session.canRedo).toBe(false);
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario.name).toBe('第一次');
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario.name).toBe('初始场景');
+    expect(session.undo()).toBe(false);
+
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.scenario.name).toBe('第一次');
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.scenario.name).toBe('第二次');
+    expect(session.redo()).toBe(false);
+  });
+
+  it('撤销后产生新提交会丢弃旧的重做分支', () => {
+    const session = new ScenarioEditorSession(createEmptyScenario('scenario:1', '初始场景'));
+    session.commit('rename:first', scenario => ({ ...scenario, name: '第一次' }));
+    session.commit('rename:second', scenario => ({ ...scenario, name: '第二次' }));
+    session.undo();
+
+    session.commit('rename:replacement', scenario => ({ ...scenario, name: '替代分支' }));
+
+    expect(session.canRedo).toBe(false);
+    expect(session.redo()).toBe(false);
+    expect(session.snapshot.scenario.name).toBe('替代分支');
+  });
+
+  it('限制历史长度但保持修订号单调递增', () => {
+    const session = new ScenarioEditorSession(createEmptyScenario('scenario:1', '0'), 2);
+    for (const name of ['1', '2', '3']) {
+      session.commit(`rename:${name}`, scenario => ({ ...scenario, name }));
+    }
+
+    expect(session.undo()).toBe(true);
+    expect(session.undo()).toBe(true);
+    expect(session.undo()).toBe(false);
+    expect(session.snapshot).toMatchObject({
+      revision: 5,
+      scenario: { name: '1' },
+      lastCommand: 'undo:rename:2',
+    });
+  });
+
+  it('拒绝无效的历史容量', () => {
+    const scenario = createEmptyScenario('scenario:1', '场景');
+    expect(() => new ScenarioEditorSession(scenario, 0)).toThrow('positive integer');
+    expect(() => new ScenarioEditorSession(scenario, 1.5)).toThrow('positive integer');
+  });
 });
