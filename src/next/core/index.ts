@@ -50,6 +50,7 @@ export * from './pipeline/simulationPipeline';
 export * from './projection/elementalInflictionChangePoints';
 export * from './projection/poiseChangePoints';
 export * from './projection/resourceChangePoints';
+export * from './projection/resourceCurves';
 export * from './projection/skillAvailabilityDiagnostics';
 export * from './projection/skillExecutionDiagnostics';
 export * from './projection/statusChangePoints';
