@@ -5,6 +5,7 @@
  */
 defineProps<{
   snapLabel: string;
+  zoomPercent: number;
   labels: {
     initialGauge: string;
     cursorGuide: string;
@@ -16,7 +17,10 @@ defineProps<{
   };
 }>();
 
-defineEmits<{ toggleSnapPrecision: [] }>();
+const emit = defineEmits<{
+  toggleSnapPrecision: [];
+  updateZoomPercent: [percent: number];
+}>();
 </script>
 
 <template>
@@ -58,11 +62,36 @@ defineEmits<{ toggleSnapPrecision: [] }>();
     </div>
 
     <div class="zoom-row" :title="labels.zoom">
-      <div class="zoom-info"><span>SCALE</span><strong>100%</strong></div>
+      <div class="zoom-info">
+        <span>SCALE</span><strong>{{ zoomPercent }}%</strong>
+      </div>
       <div class="zoom-slider-row">
-        <span aria-hidden="true">−</span>
-        <input type="range" min="50" max="200" value="100" disabled />
-        <span aria-hidden="true">+</span>
+        <button
+          type="button"
+          class="zoom-step"
+          :disabled="zoomPercent <= 50"
+          :aria-label="`${labels.zoom} -`"
+          @click="emit('updateZoomPercent', zoomPercent - 10)"
+        >
+          −
+        </button>
+        <input
+          :value="zoomPercent"
+          type="range"
+          min="50"
+          max="200"
+          step="1"
+          @input="emit('updateZoomPercent', Number(($event.target as HTMLInputElement).value))"
+        />
+        <button
+          type="button"
+          class="zoom-step"
+          :disabled="zoomPercent >= 200"
+          :aria-label="`${labels.zoom} +`"
+          @click="emit('updateZoomPercent', zoomPercent + 10)"
+        >
+          +
+        </button>
       </div>
     </div>
   </div>
@@ -134,6 +163,24 @@ defineEmits<{ toggleSnapPrecision: [] }>();
   align-items: center;
 }
 
+.zoom-step {
+  width: 12px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.zoom-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .zoom-info {
   justify-content: space-between;
   padding: 0 2px;
@@ -162,6 +209,5 @@ defineEmits<{ toggleSnapPrecision: [] }>();
   flex: 1 1 auto;
   margin: 0;
   accent-color: var(--ea-gold);
-  opacity: 0.55;
 }
 </style>

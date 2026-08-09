@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onScopeDispose, ref, shallowRef } from 'vue';
+import { computed, nextTick, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import {
@@ -73,9 +73,12 @@ import {
   snapTimelineFrame,
 } from './timelineSnap';
 import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
+import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
 
 const { t, locale } = useI18n({ useScope: 'global' });
-const pxPerFrame = 2;
+const TIMELINE_TRACK_HEADER_WIDTH = 180;
+const timelineZoomPercent = ref(100);
+const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
@@ -235,11 +238,11 @@ const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
     scenario.value.battle.durationFrames,
-    pxPerFrame,
+    pxPerFrame.value,
   ),
 );
 const cursorLeft = computed(() =>
-  frameToTimelinePx(cursorFrame.value, scenario.value.battle.prepFrames, pxPerFrame),
+  frameToTimelinePx(cursorFrame.value, scenario.value.battle.prepFrames, pxPerFrame.value),
 );
 
 function operatorName(slug: string | null): string {
@@ -358,7 +361,7 @@ function selectTimelinePosition(event: MouseEvent): void {
       timelinePxToFrame(
         event.clientX - lane.getBoundingClientRect().left,
         scenario.value.battle.prepFrames,
-        pxPerFrame,
+        pxPerFrame.value,
       ),
     ),
   );
@@ -431,7 +434,7 @@ function beginCastDrag(event: DragEvent, trackIndex: TrackIndex, skillCastId: st
   const block = event.currentTarget as HTMLElement;
   const pointerOffsetFrames = Math.max(
     0,
-    Math.round((event.clientX - block.getBoundingClientRect().left) / pxPerFrame),
+    Math.round((event.clientX - block.getBoundingClientRect().left) / pxPerFrame.value),
   );
   dragPayload.value = {
     kind: 'skillCast',
@@ -479,7 +482,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
       timelinePxToFrame(
         event.clientX - lane.getBoundingClientRect().left,
         scenario.value.battle.prepFrames,
-        pxPerFrame,
+        pxPerFrame.value,
       ),
     ),
   );
@@ -622,6 +625,30 @@ function toggleSnapPrecision(): boolean {
       ? COARSE_TIMELINE_SNAP_FRAMES
       : PRECISE_TIMELINE_SNAP_FRAMES;
   return true;
+}
+
+async function updateTimelineZoomPercent(percent: number): Promise<void> {
+  const nextPercent = normalizeTimelineZoomPercent(percent);
+  if (nextPercent === timelineZoomPercent.value) return;
+
+  const viewport = timelineScroll.value;
+  const viewportCenter = viewport === null ? null : viewport.scrollLeft + viewport.clientWidth / 2;
+  const anchorFrame =
+    viewportCenter === null
+      ? null
+      : (viewportCenter - TIMELINE_TRACK_HEADER_WIDTH) / pxPerFrame.value -
+        scenario.value.battle.prepFrames;
+
+  timelineZoomPercent.value = nextPercent;
+  if (viewport === null || anchorFrame === null) return;
+
+  await nextTick();
+  viewport.scrollLeft = Math.max(
+    0,
+    TIMELINE_TRACK_HEADER_WIDTH +
+      (anchorFrame + scenario.value.battle.prepFrames) * pxPerFrame.value -
+      viewport.clientWidth / 2,
+  );
 }
 
 function cycleOccupiedTrack(direction: -1 | 1): boolean {
@@ -867,6 +894,7 @@ function setPanelDialogVisible(visible: boolean): void {
           <div class="corner-placeholder">
             <TimelineCornerToolbar
               :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
+              :zoom-percent="timelineZoomPercent"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
                 cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
@@ -879,6 +907,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 zoom: 'SCALE',
               }"
               @toggle-snap-precision="toggleSnapPrecision"
+              @update-zoom-percent="updateTimelineZoomPercent"
             />
           </div>
           <TimelineRuler
