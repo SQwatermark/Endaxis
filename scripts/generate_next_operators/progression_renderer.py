@@ -20,9 +20,9 @@ from source_utils import (
 
 __all__ = [
     "ATTRIBUTE_TYPE_SEMANTICS",
+    "BASE_PANEL_ATTRIBUTE_TYPES",
     "BUILD_ATTRIBUTE_TYPES",
     "MODIFIER_TYPE_NAMES",
-    "PANEL_STAT_ATTRIBUTE_TYPES",
     "ProgressionConversionIssue",
     "StaticAttributeProgressionResult",
     "parse_static_attribute_progression",
@@ -33,14 +33,24 @@ __all__ = [
 
 
 BuildAttributeName = Literal["strength", "agility", "intellect", "will"]
-PanelStatName = Literal["artsIntensity"]
+BasePanelStatName = Literal["health", "defense", "criticalRate", "artsIntensity"]
+BasePanelOperation = Literal["flat", "percent"]
 BUILD_ATTRIBUTE_TYPES: dict[int, BuildAttributeName] = {
     39: "strength",
     40: "agility",
     41: "intellect",
     42: "will",
 }
-PANEL_STAT_ATTRIBUTE_TYPES: dict[int, PanelStatName] = {87: "artsIntensity"}
+# value 的含义由原生公式槽决定：5 是基础加算，6 是基础倍率增量。
+BASE_PANEL_ATTRIBUTE_TYPES: dict[
+    int,
+    tuple[BasePanelStatName, BasePanelOperation, int],
+] = {
+    1: ("health", "percent", 6),
+    3: ("defense", "flat", 5),
+    9: ("criticalRate", "flat", 5),
+    87: ("artsIntensity", "flat", 5),
+}
 
 # 名称来自 1.4.4 元数据生成的 AttributeType；semantic 描述该值实际进入的面板或战斗维度。
 ATTRIBUTE_TYPE_SEMANTICS: dict[int, tuple[str, str]] = {
@@ -103,7 +113,9 @@ class StaticAttributeProgressionResult:
     """潜能静态属性的可转换部分及未转换能力。"""
 
     build_attribute_modifiers: tuple[tuple[BuildAttributeName, int], ...]
-    panel_stat_modifiers: tuple[tuple[PanelStatName, int], ...]
+    base_panel_stat_modifiers: tuple[
+        tuple[BasePanelStatName, BasePanelOperation, int | float], ...
+    ]
     issues: tuple[ProgressionConversionIssue, ...]
     missing_capabilities: tuple[Literal["potentialEffects"], ...]
 
@@ -137,7 +149,9 @@ def parse_static_attribute_progression(
     if mode not in {"strict", "lenient"}:
         raise ValueError(f"{path}: unsupported progression conversion mode {mode!r}")
     build_attribute_modifiers: list[tuple[BuildAttributeName, int]] = []
-    panel_stat_modifiers: list[tuple[PanelStatName, int]] = []
+    base_panel_stat_modifiers: list[
+        tuple[BasePanelStatName, BasePanelOperation, int | float]
+    ] = []
     issues: list[ProgressionConversionIssue] = []
 
     def reject(code: str, issue_path: str, detail: str) -> None:
@@ -179,9 +193,9 @@ def parse_static_attribute_progression(
             continue
         attr_type = modifier.get("attrType")
         attribute = BUILD_ATTRIBUTE_TYPES.get(attr_type)
-        panel_stat = PANEL_STAT_ATTRIBUTE_TYPES.get(attr_type)
+        base_panel_target = BASE_PANEL_ATTRIBUTE_TYPES.get(attr_type)
         semantic = ATTRIBUTE_TYPE_SEMANTICS.get(attr_type)
-        if attribute is None and panel_stat is None:
+        if attribute is None and base_panel_target is None:
             if semantic is None:
                 reject(
                     "unknown-attribute-type",
@@ -196,15 +210,19 @@ def parse_static_attribute_progression(
                     f"{native_name} ({attr_type}) maps to {semantic_name}, which has no exact Next upgrade modifier",
                 )
             continue
-        if modifier.get("modifierType") != 5 or modifier.get("modifyAttributeType") != 0:
+        expected_modifier_type = 5 if attribute is not None else base_panel_target[2]
+        if (
+            modifier.get("modifierType") != expected_modifier_type
+            or modifier.get("modifyAttributeType") != 0
+        ):
             reject(
                 "unsupported-attribute-modifier-mode",
                 modifier_path,
-                "expected modifierType=5 and modifyAttributeType=0",
+                f"expected modifierType={expected_modifier_type} and modifyAttributeType=0",
             )
             continue
         value = require_number(modifier.get("attrValue"), f"{modifier_path}.attrValue")
-        if not value.is_integer():
+        if attribute is not None and not value.is_integer():
             reject(
                 "non-integer-static-attribute",
                 f"{modifier_path}.attrValue",
@@ -220,26 +238,31 @@ def parse_static_attribute_progression(
                 )
                 continue
             build_attribute_modifiers.append((attribute, int(value)))
-        elif panel_stat is not None:
-            if any(existing == panel_stat for existing, _ in panel_stat_modifiers):
+        elif base_panel_target is not None:
+            panel_stat, operation, _ = base_panel_target
+            if any(
+                existing_stat == panel_stat and existing_operation == operation
+                for existing_stat, existing_operation, _ in base_panel_stat_modifiers
+            ):
                 reject(
-                    "duplicate-panel-stat",
+                    "duplicate-base-panel-stat",
                     modifier_path,
-                    f"duplicate panel stat {panel_stat!r}",
+                    f"duplicate base panel stat {panel_stat!r} operation {operation!r}",
                 )
                 continue
-            panel_stat_modifiers.append((panel_stat, int(value)))
+            normalized_value: int | float = int(value) if value.is_integer() else value
+            base_panel_stat_modifiers.append((panel_stat, operation, normalized_value))
 
     return StaticAttributeProgressionResult(
         build_attribute_modifiers=tuple(build_attribute_modifiers),
-        panel_stat_modifiers=tuple(panel_stat_modifiers),
+        base_panel_stat_modifiers=tuple(base_panel_stat_modifiers),
         issues=tuple(issues),
         missing_capabilities=("potentialEffects",) if issues else (),
     )
 
 
 def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult) -> str:
-    if not result.build_attribute_modifiers and not result.panel_stat_modifiers:
+    if not result.build_attribute_modifiers and not result.base_panel_stat_modifiers:
         raise ValueError("static attribute potential: expected at least one converted modifier")
     grouped: list[tuple[int, list[BuildAttributeName]]] = []
     for attribute, value in result.build_attribute_modifiers:
@@ -259,9 +282,11 @@ def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult)
                 "    },",
             ]
         )
-    for stat, value in result.panel_stat_modifiers:
+    for stat, operation, value in result.base_panel_stat_modifiers:
         lines.append(
-            f"    {{ kind: 'addPanelStat', stat: {ts_inline_literal(stat)}, value: {ts_inline_literal(value)} }},"
+            "    "
+            f"{{ kind: 'modifyBasePanelStat', stat: {ts_inline_literal(stat)}, "
+            f"operation: {ts_inline_literal(operation)}, value: {ts_inline_literal(value)} }},"
         )
     lines.append("  ],")
     return "\n".join(lines)

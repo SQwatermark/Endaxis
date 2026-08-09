@@ -106,6 +106,60 @@ describe('resolveOperatorPanel', () => {
     });
   });
 
+  it('applies potential modifiers in the recovered static attribute base layer', () => {
+    const operator: OperatorDefinition = {
+      ...zhuangFangyi,
+      potentials: [
+        {
+          key: 'basePanelAttributes',
+          levels: 1,
+          modifiers: [
+            {
+              kind: 'modifyBasePanelStat',
+              stat: 'health',
+              operation: 'percent',
+              value: 0.1,
+            },
+            {
+              kind: 'modifyBasePanelStat',
+              stat: 'defense',
+              operation: 'flat',
+              value: 20,
+            },
+            {
+              kind: 'modifyBasePanelStat',
+              stat: 'criticalRate',
+              operation: 'flat',
+              value: 0.07,
+            },
+            {
+              kind: 'modifyBasePanelStat',
+              stat: 'artsIntensity',
+              operation: 'flat',
+              value: 16,
+            },
+          ],
+        },
+      ],
+    };
+
+    const panel = resolveOperatorPanel(resolvedBuild(operator, { potential: 1 }));
+
+    expect(panel).toMatchObject({
+      health: 6589,
+      defense: 20,
+      artsIntensity: 16,
+    });
+    expect(panel.criticalRate).toBeCloseTo(0.12);
+    expect(panel.receipt).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ stat: 'health', operation: 'percent', value: 0.1 }),
+        expect.objectContaining({ stat: 'defense', operation: 'flat', value: 20 }),
+        expect.objectContaining({ stat: 'criticalRate', operation: 'flat', value: 0.07 }),
+      ]),
+    );
+  });
+
   it('aggregates weapon attack, gear defense, static traits, sets, and combat-only modifiers', () => {
     const baseBuild = resolvedBuild(zhuangFangyi);
     const weapon: WeaponDefinition = {

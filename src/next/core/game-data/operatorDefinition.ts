@@ -649,6 +649,18 @@ export interface TrustAttributeBonusDefinition {
   readonly attributes: readonly (OperatorAttribute | 'main' | 'secondary')[];
 }
 
+export const UPGRADE_BASE_PANEL_STATS = [
+  'health',
+  'defense',
+  'criticalRate',
+  'artsIntensity',
+] as const;
+/**
+ * 构筑确定后写入角色静态属性基础层的面板字段。
+ * 这里只包含能从面板继续无损传入战斗快照的属性；按伤害类型筛选的战斗属性不属于此集合。
+ */
+export type UpgradeBasePanelStat = (typeof UPGRADE_BASE_PANEL_STATS)[number];
+
 /**
  * 天赋和潜能能够施加到编译结果的结构化修正。
  * 新种类必须有明确合并规则，不能通过任意对象补丁修改技能定义。
@@ -712,7 +724,16 @@ export type UpgradeModifierDefinition =
       attributes: readonly OperatorAttribute[];
       value: number;
     }
-  | { kind: 'addPanelStat'; stat: 'artsIntensity'; value: number }
+  | {
+      /**
+       * 修改静态面板属性的基础层。`flat` 在基础倍率前加算，`percent` 以小数累加到基础倍率。
+       * 该边界对应原生八槽公式的基础加算与基础倍率，但名称描述实际运算，避免泄漏原生枚举名。
+       */
+      kind: 'modifyBasePanelStat';
+      stat: UpgradeBasePanelStat;
+      operation: 'flat' | 'percent';
+      value: number;
+    }
   | { kind: 'addReactionDuration'; reaction: ElementalReaction; seconds: LevelValues }
   | {
       kind: 'addReactionEffectiveness';
@@ -731,7 +752,7 @@ export const UPGRADE_MODIFIER_KINDS = [
   'multiplySkillCooldown',
   'addSkillCooldownFrames',
   'addBuildAttribute',
-  'addPanelStat',
+  'modifyBasePanelStat',
   'addReactionDuration',
   'addReactionEffectiveness',
 ] as const satisfies readonly UpgradeModifierDefinition['kind'][];

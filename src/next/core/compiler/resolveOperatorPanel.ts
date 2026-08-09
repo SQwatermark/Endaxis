@@ -9,6 +9,7 @@ import type {
   OperatorAttribute,
   OperatorUpgradeDefinition,
   TrustAttributeBonusDefinition,
+  UpgradeBasePanelStat,
   UpgradeModifierDefinition,
 } from '../game-data/operatorDefinition';
 import type { OperatorBuildDocument } from '../project/schema';
@@ -101,7 +102,17 @@ interface MutablePanelValues {
   weaponBaseAttack: number;
   operatorBaseHealth: number;
   gearBaseDefense: number;
+  upgradeBasePanelStats: Record<UpgradeBasePanelStat, { flat: number; percent: number }>;
   panelStats: Record<EquipmentPanelStat, number>;
+}
+
+function createUpgradeBasePanelStatRecord(): MutablePanelValues['upgradeBasePanelStats'] {
+  return {
+    health: { flat: 0, percent: 0 },
+    defense: { flat: 0, percent: 0 },
+    criticalRate: { flat: 0, percent: 0 },
+    artsIntensity: { flat: 0, percent: 0 },
+  };
 }
 
 function createPanelStatRecord(): Record<EquipmentPanelStat, number> {
@@ -198,10 +209,24 @@ function applyUpgradeModifier(
       values.attributes[attribute] += modifier.value;
       receipt.push({ source, stat: attribute, operation: 'flat', value: modifier.value });
     }
-  } else if (modifier.kind === 'addPanelStat') {
-    values.panelStats[modifier.stat] += modifier.value;
-    receipt.push({ source, stat: modifier.stat, operation: 'flat', value: modifier.value });
+  } else if (modifier.kind === 'modifyBasePanelStat') {
+    values.upgradeBasePanelStats[modifier.stat][modifier.operation] += modifier.value;
+    receipt.push({
+      source,
+      stat: modifier.stat,
+      operation: modifier.operation,
+      value: modifier.value,
+    });
   }
+}
+
+function resolveUpgradeBasePanelStat(
+  rawValue: number,
+  stat: UpgradeBasePanelStat,
+  values: MutablePanelValues,
+): number {
+  const modifier = values.upgradeBasePanelStats[stat];
+  return (rawValue + modifier.flat) * Math.max(0, 1 + modifier.percent);
 }
 
 function applyEquipmentContribution(
@@ -271,6 +296,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
       `operator '${build.operator.slug}'.attributes.baseHealth[${operatorLevelIndex}]`,
     ),
     gearBaseDefense: 0,
+    upgradeBasePanelStats: createUpgradeBasePanelStatRecord(),
     panelStats: createPanelStatRecord(),
   };
   receipt.push(
@@ -390,12 +416,18 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
       attributeAttackMultiplier,
   );
   const health = Math.floor(
-    (values.operatorBaseHealth + values.attributes.strength * 5) *
+    resolveUpgradeBasePanelStat(
+      values.operatorBaseHealth + values.attributes.strength * 5,
+      'health',
+      values,
+    ) *
       (1 + values.panelStats.healthPercent) +
       values.panelStats.healthFlat,
   );
   const defense = Math.floor(
-    values.gearBaseDefense * (1 + values.panelStats.defensePercent) + values.panelStats.defenseFlat,
+    resolveUpgradeBasePanelStat(values.gearBaseDefense, 'defense', values) *
+      (1 + values.panelStats.defensePercent) +
+      values.panelStats.defenseFlat,
   );
 
   return {
@@ -404,9 +436,11 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     attack,
     health,
     defense,
-    criticalRate: 0.05 + values.panelStats.criticalRate,
+    criticalRate:
+      resolveUpgradeBasePanelStat(0.05, 'criticalRate', values) + values.panelStats.criticalRate,
     criticalDamage: 0.5 + values.panelStats.criticalDamage,
-    artsIntensity: values.panelStats.artsIntensity,
+    artsIntensity:
+      resolveUpgradeBasePanelStat(0, 'artsIntensity', values) + values.panelStats.artsIntensity,
     ultimateEnergyGainEfficiency: 1 + values.panelStats.ultimateEnergyGainEfficiency,
     skillCooldownReduction: values.panelStats.skillCooldownReduction,
     staggerDamagePercent: values.panelStats.staggerDamagePercent,

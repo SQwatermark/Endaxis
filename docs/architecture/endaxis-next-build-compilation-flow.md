@@ -34,7 +34,7 @@
 - 通用阵列主属性 `[10, 15, 15, 20]`，以及目录显式声明的例外；
 - 主属性 `0.5%`、副属性 `0.2%` 的攻击换算，力量每点增加 `5` 生命；
 - 武器基础攻击、装备基础防御、四维 flat/percent、普通面板 flat/percent；
-- `addBuildAttribute` 与 `addPanelStat` 这两种构筑期养成修正；
+- `addBuildAttribute` 与 `modifyBasePanelStat` 两类构筑期养成修正；后者明确区分基础加算与基础倍率；
 - 不进入普通面板的静态 `damageBonus` 会作为 `combatModifiers` 保留。
 
 尚未规范化的 `baseStatOverrides` 会明确失败，非等级节点也不会擅自插值。比率字段在核心中统一使用小数，UI 负责格式化为百分数。

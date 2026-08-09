@@ -637,7 +637,7 @@ export const arcane: OperatorDefinition = {
       levels: 1,
       modifiers: [
         { kind: 'addBuildAttribute', attributes: ['intellect', 'will'], value: 15 },
-        { kind: 'addPanelStat', stat: 'artsIntensity', value: 16 },
+        { kind: 'modifyBasePanelStat', stat: 'artsIntensity', operation: 'flat', value: 16 },
       ],
     },
     {

@@ -14,9 +14,9 @@ from typing import Any
 
 from progression_renderer import (
     ATTRIBUTE_TYPE_SEMANTICS,
+    BASE_PANEL_ATTRIBUTE_TYPES,
     BUILD_ATTRIBUTE_TYPES,
     MODIFIER_TYPE_NAMES,
-    PANEL_STAT_ATTRIBUTE_TYPES,
     parse_static_attribute_progression,
 )
 from source_utils import require_dict, require_list
@@ -159,8 +159,12 @@ def audit_effect(
                     "nextTarget": (
                         {"kind": "buildAttribute", "attribute": BUILD_ATTRIBUTE_TYPES[attr_type]}
                         if attr_type in BUILD_ATTRIBUTE_TYPES
-                        else {"kind": "panelStat", "stat": PANEL_STAT_ATTRIBUTE_TYPES[attr_type]}
-                        if attr_type in PANEL_STAT_ATTRIBUTE_TYPES
+                        else {
+                            "kind": "basePanelStat",
+                            "stat": BASE_PANEL_ATTRIBUTE_TYPES[attr_type][0],
+                            "operation": BASE_PANEL_ATTRIBUTE_TYPES[attr_type][1],
+                        }
+                        if attr_type in BASE_PANEL_ATTRIBUTE_TYPES
                         else None
                     ),
                 }
@@ -175,7 +179,7 @@ def audit_effect(
             mode="lenient",
         )
         converted_count = len(conversion.build_attribute_modifiers) + len(
-            conversion.panel_stat_modifiers
+            conversion.base_panel_stat_modifiers
         )
         result["staticAttributeConversion"] = {
             "status": (
@@ -192,8 +196,13 @@ def audit_effect(
                     for attribute, value in conversion.build_attribute_modifiers
                 ),
                 *(
-                    {"kind": "addPanelStat", "stat": stat, "value": value}
-                    for stat, value in conversion.panel_stat_modifiers
+                    {
+                        "kind": "modifyBasePanelStat",
+                        "stat": stat,
+                        "operation": operation,
+                        "value": value,
+                    }
+                    for stat, operation, value in conversion.base_panel_stat_modifiers
                 ),
             ],
             "missingCapabilities": list(conversion.missing_capabilities),

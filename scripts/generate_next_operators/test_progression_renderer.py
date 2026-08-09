@@ -9,7 +9,13 @@ from audit_operator_progression import audit_effect
 from progression_renderer import parse_static_attribute_progression, render_potentials
 
 
-def effect_entry(*, attr_type: int, value: float, **extra: object) -> dict[str, object]:
+def effect_entry(
+    *,
+    attr_type: int,
+    value: float,
+    modifier_type: int = 5,
+    **extra: object,
+) -> dict[str, object]:
     return {
         "activeCondition": [],
         "attachBuff": {"blackboard": [], "buffId": ""},
@@ -17,7 +23,7 @@ def effect_entry(*, attr_type: int, value: float, **extra: object) -> dict[str, 
         "attrModifier": {
             "attrType": attr_type,
             "attrValue": value,
-            "modifierType": 5,
+            "modifierType": modifier_type,
             "modifyAttributeType": 0,
         },
         "modifyType": 4,
@@ -52,7 +58,7 @@ class ProgressionRendererTests(unittest.TestCase):
             result.build_attribute_modifiers,
             (("strength", 15), ("intellect", 15)),
         )
-        self.assertEqual(result.panel_stat_modifiers, ())
+        self.assertEqual(result.base_panel_stat_modifiers, ())
         self.assertEqual(result.issues, ())
         self.assertEqual(result.missing_capabilities, ())
 
@@ -77,6 +83,11 @@ class ProgressionRendererTests(unittest.TestCase):
                 [effect_entry(attr_type=39, value=10.5)],
                 "effect.dataList",
             )
+        with self.assertRaisesRegex(ValueError, "expected modifierType=6"):
+            parse_static_attribute_progression(
+                [effect_entry(attr_type=1, value=0.1)],
+                "effect.dataList",
+            )
 
     def test_lenient_mode_keeps_supported_part_and_marks_missing_capability(self) -> None:
         result = parse_static_attribute_progression(
@@ -89,7 +100,7 @@ class ProgressionRendererTests(unittest.TestCase):
         )
 
         self.assertEqual(result.build_attribute_modifiers, (("will", 20),))
-        self.assertEqual(result.panel_stat_modifiers, ())
+        self.assertEqual(result.base_panel_stat_modifiers, ())
         self.assertEqual(result.missing_capabilities, ("potentialEffects",))
         self.assertEqual([issue.code for issue in result.issues], ["unsupported-next-attribute"])
 
@@ -107,18 +118,31 @@ class ProgressionRendererTests(unittest.TestCase):
         )
 
         self.assertEqual(result.build_attribute_modifiers, ())
-        self.assertEqual(result.panel_stat_modifiers, ())
+        self.assertEqual(result.base_panel_stat_modifiers, ())
         self.assertEqual(result.missing_capabilities, ("potentialEffects",))
         self.assertEqual([issue.code for issue in result.issues], ["unknown-attribute-type"])
 
-    def test_converts_source_confirmed_arts_intensity(self) -> None:
+    def test_converts_source_confirmed_base_panel_attributes(self) -> None:
         result = parse_static_attribute_progression(
-            [effect_entry(attr_type=87, value=16)],
+            [
+                effect_entry(attr_type=1, value=0.1, modifier_type=6),
+                effect_entry(attr_type=3, value=20),
+                effect_entry(attr_type=9, value=0.07),
+                effect_entry(attr_type=87, value=16),
+            ],
             "effect.dataList",
         )
 
         self.assertEqual(result.build_attribute_modifiers, ())
-        self.assertEqual(result.panel_stat_modifiers, (("artsIntensity", 16),))
+        self.assertEqual(
+            result.base_panel_stat_modifiers,
+            (
+                ("health", "percent", 0.1),
+                ("defense", "flat", 20),
+                ("criticalRate", "flat", 0.07),
+                ("artsIntensity", "flat", 16),
+            ),
+        )
         self.assertEqual(result.issues, ())
 
     def test_renders_equal_attribute_values_as_one_upgrade_modifier(self) -> None:
@@ -134,6 +158,9 @@ class ProgressionRendererTests(unittest.TestCase):
                 "dataList": [
                     effect_entry(attr_type=39, value=15),
                     effect_entry(attr_type=40, value=15),
+                    effect_entry(attr_type=1, value=0.1, modifier_type=6),
+                    effect_entry(attr_type=3, value=20),
+                    effect_entry(attr_type=9, value=0.07),
                     effect_entry(attr_type=87, value=16),
                 ]
             }
@@ -156,7 +183,22 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertIn("kind: 'addBuildAttribute'", rendered[0])
         self.assertIn("attributes: ['strength', 'agility']", rendered[0])
         self.assertIn("value: 15", rendered[0])
-        self.assertIn("kind: 'addPanelStat', stat: 'artsIntensity', value: 16", rendered[0])
+        self.assertIn(
+            "kind: 'modifyBasePanelStat', stat: 'health', operation: 'percent', value: 0.1",
+            rendered[0],
+        )
+        self.assertIn(
+            "kind: 'modifyBasePanelStat', stat: 'defense', operation: 'flat', value: 20",
+            rendered[0],
+        )
+        self.assertIn(
+            "kind: 'modifyBasePanelStat', stat: 'criticalRate', operation: 'flat', value: 0.07",
+            rendered[0],
+        )
+        self.assertIn(
+            "kind: 'modifyBasePanelStat', stat: 'artsIntensity', operation: 'flat', value: 16",
+            rendered[0],
+        )
 
     def test_audit_marks_mixed_attribute_effect_as_partial(self) -> None:
         effect = audit_effect(
