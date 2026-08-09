@@ -22,6 +22,7 @@ function commands() {
     delete: command(),
     nudgeLeft: command(),
     nudgeRight: command(),
+    toggleSnapPrecision: command(),
   };
 }
 
@@ -34,6 +35,7 @@ describe('handleTimelineEditorShortcut', () => {
     ['Backspace', keyboardEvent('Backspace'), 'delete'],
     ['ArrowLeft', keyboardEvent('ArrowLeft'), 'nudgeLeft'],
     ['D', keyboardEvent('d'), 'nudgeRight'],
+    ['Alt+S', keyboardEvent('s', { altKey: true }), 'toggleSnapPrecision'],
   ])('maps %s to the expected editor command', (_name, event, commandName) => {
     const handlers = commands();
 

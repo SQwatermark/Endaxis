@@ -10,14 +10,20 @@ export interface TimelineKeyboardCommands {
   readonly delete: () => boolean;
   readonly nudgeLeft: () => boolean;
   readonly nudgeRight: () => boolean;
+  readonly toggleSnapPrecision: () => boolean;
 }
 
 export function handleTimelineEditorShortcut(
   event: KeyboardEvent,
   commands: TimelineKeyboardCommands,
 ): boolean {
-  if (event.altKey) return false;
   const key = event.key.toLowerCase();
+  if (event.altKey) {
+    if (!event.ctrlKey && !event.metaKey && !event.shiftKey && key === 's') {
+      return commands.toggleSnapPrecision();
+    }
+    return false;
+  }
   if (event.ctrlKey || event.metaKey) {
     if (key === 'z') return event.shiftKey ? commands.redo() : commands.undo();
     if (key === 'y' && !event.shiftKey) return commands.redo();

@@ -66,6 +66,11 @@ import { basicAttackSegmentLabel } from './timelineSkillLabels';
 import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
 import { useTimelineViewportPan } from './useTimelineViewportPan';
 import { handleTimelineEditorShortcut } from './timelineKeyboardShortcuts';
+import {
+  COARSE_TIMELINE_SNAP_FRAMES,
+  PRECISE_TIMELINE_SNAP_FRAMES,
+  snapTimelineFrame,
+} from './timelineSnap';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -74,6 +79,7 @@ const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
+const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
 type TimelineDragPayload =
@@ -475,10 +481,15 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
       ),
     ),
   );
-  const frame =
+  const unsnappedFrame =
     payload.kind === 'skillCast'
       ? Math.max(0, pointerFrame - payload.pointerOffsetFrames)
       : pointerFrame;
+  const frame = snapTimelineFrame(
+    unsnappedFrame,
+    snapFrames.value,
+    scenario.value.battle.durationFrames,
+  );
   cursorFrame.value = frame;
   if (payload.kind === 'librarySkill') {
     placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex);
@@ -557,7 +568,12 @@ function copyContextSelection(): void {
 function pasteClipboardAtCursor(): void {
   const clipboard = timelineClipboard.value;
   if (clipboard === null) return;
-  const result = pasteTimelineActions(scenario.value, clipboard, cursorFrame.value, ids);
+  const pasteFrame = snapTimelineFrame(
+    cursorFrame.value,
+    snapFrames.value,
+    scenario.value.battle.durationFrames,
+  );
+  const result = pasteTimelineActions(scenario.value, clipboard, pasteFrame, ids);
   if (result.skillCastIds.length === 0) return;
   commitScenario('pasteSkillCasts', () => result.scenario);
   applyActionSelection({
@@ -591,11 +607,19 @@ function nudgeSelectedActions(deltaFrames: -1 | 1): boolean {
         selection.selectedIds,
         trackIndex as TrackIndex,
         anchorSkillCastId,
-        Math.max(0, anchor.placement.startFrame + deltaFrames),
+        Math.max(0, anchor.placement.startFrame + deltaFrames * snapFrames.value),
       ),
     );
   }
   return false;
+}
+
+function toggleSnapPrecision(): boolean {
+  snapFrames.value =
+    snapFrames.value === PRECISE_TIMELINE_SNAP_FRAMES
+      ? COARSE_TIMELINE_SNAP_FRAMES
+      : PRECISE_TIMELINE_SNAP_FRAMES;
+  return true;
 }
 
 const hasModalPanel = computed(
@@ -635,6 +659,7 @@ useKeyboardShortcutScope({
       delete: deleteSelectedActions,
       nudgeLeft: () => nudgeSelectedActions(-1),
       nudgeRight: () => nudgeSelectedActions(1),
+      toggleSnapPrecision,
     });
   },
 });
@@ -821,6 +846,7 @@ function setPanelDialogVisible(visible: boolean): void {
         >
           <div class="corner-placeholder">
             <TimelineCornerToolbar
+              :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
                 cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
@@ -832,6 +858,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 }),
                 zoom: 'SCALE',
               }"
+              @toggle-snap-precision="toggleSnapPrecision"
             />
           </div>
           <TimelineRuler

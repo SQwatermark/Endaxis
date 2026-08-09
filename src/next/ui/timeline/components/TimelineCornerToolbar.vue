@@ -4,6 +4,7 @@
  * 尚未接入 Next 命令层的工具保持禁用；接入时应由父组件传入状态与命令。
  */
 defineProps<{
+  snapLabel: string;
   labels: {
     initialGauge: string;
     cursorGuide: string;
@@ -14,6 +15,8 @@ defineProps<{
     zoom: string;
   };
 }>();
+
+defineEmits<{ toggleSnapPrecision: [] }>();
 </script>
 
 <template>
@@ -37,10 +40,10 @@ defineProps<{
       <button
         type="button"
         class="mini-tool-button mini-tool-button--text"
-        disabled
         :title="labels.snapPrecision"
+        @click="$emit('toggleSnapPrecision')"
       >
-        1f
+        {{ snapLabel }}
       </button>
       <button type="button" class="mini-tool-button" disabled :title="labels.connectionTool">
         <svg viewBox="0 0 24 24" aria-hidden="true">
