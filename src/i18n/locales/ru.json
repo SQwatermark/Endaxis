@@ -1128,5 +1128,17 @@
       "enhancedComboDuringUltimate": "Во время действия ультимейта используйте усиленные комбо-навыки",
       "arcaneUltimateArcanaRequired": "Нельзя использовать ультимейт: сначала выполните две тяжелые атаки или добивания"
     }
+  },
+  "nextTimeline": {
+    "emptyTrack": "Оператор не выбран",
+    "cursorFrame": "Курсор: кадр {frame}",
+    "simulationPending": "Компилятор сценария еще не подключен",
+    "simulate": "Симуляция",
+    "reset": "Сбросить",
+    "backToCurrent": "Текущий редактор",
+    "operatorTab": "Оператор",
+    "weaponTab": "Оружие",
+    "gearTab": "Снаряжение",
+    "skillLibrary": "Библиотека навыков"
   }
 }

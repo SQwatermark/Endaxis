@@ -12,36 +12,13 @@ function chunkLoadingFallback() {
   });
 }
 
-function dismissBootLoader() {
-  if (typeof document === 'undefined') return;
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.getElementById('boot-loader')?.remove();
-    });
-  });
-}
-
-function loadInitialView(loader) {
-  return loader().then(
-    module => {
-      dismissBootLoader();
-      return module;
-    },
-    error => {
-      dismissBootLoader();
-      throw error;
-    },
-  );
-}
-
 const TimelineEditor = defineAsyncComponent({
-  loader: () => loadInitialView(() => import('./TimelineEditor.vue')),
+  loader: () => import('./TimelineEditor.vue'),
   loadingComponent: { render: chunkLoadingFallback },
   delay: 0,
 });
 const MobileAppShell = defineAsyncComponent({
-  loader: () => loadInitialView(() => import('./MobileAppShell.vue')),
+  loader: () => import('./MobileAppShell.vue'),
   loadingComponent: { render: chunkLoadingFallback },
   delay: 0,
 });

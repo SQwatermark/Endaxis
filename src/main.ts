@@ -25,3 +25,10 @@ app.use(i18n);
 setLocale(i18n.global.locale.value);
 
 app.mount('#app');
+
+// 启动遮罩属于应用外壳；任一路由完成首次挂载后都应移除。
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.getElementById('boot-loader')?.remove();
+  });
+});

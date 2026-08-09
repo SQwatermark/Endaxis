@@ -1,23 +1,29 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, watch } from 'vue';
 import { useTimelineStore } from './stores/timelineStore.js';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import { getElementPlusLocale } from '@/i18n/elementPlusLocale';
 
 const store = useTimelineStore();
+const route = useRoute();
 const { locale } = useI18n({ useScope: 'global' });
 const elementLocale = computed(() => getElementPlusLocale(locale.value));
+let legacyTimelineInitialized = false;
 
-onMounted(async () => {
-  // 1. 先初始化基础游戏数据
-  await store.fetchGameData();
+watch(
+  () => route.meta.requiresLegacyTimeline,
+  async requiresLegacyTimeline => {
+    if (requiresLegacyTimeline !== true || legacyTimelineInitialized) return;
+    legacyTimelineInitialized = true;
 
-  // 2. 尝试读取浏览器缓存
-  store.loadFromBrowser();
-
-  // 3. 无论是否读取成功，都开启监听以进行后续的自动保存
-  store.initAutoSave();
-});
+    // 旧版仓库只服务现有时间轴；Next 路由使用独立数据边界。
+    await store.fetchGameData();
+    store.loadFromBrowser();
+    store.initAutoSave();
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -313,9 +319,7 @@ html body .el-popper.el-popper.el-popper[data-popper-placement] > .el-popper__ar
   overflow: visible;
 }
 
-html body
-  .el-popper.el-popper.el-popper[data-popper-placement]
-  > .el-popper__arrow::before {
+html body .el-popper.el-popper.el-popper[data-popper-placement] > .el-popper__arrow::before {
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
@@ -350,9 +354,7 @@ html body .el-popper.el-popper.el-popper[data-popper-placement^='top'] > .el-pop
   bottom: -7px !important;
 }
 
-html body
-  .el-popper.el-popper.el-popper[data-popper-placement^='top']
-  > .el-popper__arrow::before {
+html body .el-popper.el-popper.el-popper[data-popper-placement^='top'] > .el-popper__arrow::before {
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
@@ -360,7 +362,8 @@ html body .el-popper.el-popper.el-popper[data-popper-placement^='bottom'] > .el-
   top: -7px !important;
 }
 
-html body
+html
+  body
   .el-popper.el-popper.el-popper[data-popper-placement^='bottom']
   > .el-popper__arrow::before {
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
@@ -376,7 +379,8 @@ html body .el-popper.el-popper.el-popper[data-popper-placement^='left'] > .el-po
   right: -7px !important;
 }
 
-html body
+html
+  body
   .el-popper.el-popper.el-popper[data-popper-placement^='left']
   > .el-popper__arrow::before {
   clip-path: polygon(0 0, 100% 50%, 0 100%);
@@ -386,7 +390,8 @@ html body .el-popper.el-popper.el-popper[data-popper-placement^='right'] > .el-p
   left: -7px !important;
 }
 
-html body
+html
+  body
   .el-popper.el-popper.el-popper[data-popper-placement^='right']
   > .el-popper__arrow::before {
   clip-path: polygon(100% 0, 0 50%, 100% 100%);

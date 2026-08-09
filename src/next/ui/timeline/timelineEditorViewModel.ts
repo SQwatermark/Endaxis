@@ -33,6 +33,7 @@ export interface TimelineSkillCastViewModel {
   readonly startFrame: number;
   readonly durationFrames: number;
   readonly source: SkillCastDocument['source'];
+  readonly skillType: SkillType | null;
   readonly disabled: boolean;
   readonly locked: boolean;
   readonly color?: string | null;
@@ -57,12 +58,25 @@ export interface TimelineEditorViewModel {
   readonly tracks: readonly TimelineTrackViewModel[];
 }
 
-function projectSkillCast(skillCast: SkillCastDocument): TimelineSkillCastViewModel {
+function projectSkillCast(
+  skillCast: SkillCastDocument,
+  operator: OperatorDefinition | null,
+  issues: string[],
+): TimelineSkillCastViewModel {
+  const source = skillCast.source;
+  const skillType =
+    source.kind === 'operatorSkill'
+      ? (operator?.skillGroups.find(group => group.key === source.skillGroupKey)?.skillType ?? null)
+      : null;
+  if (source.kind === 'operatorSkill' && skillType === null) {
+    issues.push(`missing skill group '${source.skillGroupKey}' for cast '${skillCast.id}'`);
+  }
   return {
     id: skillCast.id,
     startFrame: skillCast.placement.startFrame,
     durationFrames: skillCast.editable.durationFrames,
     source: skillCast.source,
+    skillType,
     disabled: skillCast.editable.disabled,
     locked: skillCast.editable.locked,
     ...(skillCast.editable.color === undefined ? {} : { color: skillCast.editable.color }),
@@ -125,7 +139,7 @@ function projectTrack(
     operatorBuildId: track.operatorBuildId,
     operatorSlug: operatorBuild?.operatorSlug ?? null,
     skillLibrary,
-    skillCasts: track.skillCasts.map(projectSkillCast),
+    skillCasts: track.skillCasts.map(skillCast => projectSkillCast(skillCast, operator, issues)),
     issues,
   };
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { perlica } from '../../data/operators';
+import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
 describe('projectTimelineEditor', () => {
@@ -28,8 +29,16 @@ describe('projectTimelineEditor', () => {
       initialState: { ultimateEnergy: 0 },
       skillCasts: [],
     };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 30,
+      ids: { allocate: kind => `${kind}:1` },
+    });
 
-    const viewModel = projectTimelineEditor(scenario, {
+    const viewModel = projectTimelineEditor(placed.scenario, {
       getOperator: slug => (slug === perlica.slug ? perlica : null),
     });
 
@@ -45,6 +54,7 @@ describe('projectTimelineEditor', () => {
     ]);
     expect(viewModel.tracks[0]?.skillLibrary[0]?.level).toBe(12);
     expect(viewModel.tracks[0]?.skillLibrary[0]?.skills).toHaveLength(4);
+    expect(viewModel.tracks[0]?.skillCasts[0]?.skillType).toBe('battleSkill');
     expect(viewModel.tracks[1]).toMatchObject({ operatorSlug: null, skillLibrary: [] });
   });
 

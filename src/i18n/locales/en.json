@@ -1251,5 +1251,17 @@
       "enhancedComboDuringUltimate": "Use enhanced combo skills during the ultimate duration",
       "arcaneUltimateArcanaRequired": "Cannot release ultimate. Perform two heavy attacks or finishers first"
     }
+  },
+  "nextTimeline": {
+    "emptyTrack": "No operator",
+    "cursorFrame": "Cursor: frame {frame}",
+    "simulationPending": "The scenario compiler is not connected yet",
+    "simulate": "Simulate",
+    "reset": "Reset",
+    "backToCurrent": "Current editor",
+    "operatorTab": "Operator",
+    "weaponTab": "Weapon",
+    "gearTab": "Gear",
+    "skillLibrary": "Skill library"
   }
 }
