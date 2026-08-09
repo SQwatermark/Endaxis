@@ -35,7 +35,7 @@ export interface TimelineLoadoutEditorOptions {
   readonly scenario: Readonly<Ref<ScenarioDocument>>;
   readonly session: ScenarioEditorSession;
   readonly selectedTrack: Ref<TrackIndex>;
-  readonly selectedCastId: Ref<string | null>;
+  readonly clearTimelineSelection: () => void;
   readonly gameData: TimelineGameData;
 }
 
@@ -95,7 +95,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
 
   function openOperatorDialog(trackIndex = options.selectedTrack.value): void {
     options.selectedTrack.value = trackIndex;
-    options.selectedCastId.value = null;
+    options.clearTimelineSelection();
     operatorDialogTrack.value = trackIndex;
   }
 
@@ -130,7 +130,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   function openWeaponDialog(trackIndex = options.selectedTrack.value): void {
     if (options.scenario.value.tracks[trackIndex]?.operatorBuildId == null) return;
     options.selectedTrack.value = trackIndex;
-    options.selectedCastId.value = null;
+    options.clearTimelineSelection();
     weaponDialogTrack.value = trackIndex;
   }
 
@@ -162,7 +162,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   ): void {
     if (options.scenario.value.tracks[trackIndex]?.operatorBuildId == null) return;
     options.selectedTrack.value = trackIndex;
-    options.selectedCastId.value = null;
+    options.clearTimelineSelection();
     gearDialogTarget.value = { trackIndex, slot };
   }
 

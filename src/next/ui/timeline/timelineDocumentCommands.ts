@@ -296,36 +296,64 @@ export function removeSkillCast(
   trackIndex: TrackIndex,
   skillCastId: string,
 ): ScenarioDocument {
-  const { track, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  const remaining = track.skillCasts.filter(candidate => candidate.id !== skillCastId);
-  const groupId = cast.placementGroup?.id;
-  let skillCasts = remaining;
+  locateSkillCast(scenario, trackIndex, skillCastId);
+  return removeSkillCasts(scenario, new Set([skillCastId]));
+}
 
-  if (groupId !== undefined) {
-    const groupMembers = remaining.filter(candidate => candidate.placementGroup?.id === groupId);
-    skillCasts = remaining.map(candidate => {
-      const groupIndex = groupMembers.findIndex(member => member.id === candidate.id);
-      if (groupIndex < 0) return candidate;
-      if (groupMembers.length === 1) {
-        const { placementGroup: _placementGroup, ...ungrouped } = candidate;
-        return ungrouped;
-      }
-      return {
-        ...candidate,
-        placementGroup: {
-          ...candidate.placementGroup!,
-          index: groupIndex,
-          total: groupMembers.length,
-        },
-      };
-    });
+function normalizePlacementGroups(skillCasts: TrackDocument['skillCasts']) {
+  const groups = new Map<string, string[]>();
+  for (const cast of skillCasts) {
+    const groupId = cast.placementGroup?.id;
+    if (groupId === undefined) continue;
+    const members = groups.get(groupId) ?? [];
+    members.push(cast.id);
+    groups.set(groupId, members);
   }
 
-  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
-  tracks[trackIndex] = { ...track, skillCasts };
+  return skillCasts.map(cast => {
+    const groupId = cast.placementGroup?.id;
+    if (groupId === undefined) return cast;
+    const members = groups.get(groupId)!;
+    if (members.length === 1) {
+      const { placementGroup: _placementGroup, ...ungrouped } = cast;
+      return ungrouped;
+    }
+    return {
+      ...cast,
+      placementGroup: {
+        ...cast.placementGroup!,
+        index: members.indexOf(cast.id),
+        total: members.length,
+      },
+    };
+  });
+}
+
+/**
+ * 一次删除任意轨道上的多个动作，并统一清理连线和重排放置组。
+ * 不存在的 ID 会被忽略，便于临时选择集合在撤销、重做或切换干员后安全收敛。
+ */
+export function removeSkillCasts(
+  scenario: ScenarioDocument,
+  skillCastIds: ReadonlySet<string>,
+): ScenarioDocument {
+  if (skillCastIds.size === 0) return scenario;
+
+  let changed = false;
+  const tracks = scenario.tracks.map(track => {
+    if (track === null) return null;
+    const remaining = track.skillCasts.filter(cast => !skillCastIds.has(cast.id));
+    if (remaining.length === track.skillCasts.length) return track;
+    changed = true;
+    return { ...track, skillCasts: normalizePlacementGroups(remaining) };
+  }) as ScenarioDocument['tracks'];
+
+  if (!changed) return scenario;
+
   const connections = scenario.connections.filter(
     connection =>
-      connection.from.skillCastId !== skillCastId && connection.to.skillCastId !== skillCastId,
+      !skillCastIds.has(connection.from.skillCastId) &&
+      !skillCastIds.has(connection.to.skillCastId),
   );
   return { ...scenario, tracks, connections };
 }

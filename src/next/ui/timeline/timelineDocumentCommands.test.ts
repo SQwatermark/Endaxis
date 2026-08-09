@@ -4,6 +4,7 @@ import type { SkillCastDocument } from '../../core/project/schema';
 import {
   moveSkillCast,
   removeSkillCast,
+  removeSkillCasts,
   setTrackGear,
   setTrackOperator,
   setTrackWeapon,
@@ -295,5 +296,38 @@ describe('moveSkillCast', () => {
 
     const oneMember = removeSkillCast(twoMembers, 0, 'cast:1');
     expect(oneMember.tracks[0]!.skillCasts[0]!.placementGroup).toBeUndefined();
+  });
+
+  it('removes selected casts across tracks as one immutable command', () => {
+    const original = scenario();
+    original.tracks[0]!.skillCasts.push({ ...cast(), id: 'cast:2' });
+    original.tracks[1] = {
+      operatorBuildId: null,
+      weaponBuildId: null,
+      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [{ ...cast(), id: 'cast:3' }],
+    };
+    original.connections = [
+      {
+        id: 'connection:1',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:1' },
+        to: { kind: 'skillCast', skillCastId: 'cast:3' },
+      },
+    ];
+
+    const removed = removeSkillCasts(original, new Set(['cast:1', 'cast:3']));
+
+    expect(removed.tracks[0]!.skillCasts.map(value => value.id)).toEqual(['cast:2']);
+    expect(removed.tracks[1]!.skillCasts).toEqual([]);
+    expect(removed.connections).toEqual([]);
+    expect(original.tracks[0]!.skillCasts).toHaveLength(2);
+  });
+
+  it('ignores stale batch selection identities without creating a document revision', () => {
+    const original = scenario();
+    expect(removeSkillCasts(original, new Set())).toBe(original);
+    expect(removeSkillCasts(original, new Set(['missing']))).toBe(original);
   });
 });

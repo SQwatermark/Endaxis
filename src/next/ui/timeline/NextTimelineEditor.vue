@@ -40,8 +40,14 @@ import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './time
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
+  createEmptyTimelineActionSelection,
+  deleteSelectedTimelineActions,
+  reconcileTimelineActionSelection,
+  selectTimelineAction,
+  type TimelineActionSelection,
+} from './timelineActionSelection';
+import {
   moveSkillCast,
-  removeSkillCast,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
@@ -52,6 +58,7 @@ const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
+const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const cursorFrame = ref(30);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
@@ -96,6 +103,7 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   scenario.value = snapshot.scenario;
   canUndo.value = scenarioSession.canUndo;
   canRedo.value = scenarioSession.canRedo;
+  applyActionSelection(reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario));
 });
 onScopeDispose(unsubscribeScenarioSession);
 
@@ -138,7 +146,7 @@ const {
   scenario,
   session: scenarioSession,
   selectedTrack,
-  selectedCastId,
+  clearTimelineSelection,
   gameData: nextGameDataRepository,
 });
 const {
@@ -245,6 +253,21 @@ function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number
   return Math.round((frames / 30) * 1000) / 1000;
 }
 
+function applyActionSelection(selection: TimelineActionSelection): void {
+  actionSelection.value = selection;
+  selectedCastId.value = selection.primaryId;
+}
+
+function clearTimelineSelection(): void {
+  applyActionSelection(createEmptyTimelineActionSelection());
+}
+
+function handleActionSelection(event: MouseEvent, skillCastId: string): void {
+  applyActionSelection(
+    selectTimelineAction(actionSelection.value, skillCastId, event.ctrlKey || event.metaKey),
+  );
+}
+
 function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
   return entry.skills.map((skill, index) => ({
     id: skill.skillKey,
@@ -268,7 +291,7 @@ function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void
     ),
   );
   selectedTrack.value = trackIndex;
-  selectedCastId.value = null;
+  clearTimelineSelection();
 }
 
 function placeGroup(
@@ -291,7 +314,9 @@ function placeGroup(
   });
   commitScenario('placeSkillGroup', () => result.scenario);
   selectedTrack.value = trackIndex;
-  selectedCastId.value = result.skillCastIds.at(-1) ?? null;
+  const lastPlacedId = result.skillCastIds.at(-1);
+  if (lastPlacedId === undefined) clearTimelineSelection();
+  else applyActionSelection(selectTimelineAction(actionSelection.value, lastPlacedId, false));
   const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
   const last = placed.at(-1);
   if (last !== undefined) {
@@ -351,13 +376,13 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     moveSkillCast(current, trackIndex, payload.skillCastId, frame),
   );
   selectedTrack.value = trackIndex;
-  selectedCastId.value = payload.skillCastId;
+  applyActionSelection(selectTimelineAction(actionSelection.value, payload.skillCastId, false));
 }
 
 function resetScenario(): void {
   commitScenario('resetScenario', () => createSampleScenario());
   selectedTrack.value = 0;
-  selectedCastId.value = null;
+  clearTimelineSelection();
   cursorFrame.value = 30;
   contextMenuTarget.value = null;
 }
@@ -365,13 +390,17 @@ function resetScenario(): void {
 function restoreEditorHistory(direction: 'undo' | 'redo'): void {
   const restored = direction === 'undo' ? scenarioSession.undo() : scenarioSession.redo();
   if (!restored) return;
-  selectedCastId.value = null;
+  clearTimelineSelection();
   contextMenuTarget.value = null;
 }
 
 function openCastContextMenu(event: MouseEvent, trackIndex: TrackIndex, skillCastId: string): void {
   selectedTrack.value = trackIndex;
-  selectedCastId.value = skillCastId;
+  if (actionSelection.value.selectedIds.has(skillCastId)) {
+    applyActionSelection({ ...actionSelection.value, primaryId: skillCastId });
+  } else {
+    applyActionSelection(selectTimelineAction(actionSelection.value, skillCastId, false));
+  }
   contextMenuTarget.value = { x: event.clientX, y: event.clientY, trackIndex, skillCastId };
 }
 
@@ -397,10 +426,11 @@ function toggleContextCastField(field: 'locked' | 'disabled'): void {
 function deleteContextCast(): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
-  commitScenario('removeSkillCast', current =>
-    removeSkillCast(current, target.trackIndex, target.skillCastId),
-  );
-  if (selectedCastId.value === target.skillCastId) selectedCastId.value = null;
+  const selection = actionSelection.value.selectedIds.has(target.skillCastId)
+    ? actionSelection.value
+    : selectTimelineAction(actionSelection.value, target.skillCastId, false);
+  deleteSelectedTimelineActions(scenarioSession, selection);
+  clearTimelineSelection();
   contextMenuTarget.value = null;
 }
 
@@ -656,13 +686,13 @@ function updateSelectedCast(
                 :skill-type="cast.skillType"
                 :left="frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)"
                 :width="cast.durationFrames * pxPerFrame"
-                :selected="selectedCastId === cast.id"
+                :selected="actionSelection.selectedIds.has(cast.id)"
                 :disabled="cast.disabled"
                 :locked="cast.locked"
                 :color="cast.color"
                 @select="
                   selectedTrack = track.trackIndex;
-                  selectedCastId = cast.id;
+                  handleActionSelection($event, cast.id);
                 "
                 @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
                 @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"

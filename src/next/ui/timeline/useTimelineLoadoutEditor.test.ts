@@ -1,5 +1,5 @@
 import { ref, shallowRef } from 'vue';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
@@ -15,17 +15,17 @@ function createEditor() {
     scenario.value = snapshot.scenario;
   });
   const selectedTrack = ref<TrackIndex>(0);
-  const selectedCastId = ref<string | null>('cast:old');
+  const clearTimelineSelection = vi.fn();
   return {
     scenario,
     session,
     selectedTrack,
-    selectedCastId,
+    clearTimelineSelection,
     editor: useTimelineLoadoutEditor({
       scenario,
       session,
       selectedTrack,
-      selectedCastId,
+      clearTimelineSelection,
       gameData: nextGameDataRepository,
     }),
   };
@@ -33,12 +33,12 @@ function createEditor() {
 
 describe('useTimelineLoadoutEditor', () => {
   it('空轨道切换会打开干员选择并清除技能选择', () => {
-    const { editor, selectedCastId } = createEditor();
+    const { editor, clearTimelineSelection } = createEditor();
 
     editor.selectTrack(0);
 
     expect(editor.operatorDialogTrack.value).toBe(0);
-    expect(selectedCastId.value).toBeNull();
+    expect(clearTimelineSelection).toHaveBeenCalledOnce();
   });
 
   it('选择干员只提交一次完整实例修改', () => {
