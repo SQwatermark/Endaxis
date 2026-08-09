@@ -313,3 +313,31 @@ Endaxis 可以忽略空间选择和多敌人分配，但不能把所有 `Context
 
 后续若要把这些形状转为 Endaxis DSL，应保存并解析“目标组的生产/传递来源”，而不是只按
 `contextKey` 字符串建立命名约定。
+
+## 生成器落地进度
+
+Next 生成器现在把目标组事实拆成两层：
+
+- `targetGroupWrites` 保存 `FindTargetAction`、`ContinuousFindTargetAction` 和
+  `MergeTargetAction` 的写入位置、分支路径、选择器摘要与合并输入；
+- `targetGroupControlFlowActions` 额外保存仅用于来源证明的条件树。它不进入正式技能调度，
+  因而不会把查找目标动作伪装成战斗步骤。
+
+读取 `Context(key)` 时，只有以下两类写入会支配该读取：
+
+1. 写入与读取处在同一条分支路径中，且原生服务器动作序号早于读取；
+2. 写入虽然位于更早的条件分支内，但该分支能在 Endaxis 的固定单敌人、零距离模型下严格
+   折叠为唯一执行路径。
+
+当前已由这套规则闭环的真实样本包括：
+
+- 诀连携技：`smart_target` 经必经成功分支合并为 `trigger`，后续 Buff 接收者可证明为唯一
+  敌人；
+- 乌尔夫加德普通战技：同分支中先写入未过滤的 `CharacterTeamFinder` 目标组，再向该组
+  施加 Buff，可证明为队伍；
+- 深潜者连携技：同分支中先写入未过滤的 `CharacterTeamFinder("team")`，再向该组施加
+  Buff，可证明为队伍。
+
+梅尔的 `shieldTar` 刻意没有折叠为 `party`：两条分支分别合并“筛选出的一名队友与自己”或
+“主控与自己”，都不是全队集合。召唤物、位置点和带过滤器的实体集合也继续保留为未知，避免
+为了提高覆盖率改变实际作用对象。

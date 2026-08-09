@@ -42,6 +42,10 @@ class SkillAudit:
     projectileChildCount: int = 0
     abilityEntityCount: int = 0
     auraActionCount: int = 0
+    physicalInflictionCount: int = 0
+    eventListenerCount: int = 0
+    eventListenerEvents: tuple[str, ...] = ()
+    eventListenerActionTypes: tuple[str, ...] = ()
     entityCountConditions: tuple[generator.EntityCountConditionSource, ...] = ()
 
 
@@ -83,6 +87,31 @@ def collect_entity_count_conditions(
 
     visit(root, "$")
     return tuple(result)
+
+
+def count_condition_physical_inflictions(
+    actions: tuple[generator.ConditionalActionSource, ...],
+) -> int:
+    """统计条件树中的物理异常叶子，不把嵌套节点提升为根动作。"""
+    count = 0
+
+    def visit_branches(branches: tuple[generator.ConditionalBranchActionSource, ...]) -> None:
+        nonlocal count
+        for branch in branches:
+            if branch.physicalInfliction is not None:
+                count += 1
+            if branch.nestedCondition is not None:
+                visit_conditions((branch.nestedCondition,))
+            if branch.onceActions is not None:
+                visit_branches(branch.onceActions)
+
+    def visit_conditions(conditions: tuple[generator.ConditionalActionSource, ...]) -> None:
+        for condition in conditions:
+            visit_branches(condition.succeedActions)
+            visit_branches(condition.failActions)
+
+    visit_conditions(actions)
+    return count
 
 
 def parse_args() -> argparse.Namespace:
@@ -136,6 +165,7 @@ def classify_blocker(message: str) -> str:
         ("damage-type-alias", ("unsupported damage type",)),
         ("dynamic-scalar", ("scalar has no resolved level values",)),
         ("projectile-data", ("projectile without triggered SkillData",)),
+        ("event-listener", ("skill event listeners are not compiled",)),
         ("root-action-coverage", ("unresolved combat actions are not covered",)),
         ("conditional-leaf", ("unsupported conditional leaf",)),
         ("condition-other", ("unsupported condition type",)),
@@ -288,6 +318,16 @@ def audit_skill(
         len(skill.projectileTriggeredSkills),
         len(skill.abilityEntityHits),
         count_skill_aura_actions(skill),
+        len(skill.physicalInflictions)
+        + count_condition_physical_inflictions(skill.conditionalActions),
+        len(skill.eventListeners),
+        tuple(listener.event for listener in skill.eventListeners),
+        tuple(
+            action_type
+            for listener in skill.eventListeners
+            for sequence in listener.sequences
+            for action_type in sequence.orderedActionTypes
+        ),
         raw_entity_count_conditions,
     )
 
@@ -446,6 +486,20 @@ def build_document(
         "entityCountConditionOccurrenceCount": sum(entity_count_occurrences.values()),
         "entityCountConditionShapeCount": len(entity_count_occurrences),
         "auraActionReferenceCount": sum(item.auraActionCount for item in audits),
+        "physicalInflictionActionCount": sum(
+            item.physicalInflictionCount for item in audits
+        ),
+        "skillEventListenerCount": sum(item.eventListenerCount for item in audits),
+        "skillEventNames": dict(
+            Counter(event for item in audits for event in item.eventListenerEvents)
+        ),
+        "skillEventActionTypes": dict(
+            Counter(
+                action_type
+                for item in audits
+                for action_type in item.eventListenerActionTypes
+            )
+        ),
     }
     if aura_reachability is not None:
         summary.update(
@@ -499,6 +553,7 @@ def render_markdown(document: dict[str, Any]) -> str:
         f"- 无角色专用声明即可进入通用 DSL：{summary['compiledCount']} 个。",
         f"- 当前整名干员完整直转：{summary['completeOperatorCount']} 名。",
         f"- 当前技能入口调用图中已结构化的区域持续动作引用：{summary['auraActionReferenceCount']} 个。",
+        f"- 当前技能入口中已结构化的事件监听器：{summary['skillEventListenerCount']} 个。",
         "",
         "这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。",
         "佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。",
@@ -530,6 +585,28 @@ def render_markdown(document: dict[str, Any]) -> str:
         summary["blockerKinds"].items(), key=lambda item: (-item[1], item[0])
     ):
         lines.append(f"| `{kind}` | {count} |")
+    lines.extend(
+        [
+            "",
+            "## 技能事件监听器",
+            "",
+            "监听器只统计已进入严格中间层的技能入口。事件内动作保留原生顺序，",
+            "在事件分发和条件链闭环前不会被提升为无条件时间轴步骤。",
+            "",
+            "| 事件 | 监听器数 |",
+            "| --- | ---: |",
+        ]
+    )
+    for event, count in sorted(
+        summary["skillEventNames"].items(), key=lambda item: (-item[1], item[0])
+    ):
+        lines.append(f"| `{event}` | {count} |")
+    lines.extend(["", "监听器动作类型："])
+    for action_type, count in sorted(
+        summary["skillEventActionTypes"].items(),
+        key=lambda item: (-item[1], item[0]),
+    ):
+        lines.append(f"- `{action_type}`：{count} 次。")
     if "auraReachability" in document:
         unreachable = document["auraReachability"]["unreachableSources"]
         lines.extend(

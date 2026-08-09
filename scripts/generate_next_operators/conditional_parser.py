@@ -25,6 +25,7 @@ from action_payload_parser import (
     parse_damage_units,
     parse_global_cooldown_application_payload,
     parse_infliction_payload,
+    parse_physical_infliction_payload,
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
     parse_scalar,
@@ -63,6 +64,22 @@ from target_parser import parse_target_reference
 
 __all__ = ["contains_combat_effect", "parse_conditional_actions"]
 
+# 这些动作本身不会进入 Next 执行序列，但它们决定后续 Context 目标组的身份。
+# 条件树必须保留它们，编译阶段才能证明分支外读取来自哪个目标。
+TARGET_GROUP_PROVENANCE_ACTION_NAMES = {
+    "ContinuousFindTargetAction",
+    "FindTargetAction",
+    "MergeTargetAction",
+}
+
+
+def optional_server_action_index(action: dict[str, Any], path: str) -> int | None:
+    """读取真实数据中的服务器动作序号；精简测试夹具可以省略该元数据。"""
+    if "serverActionIndex" not in action:
+        return None
+    return require_server_action_index(action, path)
+
+
 def contains_combat_effect(value: Any) -> bool:
     """判断动作子树是否包含会改变单敌人战斗模拟结果的已知效果。"""
     if isinstance(value, dict):
@@ -85,6 +102,8 @@ def parse_conditional_actions(
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
     consumed_action_ids: frozenset[int] = frozenset(),
+    *,
+    include_target_group_provenance: bool = False,
 ) -> tuple[ConditionalActionSource, ...]:
     """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -541,6 +560,8 @@ def parse_conditional_actions(
                     ConditionalBranchActionSource(
                         actionType="SwitchAction",
                         actionIndex=option_index,
+                        actionPath=nested.actionPath,
+                        serverActionIndex=nested.actionIndex,
                         nestedCondition=nested,
                     ),
                 )
@@ -608,6 +629,10 @@ def parse_conditional_actions(
                         ConditionalBranchActionSource(
                             actionType=action_type,
                             actionIndex=index,
+                            actionPath=action_path,
+                            serverActionIndex=require_server_action_index(
+                                action, f"{source_name}.{'.'.join(action_path)}"
+                            ),
                             nestedCondition=SequenceGuardActionSource(
                                 startFrame=start_frame,
                                 endFrame=end_frame,
@@ -643,6 +668,10 @@ def parse_conditional_actions(
                         ConditionalBranchActionSource(
                             actionType=action_type,
                             actionIndex=index,
+                            actionPath=action_path,
+                            serverActionIndex=require_server_action_index(
+                                action, f"{source_name}.{'.'.join(action_path)}"
+                            ),
                             nestedCondition=nested,
                         )
                     )
@@ -675,6 +704,10 @@ def parse_conditional_actions(
                         ConditionalBranchActionSource(
                             actionType=action_type,
                             actionIndex=index,
+                            actionPath=action_path,
+                            serverActionIndex=require_server_action_index(
+                                action, f"{source_name}.{'.'.join(action_path)}"
+                            ),
                             nestedCondition=nested,
                         )
                     )
@@ -691,11 +724,18 @@ def parse_conditional_actions(
                         ConditionalBranchActionSource(
                             actionType=action_type,
                             actionIndex=index,
+                            actionPath=action_path,
+                            serverActionIndex=require_server_action_index(
+                                action, f"{source_name}.{'.'.join(action_path)}"
+                            ),
                             onceScopeKey="do-once:" + ".".join(action_path),
                             onceActions=once_actions,
                         )
                     )
-            elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES:
+            elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES or (
+                include_target_group_provenance
+                and action_type in TARGET_GROUP_PROVENANCE_ACTION_NAMES
+            ):
                 source_path = f"{source_name}.{'.'.join(action_path)}"
                 calculation = None
                 mutation = None
@@ -707,6 +747,7 @@ def parse_conditional_actions(
                 global_cooldown_application = None
                 resource_gain = None
                 infliction = None
+                physical_infliction = None
                 projectile_launch = None
                 ability_entity_spawn = None
                 damage_units = None
@@ -742,6 +783,10 @@ def parse_conditional_actions(
                     )
                 elif action_type == "SpellInfliction":
                     infliction = parse_infliction_payload(action, source_path)
+                elif action_type == "FractureAction":
+                    physical_infliction = parse_physical_infliction_payload(
+                        action, source_path, inherited_blackboard
+                    )
                 elif action_type == "LaunchProjectile":
                     projectile_launch = parse_projectile_launch_payload(action, source_path)
                 elif action_type == "SpawnAbilityEntity":
@@ -759,6 +804,10 @@ def parse_conditional_actions(
                     ConditionalBranchActionSource(
                         actionType=action_type,
                         actionIndex=index,
+                        actionPath=action_path,
+                        serverActionIndex=optional_server_action_index(
+                            action, source_path
+                        ),
                         blackboardCalculation=calculation,
                         blackboardMutation=mutation,
                         buffBlackboardRead=buff_read,
@@ -769,6 +818,7 @@ def parse_conditional_actions(
                         globalCooldownApplication=global_cooldown_application,
                         resourceGain=resource_gain,
                         infliction=infliction,
+                        physicalInfliction=physical_infliction,
                         projectileLaunch=projectile_launch,
                         abilityEntitySpawn=ability_entity_spawn,
                         damageUnits=damage_units,
@@ -897,6 +947,8 @@ def parse_conditional_actions(
                         ConditionalBranchActionSource(
                             actionType=action_type,
                             actionIndex=action_index,
+                            actionPath=path,
+                            serverActionIndex=action_index,
                             timedMarkerApplication=parse_timed_marker_application_payload(
                                 value, action_path, inherited_blackboard
                             ),

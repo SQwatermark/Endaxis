@@ -9,7 +9,7 @@ import textwrap
 from collections import Counter
 from dataclasses import asdict, fields, is_dataclass, replace
 from pathlib import Path
-from typing import Any, Iterable, Literal, cast
+from typing import Any, Iterable, Iterator, Literal, cast
 
 from source_models import (
     TimelineActionSource,
@@ -22,6 +22,7 @@ from source_models import (
     AuxiliaryActionSource,
     InflictionPayload,
     TimedInflictionSource,
+    TimedPhysicalInflictionSource,
     TimedResourceGainSource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
@@ -36,6 +37,8 @@ from source_models import (
     BuffAttributeModifierSource,
     BuffEventActionSource,
     EventBuffApplicationSource,
+    SkillEventActionSequenceSource,
+    SkillEventListenerSource,
     EntityCountConditionSource,
     BuffStackConditionSource,
     HealthConditionSource,
@@ -123,6 +126,7 @@ from action_payload_parser import (
     parse_entity_blackboard_assignments,
     parse_global_cooldown_application_payload,
     parse_infliction_payload,
+    parse_physical_infliction_payload,
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
     parse_scalar,
@@ -750,7 +754,7 @@ def collect_blackboard_keys(value: Any) -> tuple[str, ...]:
 def parse_declared_blackboard(
     root: dict[str, Any], source_name: str
 ) -> tuple[DeclaredBlackboardValueSource, ...]:
-    """严格读取 SkillData 的数值黑板声明，不把运行时引用误当作声明。"""
+    """严格读取 SkillData 的数值或字符串黑板声明。"""
     result: list[DeclaredBlackboardValueSource] = []
     for index, raw_entry in enumerate(require_list(root.get("blackboard"), f"{source_name}.blackboard")):
         entry = require_dict(raw_entry, f"{source_name}.blackboard[{index}]")
@@ -760,12 +764,23 @@ def parse_declared_blackboard(
         value = entry.get("valueDouble")
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise ValueError(f"{source_name}.blackboard[{index}].valueDouble: expected number")
-        if entry.get("valueStr") != "":
-            raise ValueError(f"{source_name}.blackboard[{index}].valueStr: expected empty string")
+        value_str = entry.get("valueStr")
+        if not isinstance(value_str, str):
+            raise ValueError(f"{source_name}.blackboard[{index}].valueStr: expected string")
+        if value_str and float(value) != 0.0:
+            raise ValueError(
+                f"{source_name}.blackboard[{index}]: numeric and string values are both set"
+            )
         is_dynamic = entry.get("isDynamic")
         if not isinstance(is_dynamic, bool):
             raise ValueError(f"{source_name}.blackboard[{index}].isDynamic: expected boolean")
-        result.append(DeclaredBlackboardValueSource(key, float(value), is_dynamic))
+        result.append(
+            DeclaredBlackboardValueSource(
+                key,
+                value_str if value_str else float(value),
+                is_dynamic,
+            )
+        )
     if len({item.key for item in result}) != len(result):
         raise ValueError(f"{source_name}.blackboard: duplicate key")
     return tuple(sorted(result, key=lambda item: item.key))
@@ -773,6 +788,17 @@ def parse_declared_blackboard(
 
 def collect_declared_blackboard_keys(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
     return tuple(item.key for item in parse_declared_blackboard(root, source_name))
+
+
+def numeric_declared_blackboard(
+    values: tuple[DeclaredBlackboardValueSource, ...],
+) -> dict[str, tuple[float, ...]]:
+    """只向数值计算层提供非动态数值；字符串身份保留在审计层。"""
+    return {
+        item.key: (item.value,)
+        for item in values
+        if not item.isDynamic and isinstance(item.value, float)
+    }
 
 
 def build_blackboard_provenance(
@@ -818,9 +844,10 @@ def resolve_skill_blackboard(
 ) -> dict[str, tuple[float, ...]]:
     """合并技能静态默认值与逐等级补丁；动态声明不能在导入时冻结。"""
     resolved = {
-        item.key: (item.value,) * len(patch.levels)
-        for item in parse_declared_blackboard(root, source_name)
-        if not item.isDynamic
+        key: values * len(patch.levels)
+        for key, values in numeric_declared_blackboard(
+            parse_declared_blackboard(root, source_name)
+        ).items()
     }
     resolved.update(patch.blackboard)
     return resolved
@@ -1310,6 +1337,41 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
     return tuple(result)
 
 
+def parse_physical_inflictions(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedPhysicalInflictionSource, ...]:
+    """解析根时间轴中的物理异常；条件分支由 conditional_parser 保留。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedPhysicalInflictionSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline = require_dict(raw_timeline, f"{source_name}.timelineActions[{timeline_index}]")
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{source_name}.timelineActions[{timeline_index}]._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
+        )
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "FractureAction":
+                continue
+            path = f"{source_name}.FractureAction"
+            result.append(
+                TimedPhysicalInflictionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(action, path),
+                    payload=parse_physical_infliction_payload(
+                        action, path, inherited_blackboard
+                    ),
+                )
+            )
+    return tuple(result)
+
+
 def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
     """收集整棵动作树直接创建或由光环维持的 Buff；不改变其控制流归属。"""
     return collect_created_buff_ids(root.get("actionGroupData"), source_name)
@@ -1474,6 +1536,126 @@ def parse_buff_event_actions(
                     createdBuffIds=collect_created_buff_ids(actions, source_name),
                 )
             )
+    return tuple(result)
+
+
+def parse_skill_event_listeners(
+    root: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[SkillEventListenerSource, ...]:
+    """解析技能区间内的事件监听器；事件动作不会被提升为无条件时间轴动作。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[SkillEventListenerSource] = []
+    listener_fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "abilityActionMap",
+    }
+    event_fields = {"abilityEvent", "actions"}
+    sequence_fields = {
+        "actionData",
+        "onlyExecuteWhenSourceIsMainChar",
+        "onlyExecuteWhenSourceIsGuard",
+    }
+    for timeline_index, raw_timeline in enumerate(
+        require_list(
+            group.get("timelineActions"),
+            f"{source_name}.actionGroupData.timelineActions",
+        )
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
+            if (
+                action.get("isEnable") is False
+                or action_name(action["$type"]) != "EventListenerAction"
+            ):
+                continue
+            action_path = f"{timeline_path}.EventListenerAction"
+            unknown_listener_fields = sorted(set(action) - listener_fields)
+            if unknown_listener_fields:
+                raise ValueError(
+                    f"{action_path}: unsupported fields {unknown_listener_fields}"
+                )
+            action_index = require_server_action_index(action, action_path)
+            for event_index, raw_event in enumerate(
+                require_list(action.get("abilityActionMap"), f"{action_path}.abilityActionMap")
+            ):
+                event_path = f"{action_path}.abilityActionMap[{event_index}]"
+                event = require_dict(raw_event, event_path)
+                unknown_event_fields = sorted(set(event) - event_fields)
+                if unknown_event_fields:
+                    raise ValueError(
+                        f"{event_path}: unsupported fields {unknown_event_fields}"
+                    )
+                event_name = event.get("abilityEvent")
+                if not isinstance(event_name, str) or not event_name:
+                    raise ValueError(f"{event_path}.abilityEvent: expected string")
+                sequences: list[SkillEventActionSequenceSource] = []
+                for sequence_index, raw_sequence in enumerate(
+                    require_list(event.get("actions"), f"{event_path}.actions")
+                ):
+                    sequence_path = f"{event_path}.actions[{sequence_index}]"
+                    sequence = require_dict(raw_sequence, sequence_path)
+                    unknown_sequence_fields = sorted(set(sequence) - sequence_fields)
+                    if unknown_sequence_fields:
+                        raise ValueError(
+                            f"{sequence_path}: unsupported fields {unknown_sequence_fields}"
+                        )
+                    actions = [
+                        item
+                        for item in walk_unconditional_actions(sequence.get("actionData"))
+                        if item.get("isEnable") is not False
+                    ]
+                    ordered_action_types = tuple(action_name(item["$type"]) for item in actions)
+                    buff_applications = tuple(
+                        EventBuffApplicationSource(
+                            actionIndex=require_server_action_index(item, sequence_path),
+                            payload=parse_buff_application_payload(
+                                item, sequence_path, blackboard
+                            ),
+                        )
+                        for item in actions
+                        if action_name(item["$type"]) == "CreateBuffAction"
+                    )
+                    sequences.append(
+                        SkillEventActionSequenceSource(
+                            onlyMainOperator=require_bool(
+                                sequence.get("onlyExecuteWhenSourceIsMainChar"),
+                                f"{sequence_path}.onlyExecuteWhenSourceIsMainChar",
+                            ),
+                            onlyGuard=require_bool(
+                                sequence.get("onlyExecuteWhenSourceIsGuard"),
+                                f"{sequence_path}.onlyExecuteWhenSourceIsGuard",
+                            ),
+                            orderedActionTypes=ordered_action_types,
+                            combatActions=tuple(
+                                name
+                                for name in ordered_action_types
+                                if name in AUDITED_COMBAT_ACTION_NAMES
+                            ),
+                            buffApplications=buff_applications,
+                        )
+                    )
+                result.append(
+                    SkillEventListenerSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=action_index,
+                        event=event_name,
+                        sequences=tuple(sequences),
+                    )
+                )
     return tuple(result)
 
 
@@ -2263,10 +2445,9 @@ def resolve_projectile_payload_triggers(
                 f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
             )
         trigger_root = load_projected_skill_data(trigger_path, trigger_source_name)
-        trigger_blackboard = {
-            item.key: (item.value,)
-            for item in parse_declared_blackboard(trigger_root, trigger_source_name)
-        }
+        trigger_blackboard = numeric_declared_blackboard(
+            parse_declared_blackboard(trigger_root, trigger_source_name)
+        )
         if payload.assignBlackboard:
             trigger_blackboard.update(inherited_blackboard)
         cycle_truncated = trigger.skillId in stack
@@ -2728,7 +2909,7 @@ def resolve_ability_entity_payload(
     if skill_id is None:
         raise AssertionError("combat ability entity payload must expose skillId")
     declared_blackboard = parse_declared_blackboard(child, child_name)
-    child_blackboard = {item.key: (item.value,) for item in declared_blackboard}
+    child_blackboard = numeric_declared_blackboard(declared_blackboard)
     if payload.assignBlackboard:
         child_blackboard.update(blackboard)
     for assignment in payload.entityBlackboardAssignments:
@@ -3950,7 +4131,20 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         unresolvedCombatActions=unresolved,
         buffHolds=parse_buff_hold_actions(root, source_name),
         targetGroupWrites=parse_target_group_writes(root, source_name),
+        targetGroupControlFlowActions=parse_conditional_actions(
+            root,
+            source_name,
+            resolved_blackboard,
+            consumed_root_timed_markers,
+            include_target_group_provenance=True,
+        ),
         auraActions=parse_aura_actions(root, source_name, resolved_blackboard),
+        physicalInflictions=parse_physical_inflictions(
+            root, source_name, resolved_blackboard
+        ),
+        eventListeners=parse_skill_event_listeners(
+            root, source_name, resolved_blackboard
+        ),
     )
 
 
@@ -4906,6 +5100,13 @@ def compile_conditional_branch_action(
     context_action: ConditionalActionSource | None = None,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
+    if action.actionType in {
+        "ContinuousFindTargetAction",
+        "FindTargetAction",
+        "MergeTargetAction",
+    }:
+        # 目标组生产者只为后续 Context 身份溯源服务，不是独立战斗效果。
+        return "sequence()"
     if getattr(action, "nestedCondition", None) is not None:
         return compile_conditional_action(
             action.nestedCondition,
@@ -4986,10 +5187,18 @@ def compile_conditional_branch_action(
             and buff_read.targetGroupKey != "smart_target"
             and context_action is not None
         ):
-            write = resolve_latest_target_group_write(
-                context_action,
-                buff_read.targetGroupKey,
-                target_group_writes,
+            write = resolve_latest_target_group_write_at(
+                read_frame=context_action.startFrame,
+                read_action_index=(
+                    getattr(action, "serverActionIndex", None)
+                    if getattr(action, "serverActionIndex", None) is not None
+                    else context_action.actionIndex
+                ),
+                read_action_path=(
+                    getattr(action, "actionPath", ()) or context_action.actionPath
+                ),
+                target_group_key=buff_read.targetGroupKey,
+                writes=target_group_writes,
             )
             context_target_is_enemy = (
                 write is not None
@@ -5027,10 +5236,18 @@ def compile_conditional_branch_action(
             buff_application.targetSource == "Context"
             and context_action is not None
         ):
-            write = resolve_latest_target_group_write(
-                context_action,
-                buff_application.targetGroupKey,
-                target_group_writes,
+            write = resolve_latest_target_group_write_at(
+                read_frame=context_action.startFrame,
+                read_action_index=(
+                    getattr(action, "serverActionIndex", None)
+                    if getattr(action, "serverActionIndex", None) is not None
+                    else context_action.actionIndex
+                ),
+                read_action_path=(
+                    getattr(action, "actionPath", ()) or context_action.actionPath
+                ),
+                target_group_key=buff_application.targetGroupKey,
+                writes=target_group_writes,
             )
             context_application_target = target_group_write_buff_application_target(write)
         return compile_conditional_buff_application(
@@ -5269,6 +5486,8 @@ def resolve_latest_target_group_write_at(
     read_action_path: tuple[str, ...],
     target_group_key: str,
     writes: tuple[TargetGroupWriteSource, ...],
+    control_flow_actions: tuple[ConditionalActionSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> TargetGroupWriteSource | None:
     """选择读取点之前、且其分支作用域支配读取点的最后一次目标组写入。"""
     candidates: list[TargetGroupWriteSource] = []
@@ -5285,6 +5504,12 @@ def resolve_latest_target_group_write_at(
             continue
         if any(
             read_action_path[: len(scope)] != scope
+            and not target_group_branch_is_guaranteed(
+                scope,
+                control_flow_actions,
+                writes,
+                root_skill_context=root_skill_context,
+            )
             for scope in target_group_branch_scopes(write.actionPath)
         ):
             continue
@@ -5309,6 +5534,8 @@ def resolve_latest_target_group_write(
     action: ConditionalActionSource,
     target_group_key: str,
     writes: tuple[TargetGroupWriteSource, ...],
+    control_flow_actions: tuple[ConditionalActionSource, ...] = (),
+    root_skill_context: bool = False,
 ) -> TargetGroupWriteSource | None:
     """按条件读取点解析最近的支配写入。"""
     return resolve_latest_target_group_write_at(
@@ -5317,7 +5544,89 @@ def resolve_latest_target_group_write(
         read_action_path=action.actionPath,
         target_group_key=target_group_key,
         writes=writes,
+        control_flow_actions=control_flow_actions,
+        root_skill_context=root_skill_context,
     )
+
+
+def iter_conditional_actions(
+    actions: tuple[ConditionalActionSource, ...],
+) -> Iterator[ConditionalActionSource]:
+    """遍历保留下来的条件树，供控制流来源证明复用。"""
+    for action in actions:
+        yield action
+        for branch_action in (*action.succeedActions, *action.failActions):
+            if branch_action.nestedCondition is not None:
+                yield from iter_conditional_actions((branch_action.nestedCondition,))
+            if branch_action.onceActions is not None:
+                yield from iter_branch_conditional_actions(branch_action.onceActions)
+
+
+def iter_branch_conditional_actions(
+    actions: tuple[ConditionalBranchActionSource, ...],
+) -> Iterator[ConditionalActionSource]:
+    """遍历 DoOnce 等分支容器中的条件节点。"""
+    for action in actions:
+        if action.nestedCondition is not None:
+            yield from iter_conditional_actions((action.nestedCondition,))
+        if action.onceActions is not None:
+            yield from iter_branch_conditional_actions(action.onceActions)
+
+
+def evaluate_fixed_model_condition_group(
+    action: ConditionalActionSource,
+    writes: tuple[TargetGroupWriteSource, ...],
+    *,
+    root_skill_context: bool,
+) -> bool | None:
+    """只折叠在固定单敌人、零距离模型下可严格判定的条件组。"""
+    results: list[bool] = []
+    for condition in action.conditions:
+        if is_guaranteed_single_enemy_condition(
+            condition,
+            action=action,
+            target_group_writes=writes,
+        ):
+            results.append(True)
+            continue
+        if (
+            condition.sourceType == "CheckDistanceCondition"
+            and condition.distance is not None
+        ):
+            result = evaluate_zero_distance_condition(
+                condition.distance,
+                root_skill_context=root_skill_context,
+            )
+            if result is not None:
+                results.append(result)
+                continue
+        return None
+    return all(results) if results else None
+
+
+def target_group_branch_is_guaranteed(
+    scope: tuple[str, ...],
+    control_flow_actions: tuple[ConditionalActionSource, ...],
+    writes: tuple[TargetGroupWriteSource, ...],
+    *,
+    root_skill_context: bool,
+) -> bool:
+    """判断分支是否是固定模型下唯一会执行的路径。"""
+    branch_name = scope[-1]
+    owner_path = scope[:-1]
+    owners = [
+        action
+        for action in iter_conditional_actions(control_flow_actions)
+        if action.actionPath == owner_path
+    ]
+    if len(owners) != 1:
+        return False
+    result = evaluate_fixed_model_condition_group(
+        owners[0],
+        writes,
+        root_skill_context=root_skill_context,
+    )
+    return result is not None and result == (branch_name == "succeedActions")
 
 
 def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) -> bool:
@@ -5328,6 +5637,21 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
         return False
     if write.finderType == "MainTargetFinder":
         return True
+    if write.producerType == "MergeTargetAction" and len(write.inputTargets) == 1:
+        source = write.inputTargets[0]
+        if (
+            source.validatorTypes
+            or source.postProcessorTypes
+            or source.finderType is not None
+        ):
+            return False
+        return (
+            source.targetSource == "MainTarget"
+            or (
+                source.targetSource == "Context"
+                and source.targetGroupKey == "smart_target"
+            )
+        )
     return (
         write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
         and write.finderType == "HitBoxFinder"
@@ -5406,7 +5730,10 @@ def zero_distance_target_role(reference: TargetReferenceSource) -> str | None:
         return "enemy"
     if reference.targetGroupKey:
         return None
-    if reference.targetSource in {"Owner", "Source"} and reference.finderType is None:
+    if (
+        reference.targetSource in {"MainCharacter", "Owner", "Source"}
+        and reference.finderType is None
+    ):
         return "caster"
     if target_identity_reference_guarantees_single_enemy(reference):
         return "enemy"
@@ -6181,6 +6508,12 @@ def compile_resolved_sequence(
     )
     if collapse_single_enemy_entity_branches and not projected_condition_paths:
         raise ValueError(f"{skill.key}: no single-enemy ability entity branch can be projected")
+    event_listeners = getattr(skill, "eventListeners", ())
+    if event_listeners:
+        events = sorted({listener.event for listener in event_listeners})
+        raise ValueError(
+            f"{skill.key}: skill event listeners are not compiled: {events}"
+        )
     combat_auxiliary_actions = [
         action
         for action in getattr(skill, "auxiliaryActions", [])
@@ -6328,6 +6661,8 @@ def compile_resolved_sequence(
                     read_action_path=(),
                     target_group_key=payload.targetGroupKey,
                     writes=skill.targetGroupWrites,
+                    control_flow_actions=skill.targetGroupControlFlowActions,
+                    root_skill_context=True,
                 )
                 context_target_is_enemy = (
                     write is not None
@@ -6377,6 +6712,8 @@ def compile_resolved_sequence(
                     read_action_path=(),
                     target_group_key=payload.targetGroupKey,
                     writes=skill.targetGroupWrites,
+                    control_flow_actions=skill.targetGroupControlFlowActions,
+                    root_skill_context=True,
                 )
                 context_application_target = target_group_write_buff_application_target(write)
             step_lines = compile_buff_application(
@@ -6513,7 +6850,7 @@ def render_named_skills(
         blackboard = {
             item.key: item.value
             for item in skill.declaredBlackboard
-            if item.key in condition_blackboard_keys
+            if item.key in condition_blackboard_keys and isinstance(item.value, float)
         }
         blackboard.update(skill.patch.blackboard)
         if blackboard:

@@ -22,6 +22,7 @@ from source_models import (
     EntityBlackboardAssignmentSource,
     GlobalCooldownApplicationPayload,
     InflictionPayload,
+    PhysicalInflictionPayload,
     ProjectileLaunchPayload,
     ProjectileSkillTriggerSource,
     ResourceGainPayload,
@@ -36,7 +37,7 @@ from source_utils import (
     require_non_negative_int,
     require_number,
 )
-from target_parser import parse_selector_summary
+from target_parser import parse_selector_summary, parse_target_reference
 
 __all__ = [
     "classify_buff",
@@ -54,6 +55,7 @@ __all__ = [
     "parse_entity_blackboard_assignments",
     "parse_global_cooldown_application_payload",
     "parse_infliction_payload",
+    "parse_physical_infliction_payload",
     "parse_projectile_launch_payload",
     "parse_resource_gain_payload",
     "parse_scalar",
@@ -716,6 +718,97 @@ def parse_infliction_payload(action: dict[str, Any], path: str) -> InflictionPay
     if not isinstance(is_extra, bool):
         raise ValueError(f"{path}.isExtra: expected boolean")
     return InflictionPayload(element, is_extra)
+
+
+def parse_physical_infliction_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> PhysicalInflictionPayload:
+    """严格读取 FractureAction；空间参数保留给未来的多目标或位移模型。"""
+    expected_fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "attackerTargetSettings",
+        "targetSettings",
+        "blowOffDistance",
+        "distanceRandomRange",
+        "overwriteHeight",
+        "blowOffHeight",
+        "directionSettings",
+        "totalTime",
+        "isExtra",
+        "deadOption",
+        "immobilizedTime",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected fields {sorted(action)}")
+    if action_name(str(action.get("$type", ""))) != "FractureAction":
+        raise ValueError(f"{path}: expected FractureAction")
+
+    direction = require_dict(action.get("directionSettings"), f"{path}.directionSettings")
+    expected_direction_fields = {
+        "directionType",
+        "sourceMountPoint",
+        "targetMountPoint",
+        "customSourceAndTarget",
+        "clampToXZ",
+        "invertDirection",
+    }
+    if set(direction) != expected_direction_fields:
+        raise ValueError(f"{path}.directionSettings: unexpected fields {sorted(direction)}")
+    direction_type = direction.get("directionType")
+    source_mount_point = direction.get("sourceMountPoint")
+    target_mount_point = direction.get("targetMountPoint")
+    dead_option = action.get("deadOption")
+    for key, value in (
+        ("directionSettings.directionType", direction_type),
+        ("directionSettings.sourceMountPoint", source_mount_point),
+        ("directionSettings.targetMountPoint", target_mount_point),
+        ("deadOption", dead_option),
+    ):
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"{path}.{key}: expected non-empty string")
+
+    return PhysicalInflictionPayload(
+        physicalType="fracture",
+        attackerTarget=parse_target_reference(
+            action.get("attackerTargetSettings"), f"{path}.attackerTargetSettings"
+        ),
+        target=parse_target_reference(action.get("targetSettings"), f"{path}.targetSettings"),
+        blowOffDistance=parse_scalar(
+            action.get("blowOffDistance"), f"{path}.blowOffDistance", inherited_blackboard
+        ),
+        distanceRandomRange=parse_scalar(
+            action.get("distanceRandomRange"),
+            f"{path}.distanceRandomRange",
+            inherited_blackboard,
+        ),
+        overwriteHeight=require_bool(action.get("overwriteHeight"), f"{path}.overwriteHeight"),
+        blowOffHeight=parse_scalar(
+            action.get("blowOffHeight"), f"{path}.blowOffHeight", inherited_blackboard
+        ),
+        directionType=direction_type,
+        sourceMountPoint=source_mount_point,
+        targetMountPoint=target_mount_point,
+        customSourceAndTarget=require_bool(
+            direction.get("customSourceAndTarget"),
+            f"{path}.directionSettings.customSourceAndTarget",
+        ),
+        clampToXZ=require_bool(
+            direction.get("clampToXZ"), f"{path}.directionSettings.clampToXZ"
+        ),
+        invertDirection=require_bool(
+            direction.get("invertDirection"), f"{path}.directionSettings.invertDirection"
+        ),
+        totalTime=parse_scalar(action.get("totalTime"), f"{path}.totalTime", inherited_blackboard),
+        isExtra=require_bool(action.get("isExtra"), f"{path}.isExtra"),
+        deadOption=dead_option,
+        immobilizedTime=require_number(action.get("immobilizedTime"), f"{path}.immobilizedTime"),
+    )
 
 
 def parse_timed_marker_application_payload(

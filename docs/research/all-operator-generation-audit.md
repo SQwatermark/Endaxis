@@ -10,10 +10,11 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：283 个。
-- 无角色专用声明即可进入通用 DSL：250 个。
-- 当前整名干员完整直转：7 名。
+- 进入严格中间层：304 个。
+- 无角色专用声明即可进入通用 DSL：269 个。
+- 当前整名干员完整直转：6 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
+- 当前技能入口中已结构化的事件监听器：10 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -25,9 +26,9 @@
 | Tangtang       | `chr_0027_tangtang` |   11 |     10 |      8 | 否       |
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
-| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      7 | 否       |
+| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
-| Ember          | `chr_0009_azrila`   |    9 |      9 |      9 | 是       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      9 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
@@ -35,16 +36,16 @@
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     14 |     14 | 否       |
-| Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
+| Estella        | `chr_0021_whiten`   |    9 |      9 |      8 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
-| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |     10 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
-| Endministrator | `chr_9000_endmin`   |   20 |      0 |      0 | 否       |
+| Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      5 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      8 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
@@ -59,17 +60,44 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `source-data-missing`      |     21 |
-| `buff-source-or-target`    |     11 |
-| `condition-other`          |      6 |
-| `root-action-coverage`     |      6 |
+| `buff-source-or-target`    |      9 |
+| `event-listener`           |      8 |
+| `condition-other`          |      5 |
 | `other`                    |      4 |
 | `conditional-leaf`         |      3 |
 | `parser-tick-interval`     |      2 |
 | `projectile-child-actions` |      2 |
+| `root-action-coverage`     |      2 |
 | `condition-distance`       |      1 |
 | `condition-entity-count`   |      1 |
+| `dynamic-scalar`           |      1 |
 | `projectile-data`          |      1 |
+
+## 技能事件监听器
+
+监听器只统计已进入严格中间层的技能入口。事件内动作保留原生顺序，
+在事件分发和条件链闭环前不会被提升为无条件时间轴步骤。
+
+| 事件                     | 监听器数 |
+| ------------------------ | -------: |
+| `OnAfterKillEntity`      |        3 |
+| `OnBeforeTakeDamage`     |        3 |
+| `OnAddedBuff`            |        2 |
+| `OnBeforeOutputAirborne` |        1 |
+| `OnSkillEnd`             |        1 |
+
+监听器动作类型：
+
+- `CheckDamageDecorateMask`：5 次。
+- `ConvertToTargetContext`：4 次。
+- `JumpToAction`：4 次。
+- `CreateBuffAction`：3 次。
+- `CheckBuffIdInContext`：2 次。
+- `CheckDistanceCondition`：2 次。
+- `CompareFloat`：2 次。
+- `FinishBuffAdvanced`：1 次。
+- `ModifyDynamicBlackboard`：1 次。
+- `SetSkillCdAtOnce`：1 次。
 
 ## Aura 原始库存与入口可达性
 
@@ -109,25 +137,25 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 ## 实体数量条件形状
 
-现有原始技能文件中共有 570 次启用的实体数量检查，
-按完整参数区分为 40 种形状。
+现有原始技能文件中共有 638 次启用的实体数量检查，
+按完整参数区分为 41 种形状。
 该统计直接递归读取 SkillData，不受当前 parser 是否能走到相应条件的影响。
 这些条件既包括命中目标是否存在，也包括能力实体、可命中目标和多目标数量；不能仅凭动作名统一折叠。
 
 | 来源            | 上下文键           | 比较       | 可命中目标 | 排除死亡 | 写入键                     | 次数 | 技能数 | 示例                                                                                                                |
 | --------------- | ------------------ | ---------- | ---------- | -------- | -------------------------- | ---: | -----: | ------------------------------------------------------------------------------------------------------------------- |
-| `Target`        | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |  155 |     75 | `chr_0027_tangtang_power_attack`<br>`chr_0027_tangtang_normal_skill`<br>`chr_0004_pelica_normal_skill`              |
-| `Context`       | `tar`              | `GE 1`     | 否         | 否       | `(空)`                     |  106 |     67 | `chr_0027_tangtang_combo_skill`<br>`chr_0027_tangtang_plunging_attack_end`<br>`chr_0006_wolfgd_plunging_attack_end` |
-| `Target`        | `(空)`             | `GE 1`     | 是         | 否       | `(空)`                     |   89 |     73 | `chr_0027_tangtang_attack1`<br>`chr_0027_tangtang_attack3`<br>`chr_0027_tangtang_attack4`                           |
-| `Context`       | `smart_target`     | `GE 1`     | 否         | 否       | `(空)`                     |   79 |     28 | `chr_0027_tangtang_combo_skill`<br>`chr_0006_wolfgd_normal_skill`<br>`chr_0007_ikut_normal_skill`                   |
+| `Target`        | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |  181 |     83 | `chr_0027_tangtang_power_attack`<br>`chr_0027_tangtang_normal_skill`<br>`chr_0004_pelica_normal_skill`              |
+| `Context`       | `tar`              | `GE 1`     | 否         | 否       | `(空)`                     |  120 |     75 | `chr_0027_tangtang_combo_skill`<br>`chr_0027_tangtang_plunging_attack_end`<br>`chr_0006_wolfgd_plunging_attack_end` |
+| `Target`        | `(空)`             | `GE 1`     | 是         | 否       | `(空)`                     |   97 |     77 | `chr_0027_tangtang_attack1`<br>`chr_0027_tangtang_attack3`<br>`chr_0027_tangtang_attack4`                           |
+| `Context`       | `smart_target`     | `GE 1`     | 否         | 否       | `(空)`                     |   81 |     30 | `chr_0027_tangtang_combo_skill`<br>`chr_0006_wolfgd_normal_skill`<br>`chr_0007_ikut_normal_skill`                   |
 | `Target`        | `tar`              | `GE 1`     | 否         | 否       | `(空)`                     |   21 |     17 | `chr_0027_tangtang_power_attack`<br>`chr_0004_pelica_power_attack`<br>`chr_0007_ikut_attack4`                       |
-| `Context`       | `targets`          | `GE 1`     | 否         | 否       | `(空)`                     |   18 |      9 | `chr_0009_azrila_combo_skill`<br>`chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_normal_skill`                   |
-| `Context`       | `maintar`          | `GE 1`     | 否         | 否       | `(空)`                     |   16 |      7 | `chr_0021_whiten_normal_skill`<br>`chr_0024_deepfin_normal_skill`<br>`chr_0017_yvonne_ult_attack2_1`                |
-| `InstantSearch` | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |   11 |     11 | `chr_0027_tangtang_ultimate_skill`<br>`chr_0004_pelica_combo_skill`<br>`chr_0013_aglina_combo_skill`                |
+| `Context`       | `targets`          | `GE 1`     | 否         | 否       | `(空)`                     |   20 |     11 | `chr_0009_azrila_combo_skill`<br>`chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_normal_skill`                   |
+| `Context`       | `maintar`          | `GE 1`     | 否         | 否       | `(空)`                     |   20 |     11 | `chr_0021_whiten_normal_skill`<br>`chr_0024_deepfin_normal_skill`<br>`chr_0017_yvonne_ult_attack2_1`                |
+| `InstantSearch` | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |   17 |     13 | `chr_0027_tangtang_ultimate_skill`<br>`chr_0004_pelica_combo_skill`<br>`chr_0013_aglina_combo_skill`                |
 | `Target`        | `smart_target`     | `GE 1`     | 否         | 否       | `(空)`                     |   11 |      4 | `chr_0016_laevat_normal_skill_during_ult`<br>`chr_0017_yvonne_normal_skill`<br>`chr_0029_pograni_combo_skill`       |
+| `Context`       | `mainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |   10 |      5 | `chr_0021_whiten_normal_skill`<br>`chr_0019_karin_normal_skill`<br>`chr_0002_endminm_normal_skill`                  |
 | `Context`       | `smart_target`     | `GE 1`     | 是         | 否       | `(空)`                     |    9 |      5 | `chr_0007_ikut_normal_skill`<br>`chr_0028_wulfa_combo_2_skill`<br>`chr_0028_wulfa_normal_skill`                     |
 | `Context`       | `MainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |    6 |      5 | `chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_ultimate_skill`<br>`chr_0014_aurora_normal_skill`                |
-| `Context`       | `mainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |    6 |      3 | `chr_0021_whiten_normal_skill`<br>`chr_0019_karin_normal_skill`<br>`chr_0029_pograni_normal_skill`                  |
 | `Context`       | `tar1`             | `GE 1`     | 否         | 否       | `(空)`                     |    5 |      4 | `chr_0007_ikut_ultimate_skill`<br>`chr_0015_lifeng_ultimate_skill`<br>`chr_0024_deepfin_ultimate_skill`             |
 | `Target`        | `smart_target`     | `GE 1`     | 是         | 否       | `(空)`                     |    3 |      1 | `chr_0033_camille_combo_skill_2`                                                                                    |
 | `Context`       | `water`            | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0027_tangtang_normal_skill`                                                                                    |
@@ -138,6 +166,7 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `Context`       | `combo_tar`        | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0024_deepfin_combo_skill`                                                                                      |
 | `Context`       | `trigger`          | `GE 1`     | 否         | 是       | `(空)`                     |    2 |      1 | `chr_0032_lizhiyan_combo_skill`                                                                                     |
 | `Target`        | `MainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0028_wulfa_normal_skill`                                                                                       |
+| `InstantSearch` | `(空)`             | `LE 0`     | 否         | 否       | `(空)`                     |    2 |      2 | `chr_0002_endminm_ultimate_skill`<br>`chr_0003_endminf_ultimate_skill`                                              |
 | `Context`       | `smart_target`     | `GE 1`     | 否         | 是       | `(空)`                     |    2 |      2 | `chr_0030_zhuangfy_normal_skill`<br>`chr_0030_zhuangfy_normal_skill_ult`                                            |
 | `Context`       | `normalwater_move` | `GE 1`     | 否         | 否       | `normalskillwatermove_cnt` |    1 |      1 | `chr_0027_tangtang_normal_skill`                                                                                    |
 | `Context`       | `ball`             | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0011_seraph_combo_skill`                                                                                       |
@@ -161,12 +190,12 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                          | 涉及技能数 |
 | ----------------------------- | ---------: |
-| `DamageAction`                |        207 |
-| `IfElseAction`                |        151 |
-| `ObtainCostAction`            |        146 |
-| `CreateBuffAction`            |        115 |
+| `DamageAction`                |        227 |
+| `IfElseAction`                |        171 |
+| `ObtainCostAction`            |        164 |
+| `CreateBuffAction`            |        126 |
 | `LaunchProjectile`            |         71 |
-| `SpawnAbilityEntity`          |         27 |
+| `SpawnAbilityEntity`          |         28 |
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
 | `SwitchAction`                |          4 |

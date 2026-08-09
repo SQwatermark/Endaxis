@@ -34,6 +34,8 @@ __all__ = [
     "BuffAttributeModifierSource",
     "BuffEventActionSource",
     "EventBuffApplicationSource",
+    "SkillEventActionSequenceSource",
+    "SkillEventListenerSource",
     "EntityCountConditionSource",
     "BuffStackConditionSource",
     "HealthConditionSource",
@@ -178,6 +180,39 @@ class TimedInflictionSource:
     actionIndex: int
     element: str
     isExtra: bool
+
+
+@dataclass(frozen=True)
+class PhysicalInflictionPayload:
+    """物理异常动作的完整战斗载荷；位移参数暂只保留证据，不在单敌人模型中执行。"""
+
+    physicalType: str
+    attackerTarget: TargetReferenceSource
+    target: TargetReferenceSource
+    blowOffDistance: ScalarSource
+    distanceRandomRange: ScalarSource
+    overwriteHeight: bool
+    blowOffHeight: ScalarSource
+    directionType: str
+    sourceMountPoint: str
+    targetMountPoint: str
+    customSourceAndTarget: bool
+    clampToXZ: bool
+    invertDirection: bool
+    totalTime: ScalarSource
+    isExtra: bool
+    deadOption: str
+    immobilizedTime: float
+
+
+@dataclass(frozen=True)
+class TimedPhysicalInflictionSource:
+    """根时间轴中一项已解析的物理异常动作。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    payload: PhysicalInflictionPayload
 
 
 @dataclass(frozen=True)
@@ -391,6 +426,28 @@ class BuffEventActionSource:
 class EventBuffApplicationSource:
     actionIndex: int
     payload: BuffApplicationPayload
+
+
+@dataclass(frozen=True)
+class SkillEventActionSequenceSource:
+    """技能事件的一条有序动作序列；条件和动作仍按原始顺序保留。"""
+
+    onlyMainOperator: bool
+    onlyGuard: bool
+    orderedActionTypes: tuple[str, ...]
+    combatActions: tuple[str, ...]
+    buffApplications: tuple[EventBuffApplicationSource, ...]
+
+
+@dataclass(frozen=True)
+class SkillEventListenerSource:
+    """技能持续区间内注册的实体事件监听器，不应折叠为技能时间轴上的定时动作。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    event: str
+    sequences: tuple[SkillEventActionSequenceSource, ...]
 
 
 @dataclass(frozen=True)
@@ -748,7 +805,11 @@ class AbilityEntitySpawnPayload:
 @dataclass(frozen=True)
 class ConditionalBranchActionSource:
     actionType: str
+    # 分支 actionData 中的位置，只用于保持原始顺序。
     actionIndex: int
+    # 原始动作树路径和服务器序号用于同帧目标组读写溯源。
+    actionPath: tuple[str, ...] = ()
+    serverActionIndex: int | None = None
     nestedCondition: ConditionalActionSource | None = None
     onceScopeKey: str | None = None
     onceActions: tuple[ConditionalBranchActionSource, ...] | None = None
@@ -762,6 +823,7 @@ class ConditionalBranchActionSource:
     globalCooldownApplication: GlobalCooldownApplicationPayload | None = None
     resourceGain: ResourceGainPayload | None = None
     infliction: InflictionPayload | None = None
+    physicalInfliction: PhysicalInflictionPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
@@ -871,10 +933,10 @@ class BlackboardKeyProvenanceSource:
 
 @dataclass(frozen=True)
 class DeclaredBlackboardValueSource:
-    """SkillData 自身声明的动作黑板初值；SkillPatch 可按等级覆盖同名键。"""
+    """SkillData 自身声明的黑板初值；字符串也可用于保存技能身份。"""
 
     key: str
-    value: float
+    value: float | str
     isDynamic: bool
 
 
@@ -948,4 +1010,7 @@ class SkillSource:
     unresolvedCombatActions: tuple[str, ...]
     buffHolds: tuple[BuffHoldSource, ...] = ()
     targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
+    targetGroupControlFlowActions: tuple[ConditionalActionSource, ...] = ()
     auraActions: tuple[AuraActionSource, ...] = ()
+    physicalInflictions: tuple[TimedPhysicalInflictionSource, ...] = ()
+    eventListeners: tuple[SkillEventListenerSource, ...] = ()

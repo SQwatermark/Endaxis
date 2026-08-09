@@ -20,12 +20,14 @@ from generate_next_operators import (
     is_presentation_only_camera_condition,
     root_target_group_writes_for_condition,
     resolve_latest_target_group_write_at,
+    target_group_write_guarantees_single_enemy,
     collect_timed_marker_damage_gates,
     collect_consumed_root_timed_marker_action_ids,
     collect_once_resource_gain_gates,
     build_blackboard_provenance,
     compile_skill_entries,
     compile_buff_application_values,
+    parse_skill_event_listeners,
     compile_buff_stack_read,
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
@@ -56,6 +58,7 @@ from generate_next_operators import (
     TimedMarkerGateSource,
     TimedResourceGainSource,
     TargetGroupWriteSource,
+    TargetGroupInputSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
     SequenceGuardActionSource,
@@ -109,6 +112,7 @@ from generate_next_operators import (
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
     parse_skill_patch,
+    parse_physical_inflictions,
     compile_buff_blackboard_read,
     compile_buff_finish,
     compile_buff_hold,
@@ -154,6 +158,52 @@ def target_settings_fixture(
         "selectorDirection": "SourceForward",
         "target": "ActionSource",
         "targetContextKey": "",
+    }
+
+
+def fracture_action_fixture() -> dict:
+    target = target_settings_fixture("Context")
+    target["targetGroupKey"] = "smart_target"
+    return {
+        "$type": "Example.FractureAction+Data, Example",
+        "isEnable": True,
+        "priorityLevel": "Default",
+        "priorityOffset": 0,
+        "serverActionIndex": 12,
+        "attackerTargetSettings": target_settings_fixture("Owner"),
+        "targetSettings": target,
+        "blowOffDistance": {
+            "useBlackboardKey": False,
+            "value": 3,
+            "blackboardKey": "",
+        },
+        "distanceRandomRange": {
+            "useBlackboardKey": False,
+            "value": 0,
+            "blackboardKey": "",
+        },
+        "overwriteHeight": False,
+        "blowOffHeight": {
+            "useBlackboardKey": False,
+            "value": 0,
+            "blackboardKey": "",
+        },
+        "directionSettings": {
+            "directionType": "SourceToTarget",
+            "sourceMountPoint": "None",
+            "targetMountPoint": "None",
+            "customSourceAndTarget": False,
+            "clampToXZ": True,
+            "invertDirection": False,
+        },
+        "totalTime": {
+            "useBlackboardKey": False,
+            "value": 3,
+            "blackboardKey": "",
+        },
+        "isExtra": False,
+        "deadOption": "AllValid",
+        "immobilizedTime": 0,
     }
 
 
@@ -261,6 +311,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 {"key": "static", "valueDouble": 3, "valueStr": "", "isDynamic": False},
                 {"key": "dynamic", "valueDouble": 4, "valueStr": "", "isDynamic": True},
                 {"key": "patched", "valueDouble": 5, "valueStr": "", "isDynamic": False},
+                {
+                    "key": "nextCombo",
+                    "valueDouble": 0,
+                    "valueStr": "next_skill",
+                    "isDynamic": False,
+                },
             ]
         }
         patch = SkillPatchSource(
@@ -340,6 +396,134 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertIs(resolved, root_write)
+
+    def test_root_target_group_read_accepts_guaranteed_fixed_model_branch(self) -> None:
+        condition_path = (
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+        )
+        smart_target_count = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="smart_target",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+        distance = ConditionSource(
+            sourceType="CheckDistanceCondition",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            distance=SimpleNamespace(
+                source=SimpleNamespace(
+                    targetSource="MainCharacter",
+                    targetGroupKey="",
+                    selectorOwner="ActionOwner",
+                    ownerContextKey="",
+                    centerType="ActionSource",
+                    centerContextKey="",
+                    centerToGround=False,
+                    target="ActionSource",
+                    targetContextKey="",
+                    enableAdvancedDirection=False,
+                    selectorDirection="SourceForward",
+                    finderType=None,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                ),
+                target=SimpleNamespace(
+                    targetSource="Context",
+                    targetGroupKey="smart_target",
+                    selectorOwner="ActionOwner",
+                    ownerContextKey="",
+                    centerType="ActionSource",
+                    centerContextKey="",
+                    centerToGround=False,
+                    target="ActionSource",
+                    targetContextKey="",
+                    enableAdvancedDirection=False,
+                    selectorDirection="SourceForward",
+                    finderType=None,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                ),
+                distance=15,
+                lessThan=True,
+            ),
+        )
+        control_flow = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=1,
+            actionPath=condition_path,
+            conditions=(smart_target_count, distance),
+            succeedActions=(),
+            failActions=(),
+        )
+        write = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=2,
+            actionPath=(*condition_path, "succeedActions", "actionData", "[0]"),
+            targetGroupKey="trigger",
+            producerType="MergeTargetAction",
+            finderType=None,
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(
+                TargetGroupInputSource(
+                    targetSource="Context",
+                    targetGroupKey="smart_target",
+                    finderType=None,
+                    finderFactionTarget=None,
+                    finderTargetObjectType=None,
+                    finderCheckAlive=None,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                ),
+            ),
+            intervalSeconds=None,
+        )
+
+        self.assertIsNone(
+            resolve_latest_target_group_write_at(
+                read_frame=1,
+                read_action_index=3,
+                read_action_path=(),
+                target_group_key="trigger",
+                writes=(write,),
+            )
+        )
+        self.assertIs(
+            resolve_latest_target_group_write_at(
+                read_frame=1,
+                read_action_index=3,
+                read_action_path=(),
+                target_group_key="trigger",
+                writes=(write,),
+                control_flow_actions=(control_flow,),
+                root_skill_context=True,
+            ),
+            write,
+        )
+        self.assertTrue(target_group_write_guarantees_single_enemy(write))
 
     def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
         find_action = {
@@ -2177,6 +2361,37 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(values[0].value, 0)
         self.assertTrue(values[0].isDynamic)
 
+    def test_declared_blackboard_preserves_string_identity(self) -> None:
+        root = {
+            "blackboard": [
+                {
+                    "key": "nextCombo",
+                    "valueDouble": 0,
+                    "valueStr": "chr_0003_endminf_attack2",
+                    "isDynamic": False,
+                }
+            ]
+        }
+
+        values = parse_declared_blackboard(root, "skill.json")
+
+        self.assertEqual(values[0].value, "chr_0003_endminf_attack2")
+
+    def test_declared_blackboard_rejects_ambiguous_value(self) -> None:
+        root = {
+            "blackboard": [
+                {
+                    "key": "ambiguous",
+                    "valueDouble": 1,
+                    "valueStr": "value",
+                    "isDynamic": False,
+                }
+            ]
+        }
+
+        with self.assertRaisesRegex(ValueError, "numeric and string values are both set"):
+            parse_declared_blackboard(root, "skill.json")
+
     def test_condition_blackboard_collection_excludes_unrelated_declared_values(self) -> None:
         action = SimpleNamespace(
             conditions=(
@@ -2870,9 +3085,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         ]
                                     },
                                     "succeedActions": {
-                                        "actionData": [
-                                            {"$type": "Example.FractureAction+Data, Example"}
-                                        ]
+                                        "actionData": [fracture_action_fixture()]
                                     },
                                     "failActions": {"actionData": []},
                                 }
@@ -2885,8 +3098,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         action = parse_conditional_actions(root, "fracture.json", {})[0]
         self.assertEqual(action.succeedActions[0].actionType, "FractureAction")
+        payload = action.succeedActions[0].physicalInfliction
+        self.assertIsNotNone(payload)
+        self.assertEqual(payload.physicalType, "fracture")
+        self.assertEqual(payload.target.targetGroupKey, "smart_target")
+        self.assertEqual(payload.blowOffDistance.value, 3)
         with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'FractureAction'"):
             compile_conditional_action(action, "fracture.condition")
+
+    def test_root_fracture_action_preserves_timing_and_spatial_evidence(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 17,
+                        "_endFrame": 19,
+                        "_sequenceActionData": {"actionData": [fracture_action_fixture()]},
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_physical_inflictions(root, "fracture.json", {})
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual((parsed[0].startFrame, parsed[0].endFrame), (17, 19))
+        self.assertEqual(parsed[0].actionIndex, 12)
+        self.assertEqual(parsed[0].payload.directionType, "SourceToTarget")
+        self.assertTrue(parsed[0].payload.clampToXZ)
 
     def test_conditional_audit_preserves_do_once_resource_gain(self) -> None:
         compare = {
@@ -4904,6 +5143,77 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 root_skill_context=True,
                 input_target="enemy",
             )
+
+    def test_conditional_buff_reads_prior_target_write_in_the_same_branch(self) -> None:
+        condition_path = ("timelineActions[0]", "_sequenceActionData", "actionData", "[0]")
+        branch_path = (*condition_path, "succeedActions", "actionData")
+        application = SimpleNamespace(
+            buffs=(
+                SimpleNamespace(
+                    buffId="buff.example.team",
+                    blackboardAssignments={},
+                ),
+            ),
+            targetSource="Context",
+            targetGroupKey="team",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
+        )
+        action = ConditionalActionSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=1,
+            actionPath=condition_path,
+            conditions=(
+                SimpleNamespace(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="Equals",
+                    left=ScalarSource(1, None, None),
+                    right=ScalarSource(1, None, None),
+                ),
+            ),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="CreateBuffAction",
+                    actionIndex=1,
+                    actionPath=(*branch_path, "[1]"),
+                    serverActionIndex=3,
+                    buffApplication=application,
+                ),
+            ),
+            failActions=(),
+        )
+        team_write = TargetGroupWriteSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=2,
+            actionPath=(*branch_path, "[0]"),
+            targetGroupKey="team",
+            producerType="FindTargetAction",
+            finderType="CharacterTeamFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        compiled = compile_conditional_action(
+            action,
+            "fixture.condition",
+            target_group_writes=(team_write,),
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertIn("target: 'party'", compiled)
 
     def test_conditional_action_compiler_emits_action_blackboard_mutation(self) -> None:
         condition = SimpleNamespace(
@@ -6956,6 +7266,63 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         ] = True
         with self.assertRaisesRegex(ValueError, "scaled definite values"):
             parse_damage_units(root, "ultimate.json", {})
+
+    def test_skill_event_listener_preserves_registration_interval_and_action_order(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 20,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.EventListenerAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 7,
+                                    "abilityActionMap": [
+                                        {
+                                            "abilityEvent": "OnAfterKillEntity",
+                                            "actions": [
+                                                {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.CheckDamageDecorateMask+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 8,
+                                                        },
+                                                        {
+                                                            "$type": "Example.CompareFloat+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 9,
+                                                        },
+                                                    ],
+                                                    "onlyExecuteWhenSourceIsMainChar": False,
+                                                    "onlyExecuteWhenSourceIsGuard": False,
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        listener = parse_skill_event_listeners(root, "fixture.json", {})[0]
+
+        self.assertEqual((listener.startFrame, listener.endFrame), (3, 20))
+        self.assertEqual(listener.actionIndex, 7)
+        self.assertEqual(listener.event, "OnAfterKillEntity")
+        self.assertEqual(
+            listener.sequences[0].orderedActionTypes,
+            ("CheckDamageDecorateMask", "CompareFloat"),
+        )
+        self.assertEqual(listener.sequences[0].combatActions, ())
 
 
 if __name__ == "__main__":
