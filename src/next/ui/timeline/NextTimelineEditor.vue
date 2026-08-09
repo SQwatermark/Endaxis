@@ -2,7 +2,9 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
@@ -10,7 +12,12 @@ import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
-import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import type {
+  EditableActionValues,
+  OperatorBuildDocument,
+  ScenarioDocument,
+  TrackIndex,
+} from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
@@ -22,6 +29,7 @@ import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './time
 import {
   moveSkillCast,
   removeSkillCast,
+  setTrackOperator,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
@@ -33,6 +41,7 @@ const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
+const operatorDialogTrack = ref<TrackIndex | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
@@ -68,6 +77,25 @@ function createSampleScenario(): ScenarioDocument {
   return scenario;
 }
 
+function createInitialOperatorBuild(
+  operator: OperatorDefinition,
+  trackIndex: TrackIndex,
+): OperatorBuildDocument {
+  const skillLevels = Object.fromEntries(
+    [...new Set(operator.skillGroups.map(group => group.levelSource))].map(source => [source, 12]),
+  );
+  return {
+    id: `operator:${trackIndex}:${operator.slug}`,
+    operatorSlug: operator.slug,
+    level: 90,
+    promoted: true,
+    potential: 0,
+    trustLevel: 4,
+    skillLevels,
+    talentStates: {},
+  };
+}
+
 const scenario = ref(createSampleScenario());
 let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
@@ -89,7 +117,7 @@ const selectedCastModel = computed(() => {
         skillType: castModel.skillType,
         label:
           cast.source.kind === 'operatorSkill'
-            ? skillName(cast.source.skillGroupKey, trackModel.operatorSlug ?? perlica.slug)
+            ? skillName(cast.source.skillGroupKey, trackModel.operatorSlug)
             : cast.source.kind === 'custom'
               ? cast.source.name
               : cast.source.skillKey,
@@ -113,8 +141,8 @@ function operatorName(slug: string | null): string {
   return slug === null ? t('nextTimeline.emptyTrack') : getOperatorGameName(slug, locale.value);
 }
 
-function skillName(groupKey: string, slug = perlica.slug): string {
-  return getOperatorCombatSkillName(slug, groupKey, locale.value);
+function skillName(groupKey: string, slug: string | null): string {
+  return slug === null ? groupKey : getOperatorCombatSkillName(slug, groupKey, locale.value);
 }
 
 function skillTypeLabel(skillType: string): string {
@@ -189,10 +217,13 @@ function placeGroup(
   startFrame = cursorFrame.value,
   trackIndex = selectedTrack.value,
 ): void {
+  const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
+  const operator = operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug);
+  if (operator === null) return;
   const result = placeSkillGroup({
     scenario: scenario.value,
     trackIndex,
-    operator: perlica,
+    operator,
     skillGroupKey,
     ...(skillKey === undefined ? {} : { skillKey }),
     startFrame,
@@ -206,6 +237,37 @@ function placeGroup(
   if (last !== undefined) {
     cursorFrame.value = last.placement.startFrame + last.editable.durationFrames;
   }
+}
+
+function openOperatorDialog(trackIndex = selectedTrack.value): void {
+  selectedTrack.value = trackIndex;
+  selectedCastId.value = null;
+  operatorDialogTrack.value = trackIndex;
+}
+
+function selectTrack(trackIndex: TrackIndex): void {
+  selectedTrack.value = trackIndex;
+  if (viewModel.value.tracks[trackIndex]?.operatorSlug === null) openOperatorDialog(trackIndex);
+}
+
+function selectOperator(slug: string): void {
+  const trackIndex = operatorDialogTrack.value;
+  if (trackIndex === null) return;
+  const operator = nextGameDataRepository.getOperator(slug);
+  if (operator === null) throw new Error(`missing operator definition '${slug}'`);
+  scenario.value = setTrackOperator(
+    scenario.value,
+    trackIndex,
+    createInitialOperatorBuild(operator, trackIndex),
+  );
+  operatorDialogTrack.value = null;
+}
+
+function clearOperator(): void {
+  const trackIndex = operatorDialogTrack.value;
+  if (trackIndex === null) return;
+  scenario.value = setTrackOperator(scenario.value, trackIndex, null);
+  operatorDialogTrack.value = null;
 }
 
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
@@ -342,10 +404,10 @@ function updateSelectedCast(
   >
     <template #left>
       <section class="skill-sidebar">
-        <div class="operator-heading">
+        <button class="operator-heading" type="button" @click="openOperatorDialog()">
           <span class="operator-heading__mark"></span>
           <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
-        </div>
+        </button>
         <div class="sidebar-tabs">
           <button class="active" type="button">{{ t('nextTimeline.operatorTab') }}</button>
           <button type="button" disabled>{{ t('nextTimeline.weaponTab') }}</button>
@@ -359,7 +421,7 @@ function updateSelectedCast(
           <SkillLibraryCard
             v-for="entry in selectedTrackModel.skillLibrary"
             :key="entry.skillGroupKey"
-            :name="skillName(entry.skillGroupKey)"
+            :name="skillName(entry.skillGroupKey, selectedTrackModel.operatorSlug)"
             :type-label="skillTypeLabel(entry.skillType)"
             :duration="skillDurationSeconds(entry)"
             :icon="skillDisplayIcon(entry.skillType)"
@@ -426,7 +488,7 @@ function updateSelectedCast(
               :track="track"
               :name="operatorName(track.operatorSlug)"
               :selected="selectedTrack === track.trackIndex"
-              @select="selectedTrack = track.trackIndex"
+              @select="selectTrack(track.trackIndex)"
             />
             <div
               class="track-lane"
@@ -449,7 +511,7 @@ function updateSelectedCast(
                 :key="cast.id"
                 :label="
                   cast.source.kind === 'operatorSkill'
-                    ? skillName(cast.source.skillGroupKey, track.operatorSlug ?? perlica.slug)
+                    ? skillName(cast.source.skillGroupKey, track.operatorSlug)
                     : cast.source.kind
                 "
                 :skill-type="cast.skillType"
@@ -499,6 +561,18 @@ function updateSelectedCast(
     @toggle-lock="toggleContextCastField('locked')"
     @toggle-disabled="toggleContextCastField('disabled')"
     @set-color="setContextCastColor"
+  />
+  <OperatorSelectionDialog
+    :visible="operatorDialogTrack !== null"
+    :operators="nextGameDataRepository.getOperators()"
+    :selected-slug="
+      operatorDialogTrack === null
+        ? null
+        : (viewModel.tracks[operatorDialogTrack]?.operatorSlug ?? null)
+    "
+    @close="operatorDialogTrack = null"
+    @select="selectOperator"
+    @clear="clearOperator"
   />
 </template>
 
@@ -581,11 +655,17 @@ button:disabled {
 }
 
 .operator-heading {
+  width: 100%;
+  height: auto;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 18px;
+  text-align: left;
 }
 
 .operator-heading__mark {

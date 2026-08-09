@@ -36,3 +36,11 @@ export interface GameDataRepository {
   getGearSet(slug: string): GearSetDefinition | null;
   getMechanic(id: string): MechanicDefinitionRef | null;
 }
+
+/** 编辑器选择器在只读查询端口之外需要的目录枚举能力。编译器仅依赖 `GameDataRepository`。 */
+export interface GameDataBrowser {
+  getOperators(): readonly OperatorDefinition[];
+  getWeapons(): readonly WeaponDefinition[];
+  getGears(): readonly GearDefinition[];
+  getGearSets(): readonly GearSetDefinition[];
+}

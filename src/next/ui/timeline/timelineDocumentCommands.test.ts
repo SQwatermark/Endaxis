@@ -4,10 +4,22 @@ import type { SkillCastDocument } from '../../core/project/schema';
 import {
   moveSkillCast,
   removeSkillCast,
+  setTrackOperator,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
 } from './timelineDocumentCommands';
+
+const perlicaBuild = {
+  id: 'operator:perlica',
+  operatorSlug: 'perlica',
+  level: 90,
+  promoted: true,
+  potential: 0,
+  trustLevel: 4,
+  skillLevels: { basicAttack: 12 },
+  talentStates: {},
+};
 
 function cast(locked = false): SkillCastDocument {
   return {
@@ -38,6 +50,50 @@ function scenario(locked = false) {
 }
 
 describe('moveSkillCast', () => {
+  it('assigns an operator build to an empty track', () => {
+    const original = createEmptyScenario('scenario:operator', '干员样本');
+    const updated = setTrackOperator(original, 2, perlicaBuild);
+
+    expect(updated.tracks[2]).toMatchObject({
+      operatorBuildId: perlicaBuild.id,
+      weaponBuildId: null,
+      skillCasts: [],
+    });
+    expect(updated.builds.operators[perlicaBuild.id]).toEqual(perlicaBuild);
+    expect(original.tracks[2]).toBeNull();
+  });
+
+  it('clears stale casts, connections and an orphaned build when changing operator', () => {
+    const original = scenario();
+    original.builds.operators[perlicaBuild.id] = perlicaBuild;
+    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+    original.connections = [
+      {
+        id: 'connection:1',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:1' },
+        to: { kind: 'skillCast', skillCastId: 'cast:2' },
+      },
+    ];
+    const arcaneBuild = { ...perlicaBuild, id: 'operator:arcane', operatorSlug: 'arcane' };
+
+    const updated = setTrackOperator(original, 0, arcaneBuild);
+
+    expect(updated.tracks[0]!.operatorBuildId).toBe(arcaneBuild.id);
+    expect(updated.tracks[0]!.skillCasts).toEqual([]);
+    expect(updated.connections).toEqual([]);
+    expect(updated.builds.operators[perlicaBuild.id]).toBeUndefined();
+    expect(updated.builds.operators[arcaneBuild.id]).toEqual(arcaneBuild);
+  });
+
+  it('leaves the document unchanged when selecting the current operator again', () => {
+    const original = scenario();
+    original.builds.operators[perlicaBuild.id] = perlicaBuild;
+    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+
+    expect(setTrackOperator(original, 0, { ...perlicaBuild })).toBe(original);
+  });
+
   it('moves only the requested cast without mutating the source scenario', () => {
     const original = scenario();
     const moved = moveSkillCast(original, 0, 'cast:1', 75);

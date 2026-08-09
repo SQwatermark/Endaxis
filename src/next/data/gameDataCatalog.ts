@@ -3,6 +3,7 @@
  * 目录只按稳定身份查找，不读取旧版 store，也不为尚未迁移的数据伪造默认定义。
  */
 import type {
+  GameDataBrowser,
   GameDataRepository,
   MechanicDefinitionRef,
 } from '../core/game-data/gameDataRepository';
@@ -38,14 +39,24 @@ function indexDefinitions<T>(
 }
 
 /** 创建一个封闭目录；后续修改输入数组不会改变已经创建的查询结果。 */
-export function createGameDataRepository(input: GameDataCatalogInput): GameDataRepository {
-  const operators = indexDefinitions(input.operators ?? [], value => value.slug, 'operator');
-  const weapons = indexDefinitions(input.weapons ?? [], value => value.slug, 'weapon');
-  const gears = indexDefinitions(input.gears ?? [], value => value.slug, 'gear');
-  const gearSets = indexDefinitions(input.gearSets ?? [], value => value.slug, 'gear set');
+export function createGameDataRepository(
+  input: GameDataCatalogInput,
+): GameDataRepository & GameDataBrowser {
+  const operatorList = Object.freeze([...(input.operators ?? [])]);
+  const weaponList = Object.freeze([...(input.weapons ?? [])]);
+  const gearList = Object.freeze([...(input.gears ?? [])]);
+  const gearSetList = Object.freeze([...(input.gearSets ?? [])]);
+  const operators = indexDefinitions(operatorList, value => value.slug, 'operator');
+  const weapons = indexDefinitions(weaponList, value => value.slug, 'weapon');
+  const gears = indexDefinitions(gearList, value => value.slug, 'gear');
+  const gearSets = indexDefinitions(gearSetList, value => value.slug, 'gear set');
   const mechanics = indexDefinitions(input.mechanics ?? [], value => value.id, 'mechanic');
 
   return Object.freeze({
+    getOperators: () => operatorList,
+    getWeapons: () => weaponList,
+    getGears: () => gearList,
+    getGearSets: () => gearSetList,
     getOperator: (slug: string) => operators.get(slug) ?? null,
     getWeapon: (slug: string) => weapons.get(slug) ?? null,
     getGear: (slug: string) => gears.get(slug) ?? null,

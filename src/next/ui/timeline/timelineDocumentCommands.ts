@@ -3,7 +3,12 @@
  *
  * 组件不得直接改写持久化对象；后续撤销历史应记录这些命令的输入与输出，而不是 DOM 状态。
  */
-import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import type {
+  EditableActionValues,
+  OperatorBuildDocument,
+  ScenarioDocument,
+  TrackIndex,
+} from '../../core/project/schema';
 
 export type BasicEditableSkillCastField =
   | 'durationFrames'
@@ -15,6 +20,59 @@ export type BasicEditableSkillCastField =
   | 'enhancement';
 
 export type BooleanEditableSkillCastField = 'locked' | 'disabled';
+
+/**
+ * 更换轨道使用的干员养成方案。已有技能块依赖旧干员目录身份，因此切换或移除干员时一并清理。
+ * 调用方负责提供初始养成值；命令层只维护项目引用、孤立方案和连线的一致性。
+ */
+export function setTrackOperator(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  operatorBuild: OperatorBuildDocument | null,
+): ScenarioDocument {
+  const previousTrack = scenario.tracks[trackIndex];
+  const previousBuildId = previousTrack?.operatorBuildId ?? null;
+  const previousSlug =
+    previousBuildId === null
+      ? null
+      : (scenario.builds.operators[previousBuildId]?.operatorSlug ?? null);
+  const nextSlug = operatorBuild?.operatorSlug ?? null;
+  if (previousSlug === nextSlug) return scenario;
+
+  const removedCastIds = new Set(previousTrack?.skillCasts.map(cast => cast.id) ?? []);
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] =
+    operatorBuild === null
+      ? null
+      : {
+          operatorBuildId: operatorBuild.id,
+          weaponBuildId: null,
+          gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+          initialState: { ultimateEnergy: 0 },
+          skillCasts: [],
+        };
+
+  const operators = { ...scenario.builds.operators };
+  if (operatorBuild !== null) operators[operatorBuild.id] = operatorBuild;
+  if (
+    previousBuildId !== null &&
+    previousBuildId !== operatorBuild?.id &&
+    !tracks.some(track => track?.operatorBuildId === previousBuildId)
+  ) {
+    delete operators[previousBuildId];
+  }
+
+  return {
+    ...scenario,
+    builds: { ...scenario.builds, operators },
+    tracks,
+    connections: scenario.connections.filter(
+      connection =>
+        !removedCastIds.has(connection.from.skillCastId) &&
+        !removedCastIds.has(connection.to.skillCastId),
+    ),
+  };
+}
 
 function locateSkillCast(scenario: ScenarioDocument, trackIndex: TrackIndex, skillCastId: string) {
   const track = scenario.tracks[trackIndex];
