@@ -111,6 +111,28 @@ export function updateSkillCastBooleanField(
   return { ...scenario, tracks };
 }
 
+/** 设置动作块的用户配色；`null` 表示重新使用技能类型默认色。 */
+export function updateSkillCastColor(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  color: string | null,
+): ScenarioDocument {
+  if (color !== null && color.length === 0) throw new TypeError('color must not be empty');
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  if ((cast.editable.color ?? null) === color) return scenario;
+
+  const skillCasts = [...track.skillCasts];
+  skillCasts[castIndex] = {
+    ...cast,
+    editable: { ...cast.editable, color },
+    edited: cast.edited.includes('color') ? cast.edited : [...cast.edited, 'color'],
+  };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
 /**
  * 删除动作块及其连线，并把同一放置组的剩余动作重新编号。
  * 单独剩下的动作不再属于序列组，避免持久化无意义的组身份。

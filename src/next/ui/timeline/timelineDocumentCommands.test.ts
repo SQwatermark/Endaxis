@@ -6,6 +6,7 @@ import {
   removeSkillCast,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
+  updateSkillCastColor,
 } from './timelineDocumentCommands';
 
 function cast(locked = false): SkillCastDocument {
@@ -91,6 +92,17 @@ describe('moveSkillCast', () => {
       disabled: true,
     });
     expect(disabled.tracks[0]!.skillCasts[0]!.edited).toEqual(['locked', 'disabled']);
+  });
+
+  it('sets and clears an action color as a user-owned field', () => {
+    const original = scenario();
+    const colored = updateSkillCastColor(original, 0, 'cast:1', '#ff4d4f');
+    const reset = updateSkillCastColor(colored, 0, 'cast:1', null);
+
+    expect(colored.tracks[0]!.skillCasts[0]!.editable.color).toBe('#ff4d4f');
+    expect(reset.tracks[0]!.skillCasts[0]!.editable.color).toBeNull();
+    expect(reset.tracks[0]!.skillCasts[0]!.edited).toEqual(['color']);
+    expect(original.tracks[0]!.skillCasts[0]!.editable.color).toBeUndefined();
   });
 
   it('removes the cast and every connection that points to it', () => {

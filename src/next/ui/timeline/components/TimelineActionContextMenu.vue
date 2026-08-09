@@ -13,6 +13,7 @@ const props = defineProps<{
   label: string;
   locked: boolean;
   disabled: boolean;
+  color: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -20,12 +21,21 @@ const emit = defineEmits<{
   delete: [];
   toggleLock: [];
   toggleDisabled: [];
+  setColor: [color: string | null];
 }>();
 
 const { t } = useI18n({ useScope: 'global' });
 const menu = ref<HTMLElement | null>(null);
 const left = ref(0);
 const top = ref(0);
+const colors = [
+  { value: null, labelKey: 'common.default', swatch: '#555' },
+  { value: '#e0e0e0', labelKey: 'timelineGrid.elementFilter.physical', swatch: '#e0e0e0' },
+  { value: '#ff4d4f', labelKey: 'timelineGrid.elementFilter.blaze', swatch: '#ff4d4f' },
+  { value: '#00e5ff', labelKey: 'timelineGrid.elementFilter.cold', swatch: '#00e5ff' },
+  { value: '#ffbf00', labelKey: 'timelineGrid.elementFilter.emag', swatch: '#ffbf00' },
+  { value: '#52c41a', labelKey: 'timelineGrid.elementFilter.nature', swatch: '#52c41a' },
+] as const;
 
 async function positionMenu(): Promise<void> {
   if (!props.visible) return;
@@ -102,6 +112,21 @@ onBeforeUnmount(() => {
         </svg>
         <span>{{ t(disabled ? 'contextMenu.enableCalc' : 'contextMenu.disableCalc') }}</span>
       </button>
+      <div class="divider"></div>
+      <div class="menu-label">{{ t('contextMenu.color') }}</div>
+      <div class="color-grid">
+        <button
+          v-for="option in colors"
+          :key="option.value ?? 'default'"
+          type="button"
+          class="color-dot"
+          :class="{ 'is-active': color === option.value }"
+          :style="{ background: option.swatch }"
+          :title="t(option.labelKey)"
+          :aria-label="t(option.labelKey)"
+          @click="$emit('setColor', option.value)"
+        ></button>
+      </div>
     </div>
   </Teleport>
 </template>
@@ -187,5 +212,33 @@ onBeforeUnmount(() => {
   height: 1px;
   margin: 4px 0;
   background: #444;
+}
+
+.menu-label {
+  padding: 4px 12px;
+  color: #777;
+  font-size: 11px;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 20px);
+  gap: 7px;
+  padding: 5px 12px 7px;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.color-dot:hover,
+.color-dot.is-active {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px #777;
 }
 </style>

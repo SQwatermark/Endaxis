@@ -23,6 +23,7 @@ import {
   removeSkillCast,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
+  updateSkillCastColor,
   type BasicEditableSkillCastField,
 } from './timelineDocumentCommands';
 
@@ -303,6 +304,18 @@ function deleteContextCast(): void {
   contextMenuTarget.value = null;
 }
 
+function setContextCastColor(color: string | null): void {
+  const target = contextMenuTarget.value;
+  if (target === null) return;
+  scenario.value = updateSkillCastColor(
+    scenario.value,
+    target.trackIndex,
+    target.skillCastId,
+    color,
+  );
+  contextMenuTarget.value = null;
+}
+
 function updateSelectedCast(
   field: BasicEditableSkillCastField,
   value: EditableActionValues[BasicEditableSkillCastField],
@@ -483,10 +496,12 @@ function updateSelectedCast(
     :label="selectedCastModel?.label ?? ''"
     :locked="selectedCastModel?.cast.editable.locked ?? false"
     :disabled="selectedCastModel?.cast.editable.disabled ?? false"
+    :color="selectedCastModel?.cast.editable.color ?? null"
     @close="contextMenuTarget = null"
     @delete="deleteContextCast"
     @toggle-lock="toggleContextCastField('locked')"
     @toggle-disabled="toggleContextCastField('disabled')"
+    @set-color="setContextCastColor"
   />
 </template>
 
