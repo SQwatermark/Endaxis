@@ -627,28 +627,43 @@ function toggleSnapPrecision(): boolean {
   return true;
 }
 
-async function updateTimelineZoomPercent(percent: number): Promise<void> {
+async function updateTimelineZoomPercent(percent: number, anchorClientX?: number): Promise<void> {
   const nextPercent = normalizeTimelineZoomPercent(percent);
   if (nextPercent === timelineZoomPercent.value) return;
 
   const viewport = timelineScroll.value;
-  const viewportCenter = viewport === null ? null : viewport.scrollLeft + viewport.clientWidth / 2;
-  const anchorFrame =
-    viewportCenter === null
+  const anchorOffset =
+    viewport === null
       ? null
-      : (viewportCenter - TIMELINE_TRACK_HEADER_WIDTH) / pxPerFrame.value -
+      : anchorClientX === undefined
+        ? viewport.clientWidth / 2
+        : anchorClientX - viewport.getBoundingClientRect().left;
+  const anchorContentX =
+    viewport === null || anchorOffset === null ? null : viewport.scrollLeft + anchorOffset;
+  const anchorFrame =
+    anchorContentX === null
+      ? null
+      : (anchorContentX - TIMELINE_TRACK_HEADER_WIDTH) / pxPerFrame.value -
         scenario.value.battle.prepFrames;
 
   timelineZoomPercent.value = nextPercent;
-  if (viewport === null || anchorFrame === null) return;
+  if (viewport === null || anchorFrame === null || anchorOffset === null) return;
 
   await nextTick();
   viewport.scrollLeft = Math.max(
     0,
     TIMELINE_TRACK_HEADER_WIDTH +
       (anchorFrame + scenario.value.battle.prepFrames) * pxPerFrame.value -
-      viewport.clientWidth / 2,
+      anchorOffset,
   );
+}
+
+function handleTimelineWheel(event: WheelEvent): void {
+  if (!event.ctrlKey) return;
+  event.preventDefault();
+  const direction = event.deltaY < 0 ? 1 : -1;
+  const step = Math.max(1, Math.round(timelineZoomPercent.value * 0.15));
+  void updateTimelineZoomPercent(timelineZoomPercent.value + direction * step, event.clientX);
 }
 
 function cycleOccupiedTrack(direction: -1 | 1): boolean {
@@ -885,7 +900,12 @@ function setPanelDialogVisible(visible: boolean): void {
     </template>
 
     <div class="timeline-workspace">
-      <div ref="timelineScroll" class="timeline-scroll" :class="{ 'is-panning': isPanning }">
+      <div
+        ref="timelineScroll"
+        class="timeline-scroll"
+        :class="{ 'is-panning': isPanning }"
+        @wheel="handleTimelineWheel"
+      >
         <div
           ref="timelineSurface"
           class="timeline-surface"
