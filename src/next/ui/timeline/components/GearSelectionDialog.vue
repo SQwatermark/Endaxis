@@ -6,8 +6,9 @@
 import { computed, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
-import { getGearPieceGameName, getGearSetGameName } from '@/data/gameText';
-import { getEquipmentLevelColor } from '@/utils/equipmentLevels';
+import { getGearPieceGameName, getGearSetGameName } from '../../legacy/legacyGameText';
+import { getEquipmentLevelColor } from '../../legacy/legacyProgression';
+import '../../legacy/legacyPresentation';
 import { getSharedEquipmentSupport } from '../../../data/equipment';
 import type { GearDefinition } from '../../../core/game-data/equipmentDefinition';
 
@@ -273,8 +274,6 @@ function clearGear(): void {
     </div>
   </el-dialog>
 </template>
-
-<style src="../../../../components/selection/selectionDialog.css"></style>
 
 <style scoped>
 :global(.equipment-selection-preview-popper.el-popper.is-dark) {

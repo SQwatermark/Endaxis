@@ -5,21 +5,23 @@
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import GameRichTextRenderer from '@/components/GameRichTextRenderer.vue';
 import {
   getGameWeaponTypeName,
   getWeaponGameName,
   getWeaponSkillDescription,
   getWeaponSkillName,
   getWeaponUiLabel,
-} from '@/data/gameText';
-import { getSkillBounds, type SkillBounds } from '@/utils/weaponBounds';
-import type { WeaponLevel } from '@/types';
+} from '../../legacy/legacyGameText';
+import {
+  getWeaponTraitBounds,
+  type NextWeaponLevel,
+  type WeaponTraitLevelBounds,
+} from '../../legacy/legacyProgression';
+import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type { WeaponBuildChanges } from '../loadoutBuildCommands';
 import type { WeaponBuildViewModel } from '../loadoutBuildViewModel';
-import '@/components/armory/armoryDialogTheme.css';
 
-const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly WeaponLevel[];
+const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextWeaponLevel[];
 const ABSOLUTE_MAX_TRAIT_LEVEL = 9;
 type WeaponTraitKey = 'skill1' | 'skill2' | 'skill3';
 
@@ -72,15 +74,15 @@ function isWeaponTraitKey(value: string): value is WeaponTraitKey {
   return value === 'skill1' || value === 'skill2' || value === 'skill3';
 }
 
-function currentLevelNode(): WeaponLevel | null {
+function currentLevelNode(): NextWeaponLevel | null {
   return LEVELS.find(level => level === props.weapon?.level) ?? null;
 }
 
-function boundsFor(level: WeaponLevel, tuned: boolean, potential: number) {
-  return getSkillBounds(level, tuned, potential);
+function boundsFor(level: NextWeaponLevel, tuned: boolean, potential: number) {
+  return getWeaponTraitBounds(level, tuned, potential);
 }
 
-function currentBounds(): Record<WeaponTraitKey, SkillBounds> | null {
+function currentBounds(): Record<WeaponTraitKey, WeaponTraitLevelBounds> | null {
   const weapon = props.weapon;
   const level = currentLevelNode();
   return weapon && level ? boundsFor(level, weapon.tuned, weapon.potential) : null;
@@ -95,7 +97,7 @@ function traitLevel(key: WeaponTraitKey): number {
   return index < 0 ? 1 : (props.weapon?.traitLevels[index] ?? 1);
 }
 
-function traitBounds(key: WeaponTraitKey): SkillBounds {
+function traitBounds(key: WeaponTraitKey): WeaponTraitLevelBounds {
   const bounds = currentBounds()?.[key];
   if (bounds) return bounds;
   const index = traitIndex(key);
@@ -103,7 +105,7 @@ function traitBounds(key: WeaponTraitKey): SkillBounds {
   return { min: 1, max: levelCount };
 }
 
-function clampTraitLevels(level: WeaponLevel, tuned: boolean, potential: number): number[] {
+function clampTraitLevels(level: NextWeaponLevel, tuned: boolean, potential: number): number[] {
   const weapon = props.weapon;
   if (!weapon) return [];
   const bounds = boundsFor(level, tuned, potential);
@@ -119,7 +121,7 @@ function emitChange(changes: WeaponBuildChanges): void {
   emit('change', changes);
 }
 
-function handleLevelChange(level: WeaponLevel): void {
+function handleLevelChange(level: NextWeaponLevel): void {
   const weapon = props.weapon;
   if (!weapon) return;
   const tuned = level === 1 ? false : level === 90 ? true : weapon.tuned;

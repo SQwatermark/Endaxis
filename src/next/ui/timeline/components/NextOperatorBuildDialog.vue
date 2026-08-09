@@ -7,7 +7,6 @@
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import GameRichTextRenderer from '@/components/GameRichTextRenderer.vue';
 import {
   getGameAttributeName,
   getGameClassName,
@@ -20,15 +19,18 @@ import {
   getOperatorTalentDescription,
   getOperatorTalentName,
   getOperatorUiLabel,
-} from '@/data/gameText';
-import { getOperatorSkillMax, skillLevelLabel } from '@/utils/operatorBounds';
-import type { OperatorLevel } from '@/types';
+} from '../../legacy/legacyGameText';
+import {
+  formatOperatorSkillLevel,
+  getOperatorSkillMax,
+  type NextOperatorLevel,
+} from '../../legacy/legacyProgression';
+import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type { SkillLevelSource } from '../../../core/game-data/operatorDefinition';
 import type { OperatorBuildChanges } from '../loadoutBuildCommands';
 import type { OperatorBuildViewModel } from '../loadoutBuildViewModel';
-import '@/components/armory/armoryDialogTheme.css';
 
-const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly OperatorLevel[];
+const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextOperatorLevel[];
 const SKILL_ORDER = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'] as const;
 const ATTRIBUTE_ICON = {
   strength: '/icons/icon_attribute_str.webp',
@@ -73,7 +75,7 @@ const potentialColor = computed(() => {
 });
 const skillMax = computed(() => {
   const operator = props.operator;
-  return operator ? getOperatorSkillMax(operator.level as OperatorLevel, operator.promoted) : 1;
+  return operator ? getOperatorSkillMax(operator.level as NextOperatorLevel, operator.promoted) : 1;
 });
 const canPromote = computed(() => {
   const level = props.operator?.level;
@@ -358,7 +360,7 @@ function maxOut(): void {
                   -
                 </button>
                 <span class="skill-rank">{{
-                  skillLevelLabel(operator.skillLevels[source] ?? 1)
+                  formatOperatorSkillLevel(operator.skillLevels[source] ?? 1)
                 }}</span>
                 <button
                   type="button"

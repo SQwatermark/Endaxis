@@ -6,7 +6,8 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
-import { getGameWeaponTypeName, getWeaponGameName } from '@/data/gameText';
+import { getGameWeaponTypeName, getWeaponGameName } from '../../legacy/legacyGameText';
+import '../../legacy/legacyPresentation';
 import { getSharedEquipmentSupport, type SharedEquipmentSupport } from '../../../data/equipment';
 import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
 import NextWeaponSelectionTooltip from './NextWeaponSelectionTooltip.vue';
@@ -250,5 +251,3 @@ onUnmounted(() => {
     </div>
   </el-dialog>
 </template>
-
-<style src="../../../../components/selection/selectionDialog.css"></style>

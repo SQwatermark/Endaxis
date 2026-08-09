@@ -13,15 +13,14 @@ import {
   getGearPieceGameName,
   getGearSetGameDescription,
   getGearSetGameName,
-} from '@/data/gameText';
-import GameRichTextRenderer from '@/components/GameRichTextRenderer.vue';
-import { getEquipmentLevelColor, isEquipmentArtificable } from '@/utils/equipmentLevels';
+} from '../../legacy/legacyGameText';
+import { getEquipmentLevelColor, isEquipmentArtificable } from '../../legacy/legacyProgression';
+import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type {
   GearBuildViewModel,
   GearSlotsViewModel,
   LoadoutGearSlot,
 } from '../loadoutBuildViewModel';
-import '@/components/armory/armoryDialogTheme.css';
 
 const props = defineProps<{
   visible: boolean;

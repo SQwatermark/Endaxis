@@ -5,8 +5,8 @@
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import GameRichTextRenderer from '@/components/GameRichTextRenderer.vue';
-import { getWeaponSkillDescription, getWeaponSkillName } from '@/data/gameText';
+import { getWeaponSkillDescription, getWeaponSkillName } from '../../legacy/legacyGameText';
+import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type {
   WeaponDefinition,
   WeaponTraitDefinition,
