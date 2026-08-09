@@ -5,8 +5,10 @@
  */
 import type {
   EditableActionValues,
+  GearBuildDocument,
   OperatorBuildDocument,
   ScenarioDocument,
+  TrackDocument,
   TrackIndex,
   WeaponBuildDocument,
 } from '../../core/project/schema';
@@ -21,6 +23,7 @@ export type BasicEditableSkillCastField =
   | 'enhancement';
 
 export type BooleanEditableSkillCastField = 'locked' | 'disabled';
+export type TrackGearSlot = keyof TrackDocument['gearBuildIds'];
 
 /**
  * 更换轨道使用的干员养成方案。已有技能块依赖旧干员目录身份，因此切换或移除干员时一并清理。
@@ -54,6 +57,8 @@ export function setTrackOperator(
         };
 
   const operators = { ...scenario.builds.operators };
+  const weapons = { ...scenario.builds.weapons };
+  const gears = { ...scenario.builds.gears };
   if (operatorBuild !== null) operators[operatorBuild.id] = operatorBuild;
   if (
     previousBuildId !== null &&
@@ -62,10 +67,26 @@ export function setTrackOperator(
   ) {
     delete operators[previousBuildId];
   }
+  const previousWeaponBuildId = previousTrack?.weaponBuildId ?? null;
+  if (
+    previousWeaponBuildId !== null &&
+    !tracks.some(track => track?.weaponBuildId === previousWeaponBuildId)
+  ) {
+    delete weapons[previousWeaponBuildId];
+  }
+  const previousGearBuildIds = Object.values(previousTrack?.gearBuildIds ?? {}).filter(
+    (id): id is string => id !== null,
+  );
+  for (const gearBuildId of previousGearBuildIds) {
+    const stillReferenced = tracks.some(track =>
+      track === null ? false : Object.values(track.gearBuildIds).includes(gearBuildId),
+    );
+    if (!stillReferenced) delete gears[gearBuildId];
+  }
 
   return {
     ...scenario,
-    builds: { ...scenario.builds, operators },
+    builds: { operators, weapons, gears },
     tracks,
     connections: scenario.connections.filter(
       connection =>
@@ -108,6 +129,45 @@ export function setTrackWeapon(
   }
 
   return { ...scenario, builds: { ...scenario.builds, weapons }, tracks };
+}
+
+/**
+ * 更换轨道单个装备槽的方案，并清理已经没有槽位引用的旧方案。槽位与装备类型的匹配
+ * 由目录校验和选择器负责；命令层只维护文档引用与方案生命周期。
+ */
+export function setTrackGear(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  slot: TrackGearSlot,
+  gearBuild: GearBuildDocument | null,
+): ScenarioDocument {
+  const previousTrack = scenario.tracks[trackIndex];
+  if (previousTrack === null) throw new Error(`track ${trackIndex} is empty`);
+  const previousBuildId = previousTrack.gearBuildIds[slot];
+  const previousSlug =
+    previousBuildId === null ? null : (scenario.builds.gears[previousBuildId]?.gearSlug ?? null);
+  const nextSlug = gearBuild?.gearSlug ?? null;
+  if (previousSlug === nextSlug) return scenario;
+
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = {
+    ...previousTrack,
+    gearBuildIds: { ...previousTrack.gearBuildIds, [slot]: gearBuild?.id ?? null },
+  };
+
+  const gears = { ...scenario.builds.gears };
+  if (gearBuild !== null) gears[gearBuild.id] = gearBuild;
+  if (
+    previousBuildId !== null &&
+    previousBuildId !== gearBuild?.id &&
+    !tracks.some(track =>
+      track === null ? false : Object.values(track.gearBuildIds).includes(previousBuildId),
+    )
+  ) {
+    delete gears[previousBuildId];
+  }
+
+  return { ...scenario, builds: { ...scenario.builds, gears }, tracks };
 }
 
 function locateSkillCast(scenario: ScenarioDocument, trackIndex: TrackIndex, skillCastId: string) {

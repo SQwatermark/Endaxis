@@ -4,6 +4,7 @@ import type { SkillCastDocument } from '../../core/project/schema';
 import {
   moveSkillCast,
   removeSkillCast,
+  setTrackGear,
   setTrackOperator,
   setTrackWeapon,
   updateSkillCastBasicField,
@@ -68,6 +69,21 @@ describe('moveSkillCast', () => {
     const original = scenario();
     original.builds.operators[perlicaBuild.id] = perlicaBuild;
     original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+    original.tracks[0]!.weaponBuildId = 'weapon:old';
+    original.tracks[0]!.gearBuildIds.armor = 'gear:old';
+    original.builds.weapons['weapon:old'] = {
+      id: 'weapon:old',
+      weaponSlug: 'old',
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [1],
+    };
+    original.builds.gears['gear:old'] = {
+      id: 'gear:old',
+      gearSlug: 'old',
+      artificingLevels: [0],
+    };
     original.connections = [
       {
         id: 'connection:1',
@@ -85,6 +101,8 @@ describe('moveSkillCast', () => {
     expect(updated.connections).toEqual([]);
     expect(updated.builds.operators[perlicaBuild.id]).toBeUndefined();
     expect(updated.builds.operators[arcaneBuild.id]).toEqual(arcaneBuild);
+    expect(updated.builds.weapons['weapon:old']).toBeUndefined();
+    expect(updated.builds.gears['gear:old']).toBeUndefined();
   });
 
   it('leaves the document unchanged when selecting the current operator again', () => {
@@ -131,6 +149,41 @@ describe('moveSkillCast', () => {
         tuned: true,
         potential: 0,
         traitLevels: [1],
+      }),
+    ).toThrow('track 0 is empty');
+  });
+
+  it('assigns independent gear slots and removes only orphaned gear builds', () => {
+    const original = scenario();
+    const armor = { id: 'gear:armor', gearSlug: 'armor', artificingLevels: [0, 0, 0] };
+    const accessory = {
+      id: 'gear:accessory1',
+      gearSlug: 'accessory',
+      artificingLevels: [0, 0],
+    };
+
+    const armored = setTrackGear(original, 0, 'armor', armor);
+    const equipped = setTrackGear(armored, 0, 'accessory1', accessory);
+    const cleared = setTrackGear(equipped, 0, 'armor', null);
+
+    expect(equipped.tracks[0]!.gearBuildIds).toEqual({
+      armor: armor.id,
+      gloves: null,
+      accessory1: accessory.id,
+      accessory2: null,
+    });
+    expect(cleared.builds.gears[armor.id]).toBeUndefined();
+    expect(cleared.builds.gears[accessory.id]).toEqual(accessory);
+    expect(original.builds.gears).toEqual({});
+  });
+
+  it('rejects equipping gear on an empty track', () => {
+    const original = createEmptyScenario('scenario:empty-gear', '空轨道');
+    expect(() =>
+      setTrackGear(original, 0, 'armor', {
+        id: 'gear:armor',
+        gearSlug: 'armor',
+        artificingLevels: [0],
       }),
     ).toThrow('track 0 is empty');
   });
