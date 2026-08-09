@@ -122,6 +122,32 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     expect(snapshots.attacker.heatDamageIncrease).toBe(0);
   });
 
+  it('按原生属性身份冻结潜能的技能分类与伤害类型增伤', () => {
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext({
+        panel: {
+          ...panel,
+          combatModifiers: [
+            { kind: 'staticDamageIncrease', target: 'normalAttack', value: 0.15 },
+            { kind: 'staticDamageIncrease', target: 'battleSkill', value: 0.16 },
+            { kind: 'staticDamageIncrease', target: 'physical', value: 0.08 },
+            { kind: 'staticDamageIncrease', target: 'electric', value: 0.09 },
+            { kind: 'staticDamageIncrease', target: 'cryo', value: 0.1 },
+          ],
+        },
+      }),
+      electricDamage,
+    );
+
+    expect(snapshots.attacker).toMatchObject({
+      normalAttackDamageIncrease: 0.15,
+      normalSkillDamageIncrease: 0.16,
+      physicalDamageIncrease: 0.08,
+      electricDamageIncrease: 0.09,
+      cryoDamageIncrease: 0.1,
+    });
+  });
+
   it('缺少已解析面板时明确失败', () => {
     expect(() =>
       resolveStaticPlayerDamageSnapshots(createContext({ panel: undefined }), electricDamage),

@@ -23,6 +23,7 @@ __all__ = [
     "BASE_PANEL_ATTRIBUTE_TYPES",
     "BUILD_ATTRIBUTE_TYPES",
     "MODIFIER_TYPE_NAMES",
+    "STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES",
     "ProgressionConversionIssue",
     "StaticAttributeProgressionResult",
     "parse_static_attribute_progression",
@@ -35,6 +36,13 @@ __all__ = [
 BuildAttributeName = Literal["strength", "agility", "intellect", "will"]
 BasePanelStatName = Literal["health", "defense", "criticalRate", "artsIntensity"]
 BasePanelOperation = Literal["flat", "percent"]
+StaticDamageIncreaseTarget = Literal[
+    "normalAttack",
+    "battleSkill",
+    "physical",
+    "electric",
+    "cryo",
+]
 BUILD_ATTRIBUTE_TYPES: dict[int, BuildAttributeName] = {
     39: "strength",
     40: "agility",
@@ -50,6 +58,13 @@ BASE_PANEL_ATTRIBUTE_TYPES: dict[
     3: ("defense", "flat", 5),
     9: ("criticalRate", "flat", 5),
     87: ("artsIntensity", "flat", 5),
+}
+STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES: dict[int, StaticDamageIncreaseTarget] = {
+    17: "normalAttack",
+    32: "battleSkill",
+    50: "physical",
+    52: "electric",
+    53: "cryo",
 }
 
 # 名称来自 1.4.4 元数据生成的 AttributeType；semantic 描述该值实际进入的面板或战斗维度。
@@ -116,6 +131,9 @@ class StaticAttributeProgressionResult:
     base_panel_stat_modifiers: tuple[
         tuple[BasePanelStatName, BasePanelOperation, int | float], ...
     ]
+    static_damage_increase_modifiers: tuple[
+        tuple[StaticDamageIncreaseTarget, int | float], ...
+    ]
     issues: tuple[ProgressionConversionIssue, ...]
     missing_capabilities: tuple[Literal["potentialEffects"], ...]
 
@@ -151,6 +169,9 @@ def parse_static_attribute_progression(
     build_attribute_modifiers: list[tuple[BuildAttributeName, int]] = []
     base_panel_stat_modifiers: list[
         tuple[BasePanelStatName, BasePanelOperation, int | float]
+    ] = []
+    static_damage_increase_modifiers: list[
+        tuple[StaticDamageIncreaseTarget, int | float]
     ] = []
     issues: list[ProgressionConversionIssue] = []
 
@@ -194,8 +215,9 @@ def parse_static_attribute_progression(
         attr_type = modifier.get("attrType")
         attribute = BUILD_ATTRIBUTE_TYPES.get(attr_type)
         base_panel_target = BASE_PANEL_ATTRIBUTE_TYPES.get(attr_type)
+        static_damage_target = STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES.get(attr_type)
         semantic = ATTRIBUTE_TYPE_SEMANTICS.get(attr_type)
-        if attribute is None and base_panel_target is None:
+        if attribute is None and base_panel_target is None and static_damage_target is None:
             if semantic is None:
                 reject(
                     "unknown-attribute-type",
@@ -210,7 +232,11 @@ def parse_static_attribute_progression(
                     f"{native_name} ({attr_type}) maps to {semantic_name}, which has no exact Next upgrade modifier",
                 )
             continue
-        expected_modifier_type = 5 if attribute is not None else base_panel_target[2]
+        expected_modifier_type = (
+            5
+            if attribute is not None or static_damage_target is not None
+            else base_panel_target[2]
+        )
         if (
             modifier.get("modifierType") != expected_modifier_type
             or modifier.get("modifyAttributeType") != 0
@@ -252,17 +278,37 @@ def parse_static_attribute_progression(
                 continue
             normalized_value: int | float = int(value) if value.is_integer() else value
             base_panel_stat_modifiers.append((panel_stat, operation, normalized_value))
+        elif static_damage_target is not None:
+            if any(
+                existing_target == static_damage_target
+                for existing_target, _ in static_damage_increase_modifiers
+            ):
+                reject(
+                    "duplicate-static-damage-increase",
+                    modifier_path,
+                    f"duplicate static damage increase {static_damage_target!r}",
+                )
+                continue
+            normalized_value = int(value) if value.is_integer() else value
+            static_damage_increase_modifiers.append(
+                (static_damage_target, normalized_value)
+            )
 
     return StaticAttributeProgressionResult(
         build_attribute_modifiers=tuple(build_attribute_modifiers),
         base_panel_stat_modifiers=tuple(base_panel_stat_modifiers),
+        static_damage_increase_modifiers=tuple(static_damage_increase_modifiers),
         issues=tuple(issues),
         missing_capabilities=("potentialEffects",) if issues else (),
     )
 
 
 def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult) -> str:
-    if not result.build_attribute_modifiers and not result.base_panel_stat_modifiers:
+    if (
+        not result.build_attribute_modifiers
+        and not result.base_panel_stat_modifiers
+        and not result.static_damage_increase_modifiers
+    ):
         raise ValueError("static attribute potential: expected at least one converted modifier")
     grouped: list[tuple[int, list[BuildAttributeName]]] = []
     for attribute, value in result.build_attribute_modifiers:
@@ -287,6 +333,12 @@ def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult)
             "    "
             f"{{ kind: 'modifyBasePanelStat', stat: {ts_inline_literal(stat)}, "
             f"operation: {ts_inline_literal(operation)}, value: {ts_inline_literal(value)} }},"
+        )
+    for target, value in result.static_damage_increase_modifiers:
+        lines.append(
+            "    "
+            f"{{ kind: 'addStaticDamageIncrease', target: {ts_inline_literal(target)}, "
+            f"value: {ts_inline_literal(value)} }},"
         )
     lines.append("  ],")
     return "\n".join(lines)

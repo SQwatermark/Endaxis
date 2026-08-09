@@ -59,13 +59,14 @@ class ProgressionRendererTests(unittest.TestCase):
             (("strength", 15), ("intellect", 15)),
         )
         self.assertEqual(result.base_panel_stat_modifiers, ())
+        self.assertEqual(result.static_damage_increase_modifiers, ())
         self.assertEqual(result.issues, ())
         self.assertEqual(result.missing_capabilities, ())
 
     def test_strict_mode_rejects_unknown_attribute_data(self) -> None:
-        with self.assertRaisesRegex(ValueError, "PhysicalDamageIncrease.*no exact Next"):
+        with self.assertRaisesRegex(ValueError, "HealOutputIncrease.*no exact Next"):
             parse_static_attribute_progression(
-                [effect_entry(attr_type=50, value=0.08)],
+                [effect_entry(attr_type=29, value=0.08)],
                 "effect.dataList",
             )
         with self.assertRaisesRegex(ValueError, "unknown fields"):
@@ -93,7 +94,7 @@ class ProgressionRendererTests(unittest.TestCase):
         result = parse_static_attribute_progression(
             [
                 effect_entry(attr_type=42, value=20),
-                effect_entry(attr_type=32, value=0.15),
+                effect_entry(attr_type=29, value=0.15),
             ],
             "effect.dataList",
             mode="lenient",
@@ -101,6 +102,7 @@ class ProgressionRendererTests(unittest.TestCase):
 
         self.assertEqual(result.build_attribute_modifiers, (("will", 20),))
         self.assertEqual(result.base_panel_stat_modifiers, ())
+        self.assertEqual(result.static_damage_increase_modifiers, ())
         self.assertEqual(result.missing_capabilities, ("potentialEffects",))
         self.assertEqual([issue.code for issue in result.issues], ["unsupported-next-attribute"])
 
@@ -119,6 +121,7 @@ class ProgressionRendererTests(unittest.TestCase):
 
         self.assertEqual(result.build_attribute_modifiers, ())
         self.assertEqual(result.base_panel_stat_modifiers, ())
+        self.assertEqual(result.static_damage_increase_modifiers, ())
         self.assertEqual(result.missing_capabilities, ("potentialEffects",))
         self.assertEqual([issue.code for issue in result.issues], ["unknown-attribute-type"])
 
@@ -145,6 +148,32 @@ class ProgressionRendererTests(unittest.TestCase):
         )
         self.assertEqual(result.issues, ())
 
+    def test_converts_source_confirmed_static_damage_increases(self) -> None:
+        result = parse_static_attribute_progression(
+            [
+                effect_entry(attr_type=17, value=0.15),
+                effect_entry(attr_type=32, value=0.16),
+                effect_entry(attr_type=50, value=0.08),
+                effect_entry(attr_type=52, value=0.09),
+                effect_entry(attr_type=53, value=0.1),
+            ],
+            "effect.dataList",
+        )
+
+        self.assertEqual(result.build_attribute_modifiers, ())
+        self.assertEqual(result.base_panel_stat_modifiers, ())
+        self.assertEqual(
+            result.static_damage_increase_modifiers,
+            (
+                ("normalAttack", 0.15),
+                ("battleSkill", 0.16),
+                ("physical", 0.08),
+                ("electric", 0.09),
+                ("cryo", 0.1),
+            ),
+        )
+        self.assertEqual(result.issues, ())
+
     def test_renders_equal_attribute_values_as_one_upgrade_modifier(self) -> None:
         source = {
             "char": {
@@ -162,6 +191,8 @@ class ProgressionRendererTests(unittest.TestCase):
                     effect_entry(attr_type=3, value=20),
                     effect_entry(attr_type=9, value=0.07),
                     effect_entry(attr_type=87, value=16),
+                    effect_entry(attr_type=17, value=0.15),
+                    effect_entry(attr_type=52, value=0.09),
                 ]
             }
         }
@@ -199,6 +230,14 @@ class ProgressionRendererTests(unittest.TestCase):
             "kind: 'modifyBasePanelStat', stat: 'artsIntensity', operation: 'flat', value: 16",
             rendered[0],
         )
+        self.assertIn(
+            "kind: 'addStaticDamageIncrease', target: 'normalAttack', value: 0.15",
+            rendered[0],
+        )
+        self.assertIn(
+            "kind: 'addStaticDamageIncrease', target: 'electric', value: 0.09",
+            rendered[0],
+        )
 
     def test_audit_marks_mixed_attribute_effect_as_partial(self) -> None:
         effect = audit_effect(
@@ -207,7 +246,7 @@ class ProgressionRendererTests(unittest.TestCase):
                 "effect.mixed": {
                     "dataList": [
                         effect_entry(attr_type=42, value=20),
-                        effect_entry(attr_type=32, value=0.15),
+                        effect_entry(attr_type=29, value=0.15),
                     ]
                 }
             },
@@ -224,9 +263,9 @@ class ProgressionRendererTests(unittest.TestCase):
             conversion["attributeFacts"][1],
             {
                 "entryIndex": 1,
-                "attrType": 32,
-                "nativeName": "NormalSkillDamageIncrease",
-                "semantic": "combat.battleSkillDamageIncrease",
+                "attrType": 29,
+                "nativeName": "HealOutputIncrease",
+                "semantic": "combat.healOutputIncrease",
                 "modifierType": 5,
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,

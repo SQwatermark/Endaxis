@@ -661,6 +661,20 @@ export const UPGRADE_BASE_PANEL_STATS = [
  */
 export type UpgradeBasePanelStat = (typeof UPGRADE_BASE_PANEL_STATS)[number];
 
+export const UPGRADE_STATIC_DAMAGE_INCREASE_TARGETS = [
+  'normalAttack',
+  'battleSkill',
+  'physical',
+  'electric',
+  'cryo',
+] as const;
+/**
+ * 潜能在构筑期确定、在每次命中按伤害语义选择的增伤属性。
+ * 普攻目标由命中标签选择，因此能够覆盖重击、下落攻击和冲刺攻击，不等同于 SkillType。
+ */
+export type UpgradeStaticDamageIncreaseTarget =
+  (typeof UPGRADE_STATIC_DAMAGE_INCREASE_TARGETS)[number];
+
 /**
  * 天赋和潜能能够施加到编译结果的结构化修正。
  * 新种类必须有明确合并规则，不能通过任意对象补丁修改技能定义。
@@ -692,6 +706,12 @@ export type UpgradeModifierDefinition =
       kind: 'setEffectiveness';
       skillGroupKey: string;
       stepKey: string;
+      value: number;
+    }
+  | {
+      /** 将构筑期常驻增伤写入对应伤害属性；数值使用小数，例如 15% 写作 0.15。 */
+      kind: 'addStaticDamageIncrease';
+      target: UpgradeStaticDamageIncreaseTarget;
       value: number;
     }
   | {
@@ -753,6 +773,7 @@ export const UPGRADE_MODIFIER_KINDS = [
   'addSkillCooldownFrames',
   'addBuildAttribute',
   'modifyBasePanelStat',
+  'addStaticDamageIncrease',
   'addReactionDuration',
   'addReactionEffectiveness',
 ] as const satisfies readonly UpgradeModifierDefinition['kind'][];

@@ -103,8 +103,8 @@
       }
     ],
     "staticAttributePotentialCounts": {
-      "complete": 16,
-      "partial": 10
+      "complete": 24,
+      "partial": 2
     }
   },
   "operators": [
@@ -266,7 +266,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -291,7 +291,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.08,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "physical"
+                }
               }
             ],
             "modifiers": [
@@ -299,16 +302,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 15
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "physical",
+                "value": 0.08
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0005_chen_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -1191,7 +1193,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -1216,7 +1218,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.08,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "electric"
+                }
               }
             ],
             "modifiers": [
@@ -1224,16 +1229,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 15
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "electric",
+                "value": 0.08
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0012_avywen_potential_3.dataList[1].attrModifier.attrType",
-                "detail": "PulseDamageIncrease (52) maps to combat.electricDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -1842,7 +1846,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -1867,7 +1871,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.15,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "normalAttack"
+                }
               }
             ],
             "modifiers": [
@@ -1875,16 +1882,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "intellect",
                 "value": 20
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "normalAttack",
+                "value": 0.15
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0016_laevat_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "NormalAttackDamageIncrease (17) maps to combat.normalAttackDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -2250,7 +2256,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -2275,7 +2281,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.08,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "physical"
+                }
               }
             ],
             "modifiers": [
@@ -2283,16 +2292,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 15
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "physical",
+                "value": 0.08
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0018_dapan_potential_3.dataList[1].attrModifier.attrType",
-                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -3561,7 +3569,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -3586,7 +3594,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.1,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "cryo"
+                }
               }
             ],
             "modifiers": [
@@ -3594,16 +3605,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "strength",
                 "value": 20
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "cryo",
+                "value": 0.1
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0026_lastrite_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "CrystDamageIncrease (53) maps to combat.cryoDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -3796,7 +3806,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -3821,7 +3831,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.1,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "cryo"
+                }
               }
             ],
             "modifiers": [
@@ -3829,16 +3842,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "agility",
                 "value": 20
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "cryo",
+                "value": 0.1
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0027_tangtang_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "CrystDamageIncrease (53) maps to combat.cryoDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -4246,7 +4258,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -4271,7 +4283,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.1,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "physical"
+                }
               }
             ],
             "modifiers": [
@@ -4279,16 +4294,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "physical",
+                "value": 0.1
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0029_pograni_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "PhysicalDamageIncrease (50) maps to combat.physicalDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {
@@ -4417,7 +4431,7 @@
             }
           ],
           "staticAttributeConversion": {
-            "status": "partial",
+            "status": "complete",
             "attributeFacts": [
               {
                 "entryIndex": 0,
@@ -4442,7 +4456,10 @@
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.15,
-                "nextTarget": null
+                "nextTarget": {
+                  "kind": "staticDamageIncrease",
+                  "target": "battleSkill"
+                }
               }
             ],
             "modifiers": [
@@ -4450,16 +4467,15 @@
                 "kind": "addBuildAttribute",
                 "attribute": "will",
                 "value": 20
+              },
+              {
+                "kind": "addStaticDamageIncrease",
+                "target": "battleSkill",
+                "value": 0.15
               }
             ],
-            "missingCapabilities": ["potentialEffects"],
-            "issues": [
-              {
-                "code": "unsupported-next-attribute",
-                "path": "PotentialTalentEffectTable.chr_0030_zhuangfy_potential_2.dataList[1].attrModifier.attrType",
-                "detail": "NormalSkillDamageIncrease (32) maps to combat.battleSkillDamageIncrease, which has no exact Next upgrade modifier"
-              }
-            ]
+            "missingCapabilities": [],
+            "issues": []
           }
         },
         {

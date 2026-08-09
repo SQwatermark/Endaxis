@@ -11,6 +11,7 @@ import type {
   TrustAttributeBonusDefinition,
   UpgradeBasePanelStat,
   UpgradeModifierDefinition,
+  UpgradeStaticDamageIncreaseTarget,
 } from '../game-data/operatorDefinition';
 import type { OperatorBuildDocument } from '../project/schema';
 import type {
@@ -91,9 +92,18 @@ export interface ResolvedOperatorPanel {
   readonly skillCooldownReduction: number;
   readonly staggerDamagePercent: number;
   /** 不显示为普通面板数值、但由同一构筑静态决定的战斗修正。 */
-  readonly combatModifiers: readonly ResolvedEquipmentModifier[];
+  readonly combatModifiers: readonly ResolvedOperatorCombatModifier[];
   readonly receipt: readonly OperatorPanelContributionReceipt[];
 }
+
+/** 构筑期静态战斗修正；升级增伤保留原生属性身份，配装修正继续保留筛选条件。 */
+export type ResolvedOperatorCombatModifier =
+  | ResolvedEquipmentModifier
+  | {
+      readonly kind: 'staticDamageIncrease';
+      readonly target: UpgradeStaticDamageIncreaseTarget;
+      readonly value: number;
+    };
 
 interface MutablePanelValues {
   attributes: Record<OperatorAttribute, number>;
@@ -203,6 +213,7 @@ function applyUpgradeModifier(
   source: OperatorPanelContributionSource,
   values: MutablePanelValues,
   receipt: OperatorPanelContributionReceipt[],
+  combatModifiers: ResolvedOperatorCombatModifier[],
 ): void {
   if (modifier.kind === 'addBuildAttribute') {
     for (const attribute of modifier.attributes) {
@@ -215,6 +226,12 @@ function applyUpgradeModifier(
       source,
       stat: modifier.stat,
       operation: modifier.operation,
+      value: modifier.value,
+    });
+  } else if (modifier.kind === 'addStaticDamageIncrease') {
+    combatModifiers.push({
+      kind: 'staticDamageIncrease',
+      target: modifier.target,
       value: modifier.value,
     });
   }
@@ -233,7 +250,7 @@ function applyEquipmentContribution(
   contribution: CompiledEquipmentContribution,
   values: MutablePanelValues,
   receipt: OperatorPanelContributionReceipt[],
-  combatModifiers: ResolvedEquipmentModifier[],
+  combatModifiers: ResolvedOperatorCombatModifier[],
 ): void {
   const source = { kind: 'equipment', contribution: contribution.source } as const;
   for (const modifier of contribution.modifiers) {
@@ -299,6 +316,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     upgradeBasePanelStats: createUpgradeBasePanelStatRecord(),
     panelStats: createPanelStatRecord(),
   };
+  const combatModifiers: ResolvedOperatorCombatModifier[] = [];
   receipt.push(
     {
       source: operatorSource,
@@ -366,7 +384,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   ]) {
     const source = { kind: 'operatorUpgrade', upgradeKey: upgrade.key } as const;
     for (const modifier of upgrade.modifiers ?? []) {
-      applyUpgradeModifier(modifier, source, values, receipt);
+      applyUpgradeModifier(modifier, source, values, receipt, combatModifiers);
     }
   }
 
@@ -397,7 +415,6 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   }
 
   const equipment = compileResolvedScenarioEquipment([build])[0]!;
-  const combatModifiers: ResolvedEquipmentModifier[] = [];
   for (const contribution of equipment.contributions) {
     applyEquipmentContribution(contribution, values, receipt, combatModifiers);
   }

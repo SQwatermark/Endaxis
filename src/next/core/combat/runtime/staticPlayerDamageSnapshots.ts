@@ -5,7 +5,10 @@
  * 在对应阶段提供。调用方必须按具体伤害步骤重新解析，避免带筛选条件的配装加成污染其他命中。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { DamageType } from '../../game-data/operatorDefinition';
+import type {
+  DamageType,
+  UpgradeStaticDamageIncreaseTarget,
+} from '../../game-data/operatorDefinition';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeKey,
@@ -25,6 +28,16 @@ const DAMAGE_INCREASE_ATTRIBUTE: Partial<Record<DamageType, DamageScaleAttribute
   ether: 'etherDamageIncrease',
 };
 
+const STATIC_DAMAGE_INCREASE_ATTRIBUTE: Readonly<
+  Record<UpgradeStaticDamageIncreaseTarget, DamageScaleAttributeKey>
+> = {
+  normalAttack: 'normalAttackDamageIncrease',
+  battleSkill: 'normalSkillDamageIncrease',
+  physical: 'physicalDamageIncrease',
+  electric: 'electricDamageIncrease',
+  cryo: 'cryoDamageIncrease',
+};
+
 function emptyDamageScaleSnapshot(): Record<DamageScaleAttributeKey, number> {
   return Object.fromEntries(DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0])) as Record<
     DamageScaleAttributeKey,
@@ -42,6 +55,10 @@ function resolveStaticDamageScales(
 ): DamageScaleAttributeSnapshot {
   const result = emptyDamageScaleSnapshot();
   for (const modifier of context.panel?.combatModifiers ?? []) {
+    if (modifier.kind === 'staticDamageIncrease') {
+      result[STATIC_DAMAGE_INCREASE_ATTRIBUTE[modifier.target]] += modifier.value;
+      continue;
+    }
     if (modifier.kind !== 'damageBonus') continue;
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
     if (

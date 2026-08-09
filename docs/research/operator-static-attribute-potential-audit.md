@@ -5,8 +5,8 @@
 当前 TableCfg 样本包含 29 名有效干员、259 个天赋或潜能效果。潜能中共有 56 条
 `attrModifier`，分布在 26 个潜能效果中：
 
-- 16 个潜能效果只包含当前 Next 可无损表达的四维或静态面板基础层修正；
-- 10 个潜能效果还包含 Next 尚无等价升级修正的已知战斗属性，只能部分转换；
+- 24 个潜能效果只包含当前 Next 可无损表达的四维、静态面板基础层或静态增伤修正；
+- 2 个潜能效果还包含 Next 尚无等价升级修正的已知战斗属性，只能部分转换；
 - 天赋效果中没有 `attrModifier`，因此本切片只扩展潜能转换。
 
 机器可查询的逐干员结果见 `all-operator-progression-audit.json` 的
@@ -31,12 +31,12 @@
 |          1 | `MaxHp`                             | 最大生命         | `modifyBasePanelStat(health, percent)`     |
 |          3 | `Def`                               | 防御力           | `modifyBasePanelStat(defense, flat)`       |
 |          9 | `CriticalRate`                      | 全局暴击率       | `modifyBasePanelStat(criticalRate, flat)`  |
-|         17 | `NormalAttackDamageIncrease`        | 普攻伤害加成     | 暂不支持标签级伤害属性修正                 |
+|         17 | `NormalAttackDamageIncrease`        | 普攻伤害加成     | `addStaticDamageIncrease(normalAttack)`    |
 |         29 | `HealOutputIncrease`                | 治疗效率         | 暂不支持治疗属性修正                       |
-|         32 | `NormalSkillDamageIncrease`         | 战技伤害加成     | 暂不支持标签级伤害属性修正                 |
-|         50 | `PhysicalDamageIncrease`            | 物理伤害加成     | 暂不支持伤害类型属性修正                   |
-|         52 | `PulseDamageIncrease`               | 电磁伤害加成     | 暂不支持伤害类型属性修正                   |
-|         53 | `CrystDamageIncrease`               | 寒冷伤害加成     | 暂不支持伤害类型属性修正                   |
+|         32 | `NormalSkillDamageIncrease`         | 战技伤害加成     | `addStaticDamageIncrease(battleSkill)`     |
+|         50 | `PhysicalDamageIncrease`            | 物理伤害加成     | `addStaticDamageIncrease(physical)`        |
+|         52 | `PulseDamageIncrease`               | 电磁伤害加成     | `addStaticDamageIncrease(electric)`        |
+|         53 | `CrystDamageIncrease`               | 寒冷伤害加成     | `addStaticDamageIncrease(cryo)`            |
 |         60 | `EtherDamageTakenScalar`            | 以太伤害承受倍率 | 暂不支持受伤倍率属性修正                   |
 |         87 | `PhysicalAndSpellInflictionEnhance` | 源石技艺强度     | `modifyBasePanelStat(artsIntensity, flat)` |
 
@@ -63,9 +63,14 @@
 - `percent` 以小数累加到基础倍率，倍率下限按原生公式钳制为零；
 - 编译结果进入 `ResolvedOperatorPanel`，现有玩家主动伤害快照会读取暴击率；Next 当前不模拟
   玩家承伤，因此最大生命与干员防御暂时只形成准确面板值，尚无对应运行时消费者；
-- 伤害类型增伤、技能类型增伤、治疗效率和受伤倍率不属于面板基础层，不能借用此 modifier。
+- 治疗效率和受伤倍率不属于面板基础层，不能借用此 modifier。
 
-目前生成器只开放数据中已经闭环的四种组合。类型和编译器保留统一的 `flat/percent` 基础层
+`addStaticDamageIncrease` 是构筑编译期的战斗属性，不是运行时 Buff。编译器保留其原生属性
+身份，伤害快照再把目标直接注入 `normalAttackDamageIncrease`、`normalSkillDamageIncrease`
+或对应元素增伤属性。没有复用装备的 `damageBonus`，因为后者以命中筛选器表达贡献，并把结果
+折叠到伤害类型属性；这会丢失技能类别属性身份，在真实伤害等分支上也不等价。
+
+目前生成器只开放数据中已经闭环的组合。类型和编译器保留统一的 `flat/percent` 基础层
 求值结构，是因为原生八槽公式对所有属性使用同一聚合规则；这不表示生成器可以任意把其他
 `attrType` 映射到面板。
 
@@ -93,6 +98,10 @@
   按已解锁档位累计并进入统一八槽聚合；
 - `PlayerActiveDamageAttributeResolver.cs`、`DamageScaleAttributeInjector.cs`、
   `CombatAttributes.cs`：防御、暴击、治疗、技能类别及伤害类型属性的实际消费点；
+- `docs/damage-formula.md`：同一命中可同时累加伤害类型和技能类别增伤，普攻集合包含普通攻击、
+  重击、下落攻击与冲刺攻击；真实伤害不消费伤害类型增伤，但仍可消费技能类别增伤；
+- `src/next/core/combat/damage/damageScaleAttributes.ts`：Next 已有与上述原生属性一一对应的伤害
+  快照字段与命中标签分类，因此无需引入近似筛选规则；
 - `ReadSkillSettingAction.cs`：原生逻辑读取
   `PhysicalAndSpellInflictionEnhance` 作为附着增强输入；
 - `docs/research/arcane-next-evidence.md` 与现有装备生成映射：`attrType 87` 在用户面板中对应
@@ -100,8 +109,8 @@
 
 ## 剩余缺口
 
-语义已知但尚不可转换的类型为 `17, 29, 32, 50, 52, 53, 60`。在 Next 新增
-对应战斗属性容器及明确消费规则前，生成器会继续保留这些项并标记 `potentialEffects` 缺失，
+语义已知但尚不可转换的类型为 `29, 60`。在 Next 新增
+对应治疗或承伤属性容器及明确消费规则前，生成器会继续保留这些项并标记 `potentialEffects` 缺失，
 不会用技能组枚举或倍率近似替代。潜能中更常见的 `skillBbModifier`、
 `skillParamModifier` 与 `attachBuff` 也仍需分别建立通用转换。
 

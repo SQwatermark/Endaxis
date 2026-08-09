@@ -473,7 +473,10 @@ export const zhuangFangyi: OperatorDefinition = {
     {
       key: 'willAndBattleSkillDamage',
       levels: 1,
-      modifiers: [{ kind: 'addBuildAttribute', attributes: ['will'], value: 20 }],
+      modifiers: [
+        { kind: 'addBuildAttribute', attributes: ['will'], value: 20 },
+        { kind: 'addStaticDamageIncrease', target: 'battleSkill', value: 0.15 },
+      ],
     },
     { key: 'reactionConsumptionRecovery', levels: 1, modifiers: [] },
     {

@@ -104,6 +104,11 @@ describe('resolveOperatorPanel', () => {
       operation: 'flat',
       value: 20,
     });
+    expect(panel.combatModifiers).toContainEqual({
+      kind: 'staticDamageIncrease',
+      target: 'battleSkill',
+      value: 0.15,
+    });
   });
 
   it('applies potential modifiers in the recovered static attribute base layer', () => {
@@ -138,6 +143,8 @@ describe('resolveOperatorPanel', () => {
               operation: 'flat',
               value: 16,
             },
+            { kind: 'addStaticDamageIncrease', target: 'normalAttack', value: 0.15 },
+            { kind: 'addStaticDamageIncrease', target: 'physical', value: 0.08 },
           ],
         },
       ],
@@ -151,6 +158,10 @@ describe('resolveOperatorPanel', () => {
       artsIntensity: 16,
     });
     expect(panel.criticalRate).toBeCloseTo(0.12);
+    expect(panel.combatModifiers).toEqual([
+      { kind: 'staticDamageIncrease', target: 'normalAttack', value: 0.15 },
+      { kind: 'staticDamageIncrease', target: 'physical', value: 0.08 },
+    ]);
     expect(panel.receipt).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ stat: 'health', operation: 'percent', value: 0.1 }),

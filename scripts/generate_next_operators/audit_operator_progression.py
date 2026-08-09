@@ -17,6 +17,7 @@ from progression_renderer import (
     BASE_PANEL_ATTRIBUTE_TYPES,
     BUILD_ATTRIBUTE_TYPES,
     MODIFIER_TYPE_NAMES,
+    STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES,
     parse_static_attribute_progression,
 )
 from source_utils import require_dict, require_list
@@ -165,6 +166,11 @@ def audit_effect(
                             "operation": BASE_PANEL_ATTRIBUTE_TYPES[attr_type][1],
                         }
                         if attr_type in BASE_PANEL_ATTRIBUTE_TYPES
+                        else {
+                            "kind": "staticDamageIncrease",
+                            "target": STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES[attr_type],
+                        }
+                        if attr_type in STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES
                         else None
                     ),
                 }
@@ -180,7 +186,7 @@ def audit_effect(
         )
         converted_count = len(conversion.build_attribute_modifiers) + len(
             conversion.base_panel_stat_modifiers
-        )
+        ) + len(conversion.static_damage_increase_modifiers)
         result["staticAttributeConversion"] = {
             "status": (
                 "complete"
@@ -203,6 +209,14 @@ def audit_effect(
                         "value": value,
                     }
                     for stat, operation, value in conversion.base_panel_stat_modifiers
+                ),
+                *(
+                    {
+                        "kind": "addStaticDamageIncrease",
+                        "target": target,
+                        "value": value,
+                    }
+                    for target, value in conversion.static_damage_increase_modifiers
                 ),
             ],
             "missingCapabilities": list(conversion.missing_capabilities),
