@@ -217,4 +217,48 @@ describe('compileCombatBuffCatalog', () => {
 
     expect(attributes.get('attack')).toBe(150);
   });
+
+  it('refreshes registered attribute modifiers from the current buff blackboard on trigger', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-refresh-attribute-modifiers',
+      buffs: [
+        {
+          id: 'status.nature.heat',
+          stackingType: 'unique',
+          triggerIntervalSeconds: 1,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: -1,
+          blackboard: { attackRate: 0.1 },
+          attributeModifiers: [
+            {
+              attribute: 'attack',
+              slot: 'baseMultiplier',
+              value: { blackboardKey: 'attackRate' },
+            },
+          ],
+          actions: {
+            trigger: [{ kind: 'refreshAttributeModifierValues' }],
+          },
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('status.nature.heat');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('enemy', attributes);
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(attributes.get('attack')).toBeCloseTo(110);
+    buff.blackboard.assignDynamic('attackRate', 0.5);
+    expect(attributes.get('attack')).toBeCloseTo(110);
+
+    container.tick(1);
+
+    expect(attributes.get('attack')).toBeCloseTo(150);
+  });
 });

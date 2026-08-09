@@ -39,10 +39,15 @@ export type CombatBuffSemanticRole =
     };
 
 /** 外部 Buff 目录当前允许表达的生命周期动作。 */
-export type CombatBuffCatalogAction = { readonly kind: 'emitElementalInflictionStarted' };
+export type CombatBuffCatalogAction =
+  | { readonly kind: 'emitElementalInflictionStarted' }
+  | { readonly kind: 'refreshAttributeModifierValues' };
 
 /** 目录 Buff 在各生命周期边界执行的动作集合。 */
 export interface CombatBuffCatalogLifecycleActions {
+  readonly start?: readonly CombatBuffCatalogAction[];
+  readonly trigger?: readonly CombatBuffCatalogAction[];
+  readonly enhanceChanged?: readonly CombatBuffCatalogAction[];
   readonly afterEnhance?: readonly CombatBuffCatalogAction[];
 }
 
@@ -356,22 +361,38 @@ function parseOptionalActions(
   if (entry.actions === undefined) return {};
   const actionsPath = `${path}.actions`;
   const actions = requireObject(entry.actions, actionsPath);
-  requireOnlyKeys(actions, actionsPath, ['afterEnhance']);
-  if (!Array.isArray(actions.afterEnhance)) {
-    throw new Error(`${actionsPath}.afterEnhance: expected array`);
-  }
+  requireOnlyKeys(actions, actionsPath, ['start', 'trigger', 'enhanceChanged', 'afterEnhance']);
   return {
     actions: {
-      afterEnhance: actions.afterEnhance.map((input, index) => {
-        const actionPath = `${actionsPath}.afterEnhance[${index}]`;
-        const action = requireObject(input, actionPath);
-        requireOnlyKeys(action, actionPath, ['kind']);
-        if (action.kind !== 'emitElementalInflictionStarted') {
-          throw new Error(`${actionPath}.kind: unknown value '${String(action.kind)}'`);
-        }
-        return { kind: action.kind };
-      }),
+      ...parseOptionalCatalogActionList(actions, 'start', actionsPath),
+      ...parseOptionalCatalogActionList(actions, 'trigger', actionsPath),
+      ...parseOptionalCatalogActionList(actions, 'enhanceChanged', actionsPath),
+      ...parseOptionalCatalogActionList(actions, 'afterEnhance', actionsPath),
     },
+  };
+}
+
+function parseOptionalCatalogActionList(
+  actions: Readonly<Record<string, unknown>>,
+  key: keyof CombatBuffCatalogLifecycleActions,
+  path: string,
+): Partial<CombatBuffCatalogLifecycleActions> {
+  const input = actions[key];
+  if (input === undefined) return {};
+  if (!Array.isArray(input)) throw new Error(`${path}.${key}: expected array`);
+  return {
+    [key]: input.map((item, index) => {
+      const actionPath = `${path}.${key}[${index}]`;
+      const action = requireObject(item, actionPath);
+      requireOnlyKeys(action, actionPath, ['kind']);
+      if (
+        action.kind !== 'emitElementalInflictionStarted' &&
+        action.kind !== 'refreshAttributeModifierValues'
+      ) {
+        throw new Error(`${actionPath}.kind: unknown value '${String(action.kind)}'`);
+      }
+      return { kind: action.kind };
+    }),
   };
 }
 
@@ -515,27 +536,74 @@ function compileLifecycleActions<Key extends string>(
   entry: CombatBuffCatalogEntry,
   ports: CombatBuffCatalogCompilerPorts<Key>,
 ): BuffLifecycleActions<Key> | undefined {
-  const actions = entry.actions?.afterEnhance;
-  if (actions === undefined || actions.length === 0) return undefined;
-  const role = entry.role;
-  if (role?.kind !== 'elementalAttachment') {
-    throw new Error(
-      `buff '${entry.id}' emits elemental-infliction events without an elemental-attachment role`,
-    );
+  const actions = entry.actions;
+  if (actions === undefined) return undefined;
+  const start = compileCatalogActionList(entry, 'start', actions.start, ports);
+  const trigger = compileCatalogActionList(entry, 'trigger', actions.trigger, ports);
+  const enhanceChanged = compileCatalogActionList(
+    entry,
+    'enhanceChanged',
+    actions.enhanceChanged,
+    ports,
+  );
+  const afterEnhance = compileCatalogActionList(entry, 'afterEnhance', actions.afterEnhance, ports);
+  if (
+    start.length === 0 &&
+    trigger.length === 0 &&
+    enhanceChanged.length === 0 &&
+    afterEnhance.length === 0
+  ) {
+    return undefined;
   }
-  const handlers = actions.map(action => {
+  return {
+    ...(start.length === 0 ? {} : { start: createLifecycleHandler(start) }),
+    ...(trigger.length === 0 ? {} : { trigger: createLifecycleHandler(trigger) }),
+    ...(enhanceChanged.length === 0
+      ? {}
+      : { enhanceChanged: createLifecycleHandler(enhanceChanged) }),
+    ...(afterEnhance.length === 0 ? {} : { afterEnhance: createLifecycleHandler(afterEnhance) }),
+  };
+}
+
+type CatalogActionHandler<Key extends string> = (buff: CombatBuff<Key>) => void;
+
+function compileCatalogActionList<Key extends string>(
+  entry: CombatBuffCatalogEntry,
+  lifecycle: keyof CombatBuffCatalogLifecycleActions,
+  actions: readonly CombatBuffCatalogAction[] | undefined,
+  ports: CombatBuffCatalogCompilerPorts<Key>,
+): readonly CatalogActionHandler<Key>[] {
+  return (actions ?? []).map(action => {
     switch (action.kind) {
-      case 'emitElementalInflictionStarted':
-        return createElementalAttachmentLifecycleActions(
+      case 'refreshAttributeModifierValues':
+        return buff => buff.refreshAttributeModifierValues();
+      case 'emitElementalInflictionStarted': {
+        if (lifecycle !== 'afterEnhance') {
+          throw new Error(
+            `buff '${entry.id}' emits elemental-infliction events from unsupported lifecycle '${lifecycle}'`,
+          );
+        }
+        const role = entry.role;
+        if (role?.kind !== 'elementalAttachment') {
+          throw new Error(
+            `buff '${entry.id}' emits elemental-infliction events without an elemental-attachment role`,
+          );
+        }
+        const handler = createElementalAttachmentLifecycleActions(
           role.element,
           ports.emitElementalInflictionStarted,
         ).afterEnhance!;
+        return buff => handler(buff, buff.sourceId);
+      }
     }
   });
-  return {
-    afterEnhance: (buff, sourceId) => {
-      for (const handler of handlers) handler(buff, sourceId);
-    },
+}
+
+function createLifecycleHandler<Key extends string>(
+  handlers: readonly CatalogActionHandler<Key>[],
+): CatalogActionHandler<Key> {
+  return buff => {
+    for (const handler of handlers) handler(buff);
   };
 }
 
