@@ -4,11 +4,12 @@ import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
+import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
-import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
@@ -16,7 +17,11 @@ import {
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
-import { moveSkillCast } from './timelineDocumentCommands';
+import {
+  moveSkillCast,
+  updateSkillCastBasicField,
+  type BasicEditableSkillCastField,
+} from './timelineDocumentCommands';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -63,6 +68,29 @@ const viewModel = computed(() =>
   }),
 );
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const selectedCastModel = computed(() => {
+  if (selectedCastId.value === null) return null;
+  for (const trackModel of viewModel.value.tracks) {
+    const castModel = trackModel.skillCasts.find(cast => cast.id === selectedCastId.value);
+    const cast = scenario.value.tracks[trackModel.trackIndex]?.skillCasts.find(
+      candidate => candidate.id === selectedCastId.value,
+    );
+    if (castModel !== undefined && cast !== undefined) {
+      return {
+        trackIndex: trackModel.trackIndex,
+        cast,
+        skillType: castModel.skillType,
+        label:
+          cast.source.kind === 'operatorSkill'
+            ? skillName(cast.source.skillGroupKey, trackModel.operatorSlug ?? perlica.slug)
+            : cast.source.kind === 'custom'
+              ? cast.source.name
+              : cast.source.skillKey,
+      };
+    }
+  }
+  return null;
+});
 const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
@@ -233,6 +261,21 @@ function resetScenario(): void {
   cursorFrame.value = 30;
   nextDocumentId = 0;
 }
+
+function updateSelectedCast(
+  field: BasicEditableSkillCastField,
+  value: EditableActionValues[BasicEditableSkillCastField],
+): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  scenario.value = updateSkillCastBasicField(
+    scenario.value,
+    selected.trackIndex,
+    selected.cast.id,
+    field,
+    value,
+  );
+}
 </script>
 
 <template>
@@ -380,9 +423,16 @@ function resetScenario(): void {
     <template #bottom="{ tool }"
       ><div class="empty-panel">{{ tool }}</div></template
     >
-    <template #right="{ tool }"
-      ><div class="empty-panel">{{ tool }}</div></template
-    >
+    <template #right="{ tool }">
+      <TimelineActionInspector
+        v-if="tool === 'inspector'"
+        :cast="selectedCastModel?.cast ?? null"
+        :label="selectedCastModel?.label ?? ''"
+        :skill-type="selectedCastModel?.skillType ?? null"
+        @update="updateSelectedCast"
+      />
+      <div v-else class="empty-panel">{{ tool }}</div>
+    </template>
   </TimelineWorkbenchShell>
 </template>
 

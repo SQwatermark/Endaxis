@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { SkillCastDocument } from '../../core/project/schema';
-import { moveSkillCast } from './timelineDocumentCommands';
+import { moveSkillCast, updateSkillCastBasicField } from './timelineDocumentCommands';
 
 function cast(locked = false): SkillCastDocument {
   return {
@@ -49,5 +49,26 @@ describe('moveSkillCast', () => {
   it('rejects invalid frames and missing cast identities', () => {
     expect(() => moveSkillCast(scenario(), 0, 'cast:1', 1.5)).toThrow('non-negative integer');
     expect(() => moveSkillCast(scenario(), 0, 'missing', 30)).toThrow("no skill cast 'missing'");
+  });
+
+  it('updates a basic editable value and records user ownership', () => {
+    const original = scenario();
+    const updated = updateSkillCastBasicField(original, 0, 'cast:1', 'durationFrames', 45);
+
+    expect(updated.tracks[0]!.skillCasts[0]!.editable.durationFrames).toBe(45);
+    expect(updated.tracks[0]!.skillCasts[0]!.edited).toEqual(['durationFrames']);
+    expect(original.tracks[0]!.skillCasts[0]!.edited).toEqual([]);
+  });
+
+  it('validates frame and enhancement fields at the command boundary', () => {
+    expect(() => updateSkillCastBasicField(scenario(), 0, 'cast:1', 'cooldownFrames', 1.5)).toThrow(
+      'non-negative integer',
+    );
+    expect(() =>
+      updateSkillCastBasicField(scenario(), 0, 'cast:1', 'enhancement', {
+        kind: 'duration',
+        frames: -1,
+      }),
+    ).toThrow('enhancement.frames');
   });
 });
