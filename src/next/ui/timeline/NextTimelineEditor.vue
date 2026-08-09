@@ -2,11 +2,15 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
+import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
-import { projectTimelineEditor } from './timelineEditorViewModel';
+import {
+  projectTimelineEditor,
+  type TimelineSkillLibraryEntryViewModel,
+} from './timelineEditorViewModel';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -64,6 +68,55 @@ function operatorName(slug: string | null): string {
 
 function skillName(groupKey: string, slug = perlica.slug): string {
   return getOperatorCombatSkillName(slug, groupKey, locale.value);
+}
+
+function skillTypeLabel(skillType: string): string {
+  const displayType =
+    skillType === 'basicAttack'
+      ? 'attack'
+      : skillType === 'battleSkill'
+        ? 'skill'
+        : skillType === 'comboSkill'
+          ? 'link'
+          : skillType === 'finisher'
+            ? 'execution'
+            : skillType === 'plungingAttack'
+              ? 'dive'
+              : skillType;
+  return t(`skillType.${displayType}`);
+}
+
+function skillAccentColor(skillType: string): string {
+  return (
+    {
+      basicAttack: '#aaaaaa',
+      battleSkill: '#ffffff',
+      comboSkill: '#fdd900',
+      ultimate: '#00e5ff',
+      finisher: '#a61d24',
+      plungingAttack: '#69c0ff',
+    }[skillType] ?? '#8c8c8c'
+  );
+}
+
+function skillDisplayIcon(skillType: string): string {
+  return ['basicAttack', 'finisher', 'plungingAttack'].includes(skillType)
+    ? '/icons/icon_attack_pistol.webp'
+    : '';
+}
+
+function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number {
+  const frames = entry.skills.reduce((total, skill) => total + skill.timelineBlockFrames, 0);
+  return Math.round((frames / 30) * 1000) / 1000;
+}
+
+function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
+  return entry.skills.map((skill, index) => ({
+    id: skill.skillKey,
+    label: `${index + 1}A`,
+    selected: false,
+    disabled: false,
+  }));
 }
 
 function selectTimelinePosition(event: MouseEvent, trackIndex: TrackIndex): void {
@@ -133,19 +186,18 @@ function resetScenario(): void {
           <span>Lv.{{ selectedTrackModel.skillLibrary[0]?.level ?? 0 }}</span>
         </div>
         <div class="skill-list">
-          <button
+          <SkillLibraryCard
             v-for="entry in selectedTrackModel.skillLibrary"
             :key="entry.skillGroupKey"
-            type="button"
-            class="skill-entry"
-            :data-skill-type="entry.skillType"
-            @click="placeGroup(entry.skillGroupKey)"
-          >
-            <span>{{ skillName(entry.skillGroupKey) }}</span>
-            <small>{{
-              entry.skills.length > 1 ? `${entry.skills.length}A` : entry.skillType
-            }}</small>
-          </button>
+            :name="skillName(entry.skillGroupKey)"
+            :type-label="skillTypeLabel(entry.skillType)"
+            :duration="skillDurationSeconds(entry)"
+            :icon="skillDisplayIcon(entry.skillType)"
+            :accent-color="skillAccentColor(entry.skillType)"
+            :segments="skillSegments(entry)"
+            @select="placeGroup(entry.skillGroupKey)"
+            @select-segment="placeGroup(entry.skillGroupKey)"
+          />
         </div>
       </aside>
 
@@ -313,37 +365,6 @@ button:disabled {
 .skill-list {
   display: grid;
   gap: 8px;
-}
-
-.skill-entry {
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-left: 4px solid #999;
-  background: #2b2b30;
-  text-align: left;
-}
-
-.skill-entry[data-skill-type='battleSkill'] {
-  border-left-color: #ef4444;
-}
-.skill-entry[data-skill-type='comboSkill'] {
-  border-left-color: #eab308;
-}
-.skill-entry[data-skill-type='ultimate'] {
-  border-left-color: #22c55e;
-}
-.skill-entry[data-skill-type='finisher'],
-.skill-entry[data-skill-type='plungingAttack'] {
-  border-left-color: #38bdf8;
-}
-
-.skill-entry small {
-  color: #888;
-  font:
-    10px/1 Consolas,
-    monospace;
 }
 
 .timeline-workspace,
