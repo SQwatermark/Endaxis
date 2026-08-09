@@ -42,6 +42,35 @@ describe('AbilityEventDispatcher', () => {
     expect(events).toEqual(['first', 'first', 'late']);
   });
 
+  it('keeps a disposed callback in the current snapshot and removes it from later events', () => {
+    const events: string[] = [];
+    const dispatcher = new AbilityEventDispatcher<'event'>();
+    let secondRegistration: { dispose(): void };
+    dispatcher.registerCallback('event', () => {
+      events.push('first');
+      secondRegistration.dispose();
+    });
+    secondRegistration = dispatcher.registerCallback('event', () => events.push('second'));
+
+    dispatcher.dispatch({ event: 'event', payload: undefined }, []);
+    dispatcher.dispatch({ event: 'event', payload: undefined }, []);
+
+    expect(events).toEqual(['first', 'second', 'first']);
+  });
+
+  it('disposes registered actions idempotently', () => {
+    const events: string[] = [];
+    const dispatcher = new AbilityEventDispatcher<'event'>();
+    const registration = dispatcher.registerAction('event', 10, () => events.push('action'));
+
+    dispatcher.dispatch({ event: 'event', payload: undefined }, []);
+    registration.dispose();
+    registration.dispose();
+    dispatcher.dispatch({ event: 'event', payload: undefined }, []);
+
+    expect(events).toEqual(['action']);
+  });
+
   it('rejects unresolved equal-priority action ordering', () => {
     const dispatcher = new AbilityEventDispatcher<'event'>();
     dispatcher.registerAction('event', 0, () => undefined);
