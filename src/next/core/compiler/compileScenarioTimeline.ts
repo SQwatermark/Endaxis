@@ -8,6 +8,7 @@ import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import type { OperatorBuildDocument, ScenarioDocument, SkillCastDocument } from '../project/schema';
 import { compileSkill } from './compileSkill';
+import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 
 /** 场景时间轴进入运行时装配前的纯编译结果，不包含任何可变战斗状态。 */
 export interface CompiledScenarioTimeline {
@@ -127,6 +128,49 @@ function requireCastSkill(cast: SkillCastDocument, operator: OperatorDefinition)
   return skill;
 }
 
+interface ResolvedTimelineTrack {
+  readonly track: NonNullable<ScenarioDocument['tracks'][number]>;
+  readonly operatorBuild: OperatorBuildDocument;
+  readonly operator: OperatorDefinition;
+}
+
+function compileResolvedTimelineTracks(
+  tracks: readonly ResolvedTimelineTrack[],
+): CompiledScenarioTimeline {
+  const operators: CombatOperatorProgram[] = [];
+  const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
+  let order = 0;
+
+  for (const { track, operatorBuild, operator } of tracks) {
+    operators.push(compileOperatorPrograms(operatorBuild, operator));
+    for (const cast of track.skillCasts) {
+      if (cast.editable.disabled) continue;
+      assertCastUsesCatalogDefaults(cast);
+      const skill = requireCastSkill(cast, operator);
+      pendingInputs.push({
+        frame: cast.placement.startFrame,
+        operatorId: operatorBuild.id,
+        skillId: skill.key,
+        order,
+      });
+      order += 1;
+    }
+  }
+
+  pendingInputs.sort((left, right) => left.frame - right.frame || left.order - right.order);
+  return {
+    operators,
+    inputs: pendingInputs.map(({ order: _order, ...input }) => input),
+  };
+}
+
+/** 使用 Build Resolver 的共享结果编译技能程序和时间轴输入。 */
+export function compileResolvedScenarioTimeline(
+  builds: readonly ResolvedScenarioBuild[],
+): CompiledScenarioTimeline {
+  return compileResolvedTimelineTracks(builds);
+}
+
 /**
  * 按轨道序号和轨道内声明顺序收集输入，再稳定地按帧排序。
  * 同帧顺序会影响资源扣费和事件处理，因此不得按干员或技能身份二次排序。
@@ -135,10 +179,8 @@ export function compileScenarioTimeline(
   scenario: ScenarioDocument,
   catalog: OperatorCatalog,
 ): CompiledScenarioTimeline {
-  const operators: CombatOperatorProgram[] = [];
-  const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
+  const tracks: ResolvedTimelineTrack[] = [];
   const seenOperatorIds = new Set<string>();
-  let order = 0;
 
   scenario.tracks.forEach((track, trackIndex) => {
     if (track === null) return;
@@ -157,25 +199,7 @@ export function compileScenarioTimeline(
     }
     seenOperatorIds.add(build.id);
     const operator = requireOperator(build, catalog);
-    operators.push(compileOperatorPrograms(build, operator));
-
-    for (const cast of track.skillCasts) {
-      if (cast.editable.disabled) continue;
-      assertCastUsesCatalogDefaults(cast);
-      const skill = requireCastSkill(cast, operator);
-      pendingInputs.push({
-        frame: cast.placement.startFrame,
-        operatorId: build.id,
-        skillId: skill.key,
-        order,
-      });
-      order += 1;
-    }
+    tracks.push({ track, operatorBuild: build, operator });
   });
-
-  pendingInputs.sort((left, right) => left.frame - right.frame || left.order - right.order);
-  return {
-    operators,
-    inputs: pendingInputs.map(({ order: _order, ...input }) => input),
-  };
+  return compileResolvedTimelineTracks(tracks);
 }

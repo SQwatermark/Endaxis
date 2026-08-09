@@ -37,6 +37,7 @@ export * from './compiler/combatProgram';
 export * from './compiler/compileEquipment';
 export * from './compiler/compileScenarioResources';
 export * from './compiler/compileScenarioRuntimeAssembly';
+export * from './compiler/resolveScenarioBuilds';
 export * from './compiler/compileScenarioTimeline';
 export * from './compiler/compileSkill';
 export * from './game-data/buildCatalogValidation';

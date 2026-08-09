@@ -15,8 +15,9 @@ import {
   compileScenarioResources,
   type CompileScenarioResourcesOptions,
 } from './compileScenarioResources';
-import { compileScenarioTimeline } from './compileScenarioTimeline';
-import { compileScenarioEquipment } from './compileScenarioEquipment';
+import { compileResolvedScenarioTimeline } from './compileScenarioTimeline';
+import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
+import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 
 type BuildCatalog = Pick<
   GameDataRepository,
@@ -80,12 +81,10 @@ export function compileScenarioRuntimeAssembly(
   scenario: ScenarioDocument,
   options: CompileScenarioRuntimeAssemblyOptions,
 ): CombatRuntimeAssemblyOptions {
-  const timeline = compileScenarioTimeline(scenario, options.catalog);
+  const builds = resolveScenarioBuilds(scenario, options.catalog);
+  const timeline = compileResolvedScenarioTimeline(builds);
   const equipment = new Map(
-    compileScenarioEquipment(scenario, options.catalog).map(entry => [
-      entry.operatorId,
-      entry.contributions,
-    ]),
+    compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
   const resources = compileScenarioResources(scenario, options.resources);
   const operators = bindOperatorRuntimes(
