@@ -37,6 +37,10 @@ export const ATTRIBUTE_MODIFIER_SLOTS = [
 /** 原生属性聚合公式中的固定槽位。 */
 export type AttributeModifierSlot = (typeof ATTRIBUTE_MODIFIER_SLOTS)[number];
 
+export const COMBAT_ATTRIBUTE_VALUE_STAGES = ['armed', 'final'] as const;
+/** 属性聚合中可供原生动作读取的已确认阶段。 */
+export type CombatAttributeValueStage = (typeof COMBAT_ATTRIBUTE_VALUE_STAGES)[number];
+
 /** 一个修正在各槽位提供的稀疏数值集合。 */
 export interface AttributeModifierValues {
   readonly addition: number;
@@ -113,7 +117,31 @@ export class CombatAttributeSet<Key extends string> {
     this.#rawValues.set(attribute, value);
   }
 
+  /** 只检查属性身份是否已进入当前实体，不把缺失属性静默解释成 0。 */
+  has(attribute: string): boolean {
+    return this.#rawValues.has(attribute as Key);
+  }
+
+  /**
+   * 读取基础槽结算后的 Armed 值；StoreAttributeValue 会配合 nonConverted 来源掩码调用。
+   * 该阶段不包含 addition/multiplier/finalAddition/finalMultiplier 四个最终槽。
+   */
+  getArmed(
+    attribute: Key,
+    filter: AttributeModifierSource = ATTRIBUTE_MODIFIER_SOURCES.all,
+  ): number {
+    return this.#getAtStage(attribute, 'armed', filter);
+  }
+
   get(attribute: Key, filter: AttributeModifierSource = ATTRIBUTE_MODIFIER_SOURCES.all): number {
+    return this.#getAtStage(attribute, 'final', filter);
+  }
+
+  #getAtStage(
+    attribute: Key,
+    stage: CombatAttributeValueStage,
+    filter: AttributeModifierSource,
+  ): number {
     const rawValue = this.#rawValues.get(attribute);
     if (rawValue === undefined) return 0;
     const definition = this.#definitions.get(attribute);
@@ -139,6 +167,7 @@ export class CombatAttributeSet<Key extends string> {
         (definition.otherAttributeBaseFinalMultiplier ?? 1),
       definition,
     );
+    if (stage === 'armed') return armedValue;
     const finalValue =
       ((armedValue + sum(values, 'addition')) * Math.max(0, 1 + sum(values, 'multiplier')) +
         sum(values, 'finalAddition')) *

@@ -56,6 +56,31 @@ describe('CombatAttributeSet', () => {
     expect(attributes.get('attack', ATTRIBUTE_MODIFIER_SOURCES.nonConverted)).toBe(120);
   });
 
+  it('reads armed and final non-converted stages without mixing their modifier slots', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    addModifier(attributes, 'baseAddition', 10, ATTRIBUTE_MODIFIER_SOURCES.buff);
+    addModifier(attributes, 'baseAddition', 40, ATTRIBUTE_MODIFIER_SOURCES.converted);
+    addModifier(attributes, 'baseMultiplier', 0.5, ATTRIBUTE_MODIFIER_SOURCES.weapon);
+    addModifier(attributes, 'addition', 20, ATTRIBUTE_MODIFIER_SOURCES.talent);
+    addModifier(attributes, 'addition', 80, ATTRIBUTE_MODIFIER_SOURCES.converted);
+    addModifier(attributes, 'multiplier', 0.25, ATTRIBUTE_MODIFIER_SOURCES.buff);
+
+    expect(attributes.getArmed('attack', ATTRIBUTE_MODIFIER_SOURCES.nonConverted)).toBe(165);
+    expect(attributes.get('attack', ATTRIBUTE_MODIFIER_SOURCES.nonConverted)).toBe(231.25);
+    expect(attributes.getArmed('attack')).toBe(225);
+    expect(attributes.get('attack')).toBe(406.25);
+  });
+
+  it('exposes whether an attribute is configured separately from its numeric value', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 0, { minimum: 0, maximum: 1000 });
+
+    expect(attributes.has('attack')).toBe(true);
+    expect(attributes.has('unknown')).toBe(false);
+    expect(attributes.get('attack')).toBe(0);
+  });
+
   it('uses modifier identity and clears only instant modifiers', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });

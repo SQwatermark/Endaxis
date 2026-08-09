@@ -3,6 +3,10 @@
  * 本模块是版本化游戏数据与通用战斗核心的组合边界；目录缺少的爆发或复合状态仍会明确失败。
  */
 import type { CombatAttributeSet } from '../../core/combat/attributes/combatAttributes';
+import {
+  createCombatBuffCatalogAttributeReader,
+  type CombatAttributeEntityRegistry,
+} from '../../core/combat/attributes/combatAttributeEntities';
 import { compileCombatBuffCatalog } from '../../core/combat/buffs/combatBuffCatalog';
 import type { ElementalInflictionStartedPayload } from '../../core/combat/infliction/elementalInflictionBuffAdapter';
 import { ElementalBuffRuntime } from '../../core/combat/runtime/elementalBuffRuntime';
@@ -11,6 +15,11 @@ import { elementalAttachmentCatalog } from './elementalAttachmentCatalog';
 
 export interface CreateEnemyElementalBuffRuntimeOptions<Key extends string> {
   readonly attributes: CombatAttributeSet<Key>;
+  /**
+   * 敌方 Buff 读取施加者属性时使用的单场战斗实体索引。
+   * 当前目录未包含 StoreAttributeValue 时可以省略；目录开始使用后，缺失会在编译阶段报错。
+   */
+  readonly attributeEntities?: CombatAttributeEntityRegistry<Key>;
   readonly tagRegistry?: GameplayTagRegistry;
   readonly emitElementalInflictionStarted: (payload: ElementalInflictionStartedPayload) => void;
 }
@@ -21,6 +30,11 @@ export function createEnemyElementalBuffRuntime<Key extends string>(
 ): ElementalBuffRuntime<Key> {
   const catalog = compileCombatBuffCatalog<Key>(elementalAttachmentCatalog, {
     emitElementalInflictionStarted: payload => options.emitElementalInflictionStarted(payload),
+    ...(options.attributeEntities === undefined
+      ? {}
+      : {
+          readAttribute: createCombatBuffCatalogAttributeReader(options.attributeEntities),
+        }),
   });
   return new ElementalBuffRuntime({
     ownerId: 'enemy',

@@ -69,18 +69,23 @@ useFloor = true:  base + floor(attribute / divisor) * multiplier
 
 非取整分支不会读取 `divisor`。结果写入当前 Buff 动态黑板后，会立即重建该 Buff 已注册的属性修正。
 
-Buff 实例只保存 `sourceId`，并不拥有战斗实体注册表；`CombatAttributeSet` 当前也只公开完整 final 值，
-不能独立解析来源实体的主属性、副属性、四维总和以及排除 Converted 来源后的 armed/final 阶段值。
-因此这些职责由 `CombatBuffCatalogCompilerPorts.readAttribute` 承担。port 的实现必须：
+Buff 实例只保存 `sourceId`，并不直接拥有来源实体。当前实现按以下边界完成读取：
 
-- 根据 `sourceId` 定位来源实体；
-- 解析 specific/main/secondary/all 属性选择器；
-- 对应返回 armed 或 final 的 non-converted 值；
-- 不把实体查找失败或属性缺失静默折算为 0。
+- `CombatAttributeSet.getArmed()` 暴露基础四槽结算后的 Armed 值，`get()` 继续返回 Final 值；
+- 两个阶段都接受原生来源掩码，`nonConverted` 明确排除 Converted 来源；
+- `CombatAttributeEntityRegistry` 根据 `sourceId` 定位属性集和主副属性元数据；
+- specific 读取指定属性，main/secondary 读取实体配置，all 固定求和力量、敏捷、智识、意志；
+- `createCombatBuffCatalogAttributeReader()` 将注册表适配为 `readAttribute` port；
+- 未知来源和缺失属性会直接报错，不会静默折算为 0。
 
 只有目录实际包含 `storeAttributeValue` 时才要求该 port；缺失会在 catalog 编译阶段报错，而不是延迟到
-战斗运行中。当前没有把这一读取能力塞进 `CombatAttributeSet.get()`，因为那会混合属性聚合与跨实体定位，
-也无法正确表达主副属性映射。
+战斗运行中。`createEnemyElementalBuffRuntime` 可以接收本场战斗的实体属性注册表，并把真实 reader 交给
+目录编译器。
+
+当前剩余阻塞位于更上游：场景编译尚未把干员等级、武器和装备结果编译为完整 `CombatAttributeSet`，
+`CombatRuntimeAssembly` 的干员程序也没有携带主副属性上下文。因此应用装配层目前必须显式创建并填充
+注册表；在面板编译闭环前，不能从 `ScenarioDocument` 自动构造它，更不能用资源运行时中的完整 final
+快照冒充 non-converted 或 Armed 值。
 
 ## 5. 运行时装配顺序
 
