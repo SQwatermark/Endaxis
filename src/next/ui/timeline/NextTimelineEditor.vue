@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { ElMessage } from 'element-plus';
 import {
   getEnemyGameName,
   getOperatorCombatSkillName,
@@ -71,6 +72,7 @@ import {
   PRECISE_TIMELINE_SNAP_FRAMES,
   snapTimelineFrame,
 } from './timelineSnap';
+import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -622,6 +624,23 @@ function toggleSnapPrecision(): boolean {
   return true;
 }
 
+function cycleOccupiedTrack(direction: -1 | 1): boolean {
+  const nextTrackIndex = findAdjacentOccupiedTrack(
+    scenario.value.tracks,
+    selectedTrack.value,
+    direction,
+  );
+  if (nextTrackIndex === null) {
+    ElMessage.warning(t('timeline.shortcut.cycleNeedsOperator'));
+    return true;
+  }
+  if (nextTrackIndex !== selectedTrack.value) {
+    selectedTrack.value = nextTrackIndex;
+    clearTimelineSelection();
+  }
+  return true;
+}
+
 const hasModalPanel = computed(
   () =>
     operatorDialogTrack.value !== null ||
@@ -660,6 +679,7 @@ useKeyboardShortcutScope({
       nudgeLeft: () => nudgeSelectedActions(-1),
       nudgeRight: () => nudgeSelectedActions(1),
       toggleSnapPrecision,
+      cycleTrack: cycleOccupiedTrack,
     });
   },
 });

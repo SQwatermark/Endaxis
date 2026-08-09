@@ -23,6 +23,7 @@ function commands() {
     nudgeLeft: command(),
     nudgeRight: command(),
     toggleSnapPrecision: command(),
+    cycleTrack: vi.fn((_direction: -1 | 1) => true),
   };
 }
 
@@ -36,11 +37,23 @@ describe('handleTimelineEditorShortcut', () => {
     ['ArrowLeft', keyboardEvent('ArrowLeft'), 'nudgeLeft'],
     ['D', keyboardEvent('d'), 'nudgeRight'],
     ['Alt+S', keyboardEvent('s', { altKey: true }), 'toggleSnapPrecision'],
+    ['Tab', keyboardEvent('Tab'), 'cycleTrack'],
+    ['Shift+Tab', keyboardEvent('Tab', { shiftKey: true }), 'cycleTrack'],
   ])('maps %s to the expected editor command', (_name, event, commandName) => {
     const handlers = commands();
 
     expect(handleTimelineEditorShortcut(event, handlers)).toBe(true);
     expect(handlers[commandName as keyof typeof handlers]).toHaveBeenCalledOnce();
+  });
+
+  it('passes the expected direction to track cycling', () => {
+    const handlers = commands();
+
+    handleTimelineEditorShortcut(keyboardEvent('Tab'), handlers);
+    handleTimelineEditorShortcut(keyboardEvent('Tab', { shiftKey: true }), handlers);
+
+    expect(handlers.cycleTrack).toHaveBeenNthCalledWith(1, 1);
+    expect(handlers.cycleTrack).toHaveBeenNthCalledWith(2, -1);
   });
 
   it('does not claim unsupported modifier combinations', () => {
