@@ -122,7 +122,16 @@ describe('runScenarioSimulation', () => {
       event: 'SpChanged',
       data: { currentValue: 3 },
     });
+    expect(result.initialResources.sp).toBe(0);
     expect(result.finalResources.sp).toBe(3);
+    expect(
+      result.resourceCurves.sp.points.map(({ frame, time, value }) => ({ frame, time, value })),
+    ).toEqual([
+      { frame: 0, time: 0, value: 0 },
+      { frame: 1, time: 1 / 30, value: 1 },
+      { frame: 2, time: 2 / 30, value: 2 },
+      { frame: 3, time: 3 / 30, value: 3 },
+    ]);
     expect(result.finalResources.spRecovery).toEqual({
       valuePerSecond: 30,
       pauseDuration: 1.5,
@@ -132,6 +141,8 @@ describe('runScenarioSimulation', () => {
     expect(Object.isFrozen(result.receiptEntries)).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0])).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0]!.data)).toBe(true);
+    expect(Object.isFrozen(result.resourceCurves.sp.points)).toBe(true);
+    expect(Object.isFrozen(result.resourceCurves.sp.points[0])).toBe(true);
   });
 
   it('returns ultimate energy after an ultimate skill pays its cost', () => {
@@ -146,6 +157,24 @@ describe('runScenarioSimulation', () => {
       operatorId: 'perlica',
       ultimateEnergy: 20,
       maxUltimateEnergy: 100,
+    });
+    expect(result.resourceCurves.ultimateEnergy).toHaveLength(1);
+    expect(result.resourceCurves.ultimateEnergy[0]).toMatchObject({
+      resource: 'ultimateEnergy',
+      operatorId: 'perlica',
+      maxValue: 100,
+    });
+    expect(result.resourceCurves.ultimateEnergy[0]!.points).toHaveLength(2);
+    expect(result.resourceCurves.ultimateEnergy[0]!.points[0]).toEqual({
+      frame: 0,
+      time: 0,
+      sequence: null,
+      value: 100,
+    });
+    expect(result.resourceCurves.ultimateEnergy[0]!.points[1]).toMatchObject({
+      frame: 1,
+      time: 1 / 30,
+      value: 20,
     });
   });
 
@@ -180,6 +209,10 @@ describe('runScenarioSimulation', () => {
     });
 
     expect(result).toMatchObject({ frame: 0, receiptEntries: [] });
+    expect(result.initialResources.sp).toBe(0);
     expect(result.finalResources.sp).toBe(0);
+    expect(result.resourceCurves.sp.points).toEqual([
+      { frame: 0, time: 0, sequence: null, value: 0 },
+    ]);
   });
 });

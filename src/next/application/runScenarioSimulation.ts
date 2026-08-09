@@ -9,6 +9,10 @@ import {
   compileScenarioRuntimeAssembly,
   type CompileScenarioRuntimeAssemblyOptions,
 } from '../core/compiler/compileScenarioRuntimeAssembly';
+import {
+  projectResourceCurvesFromReceipt,
+  type CombatResourceCurves,
+} from '../core/projection/resourceCurves';
 import type { ScenarioDocument } from '../core/project/schema';
 
 export interface RunScenarioSimulationInput {
@@ -20,7 +24,11 @@ export interface RunScenarioSimulationInput {
 
 export interface ScenarioSimulationResult {
   readonly frame: number;
+  /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
+  readonly initialResources: CombatResourceSnapshot;
   readonly receiptEntries: readonly CombatReceiptEntry[];
+  /** 由正式回执投影端口生成的稀疏资源曲线，应用层不重复解释事件。 */
+  readonly resourceCurves: CombatResourceCurves;
   readonly finalResources: CombatResourceSnapshot;
 }
 
@@ -35,6 +43,23 @@ function freezeReceiptEntries(
       }),
     ),
   );
+}
+
+function freezeResourceCurves(curves: CombatResourceCurves): CombatResourceCurves {
+  return Object.freeze({
+    sp: Object.freeze({
+      ...curves.sp,
+      points: Object.freeze(curves.sp.points.map(point => Object.freeze({ ...point }))),
+    }),
+    ultimateEnergy: Object.freeze(
+      curves.ultimateEnergy.map(curve =>
+        Object.freeze({
+          ...curve,
+          points: Object.freeze(curve.points.map(point => Object.freeze({ ...point }))),
+        }),
+      ),
+    ),
+  });
 }
 
 /**
@@ -53,12 +78,18 @@ export function runScenarioSimulation(input: RunScenarioSimulationInput): Scenar
   const assembly = new CombatRuntimeAssembly(
     compileScenarioRuntimeAssembly(input.scenario, input.options),
   );
+  const initialResources = assembly.resources.snapshot();
   assembly.advanceFrames(input.endFrame);
+  const receiptEntries = freezeReceiptEntries(assembly.receipt.entries);
 
   return Object.freeze({
     frame: assembly.clock.frame,
+    initialResources,
     finalResources: assembly.resources.snapshot(),
     // 脱离收集器并冻结，避免调用方改写本次模拟已经发生的事实。
-    receiptEntries: freezeReceiptEntries(assembly.receipt.entries),
+    receiptEntries,
+    resourceCurves: freezeResourceCurves(
+      projectResourceCurvesFromReceipt(initialResources, receiptEntries),
+    ),
   });
 }
