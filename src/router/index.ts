@@ -22,7 +22,14 @@ const routes: RouteRecordRaw[] = [
     path: '/next/timeline',
     name: 'NextTimeline',
     component: () => import('../next/ui/timeline/NextTimelineEditor.vue'),
-    meta: { gameTextFamilies: ['operators', 'weapons'] satisfies readonly GameTextFamily[] },
+    meta: {
+      gameTextFamilies: [
+        'operators',
+        'weapons',
+        'gears',
+        'terms',
+      ] satisfies readonly GameTextFamily[],
+    },
   },
 ];
 

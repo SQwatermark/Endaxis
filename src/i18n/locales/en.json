@@ -1268,6 +1268,20 @@
       "searchPlaceholder": "Search by name, type, or rarity",
       "empty": "No matching weapons",
       "partialSupport": "Some effects are not supported yet"
+    },
+    "gearDialog": {
+      "title": "Configure gear",
+      "searchPlaceholder": "Search by name, set, or defense",
+      "empty": "No matching gear",
+      "partialSupport": "Some effects are not supported yet",
+      "defense": "Defense",
+      "noSet": "No set",
+      "slots": {
+        "armor": "Armor",
+        "gloves": "Gloves",
+        "accessory1": "Accessory 1",
+        "accessory2": "Accessory 2"
+      }
     }
   }
 }

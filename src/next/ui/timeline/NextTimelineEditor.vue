@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
-import type { WeaponDefinition } from '../../core/game-data/equipmentDefinition';
+import {
+  getGearPieceGameName,
+  getOperatorCombatSkillName,
+  getOperatorGameName,
+} from '@/data/gameText';
+import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
@@ -16,6 +21,7 @@ import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type {
   EditableActionValues,
+  GearBuildDocument,
   OperatorBuildDocument,
   ScenarioDocument,
   TrackIndex,
@@ -33,11 +39,13 @@ import {
   moveSkillCast,
   removeSkillCast,
   setTrackOperator,
+  setTrackGear,
   setTrackWeapon,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
   type BasicEditableSkillCastField,
+  type TrackGearSlot,
 } from './timelineDocumentCommands';
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -47,6 +55,8 @@ const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
 const operatorDialogTrack = ref<TrackIndex | null>(null);
 const weaponDialogTrack = ref<TrackIndex | null>(null);
+const gearDialogTarget = ref<{ trackIndex: TrackIndex; slot: TrackGearSlot } | null>(null);
+const TRACK_GEAR_SLOTS = ['armor', 'gloves', 'accessory1', 'accessory2'] as const;
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
@@ -115,6 +125,18 @@ function createInitialWeaponBuild(
   };
 }
 
+function createInitialGearBuild(
+  gear: GearDefinition,
+  trackIndex: TrackIndex,
+  slot: TrackGearSlot,
+): GearBuildDocument {
+  return {
+    id: `gear:${trackIndex}:${slot}:${gear.slug}`,
+    gearSlug: gear.slug,
+    artificingLevels: gear.traits.map(() => 0),
+  };
+}
+
 const scenario = ref(createSampleScenario());
 let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
@@ -134,6 +156,32 @@ const selectableWeapons = computed(() => {
   return nextGameDataRepository
     .getWeapons()
     .filter(weapon => weapon.weaponType === operator.weaponType);
+});
+const selectedGearSlug = computed(() => {
+  const target = gearDialogTarget.value;
+  if (target === null) return null;
+  const buildId = scenario.value.tracks[target.trackIndex]?.gearBuildIds[target.slot] ?? null;
+  return buildId === null ? null : (scenario.value.builds.gears[buildId]?.gearSlug ?? null);
+});
+const selectableGears = computed(() => {
+  const target = gearDialogTarget.value;
+  if (target === null) return [];
+  const slotType = target.slot === 'armor' || target.slot === 'gloves' ? target.slot : 'accessory';
+  return nextGameDataRepository.getGears().filter(gear => gear.slotType === slotType);
+});
+const gearSlotTabs = computed(() => {
+  const trackIndex = gearDialogTarget.value?.trackIndex ?? selectedTrack.value;
+  const track = scenario.value.tracks[trackIndex];
+  return TRACK_GEAR_SLOTS.map(slot => {
+    const buildId = track?.gearBuildIds[slot] ?? null;
+    const slug = buildId === null ? null : (scenario.value.builds.gears[buildId]?.gearSlug ?? null);
+    return {
+      key: slot,
+      label: t(`nextTimeline.gearDialog.slots.${slot}`),
+      selectedSlug: slug,
+      selectedName: slug === null ? null : getGearPieceGameName(slug, locale.value),
+    };
+  });
 });
 const selectedCastModel = computed(() => {
   if (selectedCastId.value === null) return null;
@@ -328,6 +376,37 @@ function clearWeapon(): void {
   weaponDialogTrack.value = null;
 }
 
+function openGearDialog(slot: TrackGearSlot = 'armor'): void {
+  if (selectedTrackModel.value.operatorSlug === null) return;
+  selectedCastId.value = null;
+  gearDialogTarget.value = { trackIndex: selectedTrack.value, slot };
+}
+
+function changeGearSlot(key: string): void {
+  const target = gearDialogTarget.value;
+  if (target === null || !TRACK_GEAR_SLOTS.includes(key as TrackGearSlot)) return;
+  gearDialogTarget.value = { ...target, slot: key as TrackGearSlot };
+}
+
+function selectGear(slug: string): void {
+  const target = gearDialogTarget.value;
+  if (target === null) return;
+  const gear = nextGameDataRepository.getGear(slug);
+  if (gear === null) throw new Error(`missing gear definition '${slug}'`);
+  scenario.value = setTrackGear(
+    scenario.value,
+    target.trackIndex,
+    target.slot,
+    createInitialGearBuild(gear, target.trackIndex, target.slot),
+  );
+}
+
+function clearGear(): void {
+  const target = gearDialogTarget.value;
+  if (target === null) return;
+  scenario.value = setTrackGear(scenario.value, target.trackIndex, target.slot, null);
+}
+
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
   dragPayload.value = {
     kind: 'librarySkill',
@@ -475,7 +554,13 @@ function updateSelectedCast(
           >
             {{ t('nextTimeline.weaponTab') }}
           </button>
-          <button type="button" disabled>{{ t('nextTimeline.gearTab') }}</button>
+          <button
+            type="button"
+            :disabled="selectedTrackModel.operatorSlug === null"
+            @click="openGearDialog()"
+          >
+            {{ t('nextTimeline.gearTab') }}
+          </button>
         </div>
         <div class="library-heading">
           <strong>{{ t('nextTimeline.skillLibrary') }}</strong>
@@ -653,6 +738,27 @@ function updateSelectedCast(
     @close="weaponDialogTrack = null"
     @select="selectWeapon"
     @clear="clearWeapon"
+  />
+  <GearSelectionDialog
+    :visible="gearDialogTarget !== null"
+    :gears="selectableGears"
+    :selected-slug="selectedGearSlug"
+    :slot-tabs="gearSlotTabs"
+    :active-slot-key="gearDialogTarget?.slot ?? 'armor'"
+    :labels="{
+      title: t('nextTimeline.gearDialog.title'),
+      searchPlaceholder: t('nextTimeline.gearDialog.searchPlaceholder'),
+      unequip: t('common.unequip'),
+      close: t('common.close'),
+      empty: t('nextTimeline.gearDialog.empty'),
+      partialSupport: t('nextTimeline.gearDialog.partialSupport'),
+      defense: t('nextTimeline.gearDialog.defense'),
+      noSet: t('nextTimeline.gearDialog.noSet'),
+    }"
+    @close="gearDialogTarget = null"
+    @change-slot="changeGearSlot"
+    @select="selectGear"
+    @clear="clearGear"
   />
 </template>
 
