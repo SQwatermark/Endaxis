@@ -78,6 +78,7 @@ from generate_next_operators import (
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
+    parse_conversion_support,
     parse_declared_blackboard,
     parse_aura_actions,
     parse_auxiliary_actions,
@@ -287,6 +288,105 @@ def aura_action_fixture() -> dict:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_conversion_support_uses_stable_capability_summary(self) -> None:
+        self.assertEqual(
+            parse_conversion_support({"slug": "complete"}),
+            {"completeness": "complete", "missingCapabilities": []},
+        )
+        self.assertEqual(
+            parse_conversion_support(
+                {
+                    "slug": "partial",
+                    "conversionSupport": {
+                        "completeness": "partial",
+                        "missingCapabilities": [
+                            {
+                                "capability": "skillBehavior",
+                                "skillGroupKeys": ["battleSkill"],
+                            }
+                        ],
+                    },
+                }
+            ),
+            {
+                "completeness": "partial",
+                "missingCapabilities": [
+                    {
+                        "capability": "skillBehavior",
+                        "skillGroupKeys": ["battleSkill"],
+                    }
+                ],
+            },
+        )
+
+    def test_conversion_support_infers_explicitly_unmodeled_progression(self) -> None:
+        self.assertEqual(
+            parse_conversion_support(
+                {
+                    "slug": "partial-talent",
+                    "talents": [
+                        {
+                            "key": "multiTarget",
+                            "compile": "unmodeledMultiTarget",
+                        }
+                    ],
+                    "potentials": [
+                        {
+                            "key": "unknownPotential",
+                            "compile": "unmodeledRuntimeDependency",
+                        }
+                    ],
+                }
+            ),
+            {
+                "completeness": "partial",
+                "missingCapabilities": [
+                    {"capability": "talentEffects"},
+                    {"capability": "potentialEffects"},
+                ],
+            },
+        )
+
+    def test_conversion_support_rejects_omitted_unmodeled_progression(self) -> None:
+        with self.assertRaisesRegex(ValueError, "missing inferred capabilities.*talentEffects"):
+            parse_conversion_support(
+                {
+                    "slug": "missing-talent-status",
+                    "talents": [
+                        {
+                            "key": "multiTarget",
+                            "compile": "unmodeledMultiTarget",
+                        }
+                    ],
+                    "conversionSupport": {
+                        "completeness": "partial",
+                        "missingCapabilities": [{"capability": "skillBehavior"}],
+                    },
+                }
+            )
+
+    def test_conversion_support_rejects_raw_or_inconsistent_status(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unsupported capability"):
+            parse_conversion_support(
+                {
+                    "slug": "invalid",
+                    "conversionSupport": {
+                        "completeness": "partial",
+                        "missingCapabilities": [{"capability": "raw parser exception"}],
+                    },
+                }
+            )
+        with self.assertRaisesRegex(ValueError, "disagree"):
+            parse_conversion_support(
+                {
+                    "slug": "invalid",
+                    "conversionSupport": {
+                        "completeness": "complete",
+                        "missingCapabilities": [{"capability": "talentEffects"}],
+                    },
+                }
+            )
+
     def test_buff_find_settings_ignores_empty_id_placeholders(self) -> None:
         check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
             {

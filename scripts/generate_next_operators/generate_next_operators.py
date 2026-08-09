@@ -301,6 +301,13 @@ ACTION_VALUE_OPERATION_MAP = {
     "Ceil": "ceil",
     "RoundToInt": "roundToInt",
 }
+OPERATOR_MISSING_CAPABILITIES = {
+    "skillBehavior",
+    "skillAvailability",
+    "talentEffects",
+    "potentialEffects",
+    "runtimeDependencies",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -312,6 +319,74 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--operator", action="append", dest="operators")
     parser.add_argument("--check", action="store_true", help="校验现有输出是否与重新生成结果一致")
     return parser.parse_args()
+
+
+def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[str]:
+    """从清单中明确标为未建模的养成编译器推导稳定能力缺口。"""
+    inferred: list[str] = []
+    for field, capability in (
+        ("talents", "talentEffects"),
+        ("potentials", "potentialEffects"),
+    ):
+        configs = require_list(operator.get(field, []), f"{operator['slug']}.{field}")
+        if any(
+            str(require_dict(item, f"{operator['slug']}.{field}[]").get("compile", "")).startswith(
+                "unmodeled"
+            )
+            for item in configs
+        ):
+            inferred.append(capability)
+    return inferred
+
+
+def parse_conversion_support(operator: dict[str, Any]) -> dict[str, Any]:
+    """读取面向产物的稳定摘要，并拒绝漏报清单中明确未建模的养成效果。"""
+    inferred = infer_unmodeled_progression_capabilities(operator)
+    raw = operator.get("conversionSupport")
+    if raw is None:
+        return {
+            "completeness": "partial" if inferred else "complete",
+            "missingCapabilities": [
+                {"capability": capability} for capability in inferred
+            ],
+        }
+    support = require_dict(raw, f"{operator['slug']}.conversionSupport")
+    completeness = support.get("completeness")
+    if completeness not in {"complete", "partial"}:
+        raise ValueError(
+            f"{operator['slug']}.conversionSupport.completeness: expected 'complete' or 'partial'"
+        )
+    missing: list[dict[str, Any]] = []
+    for index, raw_item in enumerate(
+        require_list(
+            support.get("missingCapabilities"),
+            f"{operator['slug']}.conversionSupport.missingCapabilities",
+        )
+    ):
+        path = f"{operator['slug']}.conversionSupport.missingCapabilities[{index}]"
+        item = require_dict(raw_item, path)
+        capability = item.get("capability")
+        if capability not in OPERATOR_MISSING_CAPABILITIES:
+            raise ValueError(f"{path}.capability: unsupported capability {capability!r}")
+        group_keys = item.get("skillGroupKeys")
+        normalized = {"capability": capability}
+        if group_keys is not None:
+            keys = [str(value) for value in require_list(group_keys, f"{path}.skillGroupKeys")]
+            if not keys or any(not key for key in keys):
+                raise ValueError(f"{path}.skillGroupKeys: expected non-empty stable identities")
+            normalized["skillGroupKeys"] = keys
+        missing.append(normalized)
+    declared_capabilities = {item["capability"] for item in missing}
+    omitted = [capability for capability in inferred if capability not in declared_capabilities]
+    if omitted:
+        raise ValueError(
+            f"{operator['slug']}.conversionSupport: missing inferred capabilities {omitted!r}"
+        )
+    if (completeness == "complete") != (len(missing) == 0):
+        raise ValueError(
+            f"{operator['slug']}.conversionSupport: completeness and missing capabilities disagree"
+        )
+    return {"completeness": completeness, "missingCapabilities": missing}
 
 
 def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
@@ -7112,6 +7187,7 @@ def render_operator_definition(
     potentials = render_potentials(operator, skills, potential_table, effects)
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
     helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
+    conversion_support = parse_conversion_support(operator)
     return "\n".join(
         [
             "/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */",
@@ -7141,6 +7217,7 @@ def render_operator_definition(
             "  potentials: [",
             *(textwrap.indent(potential, "    ") + "," for potential in potentials),
             "  ],",
+            f"  conversionSupport: {ts_inline_literal(conversion_support)},",
             "};",
             "",
         ]

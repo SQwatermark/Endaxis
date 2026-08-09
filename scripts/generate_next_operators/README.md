@@ -20,6 +20,15 @@
 
 完整定义包含基础信息、六个里程碑等级的面板基线、技能组、天赋和潜能。生成器会反向核对 `CharGrowthTable.skillGroupMap`，并验证天赋、潜能修改的技能 ID、黑板键和数据形状。
 
+### 宽松转换支持状态
+
+宽松转换得到的 `OperatorDefinition` 必须携带 `conversionSupport`。该字段只允许保存：
+
+- `completeness`：`complete` 或 `partial`；
+- `missingCapabilities`：受限的能力代码，以及可选的稳定技能组 key。
+
+能力代码用于让目录和 UI 明确提示“该干员数据未完全转换”，不能保存解析异常、源文件路径或本地化文本。详细原因仍写入 `<slug>.audit.json`，不会进入项目存档。完整定义未显式配置时，生成器会写入 `complete` 与空缺失清单；清单中的天赋或潜能若明确使用 `unmodeled...` 编译器，则会自动推导为 `partial` 并加入对应能力缺口。显式配置支持状态时不得漏报这些已知缺口，生成器会校验状态与清单一致。
+
 ## 代码结构
 
 - `generate_next_operators.py`：当前兼容入口及生成流水线编排；既有测试和审计工具仍可从这里导入公共名称。
