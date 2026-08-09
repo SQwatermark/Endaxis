@@ -7055,6 +7055,11 @@ PANEL_ATTRIBUTE_TYPES = {
     "baseHealth": 1,
 }
 PANEL_LEVELS = (1, 20, 40, 60, 80, 90)
+TRUST_BREAK_STAGES = (1, 2, 3, 4)
+DEFAULT_TRUST_ATTRIBUTE_BONUS = {
+    "values": (10, 15, 15, 20),
+    "attributes": ("main",),
+}
 
 
 def parse_panel_attributes(character: dict[str, Any], path: str) -> dict[str, tuple[int, ...]]:
@@ -7079,6 +7084,75 @@ def parse_panel_attributes(character: dict[str, Any], path: str) -> dict[str, tu
         name: tuple(int(rows_by_level[level][attr_type]) for level in PANEL_LEVELS)
         for name, attr_type in PANEL_ATTRIBUTE_TYPES.items()
     }
+
+
+def parse_trust_attribute_bonus(
+    growth: dict[str, Any],
+    main_attribute: str,
+    path: str,
+) -> dict[str, tuple[int, ...] | tuple[str, ...]] | None:
+    """解析天赋阵列的四次属性节点；全局默认规则返回 ``None``。"""
+    nodes_by_stage: dict[int, tuple[tuple[str, ...], int]] = {}
+    nodes = require_dict(growth.get("talentNodeMap"), f"{path}.talentNodeMap")
+    for node_id, raw_node in nodes.items():
+        node_path = f"{path}.talentNodeMap.{node_id}"
+        node = require_dict(raw_node, node_path)
+        if node.get("nodeType") != 3:
+            continue
+        info = require_dict(node.get("attributeNodeInfo"), f"{node_path}.attributeNodeInfo")
+        stage = require_non_negative_int(
+            info.get("breakStage"), f"{node_path}.attributeNodeInfo.breakStage"
+        )
+        if stage in nodes_by_stage:
+            raise ValueError(f"{path}.talentNodeMap: duplicate trust break stage {stage}")
+        modifiers = require_list(
+            info.get("attributeModifiers"),
+            f"{node_path}.attributeNodeInfo.attributeModifiers",
+        )
+        if not modifiers:
+            raise ValueError(f"{node_path}.attributeNodeInfo.attributeModifiers: expected entries")
+        attributes: list[str] = []
+        values: list[int] = []
+        for index, raw_modifier in enumerate(modifiers):
+            modifier_path = f"{node_path}.attributeNodeInfo.attributeModifiers[{index}]"
+            modifier = require_dict(raw_modifier, modifier_path)
+            if modifier.get("modifierType") != 5 or modifier.get("modifyAttributeType") != 0:
+                raise ValueError(f"{modifier_path}: unsupported trust attribute modifier mode")
+            attribute = ATTRIBUTE_TYPE_MAP.get(modifier.get("attrType"))
+            if attribute is None:
+                raise ValueError(
+                    f"{modifier_path}.attrType: unsupported attribute {modifier.get('attrType')!r}"
+                )
+            value = require_number(modifier.get("attrValue"), f"{modifier_path}.attrValue")
+            if not value.is_integer():
+                raise ValueError(f"{modifier_path}.attrValue: expected integer")
+            attributes.append(attribute)
+            values.append(int(value))
+        if len(set(attributes)) != len(attributes):
+            raise ValueError(f"{node_path}: duplicate trust attribute")
+        if len(set(values)) != 1:
+            raise ValueError(f"{node_path}: trust attributes must share one node value")
+        nodes_by_stage[stage] = (tuple(attributes), values[0])
+
+    if set(nodes_by_stage) != set(TRUST_BREAK_STAGES):
+        raise ValueError(
+            f"{path}.talentNodeMap: expected trust break stages {list(TRUST_BREAK_STAGES)}, "
+            f"got {sorted(nodes_by_stage)}"
+        )
+    ordered = [nodes_by_stage[stage] for stage in TRUST_BREAK_STAGES]
+    target_attributes = ordered[0][0]
+    if any(attributes != target_attributes for attributes, _ in ordered[1:]):
+        raise ValueError(f"{path}.talentNodeMap: trust attributes differ between break stages")
+    result = {
+        "values": tuple(value for _, value in ordered),
+        "attributes": target_attributes,
+    }
+    if result == {
+        "values": DEFAULT_TRUST_ATTRIBUTE_BONUS["values"],
+        "attributes": (main_attribute,),
+    }:
+        return None
+    return result
 
 
 def typescript_identifier(slug: str) -> str:
@@ -7185,6 +7259,11 @@ def render_operator_definition(
     groups = render_skill_groups(operator, skills)
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
+    trust_attribute_bonus = parse_trust_attribute_bonus(
+        growth,
+        main_attribute,
+        f"CharGrowthTable.{char_id}",
+    )
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
     helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
     conversion_support = parse_conversion_support(operator)
@@ -7208,6 +7287,11 @@ def render_operator_definition(
             "  attributes: {",
             *attribute_lines,
             "  },",
+            *(
+                [f"  trustAttributeBonus: {ts_inline_literal(trust_attribute_bonus)},"]
+                if trust_attribute_bonus is not None
+                else []
+            ),
             "  skillGroups: [",
             *(f"    {group}," for group in groups),
             "  ],",

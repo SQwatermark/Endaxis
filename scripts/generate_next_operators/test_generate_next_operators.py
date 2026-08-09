@@ -78,6 +78,7 @@ from generate_next_operators import (
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
+    parse_trust_attribute_bonus,
     parse_conversion_support,
     parse_declared_blackboard,
     parse_aura_actions,
@@ -6658,6 +6659,82 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(result["strength"], (1, 20, 40, 60, 80, 90))
         self.assertEqual(result["baseHealth"], (1, 20, 40, 60, 80, 90))
+
+    def test_trust_attribute_bonus_omits_source_confirmed_default(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                f"node-{stage}": {
+                    "nodeType": 3,
+                    "attributeNodeInfo": {
+                        "breakStage": stage,
+                        "attributeModifiers": [
+                            {
+                                "attrType": 41,
+                                "attrValue": value,
+                                "modifierType": 5,
+                                "modifyAttributeType": 0,
+                            }
+                        ],
+                    },
+                }
+                for stage, value in enumerate((10, 15, 15, 20), start=1)
+            }
+        }
+
+        self.assertIsNone(parse_trust_attribute_bonus(growth, "intellect", "growth"))
+
+    def test_trust_attribute_bonus_preserves_dual_attribute_exception(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                f"node-{stage}": {
+                    "nodeType": 3,
+                    "attributeNodeInfo": {
+                        "breakStage": stage,
+                        "attributeModifiers": [
+                            {
+                                "attrType": attr_type,
+                                "attrValue": value,
+                                "modifierType": 5,
+                                "modifyAttributeType": 0,
+                            }
+                            for attr_type in (41, 42)
+                        ],
+                    },
+                }
+                for stage, value in enumerate((8, 10, 10, 15), start=1)
+            }
+        }
+
+        self.assertEqual(
+            parse_trust_attribute_bonus(growth, "intellect", "growth"),
+            {
+                "values": (8, 10, 10, 15),
+                "attributes": ("intellect", "will"),
+            },
+        )
+
+    def test_trust_attribute_bonus_rejects_incomplete_source_nodes(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "node-1": {
+                    "nodeType": 3,
+                    "attributeNodeInfo": {
+                        "breakStage": 1,
+                        "attributeModifiers": [
+                            {
+                                "attrType": 41,
+                                "attrValue": 10,
+                                "modifierType": 5,
+                                "modifyAttributeType": 0,
+                            }
+                        ],
+                    },
+                }
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "expected trust break stages"):
+            parse_trust_attribute_bonus(growth, "intellect", "growth")
 
     def test_multiple_ui_groups_can_reconstruct_one_native_skill_group(self) -> None:
         operator = {
