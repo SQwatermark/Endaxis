@@ -18,6 +18,7 @@ import {
 import { compileResolvedScenarioTimeline } from './compileScenarioTimeline';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
+import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
 
 type BuildCatalog = Pick<
   GameDataRepository,
@@ -83,6 +84,9 @@ export function compileScenarioRuntimeAssembly(
 ): CombatRuntimeAssemblyOptions {
   const builds = resolveScenarioBuilds(scenario, options.catalog);
   const timeline = compileResolvedScenarioTimeline(builds);
+  const panels = new Map(
+    resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
+  );
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
@@ -90,6 +94,7 @@ export function compileScenarioRuntimeAssembly(
   const operators = bindOperatorRuntimes(
     timeline.operators.map(operator => ({
       ...operator,
+      panel: panels.get(operator.operatorId),
       equipmentContributions: equipment.get(operator.operatorId) ?? [],
     })),
     options.operatorRuntimeBindings,

@@ -162,6 +162,12 @@ describe('runScenarioSimulation', () => {
     });
 
     expect(result.finalResources.squad).toHaveLength(1);
+    expect(result.operatorPanels).toHaveLength(1);
+    expect(result.operatorPanels[0]).toMatchObject({
+      operatorId: 'perlica',
+      attack: 706,
+      health: 5950,
+    });
     expect(result.finalResources.squad[0]).toMatchObject({
       operatorId: 'perlica',
       ultimateEnergy: 20,

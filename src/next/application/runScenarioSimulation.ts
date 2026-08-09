@@ -14,6 +14,7 @@ import {
   type CombatResourceCurves,
 } from '../core/projection/resourceCurves';
 import type { ScenarioDocument } from '../core/project/schema';
+import type { ResolvedOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 
 export interface RunScenarioSimulationInput {
   readonly scenario: ScenarioDocument;
@@ -24,6 +25,8 @@ export interface RunScenarioSimulationInput {
 
 export interface ScenarioSimulationResult {
   readonly frame: number;
+  /** 与本次战斗输入完全一致的静态面板，不写回项目文档。 */
+  readonly operatorPanels: readonly ResolvedOperatorPanel[];
   /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
   readonly initialResources: CombatResourceSnapshot;
   readonly receiptEntries: readonly CombatReceiptEntry[];
@@ -75,15 +78,18 @@ export function runScenarioSimulation(input: RunScenarioSimulationInput): Scenar
     throw new RangeError('endFrame must not exceed scenario battle duration');
   }
 
-  const assembly = new CombatRuntimeAssembly(
-    compileScenarioRuntimeAssembly(input.scenario, input.options),
+  const compiled = compileScenarioRuntimeAssembly(input.scenario, input.options);
+  const operatorPanels = compiled.operators.flatMap(operator =>
+    operator.panel === undefined ? [] : [operator.panel],
   );
+  const assembly = new CombatRuntimeAssembly(compiled);
   const initialResources = assembly.resources.snapshot();
   assembly.advanceFrames(input.endFrame);
   const receiptEntries = freezeReceiptEntries(assembly.receipt.entries);
 
   return Object.freeze({
     frame: assembly.clock.frame,
+    operatorPanels,
     initialResources,
     finalResources: assembly.resources.snapshot(),
     // 脱离收集器并冻结，避免调用方改写本次模拟已经发生的事实。

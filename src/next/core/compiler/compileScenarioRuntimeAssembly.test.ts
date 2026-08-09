@@ -108,6 +108,12 @@ describe('compileScenarioRuntimeAssembly', () => {
     });
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('perlica');
+    expect(compiled.operators[0]!.panel).toMatchObject({
+      operatorId: 'perlica',
+      attack: 706,
+      health: 5950,
+      defense: 0,
+    });
     expect(compiled.inputs).toEqual([]);
     expect(compiled.enemyBuffRuntime).toBe(settings.environment.enemyBuffRuntime);
     expect(compiled.createOperationExecutor).toBe(settings.environment.createOperationExecutor);
@@ -163,6 +169,7 @@ describe('compileScenarioRuntimeAssembly', () => {
       operation: 'flat',
       value: 12,
     });
+    expect(createOperationExecutor.mock.calls[0]![0].panel).toBe(compiled.operators[0]!.panel);
   });
 
   it('does not require empty runtime binding records', () => {

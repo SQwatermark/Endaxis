@@ -643,6 +643,12 @@ export type AttributeGrowthDefinition = Record<OperatorAttribute, readonly numbe
   baseHealth: readonly number[];
 };
 
+/** 天赋阵列节点提供的四维属性；未配置时使用全局主属性规则。 */
+export interface TrustAttributeBonusDefinition {
+  readonly values: readonly number[];
+  readonly attributes: readonly (OperatorAttribute | 'main' | 'secondary')[];
+}
+
 /**
  * 天赋和潜能能够施加到编译结果的结构化修正。
  * 新种类必须有明确合并规则，不能通过任意对象补丁修改技能定义。
@@ -766,6 +772,8 @@ export interface OperatorDefinition {
   mainAttribute: OperatorAttribute;
   secondaryAttribute: OperatorAttribute;
   attributes: AttributeGrowthDefinition;
+  /** 仅记录偏离全局 `[10, 15, 15, 20]` 主属性规则的干员。 */
+  trustAttributeBonus?: TrustAttributeBonusDefinition;
   skillGroups: readonly SkillGroupDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   talents: readonly OperatorUpgradeDefinition[];

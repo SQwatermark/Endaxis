@@ -532,6 +532,10 @@ export const arcane: OperatorDefinition = {
     baseAttack: [30, 90, 153, 217, 280, 312],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
+  trustAttributeBonus: {
+    values: [8, 10, 10, 15],
+    attributes: ['intellect', 'will'],
+  },
   skillGroups: [
     {
       key: 'basicAttack',
