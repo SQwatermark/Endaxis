@@ -10,11 +10,46 @@ import {
   setTrackOperator,
   setTrackWeapon,
   swapTimelineTracks,
+  updateBattleResourceRule,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
   updateTrackInitialUltimateEnergy,
 } from './timelineDocumentCommands';
+
+describe('updateBattleResourceRule', () => {
+  it('updates shared SP rules without mutating the scenario', () => {
+    const original = scenario();
+    const updated = updateBattleResourceRule(original, 'spRecoveryPerSecond', 18.5);
+
+    expect(updated).not.toBe(original);
+    expect(updated.battle.resourceRules.spRecoveryPerSecond).toBe(18.5);
+    expect(original.battle.resourceRules.spRecoveryPerSecond).not.toBe(18.5);
+  });
+
+  it('clamps initial SP when the maximum is reduced', () => {
+    const original = scenario();
+    original.battle.resourceRules.initialSp = 200;
+
+    expect(updateBattleResourceRule(original, 'maxSp', 120).battle.resourceRules).toMatchObject({
+      maxSp: 120,
+      initialSp: 120,
+    });
+    expect(
+      updateBattleResourceRule(original, 'initialSp', 400).battle.resourceRules.initialSp,
+    ).toBe(original.battle.resourceRules.maxSp);
+  });
+
+  it('rejects invalid values and preserves no-op identity', () => {
+    const original = scenario();
+    expect(
+      updateBattleResourceRule(original, 'initialSp', original.battle.resourceRules.initialSp),
+    ).toBe(original);
+    expect(() => updateBattleResourceRule(original, 'initialSp', -1)).toThrow(
+      'initialSp must be a non-negative finite number',
+    );
+  });
+});
 
 describe('swapTimelineTracks', () => {
   it('swaps complete track slots and remaps control switches', () => {

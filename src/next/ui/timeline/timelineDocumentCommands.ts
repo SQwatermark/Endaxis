@@ -4,6 +4,7 @@
  * 组件不得直接改写持久化对象；后续撤销历史应记录这些命令的输入与输出，而不是 DOM 状态。
  */
 import type {
+  BattleDocument,
   EditableActionValues,
   GearBuildDocument,
   OperatorBuildDocument,
@@ -12,6 +13,37 @@ import type {
   TrackIndex,
   WeaponBuildDocument,
 } from '../../core/project/schema';
+
+export type EditableBattleResourceRule = keyof Pick<
+  BattleDocument['resourceRules'],
+  'maxSp' | 'initialSp' | 'spRecoveryPerSecond'
+>;
+
+/**
+ * 更新项目持久化的共享技力规则。命令同时维护初始值不超过上限的不变量，避免 UI、校验器和模拟器
+ * 分别修正同一输入；未开放编辑的原生运行时规则仍由后续应用装配层提供。
+ */
+export function updateBattleResourceRule(
+  scenario: ScenarioDocument,
+  field: EditableBattleResourceRule,
+  value: number,
+): ScenarioDocument {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new RangeError(`${field} must be a non-negative finite number`);
+  }
+
+  const current = scenario.battle.resourceRules;
+  const normalizedValue = field === 'initialSp' ? Math.min(value, current.maxSp) : value;
+  const next = {
+    ...current,
+    [field]: normalizedValue,
+    ...(field === 'maxSp' && current.initialSp > normalizedValue
+      ? { initialSp: normalizedValue }
+      : {}),
+  };
+  if (next[field] === current[field] && next.initialSp === current.initialSp) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, resourceRules: next } };
+}
 
 /**
  * 交换两条轨道及其视觉顺序，并让主控切换事件继续指向原来的干员轨道。

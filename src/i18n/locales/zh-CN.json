@@ -1263,6 +1263,7 @@
     "weaponTab": "武器",
     "gearTab": "装备",
     "skillLibrary": "干员技能库",
+    "maxSp": "技力上限",
     "panel": {
       "trustNode": "天赋阵列 {node}",
       "staggerDamage": "失衡伤害加成",

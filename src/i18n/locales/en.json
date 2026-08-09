@@ -1263,6 +1263,7 @@
     "weaponTab": "Weapon",
     "gearTab": "Gear",
     "skillLibrary": "Skill library",
+    "maxSp": "Max SP",
     "panel": {
       "trustNode": "Talent Array {node}",
       "staggerDamage": "Stagger Damage Bonus",

@@ -1140,6 +1140,7 @@
     "weaponTab": "Оружие",
     "gearTab": "Снаряжение",
     "skillLibrary": "Библиотека навыков",
+    "maxSp": "Максимум ОН",
     "panel": {
       "trustNode": "Узел массива талантов {node}",
       "staggerDamage": "Бонус урона по стойкости",

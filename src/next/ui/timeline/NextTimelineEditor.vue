@@ -25,6 +25,7 @@ import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
+import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import {
@@ -58,6 +59,8 @@ import {
 import {
   moveSkillCasts,
   swapTimelineTracks,
+  updateBattleResourceRule,
+  type EditableBattleResourceRule,
   updateTrackInitialUltimateEnergy,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
@@ -834,6 +837,12 @@ function setTrackInitialUltimateEnergy(trackIndex: TrackIndex, value: number): v
   );
 }
 
+function setBattleResourceRule(field: EditableBattleResourceRule, value: number): void {
+  commitScenario('updateBattleResourceRule', current =>
+    updateBattleResourceRule(current, field, value),
+  );
+}
+
 function setContextCastColor(color: string | null): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
@@ -1145,9 +1154,20 @@ function setPanelDialogVisible(visible: boolean): void {
     </div>
     <div v-if="marqueeStyle" class="timeline-marquee" :style="marqueeStyle"></div>
 
-    <template #bottom="{ tool }"
-      ><div class="empty-panel">{{ tool }}</div></template
-    >
+    <template #bottom="{ tool }">
+      <NextGlobalResourcePanel
+        v-if="tool === 'global'"
+        :rules="scenario.battle.resourceRules"
+        :labels="{
+          title: t('timeline.activityBar.globalConfig'),
+          maximum: t('nextTimeline.maxSp'),
+          initial: t('resourceMonitor.labels.initialSp'),
+          recovery: t('resourceMonitor.labels.spPerSecond'),
+        }"
+        @update="setBattleResourceRule"
+      />
+      <div v-else class="empty-panel">{{ tool }}</div>
+    </template>
     <template #right="{ tool }">
       <TimelineActionInspector
         v-if="tool === 'inspector'"
