@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
+import {
+  getEnemyGameName,
+  getOperatorCombatSkillName,
+  getOperatorGameName,
+} from '../legacy/legacyGameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
@@ -15,9 +19,15 @@ import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
+import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
-import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import {
+  PROJECT_FPS,
+  type EditableActionValues,
+  type ScenarioDocument,
+  type TrackIndex,
+} from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
@@ -27,6 +37,7 @@ import {
 } from './timelineEditorViewModel';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
+import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
   moveSkillCast,
   removeSkillCast,
@@ -125,6 +136,18 @@ const {
   selectedCastId,
   gameData: nextGameDataRepository,
 });
+const {
+  enemies,
+  selectedDefinition: selectedEnemyDefinition,
+  selectCatalogEnemy,
+  selectCustomEnemy,
+  saveEnemyValues,
+} = useTimelineEnemyEditor({
+  scenario,
+  session: scenarioSession,
+  gameData: nextGameDataRepository,
+  fps: PROJECT_FPS,
+});
 let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
   allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
@@ -167,6 +190,10 @@ const cursorLeft = computed(() =>
 
 function operatorName(slug: string | null): string {
   return slug === null ? t('nextTimeline.emptyTrack') : getOperatorGameName(slug, locale.value);
+}
+
+function enemyName(enemyId: string): string {
+  return getEnemyGameName(enemyId, locale.value);
 }
 
 function skillName(groupKey: string, slug: string | null): string {
@@ -452,7 +479,57 @@ function updateSelectedCast(
     </template>
 
     <template #left-bottom="{ tool }">
-      <div class="empty-panel">{{ tool }}</div>
+      <NextEnemySettingsPanel
+        v-if="tool === 'enemy'"
+        :enemy="scenario.enemy"
+        :definition="selectedEnemyDefinition"
+        :enemies="enemies"
+        :fps="PROJECT_FPS"
+        :name-of="enemyName"
+        :labels="{
+          all: t('common.all'),
+          close: t('common.close'),
+          confirm: t('common.confirm'),
+          custom: t('resourceMonitor.enemy.custom'),
+          customDescription: t('resourceMonitor.enemy.customDesc'),
+          unknown: t('resourceMonitor.enemy.unknown'),
+          clickToChange: t('resourceMonitor.enemy.clickToChange'),
+          selectTitle: t('resourceMonitor.enemy.dialogTitle'),
+          searchPlaceholder: t('resourceMonitor.enemy.searchPlaceholder'),
+          level: t('resourceMonitor.enemy.level'),
+          empty: t('resourceMonitor.enemy.empty'),
+          editStats: t('resourceMonitor.enemy.editStats'),
+          editStatsTitle: t('resourceMonitor.enemy.editStatsTitle'),
+          enemyHp: t('resourceMonitor.labels.enemyHp'),
+          defense: t('statDetail.defense'),
+          finisherMultiplier: `${t('skillType.execution')}${t('hitDetail.multipliers')}`,
+          maximumStagger: t('resourceMonitor.labels.maxStagger'),
+          staggerNodes: t('resourceMonitor.labels.staggerNodes'),
+          nodeDuration: t('resourceMonitor.labels.nodeDuration'),
+          brokenDuration: t('resourceMonitor.labels.breakDuration'),
+          finisherRecovery: t('resourceMonitor.labels.executionRecovery'),
+          superArmor: t('resourceMonitor.labels.superArmor'),
+          resistances: t('resourceMonitor.labels.resistanceTitle'),
+          resistance: {
+            physical: t('resourceMonitor.resistance.physical'),
+            heat: t('resourceMonitor.resistance.heat'),
+            cryo: t('resourceMonitor.resistance.cryo'),
+            electric: t('resourceMonitor.resistance.electric'),
+            nature: t('resourceMonitor.resistance.nature'),
+          },
+          tier: {
+            normal: t('enemyTier.normal'),
+            advanced: t('enemyTier.advanced'),
+            elite: t('enemyTier.elite'),
+            boss: t('enemyTier.boss'),
+            leader: t('enemyTier.leader'),
+          },
+        }"
+        @select-catalog="selectCatalogEnemy"
+        @select-custom="selectCustomEnemy"
+        @save="saveEnemyValues"
+      />
+      <div v-else class="empty-panel">{{ tool }}</div>
     </template>
 
     <template #header>
