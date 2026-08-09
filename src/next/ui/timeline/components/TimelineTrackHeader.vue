@@ -4,23 +4,26 @@
  * 选择、排序和编辑动作由父层 command 处理，本组件不修改项目对象。
  */
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
+import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
 
 defineProps<{
   track: TimelineTrackViewModel;
   name: string;
   selected: boolean;
+  weaponIcon: string | null;
+  gearIcons: Readonly<Record<LoadoutGearSlot, string | null>>;
+  labels: Record<'weapon' | LoadoutGearSlot, string>;
 }>();
 
-defineEmits<{ select: [] }>();
+defineEmits<{
+  select: [];
+  weapon: [];
+  gear: [slot: LoadoutGearSlot];
+}>();
 </script>
 
 <template>
-  <button
-    class="track-header"
-    :class="{ 'is-selected': selected }"
-    type="button"
-    @click="$emit('select')"
-  >
+  <div class="track-header" :class="{ 'is-selected': selected }" @click="$emit('select')">
     <span class="reorder-column" aria-hidden="true">
       <span>⌃</span><span class="drag-handle">⠿</span><span>⌄</span>
     </span>
@@ -29,13 +32,33 @@ defineEmits<{ select: [] }>();
       <span class="operator-summary">
         <span class="operator-name">{{ name }}</span>
         <span class="loadout-row">
-          <span class="weapon-slot">+</span>
-          <span v-for="slot in 4" :key="slot" class="gear-slot">+</span>
+          <button
+            type="button"
+            class="weapon-slot"
+            :class="{ empty: weaponIcon === null }"
+            :title="labels.weapon"
+            @click.stop="$emit('weapon')"
+          >
+            <img v-if="weaponIcon" :src="weaponIcon" alt="" />
+            <span v-else aria-hidden="true">+</span>
+          </button>
+          <button
+            v-for="slot in ['armor', 'gloves', 'accessory1', 'accessory2'] as const"
+            :key="slot"
+            type="button"
+            class="gear-slot"
+            :class="{ empty: gearIcons[slot] === null }"
+            :title="labels[slot]"
+            @click.stop="$emit('gear', slot)"
+          >
+            <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
+            <span v-else aria-hidden="true">+</span>
+          </button>
         </span>
       </span>
     </span>
     <span v-else class="empty-track"><span class="empty-avatar">+</span>{{ name }}</span>
-  </button>
+  </div>
 </template>
 
 <style scoped>
@@ -119,8 +142,33 @@ defineEmits<{ select: [] }>();
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  border: 1px dashed var(--ea-border-strong);
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--ea-keycap-border, var(--ea-border-strong));
+  border-radius: 6px;
+  background: var(--ea-keycap-bg, var(--ea-fill-soft));
   color: var(--ea-icon-muted);
+  cursor: pointer;
+}
+
+.weapon-slot.empty,
+.gear-slot.empty {
+  border-style: dashed;
+}
+
+.weapon-slot:hover {
+  border-color: var(--ea-gold);
+}
+
+.gear-slot:hover {
+  border-color: #2dd4bf;
+}
+
+.weapon-slot img,
+.gear-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .weapon-slot {

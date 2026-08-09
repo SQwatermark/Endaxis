@@ -1,20 +1,15 @@
 <script setup lang="ts">
 /**
- * Next 时间轴的四槽装备选择器。父层负责按当前槽位提供目录并持久化选择；本组件只负责
- * 槽位导航、目录搜索和返回稳定 slug，适配缺口提示不会进入项目数据。
+ * Next 时间轴的单槽装备选择器。父层决定正在编辑的轨道和槽位，并负责把选择、卸下及精锻档位写回项目；
+ * 本组件只复刻旧版装备选择弹窗的目录浏览流程，不读取旧 store，也不把适配状态写入存档。
  */
 import { computed, ref, watch } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
-import { getGameSlotTypeName, getGearPieceGameName, getGearSetGameName } from '@/data/gameText';
+import { getGearPieceGameName, getGearSetGameName } from '@/data/gameText';
+import { getEquipmentLevelColor } from '@/utils/equipmentLevels';
 import { getSharedEquipmentSupport } from '../../../data/equipment';
 import type { GearDefinition } from '../../../core/game-data/equipmentDefinition';
-
-export interface GearSelectionSlotTab {
-  readonly key: string;
-  readonly label: string;
-  readonly selectedName?: string | null;
-  readonly selectedSlug?: string | null;
-}
 
 export interface GearSelectionDialogLabels {
   readonly title: string;
@@ -27,49 +22,68 @@ export interface GearSelectionDialogLabels {
   readonly noSet: string;
 }
 
-const props = defineProps<{
-  visible: boolean;
-  /** 父层已经按当前槽位筛选好的装备目录。 */
-  gears: readonly GearDefinition[];
-  selectedSlug: string | null;
-  slotTabs: readonly GearSelectionSlotTab[];
-  activeSlotKey: string;
-  labels: GearSelectionDialogLabels;
-}>();
+const props = withDefaults(
+  defineProps<{
+    visible: boolean;
+    /** 父层已经按当前槽位筛选好的装备目录。 */
+    gears: readonly GearDefinition[];
+    selectedSlug: string | null;
+    /** 已装备 Build 的精锻档位；未装备时默认预选满精锻，与旧版一致。 */
+    selectedArtificingLevels?: readonly number[];
+    /** 当前槽位由父层指定，两个配件槽仍保留各自的稳定身份。 */
+    activeSlotKey?: string;
+    labels: GearSelectionDialogLabels;
+  }>(),
+  {
+    selectedArtificingLevels: () => [],
+    activeSlotKey: 'armor',
+  },
+);
 
 const emit = defineEmits<{
   close: [];
-  select: [slug: string];
+  select: [slug: string, artificingTier: number];
   clear: [];
-  'change-slot': [key: string];
+  'change-refine-tier': [tier: number];
 }>();
 
 interface GearListItem {
   readonly definition: GearDefinition;
   readonly name: string;
-  readonly slotTypeName: string;
   readonly gearSetName: string;
   readonly isPartial: boolean;
   readonly supportSummary: string;
 }
 
-const { locale } = useI18n({ useScope: 'global' });
-const query = ref('');
+interface GearLevelGroup {
+  readonly level: number;
+  readonly items: readonly GearListItem[];
+}
+
+const { locale, t } = useI18n({ useScope: 'global' });
+const searchQuery = ref('');
+const refineTier = ref(3);
+const refineTiers = [0, 1, 2, 3] as const;
 
 watch(
-  () => [props.visible, props.activeSlotKey] as const,
+  () => [props.visible, props.activeSlotKey, props.selectedSlug] as const,
   ([visible]) => {
-    if (visible) query.value = '';
+    if (!visible) return;
+    searchQuery.value = '';
+    refineTier.value = props.selectedSlug === null ? 3 : currentArtificingTier.value;
   },
 );
 
-function normalize(value: string): string {
-  return value.toLocaleLowerCase().replace(/[\s_-]+/g, '');
+function normalizeSearchText(value: unknown): string {
+  return String(value ?? '')
+    .toLocaleLowerCase()
+    .replace(/[\s_-]+/g, '');
 }
 
-function selectedTabText(tab: GearSelectionSlotTab): string {
-  return tab.selectedName?.trim() || tab.selectedSlug?.trim() || '';
-}
+const currentArtificingTier = computed(() => {
+  if (props.selectedArtificingLevels.length === 0) return 0;
+  return Math.max(0, Math.min(3, Math.max(...props.selectedArtificingLevels)));
+});
 
 const gearItems = computed<readonly GearListItem[]>(() =>
   props.gears.map(definition => {
@@ -81,7 +95,6 @@ const gearItems = computed<readonly GearListItem[]>(() =>
     return {
       definition,
       name: getGearPieceGameName(definition.slug, locale.value),
-      slotTypeName: getGameSlotTypeName(definition.slotType, locale.value),
       gearSetName: definition.gearSetSlug
         ? getGearSetGameName(definition.gearSetSlug, locale.value)
         : props.labels.noSet,
@@ -93,276 +106,213 @@ const gearItems = computed<readonly GearListItem[]>(() =>
   }),
 );
 
-const filteredGears = computed(() => {
-  const needle = normalize(query.value);
-  if (needle.length === 0) return gearItems.value;
-  return gearItems.value.filter(item =>
-    [
+const groups = computed<readonly GearLevelGroup[]>(() => {
+  const query = normalizeSearchText(searchQuery.value);
+  const filtered = gearItems.value.filter(item => {
+    if (query.length === 0) return true;
+    return [
       item.definition.slug,
-      item.definition.slotType,
-      item.definition.gearSetSlug ?? '',
-      String(item.definition.baseDefense),
+      item.definition.gearSetSlug,
+      item.definition.levelRequirement,
+      item.definition.baseDefense,
       item.name,
-      item.slotTypeName,
       item.gearSetName,
-    ]
-      .map(normalize)
-      .some(value => value.includes(needle)),
-  );
+    ].some(value => normalizeSearchText(value).includes(query));
+  });
+  const byLevel = new Map<number, GearListItem[]>();
+  for (const item of filtered) {
+    const level = item.definition.levelRequirement;
+    const items = byLevel.get(level) ?? [];
+    items.push(item);
+    byLevel.set(level, items);
+  }
+  return [...byLevel.entries()]
+    .sort(([left], [right]) => right - left)
+    .map(([level, items]) => ({
+      level,
+      items: items.sort((left, right) => left.name.localeCompare(right.name)),
+    }));
 });
+
+function setRefineTier(tier: number): void {
+  refineTier.value = tier;
+  if (props.selectedSlug !== null) emit('change-refine-tier', tier);
+}
+
+function selectGear(slug: string): void {
+  emit('select', slug, refineTier.value);
+  emit('close');
+}
+
+function clearGear(): void {
+  emit('clear');
+  emit('close');
+}
 </script>
 
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="dialog-backdrop" @mousedown.self="emit('close')">
-      <section class="gear-dialog" role="dialog" aria-modal="true" :aria-label="labels.title">
-        <header>
-          <strong>{{ labels.title }}</strong>
-          <button type="button" :title="labels.close" @click="emit('close')">×</button>
-        </header>
-
-        <nav class="slot-tabs" :aria-label="labels.title">
-          <button
-            v-for="tab in slotTabs"
-            :key="tab.key"
-            type="button"
-            class="slot-tab"
-            :class="{ active: tab.key === activeSlotKey }"
-            @click="emit('change-slot', tab.key)"
+  <el-dialog
+    :model-value="visible"
+    :title="labels.title"
+    width="600px"
+    align-center
+    class="char-selector-dialog"
+    append-to-body
+    @close="emit('close')"
+  >
+    <div class="selector-header">
+      <div class="header-left-group">
+        <el-input
+          v-model="searchQuery"
+          :placeholder="labels.searchPlaceholder"
+          :prefix-icon="Search"
+          clearable
+          style="width: 180px"
+        />
+        <button
+          type="button"
+          class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
+          :disabled="selectedSlug === null"
+          :title="labels.unequip"
+          @click="clearGear"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            stroke="currentColor"
+            stroke-width="2"
+            fill="none"
+            aria-hidden="true"
           >
-            <strong>{{ tab.label }}</strong>
-            <span :title="selectedTabText(tab)">{{ selectedTabText(tab) || '—' }}</span>
-          </button>
-        </nav>
-
-        <div class="dialog-tools">
-          <input v-model="query" :placeholder="labels.searchPlaceholder" />
-          <button type="button" class="clear-button" @click="emit('clear')">
-            {{ labels.unequip }}
-          </button>
+            <path d="M3 6h18" />
+            <path
+              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+            />
+          </svg>
+          {{ labels.unequip }}
+        </button>
+        <div class="equipment-tier-picker">
+          <span class="tier-label">{{ t('timelineGrid.equipmentDialog.refine') }}</span>
+          <div class="equipment-refine-buttons">
+            <button
+              v-for="tier in refineTiers"
+              :key="tier"
+              type="button"
+              class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold equipment-refine-btn"
+              :class="{ 'is-active': refineTier === tier }"
+              @click="setRefineTier(tier)"
+            >
+              {{ tier === 0 ? t('timelineGrid.equipmentDialog.refineBase') : tier }}
+            </button>
+          </div>
         </div>
-
-        <div class="gear-grid">
-          <button
-            v-for="item in filteredGears"
-            :key="item.definition.slug"
-            type="button"
-            class="gear-card"
-            :class="{ selected: item.definition.slug === selectedSlug }"
-            @click="emit('select', item.definition.slug)"
-          >
-            <span class="gear-icon">
-              <img v-if="item.definition.iconPath" :src="item.definition.iconPath" alt="" />
-            </span>
-            <span class="gear-info">
-              <strong :title="item.name">{{ item.name }}</strong>
-              <span
-                >{{ item.slotTypeName }} · {{ labels.defense }}
-                {{ item.definition.baseDefense }}</span
-              >
-              <span class="set-name" :title="item.gearSetName">{{ item.gearSetName }}</span>
-            </span>
-            <span v-if="item.isPartial" class="support-warning" :title="item.supportSummary">
-              {{ labels.partialSupport }}
-            </span>
-          </button>
-          <p v-if="filteredGears.length === 0" class="empty-result">
-            {{ labels.empty }}
-          </p>
-        </div>
-      </section>
+      </div>
     </div>
-  </Teleport>
+
+    <div class="roster-scroll-container">
+      <template v-for="group in groups" :key="group.level">
+        <div class="rarity-header" :style="{ color: getEquipmentLevelColor(group.level) }">
+          <span class="rarity-label">Lv{{ group.level }}</span>
+          <div class="rarity-line"></div>
+        </div>
+        <div class="roster-grid">
+          <div
+            v-for="gear in group.items"
+            :key="gear.definition.slug"
+            class="roster-card equipment-roster-card"
+            @click="selectGear(gear.definition.slug)"
+          >
+            <el-tooltip
+              placement="top-start"
+              effect="dark"
+              :show-after="160"
+              popper-class="equipment-selection-preview-popper"
+            >
+              <template #content>
+                <div class="next-gear-preview">
+                  <div class="next-gear-preview__name">{{ gear.name }}</div>
+                  <div class="next-gear-preview__row">
+                    <span>{{ labels.defense }}</span>
+                    <strong>{{ gear.definition.baseDefense }}</strong>
+                  </div>
+                  <div class="next-gear-preview__row">
+                    <span>{{ t('timelineGrid.equipmentDialog.setBonusTitle') }}</span>
+                    <strong>{{ gear.gearSetName }}</strong>
+                  </div>
+                  <div
+                    v-if="gear.isPartial"
+                    class="next-gear-preview__warning"
+                    :title="gear.supportSummary"
+                  >
+                    {{ labels.partialSupport }}
+                  </div>
+                </div>
+              </template>
+              <div class="selection-card-tooltip-target">
+                <div
+                  class="card-avatar-wrapper"
+                  :style="{ borderColor: getEquipmentLevelColor(gear.definition.levelRequirement) }"
+                >
+                  <img
+                    :src="gear.definition.iconPath || '/icons/default_icon.webp'"
+                    :alt="gear.name"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="card-name">{{ gear.name }}</div>
+              </div>
+            </el-tooltip>
+            <div v-if="selectedSlug === gear.definition.slug" class="in-team-tag weapon-equipped">
+              {{ t('timelineGrid.weaponDialog.equipped') }}
+            </div>
+          </div>
+        </div>
+      </template>
+      <div v-if="groups.length === 0" class="empty-roster">{{ labels.empty }}</div>
+    </div>
+  </el-dialog>
 </template>
 
+<style src="../../../../components/selection/selectionDialog.css"></style>
+
 <style scoped>
-.dialog-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
+:global(.equipment-selection-preview-popper.el-popper.is-dark) {
+  max-width: min(360px, calc(100vw - 32px));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #050505;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.72);
+}
+
+.next-gear-preview {
+  min-width: 220px;
   display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--ea-bg) 70%, transparent);
+  gap: 8px;
+  line-height: 1.4;
 }
 
-.gear-dialog {
-  width: min(780px, calc(100vw - 32px));
-  max-height: min(720px, calc(100vh - 32px));
+.next-gear-preview__name {
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.next-gear-preview__row {
   display: flex;
-  flex-direction: column;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-workbench-panel);
-  color: var(--ea-fg);
-  box-shadow: 0 18px 52px var(--ea-shadow-strong);
-}
-
-header,
-.dialog-tools {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--ea-border);
-}
-
-header {
   justify-content: space-between;
+  gap: 18px;
+  color: rgba(255, 255, 255, 0.75);
 }
 
-button,
-input {
-  height: 30px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border);
-  border-radius: 2px;
-  background: var(--ea-fill-soft);
-  color: inherit;
-  font: inherit;
+.next-gear-preview__row strong {
+  color: #facc15;
 }
 
-button {
-  cursor: pointer;
-}
-
-header button {
-  width: 30px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: 20px;
-}
-
-.slot-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  padding: 1px;
-  border-bottom: 1px solid var(--ea-border);
-  background: var(--ea-border-soft);
-}
-
-.slot-tab {
-  min-width: 0;
-  height: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 3px;
-  padding: 6px 10px;
-  border: 0;
-  background: var(--ea-workbench-panel);
-  text-align: left;
-}
-
-.slot-tab > span {
-  width: 100%;
-  overflow: hidden;
-  color: var(--ea-fg-muted);
-  font-size: 11px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.slot-tab.active {
-  color: var(--ea-gold);
-  box-shadow: inset 0 -2px var(--ea-gold);
-}
-
-input {
-  width: 280px;
-  padding: 0 9px;
-  outline: none;
-}
-
-input:focus,
-button:hover {
-  border-color: var(--ea-gold);
-}
-
-.clear-button {
-  padding: 0 12px;
-  color: var(--el-color-danger);
-}
-
-.gear-grid {
-  min-height: 180px;
-  overflow: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  align-content: start;
-  gap: 10px;
-  padding: 14px;
-}
-
-.gear-card {
-  min-width: 0;
-  height: 88px;
-  display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
-  align-items: center;
-  gap: 3px 10px;
-  padding: 9px 10px;
-  text-align: left;
-}
-
-.gear-card.selected {
-  border-color: var(--ea-gold);
-  color: var(--ea-gold);
-}
-
-.gear-icon {
-  grid-row: 1 / -1;
-  width: 56px;
-  height: 56px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--ea-border-soft);
-  background: var(--ea-surface-soft);
-}
-
-.gear-icon img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.gear-info {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.gear-info > strong,
-.gear-info > span {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.gear-info > span {
-  color: var(--ea-fg-muted);
-  font-size: 11px;
-}
-
-.gear-info .set-name {
-  color: var(--ea-fg-secondary);
-}
-
-.support-warning {
-  width: fit-content;
-  max-width: 100%;
-  overflow: hidden;
-  color: var(--el-color-warning);
-  font-size: 11px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.empty-result {
-  grid-column: 1 / -1;
-  color: var(--ea-fg-muted);
-  text-align: center;
+.next-gear-preview__warning {
+  padding-top: 7px;
+  border-top: 1px solid rgba(250, 204, 21, 0.22);
+  color: #facc15;
+  font-size: 12px;
 }
 </style>
