@@ -24,12 +24,12 @@ const scaleAttributes = Object.fromEntries(
   DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
 ) as unknown as DamageScaleAttributeSnapshot;
 
-function createAttributeSnapshots(attack = 100, defense = 0) {
+function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
   return {
     attacker: {
       ...scaleAttributes,
       attack,
-      criticalRate: 0,
+      criticalRate,
       criticalDamageIncrease: 0.5,
       weaknessDamageMultiplier: 1,
       igniteDamageMultiplier: 1,
@@ -66,6 +66,7 @@ describe('PlayerDamageOperationExecutor', () => {
       poiseImmune: false,
     });
     const receipt = new CombatReceiptCollector();
+    const nextCriticalSample = vi.fn(() => 1);
     const executor = new PlayerDamageOperationExecutor({
       sourceOperatorId: 'perlica',
       targetId: 'enemy',
@@ -73,8 +74,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clock: new CombatClock(),
       receipt,
       captureAttributeSnapshots: () => createAttributeSnapshots(),
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
+      criticalSamples: { nextCriticalSample },
+      resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
@@ -114,6 +115,7 @@ describe('PlayerDamageOperationExecutor', () => {
       { blackboard: new ActionBlackboard({ attackScale: 1 }) },
     );
     expect(targetVitals.health).toBe(500);
+    expect(nextCriticalSample).not.toHaveBeenCalled();
   });
 
   it('uses fixed damage as the calculation result while preserving the damage formula', () => {
@@ -134,8 +136,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clock: new CombatClock(),
       receipt: new CombatReceiptCollector(),
       captureAttributeSnapshots: () => createAttributeSnapshots(9999, 100),
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
@@ -185,7 +187,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clock: new CombatClock(),
       receipt,
       captureAttributeSnapshots,
-      resolveRuntimeSnapshot: vi.fn(),
+      criticalSamples: { nextCriticalSample: vi.fn() },
+      resolveNonRandomRuntimeSnapshot: vi.fn(),
       applyDamageModifiers: vi.fn(),
       addInstantAttributeModifier: vi.fn(),
       clearInstantAttributeModifiers: vi.fn(),
@@ -224,7 +227,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clock: new CombatClock(),
       receipt: new CombatReceiptCollector(),
       captureAttributeSnapshots: vi.fn(),
-      resolveRuntimeSnapshot: vi.fn(),
+      criticalSamples: { nextCriticalSample: vi.fn() },
+      resolveNonRandomRuntimeSnapshot: vi.fn(),
       applyDamageModifiers: vi.fn(),
       addInstantAttributeModifier: vi.fn(),
       clearInstantAttributeModifiers: vi.fn(),
@@ -272,8 +276,8 @@ describe('PlayerDamageOperationExecutor', () => {
         order.push('capture');
         return createAttributeSnapshots(attack, defense);
       },
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
@@ -350,8 +354,8 @@ describe('PlayerDamageOperationExecutor', () => {
           breakingAttackDamageTakenMultiplier: 1.5,
         },
       }),
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
@@ -382,6 +386,56 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(targetVitals.health).toBeCloseTo(1940);
   });
 
+  it('consumes one critical sample per HP unit only after the final critical-rate snapshot', () => {
+    let criticalRate = 0;
+    const nextCriticalSample = vi.fn(() => 0.5);
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'perlica',
+      targetId: 'enemy',
+      targetVitals: new CombatVitals({
+        health: 10000,
+        maxHealth: 10000,
+        maxPoise: 100,
+        poise: 100,
+        poiseRecoveryTime: 1,
+        poiseRecoveryTimeMultiplier: 1,
+        poiseBrokenEndTime: 0,
+        poiseImmune: false,
+      }),
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => createAttributeSnapshots(100, 0, criticalRate),
+      criticalSamples: { nextCriticalSample },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: timing => {
+        if (timing === 'afterCalculation') criticalRate = 1;
+      },
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute(DAMAGE_STEP);
+    expect(nextCriticalSample).toHaveBeenCalledTimes(1);
+
+    criticalRate = 0;
+    executor.execute({
+      ...DAMAGE_STEP,
+      parameters: { ...DAMAGE_STEP.parameters, stagger: undefined },
+    });
+    expect(nextCriticalSample).toHaveBeenCalledTimes(2);
+  });
+
   it('delegates operations outside the damage path', () => {
     const delegate = { execute: vi.fn(() => true), evaluate: vi.fn(() => false) };
     const executor = new PlayerDamageOperationExecutor({
@@ -400,7 +454,8 @@ describe('PlayerDamageOperationExecutor', () => {
       clock: new CombatClock(),
       receipt: new CombatReceiptCollector(),
       captureAttributeSnapshots: vi.fn(),
-      resolveRuntimeSnapshot: vi.fn(),
+      criticalSamples: { nextCriticalSample: vi.fn() },
+      resolveNonRandomRuntimeSnapshot: vi.fn(),
       applyDamageModifiers: vi.fn(),
       addInstantAttributeModifier: vi.fn(),
       clearInstantAttributeModifiers: vi.fn(),

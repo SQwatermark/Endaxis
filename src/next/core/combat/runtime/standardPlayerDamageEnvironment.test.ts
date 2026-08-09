@@ -84,8 +84,8 @@ function createContext(): CombatOperationExecutorContext {
 
 function createEnvironment(): StandardPlayerDamageEnvironment {
   return new StandardPlayerDamageEnvironment({
-    resolveRuntimeSnapshot: () => ({
-      criticalSample: 1,
+    criticalSamples: { nextCriticalSample: () => 1 },
+    resolveNonRandomRuntimeSnapshot: () => ({
       runtimeExtensionMultiplier: 1,
       appliesIgniteDamageMultiplier: false,
       appliesPhysicalInflictionDamageMultiplier: false,

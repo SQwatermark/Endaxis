@@ -151,8 +151,8 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       clock: context.clock,
       receipt: context.receipt,
       captureAttributeSnapshots: step => resolveStaticPlayerDamageSnapshots(context, step),
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,

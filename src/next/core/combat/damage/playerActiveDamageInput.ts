@@ -34,14 +34,18 @@ export interface PlayerDamageDefenderSnapshot {
   readonly resistances: Readonly<Record<ResistibleDamageType, DamageResistanceSnapshot>>;
 }
 
-/** 不属于静态属性、但参与一次伤害公式的运行时数值。 */
-export interface PlayerDamageRuntimeSnapshot {
-  readonly criticalSample: number;
+/** 不含有状态随机取样、但参与一次伤害公式的运行时数值。 */
+export interface PlayerDamageNonRandomRuntimeSnapshot {
   readonly runtimeExtensionMultiplier: number;
   /** 由目录适配器设置的原生修饰掩码解析得到。 */
   readonly appliesIgniteDamageMultiplier: boolean;
   /** 由目录适配器设置的原生修饰掩码解析得到。 */
   readonly appliesPhysicalInflictionDamageMultiplier: boolean;
+}
+
+/** 一次伤害公式最终冻结的全部运行时数值。 */
+export interface PlayerDamageRuntimeSnapshot extends PlayerDamageNonRandomRuntimeSnapshot {
+  readonly criticalSample: number;
 }
 
 /** 从伤害步骤、双方快照和运行时状态解析公式输入的完整参数。 */

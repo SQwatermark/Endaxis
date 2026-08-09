@@ -76,6 +76,8 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `StandardPlayerDamageEnvironment` 提供当前可以诚实贯通的场景级标准生命伤害子集。每个实例独占敌人生命账本、攻击方/防御方伤害修正容器，以及按实体身份隔离的 Ability 事件中心；运行时快照由调用方显式提供。失衡、元素附着、瞬时属性和未知操作都会明确失败，不能用空回调或单位值把这条子链冒充为完整战斗环境。同一实例在绑定首个敌人后不得跨场景复用。
 
+暴击随机流独立于非随机运行时快照。`PlayerDamageOperationExecutor` 会在计算前后修正和最终属性刷新完成后读取暴击率：仅当其大于 `1e-5` 时才消费一个样本；生命伤害后附带的失衡单元不会额外消费。`SubtractiveBattleRandom` 已按反编译结果复刻 56 项状态的单步推进和 float32 返回值，并支持捕获完整状态；战斗初始化算法尚未闭环，所以只接受完整状态，不提供猜测式 seed。`ExplicitCriticalSampleSource` 仅供测试和人工对照，耗尽会明确失败，不能作为游戏默认模式。
+
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID。
 
 `ElementalInflictionBuffAdapter` 已把查询与写入端口接到通用 Buff 容器：它按容器顺序找到首个未结束的附着实例，同类分支先创建爆发 Buff 再增强附着，异类分支核对投影实例后以 `ignite` 结束旧附着，并将原生元素枚举值与消耗层数写入状态 Buff 黑板。具体 Buff ID 和定义解析留在可替换目录接口中，不泄漏到战斗核心。

@@ -8,8 +8,9 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import type { DamageModifierSide } from '../damage/playerDamageContext';
-import type { PlayerDamageRuntimeSnapshot } from '../damage/playerActiveDamageInput';
+import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiveDamageInput';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import { CatalogBuffOperationTarget } from './catalogBuffOperationTarget';
 import type {
   CombatOperationExecutorContext,
@@ -36,10 +37,11 @@ export type StandardPlayerDamageEvent =
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
-  readonly resolveRuntimeSnapshot: (
+  readonly criticalSamples: CriticalSampleSource;
+  readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatOperationExecutorContext,
     step: DamageStep,
-  ) => PlayerDamageRuntimeSnapshot;
+  ) => PlayerDamageNonRandomRuntimeSnapshot;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -105,7 +107,9 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       captureAttributeSnapshots: step => resolveStaticPlayerDamageSnapshots(context, step),
-      resolveRuntimeSnapshot: step => this.options.resolveRuntimeSnapshot(context, step),
+      criticalSamples: this.options.criticalSamples,
+      resolveNonRandomRuntimeSnapshot: step =>
+        this.options.resolveNonRandomRuntimeSnapshot(context, step),
       applyDamageModifiers: (timing, side, damageContext) =>
         this.#buffContainer(side, operatorBuffs).applyDamageModifiers(timing, side, damageContext),
       addInstantAttributeModifier: (_side, request) => {

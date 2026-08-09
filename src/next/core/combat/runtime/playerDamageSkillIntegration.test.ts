@@ -143,8 +143,8 @@ describe('Perlica standard damage slice', () => {
             },
           },
         }),
-        resolveRuntimeSnapshot: () => ({
-          criticalSample: 1,
+        criticalSamples: { nextCriticalSample: () => 1 },
+        resolveNonRandomRuntimeSnapshot: () => ({
           runtimeExtensionMultiplier: 1,
           appliesIgniteDamageMultiplier: false,
           appliesPhysicalInflictionDamageMultiplier: false,

@@ -16,8 +16,9 @@ import {
 } from '../damage/playerDamageContext';
 import {
   resolvePlayerActiveDamageInput,
-  type PlayerDamageRuntimeSnapshot,
+  type PlayerDamageNonRandomRuntimeSnapshot,
 } from '../damage/playerActiveDamageInput';
+import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import { classifyDamageTags, injectDamageScaleAttributes } from '../damage/damageScaleAttributes';
 import {
   executePoiseDamage,
@@ -58,7 +59,10 @@ export interface PlayerDamageOperationDependencies {
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly captureAttributeSnapshots: (step: DamageStep) => PlayerDamageAttributeSnapshots;
-  readonly resolveRuntimeSnapshot: (step: DamageStep) => PlayerDamageRuntimeSnapshot;
+  readonly criticalSamples: CriticalSampleSource;
+  readonly resolveNonRandomRuntimeSnapshot: (
+    step: DamageStep,
+  ) => PlayerDamageNonRandomRuntimeSnapshot;
   readonly applyDamageModifiers: (
     timing: DamageProcessTiming,
     side: DamageModifierSide,
@@ -135,7 +139,13 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       finalAttackValue,
       attacker: context.attackerAttributes,
       defender: context.defenderAttributes,
-      runtime: this.dependencies.resolveRuntimeSnapshot(step),
+      runtime: {
+        ...this.dependencies.resolveNonRandomRuntimeSnapshot(step),
+        criticalSample:
+          context.attackerAttributes.criticalRate > 0.00001
+            ? this.dependencies.criticalSamples.nextCriticalSample()
+            : 0,
+      },
     });
     const damageResult = calculatePlayerActiveDamage(formulaInput);
     executeHealthDamage({
