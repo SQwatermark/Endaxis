@@ -16,13 +16,18 @@ import {
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
+import { moveSkillCast } from './timelineDocumentCommands';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
-const draggedSkill = ref<{ skillGroupKey: string; skillKey?: string } | null>(null);
+type TimelineDragPayload =
+  | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
+  | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
+
+const dragPayload = ref<TimelineDragPayload | null>(null);
 
 function createSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
@@ -169,19 +174,33 @@ function placeGroup(
 }
 
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
-  draggedSkill.value = { skillGroupKey, ...(skillKey === undefined ? {} : { skillKey }) };
+  dragPayload.value = {
+    kind: 'librarySkill',
+    skillGroupKey,
+    ...(skillKey === undefined ? {} : { skillKey }),
+  };
   if (event.dataTransfer !== null) {
     event.dataTransfer.effectAllowed = 'copy';
     event.dataTransfer.setData('text/plain', skillKey ?? skillGroupKey);
   }
 }
 
-function dropSkill(event: DragEvent, trackIndex: TrackIndex): void {
-  const skill = draggedSkill.value;
-  draggedSkill.value = null;
-  if (skill === null) return;
+function beginCastDrag(event: DragEvent, trackIndex: TrackIndex, skillCastId: string): void {
+  const block = event.currentTarget as HTMLElement;
+  const pointerOffsetFrames = Math.max(
+    0,
+    Math.round((event.clientX - block.getBoundingClientRect().left) / pxPerFrame),
+  );
+  dragPayload.value = { kind: 'skillCast', trackIndex, skillCastId, pointerOffsetFrames };
+  if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
+}
+
+function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
+  const payload = dragPayload.value;
+  dragPayload.value = null;
+  if (payload === null) return;
   const lane = event.currentTarget as HTMLElement;
-  const frame = Math.max(
+  const pointerFrame = Math.max(
     0,
     Math.min(
       scenario.value.battle.durationFrames,
@@ -192,8 +211,19 @@ function dropSkill(event: DragEvent, trackIndex: TrackIndex): void {
       ),
     ),
   );
+  const frame =
+    payload.kind === 'skillCast'
+      ? Math.max(0, pointerFrame - payload.pointerOffsetFrames)
+      : pointerFrame;
   cursorFrame.value = frame;
-  placeGroup(skill.skillGroupKey, skill.skillKey, frame, trackIndex);
+  if (payload.kind === 'librarySkill') {
+    placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex);
+    return;
+  }
+  if (payload.trackIndex !== trackIndex) return;
+  scenario.value = moveSkillCast(scenario.value, trackIndex, payload.skillCastId, frame);
+  selectedTrack.value = trackIndex;
+  selectedCastId.value = payload.skillCastId;
 }
 
 function resetScenario(): void {
@@ -309,7 +339,7 @@ function resetScenario(): void {
               :style="{ width: `${timelineWidth}px` }"
               @click="selectTimelinePosition($event, track.trackIndex)"
               @dragover.prevent
-              @drop.prevent="dropSkill($event, track.trackIndex)"
+              @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
               <div
                 class="prep-zone"
@@ -339,6 +369,7 @@ function resetScenario(): void {
                   selectedTrack = track.trackIndex;
                   selectedCastId = cast.id;
                 "
+                @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
               />
             </div>
           </div>

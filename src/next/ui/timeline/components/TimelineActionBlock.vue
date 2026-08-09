@@ -21,6 +21,7 @@ const props = defineProps<{
 
 defineEmits<{
   select: [];
+  dragstart: [event: DragEvent];
 }>();
 
 const blockStyle = computed(() => ({
@@ -42,7 +43,9 @@ const blockStyle = computed(() => ({
     :data-skill-type="skillType"
     :style="blockStyle"
     :title="label"
+    :draggable="!locked"
     @click.stop="$emit('select')"
+    @dragstart="$emit('dragstart', $event)"
   >
     <span class="action-label">{{ label }}</span>
     <span v-if="locked" class="status-mark lock-mark" aria-label="locked"></span>
@@ -100,7 +103,7 @@ const blockStyle = computed(() => ({
 }
 
 .timeline-action-block.is-locked {
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .timeline-action-block[data-skill-type='battleSkill'] {
