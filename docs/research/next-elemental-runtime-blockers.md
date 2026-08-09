@@ -35,7 +35,7 @@
 
 - `EnemyHurtAnimAction`
 - `CheckSuperArmor`：9 处
-- `ModifyDynamicBlackboard`：12 处
+- `ModifyDynamicBlackboard`：12 处，真实语料均属于已实现的直接值 `Assign`/`Add` 子集；间接计算路径仍未闭环
 - `RefreshBuffAttrModifierValue`：6 处，核心目录原语已实现；它按当前 Buff 黑板重新构造并替换已注册的属性修正
 - `StoreAttributeValue`：6 处
 
@@ -49,5 +49,5 @@
 1. 从已确认版本的数据源导出元素爆发和复合状态最终 Buff，继续使用严格 schema，未知行为直接报错。
 2. 导出复合状态所需的 `SkillSetting` 与增强公式，并补目录交叉引用校验。
 3. 建立“工厂配方 + SkillSetting + 来源附着增强属性”到 Buff 应用参数的运行时端口。
-4. 继续复刻其余四类原生 Action；纯动画行为可以明确标记为后端无效果，但必须由证据确认，不能靠名称忽略。
+4. 继续复刻 `StoreAttributeValue`、`CheckSuperArmor` 和 `EnemyHurtAnimAction`；纯动画行为可以明确标记为后端无效果，但必须由证据确认，不能靠名称忽略。
 5. 完成后再在应用层创建正式的单敌人环境，不保留简化回退。

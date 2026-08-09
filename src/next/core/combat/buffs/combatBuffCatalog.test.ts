@@ -261,4 +261,112 @@ describe('compileCombatBuffCatalog', () => {
 
     expect(attributes.get('attack')).toBeCloseTo(150);
   });
+
+  it('executes direct blackboard assignment and addition before refreshing modifiers', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-modify-blackboard',
+      buffs: [
+        {
+          id: 'status.nature.heat',
+          stackingType: 'unique',
+          blackboard: { startRate: 0.2, attackRate: 0 },
+          attributeModifiers: [
+            {
+              attribute: 'attack',
+              slot: 'baseMultiplier',
+              value: { blackboardKey: 'attackRate' },
+            },
+          ],
+          actions: {
+            start: [
+              {
+                kind: 'modifyBlackboard',
+                operation: 'assign',
+                targetKey: 'attackRate',
+                value: { blackboardKey: 'startRate' },
+              },
+              {
+                kind: 'modifyBlackboard',
+                operation: 'add',
+                targetKey: 'attackRate',
+                value: 0.3,
+              },
+              { kind: 'refreshAttributeModifierValues' },
+            ],
+          },
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('status.nature.heat');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('enemy', attributes);
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(buff.blackboard.getNumber('attackRate')).toBeCloseTo(0.5);
+    expect(attributes.get('attack')).toBeCloseTo(150);
+  });
+
+  it('treats a missing direct blackboard addition target as zero', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-add-missing-blackboard-target',
+      buffs: [
+        {
+          id: 'status.direct-add',
+          stackingType: 'unique',
+          actions: {
+            start: [
+              {
+                kind: 'modifyBlackboard',
+                operation: 'add',
+                targetKey: 'tick',
+                value: 1,
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = catalog.get('status.direct-add');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(buff.blackboard.getNumber('tick')).toBe(1);
+  });
+
+  it('rejects unsupported blackboard operations at the strict catalog boundary', () => {
+    expect(() =>
+      parseCombatBuffCatalogDocument({
+        schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+        revision: 'test-invalid-blackboard-operation',
+        buffs: [
+          {
+            id: 'status.invalid',
+            stackingType: 'unique',
+            actions: {
+              start: [
+                {
+                  kind: 'modifyBlackboard',
+                  operation: 'multiply',
+                  targetKey: 'tick',
+                  value: 2,
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    ).toThrow("$.buffs[0].actions.start[0].operation: unknown value 'multiply'");
+  });
 });

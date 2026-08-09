@@ -41,7 +41,13 @@ export type CombatBuffSemanticRole =
 /** 外部 Buff 目录当前允许表达的生命周期动作。 */
 export type CombatBuffCatalogAction =
   | { readonly kind: 'emitElementalInflictionStarted' }
-  | { readonly kind: 'refreshAttributeModifierValues' };
+  | { readonly kind: 'refreshAttributeModifierValues' }
+  | {
+      readonly kind: 'modifyBlackboard';
+      readonly operation: 'assign' | 'add';
+      readonly targetKey: string;
+      readonly value: number | { readonly blackboardKey: string };
+    };
 
 /** 目录 Buff 在各生命周期边界执行的动作集合。 */
 export interface CombatBuffCatalogLifecycleActions {
@@ -384,14 +390,26 @@ function parseOptionalCatalogActionList(
     [key]: input.map((item, index) => {
       const actionPath = `${path}.${key}[${index}]`;
       const action = requireObject(item, actionPath);
-      requireOnlyKeys(action, actionPath, ['kind']);
-      if (
-        action.kind !== 'emitElementalInflictionStarted' &&
-        action.kind !== 'refreshAttributeModifierValues'
-      ) {
-        throw new Error(`${actionPath}.kind: unknown value '${String(action.kind)}'`);
+      if (action.kind === 'modifyBlackboard') {
+        requireOnlyKeys(action, actionPath, ['kind', 'operation', 'targetKey', 'value']);
+        return {
+          kind: action.kind,
+          operation: requireEnum(
+            action.operation,
+            ['assign', 'add'] as const,
+            `${actionPath}.operation`,
+          ),
+          targetKey: requireNonEmptyString(action.targetKey, `${actionPath}.targetKey`),
+          value:
+            typeof action.value === 'number' && Number.isFinite(action.value)
+              ? action.value
+              : parseBlackboardReference(action.value, `${actionPath}.value`),
+        };
       }
-      return { kind: action.kind };
+      requireOnlyKeys(action, actionPath, ['kind']);
+      if (action.kind === 'emitElementalInflictionStarted') return { kind: action.kind };
+      if (action.kind === 'refreshAttributeModifierValues') return { kind: action.kind };
+      throw new Error(`${actionPath}.kind: unknown value '${String(action.kind)}'`);
     }),
   };
 }
@@ -575,6 +593,8 @@ function compileCatalogActionList<Key extends string>(
 ): readonly CatalogActionHandler<Key>[] {
   return (actions ?? []).map(action => {
     switch (action.kind) {
+      case 'modifyBlackboard':
+        return buff => modifyBuffBlackboard(buff, action);
       case 'refreshAttributeModifierValues':
         return buff => buff.refreshAttributeModifierValues();
       case 'emitElementalInflictionStarted': {
@@ -597,6 +617,37 @@ function compileCatalogActionList<Key extends string>(
       }
     }
   });
+}
+
+function modifyBuffBlackboard<Key extends string>(
+  buff: CombatBuff<Key>,
+  action: Extract<CombatBuffCatalogAction, { kind: 'modifyBlackboard' }>,
+): void {
+  const operand = resolveBuffBlackboardOperand(buff, action.value);
+  if (action.operation === 'assign') {
+    buff.blackboard.assignDynamic(action.targetKey, operand);
+    return;
+  }
+  const snapshot = buff.blackboard.snapshot();
+  const current = buff.blackboard.getNumber(action.targetKey);
+  if (action.targetKey in snapshot && current === undefined) {
+    throw new Error(
+      `buff '${buff.definition.id}' blackboard target '${action.targetKey}' is not numeric`,
+    );
+  }
+  buff.blackboard.assignDynamic(action.targetKey, (current ?? 0) + operand);
+}
+
+function resolveBuffBlackboardOperand<Key extends string>(
+  buff: CombatBuff<Key>,
+  value: number | { readonly blackboardKey: string },
+): number {
+  if (typeof value === 'number') return value;
+  const operand = buff.blackboard.getNumber(value.blackboardKey);
+  if (operand !== undefined) return operand;
+  throw new Error(
+    `buff '${buff.definition.id}' blackboard value '${value.blackboardKey}' is missing or not numeric`,
+  );
 }
 
 function createLifecycleHandler<Key extends string>(
