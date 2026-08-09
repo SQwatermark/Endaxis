@@ -41,6 +41,8 @@ export * from './compiler/compileScenarioTimeline';
 export * from './compiler/compileSkill';
 export * from './game-data/buildCatalogValidation';
 export * from './game-data/equipmentDefinition';
+export * from './game-data/enemyCatalogValidation';
+export * from './game-data/enemyDefinition';
 export * from './game-data/gameDataRepository';
 export * from './game-data/mechanicValidation';
 export * from './game-data/operatorDefinition';

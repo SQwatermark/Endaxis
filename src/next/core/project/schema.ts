@@ -239,6 +239,15 @@ export interface ConnectionDocument {
   to: ConnectionEndpoint;
 }
 
+/** 敌人失衡规则的项目值；目录时间在创建实例时已经转换为项目帧。 */
+export interface EnemyStaggerEditableValues {
+  maximum: number;
+  nodeCount: number;
+  nodeDurationFrames: number;
+  brokenDurationFrames: number;
+  finisherRecovery: number;
+}
+
 /** 编辑器完整暴露、并允许用户覆盖的敌人数值。 */
 export interface EnemyEditableValues {
   hp: number;
@@ -246,6 +255,7 @@ export interface EnemyEditableValues {
   superArmor: number;
   finisherMultiplier: number;
   resistances: Record<string, number>;
+  stagger: EnemyStaggerEditableValues;
 }
 
 export const ENEMY_EDITABLE_FIELDS = [
@@ -254,14 +264,21 @@ export const ENEMY_EDITABLE_FIELDS = [
   'superArmor',
   'finisherMultiplier',
   'resistances',
-] as const satisfies readonly (keyof EnemyEditableValues)[];
+  'stagger.maximum',
+  'stagger.nodeCount',
+  'stagger.nodeDurationFrames',
+  'stagger.brokenDurationFrames',
+  'stagger.finisherRecovery',
+] as const;
+/** 用户可以接管的敌人默认值路径。 */
+export type EnemyEditableField = (typeof ENEMY_EDITABLE_FIELDS)[number];
 
 /** 场景中的目录敌人或自定义敌人配置。 */
 export interface EnemyDocument {
   source: { kind: 'catalog'; enemyId: string; level: number } | { kind: 'custom'; level: number };
   editable: EnemyEditableValues;
   /** `editable` 中被用户改离已捕获默认值的键。 */
-  edited: (keyof EnemyEditableValues)[];
+  edited: EnemyEditableField[];
 }
 
 /** 用户创建的分支点，可从此派生后续场景。 */
@@ -277,7 +294,7 @@ export interface ControlSwitchDocument {
   trackIndex: TrackIndex;
 }
 
-/** 一次模拟的时间范围、资源规则、失衡规则与控制事件。 */
+/** 一次模拟的时间范围、共享资源规则与控制事件。敌人失衡规则归敌人实例所有。 */
 export interface BattleDocument {
   prepFrames: number;
   durationFrames: number;
@@ -290,13 +307,6 @@ export interface BattleDocument {
     initialSp: number;
     spRecoveryPerSecond: number;
     defaultSkillSpCost: number;
-  };
-  staggerRules: {
-    maximum: number;
-    nodeCount: number;
-    nodeDurationFrames: number;
-    brokenDurationFrames: number;
-    finisherRecovery: number;
   };
   cycleBoundaries: CycleBoundaryDocument[];
   controlSwitches: ControlSwitchDocument[];

@@ -4,6 +4,7 @@
  */
 import type { OperatorDefinition } from './operatorDefinition';
 import type { GearDefinition, GearSetDefinition, WeaponDefinition } from './equipmentDefinition';
+import type { EnemyDefinition } from './enemyDefinition';
 
 export const MECHANIC_FAMILIES = ['stage', 'contingencyContract', 'seasonTower', 'custom'] as const;
 /** 决定一项场景机制由哪类 Adapter 解释。 */
@@ -30,10 +31,13 @@ export interface MechanicDefinitionRef {
 
 /** 新核心使用的只读游戏数据边界。 */
 export interface GameDataRepository {
+  /** 当前整套目录内容的稳定身份；项目加载层据此判断是否需要迁移或拒绝打开。 */
+  readonly revision: string;
   getOperator(slug: string): OperatorDefinition | null;
   getWeapon(slug: string): WeaponDefinition | null;
   getGear(slug: string): GearDefinition | null;
   getGearSet(slug: string): GearSetDefinition | null;
+  getEnemy(id: string): EnemyDefinition | null;
   getMechanic(id: string): MechanicDefinitionRef | null;
 }
 
@@ -43,4 +47,5 @@ export interface GameDataBrowser {
   getWeapons(): readonly WeaponDefinition[];
   getGears(): readonly GearDefinition[];
   getGearSets(): readonly GearSetDefinition[];
+  getEnemies(): readonly EnemyDefinition[];
 }

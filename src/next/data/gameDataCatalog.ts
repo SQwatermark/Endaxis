@@ -13,18 +13,25 @@ import type {
   WeaponDefinition,
 } from '../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
+import type { EnemyDefinition } from '../core/game-data/enemyDefinition';
 import { arcane, perlica, zhuangFangyi } from './operators';
 import {
   sharedGearDefinitions,
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
 } from './equipment';
+import { legacyEnemyDefinitions } from './adapters/legacyEnemyCatalogAdapter';
+
+/** 目录内容发生任何会影响项目解析的变化时必须显式更新。 */
+export const NEXT_GAME_DATA_REVISION = 'endaxis-next-catalog-v1';
 
 export interface GameDataCatalogInput {
+  readonly revision: string;
   readonly operators?: readonly OperatorDefinition[];
   readonly weapons?: readonly WeaponDefinition[];
   readonly gears?: readonly GearDefinition[];
   readonly gearSets?: readonly GearSetDefinition[];
+  readonly enemies?: readonly EnemyDefinition[];
   readonly mechanics?: readonly MechanicDefinitionRef[];
 }
 
@@ -47,33 +54,41 @@ function indexDefinitions<T>(
 export function createGameDataRepository(
   input: GameDataCatalogInput,
 ): GameDataRepository & GameDataBrowser {
+  if (input.revision.length === 0) throw new Error('game data revision must not be empty');
   const operatorList = Object.freeze([...(input.operators ?? [])]);
   const weaponList = Object.freeze([...(input.weapons ?? [])]);
   const gearList = Object.freeze([...(input.gears ?? [])]);
   const gearSetList = Object.freeze([...(input.gearSets ?? [])]);
+  const enemyList = Object.freeze([...(input.enemies ?? [])]);
   const operators = indexDefinitions(operatorList, value => value.slug, 'operator');
   const weapons = indexDefinitions(weaponList, value => value.slug, 'weapon');
   const gears = indexDefinitions(gearList, value => value.slug, 'gear');
   const gearSets = indexDefinitions(gearSetList, value => value.slug, 'gear set');
+  const enemies = indexDefinitions(enemyList, value => value.id, 'enemy');
   const mechanics = indexDefinitions(input.mechanics ?? [], value => value.id, 'mechanic');
 
   return Object.freeze({
+    revision: input.revision,
     getOperators: () => operatorList,
     getWeapons: () => weaponList,
     getGears: () => gearList,
     getGearSets: () => gearSetList,
+    getEnemies: () => enemyList,
     getOperator: (slug: string) => operators.get(slug) ?? null,
     getWeapon: (slug: string) => weapons.get(slug) ?? null,
     getGear: (slug: string) => gears.get(slug) ?? null,
     getGearSet: (slug: string) => gearSets.get(slug) ?? null,
+    getEnemy: (id: string) => enemies.get(id) ?? null,
     getMechanic: (id: string) => mechanics.get(id) ?? null,
   });
 }
 
 /** 当前正式进入 Next 的默认目录；其他数据迁移完成后必须在这里显式注册。 */
 export const nextGameDataRepository = createGameDataRepository({
+  revision: NEXT_GAME_DATA_REVISION,
   operators: [perlica, arcane, zhuangFangyi],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,
   gearSets: sharedGearSetDefinitions,
+  enemies: legacyEnemyDefinitions,
 });

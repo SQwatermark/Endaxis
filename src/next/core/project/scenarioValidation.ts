@@ -93,6 +93,32 @@ export function validateEnemy(value: unknown, path: string, issues: ValidationIs
       requireFiniteNumber(value.editable[field], `${path}.editable.${field}`, issues);
     }
     validateFiniteNumberRecord(value.editable.resistances, `${path}.editable.resistances`, issues);
+    if (!isObject(value.editable.stagger)) {
+      issues.push({ path: `${path}.editable.stagger`, message: 'expected an object' });
+    } else {
+      requireFiniteNumber(
+        value.editable.stagger.maximum,
+        `${path}.editable.stagger.maximum`,
+        issues,
+      );
+      requireNonNegativeInteger(
+        value.editable.stagger.nodeCount,
+        `${path}.editable.stagger.nodeCount`,
+        issues,
+      );
+      for (const field of ['nodeDurationFrames', 'brokenDurationFrames']) {
+        requireNonNegativeInteger(
+          value.editable.stagger[field],
+          `${path}.editable.stagger.${field}`,
+          issues,
+        );
+      }
+      requireFiniteNumber(
+        value.editable.stagger.finisherRecovery,
+        `${path}.editable.stagger.finisherRecovery`,
+        issues,
+      );
+    }
   }
   validateEditedFields(value.edited, enemyEditableFields, `${path}.edited`, issues);
 }
@@ -146,25 +172,6 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
         message: 'must not exceed maxSp',
       });
     }
-  }
-
-  if (!isObject(value.staggerRules)) {
-    issues.push({ path: `${path}.staggerRules`, message: 'expected an object' });
-  } else {
-    requireFiniteNumber(value.staggerRules.maximum, `${path}.staggerRules.maximum`, issues);
-    requireNonNegativeInteger(
-      value.staggerRules.nodeCount,
-      `${path}.staggerRules.nodeCount`,
-      issues,
-    );
-    for (const field of ['nodeDurationFrames', 'brokenDurationFrames']) {
-      requireNonNegativeInteger(value.staggerRules[field], `${path}.staggerRules.${field}`, issues);
-    }
-    requireFiniteNumber(
-      value.staggerRules.finisherRecovery,
-      `${path}.staggerRules.finisherRecovery`,
-      issues,
-    );
   }
 
   const validateTimedEntries = (

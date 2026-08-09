@@ -5,9 +5,18 @@ import {
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
 } from './equipment';
-import { createGameDataRepository, nextGameDataRepository } from './gameDataCatalog';
+import {
+  createGameDataRepository,
+  NEXT_GAME_DATA_REVISION,
+  nextGameDataRepository,
+} from './gameDataCatalog';
 
 describe('gameDataCatalog', () => {
+  it('exposes the explicit catalog revision', () => {
+    expect(nextGameDataRepository.revision).toBe(NEXT_GAME_DATA_REVISION);
+    expect(NEXT_GAME_DATA_REVISION).not.toBe('');
+  });
+
   it('indexes every explicitly registered Next operator', () => {
     expect(nextGameDataRepository.getOperators()).toEqual([perlica, arcane, zhuangFangyi]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
@@ -31,20 +40,46 @@ describe('gameDataCatalog', () => {
     expect(nextGameDataRepository.getMechanic('missing')).toBeNull();
   });
 
+  it('indexes adapted enemy definitions without using the legacy store', () => {
+    const enemy = nextGameDataRepository.getEnemy('eny-0125-fdcentur');
+
+    expect(nextGameDataRepository.getEnemies()).toContain(enemy);
+    expect(enemy).toMatchObject({
+      id: 'eny-0125-fdcentur',
+      gameId: 'eny_0125_fdcentur',
+      defense: 100,
+      superArmor: 30,
+      finisherMultiplier: 1.75,
+    });
+    expect(enemy?.levelHp).toContainEqual({ level: 90, hp: 2476341 });
+    expect(nextGameDataRepository.getEnemy('missing')).toBeNull();
+  });
+
   it('rejects duplicate stable identities while building a catalog', () => {
-    expect(() => createGameDataRepository({ operators: [perlica, perlica] })).toThrow(
-      "duplicate operator definition 'perlica'",
-    );
+    expect(() =>
+      createGameDataRepository({ revision: 'fixture', operators: [perlica, perlica] }),
+    ).toThrow("duplicate operator definition 'perlica'");
   });
 
   it('captures definitions instead of retaining the mutable input array', () => {
     const operators = [perlica];
-    const repository = createGameDataRepository({ operators });
+    const repository = createGameDataRepository({ revision: 'fixture', operators });
     operators.push(arcane);
 
     expect(repository.getOperators()).toEqual([perlica]);
     expect(repository.getOperator(perlica.slug)).toBe(perlica);
     expect(repository.getOperator(arcane.slug)).toBeNull();
     expect(Object.isFrozen(repository)).toBe(true);
+  });
+
+  it('rejects an empty revision and duplicate enemy identities', () => {
+    const enemy = nextGameDataRepository.getEnemy('eny-0125-fdcentur')!;
+
+    expect(() => createGameDataRepository({ revision: '' })).toThrow(
+      'game data revision must not be empty',
+    );
+    expect(() =>
+      createGameDataRepository({ revision: 'fixture', enemies: [enemy, enemy] }),
+    ).toThrow("duplicate enemy definition 'eny-0125-fdcentur'");
   });
 });

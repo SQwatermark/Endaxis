@@ -6,10 +6,12 @@ import { validateProjectWithGameData } from './catalogValidation';
 
 function createMissingRepository(): GameDataRepository {
   return {
+    revision: 'fixture',
     getOperator: () => null,
     getWeapon: () => null,
     getGear: () => null,
     getGearSet: () => null,
+    getEnemy: () => null,
     getMechanic: () => null,
   };
 }
@@ -31,6 +33,7 @@ function createProjectWithCatalogReferences() {
     enabled: true,
     parameters: {},
   });
+  scenario.enemy.source = { kind: 'catalog', enemyId: 'missing-enemy', level: 90 };
   return project;
 }
 
@@ -59,6 +62,10 @@ describe('validateProjectWithGameData', () => {
         {
           path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
           message: 'unknown weapon',
+        },
+        {
+          path: '$.scenarios[0].enemy.source.enemyId',
+          message: 'unknown enemy',
         },
         {
           path: '$.scenarios[0].mechanics.selections[0].mechanicId',
@@ -92,6 +99,7 @@ describe('parseProjectDocument catalog validation', () => {
         kind: 'invalid-document',
         issues: expect.arrayContaining([
           expect.objectContaining({ message: 'unknown weapon' }),
+          expect.objectContaining({ message: 'unknown enemy' }),
           expect.objectContaining({ message: 'unknown mechanic' }),
         ]),
       }),
@@ -116,6 +124,7 @@ describe('parseProjectDocument catalog validation', () => {
         kind: 'invalid-document',
         issues: expect.arrayContaining([
           expect.objectContaining({ message: 'unknown weapon' }),
+          expect.objectContaining({ message: 'unknown enemy' }),
           expect.objectContaining({ message: 'unknown mechanic' }),
         ]),
       }),

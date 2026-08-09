@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
-import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
-import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
@@ -18,41 +16,24 @@ import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
-import type {
-  EditableActionValues,
-  GearBuildDocument,
-  OperatorBuildDocument,
-  ScenarioDocument,
-  TrackIndex,
-  WeaponBuildDocument,
-} from '../../core/project/schema';
+import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
+import type { EditableActionValues, ScenarioDocument, TrackIndex } from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
-import { projectTrackLoadoutBuilds } from './loadoutBuildViewModel';
 import {
   projectTimelineEditor,
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
-import {
-  updateTrackGearBuild,
-  updateTrackOperatorBuild,
-  updateTrackWeaponBuild,
-  type OperatorBuildChanges,
-  type WeaponBuildChanges,
-} from './loadoutBuildCommands';
+import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import {
   moveSkillCast,
   removeSkillCast,
-  setTrackOperator,
-  setTrackGear,
-  setTrackWeapon,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
   type BasicEditableSkillCastField,
-  type TrackGearSlot,
 } from './timelineDocumentCommands';
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -60,12 +41,6 @@ const pxPerFrame = 2;
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
-const operatorDialogTrack = ref<TrackIndex | null>(null);
-const weaponDialogTrack = ref<TrackIndex | null>(null);
-const gearDialogTarget = ref<{ trackIndex: TrackIndex; slot: TrackGearSlot } | null>(null);
-const showOperatorBuildDialog = ref(false);
-const showWeaponBuildDialog = ref(false);
-const showGearBuildDialog = ref(false);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
@@ -101,96 +76,61 @@ function createSampleScenario(): ScenarioDocument {
   return scenario;
 }
 
-function createInitialOperatorBuild(
-  operator: OperatorDefinition,
-  trackIndex: TrackIndex,
-): OperatorBuildDocument {
-  const skillLevels = Object.fromEntries(
-    [...new Set(operator.skillGroups.map(group => group.levelSource))].map(source => [source, 12]),
-  );
-  return {
-    id: `operator:${trackIndex}:${operator.slug}`,
-    operatorSlug: operator.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels,
-    talentStates: {},
-  };
+const scenarioSession = new ScenarioEditorSession(createSampleScenario());
+const scenario = shallowRef(scenarioSession.snapshot.scenario);
+const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
+  scenario.value = snapshot.scenario;
+});
+onScopeDispose(unsubscribeScenarioSession);
+
+function commitScenario(
+  commandName: string,
+  command: (current: ScenarioDocument) => ScenarioDocument,
+) {
+  scenarioSession.commit(commandName, command);
 }
 
-function createInitialWeaponBuild(
-  weapon: WeaponDefinition,
-  trackIndex: TrackIndex,
-): WeaponBuildDocument {
-  return {
-    id: `weapon:${trackIndex}:${weapon.slug}`,
-    weaponSlug: weapon.slug,
-    level: 90,
-    tuned: true,
-    potential: 0,
-    traitLevels: weapon.traits.map(() => 1),
-  };
-}
-
-function createInitialGearBuild(
-  gear: GearDefinition,
-  trackIndex: TrackIndex,
-  slot: TrackGearSlot,
-  artificingTier: number,
-): GearBuildDocument {
-  return {
-    id: `gear:${trackIndex}:${slot}:${gear.slug}`,
-    gearSlug: gear.slug,
-    artificingLevels: gear.traits.map(() => artificingTier),
-  };
-}
-
-const scenario = ref(createSampleScenario());
+const {
+  operatorDialogTrack,
+  weaponDialogTrack,
+  gearDialogTarget,
+  showOperatorBuildDialog,
+  showWeaponBuildDialog,
+  showGearBuildDialog,
+  loadoutModels,
+  selectedLoadoutModel,
+  selectedWeaponSlug,
+  selectableWeapons,
+  selectedGearSlug,
+  selectableGears,
+  selectedGearBuild,
+  openOperatorDialog,
+  selectTrack,
+  selectOperator,
+  clearOperator,
+  openWeaponDialog,
+  selectWeapon,
+  clearWeapon,
+  openGearDialog,
+  selectGear,
+  clearGear,
+  changeGearRefineTier,
+  updateWeaponBuild,
+  updateOperatorBuild,
+  updateGearBuild,
+} = useTimelineLoadoutEditor({
+  scenario,
+  session: scenarioSession,
+  selectedTrack,
+  selectedCastId,
+  gameData: nextGameDataRepository,
+});
 let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
   allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
 };
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
-const loadoutModels = computed(() =>
-  scenario.value.tracks.map((_, trackIndex) =>
-    projectTrackLoadoutBuilds(scenario.value, trackIndex as TrackIndex, nextGameDataRepository),
-  ),
-);
-const selectedLoadoutModel = computed(() => loadoutModels.value[selectedTrack.value]!);
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
-const selectedWeaponSlug = computed(() => {
-  const track = scenario.value.tracks[selectedTrack.value];
-  if (track?.weaponBuildId == null) return null;
-  return scenario.value.builds.weapons[track.weaponBuildId]?.weaponSlug ?? null;
-});
-const selectableWeapons = computed(() => {
-  const operatorSlug = selectedTrackModel.value.operatorSlug;
-  const operator = operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug);
-  if (operator === null) return [];
-  return nextGameDataRepository
-    .getWeapons()
-    .filter(weapon => weapon.weaponType === operator.weaponType);
-});
-const selectedGearSlug = computed(() => {
-  const target = gearDialogTarget.value;
-  if (target === null) return null;
-  const buildId = scenario.value.tracks[target.trackIndex]?.gearBuildIds[target.slot] ?? null;
-  return buildId === null ? null : (scenario.value.builds.gears[buildId]?.gearSlug ?? null);
-});
-const selectableGears = computed(() => {
-  const target = gearDialogTarget.value;
-  if (target === null) return [];
-  const slotType = target.slot === 'armor' || target.slot === 'gloves' ? target.slot : 'accessory';
-  return nextGameDataRepository.getGears().filter(gear => gear.slotType === slotType);
-});
-const selectedGearBuild = computed(() => {
-  const target = gearDialogTarget.value;
-  return target === null
-    ? null
-    : (loadoutModels.value[target.trackIndex]?.gears[target.slot] ?? null);
-});
 const selectedCastModel = computed(() => {
   if (selectedCastId.value === null) return null;
   for (const trackModel of viewModel.value.tracks) {
@@ -317,7 +257,7 @@ function placeGroup(
     startFrame,
     ids,
   });
-  scenario.value = result.scenario;
+  commitScenario('placeSkillGroup', () => result.scenario);
   selectedTrack.value = trackIndex;
   selectedCastId.value = result.skillCastIds.at(-1) ?? null;
   const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
@@ -325,123 +265,6 @@ function placeGroup(
   if (last !== undefined) {
     cursorFrame.value = last.placement.startFrame + last.editable.durationFrames;
   }
-}
-
-function openOperatorDialog(trackIndex = selectedTrack.value): void {
-  selectedTrack.value = trackIndex;
-  selectedCastId.value = null;
-  operatorDialogTrack.value = trackIndex;
-}
-
-function selectTrack(trackIndex: TrackIndex): void {
-  selectedTrack.value = trackIndex;
-  if (viewModel.value.tracks[trackIndex]?.operatorSlug === null) openOperatorDialog(trackIndex);
-}
-
-function selectOperator(slug: string): void {
-  const trackIndex = operatorDialogTrack.value;
-  if (trackIndex === null) return;
-  const operator = nextGameDataRepository.getOperator(slug);
-  if (operator === null) throw new Error(`missing operator definition '${slug}'`);
-  scenario.value = setTrackOperator(
-    scenario.value,
-    trackIndex,
-    createInitialOperatorBuild(operator, trackIndex),
-  );
-  operatorDialogTrack.value = null;
-}
-
-function clearOperator(): void {
-  const trackIndex = operatorDialogTrack.value;
-  if (trackIndex === null) return;
-  scenario.value = setTrackOperator(scenario.value, trackIndex, null);
-  operatorDialogTrack.value = null;
-}
-
-function openWeaponDialog(trackIndex = selectedTrack.value): void {
-  if (viewModel.value.tracks[trackIndex]?.operatorSlug === null) return;
-  selectedTrack.value = trackIndex;
-  selectedCastId.value = null;
-  weaponDialogTrack.value = trackIndex;
-}
-
-function selectWeapon(slug: string): void {
-  const trackIndex = weaponDialogTrack.value;
-  if (trackIndex === null) return;
-  const weapon = nextGameDataRepository.getWeapon(slug);
-  if (weapon === null) throw new Error(`missing weapon definition '${slug}'`);
-  scenario.value = setTrackWeapon(
-    scenario.value,
-    trackIndex,
-    createInitialWeaponBuild(weapon, trackIndex),
-  );
-  weaponDialogTrack.value = null;
-}
-
-function clearWeapon(): void {
-  const trackIndex = weaponDialogTrack.value;
-  if (trackIndex === null) return;
-  scenario.value = setTrackWeapon(scenario.value, trackIndex, null);
-  weaponDialogTrack.value = null;
-}
-
-function openGearDialog(trackIndex = selectedTrack.value, slot: TrackGearSlot = 'armor'): void {
-  if (viewModel.value.tracks[trackIndex]?.operatorSlug === null) return;
-  selectedTrack.value = trackIndex;
-  selectedCastId.value = null;
-  gearDialogTarget.value = { trackIndex, slot };
-}
-
-function selectGear(slug: string, artificingTier: number): void {
-  const target = gearDialogTarget.value;
-  if (target === null) return;
-  const gear = nextGameDataRepository.getGear(slug);
-  if (gear === null) throw new Error(`missing gear definition '${slug}'`);
-  scenario.value = setTrackGear(
-    scenario.value,
-    target.trackIndex,
-    target.slot,
-    createInitialGearBuild(gear, target.trackIndex, target.slot, artificingTier),
-  );
-}
-
-function clearGear(): void {
-  const target = gearDialogTarget.value;
-  if (target === null) return;
-  scenario.value = setTrackGear(scenario.value, target.trackIndex, target.slot, null);
-}
-
-function changeGearRefineTier(artificingTier: number): void {
-  const target = gearDialogTarget.value;
-  const build = selectedGearBuild.value;
-  if (target === null || build === null) return;
-  scenario.value = updateTrackGearBuild(
-    scenario.value,
-    target.trackIndex,
-    build.buildId,
-    build.definition.traits.map(() => artificingTier),
-  );
-}
-
-function updateWeaponBuild(changes: WeaponBuildChanges): void {
-  scenario.value = updateTrackWeaponBuild(scenario.value, selectedTrack.value, changes);
-}
-
-function updateOperatorBuild(changes: OperatorBuildChanges): void {
-  scenario.value = updateTrackOperatorBuild(scenario.value, selectedTrack.value, changes);
-}
-
-function updateGearBuild(
-  _slot: TrackGearSlot,
-  buildId: string,
-  artificingLevels: readonly number[],
-): void {
-  scenario.value = updateTrackGearBuild(
-    scenario.value,
-    selectedTrack.value,
-    buildId,
-    artificingLevels,
-  );
 }
 
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
@@ -492,13 +315,15 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     return;
   }
   if (payload.trackIndex !== trackIndex) return;
-  scenario.value = moveSkillCast(scenario.value, trackIndex, payload.skillCastId, frame);
+  commitScenario('moveSkillCast', current =>
+    moveSkillCast(current, trackIndex, payload.skillCastId, frame),
+  );
   selectedTrack.value = trackIndex;
   selectedCastId.value = payload.skillCastId;
 }
 
 function resetScenario(): void {
-  scenario.value = createSampleScenario();
+  commitScenario('resetScenario', () => createSampleScenario());
   selectedTrack.value = 0;
   selectedCastId.value = null;
   cursorFrame.value = 30;
@@ -519,12 +344,14 @@ function toggleContextCastField(field: 'locked' | 'disabled'): void {
     candidate => candidate.id === target.skillCastId,
   );
   if (cast === undefined) return;
-  scenario.value = updateSkillCastBooleanField(
-    scenario.value,
-    target.trackIndex,
-    target.skillCastId,
-    field,
-    !cast.editable[field],
+  commitScenario('toggleSkillCastField', current =>
+    updateSkillCastBooleanField(
+      current,
+      target.trackIndex,
+      target.skillCastId,
+      field,
+      !cast.editable[field],
+    ),
   );
   contextMenuTarget.value = null;
 }
@@ -532,7 +359,9 @@ function toggleContextCastField(field: 'locked' | 'disabled'): void {
 function deleteContextCast(): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
-  scenario.value = removeSkillCast(scenario.value, target.trackIndex, target.skillCastId);
+  commitScenario('removeSkillCast', current =>
+    removeSkillCast(current, target.trackIndex, target.skillCastId),
+  );
   if (selectedCastId.value === target.skillCastId) selectedCastId.value = null;
   contextMenuTarget.value = null;
 }
@@ -540,11 +369,8 @@ function deleteContextCast(): void {
 function setContextCastColor(color: string | null): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
-  scenario.value = updateSkillCastColor(
-    scenario.value,
-    target.trackIndex,
-    target.skillCastId,
-    color,
+  commitScenario('updateSkillCastColor', current =>
+    updateSkillCastColor(current, target.trackIndex, target.skillCastId, color),
   );
   contextMenuTarget.value = null;
 }
@@ -555,12 +381,8 @@ function updateSelectedCast(
 ): void {
   const selected = selectedCastModel.value;
   if (selected === null) return;
-  scenario.value = updateSkillCastBasicField(
-    scenario.value,
-    selected.trackIndex,
-    selected.cast.id,
-    field,
-    value,
+  commitScenario('updateSkillCastField', current =>
+    updateSkillCastBasicField(current, selected.trackIndex, selected.cast.id, field, value),
   );
 }
 </script>

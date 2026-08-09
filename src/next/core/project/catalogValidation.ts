@@ -3,6 +3,7 @@
  * 纯结构校验保持无外部依赖；只有应用层已经装配目录仓储时才调用本模块。
  */
 import { validateProjectBuildCatalogReferences } from '../game-data/buildCatalogValidation';
+import { validateProjectEnemyCatalogReferences } from '../game-data/enemyCatalogValidation';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import { validateMechanicSelections } from '../game-data/mechanicValidation';
 import { validateProjectDocument, type ValidationResult } from './validation';
@@ -20,6 +21,7 @@ export function validateProjectWithGameData(
 
   const project = structuralResult.value;
   const issues = validateProjectBuildCatalogReferences(project, repository);
+  issues.push(...validateProjectEnemyCatalogReferences(project, repository));
   project.scenarios.forEach((scenario, scenarioIndex) => {
     issues.push(
       ...validateMechanicSelections(
