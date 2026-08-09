@@ -13,6 +13,7 @@ import {
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
+  updateTrackInitialUltimateEnergy,
 } from './timelineDocumentCommands';
 
 describe('swapTimelineTracks', () => {
@@ -32,6 +33,25 @@ describe('swapTimelineTracks', () => {
     expect(swapped.tracks[1]?.operatorBuildId).toBe('operator:a');
     expect(swapped.battle.controlSwitches.map(value => value.trackIndex)).toEqual([1, 0, 2]);
     expect(original.tracks[0]?.operatorBuildId).toBe('operator:a');
+  });
+});
+
+describe('updateTrackInitialUltimateEnergy', () => {
+  it('updates the persistent track value and clamps it to the resolved maximum', () => {
+    const original = scenario();
+    const updated = updateTrackInitialUltimateEnergy(original, 0, 120, 80);
+
+    expect(updated.tracks[0]?.initialState.ultimateEnergy).toBe(80);
+    expect(original.tracks[0]?.initialState.ultimateEnergy).toBe(0);
+    expect(updateTrackInitialUltimateEnergy(updated, 0, 80, 80)).toBe(updated);
+  });
+
+  it('rejects empty tracks and invalid numeric boundaries', () => {
+    const original = scenario();
+    expect(() => updateTrackInitialUltimateEnergy(original, 1, 10, 80)).toThrow('empty');
+    expect(() => updateTrackInitialUltimateEnergy(original, 0, Number.NaN, 80)).toThrow(
+      'finite non-negative',
+    );
   });
 });
 

@@ -46,9 +46,34 @@ export interface TimelineTrackViewModel {
   readonly operatorBuildId: string | null;
   readonly operatorSlug: string | null;
   readonly operatorSupport: OperatorSupportViewModel | null;
+  readonly initialUltimateEnergy: number;
+  readonly maxUltimateEnergy: number | null;
   readonly skillLibrary: readonly TimelineSkillLibraryEntryViewModel[];
   readonly skillCasts: readonly TimelineSkillCastViewModel[];
   readonly issues: readonly string[];
+}
+
+/**
+ * 从终结技定义中解析能量上限。原生资源上限与终结技消耗一致；若目录缺失或出现多个不同
+ * 消耗值，则保持未知并交给后续资源规则解析器处理，UI 不自行猜测。
+ */
+export function resolveOperatorMaxUltimateEnergy(
+  operator: OperatorDefinition,
+  skillLevel: number,
+): number | null {
+  const values = new Set<number>();
+  for (const group of operator.skillGroups) {
+    if (group.skillType !== 'ultimate') continue;
+    const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+    for (const skill of skills) {
+      for (const cost of skill.costs ?? []) {
+        if (cost.resource !== 'ultimateEnergy') continue;
+        const value = typeof cost.value === 'number' ? cost.value : cost.value[skillLevel - 1];
+        if (value !== undefined) values.add(value);
+      }
+    }
+  }
+  return values.size === 1 ? [...values][0]! : null;
 }
 
 /** 时间轴页面的一次只读投影；模拟结果会在后续作为独立投影并入。 */
@@ -97,6 +122,8 @@ function projectTrack(
       operatorBuildId: null,
       operatorSlug: null,
       operatorSupport: null,
+      initialUltimateEnergy: 0,
+      maxUltimateEnergy: null,
       skillLibrary: [],
       skillCasts: [],
       issues: [],
@@ -142,6 +169,12 @@ function projectTrack(
     operatorBuildId: track.operatorBuildId,
     operatorSlug: operatorBuild?.operatorSlug ?? null,
     operatorSupport: operator === null ? null : projectOperatorSupport(operator),
+    initialUltimateEnergy: track.initialState.ultimateEnergy,
+    maxUltimateEnergy:
+      track.initialState.maxUltimateEnergyOverride ??
+      (operator === null || operatorBuild === null
+        ? null
+        : resolveOperatorMaxUltimateEnergy(operator, operatorBuild.skillLevels.ultimate ?? 1)),
     skillLibrary,
     skillCasts: track.skillCasts.map(skillCast => projectSkillCast(skillCast, operator, issues)),
     issues,

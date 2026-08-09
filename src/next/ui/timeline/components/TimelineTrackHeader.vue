@@ -30,11 +30,24 @@ const emit = defineEmits<{
   stats: [];
   weapon: [];
   gear: [slot: LoadoutGearSlot];
+  updateInitialUltimateEnergy: [value: number];
 }>();
 
 function selectHeader(): void {
   emit('select');
   if (props.track.operatorSlug === null) emit('operator');
+}
+
+function updateInitialUltimateEnergy(event: Event): void {
+  const maximum = props.track.maxUltimateEnergy;
+  if (maximum === null) return;
+  const input = event.target as HTMLInputElement;
+  const value = Number(input.value);
+  if (!Number.isFinite(value)) {
+    input.value = String(props.track.initialUltimateEnergy);
+    return;
+  }
+  emit('updateInitialUltimateEnergy', Math.min(maximum, Math.max(0, value)));
 }
 </script>
 
@@ -81,6 +94,19 @@ function selectHeader(): void {
       </button>
     </span>
     <span class="identity-body">
+      <label v-if="track.operatorSlug" class="initial-energy-control" @click.stop>
+        <span>{{ $t('timelineGrid.track.initialGaugeShort') }}</span>
+        <input
+          type="number"
+          min="0"
+          :max="track.maxUltimateEnergy ?? undefined"
+          step="1"
+          :value="track.initialUltimateEnergy"
+          :disabled="track.maxUltimateEnergy === null"
+          @change="updateInitialUltimateEnergy"
+        />
+        <span>/{{ track.maxUltimateEnergy ?? '?' }}</span>
+      </label>
       <span class="operator-row">
         <button
           v-if="track.operatorSlug"
@@ -232,6 +258,45 @@ function selectHeader(): void {
   align-items: center;
   padding: 0 6px;
   box-sizing: border-box;
+}
+
+.initial-energy-control {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ea-energy-accent, #7dd3fc);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.initial-energy-control input {
+  width: 38px;
+  height: 18px;
+  box-sizing: border-box;
+  padding: 0 3px;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 2px;
+  outline: 0;
+  background: var(--ea-fill-input);
+  color: inherit;
+  font:
+    700 10px/16px 'Roboto Mono',
+    Consolas,
+    monospace;
+  text-align: center;
+}
+
+.initial-energy-control input:focus {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.initial-energy-control input:disabled {
+  opacity: 0.45;
 }
 
 .operator-row {

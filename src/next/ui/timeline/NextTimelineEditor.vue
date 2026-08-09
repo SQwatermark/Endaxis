@@ -58,6 +58,7 @@ import {
 import {
   moveSkillCasts,
   swapTimelineTracks,
+  updateTrackInitialUltimateEnergy,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
@@ -825,6 +826,14 @@ function moveTrack(trackIndex: TrackIndex, direction: -1 | 1): void {
   swapTrackOrder(trackIndex, targetIndex);
 }
 
+function setTrackInitialUltimateEnergy(trackIndex: TrackIndex, value: number): void {
+  const maximum = viewModel.value.tracks[trackIndex]?.maxUltimateEnergy ?? null;
+  if (maximum === null) return;
+  commitScenario('updateTrackInitialUltimateEnergy', current =>
+    updateTrackInitialUltimateEnergy(current, trackIndex, value, maximum),
+  );
+}
+
 function setContextCastColor(color: string | null): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
@@ -1084,6 +1093,9 @@ function setPanelDialogVisible(visible: boolean): void {
               @stats="openPanelDialog(track.trackIndex)"
               @weapon="openWeaponDialog(track.trackIndex)"
               @gear="openGearDialog(track.trackIndex, $event)"
+              @update-initial-ultimate-energy="
+                setTrackInitialUltimateEnergy(track.trackIndex, $event)
+              "
             />
             <div
               class="track-lane"

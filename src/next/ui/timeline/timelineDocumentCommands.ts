@@ -41,6 +41,31 @@ export function swapTimelineTracks(
   };
 }
 
+/**
+ * 修改单条轨道的初始终结技能量。上限来自目录投影或显式项目覆盖，命令只负责维护用户输入；
+ * 空轨道和非有限上限表示调用边界错误，不能静默创建不完整轨道。
+ */
+export function updateTrackInitialUltimateEnergy(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  value: number,
+  maximum: number,
+): ScenarioDocument {
+  const track = scenario.tracks[trackIndex];
+  if (track === null) throw new Error(`track ${trackIndex} is empty`);
+  if (!Number.isFinite(value) || !Number.isFinite(maximum) || maximum < 0) {
+    throw new RangeError('initial ultimate energy and maximum must be finite non-negative values');
+  }
+  const normalized = Math.min(maximum, Math.max(0, value));
+  if (track.initialState.ultimateEnergy === normalized) return scenario;
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = {
+    ...track,
+    initialState: { ...track.initialState, ultimateEnergy: normalized },
+  };
+  return { ...scenario, tracks };
+}
+
 export type BasicEditableSkillCastField =
   | 'durationFrames'
   | 'cooldownFrames'

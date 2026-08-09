@@ -48,6 +48,8 @@ describe('projectTimelineEditor', () => {
       completeness: 'complete',
       missingCapabilities: [],
     });
+    expect(viewModel.tracks[0]?.initialUltimateEnergy).toBe(0);
+    expect(viewModel.tracks[0]?.maxUltimateEnergy).toBe(80);
     expect(viewModel.tracks[0]?.skillLibrary.map(entry => entry.skillGroupKey)).toEqual([
       'basicAttack',
       'finisher',
@@ -62,6 +64,8 @@ describe('projectTimelineEditor', () => {
     expect(viewModel.tracks[1]).toMatchObject({
       operatorSlug: null,
       operatorSupport: null,
+      initialUltimateEnergy: 0,
+      maxUltimateEnergy: null,
       skillLibrary: [],
     });
   });
