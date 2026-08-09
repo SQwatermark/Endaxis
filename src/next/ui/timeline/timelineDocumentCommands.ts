@@ -8,6 +8,7 @@ import type {
   OperatorBuildDocument,
   ScenarioDocument,
   TrackIndex,
+  WeaponBuildDocument,
 } from '../../core/project/schema';
 
 export type BasicEditableSkillCastField =
@@ -72,6 +73,41 @@ export function setTrackOperator(
         !removedCastIds.has(connection.to.skillCastId),
     ),
   };
+}
+
+/**
+ * 更换轨道武器方案，并清理已经没有轨道引用的旧方案。武器兼容性由目录校验和选择器负责，
+ * 命令层只维护项目引用一致性；空轨道不能单独装备武器。
+ */
+export function setTrackWeapon(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  weaponBuild: WeaponBuildDocument | null,
+): ScenarioDocument {
+  const previousTrack = scenario.tracks[trackIndex];
+  if (previousTrack === null) throw new Error(`track ${trackIndex} is empty`);
+  const previousBuildId = previousTrack.weaponBuildId;
+  const previousSlug =
+    previousBuildId === null
+      ? null
+      : (scenario.builds.weapons[previousBuildId]?.weaponSlug ?? null);
+  const nextSlug = weaponBuild?.weaponSlug ?? null;
+  if (previousSlug === nextSlug) return scenario;
+
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...previousTrack, weaponBuildId: weaponBuild?.id ?? null };
+
+  const weapons = { ...scenario.builds.weapons };
+  if (weaponBuild !== null) weapons[weaponBuild.id] = weaponBuild;
+  if (
+    previousBuildId !== null &&
+    previousBuildId !== weaponBuild?.id &&
+    !tracks.some(track => track?.weaponBuildId === previousBuildId)
+  ) {
+    delete weapons[previousBuildId];
+  }
+
+  return { ...scenario, builds: { ...scenario.builds, weapons }, tracks };
 }
 
 function locateSkillCast(scenario: ScenarioDocument, trackIndex: TrackIndex, skillCastId: string) {

@@ -1,0 +1,119 @@
+/**
+ * 从现有只读武器、装备与套装目录建立 Next 目录候选。
+ *
+ * 每个源文件独立适配。实际目录采用宽松模式：可靠的身份和静态字段会注册，尚未支持的
+ * 战斗逻辑作为结构化问题保留；源数据骨架无效时才拒绝注册。该模块不依赖旧版聚合 index。
+ */
+import type { GearPieceSheet, GearSetSheet, WeaponSheet } from '../../../data/types';
+import type {
+  GearDefinition,
+  GearSetDefinition,
+  WeaponDefinition,
+} from '../../core/game-data/equipmentDefinition';
+import {
+  adaptSharedGear,
+  adaptSharedGearSet,
+  adaptSharedWeapon,
+  type SharedEquipmentAdaptationIssue,
+  type SharedEquipmentAdaptationResult,
+} from './adaptSharedEquipment';
+
+const weaponModules = import.meta.glob('../../../data/weapons/**/*.ts', {
+  eager: true,
+  import: 'default',
+}) as Record<string, WeaponSheet>;
+const gearModules = import.meta.glob('../../../data/gearpieces/**/*.ts', {
+  eager: true,
+  import: 'default',
+}) as Record<string, GearPieceSheet>;
+const gearSetModules = import.meta.glob('../../../data/gearsets/**/*.ts', {
+  eager: true,
+  import: 'default',
+}) as Record<string, GearSetSheet>;
+
+function slugFromModulePath(path: string): string {
+  const fileName = path.replaceAll('\\', '/').split('/').at(-1);
+  if (!fileName?.endsWith('.ts')) throw new Error(`unexpected equipment module path '${path}'`);
+  return fileName.slice(0, -3);
+}
+
+function adaptDirectory<TSource, TDefinition>(
+  sourceKind: SharedEquipmentSupport['sourceKind'],
+  modules: Readonly<Record<string, TSource>>,
+  adapt: (slug: string, source: TSource) => SharedEquipmentAdaptationResult<TDefinition>,
+): {
+  readonly definitions: readonly TDefinition[];
+  readonly issues: readonly SharedEquipmentAdaptationIssue[];
+  readonly support: readonly SharedEquipmentSupport[];
+} {
+  const definitions: TDefinition[] = [];
+  const issues: SharedEquipmentAdaptationIssue[] = [];
+  const support: SharedEquipmentSupport[] = [];
+  for (const [path, source] of Object.entries(modules).sort(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
+    const slug = slugFromModulePath(path);
+    const result = adapt(slug, source);
+    issues.push(...result.issues);
+    if (result.ok) {
+      definitions.push(result.definition);
+      support.push({
+        sourceKind,
+        slug,
+        completeness: result.completeness,
+        issues: result.issues,
+      });
+    }
+  }
+  return {
+    definitions: Object.freeze(definitions),
+    issues: Object.freeze(issues),
+    support: Object.freeze(support),
+  };
+}
+
+export interface SharedEquipmentSupport {
+  readonly sourceKind: 'weapon' | 'gear' | 'gearSet';
+  readonly slug: string;
+  readonly completeness: 'complete' | 'partial';
+  readonly issues: readonly SharedEquipmentAdaptationIssue[];
+}
+
+const weaponCatalog = adaptDirectory('weapon', weaponModules, (slug, source) =>
+  adaptSharedWeapon(slug, source, { mode: 'permissive' }),
+);
+const gearCatalog = adaptDirectory('gear', gearModules, (slug, source) =>
+  adaptSharedGear(slug, source, { mode: 'permissive' }),
+);
+// `no-set-bonuses` 是无套装归属的旧目录哨兵，不是可触发的三件套定义。
+const gearSetCatalog = adaptDirectory(
+  'gearSet',
+  Object.fromEntries(
+    Object.entries(gearSetModules).filter(
+      ([path]) => slugFromModulePath(path) !== 'no-set-bonuses',
+    ),
+  ),
+  (slug, source) => adaptSharedGearSet(slug, source, { mode: 'permissive' }),
+);
+
+export const sharedWeaponDefinitions: readonly WeaponDefinition[] = weaponCatalog.definitions;
+export const sharedGearDefinitions: readonly GearDefinition[] = gearCatalog.definitions;
+export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetCatalog.definitions;
+/** 未进入 Next 正式目录的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
+export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptationIssue[] =
+  Object.freeze([...weaponCatalog.issues, ...gearCatalog.issues, ...gearSetCatalog.issues]);
+
+const supportByIdentity = new Map(
+  [...weaponCatalog.support, ...gearCatalog.support, ...gearSetCatalog.support].map(item => [
+    `${item.sourceKind}:${item.slug}`,
+    item,
+  ]),
+);
+
+/** UI 可据此提示目录项仅完成基础转换；返回值不参与项目持久化。 */
+export function getSharedEquipmentSupport(
+  sourceKind: SharedEquipmentSupport['sourceKind'],
+  slug: string,
+): SharedEquipmentSupport | null {
+  return supportByIdentity.get(`${sourceKind}:${slug}`) ?? null;
+}

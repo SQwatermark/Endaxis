@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
+import type { WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
+import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
@@ -17,6 +19,7 @@ import type {
   OperatorBuildDocument,
   ScenarioDocument,
   TrackIndex,
+  WeaponBuildDocument,
 } from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataCatalog';
 import { perlica } from '../../data/operators';
@@ -30,6 +33,7 @@ import {
   moveSkillCast,
   removeSkillCast,
   setTrackOperator,
+  setTrackWeapon,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
@@ -42,6 +46,7 @@ const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
 const cursorFrame = ref(30);
 const operatorDialogTrack = ref<TrackIndex | null>(null);
+const weaponDialogTrack = ref<TrackIndex | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
@@ -96,6 +101,20 @@ function createInitialOperatorBuild(
   };
 }
 
+function createInitialWeaponBuild(
+  weapon: WeaponDefinition,
+  trackIndex: TrackIndex,
+): WeaponBuildDocument {
+  return {
+    id: `weapon:${trackIndex}:${weapon.slug}`,
+    weaponSlug: weapon.slug,
+    level: 90,
+    tuned: true,
+    potential: 0,
+    traitLevels: weapon.traits.map(() => 1),
+  };
+}
+
 const scenario = ref(createSampleScenario());
 let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
@@ -103,6 +122,19 @@ const ids: TimelineDocumentIdAllocator = {
 };
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const selectedWeaponSlug = computed(() => {
+  const track = scenario.value.tracks[selectedTrack.value];
+  if (track?.weaponBuildId == null) return null;
+  return scenario.value.builds.weapons[track.weaponBuildId]?.weaponSlug ?? null;
+});
+const selectableWeapons = computed(() => {
+  const operatorSlug = selectedTrackModel.value.operatorSlug;
+  const operator = operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug);
+  if (operator === null) return [];
+  return nextGameDataRepository
+    .getWeapons()
+    .filter(weapon => weapon.weaponType === operator.weaponType);
+});
 const selectedCastModel = computed(() => {
   if (selectedCastId.value === null) return null;
   for (const trackModel of viewModel.value.tracks) {
@@ -270,6 +302,32 @@ function clearOperator(): void {
   operatorDialogTrack.value = null;
 }
 
+function openWeaponDialog(): void {
+  if (selectedTrackModel.value.operatorSlug === null) return;
+  selectedCastId.value = null;
+  weaponDialogTrack.value = selectedTrack.value;
+}
+
+function selectWeapon(slug: string): void {
+  const trackIndex = weaponDialogTrack.value;
+  if (trackIndex === null) return;
+  const weapon = nextGameDataRepository.getWeapon(slug);
+  if (weapon === null) throw new Error(`missing weapon definition '${slug}'`);
+  scenario.value = setTrackWeapon(
+    scenario.value,
+    trackIndex,
+    createInitialWeaponBuild(weapon, trackIndex),
+  );
+  weaponDialogTrack.value = null;
+}
+
+function clearWeapon(): void {
+  const trackIndex = weaponDialogTrack.value;
+  if (trackIndex === null) return;
+  scenario.value = setTrackWeapon(scenario.value, trackIndex, null);
+  weaponDialogTrack.value = null;
+}
+
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
   dragPayload.value = {
     kind: 'librarySkill',
@@ -410,7 +468,13 @@ function updateSelectedCast(
         </button>
         <div class="sidebar-tabs">
           <button class="active" type="button">{{ t('nextTimeline.operatorTab') }}</button>
-          <button type="button" disabled>{{ t('nextTimeline.weaponTab') }}</button>
+          <button
+            type="button"
+            :disabled="selectedTrackModel.operatorSlug === null"
+            @click="openWeaponDialog"
+          >
+            {{ t('nextTimeline.weaponTab') }}
+          </button>
           <button type="button" disabled>{{ t('nextTimeline.gearTab') }}</button>
         </div>
         <div class="library-heading">
@@ -573,6 +637,22 @@ function updateSelectedCast(
     @close="operatorDialogTrack = null"
     @select="selectOperator"
     @clear="clearOperator"
+  />
+  <WeaponSelectionDialog
+    :visible="weaponDialogTrack !== null"
+    :weapons="selectableWeapons"
+    :selected-slug="selectedWeaponSlug"
+    :labels="{
+      title: t('nextTimeline.weaponDialog.title'),
+      searchPlaceholder: t('nextTimeline.weaponDialog.searchPlaceholder'),
+      unequip: t('common.unequip'),
+      close: t('common.close'),
+      empty: t('nextTimeline.weaponDialog.empty'),
+      partialSupport: t('nextTimeline.weaponDialog.partialSupport'),
+    }"
+    @close="weaponDialogTrack = null"
+    @select="selectWeapon"
+    @clear="clearWeapon"
   />
 </template>
 

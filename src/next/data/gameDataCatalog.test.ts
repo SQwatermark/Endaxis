@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { arcane, perlica, zhuangFangyi } from './operators';
+import {
+  sharedGearDefinitions,
+  sharedGearSetDefinitions,
+  sharedWeaponDefinitions,
+} from './equipment';
 import { createGameDataRepository, nextGameDataRepository } from './gameDataCatalog';
 
 describe('gameDataCatalog', () => {
@@ -11,10 +16,15 @@ describe('gameDataCatalog', () => {
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 
-  it('keeps not-yet-migrated catalog families explicitly empty', () => {
-    expect(nextGameDataRepository.getWeapons()).toEqual([]);
-    expect(nextGameDataRepository.getGears()).toEqual([]);
-    expect(nextGameDataRepository.getGearSets()).toEqual([]);
+  it('registers complete and explicitly marked partial equipment definitions', () => {
+    expect(nextGameDataRepository.getWeapons()).toEqual(sharedWeaponDefinitions);
+    expect(nextGameDataRepository.getGears()).toEqual(sharedGearDefinitions);
+    expect(nextGameDataRepository.getGearSets()).toEqual(sharedGearSetDefinitions);
+    expect(nextGameDataRepository.getWeapon('tarr-11')).not.toBeNull();
+    expect(nextGameDataRepository.getGear('xiranflow-light-armor')).not.toBeNull();
+    expect(nextGameDataRepository.getGearSet('aic-fieldwork')).not.toBeNull();
+    expect(nextGameDataRepository.getWeapon('lone-barge')).not.toBeNull();
+    expect(nextGameDataRepository.getGearSet('xiranflow')).not.toBeNull();
     expect(nextGameDataRepository.getWeapon('missing')).toBeNull();
     expect(nextGameDataRepository.getGear('missing')).toBeNull();
     expect(nextGameDataRepository.getGearSet('missing')).toBeNull();

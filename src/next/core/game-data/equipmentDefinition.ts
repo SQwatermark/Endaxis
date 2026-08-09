@@ -82,6 +82,8 @@ export interface WeaponTraitDefinition extends EquipmentContributionDefinition {
 /** 一把武器在只读目录中的稳定身份、成长数据与词条能力。 */
 export interface WeaponDefinition {
   readonly slug: string;
+  /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
+  readonly iconPath?: string;
   readonly rarity: WeaponRarity;
   readonly weaponType: OperatorWeaponType;
   /** 依次对应 1、20、40、60、80、90 级节点；其他等级必须由有证据的成长规则解析，不能擅自插值。 */
@@ -102,6 +104,8 @@ export interface GearTraitDefinition extends EquipmentContributionDefinition {
 /** 一件装备在只读目录中的稳定身份、基础防御、词条与套装归属。 */
 export interface GearDefinition {
   readonly slug: string;
+  /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
+  readonly iconPath?: string;
   readonly slotType: GearSlotType;
   readonly levelRequirement: number;
   readonly baseDefense: number;

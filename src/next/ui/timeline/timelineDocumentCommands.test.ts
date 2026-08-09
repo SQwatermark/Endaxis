@@ -5,6 +5,7 @@ import {
   moveSkillCast,
   removeSkillCast,
   setTrackOperator,
+  setTrackWeapon,
   updateSkillCastBasicField,
   updateSkillCastBooleanField,
   updateSkillCastColor,
@@ -92,6 +93,46 @@ describe('moveSkillCast', () => {
     original.tracks[0]!.operatorBuildId = perlicaBuild.id;
 
     expect(setTrackOperator(original, 0, { ...perlicaBuild })).toBe(original);
+  });
+
+  it('assigns, replaces and removes a weapon build without leaving orphaned builds', () => {
+    const original = scenario();
+    original.builds.operators[perlicaBuild.id] = perlicaBuild;
+    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+    const first = {
+      id: 'weapon:first',
+      weaponSlug: 'first',
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [1, 1, 1],
+    };
+    const second = { ...first, id: 'weapon:second', weaponSlug: 'second' };
+
+    const equipped = setTrackWeapon(original, 0, first);
+    const replaced = setTrackWeapon(equipped, 0, second);
+    const cleared = setTrackWeapon(replaced, 0, null);
+
+    expect(equipped.tracks[0]!.weaponBuildId).toBe(first.id);
+    expect(replaced.builds.weapons[first.id]).toBeUndefined();
+    expect(replaced.builds.weapons[second.id]).toEqual(second);
+    expect(cleared.tracks[0]!.weaponBuildId).toBeNull();
+    expect(cleared.builds.weapons).toEqual({});
+    expect(original.builds.weapons).toEqual({});
+  });
+
+  it('rejects equipping a weapon on an empty track', () => {
+    const original = createEmptyScenario('scenario:empty-weapon', '空轨道');
+    expect(() =>
+      setTrackWeapon(original, 0, {
+        id: 'weapon:first',
+        weaponSlug: 'first',
+        level: 90,
+        tuned: true,
+        potential: 0,
+        traitLevels: [1],
+      }),
+    ).toThrow('track 0 is empty');
   });
 
   it('moves only the requested cast without mutating the source scenario', () => {

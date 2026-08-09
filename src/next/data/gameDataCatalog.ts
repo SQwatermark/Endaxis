@@ -14,6 +14,11 @@ import type {
 } from '../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 import { arcane, perlica, zhuangFangyi } from './operators';
+import {
+  sharedGearDefinitions,
+  sharedGearSetDefinitions,
+  sharedWeaponDefinitions,
+} from './equipment';
 
 export interface GameDataCatalogInput {
   readonly operators?: readonly OperatorDefinition[];
@@ -68,4 +73,7 @@ export function createGameDataRepository(
 /** 当前正式进入 Next 的默认目录；其他数据迁移完成后必须在这里显式注册。 */
 export const nextGameDataRepository = createGameDataRepository({
   operators: [perlica, arcane, zhuangFangyi],
+  weapons: sharedWeaponDefinitions,
+  gears: sharedGearDefinitions,
+  gearSets: sharedGearSetDefinitions,
 });
