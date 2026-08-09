@@ -4,17 +4,84 @@
   "sourceMigrationSchemaVersion": 1,
   "summary": {
     "effectCount": 1052,
-    "buildStaticCount": 901,
-    "definitionReadyCount": 901,
-    "dslGapCount": 0,
-    "outsideStaticDefinitionScopeCount": 151,
+    "buildStaticCount": 922,
+    "definitionReadyCount": 902,
+    "dslGapCount": 32,
+    "outsideStaticDefinitionScopeCount": 118,
     "characterPanelVisibleReadyCount": 735,
-    "buildOnlyReadyCount": 166,
-    "statusCounts": {
-      "definitionReady": 901,
-      "outsideStaticDefinitionScope": 151
+    "buildOnlyReadyCount": 167,
+    "battlePersistentAudit": {
+      "effectCount": 33,
+      "buildStaticDestinationCount": 21,
+      "persistentBuffRequiredCount": 12,
+      "directBuildStaticDefinitionReadyCount": 1,
+      "definitionReadyCount": 1,
+      "dslGapCount": 32,
+      "destinationCounts": {
+        "battleStartPersistentBuff": 12,
+        "buildStaticModifier": 21
+      },
+      "targetCounts": {
+        "self": 33
+      },
+      "conditionKindCounts": {
+        "enemyStaggered": 1,
+        "enemyStatus": 2,
+        "none": 25,
+        "operatorHp": 4,
+        "operatorStatus": 1
+      },
+      "lifecycleCounts": {
+        "none": 33
+      },
+      "legacyRuntimeDispositionCounts": {
+        "conditionNotBridged": 4,
+        "conditionalTriggerBridge": 4,
+        "excludedAsEnemyModifier": 4,
+        "initialInfiniteStatus": 21
+      },
+      "modifierStatusCounts": {
+        "atkPercent": {
+          "dslGap": 2
+        },
+        "cooldownReductionPercent": {
+          "dslGap": 2
+        },
+        "critRate": {
+          "dslGap": 1
+        },
+        "dmgBonus": {
+          "dslGap": 5
+        },
+        "heal": {
+          "dslGap": 9
+        },
+        "protection": {
+          "dslGap": 8
+        },
+        "staggerPercent": {
+          "definitionReady": 1,
+          "dslGap": 1
+        },
+        "susceptibility": {
+          "dslGap": 4
+        }
+      }
     },
-    "gapReasonCounts": {},
+    "statusCounts": {
+      "definitionReady": 902,
+      "dslGap": 32,
+      "outsideStaticDefinitionScope": 118
+    },
+    "gapReasonCounts": {
+      "conditional-attribute-buff-unsupported": 3,
+      "conditional-damage-buff-unsupported": 5,
+      "final-damage-reduction-modifier-unsupported": 8,
+      "healing-effect-modifier-unsupported": 9,
+      "scoped-skill-cooldown-reduction-unsupported": 2,
+      "scoped-stagger-modifier-unsupported": 1,
+      "staggered-target-damage-buff-unsupported": 4
+    },
     "modifierStatusCounts": {
       "artsIntensity": {
         "definitionReady": 34,
@@ -25,7 +92,8 @@
       },
       "atkPercent": {
         "definitionReady": 54,
-        "outsideStaticDefinitionScope": 33
+        "dslGap": 2,
+        "outsideStaticDefinitionScope": 31
       },
       "attributeFlat": {
         "definitionReady": 516
@@ -38,11 +106,12 @@
         "outsideStaticDefinitionScope": 1
       },
       "cooldownReductionPercent": {
-        "outsideStaticDefinitionScope": 2
+        "dslGap": 2
       },
       "critRate": {
         "definitionReady": 23,
-        "outsideStaticDefinitionScope": 3
+        "dslGap": 1,
+        "outsideStaticDefinitionScope": 2
       },
       "damageHit": {
         "outsideStaticDefinitionScope": 2
@@ -52,13 +121,14 @@
       },
       "dmgBonus": {
         "definitionReady": 166,
-        "outsideStaticDefinitionScope": 63
+        "dslGap": 5,
+        "outsideStaticDefinitionScope": 58
       },
       "flatHp": {
         "definitionReady": 9
       },
       "heal": {
-        "outsideStaticDefinitionScope": 9
+        "dslGap": 9
       },
       "hpPercent": {
         "definitionReady": 25
@@ -67,7 +137,7 @@
         "outsideStaticDefinitionScope": 10
       },
       "protection": {
-        "outsideStaticDefinitionScope": 8
+        "dslGap": 8
       },
       "shield": {
         "outsideStaticDefinitionScope": 1
@@ -76,13 +146,14 @@
         "outsideStaticDefinitionScope": 1
       },
       "staggerPercent": {
-        "outsideStaticDefinitionScope": 2
+        "definitionReady": 1,
+        "dslGap": 1
       },
       "status": {
         "outsideStaticDefinitionScope": 5
       },
       "susceptibility": {
-        "outsideStaticDefinitionScope": 4
+        "dslGap": 4
       },
       "ultimateGainEfficiency": {
         "definitionReady": 44
@@ -90,19 +161,20 @@
     },
     "groupStatusCounts": {
       "gearSet.setBonus": {
-        "definitionReady": 20,
-        "outsideStaticDefinitionScope": 29
+        "definitionReady": 21,
+        "dslGap": 5,
+        "outsideStaticDefinitionScope": 23
       },
       "gearTrait.skill1": {
         "definitionReady": 242
       },
       "gearTrait.skill2": {
         "definitionReady": 233,
-        "outsideStaticDefinitionScope": 7
+        "dslGap": 7
       },
       "gearTrait.skill3": {
         "definitionReady": 198,
-        "outsideStaticDefinitionScope": 14
+        "dslGap": 14
       },
       "weaponTrait.skill1": {
         "definitionReady": 77
@@ -112,7 +184,8 @@
       },
       "weaponTrait.skill3": {
         "definitionReady": 63,
-        "outsideStaticDefinitionScope": 101
+        "dslGap": 6,
+        "outsideStaticDefinitionScope": 95
       }
     },
     "specialModifierAudit": {
@@ -121,6 +194,7 @@
         "buildStaticCount": 166,
         "definitionReadyCount": 166,
         "dslGapCount": 0,
+        "persistentBuffRequiredCount": 5,
         "triggerFilterCount": 0
       },
       "ampBonus": {
@@ -128,6 +202,7 @@
         "buildStaticCount": 0,
         "definitionReadyCount": 0,
         "dslGapCount": 0,
+        "persistentBuffRequiredCount": 0,
         "triggerFilterCount": 2
       },
       "attributeAtkPercent": {
@@ -135,6 +210,7 @@
         "buildStaticCount": 0,
         "definitionReadyCount": 0,
         "dslGapCount": 0,
+        "persistentBuffRequiredCount": 0,
         "triggerFilterCount": 0
       }
     }
@@ -306,8 +382,32 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "atkPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "operatorHp",
+          "compare": "above",
+          "percent": 80
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionNotBridged",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-attribute-buff-unsupported",
+        "detail": "该属性必须随战斗条件实时启停；当前装备 DSL 无 Buff 蓝图/启动序列，状态修正运行时也尚未实现"
+      }
     },
     {
       "id": "weapon:freedom-to-proselytize:skill1.effects[0]",
@@ -2605,9 +2705,29 @@
         "location": "passive"
       },
       "group": "weaponTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "staggerPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.StaggerChangeHandler.skillTypes",
+          "next.equipment.panelStat.unscoped"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "scoped-stagger-modifier-unsupported",
+        "detail": "现有 staggerDamagePercent 不能保留 finalStrike 等技能范围，禁止扩大到全部失衡伤害"
+      }
     },
     {
       "id": "weapon:sundered-prince:skill3.triggers[0].effects[0]",
@@ -3991,8 +4111,32 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "atkPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "operatorHp",
+          "compare": "above",
+          "percent": 80
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionNotBridged",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-attribute-buff-unsupported",
+        "detail": "该属性必须随战斗条件实时启停；当前装备 DSL 无 Buff 蓝图/启动序列，状态修正运行时也尚未实现"
+      }
     },
     {
       "id": "weapon:chimeric-justice:skill1.effects[0]",
@@ -4228,8 +4372,31 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "dmgBonus",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "enemyStatus",
+          "status": ["cryoInfliction", "solidification"]
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionalTriggerBridge",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-damage-buff-unsupported",
+        "detail": "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件"
+      }
     },
     {
       "id": "weapon:obj-razorhorn:skill3.triggers[0].effects[0]",
@@ -4746,8 +4913,31 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "dmgBonus",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "enemyStatus",
+          "status": "vulnerability"
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionalTriggerBridge",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-damage-buff-unsupported",
+        "detail": "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件"
+      }
     },
     {
       "id": "weapon:mountain-bearer:skill3.triggers[0].effects[0]",
@@ -6309,8 +6499,30 @@
       },
       "group": "weaponTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "dmgBonus",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "enemyStaggered"
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionalTriggerBridge",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-damage-buff-unsupported",
+        "detail": "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件"
+      }
     },
     {
       "id": "weapon:thermite-cutter:skill1.effects[0]",
@@ -6711,8 +6923,29 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "susceptibility",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "excludedAsEnemyModifier",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.DMG Bonus vs. Staggered",
+          "legacy.computeStats.selfSusceptibilitySkipped",
+          "next.buff.declarativeDamageCondition.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "staggered-target-damage-buff-unsupported",
+        "detail": "目录文本证明该词条是对失衡目标伤害加成；需要持久伤害 Buff 在每次伤害时判断目标失衡"
+      }
     },
     {
       "id": "gearPiece:aburrey-flashlight:skill1.effects[0]",
@@ -6841,8 +7074,29 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "susceptibility",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "excludedAsEnemyModifier",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.DMG Bonus vs. Staggered",
+          "legacy.computeStats.selfSusceptibilitySkipped",
+          "next.buff.declarativeDamageCondition.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "staggered-target-damage-buff-unsupported",
+        "detail": "目录文本证明该词条是对失衡目标伤害加成；需要持久伤害 Buff 在每次伤害时判断目标失衡"
+      }
     },
     {
       "id": "gearPiece:aburrey-heavy-armor-t1:skill1.effects[0]",
@@ -7976,9 +8230,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:aic-gauntlets:skill1.effects[0]",
@@ -8038,9 +8312,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:aic-heavy-armor:skill1.effects[0]",
@@ -8100,9 +8394,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:aic-heavy-plate:skill1.effects[0]",
@@ -8139,9 +8453,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:aic-ceramic-plate:skill1.effects[0]",
@@ -8681,9 +9015,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:armored-msgr-gyro-t1:skill1.effects[0]",
@@ -9654,8 +10008,29 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "susceptibility",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "excludedAsEnemyModifier",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.DMG Bonus vs. Staggered",
+          "legacy.computeStats.selfSusceptibilitySkipped",
+          "next.buff.declarativeDamageCondition.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "staggered-target-damage-buff-unsupported",
+        "detail": "目录文本证明该词条是对失衡目标伤害加成；需要持久伤害 Buff 在每次伤害时判断目标失衡"
+      }
     },
     {
       "id": "gearPiece:bonekrusha-poncho-t1:skill1.effects[0]",
@@ -10943,9 +11318,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:eternal-xiranite-power-core:skill1.effects[0]",
@@ -13211,9 +13606,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:lynx-connector-t1:skill1.effects[0]",
@@ -13386,9 +13801,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:lynx-cuirass-t1:skill1.effects[0]",
@@ -13516,9 +13951,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:lynx-gauntlets-t1:skill1.effects[0]",
@@ -13646,9 +14101,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:lynx-gloves:skill1.effects[0]",
@@ -13776,9 +14251,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:lynx-slab:skill1.effects[0]",
@@ -15589,9 +16084,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:mordvolt-resistant-battery:skill1.effects[0]",
@@ -15628,9 +16143,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:mordvolt-resistant-gloves-t1:skill1.effects[0]",
@@ -15758,9 +16293,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:mordvolt-resistant-vest-t1:skill1.effects[0]",
@@ -16566,9 +17121,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "heal",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.heal",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "healing-effect-modifier-unsupported",
+        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:miner-comm:skill1.effects[0]",
@@ -17443,9 +18018,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:miner-turbine:skill1.effects[0]",
@@ -18119,9 +18714,29 @@
         "location": "passive"
       },
       "group": "gearTrait.skill2",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "protection",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.protection",
+          "next.equipment.modifier.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "final-damage-reduction-modifier-unsupported",
+        "detail": "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      }
     },
     {
       "id": "gearPiece:rift-trekker-armor-slab:skill1.effects[0]",
@@ -20842,8 +21457,29 @@
       },
       "group": "gearTrait.skill3",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "susceptibility",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "excludedAsEnemyModifier",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "gameLocale.DMG Bonus vs. Staggered",
+          "legacy.computeStats.selfSusceptibilitySkipped",
+          "next.buff.declarativeDamageCondition.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "staggered-target-damage-buff-unsupported",
+        "detail": "目录文本证明该词条是对失衡目标伤害加成；需要持久伤害 Buff 在每次伤害时判断目标失衡"
+      }
     },
     {
       "id": "gearPiece:thertech-stabilizer:skill1.effects[0]",
@@ -22613,9 +23249,29 @@
         "location": "passive"
       },
       "group": "gearSet.setBonus",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "cooldownReductionPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.computeStats.cooldownReductionPercent.skillTypes",
+          "next.equipment.panelStat.unscoped"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "scoped-skill-cooldown-reduction-unsupported",
+        "detail": "现有 EquipmentModifierDefinition 的 skillCooldownReduction 缺少技能范围字段"
+      }
     },
     {
       "id": "gearSet:frontiers:triggers[0].effects[0]",
@@ -22776,8 +23432,35 @@
       },
       "group": "gearSet.setBonus",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "critRate",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "operatorStatus",
+          "status": "mi-security-stack",
+          "stacks": {
+            "compare": "exact",
+            "count": 5
+          }
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionalTriggerBridge",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-attribute-buff-unsupported",
+        "detail": "该属性必须随战斗条件实时启停；当前装备 DSL 无 Buff 蓝图/启动序列，状态修正运行时也尚未实现"
+      }
     },
     {
       "id": "gearSet:mi-security:triggers[0].effects[0]",
@@ -22831,8 +23514,32 @@
       },
       "group": "gearSet.setBonus",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "dmgBonus",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "operatorHp",
+          "compare": "above",
+          "percent": 80
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionNotBridged",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-damage-buff-unsupported",
+        "detail": "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件"
+      }
     },
     {
       "id": "gearSet:mordvolt-resistant:effects[0]",
@@ -22923,9 +23630,29 @@
         "location": "passive"
       },
       "group": "gearSet.setBonus",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "cooldownReductionPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.computeStats.cooldownReductionPercent.skillTypes",
+          "next.equipment.panelStat.unscoped"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "scoped-skill-cooldown-reduction-unsupported",
+        "detail": "现有 EquipmentModifierDefinition 的 skillCooldownReduction 缺少技能范围字段"
+      }
     },
     {
       "id": "gearSet:qingbo:triggers[0].effects[0]",
@@ -22979,8 +23706,32 @@
       },
       "group": "gearSet.setBonus",
       "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "semanticDestination": "battleStartPersistentBuff",
+      "characterPanelVisible": false,
+      "sourceModifier": "dmgBonus",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": {
+          "kind": "operatorHp",
+          "compare": "above",
+          "percent": 80
+        },
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "conditionNotBridged",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "legacy.condition.runtime",
+          "next.equipment.buffStartup.missing"
+        ]
+      },
+      "status": "dslGap",
+      "gap": {
+        "code": "conditional-damage-buff-unsupported",
+        "detail": "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件"
+      }
     },
     {
       "id": "gearSet:swordmancer:effects[0]",
@@ -22994,9 +23745,29 @@
         "location": "passive"
       },
       "group": "gearSet.setBonus",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
+      "buildTimeDeterminable": true,
+      "semanticDestination": "buildStaticModifier",
+      "characterPanelVisible": false,
+      "sourceModifier": "staggerPercent",
+      "battlePersistentAudit": {
+        "target": {
+          "scope": "self",
+          "explicit": true
+        },
+        "condition": null,
+        "lifecycle": {},
+        "legacyRuntimeDisposition": "initialInfiniteStatus",
+        "evidence": [
+          "legacy.collectEffects.passiveStatus",
+          "next.equipment.panelStat.staggerDamagePercent"
+        ]
+      },
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "panelStat",
+        "stat": "staggerDamagePercent",
+        "value": 0.2
+      }
     },
     {
       "id": "gearSet:swordmancer:triggers[0].effects[0]",

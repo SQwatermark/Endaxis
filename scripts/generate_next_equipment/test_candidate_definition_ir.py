@@ -30,6 +30,32 @@ def migration_ir(*entries: dict) -> dict:
     return {"schemaVersion": 1, "entries": list(entries)}
 
 
+def persistent_entry(effect: dict, *, entry_id: str) -> dict:
+    source_kind, slug, effect_path = entry_id.split(":", 2)
+    slot = effect_path.split(".", 1)[0] if source_kind != "gearSet" else None
+    return {
+        "id": entry_id,
+        "source": {
+            "kind": source_kind,
+            "slug": slug,
+            "sourcePath": f"src/data/{source_kind}/{slug}.ts",
+            "slot": slot,
+            "formKey": None,
+            "effectPath": effect_path,
+            "location": "passive",
+        },
+        "classification": {"kind": "battlePersistentModifier"},
+        "semantics": {
+            "effectKind": "status",
+            "modifier": effect["stat"]["modifier"],
+            "target": {"scope": "self", "explicit": True},
+            "condition": effect.get("condition"),
+            "lifecycle": {},
+        },
+        "sourceEffect": effect,
+    }
+
+
 class CandidateDefinitionIrTest(unittest.TestCase):
     def test_maps_attributes_panel_stats_and_percentage_units(self) -> None:
         report = build_candidate_definition_ir(migration_ir(
@@ -155,6 +181,113 @@ class CandidateDefinitionIrTest(unittest.TestCase):
         audit = report["summary"]["specialModifierAudit"]["ampBonus"]
         self.assertEqual(audit["effectCount"], 0)
         self.assertEqual(audit["triggerFilterCount"], 1)
+
+    def test_promotes_only_unscoped_stagger_percent_to_static_definition(self) -> None:
+        report = build_candidate_definition_ir(migration_ir(
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "staggerPercent"},
+                "target": "self",
+                "value": 20,
+            }, entry_id="gearSet:swordmancer:effects[0]"),
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "staggerPercent", "skillTypes": "finalStrike"},
+                "target": "self",
+                "value": [12, 14.4],
+            }, entry_id="weapon:sundered-prince:skill3.effects[0]"),
+        ))
+        self.assertEqual(report["entries"][0]["candidateDefinition"], {
+            "kind": "panelStat",
+            "stat": "staggerDamagePercent",
+            "value": 0.2,
+        })
+        self.assertEqual(report["entries"][0]["semanticDestination"], "buildStaticModifier")
+        self.assertEqual(
+            report["entries"][1]["gap"]["code"],
+            "scoped-stagger-modifier-unsupported",
+        )
+
+    def test_routes_live_conditions_and_corrected_staggered_bonus_to_persistent_buffs(self) -> None:
+        report = build_candidate_definition_ir(migration_ir(
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "atkPercent"},
+                "target": "self",
+                "value": [15, 18],
+                "condition": {"kind": "operatorHp", "compare": "above", "percent": 80},
+            }, entry_id="weapon:hypernova-auto:skill3.effects[0]"),
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "susceptibility"},
+                "target": "self",
+                "value": 29.4,
+            }, entry_id="gearPiece:aburrey-auditory-chip:skill3.effects[0]"),
+        ))
+        self.assertEqual(
+            [entry["semanticDestination"] for entry in report["entries"]],
+            ["battleStartPersistentBuff", "battleStartPersistentBuff"],
+        )
+        self.assertEqual(
+            [entry["gap"]["code"] for entry in report["entries"]],
+            [
+                "conditional-attribute-buff-unsupported",
+                "staggered-target-damage-buff-unsupported",
+            ],
+        )
+
+    def test_persistent_audit_counts_destination_and_current_readiness_separately(self) -> None:
+        report = build_candidate_definition_ir(migration_ir(
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "staggerPercent"},
+                "target": "self",
+                "value": 20,
+            }, entry_id="gearSet:swordmancer:effects[0]"),
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "heal"},
+                "target": "self",
+                "value": 15.6,
+            }, entry_id="gearPiece:miner-comm-t1:skill2.effects[0]"),
+            persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "dmgBonus", "elements": "physical"},
+                "target": "self",
+                "value": 20,
+                "condition": {"kind": "operatorHp", "compare": "above", "percent": 80},
+            }, entry_id="gearSet:roving-msgr:effects[1]"),
+        ))
+        audit = report["summary"]["battlePersistentAudit"]
+        self.assertEqual(audit["effectCount"], 3)
+        self.assertEqual(audit["buildStaticDestinationCount"], 2)
+        self.assertEqual(audit["persistentBuffRequiredCount"], 1)
+        self.assertEqual(audit["directBuildStaticDefinitionReadyCount"], 1)
+        self.assertEqual(audit["dslGapCount"], 2)
+        self.assertEqual(audit["targetCounts"], {"self": 3})
+        self.assertEqual(audit["conditionKindCounts"], {"none": 2, "operatorHp": 1})
+        self.assertEqual(audit["lifecycleCounts"], {"none": 3})
+        self.assertEqual(audit["legacyRuntimeDispositionCounts"], {
+            "conditionNotBridged": 1,
+            "initialInfiniteStatus": 2,
+        })
+
+    def test_unknown_persistent_shapes_fail_closed(self) -> None:
+        with self.assertRaisesRegex(AuditFailure, "未知的 self susceptibility"):
+            build_candidate_definition_ir(migration_ir(persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "susceptibility"},
+                "target": "self",
+                "value": 1,
+            }, entry_id="gearPiece:future:skill3.effects[0]")))
+        with self.assertRaisesRegex(AuditFailure, "未知常驻效果条件"):
+            build_candidate_definition_ir(migration_ir(persistent_entry({
+                "kind": "status",
+                "stat": {"modifier": "atkPercent"},
+                "target": "self",
+                "value": 1,
+                "condition": {"kind": "futureCondition"},
+            }, entry_id="weapon:future:skill3.effects[0]")))
 
 
 if __name__ == "__main__":

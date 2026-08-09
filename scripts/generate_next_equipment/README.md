@@ -9,7 +9,7 @@
 3. `equipment_audit.py` 按明确白名单校验来源、技能槽、effect、modifier、trigger、condition 和 target，并保存每次出现的完整数据路径。
 4. `generate_audit.py` 只有在全量校验成功后才原子更新 JSON 与 Markdown 报告。
 5. `migration_ir.py` 在同一严格审计之后，为每个 effect 生成无损迁移记录和后续能力需求。
-6. `candidate_definition_ir.py` 只处理构筑期静态贡献，并逐条核对当前 `EquipmentModifierDefinition`；无法无歧义映射时只输出结构化缺口，不生成 raw 兜底。
+6. `candidate_definition_ir.py` 逐条核对构筑期静态贡献，并额外严格审计 33 条常驻战斗修正的静态/Buff 目的地；无法无歧义映射时只输出结构化缺口，不生成 raw 兜底。
 
 这条路线不使用正则或字符串拼接解析 TypeScript。旧数据新增字段或类别时，审计会失败，维护者必须先确认语义并显式更新白名单。
 
@@ -31,6 +31,7 @@ python -m scripts.generate_next_equipment.generate_candidate_coverage
 - `docs/research/equipment-generation-migration-matrix.md`：迁移类别、代表样本和能力阻塞汇总。
 - `docs/research/equipment-static-candidate-coverage.json`：可直接构造的候选定义、分组统计与 DSL 缺口。
 - `docs/research/equipment-static-candidate-coverage.md`：静态定义覆盖审计的中文结论。
+- `docs/research/equipment-battle-persistent-modifier-audit.md`：33 条常驻战斗修正的旧执行链、语义纠正和 Next 能力证据。
 
 也可以复用已有 Node 快照排查 Python 审计问题：
 
@@ -57,4 +58,5 @@ node --test scripts/generate_next_equipment/test_export_legacy_equipment.mjs
 - 本工具不修改 `src/next`、旧数据或干员生成器。
 - 审计成功只表示旧结构被完整识别，不表示战斗语义已完整迁移。
 - “构筑期可确定”不等于“角色面板可见”，也不等于“当前静态 DSL 可表达”；候选定义审计专门负责后两项判断。
+- “没有 duration”不等于“可以静态化”；生命值、敌方状态、失衡状态和 Buff 层数条件必须由战斗运行时实时判断。
 - 在 Next 的事件、Buff 和静态属性编译边界闭环前，不批量生成可能少算效果的 DSL。

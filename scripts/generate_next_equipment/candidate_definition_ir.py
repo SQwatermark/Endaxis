@@ -11,6 +11,7 @@ from .audit_schema import AuditFailure
 
 
 BUILD_STATIC_CLASS = "buildStaticContribution"
+BATTLE_PERSISTENT_CLASS = "battlePersistentModifier"
 MIGRATION_CLASSES = {
     BUILD_STATIC_CLASS,
     "battlePersistentModifier",
@@ -62,6 +63,26 @@ KNOWN_STATIC_MODIFIERS = (
     | {"attributeFlat", "attributePercent", "attributeAtkPercent", "dmgBonus", "ampBonus"}
 )
 
+# 旧装备配置把这四条“对失衡目标伤害加成”误写成了作用于 self 的
+# susceptibility。该语义由中英文装备目录共同闭环，不能按旧字段字面迁移为敌方脆弱。
+STAGGERED_DAMAGE_BONUS_LEGACY_IDS = {
+    "gearPiece:aburrey-auditory-chip:skill3.effects[0]",
+    "gearPiece:aburrey-gauntlets:skill3.effects[0]",
+    "gearPiece:bonekrusha-mask:skill3.effects[0]",
+    "gearPiece:thertech-plating:skill3.effects[0]",
+}
+
+BATTLE_PERSISTENT_MODIFIERS = {
+    "atkPercent",
+    "cooldownReductionPercent",
+    "critRate",
+    "dmgBonus",
+    "heal",
+    "protection",
+    "staggerPercent",
+    "susceptibility",
+}
+
 
 def _finite_level_values(value: Any, path: str) -> int | float | list[int | float]:
     values = value if isinstance(value, list) else [value]
@@ -107,6 +128,42 @@ def _reject_stat_fields(stat: dict[str, Any], allowed: set[str], path: str) -> N
 
 def _gap(code: str, detail: str) -> dict[str, str]:
     return {"code": code, "detail": detail}
+
+
+def _validate_persistent_condition(condition: Any, path: str) -> None:
+    if not isinstance(condition, dict):
+        raise AuditFailure(path, "常驻效果 condition 应为对象")
+    kind = condition.get("kind")
+    allowed_fields = {
+        "operatorHp": {"kind", "compare", "percent"},
+        "enemyStatus": {"kind", "status"},
+        "enemyStaggered": {"kind"},
+        "operatorStatus": {"kind", "status", "stacks"},
+    }
+    if kind not in allowed_fields:
+        raise AuditFailure(f"{path}.kind", f"未知常驻效果条件：{kind!r}")
+    unknown = sorted(set(condition) - allowed_fields[kind])
+    if unknown:
+        raise AuditFailure(path, f"常驻效果条件出现未预期字段：{', '.join(unknown)}")
+    if kind == "operatorHp":
+        if condition.get("compare") not in {"above", "below"}:
+            raise AuditFailure(f"{path}.compare", "未知生命值比较方式")
+        percent = condition.get("percent")
+        if isinstance(percent, bool) or not isinstance(percent, (int, float)):
+            raise AuditFailure(f"{path}.percent", "生命值阈值应为数值")
+    elif kind in {"enemyStatus", "operatorStatus"}:
+        statuses = condition.get("status")
+        values = statuses if isinstance(statuses, list) else [statuses]
+        if not values or any(not isinstance(value, str) or not value for value in values):
+            raise AuditFailure(f"{path}.status", "状态身份应为非空字符串或非空字符串数组")
+        if kind == "operatorStatus" and "stacks" in condition:
+            stacks = condition["stacks"]
+            if not isinstance(stacks, dict) or set(stacks) != {"compare", "count"}:
+                raise AuditFailure(f"{path}.stacks", "层数条件结构不完整")
+            if stacks.get("compare") not in {"exact", "atLeast", "atMost"}:
+                raise AuditFailure(f"{path}.stacks.compare", "未知层数比较方式")
+            if not isinstance(stacks.get("count"), int) or stacks["count"] < 0:
+                raise AuditFailure(f"{path}.stacks.count", "层数应为非负整数")
 
 
 def _adapt_static_effect(effect: dict[str, Any], path: str) -> tuple[dict[str, Any] | None, bool, dict[str, str] | None]:
@@ -184,6 +241,154 @@ def _adapt_static_effect(effect: dict[str, Any], path: str) -> tuple[dict[str, A
     raise AssertionError(f"unhandled static modifier: {modifier}")
 
 
+def _validate_persistent_effect(
+    entry_id: str,
+    effect: dict[str, Any],
+    semantics: dict[str, Any],
+    path: str,
+) -> tuple[str, dict[str, Any] | None, bool, dict[str, str] | None, list[str]]:
+    """审计旧常驻战斗效果，并返回目的地、候选定义、面板可见性、缺口和证据。"""
+    if effect.get("kind") != "status":
+        raise AuditFailure(path, "battlePersistentModifier 必须是 status")
+    unknown_effect_fields = sorted(
+        set(effect) - {"kind", "stat", "target", "value", "condition", "icon"}
+    )
+    if unknown_effect_fields:
+        raise AuditFailure(path, f"常驻战斗效果出现未预期字段：{', '.join(unknown_effect_fields)}")
+    if effect.get("target") != "self":
+        raise AuditFailure(f"{path}.target", "当前真实常驻装备样本必须显式面向 self")
+    lifecycle = semantics.get("lifecycle")
+    if lifecycle != {}:
+        raise AuditFailure(f"{path}.lifecycle", "当前 33 条样本不应携带生命周期字段")
+    stat = effect.get("stat")
+    if not isinstance(stat, dict):
+        raise AuditFailure(f"{path}.stat", "常驻战斗效果必须携带 stat 对象")
+    modifier = stat.get("modifier")
+    if modifier not in BATTLE_PERSISTENT_MODIFIERS:
+        raise AuditFailure(f"{path}.stat.modifier", f"未知常驻战斗 modifier：{modifier!r}")
+    if "value" not in effect:
+        raise AuditFailure(f"{path}.value", "常驻战斗效果缺少 value")
+    _finite_level_values(effect["value"], f"{path}.value")
+
+    condition = effect.get("condition")
+    if condition is not None:
+        _validate_persistent_condition(condition, f"{path}.condition")
+    evidence = ["legacy.collectEffects.passiveStatus"]
+
+    if modifier == "staggerPercent" and condition is None:
+        _reject_stat_fields(stat, {"modifier", "skillTypes"}, f"{path}.stat")
+        skill_types = stat.get("skillTypes")
+        if skill_types is None:
+            return (
+                "buildStaticModifier",
+                {
+                    "kind": "panelStat",
+                    "stat": "staggerDamagePercent",
+                    "value": _scale_percent(effect["value"], f"{path}.value"),
+                },
+                False,
+                None,
+                [*evidence, "next.equipment.panelStat.staggerDamagePercent"],
+            )
+        _mapped_skill_types(skill_types, f"{path}.stat.skillTypes")
+        return (
+            "buildStaticModifier",
+            None,
+            False,
+            _gap(
+                "scoped-stagger-modifier-unsupported",
+                "现有 staggerDamagePercent 不能保留 finalStrike 等技能范围，禁止扩大到全部失衡伤害",
+            ),
+            [*evidence, "legacy.StaggerChangeHandler.skillTypes", "next.equipment.panelStat.unscoped"],
+        )
+
+    if modifier == "cooldownReductionPercent" and condition is None:
+        _reject_stat_fields(stat, {"modifier", "skillTypes"}, f"{path}.stat")
+        if "skillTypes" not in stat:
+            raise AuditFailure(f"{path}.stat.skillTypes", "当前冷却缩减样本必须声明技能范围")
+        _mapped_skill_types(stat["skillTypes"], f"{path}.stat.skillTypes")
+        return (
+            "buildStaticModifier",
+            None,
+            False,
+            _gap(
+                "scoped-skill-cooldown-reduction-unsupported",
+                "现有 EquipmentModifierDefinition 的 skillCooldownReduction 缺少技能范围字段",
+            ),
+            [*evidence, "legacy.computeStats.cooldownReductionPercent.skillTypes", "next.equipment.panelStat.unscoped"],
+        )
+
+    if modifier in {"heal", "protection"} and condition is None:
+        _reject_stat_fields(stat, {"modifier"}, f"{path}.stat")
+        code = (
+            "healing-effect-modifier-unsupported"
+            if modifier == "heal"
+            else "final-damage-reduction-modifier-unsupported"
+        )
+        detail = (
+            "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+            if modifier == "heal"
+            else "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+        )
+        return (
+            "buildStaticModifier",
+            None,
+            False,
+            _gap(code, detail),
+            [*evidence, f"gameLocale.{modifier}", "next.equipment.modifier.missing"],
+        )
+
+    if modifier == "susceptibility" and condition is None:
+        _reject_stat_fields(stat, {"modifier"}, f"{path}.stat")
+        if entry_id not in STAGGERED_DAMAGE_BONUS_LEGACY_IDS:
+            raise AuditFailure(path, "未知的 self susceptibility，不能按旧字段字面猜测语义")
+        return (
+            "battleStartPersistentBuff",
+            None,
+            False,
+            _gap(
+                "staggered-target-damage-buff-unsupported",
+                "目录文本证明该词条是对失衡目标伤害加成；需要持久伤害 Buff 在每次伤害时判断目标失衡",
+            ),
+            [
+                *evidence,
+                "gameLocale.DMG Bonus vs. Staggered",
+                "legacy.computeStats.selfSusceptibilitySkipped",
+                "next.buff.declarativeDamageCondition.missing",
+            ],
+        )
+
+    if condition is None:
+        raise AuditFailure(path, f"未预期的无条件常驻 modifier：{modifier!r}")
+
+    if modifier in {"atkPercent", "critRate"}:
+        _reject_stat_fields(stat, {"modifier"}, f"{path}.stat")
+        gap = _gap(
+            "conditional-attribute-buff-unsupported",
+            "该属性必须随战斗条件实时启停；当前装备 DSL 无 Buff 蓝图/启动序列，状态修正运行时也尚未实现",
+        )
+    elif modifier == "dmgBonus":
+        _reject_stat_fields(stat, {"modifier", "elements", "skillTypes"}, f"{path}.stat")
+        if "elements" in stat:
+            _enum_values(stat["elements"], DAMAGE_TYPES, f"{path}.stat.elements")
+        if "skillTypes" in stat:
+            _mapped_skill_types(stat["skillTypes"], f"{path}.stat.skillTypes")
+        gap = _gap(
+            "conditional-damage-buff-unsupported",
+            "该伤害增益必须在每次伤害结算时判断战斗条件；当前可序列化 Buff 目录不支持伤害修正及声明式条件",
+        )
+    else:
+        raise AuditFailure(path, f"未预期的有条件常驻 modifier：{modifier!r}")
+
+    return (
+        "battleStartPersistentBuff",
+        None,
+        False,
+        gap,
+        [*evidence, "legacy.condition.runtime", "next.equipment.buffStartup.missing"],
+    )
+
+
 def _group_key(source: dict[str, Any]) -> str:
     if source["kind"] == "weapon":
         return f"weaponTrait.{source['slot']}"
@@ -217,7 +422,14 @@ def build_candidate_definition_ir(migration_ir: Any) -> dict[str, Any]:
     output_entries: list[dict[str, Any]] = []
     status_counts: Counter[str] = Counter()
     gap_counts: Counter[str] = Counter()
+    destination_counts: Counter[str] = Counter()
+    persistent_target_counts: Counter[str] = Counter()
+    persistent_condition_counts: Counter[str] = Counter()
+    persistent_lifecycle_counts: Counter[str] = Counter()
+    legacy_runtime_counts: Counter[str] = Counter()
+    persistent_modifier_counts: dict[str, Counter[str]] = {}
     modifier_counts: dict[str, Counter[str]] = {}
+    build_static_modifier_counts: dict[str, Counter[str]] = {}
     group_counts: dict[str, Counter[str]] = {}
     trigger_filter_identities: dict[str, set[tuple[str, str, str]]] = {}
 
@@ -241,7 +453,58 @@ def build_candidate_definition_ir(migration_ir: Any) -> dict[str, Any]:
             "group": group,
             "buildTimeDeterminable": classification == BUILD_STATIC_CLASS,
         }
-        if classification != BUILD_STATIC_CLASS:
+        if classification == BATTLE_PERSISTENT_CLASS:
+            effect = entry.get("sourceEffect")
+            semantics = entry.get("semantics")
+            if not isinstance(effect, dict):
+                raise AuditFailure(f"{path}.sourceEffect", "应为对象")
+            if not isinstance(semantics, dict):
+                raise AuditFailure(f"{path}.semantics", "应为对象")
+            modifier = effect.get("stat", {}).get("modifier")
+            destination, candidate, panel_visible, gap, evidence = _validate_persistent_effect(
+                str(entry.get("id")), effect, semantics, f"{path}.sourceEffect"
+            )
+            condition = semantics.get("condition")
+            condition_kind = condition.get("kind") if isinstance(condition, dict) else "none"
+            target_scope = semantics.get("target", {}).get("scope", "unknown")
+            lifecycle = semantics.get("lifecycle", {})
+            lifecycle_kind = "none" if not lifecycle else "+".join(sorted(lifecycle))
+            if modifier == "susceptibility":
+                legacy_runtime_disposition = "excludedAsEnemyModifier"
+            elif condition_kind in {"operatorStatus", "enemyStatus", "enemyStaggered"}:
+                legacy_runtime_disposition = "conditionalTriggerBridge"
+            elif condition_kind == "operatorHp":
+                legacy_runtime_disposition = "conditionNotBridged"
+            else:
+                legacy_runtime_disposition = "initialInfiniteStatus"
+            result.update({
+                "buildTimeDeterminable": destination == "buildStaticModifier",
+                "semanticDestination": destination,
+                "characterPanelVisible": panel_visible,
+                "sourceModifier": modifier,
+                "battlePersistentAudit": {
+                    "target": deepcopy(semantics.get("target")),
+                    "condition": deepcopy(semantics.get("condition")),
+                    "lifecycle": deepcopy(semantics.get("lifecycle")),
+                    "legacyRuntimeDisposition": legacy_runtime_disposition,
+                    "evidence": evidence,
+                },
+            })
+            destination_counts[destination] += 1
+            persistent_target_counts[str(target_scope)] += 1
+            persistent_condition_counts[str(condition_kind)] += 1
+            persistent_lifecycle_counts[lifecycle_kind] += 1
+            legacy_runtime_counts[legacy_runtime_disposition] += 1
+            if candidate is not None:
+                status = "definitionReady"
+                result.update({"status": status, "candidateDefinition": candidate})
+            else:
+                assert gap is not None
+                status = "dslGap"
+                result.update({"status": status, "gap": gap})
+                gap_counts[gap["code"]] += 1
+            persistent_modifier_counts.setdefault(str(modifier), Counter())[status] += 1
+        elif classification != BUILD_STATIC_CLASS:
             status = "outsideStaticDefinitionScope"
             result.update({"status": status, "characterPanelVisible": False})
             modifier = entry.get("semantics", {}).get("modifier") or entry.get("semantics", {}).get("effectKind")
@@ -271,6 +534,8 @@ def build_candidate_definition_ir(migration_ir: Any) -> dict[str, Any]:
                 gap_counts[gap["code"]] += 1
         status_counts[status] += 1
         modifier_counts.setdefault(str(modifier), Counter())[status] += 1
+        if result["buildTimeDeterminable"]:
+            build_static_modifier_counts.setdefault(str(modifier), Counter())[status] += 1
         group_counts.setdefault(group, Counter())[status] += 1
         output_entries.append(result)
 
@@ -292,6 +557,35 @@ def build_candidate_definition_ir(migration_ir: Any) -> dict[str, Any]:
                 1 for entry in output_entries
                 if entry["status"] == "definitionReady" and not entry["characterPanelVisible"]
             ),
+            "battlePersistentAudit": {
+                "effectCount": sum(destination_counts.values()),
+                "buildStaticDestinationCount": destination_counts["buildStaticModifier"],
+                "persistentBuffRequiredCount": destination_counts["battleStartPersistentBuff"],
+                "directBuildStaticDefinitionReadyCount": sum(
+                    1 for entry in output_entries
+                    if entry.get("semanticDestination") == "buildStaticModifier"
+                    and entry["status"] == "definitionReady"
+                ),
+                "definitionReadyCount": sum(
+                    1 for entry in output_entries
+                    if entry.get("semanticDestination") is not None
+                    and entry["status"] == "definitionReady"
+                ),
+                "dslGapCount": sum(
+                    1 for entry in output_entries
+                    if entry.get("semanticDestination") is not None
+                    and entry["status"] == "dslGap"
+                ),
+                "destinationCounts": dict(sorted(destination_counts.items())),
+                "targetCounts": dict(sorted(persistent_target_counts.items())),
+                "conditionKindCounts": dict(sorted(persistent_condition_counts.items())),
+                "lifecycleCounts": dict(sorted(persistent_lifecycle_counts.items())),
+                "legacyRuntimeDispositionCounts": dict(sorted(legacy_runtime_counts.items())),
+                "modifierStatusCounts": {
+                    key: dict(sorted(value.items()))
+                    for key, value in sorted(persistent_modifier_counts.items())
+                },
+            },
             "statusCounts": dict(sorted(status_counts.items())),
             "gapReasonCounts": dict(sorted(gap_counts.items())),
             "modifierStatusCounts": {
@@ -303,10 +597,14 @@ def build_candidate_definition_ir(migration_ir: Any) -> dict[str, Any]:
             "specialModifierAudit": {
                 modifier: {
                     "effectCount": sum(modifier_counts.get(modifier, {}).values()),
-                    "buildStaticCount": modifier_counts.get(modifier, {}).get("definitionReady", 0)
-                    + modifier_counts.get(modifier, {}).get("dslGap", 0),
-                    "definitionReadyCount": modifier_counts.get(modifier, {}).get("definitionReady", 0),
-                    "dslGapCount": modifier_counts.get(modifier, {}).get("dslGap", 0),
+                    "buildStaticCount": sum(build_static_modifier_counts.get(modifier, {}).values()),
+                    "definitionReadyCount": build_static_modifier_counts.get(modifier, {}).get("definitionReady", 0),
+                    "dslGapCount": build_static_modifier_counts.get(modifier, {}).get("dslGap", 0),
+                    "persistentBuffRequiredCount": sum(
+                        1 for entry in output_entries
+                        if entry.get("sourceModifier") == modifier
+                        and entry.get("semanticDestination") == "battleStartPersistentBuff"
+                    ),
                     "triggerFilterCount": len(trigger_filter_identities.get(modifier, set())),
                 }
                 for modifier in ("dmgBonus", "ampBonus", "attributeAtkPercent")
