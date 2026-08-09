@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { perlica } from '../../../data/operators/perlica';
+import { createEnemyElementalBuffRuntime } from '../../../data/buffs/createEnemyElementalBuffRuntime';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { compileSkill } from '../../compiler/compileSkill';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
-import type { ExistingElementalAttachment } from '../infliction/elementalInfliction';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
@@ -12,7 +13,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { CombatVitals } from './combatVitals';
-import { createPlayerActiveOperationExecutor } from './playerActiveOperationExecutor';
+import { createPlayerActiveOperationExecutorForElementalTarget } from './playerActiveOperationExecutor';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 
@@ -70,11 +71,15 @@ describe('Perlica standard damage slice', () => {
       skillLevel: 12,
       skill: findPerlicaBattleSkill(),
     });
-    let attachment: ExistingElementalAttachment | null = null;
-    const operations = createPlayerActiveOperationExecutor({
+    const elementalTarget = createEnemyElementalBuffRuntime({
+      attributes: new CombatAttributeSet(),
+      emitElementalInflictionStarted: () => undefined,
+    });
+    const operations = createPlayerActiveOperationExecutorForElementalTarget({
       context: { program, clock, resources, receipt },
       targetId: 'enemy',
       targetVitals,
+      elementalTarget,
       delegate: unresolvedOperations,
       damage: {
         captureAttributeSnapshots: () => ({
@@ -122,14 +127,7 @@ describe('Perlica standard damage slice', () => {
         emitPoiseSourceEvent: () => undefined,
         emitPoiseTargetEvent: () => undefined,
       },
-      infliction: {
-        getExistingAttachment: () => attachment,
-        applyOperation: operation => {
-          if (operation.kind !== 'addAttachment') {
-            throw new Error(`unexpected first-infliction operation '${operation.kind}'`);
-          }
-          attachment = { element: operation.element, layers: 1 };
-        },
+      inflictionEvents: {
         emitSourceEvent: () => undefined,
         emitTargetEvent: () => undefined,
       },
@@ -159,7 +157,10 @@ describe('Perlica standard damage slice', () => {
 
     expect(targetVitals.health).toBe(600);
     expect(targetVitals.poise).toBe(90);
-    expect(attachment).toEqual({ element: 'electric', layers: 1 });
+    expect(elementalTarget.createInflictionAdapter('assertion').getExistingAttachment()).toEqual({
+      element: 'electric',
+      layers: 1,
+    });
     expect(resources.sp).toBe(0);
     expect(resources.getUltimateEnergy('perlica')).toBe(10);
     expect(
