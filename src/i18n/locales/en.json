@@ -1262,6 +1262,12 @@
     "operatorTab": "Operator",
     "weaponTab": "Weapon",
     "gearTab": "Gear",
-    "skillLibrary": "Skill library"
+    "skillLibrary": "Skill library",
+    "weaponDialog": {
+      "title": "Select weapon",
+      "searchPlaceholder": "Search by name, type, or rarity",
+      "empty": "No matching weapons",
+      "partialSupport": "Some effects are not supported yet"
+    }
   }
 }

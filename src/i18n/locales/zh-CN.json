@@ -1262,6 +1262,12 @@
     "operatorTab": "干员",
     "weaponTab": "武器",
     "gearTab": "装备",
-    "skillLibrary": "干员技能库"
+    "skillLibrary": "干员技能库",
+    "weaponDialog": {
+      "title": "选择武器",
+      "searchPlaceholder": "搜索武器名称、类型或星级",
+      "empty": "没有符合条件的武器",
+      "partialSupport": "部分效果尚未支持"
+    }
   }
 }

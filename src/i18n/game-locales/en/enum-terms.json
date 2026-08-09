@@ -1,0 +1,59 @@
+{
+  "element": {
+    "physical": "Physical",
+    "heat": "Heat",
+    "cryo": "Cryo",
+    "electric": "Electric",
+    "nature": "Nature",
+    "arts": "Arts"
+  },
+  "class": {
+    "guard": "Guard",
+    "caster": "Caster",
+    "defender": "Defender",
+    "vanguard": "Vanguard",
+    "striker": "Striker",
+    "supporter": "Supporter"
+  },
+  "weaponType": {
+    "sword": "Sword",
+    "greatsword": "Greatsword",
+    "polearm": "Polearm",
+    "handcannon": "Handcannon",
+    "arts-unit": "Arts Unit",
+    "artsunit": "Arts Unit"
+  },
+  "slotType": {
+    "armor": "Armor",
+    "gloves": "Gloves",
+    "kit": "Kit",
+    "kit1": "Kit",
+    "kit2": "Kit",
+    "accessory": "Accessory"
+  },
+  "quality": {
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "gold": "Gold"
+  },
+  "attribute": {
+    "strength": "Strength",
+    "agility": "Agility",
+    "intellect": "Intellect",
+    "will": "Will",
+    "main": "Main",
+    "sub": "Sub"
+  },
+  "operatorUi": {
+    "promote": "Promote",
+    "promoted": "Promoted",
+    "fullyPromoted": "Fully promoted",
+    "promotionUnavailable": "Promotion unavailable"
+  },
+  "weaponUi": {
+    "tuned": "Tuned",
+    "fullyTuned": "Fully tuned",
+    "tuningUnavailable": "Tuning unavailable"
+  }
+}

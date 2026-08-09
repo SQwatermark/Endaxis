@@ -90,7 +90,7 @@ const filteredOperators = computed(() => {
   z-index: 1200;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.62);
+  background: color-mix(in srgb, var(--ea-bg) 70%, transparent);
 }
 
 .operator-dialog {
@@ -101,7 +101,7 @@ const filteredOperators = computed(() => {
   border: 1px solid var(--ea-border-strong);
   background: var(--ea-workbench-panel);
   color: var(--ea-fg);
-  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.58);
+  box-shadow: 0 18px 52px var(--ea-shadow-strong);
 }
 
 header,
@@ -153,7 +153,7 @@ button:hover {
 
 .clear-button {
   padding: 0 12px;
-  color: #ff7875;
+  color: var(--el-color-danger);
 }
 
 .operator-grid {

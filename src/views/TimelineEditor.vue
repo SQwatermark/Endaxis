@@ -6,7 +6,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
 import { snapdom } from '@zumer/snapdom';
 import { useI18n } from 'vue-i18n';
-import { setLocale } from '@/i18n';
+import { ALL_GAME_TEXT_FAMILIES, setLocale } from '@/i18n';
 
 // 组件引入
 import TimelineGrid from '../components/TimelineGrid.vue';
@@ -528,9 +528,9 @@ function runMoreProjectAction(action) {
   else if (action === 'reset') handleReset();
 }
 
-function selectLocaleFromMore(next) {
+async function selectLocaleFromMore(next) {
   if (locale.value === next) return;
-  setLocale(next);
+  await setLocale(next, ALL_GAME_TEXT_FAMILIES);
 }
 
 function selectAppearanceFromMore(next) {
@@ -1744,7 +1744,10 @@ onUnmounted(() => {
                   <h5 class="header-more-subsection__title">
                     {{ t('timeline.header.sectionViewOperators') }}
                   </h5>
-                  <div v-if="hasOperatorTracks" class="header-more-checklist header-more-checklist--grid">
+                  <div
+                    v-if="hasOperatorTracks"
+                    class="header-more-checklist header-more-checklist--grid"
+                  >
                     <template v-for="(track, index) in store.teamTracksInfo" :key="index">
                       <button
                         v-if="track.id"
@@ -1772,7 +1775,9 @@ onUnmounted(() => {
                       </button>
                     </template>
                   </div>
-                  <p v-else class="header-more-empty">{{ t('timeline.header.hideEffectsEmpty') }}</p>
+                  <p v-else class="header-more-empty">
+                    {{ t('timeline.header.hideEffectsEmpty') }}
+                  </p>
                 </div>
 
                 <div class="header-more-view-block">
@@ -1806,10 +1811,7 @@ onUnmounted(() => {
                     </button>
                   </div>
 
-                  <div
-                    v-if="store.durationBarColor.enabled"
-                    class="header-more-color-controls"
-                  >
+                  <div v-if="store.durationBarColor.enabled" class="header-more-color-controls">
                     <label class="header-more-tune-row">
                       <span class="header-more-tune-row__label">
                         {{ t('timeline.header.durationBarSaturation') }}
@@ -1823,11 +1825,7 @@ onUnmounted(() => {
                           step="5"
                           class="ea-range"
                           :value="store.durationBarColor.saturation"
-                          @input="
-                            store.setDurationBarColorSaturation(
-                              Number(($event.target).value),
-                            )
-                          "
+                          @input="store.setDurationBarColorSaturation(Number($event.target.value))"
                         />
                       </div>
                     </label>
@@ -1845,11 +1843,7 @@ onUnmounted(() => {
                           step="5"
                           class="ea-range"
                           :value="store.durationBarColor.lightness"
-                          @input="
-                            store.setDurationBarColorLightness(
-                              Number(($event.target).value),
-                            )
-                          "
+                          @input="store.setDurationBarColorLightness(Number($event.target.value))"
                         />
                       </div>
                     </label>
@@ -2053,7 +2047,11 @@ onUnmounted(() => {
                 </div>
                 <div class="header-more-pref-row header-more-pref-row--appearance">
                   <span class="header-more-appearance__label">{{ t('common.appearance') }}</span>
-                  <div class="header-more-appearance" role="group" :aria-label="t('common.appearance')">
+                  <div
+                    class="header-more-appearance"
+                    role="group"
+                    :aria-label="t('common.appearance')"
+                  >
                     <button
                       type="button"
                       class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
@@ -2877,21 +2875,21 @@ onUnmounted(() => {
 }
 
 /* Light mode: white UI glyphs → ink silhouette (assets are white-on-transparent). */
-:global(html[data-theme='light'] .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__image-icon) {
   filter: brightness(0) opacity(0.72);
   opacity: 1;
 }
-:global(html[data-theme='light'] .activity-bar__button.is-active .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__button.is-active .activity-bar__image-icon) {
   filter: brightness(0) opacity(0.92);
 }
 :global(html[data-theme='light'] .activity-bar__button:hover .activity-bar__image-icon),
-:global(html[data-theme='light'] .activity-bar__button.is-active:hover .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__button.is-active:hover .activity-bar__image-icon) {
   filter: brightness(0) opacity(1);
   transform: translateY(-3px) scale(1.1);
 }
 :global(html[data-theme='light'] .header-more-action.ea-btn),
 :global(html[data-theme='light'] .header-more-locale__btn.ea-btn),
-:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn){
+:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn) {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -3181,7 +3179,7 @@ onUnmounted(() => {
   color: #ffe38a;
 }
 :global(html[data-theme='light'] .header-more-locale__btn.ea-btn.is-active),
-:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn.is-active){
+:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn.is-active) {
   border-color: rgba(180, 140, 0, 0.55);
   background: rgba(180, 140, 0, 0.12);
   color: var(--ea-gold);

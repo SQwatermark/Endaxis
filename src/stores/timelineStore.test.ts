@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useTimelineStore } from './timelineStore';
-import { setLocale } from '@/i18n';
+import { ALL_GAME_TEXT_FAMILIES, setLocale } from '@/i18n';
 
 describe('timeline skill library editing', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     setActivePinia(createPinia());
     const storage = new Map<string, string>();
     vi.stubGlobal('localStorage', {
@@ -19,6 +19,7 @@ describe('timeline skill library editing', () => {
         storage.clear();
       },
     });
+    await setLocale('zh-CN', ALL_GAME_TEXT_FAMILIES);
   });
 
   it('exposes segmented skill children as editable library models', async () => {
@@ -76,7 +77,7 @@ describe('timeline skill library editing', () => {
   });
 
   it('names generic basic attacks as 普攻 and only the final segment as 重击', async () => {
-    setLocale('zh-CN');
+    await setLocale('zh-CN', ALL_GAME_TEXT_FAMILIES);
     const store = useTimelineStore();
     await store.fetchGameData();
 
@@ -103,7 +104,7 @@ describe('timeline skill library editing', () => {
   });
 
   it('keeps Laevatain enhanced basic attack distinct from normal attack in the library', async () => {
-    setLocale('zh-CN');
+    await setLocale('zh-CN', ALL_GAME_TEXT_FAMILIES);
     const store = useTimelineStore();
     await store.fetchGameData();
 

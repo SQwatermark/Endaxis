@@ -11,7 +11,7 @@ import {
 } from 'element-plus';
 import { useTimelineStore } from '@/stores/timelineStore.js';
 import { useI18n } from 'vue-i18n';
-import { setLocale } from '@/i18n';
+import { ALL_GAME_TEXT_FAMILIES, setLocale } from '@/i18n';
 import { getGearPiece } from '@/data';
 import {
   getGameSlotTypeName,
@@ -157,8 +157,8 @@ onUnmounted(() => {
   }
 });
 
-function changeLocale(next) {
-  locale.value = setLocale(next);
+async function changeLocale(next) {
+  locale.value = await setLocale(next, ALL_GAME_TEXT_FAMILIES);
 }
 
 function handleReset() {
@@ -208,7 +208,9 @@ function getEquipmentStatRows(piece, instance) {
     return {
       key: `${effect?.id || effect?.stat?.modifier || 'stat'}-${index}`,
       label: formatEquipmentEffectLabel(effect, t, locale.value),
-      value: effect ? formatEquipmentEffectStatValue(effect, resolveLeveled(effect.value, refine)) : '',
+      value: effect
+        ? formatEquipmentEffectStatValue(effect, resolveLeveled(effect.value, refine))
+        : '',
       refine,
     };
   });
@@ -304,7 +306,7 @@ const selectedWeaponSkillLines = computed(() => {
     selectedWeaponSkill3Level.value,
   ];
 
-  return (['skill1', 'skill2', 'skill3']).map((skillKey, index) => ({
+  return ['skill1', 'skill2', 'skill3'].map((skillKey, index) => ({
     key: skillKey,
     name: getWeaponSkillName(slug, skillKey, locale.value) || skillKey,
     tier: formatTierLabel(levels[index]),
@@ -345,9 +347,7 @@ const equipmentSlots = computed(() => {
 
   return EQUIPMENT_SLOT_CONFIGS.map(config => {
     const equipmentId = track[config.idKey] || null;
-    const instance = track[config.instanceKey]
-      ? findGearInstance(track[config.instanceKey])
-      : null;
+    const instance = track[config.instanceKey] ? findGearInstance(track[config.instanceKey]) : null;
     const pieceId = instance?.gearPieceId || equipmentId;
     const item =
       typeof store.getEquipmentById === 'function' ? store.getEquipmentById(pieceId) : null;
@@ -374,9 +374,7 @@ const equipmentSlots = computed(() => {
       level: level || null,
       levelColor: getEquipmentLevelColor(level),
       isGold,
-      name: pieceId
-        ? getGearPieceGameName(pieceId, locale.value) || item?.name || pieceId
-        : '',
+      name: pieceId ? getGearPieceGameName(pieceId, locale.value) || item?.name || pieceId : '',
       icon: piece?.icon || item?.icon || DEFAULT_ICON,
       setName:
         getGearSetGameName(piece?.setSlug || item?.category || '', locale.value) ||
@@ -1323,10 +1321,7 @@ async function doImport() {
         </div>
 
         <div class="m-drawer__content">
-          <div
-            v-if="resolvedAction"
-            class="tech-style actioninfo-hero"
-          >
+          <div v-if="resolvedAction" class="tech-style actioninfo-hero">
             <div class="actioninfo-hero__top">
               <div class="actioninfo-hero__avatar">
                 <img
@@ -1346,10 +1341,7 @@ async function doImport() {
                   <span class="dot">·</span>
                   <span class="mono">{{ getTypeLabel(resolvedAction.node) }}</span>
                 </div>
-                <div
-                  v-if="resolvedActionCombatIcons.length"
-                  class="actioninfo-combat-icons"
-                >
+                <div v-if="resolvedActionCombatIcons.length" class="actioninfo-combat-icons">
                   <div
                     v-for="icon in resolvedActionCombatIcons"
                     :key="`info_${icon.id}`"
@@ -1528,8 +1520,7 @@ async function doImport() {
                     <template v-if="slot.refineLabel !== null">
                       <span class="dot">·</span>
                       <span class="mono"
-                        >{{ t('timelineGrid.equipmentDialog.refine') }}
-                        {{ slot.refineLabel }}</span
+                        >{{ t('timelineGrid.equipmentDialog.refine') }} {{ slot.refineLabel }}</span
                       >
                     </template>
                   </div>

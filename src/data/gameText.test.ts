@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
+import { ensureLocaleResources } from '../i18n';
 import {
   getOperatorCombatSkillDescription,
   getOperatorCombatSkillFormKeys,
@@ -9,6 +10,10 @@ import {
 } from './gameText';
 
 describe('game text localization', () => {
+  beforeAll(async () => {
+    await ensureLocaleResources('zh-CN', ['operators', 'weapons']);
+  });
+
   test('zh localizes Blessing of Lustrous Carmine', () => {
     expect(getWeaponGameName('blessing-of-lustrous-carmine', 'zh-CN')).toBe('镀红祝福');
   });

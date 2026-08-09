@@ -12,23 +12,25 @@ import router from './router';
 import { i18n, setLocale } from './i18n';
 import { bootstrapAppearance } from './composables/useAppearance';
 
-bootstrapAppearance();
+async function bootstrap() {
+  bootstrapAppearance();
+  // 首屏先加载 UI 文本；各路由在进入前声明自身需要的游戏文本 family。
+  await setLocale(i18n.global.locale.value, []);
 
-const app = createApp(App);
-const pinia = createPinia();
+  const app = createApp(App);
+  const pinia = createPinia();
+  app.use(pinia);
+  app.use(ElementPlus);
+  app.use(router);
+  app.use(i18n);
+  app.mount('#app');
 
-app.use(pinia);
-app.use(ElementPlus);
-app.use(router);
-app.use(i18n);
-
-setLocale(i18n.global.locale.value);
-
-app.mount('#app');
-
-// 启动遮罩属于应用外壳；任一路由完成首次挂载后都应移除。
-requestAnimationFrame(() => {
+  // 启动遮罩属于应用外壳；语言资源和首个路由完成挂载后再移除。
   requestAnimationFrame(() => {
-    document.getElementById('boot-loader')?.remove();
+    requestAnimationFrame(() => {
+      document.getElementById('boot-loader')?.remove();
+    });
   });
-});
+}
+
+void bootstrap();
