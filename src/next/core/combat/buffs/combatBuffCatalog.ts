@@ -38,10 +38,39 @@ export type CombatBuffSemanticRole =
       readonly incomingElement: InflictionElement;
     };
 
+/** 目录动作可从常量或当前 Buff 黑板读取的数值。 */
+export type CombatBuffCatalogNumberOperand = number | { readonly blackboardKey: string };
+
+/** StoreAttributeValue 在来源实体上选择属性的方式。 */
+export type CombatBuffCatalogAttributeSelector =
+  | { readonly kind: 'specific'; readonly key: string }
+  | { readonly kind: 'main' | 'secondary' | 'all' };
+
+/** StoreAttributeValue 读取的原生属性聚合阶段，二者都必须排除 Converted 来源。 */
+export type CombatBuffCatalogAttributeStage = 'armedNonConverted' | 'finalNonConverted';
+
+/** catalog 核心向战斗装配层提出的属性读取请求。 */
+export interface CombatBuffCatalogAttributeReadRequest {
+  readonly target: 'source';
+  readonly attribute: CombatBuffCatalogAttributeSelector;
+  readonly stage: CombatBuffCatalogAttributeStage;
+}
+
 /** 外部 Buff 目录当前允许表达的生命周期动作。 */
 export type CombatBuffCatalogAction =
   | { readonly kind: 'emitElementalInflictionStarted' }
   | { readonly kind: 'refreshAttributeModifierValues' }
+  | {
+      readonly kind: 'storeAttributeValue';
+      readonly target: 'source';
+      readonly attribute: CombatBuffCatalogAttributeSelector;
+      readonly stage: CombatBuffCatalogAttributeStage;
+      readonly useFloor: boolean;
+      readonly divisor: CombatBuffCatalogNumberOperand;
+      readonly multiplier: CombatBuffCatalogNumberOperand;
+      readonly base: CombatBuffCatalogNumberOperand;
+      readonly targetKey: string;
+    }
   | {
       readonly kind: 'modifyBlackboard';
       readonly operation: 'assign' | 'add';
@@ -102,6 +131,14 @@ export interface CombatBuffCatalogCompilerPorts<Key extends string> {
     payload: ElementalInflictionStartedPayload,
     buff: CombatBuff<Key>,
   ) => void;
+  /**
+   * 读取动作来源实体的属性阶段值。实体定位、主副属性映射和排除 Converted 修正均由装配层负责；
+   * catalog 编译器只负责 StoreAttributeValue 已确认的算式和当前 Buff 黑板生命周期。
+   */
+  readonly readAttribute?: (
+    request: CombatBuffCatalogAttributeReadRequest,
+    buff: CombatBuff<Key>,
+  ) => number;
 }
 
 /** 元素附着运行时适配器使用的已编译索引。 */
@@ -406,6 +443,37 @@ function parseOptionalCatalogActionList(
               : parseBlackboardReference(action.value, `${actionPath}.value`),
         };
       }
+      if (action.kind === 'storeAttributeValue') {
+        requireOnlyKeys(action, actionPath, [
+          'kind',
+          'target',
+          'attribute',
+          'stage',
+          'useFloor',
+          'divisor',
+          'multiplier',
+          'base',
+          'targetKey',
+        ]);
+        if (action.useFloor !== true && action.useFloor !== false) {
+          throw new Error(`${actionPath}.useFloor: expected boolean`);
+        }
+        return {
+          kind: action.kind,
+          target: requireEnum(action.target, ['source'] as const, `${actionPath}.target`),
+          attribute: parseStoreAttributeSelector(action.attribute, `${actionPath}.attribute`),
+          stage: requireEnum(
+            action.stage,
+            ['armedNonConverted', 'finalNonConverted'] as const,
+            `${actionPath}.stage`,
+          ),
+          useFloor: action.useFloor,
+          divisor: parseCatalogNumberOperand(action.divisor, `${actionPath}.divisor`),
+          multiplier: parseCatalogNumberOperand(action.multiplier, `${actionPath}.multiplier`),
+          base: parseCatalogNumberOperand(action.base, `${actionPath}.base`),
+          targetKey: requireNonEmptyString(action.targetKey, `${actionPath}.targetKey`),
+        };
+      }
       requireOnlyKeys(action, actionPath, ['kind']);
       if (action.kind === 'emitElementalInflictionStarted') return { kind: action.kind };
       if (action.kind === 'refreshAttributeModifierValues') return { kind: action.kind };
@@ -475,6 +543,29 @@ function parseOptionalPriority(
       ...(priority.negate === undefined ? {} : { negate: priority.negate }),
     },
   };
+}
+
+function parseStoreAttributeSelector(
+  input: unknown,
+  path: string,
+): CombatBuffCatalogAttributeSelector {
+  const selector = requireObject(input, path);
+  const kind = requireNonEmptyString(selector.kind, `${path}.kind`);
+  if (kind === 'specific') {
+    requireOnlyKeys(selector, path, ['kind', 'key']);
+    return { kind, key: requireNonEmptyString(selector.key, `${path}.key`) };
+  }
+  if (kind === 'main' || kind === 'secondary' || kind === 'all') {
+    requireOnlyKeys(selector, path, ['kind']);
+    return { kind };
+  }
+  throw new Error(`${path}.kind: unknown value '${kind}'`);
+}
+
+function parseCatalogNumberOperand(input: unknown, path: string): CombatBuffCatalogNumberOperand {
+  return typeof input === 'number' && Number.isFinite(input)
+    ? input
+    : parseBlackboardReference(input, path);
 }
 
 function parseBlackboardReference(input: unknown, path: string): { blackboardKey: string } {
@@ -597,6 +688,15 @@ function compileCatalogActionList<Key extends string>(
         return buff => modifyBuffBlackboard(buff, action);
       case 'refreshAttributeModifierValues':
         return buff => buff.refreshAttributeModifierValues();
+      case 'storeAttributeValue': {
+        const readAttribute = ports.readAttribute;
+        if (readAttribute === undefined) {
+          throw new Error(
+            `buff '${entry.id}' stores an attribute value without a readAttribute port`,
+          );
+        }
+        return buff => storeBuffAttributeValue(buff, action, readAttribute);
+      }
       case 'emitElementalInflictionStarted': {
         if (lifecycle !== 'afterEnhance') {
           throw new Error(
@@ -617,6 +717,27 @@ function compileCatalogActionList<Key extends string>(
       }
     }
   });
+}
+
+function storeBuffAttributeValue<Key extends string>(
+  buff: CombatBuff<Key>,
+  action: Extract<CombatBuffCatalogAction, { kind: 'storeAttributeValue' }>,
+  readAttribute: NonNullable<CombatBuffCatalogCompilerPorts<Key>['readAttribute']>,
+): void {
+  const attributeValue = readAttribute(
+    { target: action.target, attribute: action.attribute, stage: action.stage },
+    buff,
+  );
+  // 原生仅在 useFloor 分支读取除数；关闭取整时缺失的 divisor 黑板键不应影响执行。
+  const scaledAttribute = action.useFloor
+    ? Math.floor(attributeValue / resolveBuffBlackboardOperand(buff, action.divisor))
+    : attributeValue;
+  const result =
+    resolveBuffBlackboardOperand(buff, action.base) +
+    scaledAttribute * resolveBuffBlackboardOperand(buff, action.multiplier);
+  buff.blackboard.assignDynamic(action.targetKey, result);
+  // StoreAttributeValue 写入后会通知当前 Buff，使依赖该黑板键的属性修正立即重建。
+  buff.refreshAttributeModifierValues();
 }
 
 function modifyBuffBlackboard<Key extends string>(

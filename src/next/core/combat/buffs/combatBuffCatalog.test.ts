@@ -369,4 +369,142 @@ describe('compileCombatBuffCatalog', () => {
       }),
     ).toThrow("$.buffs[0].actions.start[0].operation: unknown value 'multiply'");
   });
+
+  it('stores a non-converted attribute value and immediately refreshes blackboard modifiers', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-store-attribute-value',
+      buffs: [
+        {
+          id: 'status.store-attribute',
+          stackingType: 'unique',
+          blackboard: { coefficient: 0.5, result: 0 },
+          attributeModifiers: [
+            {
+              attribute: 'attack',
+              slot: 'finalAddition',
+              value: { blackboardKey: 'result' },
+            },
+          ],
+          actions: {
+            start: [
+              {
+                kind: 'storeAttributeValue',
+                target: 'source',
+                attribute: { kind: 'specific', key: 'crystAbnormalDamageIncrease' },
+                stage: 'finalNonConverted',
+                useFloor: false,
+                // 原生非取整分支不会读取 divisor，用缺失键固定这条边界。
+                divisor: { blackboardKey: 'unusedDivisor' },
+                multiplier: { blackboardKey: 'coefficient' },
+                base: 2,
+                targetKey: 'result',
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const readAttribute = vi.fn(() => 20);
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+      readAttribute,
+    });
+    const definition = catalog.get('status.store-attribute');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('enemy', attributes);
+
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(readAttribute).toHaveBeenCalledWith(
+      {
+        target: 'source',
+        attribute: { kind: 'specific', key: 'crystAbnormalDamageIncrease' },
+        stage: 'finalNonConverted',
+      },
+      buff,
+    );
+    expect(buff.blackboard.getNumber('result')).toBe(12);
+    expect(attributes.get('attack')).toBe(112);
+  });
+
+  it('floors after division and before multiplying when StoreAttributeValue requests it', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-store-floored-attribute-value',
+      buffs: [
+        {
+          id: 'status.store-floored-attribute',
+          stackingType: 'unique',
+          blackboard: { divisor: 4, multiplier: 3, base: 1 },
+          actions: {
+            start: [
+              {
+                kind: 'storeAttributeValue',
+                target: 'source',
+                attribute: { kind: 'all' },
+                stage: 'armedNonConverted',
+                useFloor: true,
+                divisor: { blackboardKey: 'divisor' },
+                multiplier: { blackboardKey: 'multiplier' },
+                base: { blackboardKey: 'base' },
+                targetKey: 'result',
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+      readAttribute: () => 11,
+    });
+    const definition = catalog.get('status.store-floored-attribute');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+
+    const buff = requireAddedBuff(
+      new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>()).add(
+        definition,
+        'operator',
+      ),
+    );
+
+    expect(buff.blackboard.getNumber('result')).toBe(7);
+  });
+
+  it('fails during catalog compilation when StoreAttributeValue lacks its runtime port', () => {
+    const document = parseCombatBuffCatalogDocument({
+      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      revision: 'test-missing-store-attribute-port',
+      buffs: [
+        {
+          id: 'status.missing-port',
+          stackingType: 'unique',
+          actions: {
+            start: [
+              {
+                kind: 'storeAttributeValue',
+                target: 'source',
+                attribute: { kind: 'main' },
+                stage: 'finalNonConverted',
+                useFloor: false,
+                divisor: 1,
+                multiplier: 1,
+                base: 0,
+                targetKey: 'result',
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(() =>
+      compileCombatBuffCatalog<Attribute>(document, {
+        emitElementalInflictionStarted: vi.fn(),
+      }),
+    ).toThrow("buff 'status.missing-port' stores an attribute value without a readAttribute port");
+  });
 });
