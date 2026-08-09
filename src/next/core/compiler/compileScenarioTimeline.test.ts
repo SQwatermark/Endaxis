@@ -85,13 +85,33 @@ describe('compileScenarioTimeline', () => {
     expect(compileScenarioTimeline(scenario, catalog()).inputs).toEqual([]);
   });
 
-  it('fails closed when build upgrades are active', () => {
+  it('compiles an active ultimate-cost potential into the runtime program', () => {
     const scenario = createScenario();
     scenario.builds.operators.perlica!.potential = 1;
+    const operator = {
+      ...perlica,
+      potentials: [
+        {
+          key: 'reducedUltimateCost',
+          levels: 1,
+          modifiers: [
+            {
+              kind: 'multiplySkillCost' as const,
+              skillGroupKey: 'ultimate',
+              resource: 'ultimateEnergy' as const,
+              multiplier: 0.85,
+            },
+          ],
+        },
+      ],
+    };
 
-    expect(() => compileScenarioTimeline(scenario, catalog())).toThrow(
-      'upgrade compilation is not connected',
-    );
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+    const ultimate = compiled.operators[0]!.skills.find(skill => skill.skillId === 'ultimate');
+
+    expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 68 }]);
   });
 
   it('fails closed when one cast contains user overrides', () => {

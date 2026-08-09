@@ -8,6 +8,10 @@ import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import type { OperatorBuildDocument, ScenarioDocument, SkillCastDocument } from '../project/schema';
 import { compileSkill } from './compileSkill';
+import {
+  applyOperatorUpgradeSkillPatches,
+  resolveActiveOperatorUpgrades,
+} from './compileOperatorUpgrades';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 
 /** 场景时间轴进入运行时装配前的纯编译结果，不包含任何可变战斗状态。 */
@@ -29,21 +33,7 @@ function requireOperator(
   return operator;
 }
 
-function assertUpgradesAreNotActive(
-  build: OperatorBuildDocument,
-  operator: OperatorDefinition,
-): void {
-  if (build.potential !== 0) {
-    throw new Error(
-      `operator build '${build.id}' enables potential ${build.potential}, but upgrade compilation is not connected`,
-    );
-  }
-  const activeTalent = Object.entries(build.talentStates).find(([, level]) => level > 0);
-  if (activeTalent !== undefined) {
-    throw new Error(
-      `operator build '${build.id}' enables talent '${activeTalent[0]}', but upgrade compilation is not connected`,
-    );
-  }
+function assertOperatorEventsAreNotActive(operator: OperatorDefinition): void {
   if (operator.eventHandlers?.length) {
     throw new Error(
       `operator '${operator.slug}' has event handlers, but operator event compilation is not connected`,
@@ -71,7 +61,7 @@ function compileOperatorPrograms(
   build: OperatorBuildDocument,
   operator: OperatorDefinition,
 ): CombatOperatorProgram {
-  assertUpgradesAreNotActive(build, operator);
+  assertOperatorEventsAreNotActive(operator);
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
     const definitions = Array.isArray(group.skills) ? group.skills : [group.skills];
@@ -86,15 +76,20 @@ function compileOperatorPrograms(
       });
     });
   });
-  const duplicateSkillId = skills.find(
-    (skill, index) => skills.findIndex(candidate => candidate.skillId === skill.skillId) !== index,
+  const patchedSkills = applyOperatorUpgradeSkillPatches(
+    skills,
+    resolveActiveOperatorUpgrades(build, operator),
+  );
+  const duplicateSkillId = patchedSkills.find(
+    (skill, index) =>
+      patchedSkills.findIndex(candidate => candidate.skillId === skill.skillId) !== index,
   );
   if (duplicateSkillId !== undefined) {
     throw new Error(
       `operator '${operator.slug}' has duplicate runtime skill id '${duplicateSkillId.skillId}'`,
     );
   }
-  return { operatorId: build.id, skills };
+  return { operatorId: build.id, skills: patchedSkills };
 }
 
 function assertCastUsesCatalogDefaults(cast: SkillCastDocument): void {

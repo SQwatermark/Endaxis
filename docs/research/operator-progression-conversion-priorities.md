@@ -69,3 +69,14 @@ Next 虽然声明了 `multiplySkillCost`，现有生成产物也已经出现该�
 - `src/next/core/game-data/operatorDefinition.ts`：Next Upgrade modifier 定义；
 - `src/next/core/compiler/resolveOperatorPanel.ts`：当前实际消费的养成 modifier 范围；
 - `operator-progression-runtime-closure-gaps.md`：两个静态属性缺口的方向和生命周期说明。
+
+## 运行时闭环进展
+
+`multiplySkillCost` 已接入统一养成编译阶段：
+
+1. `resolveActiveOperatorUpgrades` 统一解析当前构筑启用的天赋和潜能，并保持天赋声明顺序、潜能解锁顺序；
+2. `applyOperatorUpgradeSkillPatches` 在技能等级值展开后、运行时装配前，按上述顺序不可变地修正同一技能组的全部技能分支；
+3. `multiplySkillCost` 会按资源类型修改 `CompiledSkillProgram.costs`，运行时扣费无需再次解释养成 DSL；
+4. 目标技能组、目标资源或倍率非法时直接报错，尚未接入的技能类 modifier 也继续严格失败，不会静默产生近似结果。
+
+这解决了本页此前记录的运行时阻挡项，但不等于 26 名干员已经全部生成该配置。批量开放转换前仍需让生成审计把已确认的候选从 `report-only` 切换为实际输出，并验证生成产物不会同时启用尚未闭环的前置潜能效果。

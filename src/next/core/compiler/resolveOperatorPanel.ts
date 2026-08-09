@@ -7,7 +7,6 @@
 import type { EquipmentPanelStat } from '../game-data/equipmentDefinition';
 import type {
   OperatorAttribute,
-  OperatorUpgradeDefinition,
   TrustAttributeBonusDefinition,
   UpgradeBasePanelStat,
   UpgradeModifierDefinition,
@@ -19,6 +18,7 @@ import type {
   EquipmentContributionSource,
   ResolvedEquipmentModifier,
 } from './compileEquipment';
+import { resolveActiveOperatorUpgrades } from './compileOperatorUpgrades';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 
@@ -173,39 +173,6 @@ function maxTrustLevel(build: OperatorBuildDocument): number {
   if (build.level >= 40) return build.promoted ? 2 : 1;
   if (build.level >= 20) return build.promoted ? 1 : 0;
   return 0;
-}
-
-function selectedPotentialUpgrades(
-  potential: number,
-  definitions: readonly OperatorUpgradeDefinition[],
-): readonly OperatorUpgradeDefinition[] {
-  const totalLevels = definitions.reduce((sum, definition) => sum + definition.levels, 0);
-  if (!Number.isInteger(potential) || potential < 0 || potential > totalLevels) {
-    throw new RangeError(`operator potential must be an integer between 0 and ${totalLevels}`);
-  }
-  const selected: OperatorUpgradeDefinition[] = [];
-  let remaining = potential;
-  for (const definition of definitions) {
-    if (remaining <= 0) break;
-    selected.push(definition);
-    remaining -= definition.levels;
-  }
-  return selected;
-}
-
-function selectedTalentUpgrades(
-  build: OperatorBuildDocument,
-  definitions: readonly OperatorUpgradeDefinition[],
-): readonly OperatorUpgradeDefinition[] {
-  return definitions.filter((definition, index) => {
-    const level = build.talentStates[String(index)] ?? 0;
-    if (!Number.isInteger(level) || level < 0 || level > definition.levels) {
-      throw new RangeError(
-        `operator talent '${definition.key}' must be an integer between 0 and ${definition.levels}`,
-      );
-    }
-    return level > 0;
-  });
 }
 
 function applyUpgradeModifier(
@@ -378,12 +345,9 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     }
   }
 
-  for (const upgrade of [
-    ...selectedTalentUpgrades(build.operatorBuild, build.operator.talents),
-    ...selectedPotentialUpgrades(build.operatorBuild.potential, build.operator.potentials),
-  ]) {
-    const source = { kind: 'operatorUpgrade', upgradeKey: upgrade.key } as const;
-    for (const modifier of upgrade.modifiers ?? []) {
+  for (const upgrade of resolveActiveOperatorUpgrades(build.operatorBuild, build.operator)) {
+    const source = { kind: 'operatorUpgrade', upgradeKey: upgrade.definition.key } as const;
+    for (const modifier of upgrade.definition.modifiers ?? []) {
       applyUpgradeModifier(modifier, source, values, receipt, combatModifiers);
     }
   }
