@@ -38,6 +38,9 @@ export interface CombatOperatorProgram {
   readonly actionRuntime?: FrameRuntime;
 }
 
+/** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
+export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {}
+
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
@@ -49,7 +52,7 @@ export interface CombatOperationExecutorContext {
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
-  readonly enemyBuffs: BuffOperationTarget;
+  readonly enemyBuffRuntime: EnemyBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
@@ -81,7 +84,7 @@ export class CombatRuntimeAssembly {
   readonly receipt: CombatReceiptCollector;
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
-  readonly #enemyBuffs: BuffOperationTarget;
+  readonly #enemyBuffRuntime: EnemyBuffRuntime;
   readonly #operatorBuffs = new Map<string, BuffOperationTarget>();
   readonly #operatorOrder: string[] = [];
   readonly #enemyStatuses?: CombatStatusRuntime;
@@ -93,7 +96,10 @@ export class CombatRuntimeAssembly {
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
-    this.#enemyBuffs = options.enemyBuffs;
+    if (options.enemyBuffRuntime.ownerId !== 'enemy') {
+      throw new Error(`enemy Buff runtime owner must be 'enemy'`);
+    }
+    this.#enemyBuffRuntime = options.enemyBuffRuntime;
     this.#enemyStatuses =
       options.enemyStatusContainer === undefined
         ? undefined
@@ -149,6 +155,8 @@ export class CombatRuntimeAssembly {
     }
 
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
+    // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
+    this.simulation.add(this.#enemyBuffRuntime);
     // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
     if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
     for (const operator of options.operators) {
@@ -295,7 +303,7 @@ export class CombatRuntimeAssembly {
   }
 
   #resolveBuffTarget(target: CombatTarget, operatorId: string): BuffOperationTarget {
-    if (target === 'enemy') return this.#enemyBuffs;
+    if (target === 'enemy') return this.#enemyBuffRuntime;
     const casterBuffs = this.#operatorBuffs.get(operatorId);
     if (casterBuffs === undefined) {
       throw new Error(`combat operator '${operatorId}' has no Buff operation target`);

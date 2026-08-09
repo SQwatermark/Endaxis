@@ -9,8 +9,9 @@ import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 
-const emptyEnemyBuffs = {
+const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
+  advanceFrame: () => undefined,
   getCountByIds: () => 0,
   finishByIds: () => 0,
   holdByIds: () => ({ release: () => undefined }),
@@ -30,7 +31,7 @@ function asBuffRuntime(container: CombatBuffContainer<string>) {
   return {
     ownerId: container.ownerId,
     entityBlackboard: container.entityBlackboard,
-    advanceFrame: () => undefined,
+    advanceFrame: () => container.tick(1 / 30),
     getCountByIds: (ids: readonly string[]) => container.getCountByIds(ids),
     findFirstByIds: (ids: readonly string[]) => container.findFirstByIds(ids),
     finishByIds: (ids: readonly string[], reason: 'early' | 'absorbed' | 'other') =>
@@ -67,6 +68,9 @@ function createAssembly(
   programs: readonly CompiledSkillProgram[],
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
   resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
+  enemyBuffRuntime: ConstructorParameters<
+    typeof CombatRuntimeAssembly
+  >[0]['enemyBuffRuntime'] = emptyEnemyBuffRuntime,
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     resources: {
@@ -87,7 +91,7 @@ function createAssembly(
         },
       ],
     },
-    enemyBuffs: emptyEnemyBuffs,
+    enemyBuffRuntime,
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
@@ -96,6 +100,26 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('advances the enemy Buff runtime once per combat frame', () => {
+    const advanceFrame = vi.fn();
+    const assembly = createAssembly([], undefined, undefined, {
+      ...emptyEnemyBuffRuntime,
+      advanceFrame,
+    });
+
+    assembly.advanceFrames(3);
+    expect(advanceFrame).toHaveBeenCalledTimes(3);
+  });
+
+  it('rejects an enemy Buff runtime with a mismatched owner', () => {
+    expect(() =>
+      createAssembly([], undefined, undefined, {
+        ...emptyEnemyBuffRuntime,
+        ownerId: 'operator',
+      }),
+    ).toThrow("enemy Buff runtime owner must be 'enemy'");
+  });
+
   it('evaluates health conditions against the current combat vitals', () => {
     const enemyVitals = new CombatVitals({
       health: 400,
@@ -194,7 +218,7 @@ describe('CombatRuntimeAssembly', () => {
         normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
         squad: [],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [
         {
           operatorId: 'operator',
@@ -353,6 +377,7 @@ describe('CombatRuntimeAssembly', () => {
       {
         id: 'conduct',
         stackingType: 'unlimited',
+        durationSeconds: 1 / 30,
         applyTags: [gameplayTagIdFromPath(path)],
         blackboard: { count: 4 },
       },
@@ -408,7 +433,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs,
+      enemyBuffRuntime: asBuffRuntime(enemyBuffs),
       operators: [{ operatorId: 'operator', skills: [program] }],
       createOperationExecutor: () => ({
         execute: (_step, context) => {
@@ -421,6 +446,8 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(observedValue).toBe(4);
+    assembly.advanceFrame();
+    expect(enemyBuffs.getCountById('conduct')).toBe(0);
   });
 
   it('evaluates action blackboard comparisons inside the assembled executor chain', () => {
@@ -477,7 +504,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [{ operatorId: 'operator', skills: [program] }],
       createOperationExecutor: () => ({
         execute: step => {
@@ -569,7 +596,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [{ operatorId: 'operator', skills: [writer, reader] }],
       createOperationExecutor: () => ({
         execute: step => {
@@ -641,7 +668,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [
         { operatorId: 'operator', skills: [reader], buffRuntime: asBuffRuntime(casterBuffs) },
       ],
@@ -720,7 +747,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [
         {
           operatorId: 'operator-a',
@@ -799,7 +826,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [
         { operatorId: 'operator', skills: [program], buffRuntime: asBuffRuntime(casterBuffs) },
       ],
@@ -831,7 +858,7 @@ describe('CombatRuntimeAssembly', () => {
           },
         ],
       },
-      enemyBuffs: emptyEnemyBuffs,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
       operators: [{ operatorId: 'operator', skills: [program] }],
       inputs: [{ frame: 1, operatorId: 'operator', skillId: 'skill' }],
       createOperationExecutor: () => rejectingExecutor,

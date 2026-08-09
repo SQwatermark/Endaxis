@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { BuffOperationTarget } from '../combat/runtime/buffOperationExecutor';
-import { CombatRuntimeAssembly } from '../combat/runtime/combatRuntimeAssembly';
+import {
+  CombatRuntimeAssembly,
+  type EnemyBuffRuntime,
+} from '../combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
@@ -38,9 +40,10 @@ function createScenario(): ScenarioDocument {
   return scenario;
 }
 
-function enemyBuffs(): BuffOperationTarget {
+function enemyBuffRuntime(): EnemyBuffRuntime {
   return {
     ownerId: 'enemy',
+    advanceFrame: () => undefined,
     getCountByIds: () => 0,
     findFirstByIds: () => undefined,
     finishByIds: () => 0,
@@ -79,7 +82,7 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       ]),
     },
     environment: {
-      enemyBuffs: enemyBuffs(),
+      enemyBuffRuntime: enemyBuffRuntime(),
       createOperationExecutor: () => operationExecutor(),
     },
   };
@@ -99,7 +102,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('perlica');
     expect(compiled.inputs).toEqual([]);
-    expect(compiled.enemyBuffs).toBe(settings.environment.enemyBuffs);
+    expect(compiled.enemyBuffRuntime).toBe(settings.environment.enemyBuffRuntime);
     expect(compiled.createOperationExecutor).toBe(settings.environment.createOperationExecutor);
     expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
   });

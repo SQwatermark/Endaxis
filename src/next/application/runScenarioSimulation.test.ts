@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { BuffOperationTarget } from '../core/combat/runtime/buffOperationExecutor';
+import type { EnemyBuffRuntime } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../core/combat/runtime/skillRuntime';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import { createEmptyScenario } from '../core/project/createProject';
@@ -19,9 +19,10 @@ function createScenario(): ScenarioDocument {
   return scenario;
 }
 
-function enemyBuffs(): BuffOperationTarget {
+function enemyBuffRuntime(): EnemyBuffRuntime {
   return {
     ownerId: 'enemy',
+    advanceFrame: () => undefined,
     getCountByIds: () => 0,
     findFirstByIds: () => undefined,
     finishByIds: () => 0,
@@ -51,7 +52,7 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       operators: new Map(),
     },
     environment: {
-      enemyBuffs: enemyBuffs(),
+      enemyBuffRuntime: enemyBuffRuntime(),
       createOperationExecutor: () => operationExecutor(),
     },
   };
