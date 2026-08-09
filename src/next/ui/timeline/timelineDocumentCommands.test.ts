@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { SkillCastDocument } from '../../core/project/schema';
-import { moveSkillCast, updateSkillCastBasicField } from './timelineDocumentCommands';
+import {
+  moveSkillCast,
+  removeSkillCast,
+  updateSkillCastBasicField,
+  updateSkillCastBooleanField,
+} from './timelineDocumentCommands';
 
 function cast(locked = false): SkillCastDocument {
   return {
@@ -70,5 +75,63 @@ describe('moveSkillCast', () => {
         frames: -1,
       }),
     ).toThrow('enhancement.frames');
+  });
+
+  it('updates lock and disabled states without mutating the source', () => {
+    const original = scenario();
+    const locked = updateSkillCastBooleanField(original, 0, 'cast:1', 'locked', true);
+    const disabled = updateSkillCastBooleanField(locked, 0, 'cast:1', 'disabled', true);
+
+    expect(original.tracks[0]!.skillCasts[0]!.editable).toMatchObject({
+      locked: false,
+      disabled: false,
+    });
+    expect(disabled.tracks[0]!.skillCasts[0]!.editable).toMatchObject({
+      locked: true,
+      disabled: true,
+    });
+    expect(disabled.tracks[0]!.skillCasts[0]!.edited).toEqual(['locked', 'disabled']);
+  });
+
+  it('removes the cast and every connection that points to it', () => {
+    const original = scenario();
+    original.connections = [
+      {
+        id: 'connection:1',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:1' },
+        to: { kind: 'damageHit', skillCastId: 'cast:2', hitId: 'hit:1' },
+      },
+      {
+        id: 'connection:2',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:2' },
+        to: { kind: 'skillCast', skillCastId: 'cast:3' },
+      },
+    ];
+
+    const removed = removeSkillCast(original, 0, 'cast:1');
+    expect(removed.tracks[0]!.skillCasts).toEqual([]);
+    expect(removed.connections.map(connection => connection.id)).toEqual(['connection:2']);
+    expect(original.tracks[0]!.skillCasts).toHaveLength(1);
+  });
+
+  it('renumbers a remaining placement group and unwraps its last member', () => {
+    const original = scenario();
+    const grouped = [0, 1, 2].map(index => ({
+      ...cast(),
+      id: `cast:${index + 1}`,
+      placementGroup: { id: 'group:1', skillGroupKey: 'basicAttack', index, total: 3 },
+    }));
+    original.tracks[0]!.skillCasts = grouped;
+
+    const twoMembers = removeSkillCast(original, 0, 'cast:2');
+    expect(twoMembers.tracks[0]!.skillCasts.map(value => value.placementGroup)).toEqual([
+      { id: 'group:1', skillGroupKey: 'basicAttack', index: 0, total: 2 },
+      { id: 'group:1', skillGroupKey: 'basicAttack', index: 1, total: 2 },
+    ]);
+
+    const oneMember = removeSkillCast(twoMembers, 0, 'cast:1');
+    expect(oneMember.tracks[0]!.skillCasts[0]!.placementGroup).toBeUndefined();
   });
 });

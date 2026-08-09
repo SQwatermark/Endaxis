@@ -22,6 +22,7 @@ const props = defineProps<{
 defineEmits<{
   select: [];
   dragstart: [event: DragEvent];
+  contextmenu: [event: MouseEvent];
 }>();
 
 const blockStyle = computed(() => ({
@@ -45,6 +46,7 @@ const blockStyle = computed(() => ({
     :title="label"
     :draggable="!locked"
     @click.stop="$emit('select')"
+    @contextmenu.prevent.stop="$emit('contextmenu', $event)"
     @dragstart="$emit('dragstart', $event)"
   >
     <span class="action-label">{{ label }}</span>

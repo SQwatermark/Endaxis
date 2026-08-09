@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
+import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -19,7 +20,9 @@ import {
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
 import {
   moveSkillCast,
+  removeSkillCast,
   updateSkillCastBasicField,
+  updateSkillCastBooleanField,
   type BasicEditableSkillCastField,
 } from './timelineDocumentCommands';
 
@@ -33,6 +36,12 @@ type TimelineDragPayload =
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
+const contextMenuTarget = ref<{
+  x: number;
+  y: number;
+  trackIndex: TrackIndex;
+  skillCastId: string;
+} | null>(null);
 
 function createSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
@@ -260,6 +269,38 @@ function resetScenario(): void {
   selectedCastId.value = null;
   cursorFrame.value = 30;
   nextDocumentId = 0;
+  contextMenuTarget.value = null;
+}
+
+function openCastContextMenu(event: MouseEvent, trackIndex: TrackIndex, skillCastId: string): void {
+  selectedTrack.value = trackIndex;
+  selectedCastId.value = skillCastId;
+  contextMenuTarget.value = { x: event.clientX, y: event.clientY, trackIndex, skillCastId };
+}
+
+function toggleContextCastField(field: 'locked' | 'disabled'): void {
+  const target = contextMenuTarget.value;
+  if (target === null) return;
+  const cast = scenario.value.tracks[target.trackIndex]?.skillCasts.find(
+    candidate => candidate.id === target.skillCastId,
+  );
+  if (cast === undefined) return;
+  scenario.value = updateSkillCastBooleanField(
+    scenario.value,
+    target.trackIndex,
+    target.skillCastId,
+    field,
+    !cast.editable[field],
+  );
+  contextMenuTarget.value = null;
+}
+
+function deleteContextCast(): void {
+  const target = contextMenuTarget.value;
+  if (target === null) return;
+  scenario.value = removeSkillCast(scenario.value, target.trackIndex, target.skillCastId);
+  if (selectedCastId.value === target.skillCastId) selectedCastId.value = null;
+  contextMenuTarget.value = null;
 }
 
 function updateSelectedCast(
@@ -413,6 +454,7 @@ function updateSelectedCast(
                   selectedCastId = cast.id;
                 "
                 @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
+                @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />
             </div>
           </div>
@@ -434,6 +476,18 @@ function updateSelectedCast(
       <div v-else class="empty-panel">{{ tool }}</div>
     </template>
   </TimelineWorkbenchShell>
+  <TimelineActionContextMenu
+    :visible="contextMenuTarget !== null"
+    :x="contextMenuTarget?.x ?? 0"
+    :y="contextMenuTarget?.y ?? 0"
+    :label="selectedCastModel?.label ?? ''"
+    :locked="selectedCastModel?.cast.editable.locked ?? false"
+    :disabled="selectedCastModel?.cast.editable.disabled ?? false"
+    @close="contextMenuTarget = null"
+    @delete="deleteContextCast"
+    @toggle-lock="toggleContextCastField('locked')"
+    @toggle-disabled="toggleContextCastField('disabled')"
+  />
 </template>
 
 <style scoped>

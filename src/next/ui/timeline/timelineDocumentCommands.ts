@@ -14,6 +14,8 @@ export type BasicEditableSkillCastField =
   | 'ultimateEnergyCost'
   | 'enhancement';
 
+export type BooleanEditableSkillCastField = 'locked' | 'disabled';
+
 function locateSkillCast(scenario: ScenarioDocument, trackIndex: TrackIndex, skillCastId: string) {
   const track = scenario.tracks[trackIndex];
   if (track === null) throw new Error(`track ${trackIndex} is empty`);
@@ -85,4 +87,69 @@ export function updateSkillCastBasicField<K extends BasicEditableSkillCastField>
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };
+}
+
+/** 更新动作块的编辑状态，并记录该字段已经由用户接管。 */
+export function updateSkillCastBooleanField(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  field: BooleanEditableSkillCastField,
+  value: boolean,
+): ScenarioDocument {
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  if (cast.editable[field] === value) return scenario;
+
+  const skillCasts = [...track.skillCasts];
+  skillCasts[castIndex] = {
+    ...cast,
+    editable: { ...cast.editable, [field]: value },
+    edited: cast.edited.includes(field) ? cast.edited : [...cast.edited, field],
+  };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
+/**
+ * 删除动作块及其连线，并把同一放置组的剩余动作重新编号。
+ * 单独剩下的动作不再属于序列组，避免持久化无意义的组身份。
+ */
+export function removeSkillCast(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+): ScenarioDocument {
+  const { track, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  const remaining = track.skillCasts.filter(candidate => candidate.id !== skillCastId);
+  const groupId = cast.placementGroup?.id;
+  let skillCasts = remaining;
+
+  if (groupId !== undefined) {
+    const groupMembers = remaining.filter(candidate => candidate.placementGroup?.id === groupId);
+    skillCasts = remaining.map(candidate => {
+      const groupIndex = groupMembers.findIndex(member => member.id === candidate.id);
+      if (groupIndex < 0) return candidate;
+      if (groupMembers.length === 1) {
+        const { placementGroup: _placementGroup, ...ungrouped } = candidate;
+        return ungrouped;
+      }
+      return {
+        ...candidate,
+        placementGroup: {
+          ...candidate.placementGroup!,
+          index: groupIndex,
+          total: groupMembers.length,
+        },
+      };
+    });
+  }
+
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  const connections = scenario.connections.filter(
+    connection =>
+      connection.from.skillCastId !== skillCastId && connection.to.skillCastId !== skillCastId,
+  );
+  return { ...scenario, tracks, connections };
 }
