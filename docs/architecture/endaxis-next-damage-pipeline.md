@@ -74,6 +74,8 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `resolveStaticPlayerDamageSnapshots` 是场景构筑进入上述执行器的静态边界。它从同一份 `ResolvedOperatorPanel` 读取攻击力、暴击率和暴击伤害，从 `CombatEnemyProgram` 读取防御、抗性与处决承伤倍率，并按当前伤害类型和技能类型筛选构筑期 `damageBonus`。该函数必须逐个伤害步骤调用；它不缓存命中时状态，也不替代 Buff、瞬时属性、目标状态、事件或暴击采样。
 
+`StandardPlayerDamageEnvironment` 提供当前可以诚实贯通的场景级标准生命伤害子集。每个实例独占敌人生命账本、攻击方/防御方伤害修正容器，以及按实体身份隔离的 Ability 事件中心；运行时快照由调用方显式提供。失衡、元素附着、瞬时属性和未知操作都会明确失败，不能用空回调或单位值把这条子链冒充为完整战斗环境。同一实例在绑定首个敌人后不得跨场景复用。
+
 元素附着只接受灼热、电磁、寒冷和自然四种类型。`resolveElementalInfliction` 已复刻无附着、同类附着和异类附着三条分支；`ElementalInflictionOperationExecutor` 按“攻击方 Before -> 目标方 Before -> 查询当前附着 -> 顺序应用操作 -> 攻击方 After -> 目标方 After”执行。核心输出语义操作，不保存原生 Buff ID。
 
 `ElementalInflictionBuffAdapter` 已把查询与写入端口接到通用 Buff 容器：它按容器顺序找到首个未结束的附着实例，同类分支先创建爆发 Buff 再增强附着，异类分支核对投影实例后以 `ignite` 结束旧附着，并将原生元素枚举值与消耗层数写入状态 Buff 黑板。具体 Buff ID 和定义解析留在可替换目录接口中，不泄漏到战斗核心。

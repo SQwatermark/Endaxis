@@ -21,6 +21,7 @@ export * from './combat/runtime/combatVitalsRuntime';
 export * from './combat/runtime/periodicTimer';
 export * from './combat/runtime/playerDamageOperationExecutor';
 export * from './combat/runtime/playerActiveOperationExecutor';
+export * from './combat/runtime/standardPlayerDamageEnvironment';
 export * from './combat/runtime/elementalInflictionOperationExecutor';
 export * from './combat/runtime/operatorControlConditionExecutor';
 export * from './combat/runtime/operatorControlTimeline';
