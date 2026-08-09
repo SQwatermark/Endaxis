@@ -12,8 +12,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { CombatVitals } from './combatVitals';
-import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
-import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import { createPlayerActiveOperationExecutor } from './playerActiveOperationExecutor';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 
@@ -64,96 +63,94 @@ describe('Perlica standard damage slice', () => {
       },
       evaluate: () => false,
     };
-    const damageOperations = new PlayerDamageOperationExecutor({
-      sourceOperatorId: 'perlica',
-      targetId: 'enemy',
-      targetVitals,
-      clock,
-      receipt,
-      captureAttributeSnapshots: () => ({
-        attacker: {
-          ...(Object.fromEntries(
-            DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
-          ) as unknown as DamageScaleAttributeSnapshot),
-          attack: 100,
-          criticalRate: 0,
-          criticalDamageIncrease: 0.5,
-          weaknessDamageMultiplier: 1,
-          igniteDamageMultiplier: 1,
-          physicalInflictionDamageMultiplier: 1,
-        },
-        defender: {
-          ...(Object.fromEntries(
-            DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
-          ) as unknown as DamageScaleAttributeSnapshot),
-          defense: 0,
-          shelterDamageMultiplier: 0,
-          breakingAttackDamageTakenMultiplier: 1,
-          resistances: {
-            physical: { percent: 0, damageTakenMultiplier: 1 },
-            heat: { percent: 0, damageTakenMultiplier: 1 },
-            electric: { percent: 0, damageTakenMultiplier: 1 },
-            cryo: { percent: 0, damageTakenMultiplier: 1 },
-            nature: { percent: 0, damageTakenMultiplier: 1 },
-            ether: { percent: 0, damageTakenMultiplier: 1 },
-          },
-        },
-      }),
-      resolveRuntimeSnapshot: () => ({
-        criticalSample: 1,
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: false,
-        appliesPhysicalInflictionDamageMultiplier: false,
-      }),
-      applyDamageModifiers: () => undefined,
-      addInstantAttributeModifier: () => undefined,
-      clearInstantAttributeModifiers: () => undefined,
-      emitPreparationEvent: () => undefined,
-      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
-      emitHealthSourceEvent: () => undefined,
-      emitHealthTargetEvent: () => undefined,
-      emitPoiseSourceEvent: () => undefined,
-      emitPoiseTargetEvent: () => undefined,
-      delegate: unresolvedOperations,
+    const program = compileSkill({
+      operatorId: 'perlica',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 12,
+      skill: findPerlicaBattleSkill(),
     });
     let attachment: ExistingElementalAttachment | null = null;
-    const inflictionOperations = new ElementalInflictionOperationExecutor({
-      sourceOperatorId: 'perlica',
+    const operations = createPlayerActiveOperationExecutor({
+      context: { program, clock, resources, receipt },
       targetId: 'enemy',
-      skillId: 'battleSkill',
-      clock,
-      receipt,
-      getExistingAttachment: () => attachment,
-      applyOperation: operation => {
-        if (operation.kind !== 'addAttachment') {
-          throw new Error(`unexpected first-infliction operation '${operation.kind}'`);
-        }
-        attachment = { element: operation.element, layers: 1 };
+      targetVitals,
+      delegate: unresolvedOperations,
+      damage: {
+        captureAttributeSnapshots: () => ({
+          attacker: {
+            ...(Object.fromEntries(
+              DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+            ) as unknown as DamageScaleAttributeSnapshot),
+            attack: 100,
+            criticalRate: 0,
+            criticalDamageIncrease: 0.5,
+            weaknessDamageMultiplier: 1,
+            igniteDamageMultiplier: 1,
+            physicalInflictionDamageMultiplier: 1,
+          },
+          defender: {
+            ...(Object.fromEntries(
+              DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+            ) as unknown as DamageScaleAttributeSnapshot),
+            defense: 0,
+            shelterDamageMultiplier: 0,
+            breakingAttackDamageTakenMultiplier: 1,
+            resistances: {
+              physical: { percent: 0, damageTakenMultiplier: 1 },
+              heat: { percent: 0, damageTakenMultiplier: 1 },
+              electric: { percent: 0, damageTakenMultiplier: 1 },
+              cryo: { percent: 0, damageTakenMultiplier: 1 },
+              nature: { percent: 0, damageTakenMultiplier: 1 },
+              ether: { percent: 0, damageTakenMultiplier: 1 },
+            },
+          },
+        }),
+        resolveRuntimeSnapshot: () => ({
+          criticalSample: 1,
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        applyDamageModifiers: () => undefined,
+        addInstantAttributeModifier: () => undefined,
+        clearInstantAttributeModifiers: () => undefined,
+        emitPreparationEvent: () => undefined,
+        resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+        emitHealthSourceEvent: () => undefined,
+        emitHealthTargetEvent: () => undefined,
+        emitPoiseSourceEvent: () => undefined,
+        emitPoiseTargetEvent: () => undefined,
       },
-      emitSourceEvent: () => undefined,
-      emitTargetEvent: () => undefined,
-      delegate: damageOperations,
+      infliction: {
+        getExistingAttachment: () => attachment,
+        applyOperation: operation => {
+          if (operation.kind !== 'addAttachment') {
+            throw new Error(`unexpected first-infliction operation '${operation.kind}'`);
+          }
+          attachment = { element: operation.element, layers: 1 };
+        },
+        emitSourceEvent: () => undefined,
+        emitTargetEvent: () => undefined,
+      },
     });
     let runtime: SkillRuntime;
-    const operations = new SkillResourceOperationExecutor({
+    const resourceOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
       skillId: 'battleSkill',
       clock,
       resources,
       receipt,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
-      delegate: inflictionOperations,
+      delegate: operations,
     });
-    runtime = new SkillRuntime(
-      compileSkill({
-        operatorId: 'perlica',
-        skillGroupKey: 'battleSkill',
-        skillType: 'battleSkill',
-        skillLevel: 12,
-        skill: findPerlicaBattleSkill(),
-      }),
-      { clock, resources, receipt, operations, allocateSkillCastId: () => 1 },
-    );
+    runtime = new SkillRuntime(program, {
+      clock,
+      resources,
+      receipt,
+      operations: resourceOperations,
+      allocateSkillCastId: () => 1,
+    });
     const simulation = new CombatSimulation(clock);
     simulation.add(runtime);
 
