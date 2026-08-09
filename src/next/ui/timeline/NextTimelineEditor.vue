@@ -64,6 +64,7 @@ import {
 import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { basicAttackSegmentLabel } from './timelineSkillLabels';
 import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
+import { useTimelineViewportPan } from './useTimelineViewportPan';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -73,6 +74,7 @@ const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineA
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
 const timelineSurface = ref<HTMLElement | null>(null);
+const timelineScroll = ref<HTMLElement | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number }
@@ -354,6 +356,11 @@ const { marqueeStyle, beginMarqueeGesture, consumeLaneClickSuppression } =
     getSelection: () => actionSelection.value,
     applySelection: applyActionSelection,
   });
+const { isPanning, beginViewportPan } = useTimelineViewportPan({ viewport: timelineScroll });
+
+function handleTimelineLanePointerDown(event: PointerEvent): void {
+  if (!beginViewportPan(event)) beginMarqueeGesture(event);
+}
 
 function handleTimelineLaneClick(event: MouseEvent): void {
   if (consumeLaneClickSuppression()) return;
@@ -755,7 +762,7 @@ function setPanelDialogVisible(visible: boolean): void {
     </template>
 
     <div class="timeline-workspace">
-      <div class="timeline-scroll">
+      <div ref="timelineScroll" class="timeline-scroll" :class="{ 'is-panning': isPanning }">
         <div
           ref="timelineSurface"
           class="timeline-surface"
@@ -830,7 +837,7 @@ function setPanelDialogVisible(visible: boolean): void {
             <div
               class="track-lane"
               :style="{ width: `${timelineWidth}px` }"
-              @pointerdown="beginMarqueeGesture"
+              @pointerdown="handleTimelineLanePointerDown"
               @click="handleTimelineLaneClick"
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
@@ -1071,6 +1078,11 @@ button:disabled {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.timeline-scroll.is-panning {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .timeline-surface {
