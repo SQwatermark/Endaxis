@@ -9,6 +9,7 @@ import { computed } from 'vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
 
 const props = defineProps<{
+  actionId: string;
   label: string;
   skillType: SkillType | null;
   left: number;
@@ -36,6 +37,7 @@ const blockStyle = computed(() => ({
   <button
     type="button"
     class="timeline-action-block"
+    :data-timeline-action-id="actionId"
     :class="{
       'is-selected': selected,
       'is-disabled': disabled,

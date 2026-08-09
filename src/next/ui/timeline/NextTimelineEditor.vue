@@ -63,6 +63,7 @@ import {
 } from './timelineDocumentCommands';
 import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { basicAttackSegmentLabel } from './timelineSkillLabels';
+import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const pxPerFrame = 2;
@@ -71,6 +72,7 @@ const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
+const timelineSurface = ref<HTMLElement | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
   | { kind: 'skillCast'; trackIndex: TrackIndex; skillCastId: string; pointerOffsetFrames: number }
@@ -117,7 +119,9 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   canRedo.value = scenarioSession.canRedo;
   applyActionSelection(reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario));
 });
-onScopeDispose(unsubscribeScenarioSession);
+onScopeDispose(() => {
+  unsubscribeScenarioSession();
+});
 
 function commitScenario(
   commandName: string,
@@ -342,6 +346,18 @@ function selectTimelinePosition(event: MouseEvent): void {
     ),
   );
   clearTimelineSelection();
+}
+
+const { marqueeStyle, beginMarqueeGesture, consumeLaneClickSuppression } =
+  useTimelineMarqueeGesture({
+    surface: timelineSurface,
+    getSelection: () => actionSelection.value,
+    applySelection: applyActionSelection,
+  });
+
+function handleTimelineLaneClick(event: MouseEvent): void {
+  if (consumeLaneClickSuppression()) return;
+  selectTimelinePosition(event);
 }
 
 function placeGroup(
@@ -740,7 +756,11 @@ function setPanelDialogVisible(visible: boolean): void {
 
     <div class="timeline-workspace">
       <div class="timeline-scroll">
-        <div class="timeline-surface" :style="{ width: `${180 + timelineWidth}px` }">
+        <div
+          ref="timelineSurface"
+          class="timeline-surface"
+          :style="{ width: `${180 + timelineWidth}px` }"
+        >
           <div class="corner-placeholder">
             <TimelineCornerToolbar
               :labels="{
@@ -810,7 +830,8 @@ function setPanelDialogVisible(visible: boolean): void {
             <div
               class="track-lane"
               :style="{ width: `${timelineWidth}px` }"
-              @click="selectTimelinePosition($event)"
+              @pointerdown="beginMarqueeGesture"
+              @click="handleTimelineLaneClick"
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
@@ -826,6 +847,7 @@ function setPanelDialogVisible(visible: boolean): void {
               <TimelineActionBlock
                 v-for="cast in track.skillCasts"
                 :key="cast.id"
+                :action-id="cast.id"
                 :label="timelineCastLabel(cast, track)"
                 :skill-type="cast.skillType"
                 :left="frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)"
@@ -843,6 +865,7 @@ function setPanelDialogVisible(visible: boolean): void {
         </div>
       </div>
     </div>
+    <div v-if="marqueeStyle" class="timeline-marquee" :style="marqueeStyle"></div>
 
     <template #bottom="{ tool }"
       ><div class="empty-panel">{{ tool }}</div></template
@@ -1033,6 +1056,15 @@ button:disabled {
 .timeline-workspace {
   width: 100%;
   height: 100%;
+}
+
+.timeline-marquee {
+  position: fixed;
+  z-index: 100;
+  box-sizing: border-box;
+  border: 1px solid var(--ea-gold);
+  background: color-mix(in srgb, var(--ea-gold) 14%, transparent);
+  pointer-events: none;
 }
 
 .timeline-scroll {
