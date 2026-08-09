@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getOperatorCombatSkillName, getOperatorGameName } from '@/data/gameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
 import { perlica } from '../../data/operators';
@@ -157,25 +158,22 @@ function resetScenario(): void {
 </script>
 
 <template>
-  <main class="next-timeline-editor">
-    <header class="editor-toolbar">
-      <div class="project-title">
-        <span class="title-mark"></span>
-        <strong>{{ operatorName('perlica') }}</strong>
-        <span class="engine-badge">NEXT</span>
-      </div>
-      <div class="toolbar-actions">
-        <span>{{ t('nextTimeline.cursorFrame', { frame: cursorFrame }) }}</span>
-        <button type="button" disabled :title="t('nextTimeline.simulationPending')">
-          {{ t('nextTimeline.simulate') }}
-        </button>
-        <button type="button" @click="resetScenario">{{ t('nextTimeline.reset') }}</button>
-        <router-link to="/timeline">{{ t('nextTimeline.backToCurrent') }}</router-link>
-      </div>
-    </header>
-
-    <section class="editor-body">
-      <aside class="skill-sidebar">
+  <TimelineWorkbenchShell
+    :labels="{
+      library: t('timeline.activityBar.library'),
+      globalConfig: t('timeline.activityBar.globalConfig'),
+      contract: t('timeline.activityBar.contract'),
+      resourceMonitor: t('timeline.activityBar.resourceMonitor'),
+      inspector: t('timeline.activityBar.inspector'),
+      battleLog: t('timeline.activityBar.battleLog'),
+    }"
+  >
+    <template #left>
+      <section class="skill-sidebar">
+        <div class="operator-heading">
+          <span class="operator-heading__mark"></span>
+          <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
+        </div>
         <div class="sidebar-tabs">
           <button class="active" type="button">{{ t('nextTimeline.operatorTab') }}</button>
           <button type="button" disabled>{{ t('nextTimeline.weaponTab') }}</button>
@@ -199,148 +197,182 @@ function resetScenario(): void {
             @select-segment="placeGroup(entry.skillGroupKey)"
           />
         </div>
-      </aside>
+      </section>
+    </template>
 
-      <div class="timeline-workspace">
-        <div class="timeline-scroll">
-          <div class="timeline-content" :style="{ width: `${timelineWidth}px` }">
-            <div class="ruler">
-              <span
-                v-for="mark in rulerMarks"
-                :key="mark.frame"
-                class="ruler-mark"
-                :style="{ left: `${mark.frame * pxPerFrame}px` }"
-              >
-                {{ mark.seconds }}s
-              </span>
-            </div>
-            <div class="cursor-line" :style="{ left: `${cursorFrame * pxPerFrame}px` }"></div>
+    <template #left-bottom="{ tool }">
+      <div class="empty-panel">{{ tool }}</div>
+    </template>
 
-            <div
-              v-for="track in viewModel.tracks"
-              :key="track.trackIndex"
-              class="track-row"
-              :class="{ selected: selectedTrack === track.trackIndex }"
+    <template #header>
+      <div class="scenario-tools">
+        <button type="button" class="icon-button" disabled title="重命名">✎</button>
+        <button type="button" class="icon-button" disabled title="复制">▣</button>
+        <div class="scenario-title">
+          <span>[</span><strong>{{ scenario.name }}</strong
+          ><span>]</span>
+        </div>
+        <button type="button" class="scenario-tab is-active">01</button>
+        <button type="button" class="icon-button" disabled title="新增">+</button>
+      </div>
+      <div class="header-actions">
+        <span>{{ t('nextTimeline.cursorFrame', { frame: cursorFrame }) }}</span>
+        <button type="button" disabled :title="t('nextTimeline.simulationPending')">
+          {{ t('nextTimeline.simulate') }}
+        </button>
+        <button type="button" @click="resetScenario">{{ t('nextTimeline.reset') }}</button>
+      </div>
+    </template>
+
+    <div class="timeline-workspace">
+      <div class="timeline-scroll">
+        <div class="timeline-content" :style="{ width: `${timelineWidth}px` }">
+          <div class="ruler">
+            <span
+              v-for="mark in rulerMarks"
+              :key="mark.frame"
+              class="ruler-mark"
+              :style="{ left: `${mark.frame * pxPerFrame}px` }"
             >
+              {{ mark.seconds }}s
+            </span>
+          </div>
+          <div class="cursor-line" :style="{ left: `${cursorFrame * pxPerFrame}px` }"></div>
+
+          <div
+            v-for="track in viewModel.tracks"
+            :key="track.trackIndex"
+            class="track-row"
+            :class="{ selected: selectedTrack === track.trackIndex }"
+          >
+            <button class="track-identity" type="button" @click="selectedTrack = track.trackIndex">
+              <img v-if="track.operatorSlug" src="/operators/perlica/avatar.webp" alt="" />
+              <span>{{ operatorName(track.operatorSlug) }}</span>
+            </button>
+            <div class="track-lane" @click="selectTimelinePosition($event, track.trackIndex)">
               <button
-                class="track-identity"
+                v-for="cast in track.skillCasts"
+                :key="cast.id"
                 type="button"
-                @click="selectedTrack = track.trackIndex"
+                class="skill-block"
+                :data-skill-type="cast.skillType"
+                :style="{
+                  left: `${cast.startFrame * pxPerFrame}px`,
+                  width: `${Math.max(48, cast.durationFrames * pxPerFrame)}px`,
+                }"
+                @click.stop="selectedTrack = track.trackIndex"
               >
-                <img v-if="track.operatorSlug" src="/operators/perlica/avatar.webp" alt="" />
-                <span>{{ operatorName(track.operatorSlug) }}</span>
+                {{
+                  cast.source.kind === 'operatorSkill'
+                    ? skillName(cast.source.skillGroupKey, track.operatorSlug ?? perlica.slug)
+                    : cast.source.kind
+                }}
               </button>
-              <div class="track-lane" @click="selectTimelinePosition($event, track.trackIndex)">
-                <button
-                  v-for="cast in track.skillCasts"
-                  :key="cast.id"
-                  type="button"
-                  class="skill-block"
-                  :data-skill-type="cast.skillType"
-                  :style="{
-                    left: `${cast.startFrame * pxPerFrame}px`,
-                    width: `${Math.max(48, cast.durationFrames * pxPerFrame)}px`,
-                  }"
-                  @click.stop="selectedTrack = track.trackIndex"
-                >
-                  {{
-                    cast.source.kind === 'operatorSkill'
-                      ? skillName(cast.source.skillGroupKey, track.operatorSlug ?? perlica.slug)
-                      : cast.source.kind
-                  }}
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+
+    <template #bottom="{ tool }"
+      ><div class="empty-panel">{{ tool }}</div></template
+    >
+    <template #right="{ tool }"
+      ><div class="empty-panel">{{ tool }}</div></template
+    >
+  </TimelineWorkbenchShell>
 </template>
 
 <style scoped>
-.next-timeline-editor {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-rows: 50px minmax(0, 1fr);
-  background: var(--ea-bg, #18181c);
-  color: var(--ea-fg, #f0f0f0);
-  letter-spacing: 0;
-}
-
-.editor-toolbar {
+.scenario-tools,
+.header-actions {
+  min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 14px 0 18px;
-  border-bottom: 1px solid var(--ea-border, #34343a);
-  background: var(--ea-surface, #242428);
+  gap: 8px;
 }
 
-.project-title,
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.scenario-tools {
+  flex: 1;
+  padding-left: 8px;
 }
 
-.title-mark {
-  width: 4px;
-  height: 22px;
-  background: var(--ea-gold, #ffd700);
-}
-
-.engine-badge {
-  padding: 2px 5px;
-  border: 1px solid var(--ea-gold, #ffd700);
-  color: var(--ea-gold, #ffd700);
-  font:
-    10px/1.2 Consolas,
-    monospace;
-}
-
-.toolbar-actions {
-  color: var(--ea-muted, #999);
+.header-actions {
+  padding-right: 10px;
+  color: var(--ea-fg-muted);
   font-size: 12px;
 }
 
-button,
-a {
-  min-height: 30px;
-  border: 1px solid var(--ea-border, #444);
+.scenario-title {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ea-fg);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+button {
+  height: 28px;
+  border: 1px solid var(--ea-border);
   border-radius: 2px;
-  background: var(--ea-surface-soft, #29292e);
+  background: var(--ea-fill-soft);
   color: inherit;
-  padding: 0 10px;
+  padding: 0 9px;
   font: inherit;
-  text-decoration: none;
   cursor: pointer;
 }
 
-button:hover:not(:disabled),
-a:hover {
-  border-color: var(--ea-gold, #ffd700);
-  color: var(--ea-gold, #ffd700);
+button:hover:not(:disabled) {
+  border-color: var(--ea-gold);
+  color: var(--ea-gold);
 }
 
 button:disabled {
-  opacity: 0.4;
+  opacity: 0.38;
   cursor: not-allowed;
 }
 
-.editor-body {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+.icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.scenario-tab {
+  min-width: 40px;
+  height: 24px;
+  padding: 0 8px;
+}
+
+.scenario-tab.is-active {
+  background: var(--ea-tab-active-bg);
+  color: var(--ea-tab-active-fg);
 }
 
 .skill-sidebar {
+  height: 100%;
   min-height: 0;
-  padding: 16px 12px;
-  border-right: 1px solid var(--ea-border, #34343a);
-  background: var(--ea-sidebar-bg, #1d1d21);
+  padding: 15px;
+  box-sizing: border-box;
   overflow-y: auto;
+}
+
+.operator-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.operator-heading__mark {
+  width: 4px;
+  height: 18px;
+  background: var(--ea-gold);
 }
 
 .sidebar-tabs {
@@ -350,27 +382,33 @@ button:disabled {
 }
 
 .sidebar-tabs button.active {
-  color: var(--ea-gold, #ffd700);
-  border-color: var(--ea-gold, #ffd700);
+  color: var(--ea-gold);
+  border-color: var(--ea-gold);
 }
 
 .library-heading {
   display: flex;
   justify-content: space-between;
   margin: 22px 4px 10px;
-  color: var(--ea-muted, #aaa);
+  color: var(--ea-fg-muted);
   font-size: 12px;
 }
 
 .skill-list {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
 }
 
 .timeline-workspace,
 .timeline-scroll {
   min-width: 0;
   min-height: 0;
+}
+
+.timeline-workspace {
+  width: 100%;
+  height: 100%;
 }
 
 .timeline-scroll {
@@ -383,17 +421,17 @@ button:disabled {
   position: relative;
   min-width: 100%;
   min-height: 100%;
-  padding-top: 38px;
-  background-image: linear-gradient(to right, #2c2c32 1px, transparent 1px);
+  padding-top: 76px;
+  background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
   background-size: 60px 100%;
 }
 
 .ruler {
   position: absolute;
   inset: 0 0 auto;
-  height: 38px;
-  border-bottom: 1px solid #444;
-  background: #29292d;
+  height: 76px;
+  border-bottom: 1px solid var(--ea-border);
+  background: var(--ea-workbench-header);
 }
 
 .ruler-mark {
@@ -401,7 +439,7 @@ button:disabled {
   bottom: 6px;
   padding-left: 4px;
   border-left: 1px solid #777;
-  color: #bbb;
+  color: var(--ea-fg-muted);
   font:
     11px/18px Consolas,
     monospace;
@@ -412,37 +450,37 @@ button:disabled {
   top: 0;
   bottom: 0;
   width: 1px;
-  background: #f5f5f5;
+  background: var(--ea-fg);
   z-index: 4;
   pointer-events: none;
 }
 
 .track-row {
   position: relative;
-  height: 132px;
-  border-bottom: 1px solid #303036;
+  height: 160px;
+  border-bottom: 1px solid var(--ea-border-soft);
 }
 
 .track-row.selected {
-  background: color-mix(in srgb, var(--ea-gold, #ffd700) 4%, transparent);
+  background: var(--ea-track-row-active);
 }
 
 .track-identity {
   position: sticky;
   left: 0;
   z-index: 3;
-  width: 170px;
+  width: 180px;
   height: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
   border: 0;
   border-right: 3px solid transparent;
-  background: #29292e;
+  background: var(--ea-workbench-panel);
 }
 
 .track-row.selected .track-identity {
-  border-right-color: var(--ea-gold, #ffd700);
+  border-right-color: var(--ea-gold);
 }
 
 .track-identity img {
@@ -459,8 +497,8 @@ button:disabled {
 
 .skill-block {
   position: absolute;
-  top: 36px;
-  height: 58px;
+  top: 55px;
+  height: 50px;
   min-width: 48px;
   overflow: hidden;
   padding: 0 8px;
@@ -468,6 +506,15 @@ button:disabled {
   background: #34343a;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.empty-panel {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
 }
 
 .skill-block[data-skill-type='battleSkill'] {
@@ -484,15 +531,5 @@ button:disabled {
   border-color: #22c55e;
   color: #4ade80;
   background: #1e3827;
-}
-
-@media (max-width: 800px) {
-  .editor-body {
-    grid-template-columns: 220px minmax(0, 1fr);
-  }
-  .toolbar-actions > span,
-  .toolbar-actions > button:disabled {
-    display: none;
-  }
 }
 </style>
