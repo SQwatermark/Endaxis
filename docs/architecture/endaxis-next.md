@@ -1,4 +1,13 @@
-# Endaxis Next architecture
+# Endaxis Next 架构文档入口
+
+> Endaxis Next 的长期架构文档已经整理到 [`docs/next`](../next/README.md)。
+> 新读者请从[为什么要建设 Next](../next/01-introduction.md)开始；需要定位代码时阅读
+> [分层架构](../next/02-layered-architecture.md)和[端到端数据流](../next/03-end-to-end-data-flow.md)。
+>
+> 本文件以下内容是早期核心模型决策记录，保留用于追溯。当前目录职责、实现状态和维护规则
+> 以 `docs/next` 为准。
+
+## 早期核心模型记录
 
 > 当前系统审计、功能迁移优先级和各阶段验收标准见
 > [Endaxis Next 现状审计与迁移路线图](./endaxis-next-roadmap.md)。本文继续记录核心模型的设计约束。
