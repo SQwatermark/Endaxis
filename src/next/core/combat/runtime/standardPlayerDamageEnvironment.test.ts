@@ -94,6 +94,15 @@ function createEnvironment(): StandardPlayerDamageEnvironment {
 }
 
 describe('StandardPlayerDamageEnvironment', () => {
+  it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {
+    const environment = createEnvironment();
+    const createRuntime = environment.runtimeOptions.createOperatorBuffRuntime;
+
+    expect(createRuntime).toBeDefined();
+    expect(createRuntime?.('operator')).toBe(createRuntime?.('operator'));
+    expect(createRuntime?.('operator')?.ownerId).toBe('operator');
+  });
+
   it('executes the strict standard life-damage subset with compiled panel and enemy inputs', () => {
     const context = createContext();
     const environment = createEnvironment();

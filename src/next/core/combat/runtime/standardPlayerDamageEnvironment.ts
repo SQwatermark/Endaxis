@@ -24,7 +24,7 @@ import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshot
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
-  'enemyBuffRuntime' | 'createOperationExecutor' | 'resolveVitals'
+  'enemyBuffRuntime' | 'createOperatorBuffRuntime' | 'createOperationExecutor' | 'resolveVitals'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -62,7 +62,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #enemyBuffRuntime = new CatalogBuffOperationTarget(this.#enemyBuffs, {
     get: () => undefined,
   });
-  readonly #operatorBuffs = new Map<string, CombatBuffContainer<string>>();
+  readonly #operatorBuffRuntimes = new Map<string, CatalogBuffOperationTarget<string>>();
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
   #enemyVitals: CombatVitals | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
@@ -70,6 +70,7 @@ export class StandardPlayerDamageEnvironment {
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
     this.runtimeOptions = {
       enemyBuffRuntime: this.#enemyBuffRuntime,
+      createOperatorBuffRuntime: operatorId => this.#operatorBuffRuntime(operatorId),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       resolveVitals: target => {
         if (target !== 'enemy') {
@@ -104,7 +105,7 @@ export class StandardPlayerDamageEnvironment {
 
   #createOperationExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
     this.#bindEnemy(context);
-    const operatorBuffs = this.#operatorBuffContainer(context.program.operatorId);
+    const operatorBuffs = this.#operatorBuffRuntime(context.program.operatorId).container;
     return new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
       targetId: 'enemy',
@@ -160,13 +161,16 @@ export class StandardPlayerDamageEnvironment {
     });
   }
 
-  #operatorBuffContainer(operatorId: string): CombatBuffContainer<string> {
-    let container = this.#operatorBuffs.get(operatorId);
-    if (container === undefined) {
-      container = new CombatBuffContainer(operatorId, new CombatAttributeSet<string>());
-      this.#operatorBuffs.set(operatorId, container);
+  #operatorBuffRuntime(operatorId: string): CatalogBuffOperationTarget<string> {
+    let runtime = this.#operatorBuffRuntimes.get(operatorId);
+    if (runtime === undefined) {
+      runtime = new CatalogBuffOperationTarget(
+        new CombatBuffContainer(operatorId, new CombatAttributeSet<string>()),
+        { get: () => undefined },
+      );
+      this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
-    return container;
+    return runtime;
   }
 
   #buffContainer(

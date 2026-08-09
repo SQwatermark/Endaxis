@@ -29,6 +29,10 @@ import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 
+/** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
+export type OperatorBuffRuntime = FrameRuntime &
+  BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
+
 /** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
   readonly operatorId: string;
@@ -38,8 +42,7 @@ export interface CombatOperatorProgram {
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
   readonly panel?: ResolvedOperatorPanel;
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
-  readonly buffRuntime?: FrameRuntime &
-    BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
+  readonly buffRuntime?: OperatorBuffRuntime;
   /** 通用语义状态与 Buff 分属两个显式所有者；容器只在本次模拟中使用。 */
   readonly statusContainer?: CombatStatusContainer;
   readonly actionRuntime?: FrameRuntime;
@@ -83,6 +86,11 @@ export interface CombatRuntimeAssemblyOptions {
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
+  /**
+   * 为没有显式 `buffRuntime` 绑定的干员创建本场战斗唯一的 Buff runtime。
+   * 伤害环境与技能操作必须共享该实例，不能各自维护同一干员的 Buff 状态。
+   */
+  readonly createOperatorBuffRuntime?: (operatorId: string) => OperatorBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
@@ -139,10 +147,14 @@ export class CombatRuntimeAssembly {
       if (this.#abilitySystems.has(operator.operatorId)) {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
-      const entityBlackboard = operator.buffRuntime?.entityBlackboard ?? new ActionBlackboard();
+      const buffRuntime =
+        operator.buffRuntime ?? options.createOperatorBuffRuntime?.(operator.operatorId);
+      const runtimeOperator =
+        buffRuntime === operator.buffRuntime ? operator : { ...operator, buffRuntime };
+      const entityBlackboard = buffRuntime?.entityBlackboard ?? new ActionBlackboard();
       this.#operatorOrder.push(operator.operatorId);
-      if (operator.buffRuntime !== undefined) {
-        this.#operatorBuffs.set(operator.operatorId, operator.buffRuntime);
+      if (buffRuntime !== undefined) {
+        this.#operatorBuffs.set(operator.operatorId, buffRuntime);
       }
       this.#operatorTimedMarkers.set(
         operator.operatorId,
@@ -163,9 +175,9 @@ export class CombatRuntimeAssembly {
       if (statusRuntime !== undefined) {
         this.#operatorStatuses.set(operator.operatorId, statusRuntime);
       }
-      const skills = operator.skills.map(program =>
+      const skills = runtimeOperator.skills.map(program =>
         this.#createSkillRuntime(
-          operator,
+          runtimeOperator,
           program,
           options.enemy,
           entityBlackboard,
@@ -178,7 +190,7 @@ export class CombatRuntimeAssembly {
       this.#abilitySystems.set(
         operator.operatorId,
         new AbilitySystemRuntime({
-          buffRuntime: operator.buffRuntime,
+          buffRuntime,
           skills,
           actionRuntime: operator.actionRuntime,
         }),

@@ -97,6 +97,9 @@ function createAssembly(
   enemyBuffRuntime: ConstructorParameters<
     typeof CombatRuntimeAssembly
   >[0]['enemyBuffRuntime'] = emptyEnemyBuffRuntime,
+  createOperatorBuffRuntime?: ConstructorParameters<
+    typeof CombatRuntimeAssembly
+  >[0]['createOperatorBuffRuntime'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy: testEnemy,
@@ -121,12 +124,35 @@ function createAssembly(
     enemyBuffRuntime,
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
+    ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
     ...(resolveVitals === undefined ? {} : { resolveVitals }),
   });
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('advances an environment-created operator Buff runtime as the ability-system owner', () => {
+    const advanceFrame = vi.fn();
+    const operatorBuffRuntime = {
+      ...emptyEnemyBuffRuntime,
+      ownerId: 'operator',
+      advanceFrame,
+    };
+    const createOperatorBuffRuntime = vi.fn(() => operatorBuffRuntime);
+    const assembly = createAssembly(
+      [],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      createOperatorBuffRuntime,
+    );
+
+    assembly.advanceFrames(3);
+    expect(createOperatorBuffRuntime).toHaveBeenCalledOnce();
+    expect(createOperatorBuffRuntime).toHaveBeenCalledWith('operator');
+    expect(advanceFrame).toHaveBeenCalledTimes(3);
+  });
+
   it('advances the enemy Buff runtime once per combat frame', () => {
     const advanceFrame = vi.fn();
     const assembly = createAssembly([], undefined, undefined, {

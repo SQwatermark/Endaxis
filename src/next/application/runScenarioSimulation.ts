@@ -18,6 +18,7 @@ import {
 } from '../core/projection/resourceCurves';
 import type { ScenarioDocument } from '../core/project/schema';
 import type { ResolvedOperatorPanel } from '../core/compiler/resolveOperatorPanel';
+import type { CombatRuntimeAssemblyOptions } from '../core/combat/runtime/combatRuntimeAssembly';
 
 export interface RunScenarioSimulationInput {
   readonly scenario: ScenarioDocument;
@@ -38,6 +39,12 @@ export interface ScenarioSimulationResult {
   /** 由正式回执投影端口生成的稀疏资源曲线，应用层不重复解释事件。 */
   readonly resourceCurves: CombatResourceCurves;
   readonly finalResources: CombatResourceSnapshot;
+}
+
+/** 已完成场景编译、可以直接交给运行时装配根的一次执行输入。 */
+export interface ExecuteCompiledScenarioSimulationInput {
+  readonly compiled: CombatRuntimeAssemblyOptions;
+  readonly endFrame: number;
 }
 
 function freezeReceiptEntries(
@@ -83,7 +90,24 @@ export function runScenarioSimulation(input: RunScenarioSimulationInput): Scenar
     throw new RangeError('endFrame must not exceed scenario battle duration');
   }
 
-  const compiled = compileScenarioRuntimeAssembly(input.scenario, input.options);
+  return executeCompiledScenarioSimulation({
+    compiled: compileScenarioRuntimeAssembly(input.scenario, input.options),
+    endFrame: input.endFrame,
+  });
+}
+
+/**
+ * 执行已经编译的场景；若运行环境只支持能力子集，调用方必须先完成对应预检。
+ * 本函数不再解释项目文档；专用运行环境应复用此阶段，而不是复制模拟与投影流程。
+ */
+export function executeCompiledScenarioSimulation(
+  input: ExecuteCompiledScenarioSimulationInput,
+): ScenarioSimulationResult {
+  if (!Number.isInteger(input.endFrame) || input.endFrame < 0) {
+    throw new RangeError('endFrame must be a non-negative integer');
+  }
+
+  const compiled = input.compiled;
   const operatorPanels = compiled.operators.flatMap(operator =>
     operator.panel === undefined ? [] : [operator.panel],
   );
