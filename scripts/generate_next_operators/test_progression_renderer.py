@@ -5,7 +5,12 @@ from __future__ import annotations
 from types import SimpleNamespace
 import unittest
 
-from audit_operator_progression import audit_effect, render_json
+from audit_operator_progression import (
+    audit_effect,
+    audit_skill_parameter_candidates,
+    collect_skill_group_types,
+    render_json,
+)
 from progression_renderer import parse_static_attribute_progression, render_potentials
 
 
@@ -314,6 +319,57 @@ class ProgressionRendererTests(unittest.TestCase):
                 "forbiddenApproximation": "enemy defender resistance snapshot",
             },
         )
+
+    def test_audit_identifies_source_closed_ultimate_cost_multiplier(self) -> None:
+        facts = audit_skill_parameter_candidates(
+            [
+                {
+                    "modifyType": 2,
+                    "skillParamModifier": {
+                        "modifyType": 2,
+                        "paramType": 1,
+                        "paramValue": 0.85,
+                        "skillId": "skill.ultimate",
+                    },
+                }
+            ],
+            {"skill.ultimate": 2},
+            "effect.dataList",
+        )
+
+        self.assertEqual(facts[0]["candidate"], "ultimateCostMultiplier")
+        self.assertEqual(facts[0]["runtimeClosure"]["nextStatus"], "missing-runtime-consumer")
+        self.assertEqual(facts[0]["runtimeClosure"]["implementationDecision"], "report-only")
+
+    def test_audit_does_not_treat_non_ultimate_cost_as_ultimate_reduction(self) -> None:
+        facts = audit_skill_parameter_candidates(
+            [
+                {
+                    "modifyType": 2,
+                    "skillParamModifier": {
+                        "modifyType": 2,
+                        "paramType": 1,
+                        "paramValue": 0.85,
+                        "skillId": "skill.normal",
+                    },
+                }
+            ],
+            {"skill.normal": 1},
+            "effect.dataList",
+        )
+
+        self.assertNotIn("candidate", facts[0])
+
+    def test_skill_group_index_rejects_conflicting_group_types(self) -> None:
+        growth = {
+            "skillGroupMap": {
+                "group.a": {"skillGroupType": 1, "skillIdList": ["skill.shared"]},
+                "group.b": {"skillGroupType": 2, "skillIdList": ["skill.shared"]},
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "conflicting group types"):
+            collect_skill_group_types(growth, "growth")
 
 
 if __name__ == "__main__":

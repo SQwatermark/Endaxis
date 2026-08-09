@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "summary": {
     "operatorCount": 29,
     "effectCount": 259,
@@ -132,6 +132,24 @@
         ],
         "forbiddenApproximation": "enemy defender resistance snapshot"
       }
+    ],
+    "conversionCandidatePriorities": [
+      {
+        "candidate": "ultimateCostMultiplier",
+        "sourceEntryCount": 27,
+        "effectCount": 26,
+        "operatorCount": 26,
+        "priority": 1,
+        "nativeParameter": "CostValue",
+        "nativeOperation": "Multiply",
+        "nextDefinitionKind": "multiplySkillCost",
+        "nextStatus": "missing-runtime-consumer",
+        "blockers": [
+          "selected upgrade modifiers are not applied to compiled skill costs",
+          "skill-group variants do not yet share an upgrade patch stage"
+        ],
+        "implementationDecision": "report-only"
+      }
     ]
   },
   "operators": [
@@ -188,6 +206,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0004_pelica_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -370,6 +412,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0005_chen_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -383,6 +449,17 @@
             {
               "index": 1,
               "payloadKinds": ["skillBbModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0005_chen_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -3
             }
           ]
         }
@@ -538,6 +615,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0006_wolfgd_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -711,6 +812,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0007_ikut_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -913,6 +1038,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0009_azrila_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -1004,6 +1153,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0011_seraph_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -1286,6 +1459,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0012_avywen_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -1420,6 +1617,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0013_aglina_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -1433,6 +1654,17 @@
             {
               "index": 1,
               "payloadKinds": ["skillBbModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0013_aglina_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
             }
           ]
         }
@@ -1778,6 +2010,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0015_lifeng_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -1960,6 +2216,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0016_laevat_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -2349,6 +2629,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0018_dapan_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -2511,6 +2815,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0019_karin_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -2675,6 +3003,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0020_meurs_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -2756,6 +3108,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0021_whiten_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -2985,6 +3361,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0022_bounda_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -3062,6 +3462,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0023_antal_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.9,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -3325,6 +3749,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0024_deepfin_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -3499,6 +3947,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0025_ardelia_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -3516,6 +3988,17 @@
             {
               "index": 2,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 2,
+              "skillId": "chr_0025_ardelia_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
             }
           ]
         }
@@ -3688,6 +4171,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0026_lastrite_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -3828,6 +4335,17 @@
               "index": 3,
               "payloadKinds": ["skillBbModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0027_tangtang_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
+            }
           ]
         },
         {
@@ -3932,6 +4450,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0027_tangtang_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -4200,6 +4742,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0028_wulfa_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -4365,6 +4931,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0029_pograni_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -4378,6 +4968,17 @@
             {
               "index": 1,
               "payloadKinds": ["skillBbModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0029_pograni_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
             }
           ]
         }
@@ -4546,6 +5147,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0030_zhuangfy_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -4658,6 +5283,17 @@
               "index": 3,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 3,
+              "skillId": "chr_0031_mifu_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
+            }
           ]
         },
         {
@@ -4757,6 +5393,30 @@
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0031_mifu_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            }
           ]
         },
         {
@@ -4809,6 +5469,26 @@
               "index": 2,
               "payloadKinds": ["activeCondition", "skillParamModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 1,
+              "skillId": "chr_0032_lizhiyan_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -6
+            },
+            {
+              "entryIndex": 2,
+              "skillId": "chr_0032_lizhiyan_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 4,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -6
+            }
           ]
         },
         {
@@ -4826,6 +5506,26 @@
             {
               "index": 2,
               "payloadKinds": ["activeCondition", "skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 1,
+              "skillId": "chr_0032_lizhiyan_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -6
+            },
+            {
+              "entryIndex": 2,
+              "skillId": "chr_0032_lizhiyan_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 4,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -6
             }
           ]
         },
@@ -4990,6 +5690,52 @@
             {
               "index": 1,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0032_lizhiyan_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
+            },
+            {
+              "entryIndex": 1,
+              "skillId": "chr_0032_lizhiyan_ultimate_skill2",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },
@@ -5246,6 +5992,17 @@
               "index": 10,
               "payloadKinds": ["skillBbModifier"]
             }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0033_camille_combo_skill",
+              "skillGroupType": 3,
+              "parameterType": 2,
+              "parameterModifyType": 1,
+              "effectModifyType": 2,
+              "value": -2
+            }
           ]
         },
         {
@@ -5255,6 +6012,30 @@
             {
               "index": 0,
               "payloadKinds": ["skillParamModifier"]
+            }
+          ],
+          "skillParameterFacts": [
+            {
+              "entryIndex": 0,
+              "skillId": "chr_0033_camille_ultimate_skill",
+              "skillGroupType": 2,
+              "parameterType": 1,
+              "parameterModifyType": 2,
+              "effectModifyType": 2,
+              "value": 0.85,
+              "candidate": "ultimateCostMultiplier",
+              "runtimeClosure": {
+                "priority": 1,
+                "nativeParameter": "CostValue",
+                "nativeOperation": "Multiply",
+                "nextDefinitionKind": "multiplySkillCost",
+                "nextStatus": "missing-runtime-consumer",
+                "blockers": [
+                  "selected upgrade modifiers are not applied to compiled skill costs",
+                  "skill-group variants do not yet share an upgrade patch stage"
+                ],
+                "implementationDecision": "report-only"
+              }
             }
           ]
         },

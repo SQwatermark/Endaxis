@@ -69,6 +69,23 @@ NEXT_RUNTIME_CLOSURE_GAPS: dict[int, dict[str, Any]] = {
     },
 }
 
+# 原生技能参数 Patch 的数据语义已经闭环，但这里还要单独检查 Next 是否真的消费对应
+# Upgrade modifier。仅有类型声明或生成文本不能算“可转换”。
+SKILL_PARAMETER_CONVERSION_CANDIDATES: dict[str, dict[str, Any]] = {
+    "ultimateCostMultiplier": {
+        "priority": 1,
+        "nativeParameter": "CostValue",
+        "nativeOperation": "Multiply",
+        "nextDefinitionKind": "multiplySkillCost",
+        "nextStatus": "missing-runtime-consumer",
+        "blockers": [
+            "selected upgrade modifiers are not applied to compiled skill costs",
+            "skill-group variants do not yet share an upgrade patch stage",
+        ],
+        "implementationDecision": "report-only",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -137,6 +154,71 @@ def effect_payload_kinds(value: Any, path: str) -> tuple[str, ...]:
     return tuple(kinds)
 
 
+def collect_skill_group_types(growth: dict[str, Any], path: str) -> dict[str, int]:
+    """建立原生技能 ID 到技能组类型的严格索引；同一技能不得属于不同类型。"""
+    result: dict[str, int] = {}
+    groups = require_dict(growth.get("skillGroupMap"), f"{path}.skillGroupMap")
+    for group_id, raw_group in groups.items():
+        group_path = f"{path}.skillGroupMap.{group_id}"
+        group = require_dict(raw_group, group_path)
+        group_type = group.get("skillGroupType")
+        if not isinstance(group_type, int):
+            raise ValueError(f"{group_path}.skillGroupType: expected integer")
+        for index, skill_id in enumerate(
+            require_list(group.get("skillIdList"), f"{group_path}.skillIdList")
+        ):
+            if not isinstance(skill_id, str) or not skill_id:
+                raise ValueError(f"{group_path}.skillIdList[{index}]: invalid skill id")
+            existing = result.get(skill_id)
+            if existing is not None and existing != group_type:
+                raise ValueError(
+                    f"{group_path}.skillIdList[{index}]: skill belongs to conflicting group types"
+                )
+            result[skill_id] = group_type
+    return result
+
+
+def audit_skill_parameter_candidates(
+    raw_entries: Any,
+    skill_group_types: dict[str, int],
+    path: str,
+) -> list[dict[str, Any]]:
+    """识别源数据已闭环但仍被 Next 运行时阻塞的通用技能参数 Patch。"""
+    candidates: list[dict[str, Any]] = []
+    for index, raw_entry in enumerate(require_list(raw_entries, path)):
+        entry_path = f"{path}[{index}]"
+        entry = require_dict(raw_entry, entry_path)
+        modifier = require_dict(
+            entry.get("skillParamModifier"),
+            f"{entry_path}.skillParamModifier",
+        )
+        skill_id = modifier.get("skillId")
+        if not isinstance(skill_id, str) or not skill_id:
+            continue
+        fact = {
+            "entryIndex": index,
+            "skillId": skill_id,
+            "skillGroupType": skill_group_types.get(skill_id),
+            "parameterType": modifier.get("paramType"),
+            "parameterModifyType": modifier.get("modifyType"),
+            "effectModifyType": entry.get("modifyType"),
+            "value": modifier.get("paramValue"),
+        }
+        # CostValue(1) * Multiply(2) 且目标属于终结技能组(2)，才是严格的终结技降费。
+        if (
+            fact["effectModifyType"] == 2
+            and fact["parameterType"] == 1
+            and fact["parameterModifyType"] == 2
+            and fact["skillGroupType"] == 2
+        ):
+            fact["candidate"] = "ultimateCostMultiplier"
+            fact["runtimeClosure"] = SKILL_PARAMETER_CONVERSION_CANDIDATES[
+                "ultimateCostMultiplier"
+            ]
+        candidates.append(fact)
+    return candidates
+
+
 def talent_effect_ids(growth: dict[str, Any], path: str) -> tuple[str, ...]:
     """按天赋索引和等级排序，提取真正的被动技能节点。"""
     entries: list[tuple[int, int, str]] = []
@@ -179,6 +261,7 @@ def audit_effect(
     effect_table: dict[str, Any],
     *,
     source: str,
+    skill_group_types: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     if effect_id not in effect_table:
         raise ValueError(f"PotentialTalentEffectTable: missing {effect_id}")
@@ -236,6 +319,14 @@ def audit_effect(
             if attr_type in NEXT_RUNTIME_CLOSURE_GAPS:
                 attribute_facts[-1]["runtimeClosure"] = NEXT_RUNTIME_CLOSURE_GAPS[attr_type]
     result = {"effectId": effect_id, "source": source, "entries": entries}
+    if skill_group_types is not None and any(
+        "skillParamModifier" in entry["payloadKinds"] for entry in entries
+    ):
+        result["skillParameterFacts"] = audit_skill_parameter_candidates(
+            effect.get("dataList"),
+            skill_group_types,
+            f"PotentialTalentEffectTable.{effect_id}.dataList",
+        )
     if source == "potential" and any(
         "attrModifier" in entry["payloadKinds"] for entry in entries
     ):
@@ -299,6 +390,9 @@ def build_audit(tables: Path) -> dict[str, Any]:
     combination_counts: Counter[tuple[str, tuple[str, ...]]] = Counter()
     static_attribute_status_counts: Counter[str] = Counter()
     runtime_closure_gap_counts: Counter[int] = Counter()
+    skill_parameter_candidate_entries: Counter[str] = Counter()
+    skill_parameter_candidate_effects: Counter[str] = Counter()
+    skill_parameter_candidate_operators: dict[str, set[str]] = {}
     for character_id in sorted(set(characters).difference(OBSOLETE_CHARACTER_IDS)):
         character = require_dict(characters[character_id], f"CharacterTable.{character_id}")
         growth = require_dict(growth_table.get(character_id), f"CharGrowthTable.{character_id}")
@@ -306,13 +400,27 @@ def build_audit(tables: Path) -> dict[str, Any]:
             potential_table.get(character_id),
             f"CharacterPotentialTable.{character_id}",
         )
+        skill_group_types = collect_skill_group_types(
+            growth,
+            f"CharGrowthTable.{character_id}",
+        )
         effects = [
             *(
-                audit_effect(effect_id, effect_table, source="talent")
+                audit_effect(
+                    effect_id,
+                    effect_table,
+                    source="talent",
+                    skill_group_types=skill_group_types,
+                )
                 for effect_id in talent_effect_ids(growth, f"CharGrowthTable.{character_id}")
             ),
             *(
-                audit_effect(effect_id, effect_table, source="potential")
+                audit_effect(
+                    effect_id,
+                    effect_table,
+                    source="potential",
+                    skill_group_types=skill_group_types,
+                )
                 for effect_id in potential_effect_ids(
                     potential,
                     f"CharacterPotentialTable.{character_id}",
@@ -327,6 +435,21 @@ def build_audit(tables: Path) -> dict[str, Any]:
                 for fact in conversion["attributeFacts"]:
                     if "runtimeClosure" in fact:
                         runtime_closure_gap_counts[fact["attrType"]] += 1
+            effect_candidates = {
+                fact["candidate"]
+                for fact in effect.get("skillParameterFacts", [])
+                if "candidate" in fact
+            }
+            for fact in effect.get("skillParameterFacts", []):
+                candidate = fact.get("candidate")
+                if candidate is None:
+                    continue
+                skill_parameter_candidate_entries[candidate] += 1
+                skill_parameter_candidate_operators.setdefault(candidate, set()).add(
+                    character_id
+                )
+            for candidate in effect_candidates:
+                skill_parameter_candidate_effects[candidate] += 1
             for entry in effect["entries"]:
                 kinds = tuple(entry["payloadKinds"])
                 combination_counts[(source, kinds)] += 1
@@ -343,7 +466,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
         )
 
     return {
-        "schemaVersion": 4,
+        "schemaVersion": 5,
         "summary": {
             "operatorCount": len(operators),
             "effectCount": sum(len(operator["effects"]) for operator in operators),
@@ -365,6 +488,22 @@ def build_audit(tables: Path) -> dict[str, Any]:
                     **NEXT_RUNTIME_CLOSURE_GAPS[attr_type],
                 }
                 for attr_type, count in sorted(runtime_closure_gap_counts.items())
+            ],
+            "conversionCandidatePriorities": [
+                {
+                    "candidate": candidate,
+                    "sourceEntryCount": skill_parameter_candidate_entries[candidate],
+                    "effectCount": skill_parameter_candidate_effects[candidate],
+                    "operatorCount": len(
+                        skill_parameter_candidate_operators.get(candidate, set())
+                    ),
+                    **definition,
+                }
+                for candidate, definition in sorted(
+                    SKILL_PARAMETER_CONVERSION_CANDIDATES.items(),
+                    key=lambda item: item[1]["priority"],
+                )
+                if skill_parameter_candidate_entries[candidate]
             ],
         },
         "operators": operators,
