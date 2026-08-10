@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * 敌人效果面板：生命读数 + 元素附着段 + 爆发/反应标记。
+ * 敌人效果面板（对齐旧版 ResourceMonitor 的敌人状态区样式）：
+ * 附着 = 元素图标框 + 层数角标 + 45 度条纹时长条；爆发/反应 = 图标标记。
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
 import { computed } from 'vue';
@@ -13,32 +14,35 @@ const props = defineProps<{
   pxPerFrame: number;
   trackHeaderWidth: number;
   scrollLeft: number;
-  /** 敌人生命读数。 */
-  maxHealth: number;
-  remainingHealth: number;
   labels: {
-    enemyHp: string;
     burst: string;
     reaction: string;
     reactionConsumed: string;
   };
 }>();
 
-const ELEMENT_COLORS: Readonly<Record<string, string>> = {
-  heat: '#ff5a5f',
-  electric: '#ffec3d',
-  cryo: '#69c0ff',
-  nature: '#52c41a',
+const ICON_SIZE = 20;
+const ICON_TOP = 2;
+const MARKER_TOP = 3;
+
+const ELEMENT_ICONS: Readonly<Record<string, string>> = {
+  heat: '/icons/icon_element_heat.webp',
+  electric: '/icons/icon_element_electric.webp',
+  cryo: '/icons/icon_element_cryo.webp',
+  nature: '/icons/icon_element_nature.webp',
 };
 
-const REACTION_COLORS: Readonly<Record<string, string>> = {
-  electrification: '#f0c23c',
-  corrosion: '#b37feb',
+const BURST_ICONS: Readonly<Record<string, string>> = {
+  Fire: '/icons/icon_burst_fusion_fire.webp',
+  Pulse: '/icons/icon_burst_fusion_pulse.webp',
+  Nature: '/icons/icon_burst_fusion_nature.webp',
+  Cryst: '/icons/icon_element_cryo.webp',
 };
 
-const MARKER_ROW_TOP = 28;
-const SEGMENT_ROW_TOP = 4;
-const MARKER_RADIUS = 4;
+const REACTION_ICONS: Readonly<Record<string, string>> = {
+  electrification: '/icons/icon_battle_debuff_conduct.webp',
+  corrosion: '/icons/icon_battle_debuff_corrupt.webp',
+};
 
 function pointX(frame: number): number {
   return props.trackHeaderWidth + (frame + props.prepFrames) * props.pxPerFrame - props.scrollLeft;
@@ -50,11 +54,7 @@ function clamp(value: number, minimum: number, maximum: number): number {
 
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
-const hpRatio = computed(() => {
-  if (props.maxHealth <= 0) return 0;
-  return clamp(props.remainingHealth / props.maxHealth, 0, 1);
-});
-
+/** 附着段：图标 + 层数 + 时长条，整体从段起点横向铺开。 */
 const segments = computed(() =>
   props.viz.segments.map(segment => {
     const left = pointX(segment.startFrame);
@@ -62,18 +62,21 @@ const segments = computed(() =>
     return {
       key: `${segment.element}:${segment.startFrame}`,
       element: segment.element,
-      color: ELEMENT_COLORS[segment.element] ?? '#8c8c8c',
+      icon: ELEMENT_ICONS[segment.element] ?? '/icons/default_icon.webp',
       left,
-      widthPx: Math.max(0, right - left),
+      barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
       layers: segment.layers,
     };
   }),
 );
 
+/** 爆发/反应标记：小图标框，hover 显示说明。 */
 const markers = computed(() =>
   props.viz.markers.map(marker => {
-    const color =
-      marker.kind === 'burst' ? '#f5222d' : (REACTION_COLORS[marker.reaction ?? ''] ?? '#f0c23c');
+    const icon =
+      marker.kind === 'burst'
+        ? (BURST_ICONS[marker.burstType ?? ''] ?? '/icons/default_icon.webp')
+        : (REACTION_ICONS[marker.reaction ?? ''] ?? '/icons/default_icon.webp');
     const title =
       marker.kind === 'burst'
         ? `${props.labels.burst} ${marker.burstType ?? ''}`
@@ -82,138 +85,165 @@ const markers = computed(() =>
           : `${props.labels.reactionConsumed} ${marker.reaction ?? ''}`;
     return {
       key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
-      color,
-      x: clamp(pointX(marker.frame), MARKER_RADIUS, width.value - MARKER_RADIUS),
+      icon,
+      x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
       title,
     };
   }),
 );
-
-function formatNumber(value: number): string {
-  return String(Math.round(value * 100) / 100);
-}
 </script>
 
 <template>
   <div class="enemy-effects" :style="{ width: `${width}px` }">
-    <div class="hp-row">
-      <span class="hp-label">{{ labels.enemyHp }}</span>
-      <div class="hp-bar">
-        <div class="hp-bar-fill" :style="{ width: `${hpRatio * 100}%` }"></div>
-      </div>
-      <span class="hp-value">
-        {{ formatNumber(remainingHealth).toLocaleString() }}/{{
-          formatNumber(maxHealth).toLocaleString()
-        }}
-      </span>
-    </div>
-    <div class="effect-canvas" :style="{ width: `${width}px` }">
+    <div v-if="segments.length === 0 && markers.length === 0" class="enemy-effects__empty">—</div>
+    <template v-else>
       <div
         v-for="segment in segments"
         :key="segment.key"
-        class="attachment-segment"
-        :style="{
-          left: `${segment.left}px`,
-          width: `${Math.max(2, segment.widthPx)}px`,
-          top: `${SEGMENT_ROW_TOP}px`,
-          background: segment.color,
-        }"
+        class="attachment-item"
+        :style="{ left: `${segment.left}px`, top: `${ICON_TOP}px` }"
         :title="`${segment.element} · ${segment.layers} 层`"
       >
-        <span v-if="segment.layers > 1" class="segment-layers">{{ segment.layers }}</span>
+        <span class="anomaly-icon-box">
+          <img :src="segment.icon" class="anomaly-icon" alt="" />
+          <span v-if="segment.layers > 1" class="anomaly-stacks">{{ segment.layers }}</span>
+        </span>
+        <span
+          v-if="segment.barWidthPx > 0"
+          class="anomaly-duration-bar"
+          :style="{ width: `${segment.barWidthPx}px` }"
+        >
+          <span class="striped-bg"></span>
+        </span>
       </div>
       <span
         v-for="marker in markers"
         :key="marker.key"
         class="effect-marker"
-        :style="{
-          left: `${marker.x}px`,
-          top: `${MARKER_ROW_TOP}px`,
-          background: marker.color,
-        }"
+        :style="{ left: `${marker.x}px`, top: `${MARKER_TOP}px` }"
         :title="marker.title"
-      ></span>
-    </div>
+      >
+        <img :src="marker.icon" class="marker-icon" alt="" />
+      </span>
+    </template>
   </div>
 </template>
 
 <style scoped>
 .enemy-effects {
+  position: relative;
   min-width: 1px;
+  height: 24px;
+  overflow: hidden;
   color: var(--ea-fg);
-  font: 11px/1.4 var(--ea-font-family, 'Segoe UI', sans-serif);
   background: var(--ea-surface, #17191c);
 }
 
-.hp-row {
-  height: 26px;
+.enemy-effects__empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--ea-text-muted, rgb(255 255 255 / 32%));
+  font-size: 11px;
+}
+
+.attachment-item {
+  position: absolute;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 8px;
-  border-bottom: 1px solid var(--ea-border, rgb(255 255 255 / 10%));
 }
 
-.hp-label {
-  color: var(--ea-text-muted, rgb(255 255 255 / 55%));
-  font-size: 10px;
-  white-space: nowrap;
-}
-
-.hp-bar {
-  flex: 1;
-  height: 6px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border, rgb(255 255 255 / 16%));
-  border-radius: 3px;
-  background: rgb(255 255 255 / 5%);
-  overflow: hidden;
-}
-
-.hp-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #a61d24, #e0492f);
-  transition: width 0.1s linear;
-}
-
-.hp-value {
-  color: var(--ea-fg-secondary, rgb(215 218 222 / 90%));
-  font-family: Consolas, monospace;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.effect-canvas {
+.anomaly-icon-box {
   position: relative;
-  height: 52px;
-  overflow: hidden;
+  z-index: 10;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ea-keycap-skill-bg, #333);
+  border: 1px solid var(--ea-keycap-skill-border, #999);
+  cursor: default;
+  transition:
+    filter 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
-.attachment-segment {
+.anomaly-icon-box:hover {
+  filter: brightness(1.18);
+  border-color: rgb(255 255 255 / 95%);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 22%),
+    0 4px 12px rgb(0 0 0 / 46%);
+}
+
+.anomaly-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.anomaly-stacks {
   position: absolute;
-  height: 14px;
+  bottom: -2px;
+  right: -2px;
+  background: rgb(0 0 0 / 80%);
+  color: var(--ea-gold);
+  font-size: 8px;
+  line-height: 1;
+  padding: 0 2px;
   border-radius: 2px;
-  opacity: 0.75;
 }
 
-.segment-layers {
+.anomaly-duration-bar {
+  position: relative;
+  z-index: 1;
+  height: 16px;
+  margin-left: 2px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
+}
+
+.striped-bg {
   position: absolute;
-  right: 3px;
-  top: 0;
-  color: #1a1b1e;
-  font:
-    800 9px/14px Consolas,
-    monospace;
+  inset: 0;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(255 255 255 / 20%),
+    rgb(255 255 255 / 20%) 2px,
+    transparent 2px,
+    transparent 6px
+  );
 }
 
 .effect-marker {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 20px;
+  height: 20px;
   box-sizing: border-box;
-  border-radius: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 0 4px currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ea-keycap-skill-bg, #333);
+  border: 1px solid var(--ea-keycap-skill-border, #999);
   cursor: default;
+  transition:
+    filter 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.effect-marker:hover {
+  filter: brightness(1.18);
+  border-color: rgb(255 255 255 / 95%);
+}
+
+.marker-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

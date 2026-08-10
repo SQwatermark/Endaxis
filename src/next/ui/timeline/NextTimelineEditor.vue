@@ -1477,10 +1477,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :scroll-left="timelineScrollLeft"
-            :max-health="simulationRun.enemy.health"
-            :remaining-health="simulationRun.finalEnemyHealth"
             :labels="{
-              enemyHp: t('nextTimeline.simGuide.enemyHp'),
               burst: t('nextTimeline.effect.burst'),
               reaction: t('nextTimeline.effect.reaction'),
               reactionConsumed: t('nextTimeline.effect.reactionConsumed'),
