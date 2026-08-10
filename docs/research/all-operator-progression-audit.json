@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "summary": {
     "operatorCount": 29,
     "effectCount": 259,
@@ -139,16 +139,14 @@
         "sourceEntryCount": 27,
         "effectCount": 26,
         "operatorCount": 26,
+        "generatedEffectCount": 26,
         "priority": 1,
         "nativeParameter": "CostValue",
         "nativeOperation": "Multiply",
         "nextDefinitionKind": "multiplySkillCost",
-        "nextStatus": "missing-runtime-consumer",
-        "blockers": [
-          "selected upgrade modifiers are not applied to compiled skill costs",
-          "skill-group variants do not yet share an upgrade patch stage"
-        ],
-        "implementationDecision": "report-only"
+        "nextStatus": "implemented",
+        "blockers": [],
+        "implementationDecision": "generate"
       }
     ]
   },
@@ -223,15 +221,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0004_pelica_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0004_pelica_potential_3",
@@ -428,15 +436,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0005_chen_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0005_chen_potential_5",
@@ -632,15 +650,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0006_wolfgd_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0006_wolfgd_potential_5",
@@ -829,15 +857,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0007_ikut_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0007_ikut_potential_5",
@@ -1054,15 +1092,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0009_azrila_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0009_azrila_potential_5",
@@ -1170,15 +1218,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0011_seraph_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0011_seraph_potential_3",
@@ -1475,15 +1533,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0012_avywen_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0012_avywen_potential_5",
@@ -1633,15 +1701,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0013_aglina_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0013_aglina_potential_5",
@@ -2026,15 +2104,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0015_lifeng_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0015_lifeng_potential_5",
@@ -2233,15 +2321,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0016_laevat_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0016_laevat_potential_5",
@@ -2645,15 +2743,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0018_dapan_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0018_dapan_potential_5",
@@ -2832,15 +2940,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0019_karin_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0019_karin_potential_5",
@@ -3019,15 +3137,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0020_meurs_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0020_meurs_potential_5",
@@ -3125,15 +3253,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0021_whiten_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0021_whiten_potential_3",
@@ -3377,15 +3515,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0022_bounda_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0022_bounda_potential_5",
@@ -3479,15 +3627,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.9
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0023_antal_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0023_antal_potential_3",
@@ -3765,15 +3923,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0024_deepfin_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0024_deepfin_potential_5",
@@ -3963,15 +4131,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0025_ardelia_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0025_ardelia_potential_5",
@@ -4187,15 +4365,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0026_lastrite_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0026_lastrite_potential_5",
@@ -4467,15 +4655,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0027_tangtang_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0027_tangtang_potential_5",
@@ -4758,15 +4956,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0028_wulfa_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0028_wulfa_potential_5",
@@ -4947,15 +5155,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0029_pograni_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0029_pograni_potential_5",
@@ -5163,15 +5381,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0030_zhuangfy_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0030_zhuangfy_potential_5",
@@ -5409,15 +5637,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0031_mifu_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0031_mifu_potential_5",
@@ -5707,12 +5945,9 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             },
             {
@@ -5729,15 +5964,28 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": [
+              "chr_0032_lizhiyan_ultimate_skill",
+              "chr_0032_lizhiyan_ultimate_skill2"
+            ],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0032_lizhiyan_potential_5",
@@ -6029,15 +6277,25 @@
                 "nativeParameter": "CostValue",
                 "nativeOperation": "Multiply",
                 "nextDefinitionKind": "multiplySkillCost",
-                "nextStatus": "missing-runtime-consumer",
-                "blockers": [
-                  "selected upgrade modifiers are not applied to compiled skill costs",
-                  "skill-group variants do not yet share an upgrade patch stage"
-                ],
-                "implementationDecision": "report-only"
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
               }
             }
-          ]
+          ],
+          "dslConversion": {
+            "status": "complete",
+            "modifiers": [
+              {
+                "kind": "multiplySkillCost",
+                "skillGroupKey": "ultimate",
+                "resource": "ultimateEnergy",
+                "multiplier": 0.85
+              }
+            ],
+            "sourceTargetSkillIds": ["chr_0033_camille_ultimate_skill"],
+            "missingCapabilities": []
+          }
         },
         {
           "effectId": "chr_0033_camille_potential_5",

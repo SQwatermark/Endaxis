@@ -97,6 +97,13 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 禁止的近似方案，并汇总到 `summary.runtimeClosureGaps`。当前详细结论见
 `docs/research/operator-progression-runtime-closure-gaps.md`。
 
+潜能中的终结技能量消耗乘算不需要在 `operators.json` 逐人声明编译器。生成器只在一个
+效果的全部条目均为 `ChangeSkillParam / CostValue / Multiply`、且目标技能全部属于原生
+`UltimateSkill` 技能组时，自动生成 `multiplySkillCost`。双形态干员的多个原生终结技目标
+会归并为同一个 `ultimate` 技能组补丁；各目标倍率不一致、混入其他载荷或指向其他技能组时
+立即报错。全量宽松审计会把同一结果写入效果的 `dslConversion`，其他尚未闭环的潜能仍保留
+`potentialEffects` 支持度缺口，不因其中一个可转换条目而被误报为完整。
+
 ## 当前边界
 
 - Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。

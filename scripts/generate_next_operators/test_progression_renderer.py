@@ -11,7 +11,11 @@ from audit_operator_progression import (
     collect_skill_group_types,
     render_json,
 )
-from progression_renderer import parse_static_attribute_progression, render_potentials
+from progression_renderer import (
+    parse_static_attribute_progression,
+    parse_ultimate_cost_multiplier,
+    render_potentials,
+)
 
 
 def effect_entry(
@@ -47,6 +51,19 @@ def effect_entry(
         },
         **extra,
     }
+
+
+def skill_parameter_entry(*, skill_id: str, value: float) -> dict[str, object]:
+    """构造与 TableCfg 相同的技能参数效果形状，避免测试跳过空占位字段。"""
+    entry = effect_entry(attr_type=0, value=0)
+    entry["modifyType"] = 2
+    entry["skillParamModifier"] = {
+        "modifyType": 2,
+        "paramType": 1,
+        "paramValue": value,
+        "skillId": skill_id,
+    }
+    return entry
 
 
 class ProgressionRendererTests(unittest.TestCase):
@@ -321,7 +338,41 @@ class ProgressionRendererTests(unittest.TestCase):
         )
 
     def test_audit_identifies_source_closed_ultimate_cost_multiplier(self) -> None:
+        entries = [skill_parameter_entry(skill_id="skill.ultimate", value=0.85)]
         facts = audit_skill_parameter_candidates(
+            entries,
+            {"skill.ultimate": 2},
+            "effect.dataList",
+        )
+
+        self.assertEqual(facts[0]["candidate"], "ultimateCostMultiplier")
+        self.assertEqual(facts[0]["runtimeClosure"]["nextStatus"], "implemented")
+        self.assertEqual(facts[0]["runtimeClosure"]["implementationDecision"], "generate")
+        audited = audit_effect(
+            "effect.cost",
+            {"effect.cost": {"dataList": entries}},
+            source="potential",
+            skill_group_types={"skill.ultimate": 2},
+        )
+        self.assertEqual(
+            audited["dslConversion"],
+            {
+                "status": "complete",
+                "modifiers": [
+                    {
+                        "kind": "multiplySkillCost",
+                        "skillGroupKey": "ultimate",
+                        "resource": "ultimateEnergy",
+                        "multiplier": 0.85,
+                    }
+                ],
+                "sourceTargetSkillIds": ["skill.ultimate"],
+                "missingCapabilities": [],
+            },
+        )
+
+    def test_parses_two_form_ultimate_cost_as_one_group_modifier(self) -> None:
+        result = parse_ultimate_cost_multiplier(
             [
                 {
                     "modifyType": 2,
@@ -329,17 +380,111 @@ class ProgressionRendererTests(unittest.TestCase):
                         "modifyType": 2,
                         "paramType": 1,
                         "paramValue": 0.85,
-                        "skillId": "skill.ultimate",
+                        "skillId": "skill.arcane.intellect.ultimate",
                     },
-                }
+                },
+                {
+                    "modifyType": 2,
+                    "skillParamModifier": {
+                        "modifyType": 2,
+                        "paramType": 1,
+                        "paramValue": 0.85,
+                        "skillId": "skill.arcane.will.ultimate",
+                    },
+                },
             ],
-            {"skill.ultimate": 2},
+            {"skill.arcane.intellect.ultimate", "skill.arcane.will.ultimate"},
             "effect.dataList",
         )
 
-        self.assertEqual(facts[0]["candidate"], "ultimateCostMultiplier")
-        self.assertEqual(facts[0]["runtimeClosure"]["nextStatus"], "missing-runtime-consumer")
-        self.assertEqual(facts[0]["runtimeClosure"]["implementationDecision"], "report-only")
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result.multiplier, 0.85)
+        self.assertEqual(
+            result.target_skill_ids,
+            ("skill.arcane.intellect.ultimate", "skill.arcane.will.ultimate"),
+        )
+
+    def test_ultimate_cost_conversion_rejects_mixed_or_inconsistent_data(self) -> None:
+        with self.assertRaisesRegex(ValueError, "mixed ultimate-cost and unrelated"):
+            parse_ultimate_cost_multiplier(
+                [
+                    {
+                        "modifyType": 2,
+                        "skillParamModifier": {
+                            "modifyType": 2,
+                            "paramType": 1,
+                            "paramValue": 0.85,
+                            "skillId": "skill.ultimate",
+                        },
+                    },
+                    {"modifyType": 4, "skillParamModifier": {"skillId": ""}},
+                ],
+                {"skill.ultimate"},
+                "effect.dataList",
+            )
+        with self.assertRaisesRegex(ValueError, "different cost multipliers"):
+            parse_ultimate_cost_multiplier(
+                [
+                    {
+                        "modifyType": 2,
+                        "skillParamModifier": {
+                            "modifyType": 2,
+                            "paramType": 1,
+                            "paramValue": value,
+                            "skillId": skill_id,
+                        },
+                    }
+                    for skill_id, value in (("skill.a", 0.85), ("skill.b", 0.8))
+                ],
+                {"skill.a", "skill.b"},
+                "effect.dataList",
+            )
+
+    def test_render_potentials_infers_ultimate_cost_without_manifest_compile_hint(self) -> None:
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [{"key": "reducedUltimateCost"}],
+                "skillGroups": [
+                    {"key": "ultimate", "skillKeys": ["ultimateInt", "ultimateWill"]}
+                ],
+            },
+            [
+                SimpleNamespace(key="comboSkill", skillId="combo"),
+                SimpleNamespace(key="ultimateInt", skillId="ultimate.int"),
+                SimpleNamespace(key="ultimateWill", skillId="ultimate.will"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 1, "potentialEffectId": "effect.cost"}
+                    ]
+                }
+            },
+            {
+                "effect.cost": {
+                    "dataList": [
+                        {
+                            "modifyType": 2,
+                            "skillParamModifier": {
+                                "modifyType": 2,
+                                "paramType": 1,
+                                "paramValue": 0.85,
+                                "skillId": skill_id,
+                            },
+                        }
+                        for skill_id in ("ultimate.int", "ultimate.will")
+                    ]
+                }
+            },
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertEqual(rendered[0].count("kind: 'multiplySkillCost'"), 1)
+        self.assertIn("skillGroupKey: 'ultimate'", rendered[0])
+        self.assertIn("multiplier: 0.85", rendered[0])
 
     def test_audit_does_not_treat_non_ultimate_cost_as_ultimate_reduction(self) -> None:
         facts = audit_skill_parameter_candidates(

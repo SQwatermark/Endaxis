@@ -19,6 +19,7 @@ from progression_renderer import (
     MODIFIER_TYPE_NAMES,
     STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES,
     parse_static_attribute_progression,
+    parse_ultimate_cost_multiplier,
 )
 from source_utils import require_dict, require_list
 
@@ -69,20 +70,16 @@ NEXT_RUNTIME_CLOSURE_GAPS: dict[int, dict[str, Any]] = {
     },
 }
 
-# 原生技能参数 Patch 的数据语义已经闭环，但这里还要单独检查 Next 是否真的消费对应
-# Upgrade modifier。仅有类型声明或生成文本不能算“可转换”。
+# 原生技能参数 Patch 的数据语义和 Next 消费链都闭环后，审计才允许把候选标为可转换。
 SKILL_PARAMETER_CONVERSION_CANDIDATES: dict[str, dict[str, Any]] = {
     "ultimateCostMultiplier": {
         "priority": 1,
         "nativeParameter": "CostValue",
         "nativeOperation": "Multiply",
         "nextDefinitionKind": "multiplySkillCost",
-        "nextStatus": "missing-runtime-consumer",
-        "blockers": [
-            "selected upgrade modifiers are not applied to compiled skill costs",
-            "skill-group variants do not yet share an upgrade patch stage",
-        ],
-        "implementationDecision": "report-only",
+        "nextStatus": "implemented",
+        "blockers": [],
+        "implementationDecision": "generate",
     },
 }
 
@@ -183,7 +180,7 @@ def audit_skill_parameter_candidates(
     skill_group_types: dict[str, int],
     path: str,
 ) -> list[dict[str, Any]]:
-    """识别源数据已闭环但仍被 Next 运行时阻塞的通用技能参数 Patch。"""
+    """记录技能参数 Patch 事实，并标出能够无损生成的通用候选。"""
     candidates: list[dict[str, Any]] = []
     for index, raw_entry in enumerate(require_list(raw_entries, path)):
         entry_path = f"{path}[{index}]"
@@ -327,6 +324,29 @@ def audit_effect(
             skill_group_types,
             f"PotentialTalentEffectTable.{effect_id}.dataList",
         )
+        conversion = parse_ultimate_cost_multiplier(
+            effect.get("dataList"),
+            {
+                skill_id
+                for skill_id, group_type in skill_group_types.items()
+                if group_type == 2
+            },
+            f"PotentialTalentEffectTable.{effect_id}.dataList",
+        )
+        if conversion is not None:
+            result["dslConversion"] = {
+                "status": "complete",
+                "modifiers": [
+                    {
+                        "kind": "multiplySkillCost",
+                        "skillGroupKey": "ultimate",
+                        "resource": "ultimateEnergy",
+                        "multiplier": conversion.multiplier,
+                    }
+                ],
+                "sourceTargetSkillIds": list(conversion.target_skill_ids),
+                "missingCapabilities": [],
+            }
     if source == "potential" and any(
         "attrModifier" in entry["payloadKinds"] for entry in entries
     ):
@@ -393,6 +413,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
     skill_parameter_candidate_entries: Counter[str] = Counter()
     skill_parameter_candidate_effects: Counter[str] = Counter()
     skill_parameter_candidate_operators: dict[str, set[str]] = {}
+    generated_skill_parameter_effects: Counter[str] = Counter()
     for character_id in sorted(set(characters).difference(OBSOLETE_CHARACTER_IDS)):
         character = require_dict(characters[character_id], f"CharacterTable.{character_id}")
         growth = require_dict(growth_table.get(character_id), f"CharGrowthTable.{character_id}")
@@ -450,6 +471,8 @@ def build_audit(tables: Path) -> dict[str, Any]:
                 )
             for candidate in effect_candidates:
                 skill_parameter_candidate_effects[candidate] += 1
+                if effect.get("dslConversion", {}).get("status") == "complete":
+                    generated_skill_parameter_effects[candidate] += 1
             for entry in effect["entries"]:
                 kinds = tuple(entry["payloadKinds"])
                 combination_counts[(source, kinds)] += 1
@@ -466,7 +489,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
         )
 
     return {
-        "schemaVersion": 5,
+        "schemaVersion": 6,
         "summary": {
             "operatorCount": len(operators),
             "effectCount": sum(len(operator["effects"]) for operator in operators),
@@ -497,6 +520,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
                     "operatorCount": len(
                         skill_parameter_candidate_operators.get(candidate, set())
                     ),
+                    "generatedEffectCount": generated_skill_parameter_effects[candidate],
                     **definition,
                 }
                 for candidate, definition in sorted(

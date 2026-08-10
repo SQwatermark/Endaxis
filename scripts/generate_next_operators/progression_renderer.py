@@ -26,6 +26,8 @@ __all__ = [
     "STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES",
     "ProgressionConversionIssue",
     "StaticAttributeProgressionResult",
+    "UltimateCostMultiplierResult",
+    "parse_ultimate_cost_multiplier",
     "parse_static_attribute_progression",
     "render_potentials",
     "render_talents",
@@ -136,6 +138,14 @@ class StaticAttributeProgressionResult:
     ]
     issues: tuple[ProgressionConversionIssue, ...]
     missing_capabilities: tuple[Literal["potentialEffects"], ...]
+
+
+@dataclass(frozen=True)
+class UltimateCostMultiplierResult:
+    """由完整原生效果证明的终结技能量费用乘算。"""
+
+    multiplier: int | float
+    target_skill_ids: tuple[str, ...]
 
 
 def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
@@ -303,6 +313,63 @@ def parse_static_attribute_progression(
     )
 
 
+def parse_ultimate_cost_multiplier(
+    raw_entries: Any,
+    ultimate_skill_ids: set[str],
+    path: str,
+) -> UltimateCostMultiplierResult | None:
+    """只转换完整匹配 ChangeSkillParam/CostValue/Multiply 的终结技效果。
+
+    返回 ``None`` 表示该效果属于其他已知养成语义；一旦形状看似费用补丁但证据不完整，
+    就直接报错，避免把混合载荷或错误目标悄悄转换成降费。
+    """
+    entries = require_list(raw_entries, path)
+    modifiers = [
+        require_dict(
+            require_dict(entry, f"{path}[{index}]").get("skillParamModifier"),
+            f"{path}[{index}].skillParamModifier",
+        )
+        for index, entry in enumerate(entries)
+    ]
+    if not any(modifier.get("paramType") == 1 for modifier in modifiers):
+        return None
+    parsed: list[tuple[str, float]] = []
+    for index, (raw_entry, modifier) in enumerate(zip(entries, modifiers, strict=True)):
+        entry_path = f"{path}[{index}]"
+        entry = require_dict(raw_entry, entry_path)
+        skill_id = modifier.get("skillId")
+        if not isinstance(skill_id, str) or not skill_id:
+            raise ValueError(f"{entry_path}: mixed ultimate-cost and unrelated payloads")
+        parameter_type = modifier.get("paramType")
+        if parameter_type != 1:
+            raise ValueError(f"{entry_path}: mixed ultimate-cost parameter types")
+        if (
+            entry.get("modifyType") != 2
+            or modifier.get("modifyType") != 2
+            or skill_id not in ultimate_skill_ids
+        ):
+            raise ValueError(
+                f"{entry_path}: expected ChangeSkillParam/CostValue/Multiply targeting an ultimate skill"
+            )
+        value = require_number(modifier.get("paramValue"), f"{entry_path}.skillParamModifier.paramValue")
+        if value < 0:
+            raise ValueError(f"{entry_path}.skillParamModifier.paramValue: expected non-negative multiplier")
+        parsed.append((skill_id, value))
+    if not parsed:
+        return None
+    target_ids = tuple(skill_id for skill_id, _ in parsed)
+    if len(set(target_ids)) != len(target_ids):
+        raise ValueError(f"{path}: duplicate ultimate skill targets")
+    multipliers = {value for _, value in parsed}
+    if len(multipliers) != 1:
+        raise ValueError(f"{path}: ultimate variants use different cost multipliers")
+    multiplier = next(iter(multipliers))
+    return UltimateCostMultiplierResult(
+        multiplier=int(multiplier) if multiplier.is_integer() else multiplier,
+        target_skill_ids=target_ids,
+    )
+
+
 def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult) -> str:
     if (
         not result.build_attribute_modifiers
@@ -349,6 +416,32 @@ def skill_id_by_key(skills: list[SkillSource], key: str) -> str:
     if len(matches) != 1:
         raise ValueError(f"operator skills: expected exactly one skill with key {key!r}")
     return matches[0]
+
+
+def skill_ids_by_group_key(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    group_key: str,
+) -> set[str]:
+    """从稳定技能组声明取得全部原生技能 ID，双形态变体也归入同一组。"""
+    raw_groups = require_list(
+        operator.get("skillGroups", []),
+        f"{operator['slug']}.skillGroups",
+    )
+    if not raw_groups:
+        return {skill_id_by_key(skills, group_key)}
+    groups = [
+        require_dict(item, f"{operator['slug']}.skillGroups[]")
+        for item in raw_groups
+        if require_dict(item, f"{operator['slug']}.skillGroups[]").get("key") == group_key
+    ]
+    if len(groups) != 1:
+        raise ValueError(f"{operator['slug']}.skillGroups: expected one {group_key!r} group")
+    skill_keys = require_list(groups[0].get("skillKeys"), f"{operator['slug']}.{group_key}.skillKeys")
+    ids = {skill_id_by_key(skills, str(key)) for key in skill_keys}
+    if not ids:
+        raise ValueError(f"{operator['slug']}.{group_key}: expected at least one skill")
+    return ids
 
 
 def render_talents(
@@ -452,7 +545,8 @@ def render_potentials(
         raise ValueError(f"{char_id}: potential config count does not match source")
     result: list[str] = []
     combo_skill_id = skill_id_by_key(skills, "comboSkill")
-    ultimate_skill_id = skill_id_by_key(skills, "ultimate")
+    ultimate_skill_ids = skill_ids_by_group_key(operator, skills, "ultimate")
+    ultimate_skill_id = next(iter(ultimate_skill_ids)) if len(ultimate_skill_ids) == 1 else None
     for raw_unlock, raw_config in zip(unlocks, configs, strict=True):
         unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[]")
         config = require_dict(raw_config, f"{operator['slug']}.potentials[]")
@@ -461,8 +555,19 @@ def render_potentials(
         data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
         key = str(config["key"])
         kind = config.get("compile")
+        inferred_ultimate_cost = parse_ultimate_cost_multiplier(
+            data_list,
+            ultimate_skill_ids,
+            f"PotentialTalentEffectTable.{effect_id}.dataList",
+        )
+        if inferred_ultimate_cost is not None:
+            if kind not in {None, "multiplyUltimateCost"}:
+                raise ValueError(
+                    f"potential {key}: source is an ultimate cost multiplier, not {kind!r}"
+                )
+            kind = "multiplyUltimateCost"
         data: dict[str, Any] | None = None
-        if kind != "staticAttributes":
+        if kind not in {"staticAttributes", "multiplyUltimateCost"}:
             if len(data_list) != 1:
                 raise ValueError(f"{effect_id}: expected one effect entry")
             data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
@@ -524,11 +629,7 @@ def render_potentials(
                     ]
                 )
         elif kind == "multiplyUltimateCost":
-            assert data is not None
-            modifier = require_dict(data.get("skillParamModifier"), f"{effect_id}.skillParamModifier")
-            if modifier.get("skillId") != ultimate_skill_id or modifier.get("paramType") != 1:
-                raise ValueError(f"{effect_id}: unexpected ultimate cost modifier target")
-            value = float(modifier["paramValue"])
+            assert inferred_ultimate_cost is not None
             body = "\n".join(
                 [
                     "  modifiers: [",
@@ -536,7 +637,7 @@ def render_potentials(
                     "      kind: 'multiplySkillCost',",
                     "      skillGroupKey: 'ultimate',",
                     "      resource: 'ultimateEnergy',",
-                    f"      multiplier: {ts_inline_literal(value)},",
+                    f"      multiplier: {ts_inline_literal(inferred_ultimate_cost.multiplier)},",
                     "    },",
                     "  ],",
                 ]

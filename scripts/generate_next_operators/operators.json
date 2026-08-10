@@ -10,7 +10,7 @@
       ],
       "potentials": [
         { "key": "extendedElectrification", "compile": "multiplyReactionDuration" },
-        { "key": "reducedUltimateCost", "compile": "multiplyUltimateCost" },
+        { "key": "reducedUltimateCost" },
         { "key": "attackAfterElectrification", "compile": "attackAfterReaction" },
         { "key": "strongerElectrification", "compile": "setReactionEffectiveness" },
         { "key": "ultimateCriticalRate", "compile": "addUltimateCriticalRate" }
