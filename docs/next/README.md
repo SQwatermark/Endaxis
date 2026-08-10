@@ -9,7 +9,7 @@ Next 不是对旧模拟器的局部重构，而是在 `src/next` 中并行建设
 1. [为什么要建设 Next](./01-introduction.md)：新版是什么、解决哪些旧问题、优势和边界是什么。
 2. [分层架构](./02-layered-architecture.md)：各层职责、依赖方向和代码目录。
 3. [端到端数据流](./03-end-to-end-data-flow.md)：一个项目如何从加载、编辑一路走到模拟和 UI。
-4. [核心数据模型](./04-core-models.md)：项目文档、目录定义、编译产物、运行时状态和回执的区别。
+4. [核心数据模型](./04-core-models.md)：存档、目录定义、编译产物、运行时状态和回执的区别。
 5. [战斗运行时](./05-combat-runtime.md)：帧循环、技能、资源、Buff、状态、伤害、附着和能力预检。
 6. [应用层与 UI](./06-application-and-ui.md)：命令、历史、ViewModel、i18n、主题和旧 UI 兼容策略。
 7. [数据生成与证据](./07-data-generation-and-evidence.md)：解包/反编译证据如何进入严格 DSL。

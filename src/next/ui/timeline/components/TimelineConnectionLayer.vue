@@ -1,18 +1,27 @@
 <script setup lang="ts">
 /**
- * 将项目中的技能块连线投影到时间轴坐标系。
+ * 把已保存的连线画到时间轴上。
  *
- * 组件只消费持久化连接和当前拖拽预览，不修改项目；当前仅渲染技能块端点，待命中点
- * 拥有独立可见标记后再补 damageHit 端点，避免用技能块位置冒充命中位置。
+ * 只负责画，不改数据；连到命中点的线，端点按命中点实际位置算，不用技能块位置顶替。
  */
 import { computed } from 'vue';
-import type { ScenarioDocument } from '../../../core/project/schema';
+import type {
+  ConnectionDocument,
+  ConnectionEndpoint,
+  ScenarioDocument,
+} from '../../../core/project/schema';
 import type { TimelineConnectionPort } from '../timelineConnections';
+import { findCastHitMarker } from '../timelineHitProjection';
 import { frameToTimelinePx } from '../timelineGeometry';
 
 interface Point {
   readonly x: number;
   readonly y: number;
+}
+
+interface ResolvedEndpoint {
+  readonly point: Point;
+  readonly port: TimelineConnectionPort;
 }
 
 interface ConnectionPreview {
@@ -65,9 +74,32 @@ function findSkillCast(skillCastId: string) {
   return null;
 }
 
-function endpointPoint(skillCastId: string, port: TimelineConnectionPort): Point | null {
-  const found = findSkillCast(skillCastId);
+function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null {
+  const found = findSkillCast(endpoint.skillCastId);
   if (found === null) return null;
+  if (endpoint.kind === 'damageHit') {
+    const hit = findCastHitMarker(found.skillCast, endpoint.hitId);
+    if (hit === null) return null;
+    return {
+      point: {
+        x:
+          props.trackHeaderWidth +
+          frameToTimelinePx(
+            found.skillCast.placement.startFrame + hit.frameOffset,
+            props.scenario.battle.prepFrames,
+            props.pxPerFrame,
+          ),
+        // 命中标记渲染在技能块底部边缘，端点与标记中心对齐。
+        y:
+          props.rulerHeight +
+          found.trackIndex * props.trackHeight +
+          props.actionTop +
+          props.actionHeight,
+      },
+      port: 'top',
+    };
+  }
+  const port = (endpoint.port ?? 'right') as TimelineConnectionPort;
   const left =
     props.trackHeaderWidth +
     frameToTimelinePx(
@@ -78,7 +110,10 @@ function endpointPoint(skillCastId: string, port: TimelineConnectionPort): Point
   const width = Math.max(48, found.skillCast.editable.durationFrames * props.pxPerFrame);
   const top = props.rulerHeight + found.trackIndex * props.trackHeight + props.actionTop;
   const ratio = ports[port];
-  return { x: left + width * ratio.x, y: top + props.actionHeight * ratio.y };
+  return {
+    point: { x: left + width * ratio.x, y: top + props.actionHeight * ratio.y },
+    port,
+  };
 }
 
 function pathData(
@@ -103,21 +138,27 @@ function pathData(
 }
 
 const projectedConnections = computed(() =>
-  props.scenario.connections.flatMap(connection => {
-    if (connection.from.kind !== 'skillCast' || connection.to.kind !== 'skillCast') return [];
-    const fromPort = (connection.from.port ?? 'right') as TimelineConnectionPort;
-    const toPort = (connection.to.port ?? 'left') as TimelineConnectionPort;
-    const start = endpointPoint(connection.from.skillCastId, fromPort);
-    const end = endpointPoint(connection.to.skillCastId, toPort);
+  props.scenario.connections.flatMap((connection: ConnectionDocument) => {
+    const start = resolveEndpoint(connection.from);
+    const end = resolveEndpoint(connection.to);
     if (start === null || end === null) return [];
-    return [{ ...connection, path: pathData(start, fromPort, end, toPort) }];
+    return [
+      {
+        ...connection,
+        path: pathData(start.point, start.port, end.point, end.port),
+      },
+    ];
   }),
 );
 
 const previewPath = computed(() => {
   if (props.preview === null) return null;
-  const start = endpointPoint(props.preview.skillCastId, props.preview.port);
-  return start === null ? null : pathData(start, props.preview.port, props.preview.pointer, 'left');
+  const start = resolveEndpoint({
+    kind: 'skillCast',
+    skillCastId: props.preview.skillCastId,
+    port: props.preview.port,
+  });
+  return start === null ? null : pathData(start.point, start.port, props.preview.pointer, 'left');
 });
 </script>
 

@@ -1176,6 +1176,31 @@
         "accessory1": "Аксессуар 1",
         "accessory2": "Аксессуар 2"
       }
+    },
+    "simulating": "Симуляция…",
+    "simulationFailed": "Ошибка симуляции",
+    "reSimulate": "Заново",
+    "hitInflictionSuffix": " поражение",
+    "hitReactionConsumed": " поглощено",
+    "hitDetail": {
+      "frame": "Кадр",
+      "damage": "Урон",
+      "actualDamage": "Факт. урон",
+      "remainingHealth": "Осталось HP",
+      "damageType": "Тип урона",
+      "isCritical": "Крит",
+      "criticalMultiplier": "Множитель крита",
+      "defenseMultiplier": "Множитель защиты",
+      "resistanceMultiplier": "Множитель сопр.",
+      "element": "Элемент",
+      "outcome": "Итог",
+      "reaction": "Реакция",
+      "reactionConsumed": "Поглощено",
+      "level": "Уровень"
+    },
+    "simGuide": {
+      "enemyHp": "HP врага",
+      "poise": "Ошеломление"
     }
   }
 }

@@ -87,7 +87,7 @@ Next 当前的 `CombatEventTrigger` 只覆盖：
 
 ### 运行时装配
 
-`CombatRuntimeAssembly` 只接收已编译技能、资源、Buff/状态容器和操作执行器，不读取项目文档或游戏目录。装备应在进入该装配层前完成：
+`CombatRuntimeAssembly` 只接收已编译技能、资源、Buff/状态容器和操作执行器，不读取存档或游戏目录。装备应在进入该装配层前完成：
 
 - 武器、装备、套装引用和等级解析；
 - 套装是否生效的判断；

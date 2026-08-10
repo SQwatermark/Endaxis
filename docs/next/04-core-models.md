@@ -14,7 +14,7 @@
 
 任何字段先判断属于哪一类，再决定放在哪里。
 
-## 2. V2 项目文档
+## 2. V2 存档
 
 唯一定义位于 `src/next/core/project/schema.ts`，当前 `schemaVersion` 为 2，时间统一使用 30 FPS 的整数帧。
 

@@ -74,7 +74,7 @@ Buff 周期触发已恢复固定值或 Blackboard 输入的间隔与最大次数
 
 `resolveStaticPlayerDamageSnapshots` 是场景构筑进入上述执行器的静态边界。它从同一份 `ResolvedOperatorPanel` 读取攻击力、暴击率和暴击伤害，从 `CombatEnemyProgram` 读取防御、抗性与处决承伤倍率，并按当前伤害类型和技能类型筛选构筑期 `damageBonus`。该函数必须逐个伤害步骤调用；它不缓存命中时状态，也不替代 Buff、瞬时属性、目标状态、事件或暴击采样。
 
-`StandardPlayerDamageEnvironment` 提供当前可以诚实贯通的场景级标准生命伤害子集。每个实例独占敌人生命账本、按实体身份隔离的 Buff runtime 和 Ability 事件中心；运行时快照由调用方显式提供。同一干员的技能 Buff 操作与伤害修正必须读取环境创建的同一个 runtime，不能各自维护容器。失衡、元素附着、瞬时属性和未知操作都会明确失败，不能用空回调或单位值把这条子链冒充为完整战斗环境。同一实例在绑定首个敌人后不得跨场景复用。
+`StandardPlayerDamageEnvironment` 提供当前可以诚实贯通的场景级标准玩家战斗子集。每个实例独占敌人生命/失衡账本、按实体身份隔离的 Buff runtime 和 Ability 事件中心；运行时快照由调用方显式提供。同一干员的技能 Buff 操作与伤害修正必须读取环境创建的同一个 runtime，不能各自维护容器。单节点失衡已接入：敌人 `CombatVitals` 以帧制失衡规则初始化（满值起始、破防时长对应恢复计时），由环境创建的 `CombatVitalsRuntime` 交给装配根逐帧推进，`PoiseApplied`/`PoiseRecovered` 进入同一份回执；多节点失衡仍不近似塞入单节点账本。注入版本化元素附着目录后，`applyElementalInfliction` 按目录附着状态机执行（附着、爆发、复合状态均落到敌人 Buff 容器）；未注入目录时该步骤仍被预检拒绝。瞬时属性、Buff 和未知操作仍明确失败，不能用空回调或单位值把这条子链冒充为完整战斗环境。同一实例在绑定首个敌人后不得跨场景复用。
 
 `inspectStandardPlayerDamageCompatibility` 在运行时装配推进前检查本次执行计划。它只扫描结束帧之前实际排入时间轴的技能，递归覆盖 `conditional` 和 `once` 的所有分支，并额外拒绝尚未安装的装备事件监听器。问题以稳定代码、编译产物路径和技术细节返回；应用入口通过聚合错误一次拒绝全部不兼容内容，因此不会出现已经扣费、写黑板或造成部分伤害后才发现后续步骤无法执行的半成品结果。未排入本次执行计划的技能不参与检查，因为完整技能目录不等于本次模拟的可达程序。
 

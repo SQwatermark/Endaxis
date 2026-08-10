@@ -1,5 +1,5 @@
 /**
- * 将新版项目文档和只读干员目录投影为时间轴 UI 的稳定读取模型。
+ * 将新版存档和只读干员目录投影为时间轴 UI 的稳定读取模型。
  * 这里不保存编辑状态、不翻译文本，也不调用战斗模拟；组件只能把身份交给 i18n 和命令层处理。
  */
 import type { OperatorDefinition, SkillType } from '../../core/game-data/operatorDefinition';

@@ -272,7 +272,7 @@ interface CompiledOperatorCombatLoadout {
 
 当前仓库尚无完整的 `ScenarioDocument -> CombatRuntimeAssembly` 编译入口。装备扩展应成为该入口的一段输入，而不是另建平行模拟器：
 
-1. **项目校验**：继续只检查 build 结构和目录引用，不把目录效果复制进项目文档。
+1. **项目校验**：继续只检查 build 结构和目录引用，不把目录效果复制进存档。
 2. **场景解析**：根据轨道引用找到 `OperatorBuildDocument`、`WeaponBuildDocument` 和四件 `GearBuildDocument`，通过 `GameDataRepository` 读取定义并解析三件套。
 3. **构筑解析**：调用装备贡献编译器展开等级，形成每名干员的静态修正和持久 Buff 蓝图。
 4. **场景编译**：合并干员技能、天赋潜能、装备、活动机制和全局配置，产出唯一的 `CompiledOperatorCombatLoadout`。

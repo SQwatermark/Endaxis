@@ -24,10 +24,16 @@ import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
+import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
+import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
+import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
+import { useScenarioSimulation } from './useScenarioSimulation';
+import { sampleStepCurve } from '../../core/projection/curveSampling';
+import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import {
   PROJECT_FPS,
   type EditableActionValues,
@@ -86,9 +92,17 @@ import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
 import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
 import {
   createSkillCastConnection,
+  createDamageHitConnection,
   removeTimelineConnection,
   type TimelineConnectionPort,
 } from './timelineConnections';
+import {
+  projectCastHitMarkers,
+  findCastHitMarker,
+  type TimelineHitMarkerView,
+} from './timelineHitProjection';
+import { projectHitEffectsByCast, type TimelineHitEffectLabel } from './timelineHitEffects';
+import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
@@ -106,6 +120,7 @@ const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
+const timelineScrollLeft = ref(0);
 const connectionDrag = ref<{
   skillCastId: string;
   port: TimelineConnectionPort;
@@ -232,6 +247,27 @@ const ids: TimelineDocumentIdAllocator = {
 };
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const simulationService = new ScenarioSimulationService({
+  catalog: nextGameDataRepository,
+  catalogRevision: nextGameDataRepository.revision,
+  resources: {
+    sharedSpGain: { baseGainEfficiency: 1 },
+    spRecoveryPauseDuration: 1.5,
+    ultimateEnergySystemUnlocked: true,
+    normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+  },
+});
+const {
+  run: simulationRun,
+  running: simulationRunning,
+  stale: simulationStale,
+  error: simulationError,
+  diagnosticsByCastId,
+  simulateNow,
+} = useScenarioSimulation({
+  scenario,
+  service: simulationService,
+});
 const panelDialogOperator = computed(() => {
   const trackIndex = panelDialogTrack.value;
   return trackIndex === null
@@ -266,10 +302,175 @@ const timelineWidth = computed(() =>
     pxPerFrame.value,
   ),
 );
-const cursorGuideTime = computed(() => {
-  const frame = cursorGuide.value?.sampleFrame ?? 0;
-  return `${Number((frame / PROJECT_FPS).toFixed(2))}s`;
+function formatGuideNumber(value: number | null): string {
+  if (value === null) return '--';
+  return String(Math.round(value * 100) / 100);
+}
+
+function castWarningTitle(castId: string): string {
+  const reasons = diagnosticsByCastId.value.get(castId);
+  return reasons === undefined || reasons.length === 0 ? '' : reasons.join(', ');
+}
+
+const castHitEffects = computed(() => {
+  const current = simulationRun.value;
+  if (current === null || simulationStale.value) {
+    return new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
+  }
+  const byCastId = new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
+  for (const track of scenario.value.tracks) {
+    if (track === null) continue;
+    for (const cast of track.skillCasts) {
+      byCastId.set(
+        cast.id,
+        projectHitEffectsByCast(scenario.value, current.receiptEntries, cast.id),
+      );
+    }
+  }
+  return byCastId;
 });
+
+function damageElementLabel(element: string): string {
+  const key = `hitEditor.elements.${element}`;
+  const translated = t(key);
+  return translated === key ? element : translated;
+}
+
+/** 各干员元素的轨道充能曲线颜色（与旧版 gauge 的干员元素色一致）。 */
+const GAUGE_ELEMENT_COLORS: Readonly<Record<string, string>> = {
+  electric: '#ffec3d',
+  heat: '#ff5a5f',
+  cryo: '#69c0ff',
+  nature: '#52c41a',
+  physical: '#a5a5a8',
+};
+
+function gaugeColorFor(trackIndex: TrackIndex): string {
+  const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
+  const element =
+    operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug)?.element;
+  return element === undefined || element === null
+    ? '#00e5ff'
+    : (GAUGE_ELEMENT_COLORS[element] ?? '#00e5ff');
+}
+
+function gaugeCurveFor(trackIndex: TrackIndex): OperatorUltimateEnergyCurve | null {
+  const current = simulationRun.value;
+  const track = viewModel.value.tracks[trackIndex];
+  if (current === null || track === undefined || track.operatorBuildId === null) return null;
+  return (
+    current.resourceCurves.ultimateEnergy.find(
+      curve => curve.operatorId === track.operatorBuildId,
+    ) ?? null
+  );
+}
+
+function reactionName(reaction: string): string {
+  const key = `effects.name.${reaction}`;
+  const translated = t(key);
+  return translated === key ? reaction : translated;
+}
+
+function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
+  if (label === undefined) return '';
+  const parts: string[] = [];
+  for (const damage of label.damage) {
+    parts.push(
+      `${Math.round(damage.value)}${damage.isCritical ? '!' : ''} ${damageElementLabel(damage.damageType)}`,
+    );
+  }
+  for (const infliction of label.infliction) {
+    parts.push(`${damageElementLabel(infliction.element)}${t('nextTimeline.hitInflictionSuffix')}`);
+  }
+  for (const reaction of label.reactions) {
+    const name = reactionName(reaction.reaction);
+    parts.push(
+      reaction.applied
+        ? `${name} Lv${reaction.level}`
+        : `${name}${t('nextTimeline.hitReactionConsumed')}`,
+    );
+  }
+  return parts.join(' · ');
+}
+
+function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMarkerView[] {
+  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === castId,
+  );
+  if (cast === undefined) return [];
+  const effects = castHitEffects.value.get(castId);
+  return (
+    projectCastHitMarkers(cast)
+      // 条件分支里的命中只在真的触发过时才显示，和旧版一致。
+      .filter(marker => !marker.conditional || (effects !== undefined && effects.has(marker.hitId)))
+      .map(marker => ({
+        hitId: marker.hitId,
+        leftPx: marker.frameOffset * pxPerFrame.value,
+        ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
+      }))
+  );
+}
+
+const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
+const hitDetail = computed(() => {
+  const target = hitDetailTarget.value;
+  const current = simulationRun.value;
+  if (target === null || current === null) return null;
+  const track = scenario.value.tracks[target.trackIndex];
+  const cast = track?.skillCasts.find(candidate => candidate.id === target.castId);
+  if (track === null || cast === undefined || track.operatorBuildId === null) return null;
+  const marker = findCastHitMarker(cast, target.hitId);
+  if (marker === null) return null;
+  const absoluteFrame = cast.placement.startFrame + marker.frameOffset;
+  const entries = current.receiptEntries.filter(
+    entry =>
+      entry.frame === absoluteFrame &&
+      entry.sourceId === track.operatorBuildId &&
+      (marker.stepKey === undefined || entry.data?.stepKey === marker.stepKey),
+  );
+  return { cast, marker, entries };
+});
+const hitDetailTitle = computed(() => {
+  const detail = hitDetail.value;
+  const target = hitDetailTarget.value;
+  if (detail === null || target === null) return '';
+  const trackModel = viewModel.value.tracks[target.trackIndex];
+  const castModel = trackModel?.skillCasts.find(cast => cast.id === target.castId);
+  if (trackModel === undefined || castModel === undefined) {
+    return `${target.castId} · ${detail.marker.frameOffset}f`;
+  }
+  return `${timelineCastLabel(castModel, trackModel)} · ${detail.marker.frameOffset}f`;
+});
+
+const cursorGuideLines = computed(() => {
+  const frame = cursorGuide.value?.sampleFrame ?? 0;
+  const lines = [`${Number((frame / PROJECT_FPS).toFixed(2))}s`];
+  const current = simulationRun.value;
+  if (current !== null) {
+    const sp = sampleStepCurve(current.resourceCurves.sp.points, frame);
+    lines.push(
+      `SP ${formatGuideNumber(sp.value)}/${formatGuideNumber(current.resourceCurves.sp.maxValue)}`,
+    );
+    const health = sampleStepCurve(current.enemyHealthCurve.points, frame);
+    lines.push(
+      `${t('nextTimeline.simGuide.enemyHp')} ${formatGuideNumber(health.value)}/${formatGuideNumber(current.enemyHealthCurve.maxValue)}`,
+    );
+    if (current.poiseCurve.maxValue > 0) {
+      const poise = sampleStepCurve(current.poiseCurve.points, frame);
+      lines.push(
+        `${t('nextTimeline.simGuide.poise')} ${formatGuideNumber(poise.value)}/${formatGuideNumber(current.poiseCurve.maxValue)}`,
+      );
+    }
+    for (const curve of current.resourceCurves.ultimateEnergy) {
+      const sampled = sampleStepCurve(curve.points, frame);
+      lines.push(
+        `${curve.operatorId} ${formatGuideNumber(sampled.value)}/${formatGuideNumber(curve.maxValue)}`,
+      );
+    }
+  }
+  return lines;
+});
+const cursorGuideText = computed(() => cursorGuideLines.value.join('\n'));
 
 function operatorName(slug: string | null): string {
   return slug === null ? t('nextTimeline.emptyTrack') : getOperatorGameName(slug, locale.value);
@@ -394,16 +595,28 @@ function finishConnectionDrag(event: PointerEvent): void {
     )
     .find((element): element is HTMLElement => element !== null);
   const targetSkillCastId = target?.dataset.connectionActionId;
-  const targetPort = target?.dataset.connectionPort as TimelineConnectionPort | undefined;
-  if (targetSkillCastId === undefined || targetPort === undefined) return;
+  const targetPortValue = target?.dataset.connectionPort;
+  if (targetSkillCastId === undefined || targetPortValue === undefined) return;
 
+  if (targetPortValue.startsWith('hit:')) {
+    commitScenario('createDamageHitConnection', current =>
+      createDamageHitConnection(current, {
+        id: ids.allocate('connection'),
+        fromSkillCastId: drag.skillCastId,
+        fromPort: drag.port,
+        toSkillCastId: targetSkillCastId,
+        toHitId: targetPortValue.slice('hit:'.length),
+      }),
+    );
+    return;
+  }
   commitScenario('createTimelineConnection', current =>
     createSkillCastConnection(current, {
       id: ids.allocate('connection'),
       fromSkillCastId: drag.skillCastId,
       fromPort: drag.port,
       toSkillCastId: targetSkillCastId,
-      toPort: targetPort,
+      toPort: targetPortValue as TimelineConnectionPort,
     }),
   );
 }
@@ -1048,6 +1261,7 @@ function setPanelDialogVisible(visible: boolean): void {
         class="timeline-scroll"
         :class="{ 'is-panning': isPanning }"
         @wheel="handleTimelineWheel"
+        @scroll="timelineScrollLeft = timelineScroll?.scrollLeft ?? 0"
       >
         <div
           ref="timelineSurface"
@@ -1100,7 +1314,7 @@ function setPanelDialogVisible(visible: boolean): void {
             class="cursor-guide"
             :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH + cursorGuide.leftPx}px` }"
           >
-            <div class="cursor-guide-label">{{ cursorGuideTime }}</div>
+            <div class="cursor-guide-label">{{ cursorGuideText }}</div>
           </div>
 
           <div
@@ -1155,6 +1369,14 @@ function setPanelDialogVisible(visible: boolean): void {
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
+              <TimelineTrackGauge
+                :curve="gaugeCurveFor(track.trackIndex)"
+                :color="gaugeColorFor(track.trackIndex)"
+                :prep-frames="scenario.battle.prepFrames"
+                :duration-frames="scenario.battle.durationFrames"
+                :px-per-frame="pxPerFrame"
+                :height="160"
+              />
               <div
                 class="prep-zone"
                 :style="{ width: `${scenario.battle.prepFrames * pxPerFrame}px` }"
@@ -1176,7 +1398,17 @@ function setPanelDialogVisible(visible: boolean): void {
                 :locked="cast.locked"
                 :color="cast.color"
                 :connection-tool-enabled="connectionToolEnabled"
+                :warning="diagnosticsByCastId.has(cast.id)"
+                :hits="castHitMarkers(track.trackIndex, cast.id)"
+                :title="
+                  [timelineCastLabel(cast, track), castWarningTitle(cast.id)]
+                    .filter(Boolean)
+                    .join(' · ')
+                "
                 @select="handleActionSelection($event, cast.id)"
+                @hit-click="
+                  hitDetailTarget = { trackIndex: track.trackIndex, castId: cast.id, hitId: $event }
+                "
                 @connection-pointer-down="
                   (event, port) => beginConnectionDrag(event, cast.id, port)
                 "
@@ -1202,6 +1434,47 @@ function setPanelDialogVisible(visible: boolean): void {
         }"
         @update="setBattleResourceRule"
       />
+      <section v-else-if="tool === 'enemy'" class="simulation-panel">
+        <div class="simulation-status">
+          <span
+            v-if="simulationRunning"
+            class="simulation-status__item simulation-status__item--running"
+          >
+            {{ t('nextTimeline.simulating') }}
+          </span>
+          <span
+            v-else-if="simulationStale && simulationRun !== null"
+            class="simulation-status__item simulation-status__item--muted"
+          >
+            …
+          </span>
+          <span
+            v-if="simulationError !== null"
+            class="simulation-status__item simulation-status__item--error"
+          >
+            {{ t('nextTimeline.simulationFailed') }}：{{ simulationError }}
+          </span>
+          <button class="simulation-status__button" type="button" @click="simulateNow">
+            {{ t('nextTimeline.reSimulate') }}
+          </button>
+        </div>
+        <div v-if="simulationRun !== null" class="simulation-curves">
+          <TimelineResourceCurves
+            :sp-curve="simulationRun.resourceCurves.sp"
+            :enemy-health-curve="simulationRun.enemyHealthCurve"
+            :poise-curve="simulationRun.poiseCurve"
+            :enemy-health-label="t('nextTimeline.simGuide.enemyHp')"
+            :poise-label="t('nextTimeline.simGuide.poise')"
+            :timeline-width="timelineWidth"
+            :duration-frames="scenario.battle.durationFrames"
+            :prep-frames="scenario.battle.prepFrames"
+            :px-per-frame="pxPerFrame"
+            :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
+            :scroll-left="timelineScrollLeft"
+          />
+        </div>
+        <div v-else class="simulation-panel__empty">—</div>
+      </section>
       <div v-else class="empty-panel">{{ tool }}</div>
     </template>
     <template #right="{ tool }">
@@ -1303,6 +1576,29 @@ function setPanelDialogVisible(visible: boolean): void {
     :operator="panelDialogOperator"
     :operator-name="panelDialogOperatorName"
     @update:visible="setPanelDialogVisible"
+  />
+  <TimelineHitDetailDialog
+    :visible="hitDetailTarget !== null"
+    :title="hitDetailTitle"
+    :entries="hitDetail?.entries ?? []"
+    :labels="{
+      frame: t('nextTimeline.hitDetail.frame'),
+      damage: t('nextTimeline.hitDetail.damage'),
+      actualDamage: t('nextTimeline.hitDetail.actualDamage'),
+      remainingHealth: t('nextTimeline.hitDetail.remainingHealth'),
+      damageType: t('nextTimeline.hitDetail.damageType'),
+      isCritical: t('nextTimeline.hitDetail.isCritical'),
+      criticalMultiplier: t('nextTimeline.hitDetail.criticalMultiplier'),
+      defenseMultiplier: t('nextTimeline.hitDetail.defenseMultiplier'),
+      resistanceMultiplier: t('nextTimeline.hitDetail.resistanceMultiplier'),
+      element: t('nextTimeline.hitDetail.element'),
+      outcome: t('nextTimeline.hitDetail.outcome'),
+      reaction: t('nextTimeline.hitDetail.reaction'),
+      reactionConsumed: t('nextTimeline.hitDetail.reactionConsumed'),
+      level: t('nextTimeline.hitDetail.level'),
+      close: t('common.close'),
+    }"
+    @close="hitDetailTarget = null"
   />
 </template>
 
@@ -1463,11 +1759,68 @@ button:disabled {
   background: var(--ea-tooltip-bg);
   color: var(--ea-fg);
   box-shadow: 0 2px 8px var(--ea-shadow);
-  white-space: nowrap;
+  white-space: pre;
   font-family: monospace;
   font-size: 10px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.4;
+}
+
+.simulation-panel {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.simulation-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--ea-border-soft);
+  font-size: 11px;
+}
+
+.simulation-status__item--running {
+  color: var(--ea-gold);
+}
+
+.simulation-status__item--muted {
+  color: var(--ea-fg-muted);
+}
+
+.simulation-status__item--error {
+  color: #f5222d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simulation-status__button {
+  margin-left: auto;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--ea-border);
+  border-radius: 2px;
+  background: var(--ea-fill-soft);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.simulation-curves {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.simulation-panel__empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--ea-fg-muted);
 }
 
 .track-row {

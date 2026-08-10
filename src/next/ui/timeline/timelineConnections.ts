@@ -5,6 +5,7 @@
  * 通过同一组 ConnectionEndpoint 类型扩展，不能伪装成技能块端点。
  */
 import type { ConnectionDocument, ScenarioDocument } from '../../core/project/schema';
+import { findCastHitMarker } from './timelineHitProjection';
 
 export type TimelineConnectionPort = 'top' | 'right' | 'bottom' | 'left';
 
@@ -17,10 +18,27 @@ export interface CreateSkillCastConnectionInput {
   readonly consumption?: boolean;
 }
 
+export interface CreateDamageHitConnectionInput {
+  readonly id: string;
+  readonly fromSkillCastId: string;
+  readonly fromPort: TimelineConnectionPort;
+  readonly toSkillCastId: string;
+  readonly toHitId: string;
+  readonly consumption?: boolean;
+}
+
 function containsSkillCast(scenario: ScenarioDocument, skillCastId: string): boolean {
   return scenario.tracks.some(track =>
     track?.skillCasts.some(skillCast => skillCast.id === skillCastId),
   );
+}
+
+function findSkillCast(scenario: ScenarioDocument, skillCastId: string) {
+  for (const track of scenario.tracks) {
+    const skillCast = track?.skillCasts.find(candidate => candidate.id === skillCastId);
+    if (skillCast !== undefined) return skillCast;
+  }
+  return null;
 }
 
 /** 建立一条技能块到技能块的连接；非法、自连和重复连接不会产生历史记录。 */
@@ -53,6 +71,46 @@ export function createSkillCastConnection(
       kind: 'skillCast',
       skillCastId: input.toSkillCastId,
       port: input.toPort,
+    },
+  };
+  return { ...scenario, connections: [...scenario.connections, connection] };
+}
+
+/** 建立一条技能块到具体命中点的连接；来源与目标必须存在且不能自连。 */
+export function createDamageHitConnection(
+  scenario: ScenarioDocument,
+  input: CreateDamageHitConnectionInput,
+): ScenarioDocument {
+  if (input.fromSkillCastId === input.toSkillCastId) return scenario;
+  const fromCast = findSkillCast(scenario, input.fromSkillCastId);
+  const toCast = findSkillCast(scenario, input.toSkillCastId);
+  if (fromCast === null || toCast === null) return scenario;
+  if (findCastHitMarker(toCast, input.toHitId) === null) return scenario;
+  if (
+    scenario.connections.some(
+      connection =>
+        connection.from.kind === 'skillCast' &&
+        connection.from.skillCastId === input.fromSkillCastId &&
+        connection.to.kind === 'damageHit' &&
+        connection.to.skillCastId === input.toSkillCastId &&
+        connection.to.hitId === input.toHitId,
+    )
+  ) {
+    return scenario;
+  }
+
+  const connection: ConnectionDocument = {
+    id: input.id,
+    consumption: input.consumption ?? false,
+    from: {
+      kind: 'skillCast',
+      skillCastId: input.fromSkillCastId,
+      port: input.fromPort,
+    },
+    to: {
+      kind: 'damageHit',
+      skillCastId: input.toSkillCastId,
+      hitId: input.toHitId,
     },
   };
   return { ...scenario, connections: [...scenario.connections, connection] };

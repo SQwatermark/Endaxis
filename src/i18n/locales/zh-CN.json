@@ -1299,6 +1299,31 @@
         "accessory1": "配件 1",
         "accessory2": "配件 2"
       }
+    },
+    "simulating": "模拟中…",
+    "simulationFailed": "模拟失败",
+    "reSimulate": "重新模拟",
+    "hitInflictionSuffix": "附着",
+    "hitReactionConsumed": " 已消费",
+    "hitDetail": {
+      "frame": "帧",
+      "damage": "伤害",
+      "actualDamage": "实际伤害",
+      "remainingHealth": "剩余生命",
+      "damageType": "伤害类型",
+      "isCritical": "暴击",
+      "criticalMultiplier": "暴击倍率",
+      "defenseMultiplier": "防御倍率",
+      "resistanceMultiplier": "抗性倍率",
+      "element": "元素",
+      "outcome": "结果",
+      "reaction": "反应",
+      "reactionConsumed": "反应消费",
+      "level": "等级"
+    },
+    "simGuide": {
+      "enemyHp": "敌人生命",
+      "poise": "失衡"
     }
   }
 }

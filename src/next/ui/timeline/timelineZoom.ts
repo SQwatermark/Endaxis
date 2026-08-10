@@ -1,6 +1,6 @@
 /**
  * 定义时间轴视图缩放的边界与换算规则。
- * 缩放属于编辑器会话状态，不进入项目文档；调用方只应把换算后的每帧像素传给几何函数。
+ * 缩放属于编辑器会话状态，不进入存档；调用方只应把换算后的每帧像素传给几何函数。
  */
 export const DEFAULT_TIMELINE_PX_PER_FRAME = 2;
 export const MIN_TIMELINE_ZOOM_PERCENT = 50;

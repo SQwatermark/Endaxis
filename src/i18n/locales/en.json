@@ -1299,6 +1299,31 @@
         "accessory1": "Accessory 1",
         "accessory2": "Accessory 2"
       }
+    },
+    "simulating": "Simulating…",
+    "simulationFailed": "Simulation failed",
+    "reSimulate": "Re-simulate",
+    "hitInflictionSuffix": " infliction",
+    "hitReactionConsumed": " consumed",
+    "hitDetail": {
+      "frame": "Frame",
+      "damage": "Damage",
+      "actualDamage": "Actual damage",
+      "remainingHealth": "Remaining HP",
+      "damageType": "Damage type",
+      "isCritical": "Critical",
+      "criticalMultiplier": "Crit multiplier",
+      "defenseMultiplier": "DEF multiplier",
+      "resistanceMultiplier": "RES multiplier",
+      "element": "Element",
+      "outcome": "Outcome",
+      "reaction": "Reaction",
+      "reactionConsumed": "Reaction consumed",
+      "level": "Level"
+    },
+    "simGuide": {
+      "enemyHp": "Enemy HP",
+      "poise": "Poise"
     }
   }
 }

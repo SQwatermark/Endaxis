@@ -65,7 +65,7 @@ ScenarioDocument
 - `core/compiler/resolveOperatorPanel.ts`
 - `core/compiler/compileScenarioEquipment.ts`
 
-面板计算以项目中的等级、突破、潜能、信赖、技能等级、武器和装备实例为输入。输出是派生快照和来源明细，不写回项目文档。
+面板计算以项目中的等级、突破、潜能、信赖、技能等级、武器和装备实例为输入。输出是派生快照和来源明细，不写回存档。
 
 ## 5. 编译场景
 

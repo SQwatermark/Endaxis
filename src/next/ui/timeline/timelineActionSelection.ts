@@ -1,6 +1,6 @@
 /**
  * 管理时间轴动作的临时选择集合，并把批量删除作为一次编辑会话提交。
- * 选择状态只属于当前 UI 会话，不得写入项目文档、快照或导出数据。
+ * 选择状态只属于当前 UI 会话，不得写入存档、快照或导出数据。
  */
 import type { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import type { ScenarioDocument } from '../../core/project/schema';

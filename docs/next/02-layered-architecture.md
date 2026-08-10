@@ -7,7 +7,7 @@ flowchart TB
   Evidence["游戏资源、反编译、运行时证据"]
   Generator["生成器与严格适配器"]
   Catalog["版本化游戏目录"]
-  Project["V2 项目文档"]
+  Project["V2 存档"]
   Application["应用用例与编辑会话"]
   Compiler["解析与编译器"]
   Runtime["确定性战斗运行时"]
@@ -152,7 +152,7 @@ projection -> receipt/稳定快照
 
 - `core` 导入 Vue、Pinia、浏览器 API 或 i18n。
 - 编译器读取 UI 选择、全局 Store 或旧模拟结果。
-- 项目文档保存编译产物、Buff 实例、曲线或翻译文本。
+- 存档保存编译产物、Buff 实例、曲线或翻译文本。
 - 投影反向写运行时或自行执行技能规则。
 - 干员定义嵌入任意函数回调或 UI 组件。
 

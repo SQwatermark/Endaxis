@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, SkillCastDocument } from '../../core/project/schema';
-import { createSkillCastConnection, removeTimelineConnection } from './timelineConnections';
+import {
+  createDamageHitConnection,
+  createSkillCastConnection,
+  removeTimelineConnection,
+} from './timelineConnections';
 
-function cast(id: string): SkillCastDocument {
+function cast(id: string, scheduledHitId?: string): SkillCastDocument {
   return {
     id,
     source: { kind: 'custom', actionType: 'test', name: id },
@@ -18,7 +22,26 @@ function cast(id: string): SkillCastDocument {
       locked: false,
       disabled: false,
       color: null,
-      scheduledSequences: [],
+      scheduledSequences:
+        scheduledHitId === undefined
+          ? []
+          : [
+              {
+                id: `${id}:sequence`,
+                startFrame: 5,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'dealDamage',
+                      parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+                      hitId: scheduledHitId,
+                      edited: [],
+                    },
+                  ],
+                },
+                edited: [],
+              },
+            ],
       customBars: [],
     },
     edited: [],
@@ -32,7 +55,7 @@ function scenarioWithCasts(): ScenarioDocument {
     weaponBuildId: null,
     gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
-    skillCasts: [cast('cast:1'), cast('cast:2')],
+    skillCasts: [cast('cast:1'), cast('cast:2', 'hit:2')],
   };
   return scenario;
 }
@@ -96,5 +119,52 @@ describe('timeline connections', () => {
         toPort: 'left',
       }),
     ).toBe(original);
+  });
+
+  it('creates a connection to a documented damage hit and rejects invalid targets', () => {
+    const original = scenarioWithCasts();
+    const connected = createDamageHitConnection(original, {
+      id: 'connection:hit',
+      fromSkillCastId: 'cast:1',
+      fromPort: 'right',
+      toSkillCastId: 'cast:2',
+      toHitId: 'hit:2',
+    });
+
+    expect(connected.connections).toEqual([
+      {
+        id: 'connection:hit',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:1', port: 'right' },
+        to: { kind: 'damageHit', skillCastId: 'cast:2', hitId: 'hit:2' },
+      },
+    ]);
+    expect(
+      createDamageHitConnection(original, {
+        id: 'connection:missing-hit',
+        fromSkillCastId: 'cast:1',
+        fromPort: 'right',
+        toSkillCastId: 'cast:2',
+        toHitId: 'hit:missing',
+      }),
+    ).toBe(original);
+    expect(
+      createDamageHitConnection(original, {
+        id: 'connection:no-hits',
+        fromSkillCastId: 'cast:1',
+        fromPort: 'right',
+        toSkillCastId: 'cast:1',
+        toHitId: 'hit:2',
+      }),
+    ).toBe(original);
+    expect(
+      createDamageHitConnection(connected, {
+        id: 'connection:duplicate',
+        fromSkillCastId: 'cast:1',
+        fromPort: 'left',
+        toSkillCastId: 'cast:2',
+        toHitId: 'hit:2',
+      }),
+    ).toBe(connected);
   });
 });

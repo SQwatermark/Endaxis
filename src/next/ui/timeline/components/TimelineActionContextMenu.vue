@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * 时间轴动作的基础右键菜单，只负责定位、展示和派发命令意图。
- * 项目文档修改由编辑器应用层完成；Teleport 用于避免轨道裁剪和指针事件穿透。
+ * 存档修改由编辑器应用层完成；Teleport 用于避免轨道裁剪和指针事件穿透。
  */
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

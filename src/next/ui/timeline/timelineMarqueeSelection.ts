@@ -1,7 +1,7 @@
 /**
  * 计算时间轴框选命中的动作，并更新 UI 会话中的临时选择状态。
  *
- * 本模块只处理与渲染框架无关的二维几何和选择语义，不读取 DOM，不修改项目文档。
+ * 本模块只处理与渲染框架无关的二维几何和选择语义，不读取 DOM，不修改存档。
  * 调用方负责把屏幕坐标统一到同一坐标系，再把结果交回具体的 UI 状态容器。
  */
 import { selectTimelineAction, type TimelineActionSelection } from './timelineActionSelection';

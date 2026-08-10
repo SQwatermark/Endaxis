@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /**
- * 时间轴动作块的纯展示层。
+ * 时间轴动作块的展示组件。
  *
- * 组件只负责稳定几何、类型配色和编辑状态，不读取项目、目录或模拟器。命中点、冷却条与
- * 合法性提示应由后续独立投影传入，避免动作块重新承担旧版 ActionItem 的全部职责。
+ * 只管画形状、配色和编辑状态，不读项目数据也不碰模拟器；命中点、警告这类内容
+ * 由外部算好传进来，不让这个组件像旧版 ActionItem 那样什么都管。
  */
 import { computed } from 'vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
 import type { TimelineConnectionPort } from '../timelineConnections';
+import type { TimelineHitMarkerView } from '../timelineHitProjection';
 
 const props = defineProps<{
   actionId: string;
@@ -20,6 +21,10 @@ const props = defineProps<{
   locked?: boolean;
   color?: string | null;
   connectionToolEnabled?: boolean;
+  /** 合法性诊断归约到该技能块的警告标记。 */
+  warning?: boolean;
+  /** 技能块上的独立命中点标记；同时是连线工具的伤害命中端点。 */
+  hits?: readonly TimelineHitMarkerView[];
 }>();
 
 defineEmits<{
@@ -27,6 +32,7 @@ defineEmits<{
   dragstart: [event: DragEvent];
   contextmenu: [event: MouseEvent];
   connectionPointerDown: [event: PointerEvent, port: TimelineConnectionPort];
+  hitClick: [hitId: string];
 }>();
 
 const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
@@ -36,6 +42,12 @@ const blockStyle = computed(() => ({
   width: `${Math.max(48, props.width)}px`,
   ...(props.color ? { '--action-accent': props.color } : {}),
 }));
+
+function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
+  const width = Math.max(48, props.width);
+  const leftPx = Math.min(Math.max(marker.leftPx, 4), Math.max(4, width - 4));
+  return { left: `${leftPx}px` };
+}
 </script>
 
 <template>
@@ -58,6 +70,19 @@ const blockStyle = computed(() => ({
     @dragstart="$emit('dragstart', $event)"
   >
     <span class="action-label">{{ label }}</span>
+    <span
+      v-for="hit in hits ?? []"
+      :key="hit.hitId"
+      class="hit-marker"
+      :style="markerStyle(hit)"
+      :title="hit.title ?? ''"
+      :data-connection-action-id="actionId"
+      :data-connection-port="`hit:${hit.hitId}`"
+      draggable="false"
+      @mousedown.stop.prevent
+      @click.stop="$emit('hitClick', hit.hitId)"
+    ></span>
+    <span v-if="warning" class="warning-mark" aria-label="warning"></span>
     <span v-if="locked" class="status-mark lock-mark" aria-label="locked"></span>
     <span v-if="disabled" class="status-mark disabled-mark" aria-label="disabled"></span>
     <span
@@ -241,6 +266,53 @@ const blockStyle = computed(() => ({
   background: currentColor;
   transform: rotate(45deg);
   transform-origin: center;
+}
+
+.warning-mark {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 0;
+  height: 0;
+  border-top: 9px solid #f5222d;
+  border-left: 9px solid transparent;
+  filter: drop-shadow(0 0 3px rgb(245 34 45 / 80%));
+}
+
+.warning-mark::after {
+  content: '!';
+  position: absolute;
+  top: -9px;
+  right: 0;
+  width: 8px;
+  color: #fff;
+  font:
+    800 8px/9px Consolas,
+    monospace;
+  text-align: center;
+}
+
+.hit-marker {
+  position: absolute;
+  bottom: -3px;
+  z-index: 20;
+  width: 6px;
+  height: 6px;
+  background: #ff4d4f;
+  border: 1px solid #333;
+  transform: translateX(-50%) rotate(45deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.hit-marker:hover {
+  background: var(--ea-gold);
+  border-color: #fff;
+  transform: translateX(-50%) rotate(45deg) scale(1.65);
+  box-shadow: 0 0 8px var(--ea-gold);
+  z-index: 30;
 }
 
 :global(html[data-theme='light']) .timeline-action-block {
