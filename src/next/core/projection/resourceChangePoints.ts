@@ -18,11 +18,16 @@ interface ResourceChangePointBase {
   readonly currentValue: number;
 }
 
+/** 资源变化记录的来源标记；目前只有每帧自动回复一种。 */
+export type ResourceChangeSource = 'autoRecovery';
+
 /** 全队共享技力的一次已记录变化。 */
 export interface SpChangePoint extends ResourceChangePointBase {
   readonly resource: 'sp';
   readonly recipient: 'team';
   readonly gainKind?: SpGainKind;
+  /** 每帧自动回复；曲线展示时不再单独标点。 */
+  readonly source?: ResourceChangeSource;
 }
 
 /** 单个干员终结技能量的一次已记录变化。 */
@@ -100,11 +105,16 @@ function readSpPoint(entry: CombatReceiptEntry): SpChangePoint {
   if (gainKind !== undefined && gainKind !== 'gain' && gainKind !== 'refund') {
     throw new Error(`receipt ${entry.sequence} 'SpChanged' has invalid gainKind`);
   }
+  const source = readOptionalString(entry, data, 'source');
+  if (source !== undefined && source !== 'autoRecovery') {
+    throw new Error(`receipt ${entry.sequence} 'SpChanged' has invalid source`);
+  }
   return {
     ...point,
     resource: 'sp',
     recipient: 'team',
     ...(gainKind === undefined ? {} : { gainKind }),
+    ...(source === undefined ? {} : { source }),
   };
 }
 

@@ -127,6 +127,47 @@ describe('projectResourceChangePoints', () => {
     ).toEqual([]);
   });
 
+  it('标记每帧自动回复的来源，拒绝未知来源', () => {
+    const points = projectResourceChangePoints([
+      {
+        sequence: 12,
+        frame: 3,
+        time: 0.1,
+        event: 'SpChanged',
+        data: {
+          recipient: 'team',
+          baseValue: 1,
+          requestedValue: 1,
+          actualValue: 1,
+          previousValue: 99,
+          currentValue: 100,
+          source: 'autoRecovery',
+        },
+      },
+    ]);
+    expect(points[0]).toMatchObject({ resource: 'sp', source: 'autoRecovery' });
+
+    expect(() =>
+      projectResourceChangePoints([
+        {
+          sequence: 13,
+          frame: 4,
+          time: 0.13,
+          event: 'SpChanged',
+          data: {
+            recipient: 'team',
+            baseValue: 1,
+            requestedValue: 1,
+            actualValue: 1,
+            previousValue: 100,
+            currentValue: 101,
+            source: 'unknown',
+          },
+        },
+      ]),
+    ).toThrow("receipt 13 'SpChanged' has invalid source");
+  });
+
   it('拒绝缺少已约定事实字段的资源回执', () => {
     expect(() =>
       projectResourceChangePoints([

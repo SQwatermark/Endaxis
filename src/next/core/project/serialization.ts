@@ -1,5 +1,5 @@
 /**
- * 项目文档与文本/对象输入之间的稳定 I/O 边界。
+ * 存档与文本/对象输入之间的稳定 I/O 边界。
  * 解析前先识别版本并校验，序列化只接受合法项目，不能在这里补算派生数据。
  */
 import type { EndaxisProjectDocument, JsonObject } from './schema';

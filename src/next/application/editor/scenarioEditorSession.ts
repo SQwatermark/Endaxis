@@ -6,7 +6,7 @@
 import type { ScenarioDocument } from '../../core/project/schema';
 
 export interface ScenarioEditorSnapshot {
-  /** 每次有效提交递增；它表示编辑会话修订，不写入项目文档。 */
+  /** 每次有效提交递增；它表示编辑会话修订，不写入存档。 */
   readonly revision: number;
   readonly scenario: ScenarioDocument;
   /** 最近一次有效提交的稳定操作名，供历史记录和调试使用。 */

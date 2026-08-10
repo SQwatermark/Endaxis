@@ -30,6 +30,8 @@ export class CombatResourceRuntime implements FrameRuntime {
         previousValue: change.previousValue,
         currentValue: change.currentValue,
         gainKind: change.gainKind,
+        // 每帧的自动回复；曲线展示时不再单独标点。
+        source: 'autoRecovery',
       },
     });
   }

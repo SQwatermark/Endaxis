@@ -53,16 +53,18 @@ function operator(
 function compatibilityInput(
   entry: CombatOperatorProgram,
   endFrame = 100,
+  supportsElementalInfliction = false,
 ): Parameters<typeof inspectStandardPlayerDamageCompatibility>[0] {
   return {
     operators: [entry],
     inputs: [{ frame: 0, operatorId: 'operator:1', skillId: 'battle-skill' }],
     endFrame,
+    ...(supportsElementalInfliction ? { supportsElementalInfliction: true } : {}),
   };
 }
 
 describe('standardPlayerDamageCompatibility', () => {
-  it('accepts the closed standard damage, action value, marker and resource subset', () => {
+  it('accepts the closed standard damage, poise, infliction, action value and resource subset', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
         operator({
@@ -81,7 +83,37 @@ describe('standardPlayerDamageCompatibility', () => {
                 damageType: 'electric',
                 attackScale: { kind: 'blackboard', key: 'scale' },
                 tags: ['normalSkill'],
+                stagger: 10,
               },
+            },
+            { kind: 'dealStagger', parameters: { value: 10 } },
+            {
+              kind: 'applyElementalInfliction',
+              parameters: { element: 'electric', isExtra: false },
+            },
+            {
+              kind: 'applyElementalReaction',
+              parameters: {
+                reaction: 'electrification',
+                target: 'enemy',
+                durationSeconds: 5,
+                effectiveness: 1,
+              },
+            },
+            {
+              kind: 'consumeElementalReaction',
+              parameters: { reaction: 'electrification', target: 'enemy' },
+            },
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'elementalReactionActive',
+                  reaction: 'electrification',
+                  minimumLevel: 1,
+                },
+              },
+              whenTrue: { steps: [] },
             },
             {
               kind: 'createTimedMarker',
@@ -102,6 +134,8 @@ describe('standardPlayerDamageCompatibility', () => {
             },
           ],
         }),
+        100,
+        true,
       ),
     );
 
@@ -133,8 +167,8 @@ describe('standardPlayerDamageCompatibility', () => {
                     body: {
                       steps: [
                         {
-                          kind: 'applyElementalInfliction',
-                          parameters: { element: 'electric', isExtra: false },
+                          kind: 'applyBuff',
+                          parameters: { buffId: 'buff:missing', target: 'enemy' },
                         },
                       ],
                     },
@@ -154,9 +188,7 @@ describe('standardPlayerDamageCompatibility', () => {
 
   it('does not reject unsupported skills that cannot run before the requested end frame', () => {
     const entry = operator({
-      steps: [
-        { kind: 'applyElementalInfliction', parameters: { element: 'heat', isExtra: false } },
-      ],
+      steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff:missing', target: 'enemy' } }],
     });
 
     expect(
@@ -181,8 +213,8 @@ describe('standardPlayerDamageCompatibility', () => {
               sequence: {
                 steps: [
                   {
-                    kind: 'applyElementalInfliction',
-                    parameters: { element: 'heat', isExtra: false },
+                    kind: 'applyBuff',
+                    parameters: { buffId: 'buff:missing', target: 'enemy' },
                   },
                 ],
               },
@@ -215,7 +247,6 @@ describe('standardPlayerDamageCompatibility', () => {
                   attackScale: 1,
                   calculationMultiplier: 2,
                   tags: [],
-                  stagger: 10,
                   attackScalePerStatusStack: {
                     statusKey: 'marked',
                     target: 'enemy',
@@ -239,10 +270,24 @@ describe('standardPlayerDamageCompatibility', () => {
       'unsupported-damage-calculation',
       'unsupported-damage-field',
       'unsupported-damage-field',
-      'unsupported-damage-field',
       'unsupported-resource-change',
       'uninstalled-equipment-event-handler',
     ]);
+  });
+
+  it('rejects elemental infliction without an installed infliction document', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            { kind: 'applyElementalInfliction', parameters: { element: 'heat', isExtra: false } },
+          ],
+        }),
+      ),
+    );
+
+    expect(issues.map(issue => issue.code)).toEqual(['unsupported-step']);
+    expect(issues[0]?.detail).toContain('infliction document');
   });
 
   it('throws one aggregate error containing all issues', () => {
@@ -250,6 +295,10 @@ describe('standardPlayerDamageCompatibility', () => {
       operator({
         steps: [
           { kind: 'dealStagger', parameters: { value: 10 } },
+          {
+            kind: 'applyBuff',
+            parameters: { buffId: 'buff:missing', target: 'enemy' },
+          },
           { kind: 'setContextFlag', parameters: { flag: 'ready', value: true, target: 'caster' } },
         ],
       }),

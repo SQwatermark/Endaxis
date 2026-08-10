@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { CombatBuffCatalogDocument } from '../buffs/combatBuffCatalog';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
@@ -93,6 +94,38 @@ function createEnvironment(): StandardPlayerDamageEnvironment {
   });
 }
 
+function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
+  const document: CombatBuffCatalogDocument = {
+    schemaVersion: 1,
+    revision: 'test',
+    buffs: [
+      {
+        id: 'attachment.electric',
+        stackingType: 'enhanceAndRefresh',
+        stackingKey: 'attachment.electric',
+        maxStackCount: 4,
+        durationSeconds: 10,
+        role: { kind: 'elementalAttachment', element: 'electric' },
+        actions: { afterEnhance: [{ kind: 'emitElementalInflictionStarted' }] },
+      },
+      {
+        id: 'burst.electric',
+        stackingType: 'unlimited',
+        role: { kind: 'elementalBurst', element: 'electric' },
+      },
+    ],
+  };
+  return new StandardPlayerDamageEnvironment({
+    criticalSamples: { nextCriticalSample: () => 1 },
+    resolveNonRandomRuntimeSnapshot: () => ({
+      runtimeExtensionMultiplier: 1,
+      appliesIgniteDamageMultiplier: false,
+      appliesPhysicalInflictionDamageMultiplier: false,
+    }),
+    elementalInflictionDocument: document,
+  });
+}
+
 describe('StandardPlayerDamageEnvironment', () => {
   it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {
     const environment = createEnvironment();
@@ -137,16 +170,93 @@ describe('StandardPlayerDamageEnvironment', () => {
     ]);
   });
 
-  it('rejects poise damage instead of silently applying an incomplete model', () => {
+  it('applies poise damage and recovers after the break duration', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
     const environment = createEnvironment();
-    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
 
-    expect(() =>
+    expect(
       executor.execute({
         ...damageStep,
         parameters: { ...damageStep.parameters, stagger: 10 },
       }),
-    ).toThrow('does not support poise damage');
+    ).toBe(true);
+    expect(environment.enemyVitals.poise).toBe(290);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'PoiseApplied',
+      data: { requestedDelta: -10, currentPoise: 290 },
+    });
+
+    expect(executor.execute({ kind: 'dealStagger', parameters: { value: 300 } })).toBe(true);
+    expect(environment.enemyVitals.poise).toBe(0);
+    expect(receipt.entries.at(-1)?.data?.brokePoise).toBe(true);
+
+    const vitalsRuntime = environment.enemyVitalsRuntime;
+    expect(vitalsRuntime).not.toBeNull();
+    for (let frame = 0; frame < 320; frame += 1) vitalsRuntime!.advanceFrame();
+    expect(environment.enemyVitals.poise).toBe(300);
+    expect(receipt.entries.some(entry => entry.event === 'PoiseRecovered')).toBe(true);
+  });
+
+  it('executes catalog elemental infliction and consumes attachments on bursts', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = createInflictionEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalInfliction' as const,
+      parameters: { element: 'electric' as const, isExtra: false },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'ElementalInflictionApplied',
+      data: {
+        requestedElement: 'electric',
+        currentElement: 'electric',
+        outcomeKind: 'attachmentOnly',
+      },
+    });
+
+    expect(executor.execute(step)).toBe(true);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'ElementalInflictionApplied',
+      data: { outcomeKind: 'burst', currentLayers: 2 },
+    });
+  });
+
+  it('applies reactions with levels and evaluates reaction conditions', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = createEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalReaction' as const,
+      parameters: {
+        reaction: 'electrification' as const,
+        target: 'enemy' as const,
+        durationSeconds: 5,
+        effectiveness: 1,
+      },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    expect(executor.execute(step)).toBe(true);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'ElementalReactionApplied',
+      data: { reaction: 'electrification', level: 2, previousLevel: 1 },
+    });
+    expect(
+      executor.evaluate({
+        kind: 'elementalReactionActive',
+        reaction: 'electrification',
+        minimumLevel: 2,
+      }),
+    ).toBe(true);
+    expect(executor.evaluate({ kind: 'elementalReactionActive', reaction: 'corrosion' })).toBe(
+      false,
+    );
   });
 
   it('rejects operations outside the recovered subset', () => {
@@ -155,9 +265,9 @@ describe('StandardPlayerDamageEnvironment', () => {
 
     expect(() =>
       executor.execute({
-        kind: 'applyElementalInfliction',
-        parameters: { element: 'electric', isExtra: false },
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff:missing', target: 'enemy' },
       }),
-    ).toThrow("does not support 'applyElementalInfliction'");
+    ).toThrow("does not support 'applyBuff'");
   });
 });

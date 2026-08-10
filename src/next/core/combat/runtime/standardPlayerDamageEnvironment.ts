@@ -1,14 +1,25 @@
 /**
- * 为场景模拟装配当前已闭环的标准玩家生命伤害子集。
+ * 标准战斗环境：一场模拟里敌人的血量、失衡、元素附着和反应都由它管。
  *
- * 该环境拥有单场战斗的敌人生命、实体事件与伤害修正注册表，但不会为尚未恢复的暴击随机流、
- * 失衡、元素附着或未知操作补默认行为。调用方必须显式提供命中运行时快照；超出子集时会失败。
+ * 能做的就做，做不了的（Buff、瞬时属性、没确认的随机等）直接报错，
+ * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
+import {
+  compileCombatBuffCatalog,
+  CompiledCombatBuffCatalog,
+  type CombatBuffCatalogDocument,
+} from '../buffs/combatBuffCatalog';
+import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { DamageModifierSide } from '../damage/playerDamageContext';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiveDamageInput';
+import { ElementalInflictionBuffAdapter } from '../infliction/elementalInflictionBuffAdapter';
+import type { ElementalInflictionOperation } from '../infliction/elementalInfliction';
+import { ElementalReactionContainer } from '../infliction/elementalReactionState';
+import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
+import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import { CatalogBuffOperationTarget } from './catalogBuffOperationTarget';
@@ -17,14 +28,20 @@ import type {
   CombatRuntimeAssemblyOptions,
 } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
+import { CombatVitalsRuntime } from './combatVitalsRuntime';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
+import type { FrameRuntime } from './combatSimulation';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
-  'enemyBuffRuntime' | 'createOperatorBuffRuntime' | 'createOperationExecutor' | 'resolveVitals'
+  | 'enemyBuffRuntime'
+  | 'enemyVitalsRuntime'
+  | 'createOperatorBuffRuntime'
+  | 'createOperationExecutor'
+  | 'resolveVitals'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -33,7 +50,17 @@ export type StandardPlayerDamageEvent =
   | 'beforeTakeDamage'
   | 'beforeOutputDamage'
   | 'takeDamage'
-  | 'outputDamage';
+  | 'outputDamage'
+  | 'beforeOutputPoiseDamage'
+  | 'beforeTakePoiseDamage'
+  | 'takePoiseDamage'
+  | 'poiseZero'
+  | 'beforeOutputInfliction'
+  | 'beforeTakeInfliction'
+  | 'afterOutputInfliction'
+  | 'afterTakeInfliction'
+  | 'elementalInflictionStarted'
+  | 'poiseRecovered';
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -42,6 +69,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
     context: CombatOperationExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
+  /** 提供后，`applyElementalInfliction` 步骤按目录附着状态机执行。 */
+  readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -55,7 +84,7 @@ const strictTerminal: CombatOperationExecutor = {
   },
 };
 
-/** 一场模拟独占的标准生命伤害状态所有者。 */
+/** 一场模拟独占的标准生命/失衡伤害状态所有者。 */
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #enemyBuffs = new CombatBuffContainer('enemy', new CombatAttributeSet<string>());
@@ -64,12 +93,21 @@ export class StandardPlayerDamageEnvironment {
   });
   readonly #operatorBuffRuntimes = new Map<string, CatalogBuffOperationTarget<string>>();
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
+  readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
+  readonly #reactions = new ElementalReactionContainer();
+  #elementalCatalog: CompiledCombatBuffCatalog<string> | null = null;
   #enemyVitals: CombatVitals | null = null;
+  #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
+    // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
+    const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
       enemyBuffRuntime: this.#enemyBuffRuntime,
+      get enemyVitalsRuntime() {
+        return vitalsRuntimeOf();
+      },
       createOperatorBuffRuntime: operatorId => this.#operatorBuffRuntime(operatorId),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       resolveVitals: target => {
@@ -86,6 +124,11 @@ export class StandardPlayerDamageEnvironment {
       throw new Error('standard player damage environment has not been bound to an enemy');
     }
     return this.#enemyVitals;
+  }
+
+  /** 已绑定敌人时返回账本推进器；空场景（从未绑定敌人）返回 null。 */
+  get enemyVitalsRuntime(): FrameRuntime | null {
+    return this.#enemyVitalsRuntime;
   }
 
   /** 尚未创建任何技能运行时的空场景返回 null，不会为读取结果而凭空创建生命账本。 */
@@ -127,18 +170,42 @@ export class StandardPlayerDamageEnvironment {
         this.#buffContainer(side, operatorBuffs).attributes.clearInstantModifiers(),
       emitPreparationEvent: (event, payload) =>
         this.#emit(context.program.operatorId, event, payload),
-      resolvePoiseMultipliers: () => {
-        throw new Error('standard player damage environment does not support poise damage');
-      },
+      // 失衡倍率目前只有证据不足的来源；装备/处决失衡增益接入后在此聚合。
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
       emitHealthSourceEvent: (event, payload) =>
         this.#emit(context.program.operatorId, event, payload),
       emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
-      emitPoiseSourceEvent: () => {
-        throw new Error('standard player damage environment does not support poise events');
-      },
-      emitPoiseTargetEvent: () => {
-        throw new Error('standard player damage environment does not support poise events');
-      },
+      emitPoiseSourceEvent: (event, modifier) =>
+        this.#emit(context.program.operatorId, event, modifier),
+      emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
+      delegate: this.#createReactionExecutor(context),
+    });
+  }
+
+  #createReactionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
+    return new ElementalReactionOperationExecutor({
+      sourceOperatorId: context.program.operatorId,
+      targetId: 'enemy',
+      clock: context.clock,
+      receipt: context.receipt,
+      container: this.#reactions,
+      delegate: this.#createInflictionExecutor(context),
+    });
+  }
+
+  #createInflictionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
+    if (this.options.elementalInflictionDocument === undefined) return strictTerminal;
+    const adapter = this.#inflictionAdapter(context.program.operatorId);
+    return new ElementalInflictionOperationExecutor({
+      sourceOperatorId: context.program.operatorId,
+      targetId: 'enemy',
+      skillId: context.program.skillId,
+      clock: context.clock,
+      receipt: context.receipt,
+      getExistingAttachment: () => adapter.getExistingAttachment(),
+      applyOperation: (operation: ElementalInflictionOperation) => adapter.apply(operation),
+      emitSourceEvent: (event, payload) => this.#emit(context.program.operatorId, event, payload),
+      emitTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
       delegate: strictTerminal,
     });
   }
@@ -149,15 +216,26 @@ export class StandardPlayerDamageEnvironment {
     }
     if (this.#enemyVitals !== null) return;
     this.#enemyIdentity = context.enemy;
-    this.#enemyVitals = new CombatVitals({
+    const singleNodeStagger = context.enemy.stagger.nodeCount === 1;
+    const vitals = new CombatVitals({
       health: context.enemy.health,
       maxHealth: context.enemy.health,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
+      // 单节点失衡映射到 CombatVitals 账本，起始为满值并随失衡伤害消耗；
+      // 多节点失衡尚未接入单节点账本，保持无账本状态而不做近似塞入。
+      maxPoise: singleNodeStagger ? context.enemy.stagger.maximum : 0,
+      poise: singleNodeStagger ? context.enemy.stagger.maximum : 0,
+      poiseRecoveryTime: context.enemy.stagger.brokenDurationFrames * COMBAT_FRAME_INTERVAL,
       poiseRecoveryTimeMultiplier: 1,
       poiseBrokenEndTime: 0,
-      poiseImmune: true,
+      poiseImmune: false,
+    });
+    this.#enemyVitals = vitals;
+    this.#enemyVitalsRuntime = new CombatVitalsRuntime({
+      ownerId: 'enemy',
+      clock: context.clock,
+      vitals,
+      receipt: context.receipt,
+      emitOwnerEvent: event => this.#emit('enemy', event, {}),
     });
   }
 
@@ -171,6 +249,32 @@ export class StandardPlayerDamageEnvironment {
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
     return runtime;
+  }
+
+  #inflictionAdapter(operatorId: string): ElementalInflictionBuffAdapter<string> {
+    let adapter = this.#inflictionAdapters.get(operatorId);
+    if (adapter === undefined) {
+      adapter = new ElementalInflictionBuffAdapter(
+        this.#enemyBuffs,
+        operatorId,
+        this.#ensureElementalCatalog(),
+      );
+      this.#inflictionAdapters.set(operatorId, adapter);
+    }
+    return adapter;
+  }
+
+  #ensureElementalCatalog(): CompiledCombatBuffCatalog<string> {
+    if (this.#elementalCatalog !== null) return this.#elementalCatalog;
+    const document = this.options.elementalInflictionDocument;
+    if (document === undefined) {
+      throw new Error('elemental infliction requires an elemental infliction document');
+    }
+    this.#elementalCatalog = compileCombatBuffCatalog(document, {
+      emitElementalInflictionStarted: payload =>
+        this.#emit('enemy', 'elementalInflictionStarted', payload),
+    });
+    return this.#elementalCatalog;
   }
 
   #buffContainer(

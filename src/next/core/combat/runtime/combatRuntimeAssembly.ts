@@ -1,6 +1,6 @@
 /**
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
- * 本层只负责依赖接线与原生阶段顺序，不解析项目文档，也不为尚未闭环的战斗操作提供默认行为。
+ * 本层只负责依赖接线与原生阶段顺序，不解析存档，也不为尚未闭环的战斗操作提供默认行为。
  */
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
@@ -87,6 +87,10 @@ export interface CombatRuntimeAssemblyOptions {
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
   /**
+   * 敌人生命与失衡账本的逐帧推进器；由环境创建并交给装配根，装配层不猜测推进顺序。
+   * `null` 表示环境没有绑定敌人（例如空场景），装配根会跳过注册。
+   */
+  readonly enemyVitalsRuntime?: FrameRuntime | null; /**
    * 为没有显式 `buffRuntime` 绑定的干员创建本场战斗唯一的 Buff runtime。
    * 伤害环境与技能操作必须共享该实例，不能各自维护同一干员的 Buff 状态。
    */
@@ -200,6 +204,10 @@ export class CombatRuntimeAssembly {
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
     this.simulation.add(this.#enemyBuffRuntime);
+    // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
+    if (options.enemyVitalsRuntime !== undefined && options.enemyVitalsRuntime !== null) {
+      this.simulation.add(options.enemyVitalsRuntime);
+    }
     // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
     if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
     for (const operator of options.operators) {

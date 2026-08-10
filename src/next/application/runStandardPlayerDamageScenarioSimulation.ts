@@ -1,9 +1,10 @@
 /**
- * 将场景编译、严格标准生命伤害环境和模拟结果组合成应用层便捷入口。
- * 调用方仍须提供显式随机样本源与非随机命中输入；超出已闭环子集的编译产物会在模拟前统一拒绝。
+ * 一条现成的模拟入口：编译场景 → 跑标准战斗环境 → 返回结果。
+ * 随机样本等输入由调用方给；环境不支持的东西在跑之前就报错。
  */
 import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
+import type { CombatBuffCatalogDocument } from '../core/combat/buffs/combatBuffCatalog';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import {
@@ -30,6 +31,8 @@ export interface RunStandardPlayerDamageScenarioInput {
     context: CombatOperationExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
+  /** 提供后 `applyElementalInfliction` 步骤按目录附着状态机执行。 */
+  readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
 }
 
 export interface StandardPlayerDamageScenarioResult extends ScenarioSimulationResult {
@@ -43,6 +46,9 @@ export function runStandardPlayerDamageScenarioSimulation(
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
+    ...(input.elementalInflictionDocument === undefined
+      ? {}
+      : { elementalInflictionDocument: input.elementalInflictionDocument }),
   };
   const environment = new StandardPlayerDamageEnvironment(environmentOptions);
   if (!Number.isInteger(input.endFrame) || input.endFrame < 0) {
@@ -59,6 +65,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     operators: compiled.operators,
     inputs: compiled.inputs,
     endFrame: input.endFrame,
+    supportsElementalInfliction: input.elementalInflictionDocument !== undefined,
   });
   const result = executeCompiledScenarioSimulation({ compiled, endFrame: input.endFrame });
   return Object.freeze({

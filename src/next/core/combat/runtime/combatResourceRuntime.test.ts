@@ -41,6 +41,7 @@ describe('CombatResourceRuntime', () => {
           previousValue: 99,
           currentValue: 100,
           gainKind: 'gain',
+          source: 'autoRecovery',
         },
       },
     ]);

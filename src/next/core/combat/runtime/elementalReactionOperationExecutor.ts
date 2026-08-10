@@ -1,0 +1,110 @@
+/**
+ * 反应步骤与敌人反应状态容器之间的接线。
+ *
+ * 负责两件事：按步骤顺序读写反应状态并记录回执，以及求值"敌人当前是否带着反应"的条件。
+ * 反应状态只描述事实，不在这里附加任何未证实的伤害规则。
+ */
+import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import type { CombatClock } from './combatClock';
+import type { CombatOperationExecutor } from './skillRuntime';
+import {
+  ElementalReactionContainer,
+  type ApplyElementalReactionResult,
+} from '../infliction/elementalReactionState';
+
+type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type ReactionStep = Extract<
+  RuntimeOperation,
+  { kind: 'applyElementalReaction' | 'consumeElementalReaction' }
+>;
+
+/** 反应步骤执行所需的端口。 */
+export interface ElementalReactionOperationDependencies {
+  readonly sourceOperatorId: string;
+  readonly targetId: string;
+  readonly clock: CombatClock;
+  readonly receipt: CombatReceiptSink;
+  readonly container: ElementalReactionContainer;
+  readonly delegate: CombatOperationExecutor;
+}
+
+/** 在操作序列指定的位置执行一次反应施加或消费。 */
+export class ElementalReactionOperationExecutor implements CombatOperationExecutor {
+  constructor(readonly dependencies: ElementalReactionOperationDependencies) {}
+
+  execute(
+    step: RuntimeOperation,
+    operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): boolean {
+    if (step.kind === 'applyElementalReaction') {
+      this.#apply(step);
+      return true;
+    }
+    if (step.kind === 'consumeElementalReaction') {
+      this.#consume(step);
+      return true;
+    }
+    return operationContext === undefined
+      ? this.dependencies.delegate.execute(step)
+      : this.dependencies.delegate.execute(step, operationContext);
+  }
+
+  evaluate(
+    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
+    operationContext?: Parameters<CombatOperationExecutor['evaluate']>[1],
+  ): boolean {
+    if (condition.kind === 'elementalReactionActive') {
+      return this.dependencies.container.isActive(
+        condition.reaction,
+        condition.minimumLevel,
+        this.dependencies.clock.time,
+      );
+    }
+    return operationContext === undefined
+      ? this.dependencies.delegate.evaluate(condition)
+      : this.dependencies.delegate.evaluate(condition, operationContext);
+  }
+
+  #apply(step: Extract<ReactionStep, { kind: 'applyElementalReaction' }>): void {
+    const result: ApplyElementalReactionResult = this.dependencies.container.apply({
+      reaction: step.parameters.reaction,
+      durationSeconds: step.parameters.durationSeconds,
+      sourceId: this.dependencies.sourceOperatorId,
+      time: this.dependencies.clock.time,
+    });
+    this.dependencies.receipt.record({
+      frame: this.dependencies.clock.frame,
+      time: this.dependencies.clock.time,
+      event: 'ElementalReactionApplied',
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: this.dependencies.targetId,
+      data: {
+        reaction: result.reaction,
+        previousLevel: result.previousLevel,
+        level: result.level,
+        durationSeconds: result.durationSeconds,
+        effectiveness: step.parameters.effectiveness,
+      },
+    });
+  }
+
+  #consume(step: Extract<ReactionStep, { kind: 'consumeElementalReaction' }>): void {
+    const consumed = this.dependencies.container.consume(
+      step.parameters.reaction,
+      this.dependencies.clock.time,
+    );
+    this.dependencies.receipt.record({
+      frame: this.dependencies.clock.frame,
+      time: this.dependencies.clock.time,
+      event: 'ElementalReactionConsumed',
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: this.dependencies.targetId,
+      data: {
+        reaction: step.parameters.reaction,
+        level: consumed === null ? 0 : consumed.consumedLevel,
+        consumed: true,
+      },
+    });
+  }
+}

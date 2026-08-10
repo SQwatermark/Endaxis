@@ -65,7 +65,7 @@ interface ActiveCombatStatus {
 
 const EMPTY_STATUS: CombatStatusSnapshot = { stacks: 0, remainingFrames: null };
 
-/** 单个实体的通用状态所有者；状态只存在于一次模拟中，不进入项目文档。 */
+/** 单个实体的通用状态所有者；状态只存在于一次模拟中，不进入存档。 */
 export class CombatStatusContainer {
   readonly #definitions = new Map<string, CombatStatusDefinition>();
   readonly #statuses = new Map<string, ActiveCombatStatus>();

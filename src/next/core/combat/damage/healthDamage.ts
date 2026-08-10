@@ -22,10 +22,7 @@ export type HealthDamageSourceEvent = Extract<
   'beforeOutputDamage' | 'outputDamage'
 >;
 /** 生命伤害结算中由承伤目标接收的事件。 */
-export type HealthDamageTargetEvent = Extract<
-  HealthDamageEvent,
-  'beforeTakeDamage' | 'takeDamage'
->;
+export type HealthDamageTargetEvent = Extract<HealthDamageEvent, 'beforeTakeDamage' | 'takeDamage'>;
 
 /** 生命伤害事件共享的伤害包、请求值和实际值。 */
 export interface HealthDamageEventPayload {
@@ -44,6 +41,8 @@ export interface ExecuteHealthDamageInput {
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
+  /** 这个步骤在目录里的名字（如果有）。命中点提示用它把伤害日志对应到具体命中点。 */
+  readonly stepKey?: string;
   readonly emitSourceEvent: (
     event: HealthDamageSourceEvent,
     payload: HealthDamageEventPayload,
@@ -85,6 +84,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       runtimeExtensionMultiplier: input.result.runtimeExtensionMultiplier,
       igniteMultiplier: input.result.igniteMultiplier,
       physicalInflictionMultiplier: input.result.physicalInflictionMultiplier,
+      ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
     },
   });
   input.emitTargetEvent('takeDamage', payload);

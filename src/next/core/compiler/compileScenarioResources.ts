@@ -13,7 +13,7 @@ import type { SharedSpGainSettings } from '../combat/resources/sharedSpGainModif
 import type { GameplayTagId } from '../combat/tags/gameplayTags';
 import type { ScenarioDocument, TrackDocument } from '../project/schema';
 
-/** 项目文档没有保存、必须由目录与构筑解析层显式提供的单个干员资源规则。 */
+/** 存档没有保存、必须由目录与构筑解析层显式提供的单个干员资源规则。 */
 export interface ResolvedOperatorResourceRules {
   /** 轨道没有用户上限覆盖时使用的已解析终结技能量上限。 */
   readonly maxUltimateEnergy?: number;

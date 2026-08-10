@@ -156,6 +156,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       target: this.dependencies.targetVitals,
       clock: this.dependencies.clock,
       receipt: this.dependencies.receipt,
+      ...(step.key === undefined ? {} : { stepKey: step.key }),
       emitSourceEvent: this.dependencies.emitHealthSourceEvent,
       emitTargetEvent: this.dependencies.emitHealthTargetEvent,
     });

@@ -32,6 +32,8 @@ export interface StandardPlayerDamageCompatibilityInput {
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
   readonly endFrame: number;
+  /** 未提供元素附着目录时，`applyElementalInfliction` 仍视为不支持步骤。 */
+  readonly supportsElementalInfliction?: boolean;
 }
 
 /** 预检失败时一次携带全部问题，避免逐个修复后才发现下一项。 */
@@ -49,6 +51,10 @@ export class StandardPlayerDamageCompatibilityError extends Error {
 
 type IssueCollector = (issue: StandardPlayerDamageCompatibilityIssue) => void;
 
+interface CompatibilityFlags {
+  readonly elementalInfliction: boolean;
+}
+
 function report(
   collect: IssueCollector,
   code: StandardPlayerDamageCompatibilityCode,
@@ -64,6 +70,7 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'singleEnemyPresent':
     case 'actionValueCompare':
     case 'timedMarkerPresent':
+    case 'elementalReactionActive':
       return;
     case 'healthCompare':
       if (condition.target !== 'enemy') {
@@ -93,6 +100,7 @@ function inspectSequence(
   sequence: ResolvedActionSequence,
   path: string,
   collect: IssueCollector,
+  flags: CompatibilityFlags,
 ): void {
   sequence.steps.forEach((step, index) => {
     const stepPath = `${path}.steps[${index}]`;
@@ -123,14 +131,6 @@ function inspectSequence(
             'calculationMultiplier is not consumed by standard life damage',
           );
         }
-        if (parameters.stagger !== undefined) {
-          report(
-            collect,
-            'unsupported-damage-field',
-            `${stepPath}.parameters.stagger`,
-            'stagger damage requires a poise runtime',
-          );
-        }
         if (parameters.attackScalePerStatusStack !== undefined) {
           report(
             collect,
@@ -150,15 +150,21 @@ function inspectSequence(
             "damage type 'lifeDrain' uses a separate native calculation",
           );
         }
-        if (step.parameters.stagger !== undefined) {
+        return;
+      case 'applyElementalInfliction':
+        if (!flags.elementalInfliction) {
           report(
             collect,
-            'unsupported-damage-field',
-            `${stepPath}.parameters.stagger`,
-            'stagger damage requires a poise runtime',
+            'unsupported-step',
+            stepPath,
+            'elemental infliction requires an elemental infliction document',
           );
         }
         return;
+      case 'applyElementalReaction':
+      case 'consumeElementalReaction':
+        return;
+      case 'dealStagger':
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':
@@ -182,13 +188,13 @@ function inspectSequence(
       }
       case 'conditional':
         inspectCondition(step.parameters.condition, `${stepPath}.parameters.condition`, collect);
-        inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect);
+        inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect, flags);
         if (step.whenFalse !== undefined) {
-          inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect);
+          inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect, flags);
         }
         return;
       case 'once':
-        inspectSequence(step.body, `${stepPath}.body`, collect);
+        inspectSequence(step.body, `${stepPath}.body`, collect, flags);
         return;
       default:
         report(collect, 'unsupported-step', stepPath, `step '${step.kind}'`);
@@ -202,11 +208,17 @@ function inspectProgram(
   endFrame: number,
   operatorPath: string,
   collect: IssueCollector,
+  flags: CompatibilityFlags,
 ): void {
   const programPath = `${operatorPath}.skills['${program.skillId}']`;
   program.timelineActions.forEach((action, index) => {
     if (!scheduledFrames.some(castFrame => castFrame + action.startFrame <= endFrame)) return;
-    inspectSequence(action.sequence, `${programPath}.timelineActions[${index}].sequence`, collect);
+    inspectSequence(
+      action.sequence,
+      `${programPath}.timelineActions[${index}].sequence`,
+      collect,
+      flags,
+    );
   });
 }
 
@@ -241,6 +253,9 @@ export function inspectStandardPlayerDamageCompatibility(
   }
   const issues: StandardPlayerDamageCompatibilityIssue[] = [];
   const collect: IssueCollector = issue => issues.push(issue);
+  const flags: CompatibilityFlags = {
+    elementalInfliction: input.supportsElementalInfliction ?? false,
+  };
   const scheduledFrames = indexScheduledFrames(input.inputs ?? [], input.endFrame);
 
   input.operators.forEach((operator, operatorIndex) => {
@@ -249,7 +264,7 @@ export function inspectStandardPlayerDamageCompatibility(
     operator.skills.forEach(program => {
       const skillScheduledFrames = operatorScheduledFrames?.get(program.skillId);
       if (skillScheduledFrames === undefined) return;
-      inspectProgram(program, skillScheduledFrames, input.endFrame, operatorPath, collect);
+      inspectProgram(program, skillScheduledFrames, input.endFrame, operatorPath, collect, flags);
     });
     operator.equipmentContributions?.forEach((contribution, contributionIndex) => {
       contribution.eventHandlers.forEach((_handler, handlerIndex) =>

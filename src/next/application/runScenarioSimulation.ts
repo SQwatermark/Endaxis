@@ -31,7 +31,7 @@ export interface ScenarioSimulationResult {
   readonly frame: number;
   /** 本次模拟实际交给操作执行器的敌人静态输入。 */
   readonly enemy: CombatEnemyProgram;
-  /** 与本次战斗输入完全一致的静态面板，不写回项目文档。 */
+  /** 与本次战斗输入完全一致的静态面板，不写回存档。 */
   readonly operatorPanels: readonly ResolvedOperatorPanel[];
   /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
   readonly initialResources: CombatResourceSnapshot;
@@ -98,7 +98,7 @@ export function runScenarioSimulation(input: RunScenarioSimulationInput): Scenar
 
 /**
  * 执行已经编译的场景；若运行环境只支持能力子集，调用方必须先完成对应预检。
- * 本函数不再解释项目文档；专用运行环境应复用此阶段，而不是复制模拟与投影流程。
+ * 本函数不再解释存档；专用运行环境应复用此阶段，而不是复制模拟与投影流程。
  */
 export function executeCompiledScenarioSimulation(
   input: ExecuteCompiledScenarioSimulationInput,

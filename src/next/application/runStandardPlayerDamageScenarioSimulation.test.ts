@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { createEmptyScenario } from '../core/project/createProject';
 import { perlica } from '../data/operators/perlica';
+import { elementalAttachmentCatalog } from '../data/buffs/elementalAttachmentCatalog';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
@@ -111,5 +112,38 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     ).toThrow(StandardPlayerDamageCompatibilityError);
     expect(criticalSampleCalls).toBe(0);
     expect(runtimeSnapshotCalls).toBe(0);
+  });
+
+  it('executes a battle skill with the installed elemental infliction and poise runtimes', () => {
+    const placed = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:1` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 60,
+      criticalSamples: new ExplicitCriticalSampleSource([1]),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachmentCatalog,
+      options: standardOptions(),
+    });
+
+    expect(result.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
+    const infliction = result.receiptEntries.find(
+      entry => entry.event === 'ElementalInflictionApplied',
+    );
+    expect(infliction?.data?.requestedElement).toBe('electric');
+    expect(infliction?.data?.outcomeKind).toBe('attachmentOnly');
+    const poise = result.receiptEntries.find(entry => entry.event === 'PoiseApplied');
+    expect(poise?.data?.currentPoise).toBe(290);
   });
 });

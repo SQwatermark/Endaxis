@@ -14,6 +14,8 @@ export interface ResourceCurvePoint {
   readonly time: number;
   readonly sequence: number | null;
   readonly value: number;
+  /** 每帧自动回复；展示时不再单独标点。 */
+  readonly source?: 'autoRecovery';
 }
 
 /** 全队共享技力曲线。 */
@@ -53,6 +55,7 @@ function appendPoint(
     time: change.time,
     sequence: change.sequence,
     value: change.currentValue,
+    ...(change.resource === 'sp' && change.source !== undefined ? { source: change.source } : {}),
   });
   return change.currentValue;
 }
