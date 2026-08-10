@@ -163,7 +163,7 @@ function projectTrack(
 
   return {
     trackIndex,
-    operatorInstanceId: track.operator?.id ?? null,
+    operatorInstanceId: track.id,
     operatorSlug: operatorInstance?.operatorSlug ?? null,
     operatorSupport: operator === null ? null : projectOperatorSupport(operator),
     initialUltimateEnergy: track.initialState.ultimateEnergy,

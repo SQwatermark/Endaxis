@@ -8,13 +8,13 @@ import {
   type ResolvedOperatorResourceRules,
 } from './compileScenarioResources';
 
-function track(operatorId: string | null, ultimateEnergy = 0): TrackDocument {
+function track(id: string, operatorId: string | null, ultimateEnergy = 0): TrackDocument {
   return {
+    id,
     operator:
       operatorId === null
         ? null
         : {
-            id: operatorId,
             operatorSlug: operatorId,
             level: 90,
             promoted: true,
@@ -32,8 +32,8 @@ function track(operatorId: string | null, ultimateEnergy = 0): TrackDocument {
 
 function scenario(): ScenarioDocument {
   const value = createEmptyScenario('scenario:resources', '资源编译样本');
-  value.tracks[0] = track('alpha', 30);
-  value.tracks[2] = track('beta', 40);
+  value.tracks[0] = track('track:0', 'alpha', 30);
+  value.tracks[2] = track('track:2', 'beta', 40);
   value.battle.resourceRules = {
     maxSp: 300,
     initialSp: 120,
@@ -61,9 +61,9 @@ function options(): CompileScenarioResourcesOptions {
     ultimateEnergySystemUnlocked: true,
     normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
     operators: new Map([
-      ['alpha', operatorRules()],
+      ['track:0', operatorRules()],
       [
-        'beta',
+        'track:2',
         operatorRules({
           maxUltimateEnergy: 80,
           ultimateEnergyGainMultiplier: 1.2,
@@ -87,14 +87,14 @@ describe('compileScenarioResources', () => {
       ultimateEnergySystemUnlocked: true,
       squad: [
         {
-          operatorId: 'alpha',
+          operatorId: 'track:0',
           ultimateEnergy: 30,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
           allowedUltimateEnergyRecoveryTagIds: null,
         },
         {
-          operatorId: 'beta',
+          operatorId: 'track:2',
           ultimateEnergy: 40,
           maxUltimateEnergy: 80,
           ultimateEnergyGainMultiplier: 1.2,
@@ -110,7 +110,7 @@ describe('compileScenarioResources', () => {
     value.tracks[0]!.initialState.maxUltimateEnergyOverride = 60;
     const settings = options();
     const operators = new Map(settings.operators);
-    operators.set('alpha', operatorRules({ maxUltimateEnergy: undefined }));
+    operators.set('track:0', operatorRules({ maxUltimateEnergy: undefined }));
 
     expect(
       compileScenarioResources(value, { ...settings, operators }).squad[0]!.maxUltimateEnergy,
@@ -120,20 +120,20 @@ describe('compileScenarioResources', () => {
   it('fails when an operator maximum has neither project nor resolved source', () => {
     const settings = options();
     const operators = new Map(settings.operators);
-    operators.set('alpha', operatorRules({ maxUltimateEnergy: undefined }));
+    operators.set('track:0', operatorRules({ maxUltimateEnergy: undefined }));
 
     expect(() => compileScenarioResources(scenario(), { ...settings, operators })).toThrow(
-      "resolved resource rules for 'alpha' have no maxUltimateEnergy",
+      "resolved resource rules for 'track:0' have no maxUltimateEnergy",
     );
   });
 
   it('fails when resolved rules for an occupied track are missing', () => {
     const settings = options();
     const operators = new Map(settings.operators);
-    operators.delete('beta');
+    operators.delete('track:2');
 
     expect(() => compileScenarioResources(scenario(), { ...settings, operators })).toThrow(
-      "resolved resource rules for operator instance 'beta' do not exist",
+      "resolved resource rules for operator instance 'track:2' do not exist",
     );
   });
 
@@ -160,7 +160,7 @@ describe('compileScenarioResources', () => {
 
   it('rejects resource state on a track without an operator', () => {
     const value = scenario();
-    value.tracks[1] = track(null, 1);
+    value.tracks[1] = track('track:1', null, 1);
 
     expect(() => compileScenarioResources(value, options())).toThrow(
       'configures resources without an operator instance',
@@ -169,10 +169,10 @@ describe('compileScenarioResources', () => {
 
   it('rejects assigning the same operator build to multiple tracks', () => {
     const value = scenario();
-    value.tracks[1] = track('alpha', 0);
+    value.tracks[1] = track('track:0', 'alpha', 0);
 
     expect(() => compileScenarioResources(value, options())).toThrow(
-      "operator instance 'alpha' is assigned to multiple tracks",
+      "operator instance 'track:0' is assigned to multiple tracks",
     );
   });
 });

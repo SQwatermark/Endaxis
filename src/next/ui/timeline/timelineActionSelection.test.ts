@@ -28,6 +28,7 @@ function cast(id: string): SkillCastDocument {
 function sessionWithCasts(): ScenarioEditorSession {
   const scenario = createEmptyScenario('scenario:selection', '选择样本');
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: null,
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },

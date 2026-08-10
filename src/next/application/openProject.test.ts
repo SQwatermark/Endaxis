@@ -59,9 +59,9 @@ describe('openProject', () => {
   it('reports definition reference issues when the revision matches', () => {
     const project = createProject();
     project.scenarios[0]!.tracks[0] = {
+      id: 'track:0',
       operator: null,
       weapon: {
-        id: 'weapon:1',
         weaponSlug: 'missing-weapon',
         level: 90,
         tuned: true,

@@ -60,7 +60,7 @@ function compileOperatorResource(
     return null;
   }
 
-  const operatorId = track.operator.id;
+  const operatorId = track.id;
   const resolved = options.operators.get(operatorId);
   if (resolved === undefined) {
     throw new Error(`resolved resource rules for operator instance '${operatorId}' do not exist`);

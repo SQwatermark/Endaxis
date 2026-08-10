@@ -23,7 +23,6 @@ export interface JsonObject {
 
 /** 一个干员养成方案中由用户决定的稳定输入。 */
 export interface OperatorInstanceDocument {
-  id: string;
   operatorSlug: string;
   level: number;
   promoted: boolean;
@@ -36,7 +35,6 @@ export interface OperatorInstanceDocument {
 
 /** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器定义决定。 */
 export interface WeaponInstanceDocument {
-  id: string;
   /** 引用当前游戏数据版本中的 `WeaponDefinition.slug`。 */
   weaponSlug: string;
   level: number;
@@ -47,23 +45,17 @@ export interface WeaponInstanceDocument {
 
 /** 一件装备的定义身份与精锻等级配置。 */
 export interface GearInstanceDocument {
-  id: string;
   /** 引用当前游戏数据版本中的 `GearDefinition.slug`。 */
   gearSlug: string;
   artificingLevels: number[];
 }
 
-/** 可从版本化游戏数据恢复身份和默认行为的技能来源。 */
-export type DefinitionActionSource =
-  | {
-      kind: 'operatorSkill';
-      skillGroupKey: string;
-      skillKey: string;
-    }
-  | {
-      kind: 'weaponSkill';
-      skillKey: string;
-    };
+/** 可从版本化游戏数据恢复身份和默认行为的技能来源。武器效果是被动行为，不产生时间轴释放。 */
+export type DefinitionActionSource = {
+  kind: 'operatorSkill';
+  skillGroupKey: string;
+  skillKey: string;
+};
 
 /** 完全由用户定义、无法从游戏数据恢复的时间轴行为。 */
 export interface CustomActionDefinition {
@@ -83,7 +75,6 @@ export const EDITABLE_SKILL_CAST_FIELDS = [
   'cooldownFrames',
   'comboFollowupDelayFrames',
   'triggerWindowFrames',
-  'enhancement',
   'spCost',
   'ultimateEnergyCost',
   'linked',
@@ -141,10 +132,6 @@ export interface EditableBarDocument {
   color?: string;
 }
 
-/** 技能强化状态的持续时间或语义状态来源。 */
-export type EnhancementDocument =
-  { kind: 'duration'; frames: number } | { kind: 'status'; statusId: string };
-
 /**
  * 编辑器暴露的完整取值。即使数值仍等于定义默认值也会持久化，
  * `edited` 只标记哪些值被用户手动改过。
@@ -154,7 +141,6 @@ export interface EditableActionValues {
   cooldownFrames?: number;
   comboFollowupDelayFrames?: number;
   triggerWindowFrames?: number;
-  enhancement?: EnhancementDocument;
   spCost?: number;
   ultimateEnergyCost?: number;
   linked?: boolean;
@@ -173,13 +159,6 @@ export interface SkillCastDocument {
     /** 用户编辑的逻辑位置；运行时位移属于派生结果。 */
     startFrame: number;
   };
-  /** 当一次技能库操作以序列形式放置多次释放时存在。 */
-  placementGroup?: {
-    id: string;
-    skillGroupKey: string;
-    index: number;
-    total: number;
-  };
   editable: EditableActionValues;
   edited: EditableSkillCastField[];
 }
@@ -189,6 +168,8 @@ export interface SkillCastDocument {
  * 实例属于轨道本身，不与其他轨道共享；空轨道整体为 `null`。
  */
 export interface TrackDocument {
+  /** 轨道的稳定身份；与轨道序号无关，交换轨道时随轨道对象一起移动。 */
+  id: string;
   /** 轨道的干员实例；null 表示空轨道。 */
   operator: OperatorInstanceDocument | null;
   /** 轨道当前装备的武器实例；null 表示未装备。 */
@@ -277,13 +258,13 @@ export interface EnemyDocument {
   edited: EnemyEditableField[];
 }
 
-/** 用户创建的分支点，可从此派生后续场景。 */
+/** 循环分界线 */
 export interface CycleBoundaryDocument {
   id: string;
   frame: number;
 }
 
-/** 从 `frame` 开始由玩家主控的轨道。 */
+/** 切入干员标记 */
 export interface ControlSwitchDocument {
   id: string;
   frame: number;
@@ -294,6 +275,7 @@ export interface ControlSwitchDocument {
 export interface BattleDocument {
   prepFrames: number;
   durationFrames: number;
+  /** 模拟起始线和模拟终止线 */
   simulationRange?: {
     startFrame?: number;
     endFrame?: number;

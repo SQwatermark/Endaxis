@@ -19,8 +19,8 @@ function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:assembly', '运行时装配样本');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -101,14 +101,14 @@ describe('compileScenarioRuntimeAssembly', () => {
       },
     });
     expect(compiled.resources.squad[0]).toMatchObject({
-      operatorId: 'perlica',
+      operatorId: 'track:0',
       ultimateEnergy: 20,
       maxUltimateEnergy: 80,
     });
     expect(compiled.operators).toHaveLength(1);
-    expect(compiled.operators[0]!.operatorId).toBe('perlica');
+    expect(compiled.operators[0]!.operatorId).toBe('track:0');
     expect(compiled.operators[0]!.panel).toMatchObject({
-      operatorId: 'perlica',
+      operatorId: 'track:0',
       attack: 706,
       health: 5950,
       defense: 0,
@@ -136,7 +136,6 @@ describe('compileScenarioRuntimeAssembly', () => {
     };
 
     scenario.tracks[0]!.weapon = {
-      id: 'weapon',
       weaponSlug: weapon.slug,
       level: 90,
       tuned: true,
@@ -194,7 +193,7 @@ describe('compileScenarioRuntimeAssembly', () => {
       compileScenarioRuntimeAssembly(createScenario(), {
         ...settings,
         operatorRuntimeBindings: new Map([
-          ['perlica', {}],
+          ['track:0', {}],
           ['inactive', {}],
         ]),
       }),

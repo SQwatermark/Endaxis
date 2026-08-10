@@ -61,7 +61,7 @@ export function projectHitEffectsByCast(
   if (targetTrack === null || targetCast === null || targetTrack.operator === null) {
     return new Map<string, TimelineHitEffectLabel>();
   }
-  const operatorId = targetTrack.operator.id;
+  const operatorId = targetTrack.id;
   const markers = projectCastHitMarkers(targetCast);
   const damages = projectHitDamageReceipts(entries).filter(
     receipt => receipt.sourceId === operatorId,

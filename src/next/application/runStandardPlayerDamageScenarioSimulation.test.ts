@@ -11,8 +11,8 @@ function createPerlicaScenario() {
   const scenario = createEmptyScenario('scenario:standard-damage', '标准伤害样本');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,

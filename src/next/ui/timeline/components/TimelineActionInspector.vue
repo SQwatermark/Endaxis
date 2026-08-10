@@ -39,12 +39,6 @@ function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
   const value = readNumber(event);
   if (value !== null) emit('update', field, value);
 }
-
-function updateEnhancement(event: Event): void {
-  const value = readNumber(event);
-  if (value !== null)
-    emit('update', 'enhancement', { kind: 'duration', frames: Math.round(value) });
-}
 </script>
 
 <template>
@@ -78,10 +72,7 @@ function updateEnhancement(event: Event): void {
               @change="updateInteger('cooldownFrames', $event)"
             />
           </label>
-          <label
-            v-if="skillType === 'comboSkill' && cast.placementGroup !== undefined"
-            class="form-group"
-          >
+          <label v-if="skillType === 'comboSkill'" class="form-group">
             <span>{{ t('propertiesPanel.labels.followupDelayS') }}</span>
             <input
               type="number"
@@ -120,22 +111,6 @@ function updateEnhancement(event: Event): void {
               :value="cast.editable.ultimateEnergyCost ?? 0"
               @change="updateNumber('ultimateEnergyCost', $event)"
             />
-          </label>
-          <label v-if="skillType === 'ultimate'" class="form-group attribute-grid__wide">
-            <span>{{ t('propertiesPanel.labels.enhancementTimeS') }}</span>
-            <input
-              v-if="cast.editable.enhancement?.kind !== 'status'"
-              type="number"
-              min="0"
-              step="1"
-              :value="
-                cast.editable.enhancement?.kind === 'duration'
-                  ? cast.editable.enhancement.frames
-                  : 0
-              "
-              @change="updateEnhancement"
-            />
-            <div v-else class="readonly-field">{{ cast.editable.enhancement.statusId }}</div>
           </label>
         </div>
       </section>

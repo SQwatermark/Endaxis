@@ -9,7 +9,6 @@ import {
 
 function build(overrides: Partial<OperatorInstanceDocument> = {}): OperatorInstanceDocument {
   return {
-    id: 'operator:1',
     operatorSlug: perlica.slug,
     level: 90,
     promoted: true,

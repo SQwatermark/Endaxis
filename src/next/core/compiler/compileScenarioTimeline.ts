@@ -45,7 +45,7 @@ function requireOperator(
 function requireSkillLevel(build: OperatorInstanceDocument, levelSource: string): number {
   const level = build.skillLevels[levelSource];
   if (level === undefined) {
-    throw new Error(`operator build '${build.id}' has no '${levelSource}' skill level`);
+    throw new Error(`operator '${build.operatorSlug}' has no '${levelSource}' skill level`);
   }
   return level;
 }
@@ -90,7 +90,7 @@ function projectDocumentStep(step: CombatStepDocument): ResolvedCombatStep {
 
 /** 从技能释放文档编译一个独立程序；定义默认值、等级与养成补丁仍以定义为准。 */
 function compileCastSkillProgram(
-  build: OperatorInstanceDocument,
+  trackId: string,
   operator: OperatorDefinition,
   skill: SkillDefinition,
   skillLevel: number,
@@ -105,7 +105,7 @@ function compileCastSkillProgram(
     throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
   }
   const base = compileSkill({
-    operatorId: build.id,
+    operatorId: trackId,
     skillGroupKey: group.key,
     skillType: group.skillType,
     skillLevel,
@@ -126,6 +126,7 @@ function compileCastSkillProgram(
  * 资源规则等与放置无关的解析使用这份名单；放置程序由 `compileCastSkillProgram` 单独产生。
  */
 export function compileOperatorDefinitionSkills(
+  trackId: string,
   build: OperatorInstanceDocument,
   operator: OperatorDefinition,
 ): readonly CompiledSkillProgram[] {
@@ -135,7 +136,7 @@ export function compileOperatorDefinitionSkills(
     return definitions.map(skill => {
       assertSkillCanCompile(operator, skill);
       return compileSkill({
-        operatorId: build.id,
+        operatorId: trackId,
         skillGroupKey: group.key,
         skillType: group.skillType,
         skillLevel,
@@ -206,10 +207,10 @@ function compileResolvedTimelineTracks(
         throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
       }
       const level = requireSkillLevel(operatorInstance, group.levelSource);
-      skills.push(compileCastSkillProgram(operatorInstance, operator, skill, level, cast));
+      skills.push(compileCastSkillProgram(track.id, operator, skill, level, cast));
       pendingInputs.push({
         frame: cast.placement.startFrame,
-        operatorId: operatorInstance.id,
+        operatorId: track.id,
         skillId: skill.key,
         castId: cast.id,
         order,
@@ -218,7 +219,7 @@ function compileResolvedTimelineTracks(
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
     operators.push({
-      operatorId: operatorInstance.id,
+      operatorId: track.id,
       skills: applyOperatorUpgradeSkillPatches(
         skills,
         resolveActiveOperatorUpgrades(operatorInstance, operator),
@@ -265,10 +266,10 @@ export function compileScenarioTimeline(
       }
       return;
     }
-    if (seenOperatorIds.has(operatorInstance.id)) {
-      throw new Error(`operator instance '${operatorInstance.id}' is assigned to multiple tracks`);
+    if (seenOperatorIds.has(track.id)) {
+      throw new Error(`track '${track.id}' is assigned to multiple operator instances`);
     }
-    seenOperatorIds.add(operatorInstance.id);
+    seenOperatorIds.add(track.id);
     const operator = requireOperator(operatorInstance, index);
     tracks.push({ track, operatorInstance, operator });
   });

@@ -9,9 +9,8 @@ import {
 
 describe('loadoutBuildFactory', () => {
   it('按干员技能等级来源建立一次默认值', () => {
-    const build = createDefaultOperatorInstance('operator:1', perlica);
+    const build = createDefaultOperatorInstance(perlica);
 
-    expect(build.id).toBe('operator:1');
     expect(build.operatorSlug).toBe(perlica.slug);
     expect(build.skillLevels).toEqual({
       basicAttack: 12,
@@ -43,7 +42,7 @@ describe('loadoutBuildFactory', () => {
       ],
     };
 
-    expect(createDefaultWeaponInstance('weapon:1', weapon).traitLevels).toEqual([1, 1]);
-    expect(createDefaultGearInstance('gear:1', gear, 3).artificingLevels).toEqual([3, 3]);
+    expect(createDefaultWeaponInstance(weapon).traitLevels).toEqual([1, 1]);
+    expect(createDefaultGearInstance(gear, 3).artificingLevels).toEqual([3, 3]);
   });
 });

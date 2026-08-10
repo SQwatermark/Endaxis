@@ -139,7 +139,7 @@ export function resolveScenarioBuilds(
   index: ScenarioBuildIndex,
 ): readonly ResolvedScenarioBuild[] {
   const resolved: ResolvedScenarioBuild[] = [];
-  const seenOperatorInstanceIds = new Set<string>();
+  const seenTrackIds = new Set<string>();
 
   scenario.tracks.forEach((track, rawTrackIndex) => {
     if (track === null) return;
@@ -157,10 +157,10 @@ export function resolveScenarioBuilds(
       }
       return;
     }
-    if (seenOperatorInstanceIds.has(operatorInstance.id)) {
-      throw new Error(`operator instance '${operatorInstance.id}' is assigned to multiple tracks`);
+    if (seenTrackIds.has(track.id)) {
+      throw new Error(`duplicate track identity '${track.id}'`);
     }
-    seenOperatorInstanceIds.add(operatorInstance.id);
+    seenTrackIds.add(track.id);
 
     const operator = requireDefinitionEntry(
       index.getOperator(operatorInstance.operatorSlug),

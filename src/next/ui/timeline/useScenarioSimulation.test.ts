@@ -51,8 +51,8 @@ function createPerlicaScenario(): ScenarioDocument {
   scenario.battle.durationFrames = 300;
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -109,8 +109,8 @@ describe('useScenarioSimulation', () => {
       session.commit('placeUnsupportedOperator', () => {
         const next = createPerlicaScenario();
         next.tracks[0] = {
+          id: 'track:0',
           operator: {
-            id: zhuangFangyi.slug,
             operatorSlug: zhuangFangyi.slug,
             level: 90,
             promoted: true,
@@ -147,7 +147,7 @@ describe('useScenarioSimulation', () => {
       availabilityDiagnostics: [
         {
           frame: 1,
-          sourceId: 'perlica',
+          sourceId: 'track:0',
           skillId: 'plungingAttack',
           reasons: ['resourceUnavailable' as const],
           receiptSequences: [0],

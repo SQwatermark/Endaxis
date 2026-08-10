@@ -25,8 +25,8 @@ function createEquippedScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario', 'Scenario');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'operator',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -37,7 +37,6 @@ function createEquippedScenario(): ScenarioDocument {
       baseStatOverrides: { attack: 1234 },
     },
     weapon: {
-      id: 'weapon',
       weaponSlug: weapon.slug,
       level: 80,
       tuned: true,
@@ -46,13 +45,11 @@ function createEquippedScenario(): ScenarioDocument {
     },
     gears: {
       armor: {
-        id: 'armor',
         gearSlug: armor.slug,
         artificingLevels: [1, 2],
       },
       gloves: null,
       accessory1: {
-        id: 'accessory',
         gearSlug: accessory.slug,
         artificingLevels: [3],
       },
@@ -71,7 +68,6 @@ describe('projectTrackLoadoutBuilds', () => {
     const projected = projectTrackLoadoutBuilds(scenario, 0, repository);
 
     expect(projected.operator).toMatchObject({
-      buildId: 'operator',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -83,7 +79,6 @@ describe('projectTrackLoadoutBuilds', () => {
     expect(projected.operator?.talentStates).toEqual({ talent1: 2 });
     expect(projected.operator?.baseStatOverrides).toEqual({ attack: 1234 });
     expect(projected.weapon).toMatchObject({
-      buildId: 'weapon',
       weaponSlug: weapon.slug,
       level: 80,
       tuned: true,
@@ -93,14 +88,12 @@ describe('projectTrackLoadoutBuilds', () => {
     });
     expect(projected.gears.armor).toMatchObject({
       slot: 'armor',
-      buildId: 'armor',
       gearSlug: armor.slug,
       artificingLevels: [1, 2],
       definition: armor,
     });
     expect(projected.gears.accessory1).toMatchObject({
       slot: 'accessory1',
-      buildId: 'accessory',
       gearSlug: accessory.slug,
       artificingLevels: [3],
       definition: accessory,

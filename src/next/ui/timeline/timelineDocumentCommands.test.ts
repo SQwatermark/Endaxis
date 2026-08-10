@@ -56,11 +56,13 @@ describe('swapTimelineTracks', () => {
     const original = createEmptyScenario('scenario:tracks', '轨道排序样本');
     original.tracks[0] = {
       ...scenario().tracks[0]!,
-      operator: { ...perlicaBuild, id: 'operator:a' },
+      id: 'operator:a',
+      operator: perlicaBuild,
     };
     original.tracks[1] = {
       ...scenario().tracks[0]!,
-      operator: { ...perlicaBuild, id: 'operator:b' },
+      id: 'operator:b',
+      operator: perlicaBuild,
     };
     original.battle.controlSwitches = [
       { id: 'switch:a', frame: 0, trackIndex: 0 },
@@ -70,10 +72,10 @@ describe('swapTimelineTracks', () => {
 
     const swapped = swapTimelineTracks(original, 0, 1);
 
-    expect(swapped.tracks[0]?.operator?.id).toBe('operator:b');
-    expect(swapped.tracks[1]?.operator?.id).toBe('operator:a');
+    expect(swapped.tracks[0]?.id).toBe('operator:b');
+    expect(swapped.tracks[1]?.id).toBe('operator:a');
     expect(swapped.battle.controlSwitches.map(value => value.trackIndex)).toEqual([1, 0, 2]);
-    expect(original.tracks[0]?.operator?.id).toBe('operator:a');
+    expect(original.tracks[0]?.id).toBe('operator:a');
   });
 });
 
@@ -97,7 +99,6 @@ describe('updateTrackInitialUltimateEnergy', () => {
 });
 
 const perlicaBuild = {
-  id: 'operator:perlica',
   operatorSlug: 'perlica',
   level: 90,
   promoted: true,
@@ -126,6 +127,7 @@ function cast(locked = false): SkillCastDocument {
 function scenario(locked = false) {
   const value = createEmptyScenario('scenario:move', '移动样本');
   value.tracks[0] = {
+    id: 'track:0',
     operator: null,
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
@@ -138,7 +140,7 @@ function scenario(locked = false) {
 describe('moveSkillCast', () => {
   it('assigns an operator to an empty track', () => {
     const original = createEmptyScenario('scenario:operator', '干员样本');
-    const updated = setTrackOperator(original, 2, perlicaBuild);
+    const updated = setTrackOperator(original, 2, perlicaBuild, 'track:2');
 
     expect(updated.tracks[2]).toMatchObject({
       operator: perlicaBuild,
@@ -154,7 +156,6 @@ describe('moveSkillCast', () => {
       ...original.tracks[0]!,
       operator: perlicaBuild,
       weapon: {
-        id: 'weapon:old',
         weaponSlug: 'old',
         level: 90,
         tuned: true,
@@ -162,7 +163,7 @@ describe('moveSkillCast', () => {
         traitLevels: [1],
       },
       gears: {
-        armor: { id: 'gear:old', gearSlug: 'old', artificingLevels: [0] },
+        armor: { gearSlug: 'old', artificingLevels: [0] },
         gloves: null,
         accessory1: null,
         accessory2: null,
@@ -176,9 +177,9 @@ describe('moveSkillCast', () => {
         to: { kind: 'skillCast', skillCastId: 'cast:2' },
       },
     ];
-    const arcaneBuild = { ...perlicaBuild, id: 'operator:arcane', operatorSlug: 'arcane' };
+    const arcaneBuild = { ...perlicaBuild, operatorSlug: 'arcane' };
 
-    const updated = setTrackOperator(original, 0, arcaneBuild);
+    const updated = setTrackOperator(original, 0, arcaneBuild, 'track:0');
 
     expect(updated.tracks[0]!.operator).toEqual(arcaneBuild);
     expect(updated.tracks[0]!.skillCasts).toEqual([]);
@@ -196,21 +197,20 @@ describe('moveSkillCast', () => {
     const original = scenario();
     original.tracks[0] = { ...original.tracks[0]!, operator: perlicaBuild };
 
-    expect(setTrackOperator(original, 0, { ...perlicaBuild })).toBe(original);
+    expect(setTrackOperator(original, 0, { ...perlicaBuild }, 'track:0')).toBe(original);
   });
 
   it('assigns, replaces and removes a weapon on a track', () => {
     const original = scenario();
     original.tracks[0] = { ...original.tracks[0]!, operator: perlicaBuild };
     const first = {
-      id: 'weapon:first',
       weaponSlug: 'first',
       level: 90,
       tuned: true,
       potential: 0,
       traitLevels: [1, 1, 1],
     };
-    const second = { ...first, id: 'weapon:second', weaponSlug: 'second' };
+    const second = { ...first, weaponSlug: 'second' };
 
     const equipped = setTrackWeapon(original, 0, first);
     const replaced = setTrackWeapon(equipped, 0, second);
@@ -226,7 +226,6 @@ describe('moveSkillCast', () => {
     const original = createEmptyScenario('scenario:empty-weapon', '空轨道');
     expect(() =>
       setTrackWeapon(original, 0, {
-        id: 'weapon:first',
         weaponSlug: 'first',
         level: 90,
         tuned: true,
@@ -238,9 +237,8 @@ describe('moveSkillCast', () => {
 
   it('assigns independent gear slots and clears them separately', () => {
     const original = scenario();
-    const armor = { id: 'gear:armor', gearSlug: 'armor', artificingLevels: [0, 0, 0] };
+    const armor = { gearSlug: 'armor', artificingLevels: [0, 0, 0] };
     const accessory = {
-      id: 'gear:accessory1',
       gearSlug: 'accessory',
       artificingLevels: [0, 0],
     };
@@ -269,7 +267,6 @@ describe('moveSkillCast', () => {
     const original = createEmptyScenario('scenario:empty-gear', '空轨道');
     expect(() =>
       setTrackGear(original, 0, 'armor', {
-        id: 'gear:armor',
         gearSlug: 'armor',
         artificingLevels: [0],
       }),
@@ -304,16 +301,10 @@ describe('moveSkillCast', () => {
     expect(original.tracks[0]!.skillCasts[0]!.edited).toEqual([]);
   });
 
-  it('validates frame and enhancement fields at the command boundary', () => {
+  it('validates frame fields at the command boundary', () => {
     expect(() => updateSkillCastBasicField(scenario(), 0, 'cast:1', 'cooldownFrames', 1.5)).toThrow(
       'non-negative integer',
     );
-    expect(() =>
-      updateSkillCastBasicField(scenario(), 0, 'cast:1', 'enhancement', {
-        kind: 'duration',
-        frames: -1,
-      }),
-    ).toThrow('enhancement.frames');
   });
 
   it('updates lock and disabled states without mutating the source', () => {
@@ -366,29 +357,26 @@ describe('moveSkillCast', () => {
     expect(original.tracks[0]!.skillCasts).toHaveLength(1);
   });
 
-  it('renumbers a remaining placement group and unwraps its last member', () => {
+  it('removes a member from a set of casts and preserves the remaining casts', () => {
     const original = scenario();
     const grouped = [0, 1, 2].map(index => ({
       ...cast(),
       id: `cast:${index + 1}`,
-      placementGroup: { id: 'group:1', skillGroupKey: 'basicAttack', index, total: 3 },
     }));
     original.tracks[0]!.skillCasts = grouped;
 
     const twoMembers = removeSkillCast(original, 0, 'cast:2');
-    expect(twoMembers.tracks[0]!.skillCasts.map(value => value.placementGroup)).toEqual([
-      { id: 'group:1', skillGroupKey: 'basicAttack', index: 0, total: 2 },
-      { id: 'group:1', skillGroupKey: 'basicAttack', index: 1, total: 2 },
-    ]);
+    expect(twoMembers.tracks[0]!.skillCasts.map(value => value.id)).toEqual(['cast:1', 'cast:3']);
 
     const oneMember = removeSkillCast(twoMembers, 0, 'cast:1');
-    expect(oneMember.tracks[0]!.skillCasts[0]!.placementGroup).toBeUndefined();
+    expect(oneMember.tracks[0]!.skillCasts.map(value => value.id)).toEqual(['cast:3']);
   });
 
   it('removes selected casts across tracks as one immutable command', () => {
     const original = scenario();
     original.tracks[0]!.skillCasts.push({ ...cast(), id: 'cast:2' });
     original.tracks[1] = {
+      id: 'track:1',
       operator: null,
       weapon: null,
       gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
@@ -428,6 +416,7 @@ describe('moveSkillCasts', () => {
       placement: { startFrame: 60 },
     });
     value.tracks[1] = {
+      id: 'track:1',
       operator: null,
       weapon: null,
       gears: { armor: null, gloves: null, accessory1: null, accessory2: null },

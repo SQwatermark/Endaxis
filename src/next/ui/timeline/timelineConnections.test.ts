@@ -51,8 +51,8 @@ function cast(id: string, scheduledHitId?: string): SkillCastDocument {
 function scenarioWithCasts(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', 'test');
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'operator:1',
       operatorSlug: 'perlica',
       level: 90,
       promoted: true,

@@ -48,7 +48,6 @@ import {
   requireFiniteNumber,
   requireInteger,
   requireNonNegativeInteger,
-  requirePositiveInteger,
   requireString,
   validateEditedFields,
   type ValidationIssue,
@@ -835,8 +834,6 @@ function validateSkillCast(
     if (sourceKind === 'operatorSkill') {
       requireString(value.source, 'skillGroupKey', sourcePath, issues);
       requireString(value.source, 'skillKey', sourcePath, issues);
-    } else if (sourceKind === 'weaponSkill') {
-      requireString(value.source, 'skillKey', sourcePath, issues);
     } else if (sourceKind === 'custom') {
       requireString(value.source, 'actionType', sourcePath, issues);
       requireString(value.source, 'name', sourcePath, issues);
@@ -855,25 +852,6 @@ function validateSkillCast(
     issues.push({ path: `${path}.placement`, message: 'expected an object' });
   } else {
     requireNonNegativeInteger(value.placement.startFrame, `${path}.placement.startFrame`, issues);
-  }
-
-  if (value.placementGroup !== undefined) {
-    const groupPath = `${path}.placementGroup`;
-    if (!isObject(value.placementGroup)) {
-      issues.push({ path: groupPath, message: 'expected an object' });
-    } else {
-      requireString(value.placementGroup, 'id', groupPath, issues);
-      requireString(value.placementGroup, 'skillGroupKey', groupPath, issues);
-      requireNonNegativeInteger(value.placementGroup.index, `${groupPath}.index`, issues);
-      requirePositiveInteger(value.placementGroup.total, `${groupPath}.total`, issues);
-      if (
-        typeof value.placementGroup.index === 'number' &&
-        typeof value.placementGroup.total === 'number' &&
-        value.placementGroup.index >= value.placementGroup.total
-      ) {
-        issues.push({ path: `${groupPath}.index`, message: 'must be less than total' });
-      }
-    }
   }
 
   if (!isObject(value.editable)) {
@@ -908,22 +886,6 @@ function validateSkillCast(
     typeof value.editable.color !== 'string'
   ) {
     issues.push({ path: `${path}.editable.color`, message: 'expected a string or null' });
-  }
-  if (value.editable.enhancement !== undefined) {
-    const enhancementPath = `${path}.editable.enhancement`;
-    if (!isObject(value.editable.enhancement)) {
-      issues.push({ path: enhancementPath, message: 'expected an object' });
-    } else if (value.editable.enhancement.kind === 'duration') {
-      requireNonNegativeInteger(
-        value.editable.enhancement.frames,
-        `${enhancementPath}.frames`,
-        issues,
-      );
-    } else if (value.editable.enhancement.kind === 'status') {
-      requireString(value.editable.enhancement, 'statusId', enhancementPath, issues);
-    } else {
-      issues.push({ path: `${enhancementPath}.kind`, message: 'unknown enhancement kind' });
-    }
   }
   if (!Array.isArray(value.editable.scheduledSequences)) {
     issues.push({ path: `${path}.editable.scheduledSequences`, message: 'expected an array' });
@@ -1103,7 +1065,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
 
       const skillCastIds = new Set<string>();
       const damageHitIdsByCast = new Map<string, Set<string>>();
-      const operatorInstanceIds = new Set<string>();
+      const trackIds = new Set<string>();
       scenario.tracks.forEach((track, trackIndex) => {
         if (track === null) return;
         const trackPath = `${path}.tracks[${trackIndex}]`;
@@ -1111,22 +1073,19 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           issues.push({ path: trackPath, message: 'expected an object or null' });
           return;
         }
+        const trackId = requireString(track, 'id', trackPath, issues);
+        if (trackId !== null) {
+          if (trackIds.has(trackId)) {
+            issues.push({ path: `${trackPath}.id`, message: 'duplicate track identity' });
+          }
+          trackIds.add(trackId);
+        }
         if (track.operator !== null && track.operator !== undefined) {
           const instancePath = `${trackPath}.operator`;
           if (!isObject(track.operator)) {
             issues.push({ path: instancePath, message: 'expected an object or null' });
           } else {
             validateOperatorInstance(track.operator, instancePath, issues);
-            const id = requireString(track.operator, 'id', instancePath, issues);
-            if (id !== null) {
-              if (operatorInstanceIds.has(id)) {
-                issues.push({
-                  path: `${instancePath}.id`,
-                  message: 'duplicate operator instance id',
-                });
-              }
-              operatorInstanceIds.add(id);
-            }
           }
         } else if (!('operator' in track)) {
           issues.push({ path: `${trackPath}.operator`, message: 'missing operator instance' });

@@ -248,12 +248,12 @@ function applyEquipmentContribution(
 export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOperatorPanel {
   if (build.operatorInstance.baseStatOverrides !== undefined) {
     throw new Error(
-      `operator build '${build.operatorInstance.id}' has base stat overrides, but Next panel override semantics are not normalized`,
+      `operator '${build.track.id}' has base stat overrides, but Next panel override semantics are not normalized`,
     );
   }
   const operatorLevelIndex = requireLevelIndex(
     build.operatorInstance.level,
-    `operator build '${build.operatorInstance.id}'.level`,
+    `operator '${build.track.id}'.level`,
   );
   const receipt: OperatorPanelContributionReceipt[] = [];
   const operatorSource = { kind: 'operatorBase', operatorSlug: build.operator.slug } as const;
@@ -325,7 +325,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     build.operatorInstance.trustLevel > unlockedTrustLevel
   ) {
     throw new RangeError(
-      `operator build '${build.operatorInstance.id}'.trustLevel must be an integer between 0 and ${unlockedTrustLevel}`,
+      `operator '${build.track.id}'.trustLevel must be an integer between 0 and ${unlockedTrustLevel}`,
     );
   }
   for (let index = 0; index < build.operatorInstance.trustLevel; index += 1) {
@@ -355,7 +355,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   if (build.weapon !== null) {
     const weaponLevelIndex = requireLevelIndex(
       build.weapon.instance.level,
-      `weapon instance '${build.weapon.instance.id}'.level`,
+      `weapon '${build.weapon.definition.slug}'.level`,
     );
     values.weaponBaseAttack = requireFinite(
       build.weapon.definition.baseAttackAtLevelNodes[weaponLevelIndex],
@@ -412,7 +412,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   );
 
   return {
-    operatorId: build.operatorInstance.id,
+    operatorId: build.track.id,
     attributes: { ...values.attributes },
     attack,
     health,

@@ -15,7 +15,7 @@ import type {
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
-  'skillCast' | 'placementGroup' | 'scheduledSequence' | 'hit' | 'customBar' | 'connection';
+  'track' | 'skillCast' | 'scheduledSequence' | 'hit' | 'customBar' | 'connection';
 
 export interface TimelineDocumentIdAllocator {
   allocate(kind: TimelineDocumentIdKind): string;
@@ -108,7 +108,7 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
     throw new Error(`track ${input.trackIndex} has no operator instance`);
   if (operatorInstance.operatorSlug !== input.operator.slug) {
     throw new Error(
-      `operator instance '${operatorInstance.id}' references '${operatorInstance.operatorSlug}', not '${input.operator.slug}'`,
+      `track '${track.id}' operator references '${operatorInstance.operatorSlug}', not '${input.operator.slug}'`,
     );
   }
   const group = input.operator.skillGroups.find(candidate => candidate.key === input.skillGroupKey);
@@ -119,9 +119,7 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   }
   const level = operatorInstance.skillLevels[group.levelSource];
   if (level === undefined) {
-    throw new Error(
-      `operator build '${operatorInstance.id}' has no '${group.levelSource}' skill level`,
-    );
+    throw new Error(`track '${track.id}' has no '${group.levelSource}' skill level`);
   }
 
   const groupSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
@@ -132,13 +130,12 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   if (skills.length === 0) {
     throw new Error(`skill group '${input.skillGroupKey}' has no skill '${input.skillKey ?? ''}'`);
   }
-  const placementGroupId = skills.length > 1 ? input.ids.allocate('placementGroup') : undefined;
   const created: SkillCastDocument[] = [];
   let nextStartFrame = input.startFrame;
 
-  skills.forEach((skill, index) => {
+  skills.forEach(skill => {
     const program = compileSkill({
-      operatorId: operatorInstance.id,
+      operatorId: track.id,
       skillGroupKey: group.key,
       skillType: group.skillType,
       skill,
@@ -153,16 +150,6 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
       id: skillCastId,
       source: { kind: 'operatorSkill', skillGroupKey: group.key, skillKey: skill.key },
       placement: { startFrame: nextStartFrame },
-      ...(placementGroupId === undefined
-        ? {}
-        : {
-            placementGroup: {
-              id: placementGroupId,
-              skillGroupKey: group.key,
-              index,
-              total: skills.length,
-            },
-          }),
       editable: {
         durationFrames: program.timelineBlockFrames,
         ...(program.cooldownFrames === undefined ? {} : { cooldownFrames: program.cooldownFrames }),

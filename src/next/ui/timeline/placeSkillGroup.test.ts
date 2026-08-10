@@ -12,8 +12,8 @@ function createPerlicaScenario() {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡样板');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: 'perlica',
       level: 90,
       promoted: true,
@@ -54,8 +54,6 @@ describe('placeSkillGroup', () => {
         casts[1]!.editable.durationFrames +
         casts[2]!.editable.durationFrames,
     ]);
-    expect(new Set(casts.map(cast => cast.placementGroup?.id)).size).toBe(1);
-    expect(casts.map(cast => cast.placementGroup?.index)).toEqual([0, 1, 2, 3]);
     expect(casts.every(cast => cast.edited.length === 0)).toBe(true);
     expect(casts[0]?.source).toEqual({
       kind: 'operatorSkill',
@@ -64,7 +62,7 @@ describe('placeSkillGroup', () => {
     });
   });
 
-  it('keeps a single skill outside a placement group and resolves its cost', () => {
+  it('keeps a single skill as one cast and resolves its cost', () => {
     const result = placeSkillGroup({
       scenario: createPerlicaScenario(),
       trackIndex: 0,
@@ -75,13 +73,12 @@ describe('placeSkillGroup', () => {
     });
     const cast = result.scenario.tracks[0]!.skillCasts[0]!;
 
-    expect(cast.placementGroup).toBeUndefined();
     expect(cast.editable.spCost).toBeGreaterThan(0);
     expect(cast.editable.scheduledSequences.length).toBeGreaterThan(0);
     expect(cast.edited).toEqual([]);
   });
 
-  it('places one selected segment without creating a placement group', () => {
+  it('places one selected segment of a skill chain', () => {
     const result = placeSkillGroup({
       scenario: createPerlicaScenario(),
       trackIndex: 0,
@@ -100,7 +97,6 @@ describe('placeSkillGroup', () => {
       skillKey: 'basicAttack3',
     });
     expect(casts[0]!.placement.startFrame).toBe(45);
-    expect(casts[0]!.placementGroup).toBeUndefined();
   });
 
   it('rejects a definition that does not match the track build', () => {

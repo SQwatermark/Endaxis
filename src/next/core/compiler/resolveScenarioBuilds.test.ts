@@ -35,8 +35,8 @@ const gearSet: GearSetDefinition = { slug: 'resolver-set' };
 function scenario() {
   const value = createEmptyScenario('scenario:resolver', '构筑解析样本');
   value.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'operator',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -46,7 +46,6 @@ function scenario() {
       talentStates: {},
     },
     weapon: {
-      id: 'weapon',
       weaponSlug: weapon.slug,
       level: 90,
       tuned: true,
@@ -54,9 +53,9 @@ function scenario() {
       traitLevels: [],
     },
     gears: {
-      armor: { id: armor.slug, gearSlug: armor.slug, artificingLevels: [] },
-      gloves: { id: gloves.slug, gearSlug: gloves.slug, artificingLevels: [] },
-      accessory1: { id: accessory.slug, gearSlug: accessory.slug, artificingLevels: [] },
+      armor: { gearSlug: armor.slug, artificingLevels: [] },
+      gloves: { gearSlug: gloves.slug, artificingLevels: [] },
+      accessory1: { gearSlug: accessory.slug, artificingLevels: [] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -82,9 +81,9 @@ describe('resolveScenarioBuilds', () => {
 
     expect(resolved).toMatchObject({
       trackIndex: 0,
-      operatorInstance: { id: 'operator' },
+      operatorInstance: { operatorSlug: perlica.slug },
       operator: { slug: perlica.slug },
-      weapon: { instance: { id: 'weapon' }, definition: { slug: weapon.slug } },
+      weapon: { instance: { weaponSlug: weapon.slug }, definition: { slug: weapon.slug } },
     });
     expect(resolved!.gears.map(value => value.slot)).toEqual(['armor', 'gloves', 'accessory1']);
     expect(resolved!.activeGearSets).toEqual([gearSet]);
@@ -112,7 +111,7 @@ describe('resolveScenarioBuilds', () => {
     };
 
     expect(() => resolveScenarioBuilds(value, index())).toThrow(
-      "operator instance 'operator' is assigned to multiple tracks",
+      "duplicate track identity 'track:0'",
     );
   });
 });

@@ -1,6 +1,6 @@
 /**
  * 负责复制、粘贴时间轴动作及其内部身份图。
- * 剪贴板属于编辑器临时状态；粘贴会为动作、调度、命中、展示条、放置组和内部连线重新分配 ID。
+ * 剪贴板属于编辑器临时状态；粘贴会为动作、调度、命中、展示条和内部连线重新分配 ID。
  */
 import type {
   ActionSequenceDocument,
@@ -130,18 +130,8 @@ export function pasteTimelineActions(
 
   const castIds = new Map<string, string>();
   const hitIds = new Map<string, string>();
-  const groupMembers = new Map<string, ClipboardCast[]>();
   for (const entry of clipboard.casts) {
     castIds.set(entry.cast.id, ids.allocate('skillCast'));
-    const groupId = entry.cast.placementGroup?.id;
-    if (groupId === undefined) continue;
-    const members = groupMembers.get(groupId) ?? [];
-    members.push(entry);
-    groupMembers.set(groupId, members);
-  }
-  const groupIds = new Map<string, string>();
-  for (const [groupId, members] of groupMembers) {
-    if (members.length > 1) groupIds.set(groupId, ids.allocate('placementGroup'));
   }
 
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
@@ -150,9 +140,6 @@ export function pasteTimelineActions(
     const track = tracks[entry.trackIndex];
     if (track === null) throw new Error(`track ${entry.trackIndex} is empty`);
     const skillCastId = castIds.get(entry.cast.id)!;
-    const sourceGroupId = entry.cast.placementGroup?.id;
-    const groupEntries = sourceGroupId === undefined ? undefined : groupMembers.get(sourceGroupId);
-    const placementGroupId = sourceGroupId === undefined ? undefined : groupIds.get(sourceGroupId);
     const scheduledSequences = entry.cast.editable.scheduledSequences.map(sequence => ({
       ...cloneValue(sequence),
       id: ids.allocate('scheduledSequence'),
@@ -168,16 +155,6 @@ export function pasteTimelineActions(
       placement: {
         startFrame: startFrame + entry.cast.placement.startFrame - clipboard.originFrame,
       },
-      ...(placementGroupId === undefined || groupEntries === undefined
-        ? { placementGroup: undefined }
-        : {
-            placementGroup: {
-              ...entry.cast.placementGroup!,
-              id: placementGroupId,
-              index: groupEntries.findIndex(member => member.cast.id === entry.cast.id),
-              total: groupEntries.length,
-            },
-          }),
       editable: { ...cloneValue(entry.cast.editable), scheduledSequences, customBars },
     };
     tracks[entry.trackIndex] = { ...track, skillCasts: [...track.skillCasts, cast] };

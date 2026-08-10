@@ -9,8 +9,8 @@ function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡编译样本');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -50,10 +50,10 @@ describe('compileScenarioTimeline', () => {
     const compiled = compileScenarioTimeline(scenario, index());
 
     expect(compiled.operators).toHaveLength(1);
-    expect(compiled.operators[0]!.operatorId).toBe('perlica');
+    expect(compiled.operators[0]!.operatorId).toBe('track:0');
     expect(compiled.operators[0]!.skills.map(skill => skill.skillId)).toContain('battleSkill');
     expect(compiled.inputs).toEqual([
-      { frame: 60, operatorId: 'perlica', skillId: 'battleSkill', castId: 'skillCast:1' },
+      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
     ]);
   });
 
@@ -62,8 +62,8 @@ describe('compileScenarioTimeline', () => {
     scenario = place(scenario, 'ultimate', 60);
 
     expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([
-      { frame: 60, operatorId: 'perlica', skillId: 'battleSkill', castId: 'skillCast:1' },
-      { frame: 60, operatorId: 'perlica', skillId: 'ultimate', castId: 'skillCast:1' },
+      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
+      { frame: 60, operatorId: 'track:0', skillId: 'ultimate', castId: 'skillCast:1' },
     ]);
   });
 
@@ -74,7 +74,7 @@ describe('compileScenarioTimeline', () => {
     expect(compileScenarioTimeline(scenario, index()).inputs).toEqual(
       casts.map(cast => ({
         frame: cast.placement.startFrame,
-        operatorId: 'perlica',
+        operatorId: 'track:0',
         skillId: cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
         castId: cast.id,
       })),

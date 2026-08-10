@@ -27,6 +27,7 @@ function createEditor() {
       selectedTrack,
       clearTimelineSelection,
       gameData: nextGameDataRepository,
+      ids: { allocate: kind => `${kind}:1` },
     }),
   };
 }
@@ -49,8 +50,7 @@ describe('useTimelineLoadoutEditor', () => {
 
     expect(session.snapshot.revision).toBe(1);
     expect(session.snapshot.lastCommand).toBe('setTrackOperator');
-    const instanceId = scenario.value.tracks[0]?.operator?.id;
-    expect(instanceId).toBe(`operator:0:${perlica.slug}`);
+    expect(scenario.value.tracks[0]?.id).toBe('track:1');
     expect(scenario.value.tracks[0]?.operator?.operatorSlug).toBe(perlica.slug);
     expect(editor.operatorDialogTrack.value).toBeNull();
   });

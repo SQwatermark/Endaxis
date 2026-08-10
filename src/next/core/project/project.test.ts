@@ -10,8 +10,8 @@ import { validateProjectDocument } from './validation';
 
 function createTrack(): TrackDocument {
   return {
+    id: 'track:0',
     operator: {
-      id: 'operator:1',
       operatorSlug: 'perlica',
       level: 90,
       promoted: true,
@@ -221,7 +221,7 @@ describe('V2 project document', () => {
     }
   });
 
-  it('rejects duplicate operator instance ids across tracks', () => {
+  it('rejects duplicate track ids across tracks', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
@@ -234,8 +234,8 @@ describe('V2 project document', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.issues).toContainEqual({
-        path: '$.scenarios[0].tracks[1].operator.id',
-        message: 'duplicate operator instance id',
+        path: '$.scenarios[0].tracks[1].id',
+        message: 'duplicate track identity',
       });
     }
   });

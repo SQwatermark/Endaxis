@@ -11,8 +11,8 @@ function equippedScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario', 'Scenario');
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'operator',
       operatorSlug: 'operator',
       level: 90,
       promoted: true,
@@ -22,7 +22,6 @@ function equippedScenario(): ScenarioDocument {
       talentStates: {},
     },
     weapon: {
-      id: 'weapon',
       weaponSlug: 'weapon',
       level: 90,
       tuned: true,
@@ -31,7 +30,6 @@ function equippedScenario(): ScenarioDocument {
     },
     gears: {
       armor: {
-        id: 'armor',
         gearSlug: 'armor',
         artificingLevels: [0, 0],
       },
@@ -58,7 +56,6 @@ describe('loadoutBuildCommands', () => {
     });
 
     expect(updated.tracks[0]!.operator).toMatchObject({
-      id: 'operator',
       operatorSlug: 'operator',
       level: 80,
       promoted: false,
@@ -80,7 +77,6 @@ describe('loadoutBuildCommands', () => {
     });
 
     expect(updated.tracks[0]!.weapon).toMatchObject({
-      id: 'weapon',
       weaponSlug: 'weapon',
       level: 80,
       potential: 3,

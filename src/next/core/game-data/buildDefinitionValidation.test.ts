@@ -62,8 +62,8 @@ function createRepository(overrides?: {
 
 function createTrack(): TrackDocument {
   return {
+    id: 'track:0',
     operator: {
-      id: 'operator:1',
       operatorSlug: operator.slug,
       level: 90,
       promoted: true,
@@ -73,7 +73,6 @@ function createTrack(): TrackDocument {
       talentStates: {},
     },
     weapon: {
-      id: 'weapon:1',
       weaponSlug: weapon.slug,
       level: 90,
       tuned: true,
@@ -81,9 +80,9 @@ function createTrack(): TrackDocument {
       traitLevels: [1, 1, 1],
     },
     gears: {
-      armor: { id: 'gear:armor', gearSlug: armor.slug, artificingLevels: [] },
+      armor: { gearSlug: armor.slug, artificingLevels: [] },
       gloves: null,
-      accessory1: { id: 'gear:accessory', gearSlug: accessory.slug, artificingLevels: [] },
+      accessory1: { gearSlug: accessory.slug, artificingLevels: [] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },

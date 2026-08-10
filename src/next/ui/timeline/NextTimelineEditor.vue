@@ -147,12 +147,16 @@ const contextMenuTarget = ref<{
   skillCastId: string;
 } | null>(null);
 
+let nextDocumentId = 0;
+const ids: TimelineDocumentIdAllocator = {
+  allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
+};
 function createSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
   scenario.battle.durationFrames = 900;
   scenario.tracks[0] = {
+    id: ids.allocate('track'),
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -229,6 +233,7 @@ const {
   selectedTrack,
   clearTimelineSelection,
   gameData: nextGameDataRepository,
+  ids,
 });
 const {
   enemies,
@@ -242,10 +247,6 @@ const {
   gameData: nextGameDataRepository,
   fps: PROJECT_FPS,
 });
-let nextDocumentId = 0;
-const ids: TimelineDocumentIdAllocator = {
-  allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
-};
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
 const simulationService = new ScenarioSimulationService({
@@ -431,7 +432,7 @@ const hitDetail = computed(() => {
   const marker = findCastHitMarker(cast, target.hitId);
   if (marker === null) return null;
   const absoluteFrame = cast.placement.startFrame + marker.frameOffset;
-  const operatorId = track.operator.id;
+  const operatorId = track.id;
   const entries = current.receiptEntries.filter(
     entry =>
       entry.frame === absoluteFrame &&
@@ -516,7 +517,6 @@ function timelineCastLabel(
 ): string {
   const source = cast.source;
   if (source.kind === 'custom') return source.name;
-  if (source.kind === 'weaponSkill') return source.skillKey;
   const entry = track.skillLibrary.find(
     candidate => candidate.skillGroupKey === source.skillGroupKey,
   );

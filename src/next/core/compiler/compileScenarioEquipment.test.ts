@@ -52,8 +52,8 @@ const gearSet: GearSetDefinition = {
 function scenario() {
   const value = createEmptyScenario('scenario:equipment', '装备编译样本');
   value.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -63,7 +63,6 @@ function scenario() {
       talentStates: {},
     },
     weapon: {
-      id: 'weapon',
       weaponSlug: weapon.slug,
       level: 90,
       tuned: true,
@@ -71,9 +70,9 @@ function scenario() {
       traitLevels: [2],
     },
     gears: {
-      armor: { id: armor.slug, gearSlug: armor.slug, artificingLevels: [1] },
-      gloves: { id: gloves.slug, gearSlug: gloves.slug, artificingLevels: [1] },
-      accessory1: { id: accessory.slug, gearSlug: accessory.slug, artificingLevels: [1] },
+      armor: { gearSlug: armor.slug, artificingLevels: [1] },
+      gloves: { gearSlug: gloves.slug, artificingLevels: [1] },
+      accessory1: { gearSlug: accessory.slug, artificingLevels: [1] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -98,7 +97,7 @@ describe('compileScenarioEquipment', () => {
   it('compiles equipped builds, relative attributes, and one active three-piece set', () => {
     const [compiled] = compileScenarioEquipment(scenario(), index());
 
-    expect(compiled!.operatorId).toBe('perlica');
+    expect(compiled!.operatorId).toBe('track:0');
     expect(compiled!.contributions.map(entry => entry.source)).toEqual([
       { kind: 'weaponTrait', slug: weapon.slug, traitKey: 'main-attribute' },
       { kind: 'gearTrait', slug: armor.slug, traitKey: 'secondary-attribute' },

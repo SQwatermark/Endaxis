@@ -27,6 +27,7 @@ import {
   type WeaponInstanceChanges,
 } from './loadoutBuildCommands';
 import { projectTrackLoadoutBuilds } from './loadoutBuildViewModel';
+import type { TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
   setTrackGear,
   setTrackOperator,
@@ -42,6 +43,8 @@ export interface TimelineLoadoutEditorOptions {
   readonly selectedTrack: Ref<TrackIndex>;
   readonly clearTimelineSelection: () => void;
   readonly gameData: TimelineGameData;
+  /** 创建轨道等持久化身份时的稳定 ID 分配器。 */
+  readonly ids: TimelineDocumentIdAllocator;
 }
 
 export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) {
@@ -140,7 +143,8 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
       setTrackOperator(
         current,
         trackIndex,
-        createDefaultOperatorInstance(`operator:${trackIndex}:${operator.slug}`, operator),
+        createDefaultOperatorInstance(operator),
+        options.ids.allocate('track'),
       ),
     );
     operatorDialogTrack.value = null;
@@ -149,7 +153,9 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   function clearOperator(): void {
     const trackIndex = operatorDialogTrack.value;
     if (trackIndex === null) return;
-    commit('clearTrackOperator', current => setTrackOperator(current, trackIndex, null));
+    commit('clearTrackOperator', current =>
+      setTrackOperator(current, trackIndex, null, options.ids.allocate('track')),
+    );
     operatorDialogTrack.value = null;
   }
 
@@ -173,11 +179,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     const weapon = options.gameData.getWeapon(slug);
     if (weapon === null) throw new Error(`missing weapon definition '${slug}'`);
     commit('setTrackWeapon', current =>
-      setTrackWeapon(
-        current,
-        trackIndex,
-        createDefaultWeaponInstance(`weapon:${trackIndex}:${weapon.slug}`, weapon),
-      ),
+      setTrackWeapon(current, trackIndex, createDefaultWeaponInstance(weapon)),
     );
     weaponDialogTrack.value = null;
   }
@@ -209,11 +211,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
         current,
         target.trackIndex,
         target.slot,
-        createDefaultGearInstance(
-          `gear:${target.trackIndex}:${target.slot}:${gear.slug}`,
-          gear,
-          artificingTier,
-        ),
+        createDefaultGearInstance(gear, artificingTier),
       ),
     );
   }
@@ -252,11 +250,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     );
   }
 
-  function updateGearBuild(
-    slot: TrackGearSlot,
-    _buildId: string,
-    artificingLevels: readonly number[],
-  ): void {
+  function updateGearBuild(slot: TrackGearSlot, artificingLevels: readonly number[]): void {
     commit('updateTrackGearInstance', current =>
       updateTrackGearInstance(current, options.selectedTrack.value, slot, artificingLevels),
     );

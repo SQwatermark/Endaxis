@@ -13,13 +13,10 @@ export function resolveControlTimeline(
   switches: readonly ControlSwitchDocument[],
 ): OperatorControlTimeline {
   const operatorByFrame = new Map<number, string | null>();
-  operatorByFrame.set(0, tracks[0]?.operator?.id ?? null);
+  operatorByFrame.set(0, tracks[0]?.id ?? null);
 
   for (const controlSwitch of switches) {
-    operatorByFrame.set(
-      controlSwitch.frame,
-      tracks[controlSwitch.trackIndex]?.operator?.id ?? null,
-    );
+    operatorByFrame.set(controlSwitch.frame, tracks[controlSwitch.trackIndex]?.id ?? null);
   }
 
   return {

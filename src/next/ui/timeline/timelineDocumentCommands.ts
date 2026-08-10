@@ -104,20 +104,20 @@ export type BasicEditableSkillCastField =
   | 'comboFollowupDelayFrames'
   | 'triggerWindowFrames'
   | 'spCost'
-  | 'ultimateEnergyCost'
-  | 'enhancement';
+  | 'ultimateEnergyCost';
 
 export type BooleanEditableSkillCastField = 'locked' | 'disabled';
 export type TrackGearSlot = keyof TrackDocument['gears'];
 
 /**
  * 更换轨道的干员实例。已有技能块依赖旧干员定义身份，因此切换或移除干员时一并清理。
- * 调用方负责提供初始养成值；命令层只维护轨道实例、连线的一致性与空轨道语义。
+ * 调用方负责提供初始养成值和轨道身份；命令层只维护轨道实例、连线的一致性与空轨道语义。
  */
 export function setTrackOperator(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
   operatorInstance: OperatorInstanceDocument | null,
+  trackId: string,
 ): ScenarioDocument {
   const previousTrack = scenario.tracks[trackIndex];
   const previousSlug = previousTrack?.operator?.operatorSlug ?? null;
@@ -130,6 +130,7 @@ export function setTrackOperator(
     operatorInstance === null
       ? null
       : {
+          id: trackId,
           operator: operatorInstance,
           weapon: null,
           gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
@@ -323,18 +324,7 @@ export function updateSkillCastBasicField<K extends BasicEditableSkillCastField>
   value: EditableActionValues[K],
 ): ScenarioDocument {
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  if (field === 'enhancement') {
-    if (value === undefined || typeof value !== 'object') {
-      throw new TypeError('enhancement must be a duration or status value');
-    }
-    if (value.kind === 'duration') {
-      requireNonNegativeNumber(value.frames, 'enhancement.frames', true);
-    } else if (value.kind !== 'status' || value.statusId.length === 0) {
-      throw new TypeError('enhancement status must have an identity');
-    }
-  } else {
-    requireNonNegativeNumber(value, field, field.endsWith('Frames'));
-  }
+  requireNonNegativeNumber(value, field, field.endsWith('Frames'));
 
   const editable = { ...cast.editable, [field]: value };
   const edited = cast.edited.includes(field) ? cast.edited : [...cast.edited, field];
@@ -389,10 +379,7 @@ export function updateSkillCastColor(
   return { ...scenario, tracks };
 }
 
-/**
- * 删除动作块及其连线，并把同一放置组的剩余动作重新编号。
- * 单独剩下的动作不再属于序列组，避免持久化无意义的组身份。
- */
+/** 删除动作块及其连线。 */
 export function removeSkillCast(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
@@ -402,37 +389,8 @@ export function removeSkillCast(
   return removeSkillCasts(scenario, new Set([skillCastId]));
 }
 
-function normalizePlacementGroups(skillCasts: TrackDocument['skillCasts']) {
-  const groups = new Map<string, string[]>();
-  for (const cast of skillCasts) {
-    const groupId = cast.placementGroup?.id;
-    if (groupId === undefined) continue;
-    const members = groups.get(groupId) ?? [];
-    members.push(cast.id);
-    groups.set(groupId, members);
-  }
-
-  return skillCasts.map(cast => {
-    const groupId = cast.placementGroup?.id;
-    if (groupId === undefined) return cast;
-    const members = groups.get(groupId)!;
-    if (members.length === 1) {
-      const { placementGroup: _placementGroup, ...ungrouped } = cast;
-      return ungrouped;
-    }
-    return {
-      ...cast,
-      placementGroup: {
-        ...cast.placementGroup!,
-        index: members.indexOf(cast.id),
-        total: members.length,
-      },
-    };
-  });
-}
-
 /**
- * 一次删除任意轨道上的多个动作，并统一清理连线和重排放置组。
+ * 一次删除任意轨道上的多个动作，并统一清理连线。
  * 不存在的 ID 会被忽略，便于临时选择集合在撤销、重做或切换干员后安全收敛。
  */
 export function removeSkillCasts(
@@ -447,7 +405,7 @@ export function removeSkillCasts(
     const remaining = track.skillCasts.filter(cast => !skillCastIds.has(cast.id));
     if (remaining.length === track.skillCasts.length) return track;
     changed = true;
-    return { ...track, skillCasts: normalizePlacementGroups(remaining) };
+    return { ...track, skillCasts: remaining };
   }) as ScenarioDocument['tracks'];
 
   if (!changed) return scenario;

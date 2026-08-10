@@ -17,9 +17,8 @@ import type {
 /** 时间轴固定装备槽的稳定身份；两个配件槽必须分别保留。 */
 export type LoadoutGearSlot = keyof TrackDocument['gears'];
 
-/** 干员 Build 的用户输入及其定义，不包含名称等本地化文本。 */
+/** 干员实例的用户输入及其定义，不包含名称等本地化文本。 */
 export interface OperatorInstanceViewModel {
-  readonly buildId: string;
   readonly operatorSlug: string;
   readonly level: number;
   readonly promoted: boolean;
@@ -31,9 +30,8 @@ export interface OperatorInstanceViewModel {
   readonly definition: Readonly<OperatorDefinition>;
 }
 
-/** 武器 Build 的用户输入及其定义；词条等级顺序与定义中的词条顺序一致。 */
+/** 武器实例的用户输入及其定义；词条等级顺序与定义中的词条顺序一致。 */
 export interface WeaponInstanceViewModel {
-  readonly buildId: string;
   readonly weaponSlug: string;
   readonly level: number;
   readonly tuned: boolean;
@@ -42,10 +40,9 @@ export interface WeaponInstanceViewModel {
   readonly definition: Readonly<WeaponDefinition>;
 }
 
-/** 单个装备槽中的 Build；精锻等级顺序与定义中的词条顺序一致。 */
+/** 单个装备槽中的实例；精锻等级顺序与定义中的词条顺序一致。 */
 export interface GearInstanceViewModel {
   readonly slot: LoadoutGearSlot;
-  readonly buildId: string;
   readonly gearSlug: string;
   readonly artificingLevels: readonly number[];
   readonly definition: Readonly<GearDefinition>;
@@ -94,7 +91,6 @@ function projectOperator(
     value => value.slug,
   );
   return {
-    buildId: instance.id,
     operatorSlug: instance.operatorSlug,
     level: instance.level,
     promoted: instance.promoted,
@@ -114,7 +110,6 @@ function projectWeapon(
   repository: GameDataRepository,
 ): WeaponInstanceViewModel {
   return {
-    buildId: instance.id,
     weaponSlug: instance.weaponSlug,
     level: instance.level,
     tuned: instance.tuned,
@@ -136,7 +131,6 @@ function projectGear(
 ): GearInstanceViewModel {
   return {
     slot,
-    buildId: instance.id,
     gearSlug: instance.gearSlug,
     artificingLevels: [...instance.artificingLevels],
     definition: requireDefinition(

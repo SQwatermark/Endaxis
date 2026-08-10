@@ -133,7 +133,7 @@ export function useScenarioSimulation(
     >();
     for (const diagnostic of diagnostics) {
       for (const track of scenario.tracks) {
-        if (track === null || track.operator?.id !== diagnostic.sourceId) continue;
+        if (track === null || track.id !== diagnostic.sourceId) continue;
         for (const cast of track.skillCasts) {
           if (cast.source.kind !== 'operatorSkill') continue;
           if (

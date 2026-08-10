@@ -20,9 +20,9 @@ function createProjectWithDefinitionReferences() {
   const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
   const scenario = project.scenarios[0]!;
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: null,
     weapon: {
-      id: 'weapon:1',
       weaponSlug: 'missing-weapon',
       level: 90,
       tuned: true,

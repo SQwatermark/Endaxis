@@ -24,7 +24,7 @@ export interface CompiledScenarioOperatorEquipment {
 export function compileResolvedScenarioEquipment(
   builds: readonly ResolvedScenarioBuild[],
 ): readonly CompiledScenarioOperatorEquipment[] {
-  return builds.map(({ operatorInstance, operator, weapon, gears, activeGearSets }) => {
+  return builds.map(({ track, operator, weapon, gears, activeGearSets }) => {
     const attributes = { main: operator.mainAttribute, secondary: operator.secondaryAttribute };
     const contributions: CompiledEquipmentContribution[] = [];
 
@@ -42,7 +42,7 @@ export function compileResolvedScenarioEquipment(
     for (const gearSet of activeGearSets) {
       contributions.push(compileGearSetContribution(gearSet, attributes));
     }
-    return { operatorId: operatorInstance.id, contributions };
+    return { operatorId: track.id, contributions };
   });
 }
 

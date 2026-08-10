@@ -97,9 +97,7 @@ export function compileScenarioRuntimeAssembly(
     // 资源规则与放置无关：maxUltimateEnergy 来自定义全部技能（已应用养成补丁）的费用。
     operators: resolveScenarioOperatorResourceRules(
       timeline.operators.map(operator => {
-        const build = builds.find(
-          candidate => candidate.operatorInstance.id === operator.operatorId,
-        );
+        const build = builds.find(candidate => candidate.track.id === operator.operatorId);
         if (build === undefined) {
           throw new Error(
             `timeline operator '${operator.operatorId}' has no resolved operator build`,
@@ -107,7 +105,11 @@ export function compileScenarioRuntimeAssembly(
         }
         return {
           operatorId: operator.operatorId,
-          skills: compileOperatorDefinitionSkills(build.operatorInstance, build.operator),
+          skills: compileOperatorDefinitionSkills(
+            operator.operatorId,
+            build.operatorInstance,
+            build.operator,
+          ),
         };
       }),
       [...panels.values()],

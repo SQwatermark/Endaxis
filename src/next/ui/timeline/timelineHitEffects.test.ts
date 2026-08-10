@@ -26,8 +26,8 @@ function scenarioWithCast(): ScenarioDocument {
     name: '命中效果',
     tracks: [
       {
+        id: 'track:0',
         operator: {
-          id: 'perlica',
           operatorSlug: 'perlica',
           level: 90,
           promoted: true,
@@ -129,7 +129,7 @@ function damageEntry(sequence: number, frame: number, stepKey?: string): CombatR
     frame,
     time: frame / 30,
     event: 'DamageApplied',
-    sourceId: 'perlica',
+    sourceId: 'track:0',
     targetId: 'enemy',
     data: { ...baseDamage(), ...(stepKey === undefined ? {} : { stepKey }) },
   };
@@ -141,7 +141,7 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
     frame,
     time: frame / 30,
     event: 'ElementalInflictionApplied',
-    sourceId: 'perlica',
+    sourceId: 'track:0',
     targetId: 'enemy',
     data: {
       skillId: 'battleSkill',
@@ -206,7 +206,7 @@ describe('projectHitEffectsByCast', () => {
           frame: 40,
           time: 40 / 30,
           event: 'ElementalReactionApplied',
-          sourceId: 'perlica',
+          sourceId: 'track:0',
           targetId: 'enemy',
           data: {
             reaction: 'electrification',

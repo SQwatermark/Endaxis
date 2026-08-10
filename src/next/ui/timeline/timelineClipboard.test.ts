@@ -15,17 +15,11 @@ function ids(): TimelineDocumentIdAllocator {
   };
 }
 
-function cast(id: string, startFrame: number, groupIndex: number): SkillCastDocument {
+function cast(id: string, startFrame: number): SkillCastDocument {
   return {
     id,
     source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: id },
     placement: { startFrame },
-    placementGroup: {
-      id: 'placementGroup:old',
-      skillGroupKey: 'basicAttack',
-      index: groupIndex,
-      total: 2,
-    },
     editable: {
       durationFrames: 10,
       locked: false,
@@ -56,11 +50,12 @@ function cast(id: string, startFrame: number, groupIndex: number): SkillCastDocu
 function scenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:clipboard', '剪贴板样本');
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: null,
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
-    skillCasts: [cast('cast:1', 30, 0), cast('cast:2', 45, 1), cast('cast:outside', 90, 0)],
+    skillCasts: [cast('cast:1', 30), cast('cast:2', 45), cast('cast:outside', 90)],
   };
   scenario.connections = [
     {
@@ -89,20 +84,6 @@ describe('timelineClipboard', () => {
 
     expect(created.map(value => value.id)).toEqual(['skillCast:new:1', 'skillCast:new:2']);
     expect(created.map(value => value.placement.startFrame)).toEqual([100, 115]);
-    expect(created.map(value => value.placementGroup)).toEqual([
-      {
-        id: 'placementGroup:new:1',
-        skillGroupKey: 'basicAttack',
-        index: 0,
-        total: 2,
-      },
-      {
-        id: 'placementGroup:new:1',
-        skillGroupKey: 'basicAttack',
-        index: 1,
-        total: 2,
-      },
-    ]);
     expect(created.map(value => value.editable.scheduledSequences[0]!.id)).toEqual([
       'scheduledSequence:new:1',
       'scheduledSequence:new:2',
@@ -123,15 +104,6 @@ describe('timelineClipboard', () => {
       to: { kind: 'skillCast', skillCastId: 'skillCast:new:2' },
     });
     expect(original.tracks[0]!.skillCasts).toHaveLength(3);
-  });
-
-  it('unwraps a copied fragment when only one member of a placement group is selected', () => {
-    const original = scenario();
-    const clipboard = copyTimelineActions(original, new Set(['cast:2']))!;
-
-    const pasted = pasteTimelineActions(original, clipboard, 0, ids());
-
-    expect(pasted.scenario.tracks[0]!.skillCasts.at(-1)!.placementGroup).toBeUndefined();
   });
 
   it('returns no clipboard for an empty or stale selection', () => {

@@ -66,8 +66,8 @@ function createUltimateScenario(): ScenarioDocument {
   const scenario = createScenario();
 
   scenario.tracks[0] = {
+    id: 'track:0',
     operator: {
-      id: 'perlica',
       operatorSlug: perlica.slug,
       level: 90,
       promoted: true,
@@ -156,19 +156,19 @@ describe('runScenarioSimulation', () => {
     expect(result.finalResources.squad).toHaveLength(1);
     expect(result.operatorPanels).toHaveLength(1);
     expect(result.operatorPanels[0]).toMatchObject({
-      operatorId: 'perlica',
+      operatorId: 'track:0',
       attack: 706,
       health: 5950,
     });
     expect(result.finalResources.squad[0]).toMatchObject({
-      operatorId: 'perlica',
+      operatorId: 'track:0',
       ultimateEnergy: 0,
       maxUltimateEnergy: 80,
     });
     expect(result.resourceCurves.ultimateEnergy).toHaveLength(1);
     expect(result.resourceCurves.ultimateEnergy[0]).toMatchObject({
       resource: 'ultimateEnergy',
-      operatorId: 'perlica',
+      operatorId: 'track:0',
       maxValue: 80,
     });
     expect(result.resourceCurves.ultimateEnergy[0]!.points).toHaveLength(2);

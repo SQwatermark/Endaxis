@@ -9,8 +9,8 @@ describe('projectTimelineEditor', () => {
     const scenario = createEmptyScenario('scenario:1', '佩丽卡样板');
 
     scenario.tracks[0] = {
+      id: 'track:0',
       operator: {
-        id: 'perlica',
         operatorSlug: 'perlica',
         level: 90,
         promoted: true,
@@ -73,8 +73,8 @@ describe('projectTimelineEditor', () => {
   it('reports missing operator definitions instead of inventing definition defaults', () => {
     const scenario = createEmptyScenario('scenario:1', '损坏引用');
     scenario.tracks[0] = {
+      id: 'track:0',
       operator: {
-        id: 'missing',
         operatorSlug: 'missing',
         level: 90,
         promoted: true,

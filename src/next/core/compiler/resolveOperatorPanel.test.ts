@@ -16,7 +16,6 @@ function resolvedBuild(
   changes: Partial<OperatorInstanceDocument> = {},
 ): ResolvedScenarioBuild {
   const operatorInstance: OperatorInstanceDocument = {
-    id: `operator:${operator.slug}`,
     operatorSlug: operator.slug,
     level: 90,
     promoted: true,
@@ -27,6 +26,7 @@ function resolvedBuild(
     ...changes,
   };
   const track: TrackDocument = {
+    id: 'track:0',
     operator: operatorInstance,
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
@@ -216,7 +216,6 @@ describe('resolveOperatorPanel', () => {
       ...baseBuild,
       weapon: {
         instance: {
-          id: 'weapon',
           weaponSlug: weapon.slug,
           level: 90,
           tuned: true,
@@ -228,7 +227,7 @@ describe('resolveOperatorPanel', () => {
       gears: [
         {
           slot: 'armor',
-          instance: { id: 'gear', gearSlug: gear.slug, artificingLevels: [0] },
+          instance: { gearSlug: gear.slug, artificingLevels: [0] },
           definition: gear,
         },
       ],

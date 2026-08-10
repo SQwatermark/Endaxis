@@ -29,7 +29,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
-  update: [slot: LoadoutGearSlot, buildId: string, artificingLevels: readonly number[]];
+  update: [slot: LoadoutGearSlot, artificingLevels: readonly number[]];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -84,7 +84,6 @@ function setUniformLevel(build: GearInstanceViewModel, level: number): void {
   emit(
     'update',
     build.slot,
-    build.buildId,
     build.artificingLevels.map(() => level),
   );
 }
