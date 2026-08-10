@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatBuffCatalogDocument } from '../buffs/combatBuffCatalog';
+import type { SkillSettingCatalogDocument } from '../infliction/skillSettingCatalog';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
@@ -126,6 +127,49 @@ function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
   });
 }
 
+/** 只有附着、没有爆发定义的目录；重复施加时按严格目录失败。 */
+function createAttachmentOnlyEnvironment(): StandardPlayerDamageEnvironment {
+  const document: CombatBuffCatalogDocument = {
+    schemaVersion: 1,
+    revision: 'test',
+    buffs: [
+      {
+        id: 'attachment.electric',
+        stackingType: 'enhanceAndRefresh',
+        stackingKey: 'attachment.electric',
+        maxStackCount: 4,
+        durationSeconds: 10,
+        role: { kind: 'elementalAttachment', element: 'electric' },
+      },
+    ],
+  };
+  return new StandardPlayerDamageEnvironment({
+    criticalSamples: { nextCriticalSample: () => 1 },
+    resolveNonRandomRuntimeSnapshot: () => ({
+      runtimeExtensionMultiplier: 1,
+      appliesIgniteDamageMultiplier: false,
+      appliesPhysicalInflictionDamageMultiplier: false,
+    }),
+    elementalInflictionDocument: document,
+  });
+}
+
+/** 假 SkillSetting：法术爆发伤害倍率第 1 列 = 1.5，线性增强公式。 */
+function createSkillSettings(): SkillSettingCatalogDocument {
+  return {
+    schemaVersion: 1,
+    revision: 'test',
+    data: [
+      {
+        key: '法术爆发伤害倍率',
+        values: [1.5, 2, 2.5, 3],
+        enhanceFormulaKey: 'linear',
+      },
+    ],
+    enhanceFormulas: [{ key: 'linear', kind: 'linear', paramA: 0.5 }],
+  };
+}
+
 describe('StandardPlayerDamageEnvironment', () => {
   it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {
     const environment = createEnvironment();
@@ -224,6 +268,146 @@ describe('StandardPlayerDamageEnvironment', () => {
       event: 'ElementalInflictionApplied',
       data: { outcomeKind: 'burst', currentLayers: 2 },
     });
+  });
+
+  it('records a burst without applying a missing burst buff definition', () => {
+    const context = createContext();
+    const environment = createAttachmentOnlyEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalInfliction' as const,
+      parameters: { element: 'electric' as const, isExtra: false },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    // 目录没有爆发定义，第二次同元素施加按严格目录失败，而不是静默跳过。
+    expect(() => executor.execute(step)).toThrow(
+      "buff catalog is missing elemental burst 'electric'",
+    );
+  });
+
+  it('executes a real spell burst with SkillSetting when the burst buff is triggered', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = new StandardPlayerDamageEnvironment({
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: {
+        schemaVersion: 1,
+        revision: 'test',
+        buffs: [
+          {
+            id: 'attachment.electric',
+            stackingType: 'enhanceAndRefresh',
+            stackingKey: 'attachment.electric',
+            maxStackCount: 4,
+            durationSeconds: 10,
+            role: { kind: 'elementalAttachment', element: 'electric' },
+          },
+          {
+            id: 'burst.electric',
+            stackingType: 'unlimited',
+            durationSeconds: 5,
+            triggerIntervalSeconds: 1,
+            waitFirstTriggerInterval: true,
+            maxTriggerCount: 1,
+            role: { kind: 'elementalBurst', element: 'electric' },
+            actions: {
+              trigger: [{ kind: 'triggerSpellBurst', burstType: 'Pulse' }],
+            },
+            spellBurst: {
+              burstType: 'Pulse',
+              damageType: 'electric',
+              skillSettingDataKey: '法术爆发伤害倍率',
+              skillSettingColumn: 1,
+              atkScaleBase: 50,
+            },
+          },
+        ],
+      },
+      spellInflictionSettings: createSkillSettings(),
+    });
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalInfliction' as const,
+      parameters: { element: 'electric' as const, isExtra: false },
+    };
+
+    // 第一次施加附着；第二次触发爆发 Buff，等待 1 秒触发间隔后打出伤害。
+    expect(executor.execute(step)).toBe(true);
+    expect(executor.execute(step)).toBe(true);
+    const buffRuntime = environment.runtimeOptions.enemyBuffRuntime;
+    for (let frame = 0; frame < 31; frame += 1) buffRuntime.advanceFrame();
+    const burst = receipt.entries.find(entry => entry.event === 'SpellBurstApplied');
+    expect(burst).toMatchObject({
+      sourceId: 'operator',
+      data: { burstType: 'Pulse', skillScale: 1.5, enhanceFactor: 1 },
+    });
+    expect((burst?.data?.value ?? 0) as number).toBeGreaterThan(0);
+    // 敌人实际掉了血（数值经过防御与抗性修正，不断言具体值）。
+    expect(environment.enemyVitals.health).toBeLessThan(10000);
+  });
+
+  it('fails explicitly when a burst triggers without SkillSetting data', () => {
+    const context = createContext();
+    const environment = new StandardPlayerDamageEnvironment({
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: {
+        schemaVersion: 1,
+        revision: 'test',
+        buffs: [
+          {
+            id: 'attachment.electric',
+            stackingType: 'enhanceAndRefresh',
+            stackingKey: 'attachment.electric',
+            maxStackCount: 4,
+            durationSeconds: 10,
+            role: { kind: 'elementalAttachment', element: 'electric' },
+          },
+          {
+            id: 'burst.electric',
+            stackingType: 'unlimited',
+            durationSeconds: 5,
+            triggerIntervalSeconds: 1,
+            waitFirstTriggerInterval: true,
+            maxTriggerCount: 1,
+            role: { kind: 'elementalBurst', element: 'electric' },
+            actions: {
+              trigger: [{ kind: 'triggerSpellBurst', burstType: 'Pulse' }],
+            },
+            spellBurst: {
+              burstType: 'Pulse',
+              damageType: 'electric',
+              skillSettingDataKey: '法术爆发伤害倍率',
+              skillSettingColumn: 1,
+              atkScaleBase: 50,
+            },
+          },
+        ],
+      },
+    });
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalInfliction' as const,
+      parameters: { element: 'electric' as const, isExtra: false },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    // 第二次施加触发爆发 Buff，推进 1 秒触发间隔后因缺少 SkillSetting 明确失败。
+    expect(executor.execute(step)).toBe(true);
+    const buffRuntime = environment.runtimeOptions.enemyBuffRuntime;
+    expect(() => {
+      for (let frame = 0; frame < 40; frame += 1) buffRuntime.advanceFrame();
+    }).toThrow('requires SkillSetting data');
   });
 
   it('applies reactions with levels and evaluates reaction conditions', () => {

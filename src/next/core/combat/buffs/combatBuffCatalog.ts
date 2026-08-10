@@ -2,7 +2,11 @@
  * 外部 Buff 数据进入通用 Buff 运行时前的语义化目录边界。
  * 数据源必须先转换为这里支持的原语；未知原生行为不能以回调或静默缺省方式穿透。
  */
-import { INFLICTION_ELEMENTS, type InflictionElement } from '../../game-data/operatorDefinition';
+import {
+  INFLICTION_ELEMENTS,
+  type DamageType,
+  type InflictionElement,
+} from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
   BuffDuration,
@@ -76,7 +80,30 @@ export type CombatBuffCatalogAction =
       readonly operation: 'assign' | 'add';
       readonly targetKey: string;
       readonly value: number | { readonly blackboardKey: string };
+    }
+  | {
+      /** 触发法术爆发；伤害由运行时按目录 `spellBurst` 参数执行。 */
+      readonly kind: 'triggerSpellBurst';
+      readonly burstType: string;
+    }
+  | {
+      /** 已确认对数值无影响的纯表现动作（动画/特效/声音/镜头等），`actionType` 记录原生类型名。 */
+      readonly kind: 'visualOnly';
+      readonly actionType: string;
     };
+
+/** 法术爆发的伤害参数；从原生 `DamageAction` 与 `ReadSkillSettingData` 提取。 */
+export interface CombatBuffSpellBurstDefinition {
+  readonly burstType: string;
+  /** 爆发伤害的元素类型（原生 damageType 归一化后的语义枚举）。 */
+  readonly damageType: DamageType;
+  /** 爆发倍率在 SkillSetting 中的 dataKey。 */
+  readonly skillSettingDataKey: string;
+  /** SkillSetting 列号（原生 1 基；运行时按列号减一取数组下标）。 */
+  readonly skillSettingColumn: number;
+  /** 原生 DamageAction 的基础倍率；被 SkillSetting 倍率覆盖，仅作证据保留。 */
+  readonly atkScaleBase: number;
+}
 
 /** 目录 Buff 在各生命周期边界执行的动作集合。 */
 export interface CombatBuffCatalogLifecycleActions {
@@ -84,6 +111,7 @@ export interface CombatBuffCatalogLifecycleActions {
   readonly trigger?: readonly CombatBuffCatalogAction[];
   readonly enhanceChanged?: readonly CombatBuffCatalogAction[];
   readonly afterEnhance?: readonly CombatBuffCatalogAction[];
+  readonly finish?: readonly CombatBuffCatalogAction[];
 }
 
 /** 外部目录中一项可序列化的原生八槽属性修正。 */
@@ -116,6 +144,8 @@ export interface CombatBuffCatalogEntry {
   readonly attributeModifiers?: readonly CombatBuffCatalogAttributeModifier[];
   readonly role?: CombatBuffSemanticRole;
   readonly actions?: CombatBuffCatalogLifecycleActions;
+  /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
+  readonly spellBurst?: CombatBuffSpellBurstDefinition;
 }
 
 /** 带 schema 版本的外部 Buff 目录文档。 */
@@ -139,6 +169,11 @@ export interface CombatBuffCatalogCompilerPorts<Key extends string> {
     request: CombatBuffCatalogAttributeReadRequest,
     buff: CombatBuff<Key>,
   ) => number;
+  /** 法术爆发触发端口；爆发 Buff 存在该动作时必须提供。 */
+  readonly onSpellBurstTriggered?: (payload: {
+    readonly burstType: string;
+    readonly sourceId: string;
+  }) => void;
 }
 
 /** 元素附着运行时适配器使用的已编译索引。 */
@@ -150,6 +185,8 @@ export class CompiledCombatBuffCatalog<
   readonly #attachments = new Map<InflictionElement, CombatBuffDefinition<Key>>();
   readonly #bursts = new Map<InflictionElement, CombatBuffDefinition<Key>>();
   readonly #compoundStatuses = new Map<string, CombatBuffDefinition<Key>>();
+  readonly #spellBursts = new Map<string, CombatBuffSpellBurstDefinition>();
+  readonly #spellBurstBuffIds = new Map<string, string>();
 
   constructor(
     readonly revision: string,
@@ -220,6 +257,27 @@ export class CompiledCombatBuffCatalog<
     };
     this.#definitions.set(entry.id, definition);
     this.registerRole(entry.role, definition);
+    this.registerSpellBurst(entry.spellBurst, entry.id);
+  }
+
+  /** 按原生爆发类型查找爆发伤害参数；目录没有该爆发时返回 null。 */
+  getSpellBurst(burstType: string): CombatBuffSpellBurstDefinition | null {
+    return this.#spellBursts.get(burstType) ?? null;
+  }
+
+  private registerSpellBurst(
+    definition: CombatBuffSpellBurstDefinition | undefined,
+    buffId: string,
+  ): void {
+    if (definition === undefined) return;
+    const existingBuff = this.#spellBurstBuffIds.get(definition.burstType);
+    if (existingBuff !== undefined) {
+      throw new Error(
+        `spell burst '${definition.burstType}' is declared by both buffs '${existingBuff}' and '${buffId}'`,
+      );
+    }
+    this.#spellBurstBuffIds.set(definition.burstType, buffId);
+    this.#spellBursts.set(definition.burstType, definition);
   }
 
   private registerRole(
@@ -289,6 +347,7 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     'attributeModifiers',
     'role',
     'actions',
+    'spellBurst',
   ]);
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
@@ -307,7 +366,52 @@ function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry
     ...parseOptionalAttributeModifiers(entry, path),
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
+    ...parseOptionalSpellBurst(entry, path),
   };
+}
+
+function parseOptionalSpellBurst(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { spellBurst?: CombatBuffSpellBurstDefinition } {
+  if (entry.spellBurst === undefined) return {};
+  const burstPath = `${path}.spellBurst`;
+  const burst = requireObject(entry.spellBurst, burstPath);
+  requireOnlyKeys(burst, burstPath, [
+    'burstType',
+    'damageType',
+    'skillSettingDataKey',
+    'skillSettingColumn',
+    'atkScaleBase',
+  ]);
+  const skillSettingColumn = requireFiniteNumber(
+    burst.skillSettingColumn,
+    `${burstPath}.skillSettingColumn`,
+  );
+  if (!Number.isInteger(skillSettingColumn) || skillSettingColumn < 1) {
+    throw new Error(`${burstPath}.skillSettingColumn: expected positive integer`);
+  }
+  const atkScaleBase = requireFiniteNumber(burst.atkScaleBase, `${burstPath}.atkScaleBase`);
+  if (atkScaleBase < 0) throw new Error(`${burstPath}.atkScaleBase: expected non-negative`);
+  return {
+    spellBurst: {
+      burstType: requireNonEmptyString(burst.burstType, `${burstPath}.burstType`),
+      damageType: requireNonEmptyString(burst.damageType, `${burstPath}.damageType`) as DamageType,
+      skillSettingDataKey: requireNonEmptyString(
+        burst.skillSettingDataKey,
+        `${burstPath}.skillSettingDataKey`,
+      ),
+      skillSettingColumn,
+      atkScaleBase,
+    },
+  };
+}
+
+function requireFiniteNumber(input: unknown, path: string): number {
+  if (typeof input !== 'number' || !Number.isFinite(input)) {
+    throw new Error(`${path}: expected finite number`);
+  }
+  return input;
 }
 
 function parseOptionalAttributeModifiers(
@@ -404,13 +508,20 @@ function parseOptionalActions(
   if (entry.actions === undefined) return {};
   const actionsPath = `${path}.actions`;
   const actions = requireObject(entry.actions, actionsPath);
-  requireOnlyKeys(actions, actionsPath, ['start', 'trigger', 'enhanceChanged', 'afterEnhance']);
+  requireOnlyKeys(actions, actionsPath, [
+    'start',
+    'trigger',
+    'enhanceChanged',
+    'afterEnhance',
+    'finish',
+  ]);
   return {
     actions: {
       ...parseOptionalCatalogActionList(actions, 'start', actionsPath),
       ...parseOptionalCatalogActionList(actions, 'trigger', actionsPath),
       ...parseOptionalCatalogActionList(actions, 'enhanceChanged', actionsPath),
       ...parseOptionalCatalogActionList(actions, 'afterEnhance', actionsPath),
+      ...parseOptionalCatalogActionList(actions, 'finish', actionsPath),
     },
   };
 }
@@ -472,6 +583,20 @@ function parseOptionalCatalogActionList(
           multiplier: parseCatalogNumberOperand(action.multiplier, `${actionPath}.multiplier`),
           base: parseCatalogNumberOperand(action.base, `${actionPath}.base`),
           targetKey: requireNonEmptyString(action.targetKey, `${actionPath}.targetKey`),
+        };
+      }
+      if (action.kind === 'triggerSpellBurst') {
+        requireOnlyKeys(action, actionPath, ['kind', 'burstType']);
+        return {
+          kind: action.kind,
+          burstType: requireNonEmptyString(action.burstType, `${actionPath}.burstType`),
+        };
+      }
+      if (action.kind === 'visualOnly') {
+        requireOnlyKeys(action, actionPath, ['kind', 'actionType']);
+        return {
+          kind: action.kind,
+          actionType: requireNonEmptyString(action.actionType, `${actionPath}.actionType`),
         };
       }
       requireOnlyKeys(action, actionPath, ['kind']);
@@ -656,11 +781,13 @@ function compileLifecycleActions<Key extends string>(
     ports,
   );
   const afterEnhance = compileCatalogActionList(entry, 'afterEnhance', actions.afterEnhance, ports);
+  const finish = compileCatalogActionList(entry, 'finish', actions.finish, ports);
   if (
     start.length === 0 &&
     trigger.length === 0 &&
     enhanceChanged.length === 0 &&
-    afterEnhance.length === 0
+    afterEnhance.length === 0 &&
+    finish.length === 0
   ) {
     return undefined;
   }
@@ -671,6 +798,7 @@ function compileLifecycleActions<Key extends string>(
       ? {}
       : { enhanceChanged: createLifecycleHandler(enhanceChanged) }),
     ...(afterEnhance.length === 0 ? {} : { afterEnhance: createLifecycleHandler(afterEnhance) }),
+    ...(finish.length === 0 ? {} : { finish: createLifecycleHandler(finish) }),
   };
 }
 
@@ -715,6 +843,19 @@ function compileCatalogActionList<Key extends string>(
         ).afterEnhance!;
         return buff => handler(buff, buff.sourceId);
       }
+      case 'triggerSpellBurst': {
+        const onSpellBurstTriggered = ports.onSpellBurstTriggered;
+        if (onSpellBurstTriggered === undefined) {
+          throw new Error(
+            `buff '${entry.id}' triggers spell burst '${action.burstType}' without an onSpellBurstTriggered port`,
+          );
+        }
+        return buff =>
+          onSpellBurstTriggered({ burstType: action.burstType, sourceId: buff.sourceId });
+      }
+      case 'visualOnly':
+        // 已确认的纯表现动作（动画/特效/声音/镜头/顿帧等），后端无数值作用。
+        return () => undefined;
     }
   });
 }

@@ -12,14 +12,22 @@ import {
   CompiledCombatBuffCatalog,
   type CombatBuffCatalogDocument,
 } from '../buffs/combatBuffCatalog';
-import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
+import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { DamageModifierSide } from '../damage/playerDamageContext';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiveDamageInput';
 import { ElementalInflictionBuffAdapter } from '../infliction/elementalInflictionBuffAdapter';
 import type { ElementalInflictionOperation } from '../infliction/elementalInfliction';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
+import { createSkillSettingSource } from '../infliction/skillSettingCatalog';
+import type {
+  CompoundStatusSkillSettingSource,
+  SkillSettingCatalogDocument,
+} from '../infliction/skillSettingCatalog';
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
+import { executeSpellBurst } from './spellBurstRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import { CatalogBuffOperationTarget } from './catalogBuffOperationTarget';
@@ -71,6 +79,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
   ) => PlayerDamageNonRandomRuntimeSnapshot;
   /** 提供后，`applyElementalInfliction` 步骤按目录附着状态机执行。 */
   readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
+  /** 法术爆发倍率来源；缺失时爆发触发会明确失败。 */
+  readonly spellInflictionSettings?: SkillSettingCatalogDocument;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -95,7 +105,11 @@ export class StandardPlayerDamageEnvironment {
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
+  readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
+  #clock: CombatClock | null = null;
+  #receipt: CombatReceiptSink | null = null;
   #elementalCatalog: CompiledCombatBuffCatalog<string> | null = null;
+  #skillSettings: CompoundStatusSkillSettingSource | null = null;
   #enemyVitals: CombatVitals | null = null;
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
@@ -148,6 +162,11 @@ export class StandardPlayerDamageEnvironment {
 
   #createOperationExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
     this.#bindEnemy(context);
+    this.#clock = context.clock;
+    this.#receipt = context.receipt;
+    if (context.panel !== undefined) {
+      this.#operatorPanels.set(context.program.operatorId, context.panel);
+    }
     const operatorBuffs = this.#operatorBuffRuntime(context.program.operatorId).container;
     return new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
@@ -273,8 +292,80 @@ export class StandardPlayerDamageEnvironment {
     this.#elementalCatalog = compileCombatBuffCatalog(document, {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
+      onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
     });
     return this.#elementalCatalog;
+  }
+
+  /** 爆发 Buff 触发时执行爆发伤害；数据缺失处明确报错，不假装打出伤害。 */
+  #onSpellBurstTriggered(payload: { readonly burstType: string; readonly sourceId: string }): void {
+    const catalog = this.#ensureElementalCatalog();
+    const definition = catalog.getSpellBurst(payload.burstType);
+    if (definition === null) {
+      throw new Error(`spell burst '${payload.burstType}' is not declared in the buff catalog`);
+    }
+    if (this.options.spellInflictionSettings === undefined) {
+      throw new Error(
+        `spell burst '${payload.burstType}' requires SkillSetting data; export it from the game and inject spellInflictionSettings`,
+      );
+    }
+    const panel = this.#operatorPanels.get(payload.sourceId);
+    if (panel === undefined) {
+      throw new Error(`spell burst source operator '${payload.sourceId}' has no resolved panel`);
+    }
+    const settings = this.#ensureSkillSettings();
+    executeSpellBurst({
+      definition,
+      sourceId: payload.sourceId,
+      attack: panel.attack,
+      // 来源附着增强属性尚未在面板落地；以 0 作为中性基线，增强公式退化为 1。
+      enhance: 0,
+      criticalRate: panel.criticalRate,
+      criticalDamageIncrease: panel.criticalDamage,
+      criticalSample: this.options.criticalSamples.nextCriticalSample(),
+      settings,
+      defender: this.#requireEnemyIdentity().defenderAttributes,
+      target: this.enemyVitals,
+      clock: this.#requireClock(),
+      receipt: this.#requireReceipt(),
+      emitSourceEvent: (event, eventPayload) => this.#emit(payload.sourceId, event, eventPayload),
+      emitTargetEvent: (event, eventPayload) => this.#emit('enemy', event, eventPayload),
+    });
+  }
+
+  #ensureSkillSettings(): CompoundStatusSkillSettingSource {
+    const document = this.options.spellInflictionSettings;
+    if (document === undefined) {
+      throw new Error('spell burst requires SkillSetting data');
+    }
+    if (this.#skillSettings === null) {
+      this.#skillSettings = createSkillSettingSource(document);
+    }
+    return this.#skillSettings;
+  }
+
+  #requireEnemyIdentity(): NonNullable<CombatOperationExecutorContext['enemy']> {
+    if (this.#enemyIdentity === null) {
+      throw new Error('standard player damage environment has not been bound to an enemy');
+    }
+    return this.#enemyIdentity;
+  }
+
+  #requireClock(): CombatClock {
+    // 爆发只会在技能运行时触发，此时绑定敌人的执行器上下文时钟仍然可用。
+    const clock = this.#clock;
+    if (clock === null) {
+      throw new Error('standard player damage environment has no battle clock');
+    }
+    return clock;
+  }
+
+  #requireReceipt(): CombatReceiptSink {
+    const receipt = this.#receipt;
+    if (receipt === null) {
+      throw new Error('standard player damage environment has no battle receipt');
+    }
+    return receipt;
   }
 
   #buffContainer(

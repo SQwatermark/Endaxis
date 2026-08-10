@@ -10,8 +10,10 @@ type Attribute = 'attack';
 describe('elementalAttachmentCatalog', () => {
   it('loads all four generated attachment roles through the strict schema boundary', () => {
     const emitStarted = vi.fn();
+    const onSpellBurstTriggered = vi.fn();
     const catalog = compileCombatBuffCatalog<Attribute>(elementalAttachmentCatalog, {
       emitElementalInflictionStarted: emitStarted,
+      onSpellBurstTriggered,
     });
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
 

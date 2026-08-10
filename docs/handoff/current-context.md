@@ -20,7 +20,7 @@
 ## 最新验证
 
 - `npm.cmd run type-check:next`：通过；
-- `npm.cmd exec vitest run src/next`：136 个文件、694 项测试通过；
+- `npm.cmd exec vitest run src/next`：137 个文件、703 项测试通过；
 - 生成器：202 项 Python 测试通过；
 - 页面：`http://127.0.0.1:5173/next/timeline`。
 
@@ -44,6 +44,12 @@
   - 预检相应放行 stagger 字段、`dealStagger` 与（有目录时的）`applyElementalInfliction`；
 - **元素反应状态接入**（`ElementalReactionContainer` + 执行器）：
   - 敌人身上的反应（感电/腐蚀）按等级 1-4 与剩余时长记录，`applyElementalReaction` 升级/刷新、`consumeElementalReaction` 消费、`elementalReactionActive` 条件按等级判断；只记录状态事实，反应伤害效果待数据闭环；
+- **法术爆发（同元素附着二次触发）完整实现**：
+  - 4 个同元素爆发 Buff（Fire/Pulse/Cryst/Natural）已从 combat-1.4.4 源数据导入版本化目录：持续 5 秒、1 秒后触发一次，含 `triggerSpellBurst` 动作与爆发伤害参数（倍率来自 SkillSetting"法术爆发伤害倍率"第 1 列），表现动作（动画/特效/声音/镜头/顿帧）经证据确认为 `visualOnly`；
+  - `spellBurstRuntime` 按 combat-spec 已复刻语义执行：倍率 × 增强公式（linear/saturating/none）→ 标准玩家伤害公式（防御/抗性/暴击）→ 敌人生命写入，回执 `SpellBurstApplied`；
+  - **数据缺口**：SkillSetting 数值（法术爆发伤害倍率）是游戏内 ScriptableObject，AKEDB 与本地均无，需从游戏客户端导出（combat-spec 的 `SkillSettingCatalogExportCommand` 已就绪）；导出后放入 `src/next/data/buffs/skill-setting-catalog.combat-1.4.4.json` 并注入服务即生效；缺失时爆发触发明确报错，不假装打出伤害；
+  - 来源附着增强属性（`PhysicalAndSpellInflictionEnhance`）尚未在面板落地，以 0 作中性基线；
+- **技能生命周期补全**：时间轴动作全部执行后技能自然结束（`SkillEnded`），同技能可连续释放（此前第二个战技会被拒绝）；
   - 佩丽卡战技、终结技、连携技现已全部可完整模拟；庄方宜等带 `applyStatus`/语义状态条件的干员仍严格失败；
 - **时间轴命中点（对齐旧版样式与交互）**：
   - 命中点画在技能块底部，红色菱形、hover 金色放大发光，与旧版一致；

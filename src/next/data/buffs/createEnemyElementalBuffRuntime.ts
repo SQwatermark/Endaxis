@@ -22,6 +22,11 @@ export interface CreateEnemyElementalBuffRuntimeOptions<Key extends string> {
   readonly attributeEntities?: CombatAttributeEntityRegistry<Key>;
   readonly tagRegistry?: GameplayTagRegistry;
   readonly emitElementalInflictionStarted: (payload: ElementalInflictionStartedPayload) => void;
+  /** 法术爆发触发端口；目录包含爆发 Buff 时必须提供。 */
+  readonly onSpellBurstTriggered?: (payload: {
+    readonly burstType: string;
+    readonly sourceId: string;
+  }) => void;
 }
 
 /** 为一次模拟创建独立容器；返回值不得跨场景或重跑复用。 */
@@ -30,6 +35,9 @@ export function createEnemyElementalBuffRuntime<Key extends string>(
 ): ElementalBuffRuntime<Key> {
   const catalog = compileCombatBuffCatalog<Key>(elementalAttachmentCatalog, {
     emitElementalInflictionStarted: payload => options.emitElementalInflictionStarted(payload),
+    ...(options.onSpellBurstTriggered === undefined
+      ? {}
+      : { onSpellBurstTriggered: options.onSpellBurstTriggered }),
     ...(options.attributeEntities === undefined
       ? {}
       : {

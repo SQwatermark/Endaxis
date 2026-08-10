@@ -5,9 +5,11 @@ import { createEnemyElementalBuffRuntime } from './createEnemyElementalBuffRunti
 describe('createEnemyElementalBuffRuntime', () => {
   it('wires the versioned attachment catalog to one enemy runtime', () => {
     const emitStarted = vi.fn();
+    const onSpellBurstTriggered = vi.fn();
     const runtime = createEnemyElementalBuffRuntime({
       attributes: new CombatAttributeSet(),
       emitElementalInflictionStarted: emitStarted,
+      onSpellBurstTriggered,
     });
     const adapter = runtime.createInflictionAdapter('operator');
 
@@ -17,5 +19,6 @@ describe('createEnemyElementalBuffRuntime', () => {
     expect(runtime.ownerId).toBe('enemy');
     expect(adapter.getExistingAttachment()).toEqual({ element: 'heat', layers: 2 });
     expect(emitStarted).toHaveBeenLastCalledWith({ element: 'heat', layers: 2 });
+    expect(onSpellBurstTriggered).not.toHaveBeenCalled();
   });
 });

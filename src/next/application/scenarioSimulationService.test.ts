@@ -120,6 +120,86 @@ describe('ScenarioSimulationService', () => {
     expect(run.receiptEntries.some(entry => entry.event === 'PoiseApplied')).toBe(true);
   });
 
+  it('重复施加附着时按 SkillSetting 真实打出爆发伤害', async () => {
+    const scenario = createPerlicaScenario();
+    const ids = { allocate: (kind: string) => `${kind}:${Math.random()}` };
+    const first = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    const second = placeSkillGroup({
+      scenario: first,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 40,
+      ids,
+    }).scenario;
+    const service = new ScenarioSimulationService({
+      catalog: {
+        getOperator: (slug: string) => (slug === perlica.slug ? perlica : null),
+        getWeapon: () => null,
+        getGear: () => null,
+        getGearSet: () => null,
+      },
+      resources: {
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecoveryPauseDuration: 1.5,
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+      },
+      spellInflictionSettings: {
+        schemaVersion: 1,
+        revision: 'test',
+        data: [
+          {
+            key: '法术爆发伤害倍率',
+            values: [1.5, 2, 2.5, 3],
+            enhanceFormulaKey: '',
+          },
+        ],
+        enhanceFormulas: [],
+      },
+    });
+
+    const run = await service.simulate(second, 120);
+
+    const bursts = run.receiptEntries.filter(entry => entry.event === 'SpellBurstApplied');
+    expect(bursts.length).toBeGreaterThan(0);
+    expect(bursts[0]?.data?.burstType).toBe('Pulse');
+    expect((bursts[0]?.data?.value ?? 0) as number).toBeGreaterThan(0);
+    expect(run.finalEnemyHealth).toBeLessThan(run.enemy.health);
+  });
+
+  it('爆发触发但缺少 SkillSetting 数据时明确失败', async () => {
+    const scenario = createPerlicaScenario();
+    const ids = { allocate: (kind: string) => `${kind}:${Math.random()}` };
+    const first = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    const second = placeSkillGroup({
+      scenario: first,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 40,
+      ids,
+    }).scenario;
+
+    await expect(createService().simulate(second, 120)).rejects.toThrow(
+      'requires SkillSetting data',
+    );
+  });
+
   it('相同场景内容与目标帧复用已冻结运行结果', async () => {
     const scenario = createPerlicaScenario();
     const service = createService();

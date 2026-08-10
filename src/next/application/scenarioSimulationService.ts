@@ -8,6 +8,7 @@
 import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CombatOperationExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatBuffCatalogDocument } from '../core/combat/buffs/combatBuffCatalog';
+import type { SkillSettingCatalogDocument } from '../core/combat/infliction/skillSettingCatalog';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
@@ -58,6 +59,8 @@ export interface ScenarioSimulationServiceOptions {
   ) => PlayerDamageNonRandomRuntimeSnapshot;
   /** 元素附着目录；默认使用当前游戏数据版本已审核的附着目录。 */
   readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
+  /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
+  readonly spellInflictionSettings?: SkillSettingCatalogDocument;
 }
 
 export interface ScenarioSimulationRun extends StandardPlayerDamageScenarioResult {
@@ -154,6 +157,9 @@ export class ScenarioSimulationService {
       criticalSamples: this.#options.criticalSamples!,
       resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
       elementalInflictionDocument: this.#options.elementalInflictionDocument,
+      ...(this.#options.spellInflictionSettings === undefined
+        ? {}
+        : { spellInflictionSettings: this.#options.spellInflictionSettings }),
       options: {
         catalog: this.#options.catalog,
         resources: this.#options.resources,

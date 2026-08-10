@@ -375,6 +375,7 @@ describe('CombatRuntimeAssembly', () => {
       'SpChanged',
       'SpChanged',
       'SkillCostApplied',
+      'SkillEnded',
     ]);
   });
 
@@ -934,6 +935,7 @@ describe('CombatRuntimeAssembly', () => {
       'SpChanged',
       'SkillCostApplied',
       'SkillInputProcessed',
+      'SkillEnded',
     ]);
   });
 });

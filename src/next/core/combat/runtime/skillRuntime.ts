@@ -254,6 +254,8 @@ export class SkillRuntime {
     if (this.#state !== 'casting') return;
     this.#passedFrames += 1;
     this.#tick(COMBAT_FRAME_INTERVAL);
+    // 时间轴动作全部执行完毕后技能自然结束，允许同技能再次释放。
+    if (this.#timeline?.isComplete === true) this.end();
   }
 
   end(): void {

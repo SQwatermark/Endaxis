@@ -128,6 +128,258 @@
       "durationSeconds": {
         "blackboardKey": "duration"
       }
+    },
+    {
+      "id": "buff_common_fire_fire_triggered",
+      "stackingType": "unlimited",
+      "durationSeconds": 5,
+      "triggerIntervalSeconds": 1,
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": 1,
+      "role": {
+        "kind": "elementalBurst",
+        "element": "heat"
+      },
+      "actions": {
+        "start": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ],
+        "trigger": [
+          {
+            "kind": "triggerSpellBurst",
+            "burstType": "Fire"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EnemyHurtAnimAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EffectAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "CameraImpulseAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "HitStopAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "PlaySoundAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "IgniteBuffTextAction"
+          }
+        ],
+        "finish": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ]
+      },
+      "spellBurst": {
+        "burstType": "Fire",
+        "damageType": "heat",
+        "skillSettingDataKey": "法术爆发伤害倍率",
+        "skillSettingColumn": 1,
+        "atkScaleBase": 50
+      }
+    },
+    {
+      "id": "buff_common_pulse_pulse_triggered",
+      "stackingType": "unlimited",
+      "durationSeconds": 5,
+      "triggerIntervalSeconds": 1,
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": 1,
+      "role": {
+        "kind": "elementalBurst",
+        "element": "electric"
+      },
+      "actions": {
+        "start": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ],
+        "trigger": [
+          {
+            "kind": "triggerSpellBurst",
+            "burstType": "Pulse"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EnemyHurtAnimAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EffectAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "CameraImpulseAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "HitStopAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "PlaySoundAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "IgniteBuffTextAction"
+          }
+        ],
+        "finish": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ]
+      },
+      "spellBurst": {
+        "burstType": "Pulse",
+        "damageType": "electric",
+        "skillSettingDataKey": "法术爆发伤害倍率",
+        "skillSettingColumn": 1,
+        "atkScaleBase": 50
+      }
+    },
+    {
+      "id": "buff_common_cryst_cryst_triggered",
+      "stackingType": "unlimited",
+      "durationSeconds": 5,
+      "triggerIntervalSeconds": 1,
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": 1,
+      "role": {
+        "kind": "elementalBurst",
+        "element": "cryo"
+      },
+      "actions": {
+        "start": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ],
+        "trigger": [
+          {
+            "kind": "triggerSpellBurst",
+            "burstType": "Cryst"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EnemyHurtAnimAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EffectAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "CameraImpulseAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "HitStopAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "PlaySoundAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "IgniteBuffTextAction"
+          }
+        ],
+        "finish": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ]
+      },
+      "spellBurst": {
+        "burstType": "Cryst",
+        "damageType": "cryo",
+        "skillSettingDataKey": "法术爆发伤害倍率",
+        "skillSettingColumn": 1,
+        "atkScaleBase": 50
+      }
+    },
+    {
+      "id": "buff_common_natural_natural_triggered",
+      "stackingType": "unlimited",
+      "durationSeconds": 5,
+      "triggerIntervalSeconds": 1,
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": 1,
+      "role": {
+        "kind": "elementalBurst",
+        "element": "nature"
+      },
+      "actions": {
+        "start": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ],
+        "trigger": [
+          {
+            "kind": "triggerSpellBurst",
+            "burstType": "Natural"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EnemyHurtAnimAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "EffectAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "CameraImpulseAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "HitStopAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "PlaySoundAction"
+          },
+          {
+            "kind": "visualOnly",
+            "actionType": "IgniteBuffTextAction"
+          }
+        ],
+        "finish": [
+          {
+            "kind": "visualOnly",
+            "actionType": "OnSpellAbnormalStartFinish"
+          }
+        ]
+      },
+      "spellBurst": {
+        "burstType": "Natural",
+        "damageType": "nature",
+        "skillSettingDataKey": "法术爆发伤害倍率",
+        "skillSettingColumn": 1,
+        "atkScaleBase": 50
+      }
     }
   ]
 }

@@ -75,6 +75,7 @@ describe('Perlica standard damage slice', () => {
     const elementalTarget = createEnemyElementalBuffRuntime({
       attributes: new CombatAttributeSet(),
       emitElementalInflictionStarted: () => undefined,
+      onSpellBurstTriggered: () => undefined,
     });
     const operations = createPlayerActiveOperationExecutorForElementalTarget({
       context: {

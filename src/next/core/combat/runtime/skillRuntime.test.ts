@@ -183,10 +183,11 @@ describe('SkillRuntime', () => {
         .filter(entry => entry.event === 'CombatStepReached')
         .map(entry => entry.data?.kind),
     ).toEqual(['applyElementalInfliction', 'dealDamage', 'gainSquadUltimateEnergyFromSkillCost']);
+    // 时间轴动作全部执行后技能在同一帧自然结束。
     expect(fixture.receipt.entries.at(-1)).toMatchObject({
       frame: 13,
       time: 13 / 30,
-      event: 'TimelineActionEnded',
+      event: 'SkillEnded',
     });
   });
 
@@ -249,10 +250,11 @@ describe('SkillRuntime', () => {
     simulation.advanceFrames(13);
 
     expect(runtime.appliedCost).toBe(false);
-    expect(runtime.state).toBe('casting');
+    // 扣费失败不阻止时间轴动作，动作执行完毕后技能自然结束。
+    expect(runtime.state).toBe('ended');
     expect(operations.execute).toHaveBeenCalledTimes(3);
     expect(receipt.entries.some(entry => entry.event === 'SkillCostRejected')).toBe(true);
-    expect(receipt.entries.at(-1)?.event).toBe('TimelineActionEnded');
+    expect(receipt.entries.at(-1)?.event).toBe('SkillEnded');
   });
 
   it('refunds a reserved cooldown when interrupted before the recovered commit frame', () => {
