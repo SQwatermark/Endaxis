@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createEmptyProject } from '../project/createProject';
-import { validateProjectEnemyCatalogReferences } from './enemyCatalogValidation';
+import { validateProjectEnemyDefinitionReferences } from './enemyDefinitionValidation';
 import { getEnemyHpAtLevel, type EnemyDefinition } from './enemyDefinition';
 
 const enemy: EnemyDefinition = {
@@ -25,34 +25,34 @@ const enemy: EnemyDefinition = {
 };
 
 describe('enemyDefinition', () => {
-  it('only resolves HP nodes explicitly present in the catalog', () => {
+  it('only resolves HP nodes explicitly present in the index', () => {
     expect(getEnemyHpAtLevel(enemy, 90)).toBe(1000);
     expect(getEnemyHpAtLevel(enemy, 45)).toBeNull();
   });
 
-  it('does not query the catalog for a custom enemy instance', () => {
+  it('does not query the index for a custom enemy instance', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
     const getEnemy = vi.fn(() => null);
 
-    expect(validateProjectEnemyCatalogReferences(project, { getEnemy })).toEqual([]);
+    expect(validateProjectEnemyDefinitionReferences(project, { getEnemy })).toEqual([]);
     expect(getEnemy).not.toHaveBeenCalled();
   });
 
-  it('reports missing and mismatched catalog identities', () => {
+  it('reports missing and mismatched index identities', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
-    project.scenarios[0]!.enemy.source = { kind: 'catalog', enemyId: 'enemy-1', level: 90 };
+    project.scenarios[0]!.enemy.source = { kind: 'prefab', enemyId: 'enemy-1', level: 90 };
 
-    expect(validateProjectEnemyCatalogReferences(project, { getEnemy: () => null })).toEqual([
+    expect(validateProjectEnemyDefinitionReferences(project, { getEnemy: () => null })).toEqual([
       { path: '$.scenarios[0].enemy.source.enemyId', message: 'unknown enemy' },
     ]);
     expect(
-      validateProjectEnemyCatalogReferences(project, {
+      validateProjectEnemyDefinitionReferences(project, {
         getEnemy: () => ({ ...enemy, id: 'enemy-2' }),
       }),
     ).toEqual([
       {
         path: '$.scenarios[0].enemy.source.enemyId',
-        message: 'enemy catalog identity mismatch',
+        message: 'enemy definition identity mismatch',
       },
     ]);
   });

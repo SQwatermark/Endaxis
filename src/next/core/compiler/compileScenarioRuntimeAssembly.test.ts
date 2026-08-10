@@ -9,6 +9,7 @@ import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
 import type { WeaponDefinition } from '../game-data/equipmentDefinition';
+import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import {
   compileScenarioRuntimeAssembly,
   type CompileScenarioRuntimeAssemblyOptions,
@@ -66,7 +67,7 @@ function operationExecutor(): CombatOperationExecutor {
 
 function options(): CompileScenarioRuntimeAssemblyOptions {
   return {
-    catalog: {
+    index: {
       getOperator: slug => (slug === perlica.slug ? perlica : null),
       getWeapon: () => null,
       getGear: () => null,
@@ -142,14 +143,24 @@ describe('compileScenarioRuntimeAssembly', () => {
       traitLevels: [1],
     };
     scenario.tracks[0]!.weaponBuildId = 'weapon';
+    // 执行器只在有技能实例时构造；放置一个技能让装备贡献能到达运行时装订层。
+    let nextId = 0;
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 60,
+      ids: { allocate: kind => `${kind}:${++nextId}` },
+    }).scenario;
     const settings = options();
     const createOperationExecutor = vi.fn((_context: CombatOperationExecutorContext) =>
       operationExecutor(),
     );
-    const compiled = compileScenarioRuntimeAssembly(scenario, {
+    const compiled = compileScenarioRuntimeAssembly(placed, {
       ...settings,
-      catalog: {
-        ...settings.catalog,
+      index: {
+        ...settings.index,
         getWeapon: slug => (slug === weapon.slug ? weapon : null),
       },
       environment: { ...settings.environment, createOperationExecutor },
@@ -197,7 +208,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(() =>
       compileScenarioRuntimeAssembly(createScenario(), {
         ...settings,
-        catalog: { ...settings.catalog, getOperator },
+        index: { ...settings.index, getOperator },
       }),
     ).toThrow(`operator definition '${perlica.slug}' does not exist`);
     expect(getOperator).toHaveBeenCalledWith(perlica.slug);

@@ -36,7 +36,7 @@ function damageStep(key: string | undefined, hitId: string): CombatStepDocument 
 }
 
 describe('projectCastHitMarkers', () => {
-  it('把调度帧与放置帧合并为绝对偏移，并保留目录步骤键', () => {
+  it('把调度帧与放置帧合并为绝对偏移，并保留定义步骤键', () => {
     const markers = projectCastHitMarkers(
       createCast([damageStep('step:damage', 'hit:1'), damageStep(undefined, 'hit:2')]),
     );

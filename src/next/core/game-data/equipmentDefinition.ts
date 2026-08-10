@@ -1,5 +1,5 @@
 /**
- * 武器、装备与套装的版本化目录契约。
+ * 武器、装备与套装的版本化定义契约。
  * 定义只描述可生成的游戏事实；用户选择的等级由 build 提供，编译后才成为面板和战斗贡献。
  */
 import type {
@@ -14,7 +14,7 @@ import type {
 } from './operatorDefinition';
 
 export const WEAPON_RARITIES = [3, 4, 5, 6] as const;
-/** 武器目录中已经存在的星级范围。 */
+/** 武器定义中已经存在的星级范围。 */
 export type WeaponRarity = (typeof WEAPON_RARITIES)[number];
 
 export const EQUIPMENT_PANEL_STATS = [
@@ -79,7 +79,7 @@ export interface WeaponTraitDefinition extends EquipmentContributionDefinition {
   readonly levelCount: number;
 }
 
-/** 一把武器在只读目录中的稳定身份、成长数据与词条能力。 */
+/** 一把武器在只读定义中的稳定身份、成长数据与词条能力。 */
 export interface WeaponDefinition {
   readonly slug: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
@@ -92,7 +92,7 @@ export interface WeaponDefinition {
 }
 
 export const GEAR_SLOT_TYPES = ['armor', 'gloves', 'accessory'] as const;
-/** 装备自身的槽位类型；两个配件槽共享同一种目录类型。 */
+/** 装备自身的槽位类型；两个配件槽共享同一种定义类型。 */
 export type GearSlotType = (typeof GEAR_SLOT_TYPES)[number];
 
 /** 一条按精锻等级解析的装备能力；build 中的 0 表示初始档。 */
@@ -101,7 +101,7 @@ export interface GearTraitDefinition extends EquipmentContributionDefinition {
   readonly levelCount: number;
 }
 
-/** 一件装备在只读目录中的稳定身份、基础防御、词条与套装归属。 */
+/** 一件装备在只读定义中的稳定身份、基础防御、词条与套装归属。 */
 export interface GearDefinition {
   readonly slug: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
@@ -114,7 +114,7 @@ export interface GearDefinition {
 }
 
 /**
- * 套装的独立目录身份与三件套贡献。
+ * 套装的独立定义身份与三件套贡献。
  * 三件触发属于全局装备规则，因此不在每项定义中重复保存 requiredCount。
  */
 export interface GearSetDefinition extends EquipmentContributionDefinition {

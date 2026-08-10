@@ -208,7 +208,7 @@ describe('compileSkill', () => {
     });
   });
 
-  it('keeps the derived timeline block width in the compiled catalog', () => {
+  it('keeps the derived timeline block width in the compiled index', () => {
     const skill = {
       key: 'timeline-block',
       timelineBlockFrames: 18,
@@ -450,7 +450,7 @@ describe('compileSkill', () => {
     ).toThrow("skill 'multiple-costs' has multiple costs, but native CastData has one cost");
   });
 
-  it('rejects invalid native buff tag ids while compiling the catalog', () => {
+  it('rejects invalid native buff tag ids while compiling the index', () => {
     const skill = {
       key: 'invalid-tag',
       timelineBlockFrames: 1,

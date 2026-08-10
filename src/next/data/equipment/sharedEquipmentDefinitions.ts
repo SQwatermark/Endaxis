@@ -1,7 +1,7 @@
 /**
- * 从现有只读武器、装备与套装目录建立 Next 目录候选。
+ * 从现有只读武器、装备与套装定义建立 Next 定义候选。
  *
- * 每个源文件独立适配。实际目录采用宽松模式：可靠的身份和静态字段会注册，尚未支持的
+ * 每个源文件独立适配。实际定义采用宽松模式：可靠的身份和静态字段会注册，尚未支持的
  * 战斗逻辑作为结构化问题保留；源数据骨架无效时才拒绝注册。该模块不依赖旧版聚合 index。
  */
 import type { GearPieceSheet, GearSetSheet, WeaponSheet } from '../../../data/types';
@@ -79,14 +79,14 @@ export interface SharedEquipmentSupport {
   readonly issues: readonly SharedEquipmentAdaptationIssue[];
 }
 
-const weaponCatalog = adaptDirectory('weapon', weaponModules, (slug, source) =>
+const weaponEntries = adaptDirectory('weapon', weaponModules, (slug, source) =>
   adaptSharedWeapon(slug, source, { mode: 'permissive' }),
 );
-const gearCatalog = adaptDirectory('gear', gearModules, (slug, source) =>
+const gearEntries = adaptDirectory('gear', gearModules, (slug, source) =>
   adaptSharedGear(slug, source, { mode: 'permissive' }),
 );
-// `no-set-bonuses` 是无套装归属的旧目录哨兵，不是可触发的三件套定义。
-const gearSetCatalog = adaptDirectory(
+// `no-set-bonuses` 是无套装归属的旧定义哨兵，不是可触发的三件套定义。
+const gearSetEntries = adaptDirectory(
   'gearSet',
   Object.fromEntries(
     Object.entries(gearSetModules).filter(
@@ -96,21 +96,21 @@ const gearSetCatalog = adaptDirectory(
   (slug, source) => adaptSharedGearSet(slug, source, { mode: 'permissive' }),
 );
 
-export const sharedWeaponDefinitions: readonly WeaponDefinition[] = weaponCatalog.definitions;
-export const sharedGearDefinitions: readonly GearDefinition[] = gearCatalog.definitions;
-export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetCatalog.definitions;
-/** 未进入 Next 正式目录的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
+export const sharedWeaponDefinitions: readonly WeaponDefinition[] = weaponEntries.definitions;
+export const sharedGearDefinitions: readonly GearDefinition[] = gearEntries.definitions;
+export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetEntries.definitions;
+/** 未进入 Next 正式定义的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
 export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptationIssue[] =
-  Object.freeze([...weaponCatalog.issues, ...gearCatalog.issues, ...gearSetCatalog.issues]);
+  Object.freeze([...weaponEntries.issues, ...gearEntries.issues, ...gearSetEntries.issues]);
 
 const supportByIdentity = new Map(
-  [...weaponCatalog.support, ...gearCatalog.support, ...gearSetCatalog.support].map(item => [
+  [...weaponEntries.support, ...gearEntries.support, ...gearSetEntries.support].map(item => [
     `${item.sourceKind}:${item.slug}`,
     item,
   ]),
 );
 
-/** UI 可据此提示目录项仅完成基础转换；返回值不参与项目持久化。 */
+/** UI 可据此提示定义项仅完成基础转换；返回值不参与项目持久化。 */
 export function getSharedEquipmentSupport(
   sourceKind: SharedEquipmentSupport['sourceKind'],
   slug: string,

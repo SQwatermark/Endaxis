@@ -1,13 +1,13 @@
 /**
- * 干员数据作者与编译器之间的稳定 DSL 契约。
- * 定义应保持声明式并显式表达顺序、倍率和条件；原生证据说明应存放在独立研究文件中。
+ * 干员数据与编译器之间的接口约定。
+ * 写干员时只声明“做什么”（顺序、倍率、条件），不写“怎么做”；数据来源的依据放到独立研究文档里。
  */
 export const OPERATOR_ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] as const;
 /** 干员养成、面板和条件判断共同使用的四维属性身份。 */
 export type OperatorAttribute = (typeof OPERATOR_ATTRIBUTES)[number];
 
 export const OPERATOR_RARITIES = [4, 5, 6] as const;
-/** 干员目录允许的星级；数据适配器不得传入目录外数值。 */
+/** 干员定义允许的星级；数据适配器不得传入定义外的数值。 */
 export type OperatorRarity = (typeof OPERATOR_RARITIES)[number];
 
 export const OPERATOR_WEAPON_TYPES = [
@@ -28,7 +28,7 @@ export const OPERATOR_ROLES = [
   'supporter',
   'striker',
 ] as const;
-/** 干员目录和 UI 分类共同使用的战斗定位。 */
+/** 干员定义和 UI 分类共同使用的战斗定位。 */
 export type OperatorRole = (typeof OPERATOR_ROLES)[number];
 
 export const DAMAGE_ELEMENTS = ['physical', 'heat', 'cryo', 'electric', 'nature'] as const;
@@ -108,7 +108,7 @@ export interface OperatorConversionSupport {
   readonly completeness: 'complete' | 'partial';
   readonly missingCapabilities: readonly {
     readonly capability: OperatorMissingCapability;
-    /** 仅当缺失能力可收窄到技能组时提供稳定技能组身份。 */
+    /** 仅当缺失能力能明确归到某个技能组时，给出该技能组的稳定键。 */
     readonly skillGroupKeys?: readonly string[];
   }[];
 }
@@ -222,7 +222,7 @@ export type CombatCondition =
       tagIds: readonly number[];
     }
   | {
-      /** 按目录 Buff 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
+      /** 按Buff 定义 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
       kind: 'buffIdStackCompare';
       target: CombatTarget;
       buffIds: readonly string[];
@@ -275,7 +275,7 @@ export const COMBAT_CONDITION_KINDS = [
   'any',
   'deckAttributeCompare',
 ] as const satisfies readonly CombatCondition['kind'][];
-/** 条件构造器和严格解析器使用的可辨识种类。 */
+/** 条件构造器和严格解析器按 kind 区分的种类。 */
 export type CombatConditionKind = (typeof COMBAT_CONDITION_KINDS)[number];
 
 /** 条件判断读取的动作实例值；黑板键只在当前技能实例生命周期内有效。 */
@@ -408,7 +408,7 @@ export interface CombatStepParameters {
     buffTagIds: readonly number[];
     reason: 'early' | 'absorbed' | 'other';
   };
-  /** 按目录 Buff 身份结束目标身上的全部匹配实例。 */
+  /** 按Buff 定义 身份结束目标身上的全部匹配实例。 */
   finishBuffsById: {
     target: CombatTarget;
     buffIds: readonly string[];
@@ -519,11 +519,11 @@ export const COMBAT_STEP_KINDS = [
   'once',
   'setContextFlag',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
-/** 编译器和执行器用于收窄步骤负载的稳定种类。 */
+/** 步骤按 kind 区分类型，编译和执行靠它精确分支。 */
 export type CombatStepKind = (typeof COMBAT_STEP_KINDS)[number];
 
 type CombatStepForKind<K extends CombatStepKind> = {
-  /** 仅当其他目录定义需要引用此步骤时提供。 */
+  /** 仅当其他定义需要引用此步骤时提供。 */
   key?: string;
   kind: K;
   parameters: Readonly<CombatStepParameters[K]>;
@@ -533,7 +533,7 @@ type CombatStepForKind<K extends CombatStepKind> = {
     ? { body: ActionSequenceDefinition }
     : {});
 
-/** 干员目录中可执行且能按 `kind` 精确收窄的一项步骤。 */
+/** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = {
   [K in CombatStepKind]: CombatStepForKind<K>;
 }[CombatStepKind];
@@ -637,7 +637,7 @@ export interface SkillPresentationVariantDefinition {
   condition: BuildCondition;
 }
 
-/** 干员各等级四维、基础攻击与基础生命的目录成长表。 */
+/** 干员各等级四维、基础攻击与基础生命的成长定义表。 */
 export type AttributeGrowthDefinition = Record<OperatorAttribute, readonly number[]> & {
   baseAttack: readonly number[];
   baseHealth: readonly number[];

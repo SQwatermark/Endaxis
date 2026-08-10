@@ -780,7 +780,7 @@ export interface GeneratedSkillSource {
 
 export interface GeneratedOperatorSource {
   readonly slug: string;
-  /** 所有技能直接引用及其传递创建依赖组成的干员级去重 Buff 定义目录。 */
+  /** 所有技能直接引用及其传递创建依赖组成的干员级去重 Buff 定义集。 */
   readonly buffDefinitions: readonly GeneratedBuffDefinitionSource[];
   readonly skills: readonly GeneratedSkillSource[];
 }

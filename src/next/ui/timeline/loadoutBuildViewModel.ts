@@ -1,5 +1,5 @@
 /**
- * 将指定轨道的养成 Build 引用与版本化游戏目录解析为配装 UI 可直接读取的稳定模型。
+ * 将指定轨道的养成 Build 引用与版本化游戏数据解析为配装 UI 可直接读取的稳定模型。
  * 本模块只负责身份解析和用户输入快照，不翻译、不计算面板，也不修复损坏引用；调用方应在渲染前处理抛出的数据错误。
  */
 import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
@@ -17,7 +17,7 @@ import type {
 /** 时间轴固定装备槽的稳定身份；两个配件槽必须分别保留。 */
 export type LoadoutGearSlot = keyof TrackDocument['gearBuildIds'];
 
-/** 干员 Build 的用户输入及其目录定义，不包含名称等本地化文本。 */
+/** 干员 Build 的用户输入及其定义，不包含名称等本地化文本。 */
 export interface OperatorBuildViewModel {
   readonly buildId: string;
   readonly operatorSlug: string;
@@ -31,7 +31,7 @@ export interface OperatorBuildViewModel {
   readonly definition: Readonly<OperatorDefinition>;
 }
 
-/** 武器 Build 的用户输入及其目录定义；词条等级顺序与定义中的词条顺序一致。 */
+/** 武器 Build 的用户输入及其定义；词条等级顺序与定义中的词条顺序一致。 */
 export interface WeaponBuildViewModel {
   readonly buildId: string;
   readonly weaponSlug: string;
@@ -82,7 +82,7 @@ function requireDefinition<T>(
   const actualSlug = identity(definition);
   if (actualSlug !== expectedSlug) {
     throw new Error(
-      `${kind} definition '${expectedSlug}' resolved catalog identity '${actualSlug}'`,
+      `${kind} definition '${expectedSlug}' resolved definition identity '${actualSlug}'`,
     );
   }
   return definition;
@@ -154,8 +154,8 @@ function projectGear(
 }
 
 /**
- * 解析指定轨道当前引用的全部 Build。任何非空引用都必须同时存在 Build 和目录定义；
- * 本函数不会用目录默认值掩盖损坏项目，也不会校验装备兼容性或计算面板。
+ * 解析指定轨道当前引用的全部 Build。任何非空引用都必须同时存在 Build 和定义；
+ * 本函数不会用定义默认值掩盖损坏项目，也不会校验装备兼容性或计算面板。
  */
 export function projectTrackLoadoutBuilds(
   scenario: ScenarioDocument,

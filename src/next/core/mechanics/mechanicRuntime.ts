@@ -14,7 +14,7 @@ import type { ResolvedActionSequence } from '../compiler/combatProgram';
 import type { CompiledMechanics } from './mechanicCompiler';
 import type { MechanicAbilityEvent, MechanicGameLevelEvent } from './mechanicContribution';
 
-/** 执行机制序列时保留的项目选择和目录机制身份。 */
+/** 执行机制序列时保留的项目选择和定义机制身份。 */
 export interface MechanicExecutionSource {
   readonly selectionId: string;
   readonly mechanicId: string;

@@ -1,6 +1,6 @@
 /**
  * 一次模拟中每个实体的 Buff 状态所有者。
- * 调用方通过稳定定义添加 Buff，并按战斗时钟推进；不得把实例写回目录或项目存档。
+ * 调用方通过稳定定义添加 Buff，并按战斗时钟推进；不得把实例写回定义或项目存档。
  */
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
@@ -121,7 +121,7 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
-/** 可复用、不可变的 Buff 目录定义；实例状态不应写回这里。 */
+/** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
@@ -142,7 +142,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
   /**
    * 共享 SP 修正属于战斗级状态，但其注册生命周期归当前 Buff 实例所有。
-   * 当前仅支持固定值；原生动态黑板刷新链尚未闭环前，不在这里复用属性修正的动态语义。
+   * 当前仅支持固定值；原生动态黑板刷新链还没做通前，不在这里复用属性修正的动态语义。
    */
   readonly sharedSpGainModifiers?: readonly BuffSharedSpGainModifierDefinition[];
   readonly actions?: BuffLifecycleActions<Key>;

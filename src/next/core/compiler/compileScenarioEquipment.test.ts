@@ -91,7 +91,7 @@ function scenario() {
   return value;
 }
 
-function catalog() {
+function index() {
   const gears = new Map(
     [armor, gloves, accessory].map(definition => [definition.slug, definition]),
   );
@@ -105,7 +105,7 @@ function catalog() {
 
 describe('compileScenarioEquipment', () => {
   it('compiles equipped builds, relative attributes, and one active three-piece set', () => {
-    const [compiled] = compileScenarioEquipment(scenario(), catalog());
+    const [compiled] = compileScenarioEquipment(scenario(), index());
 
     expect(compiled!.operatorId).toBe('perlica');
     expect(compiled!.contributions.map(entry => entry.source)).toEqual([
@@ -134,9 +134,9 @@ describe('compileScenarioEquipment', () => {
     });
   });
 
-  it('fails closed when an equipped Build has no catalog definition', () => {
+  it('fails closed when an equipped Build has no definition', () => {
     expect(() =>
-      compileScenarioEquipment(scenario(), { ...catalog(), getWeapon: () => null }),
+      compileScenarioEquipment(scenario(), { ...index(), getWeapon: () => null }),
     ).toThrow("weapon definition 'test-weapon' does not exist");
   });
 
@@ -144,7 +144,7 @@ describe('compileScenarioEquipment', () => {
     const value = scenario();
     value.tracks[0]!.operatorBuildId = null;
 
-    expect(() => compileScenarioEquipment(value, catalog())).toThrow(
+    expect(() => compileScenarioEquipment(value, index())).toThrow(
       'configures equipment without an operator build',
     );
   });

@@ -3,7 +3,7 @@ import { CombatAttributeSet } from '../../core/combat/attributes/combatAttribute
 import { createEnemyElementalBuffRuntime } from './createEnemyElementalBuffRuntime';
 
 describe('createEnemyElementalBuffRuntime', () => {
-  it('wires the versioned attachment catalog to one enemy runtime', () => {
+  it('wires the versioned attachment index to one enemy runtime', () => {
     const emitStarted = vi.fn();
     const onSpellBurstTriggered = vi.fn();
     const runtime = createEnemyElementalBuffRuntime({

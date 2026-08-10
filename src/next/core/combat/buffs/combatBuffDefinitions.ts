@@ -1,5 +1,5 @@
 /**
- * 外部 Buff 数据进入通用 Buff 运行时前的语义化目录边界。
+ * 外部 Buff 数据进入通用 Buff 运行时前的语义化定义边界。
  * 数据源必须先转换为这里支持的原语；未知原生行为不能以回调或静默缺省方式穿透。
  */
 import {
@@ -19,7 +19,7 @@ import type {
 } from './combatBuffs';
 import { BUFF_STACKING_TYPES } from './combatBuffs';
 import type {
-  ElementalInflictionBuffCatalog,
+  ElementalInflictionBuffIndex,
   ElementalInflictionStartedPayload,
 } from '../infliction/elementalInflictionBuffAdapter';
 import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
@@ -30,7 +30,7 @@ import {
   type AttributeModifierSlot,
 } from '../attributes/combatAttributes';
 
-export const COMBAT_BUFF_CATALOG_SCHEMA_VERSION = 1 as const;
+export const COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION = 1 as const;
 
 /** 核心能够理解并交给专用适配器处理的 Buff 语义角色。 */
 export type CombatBuffSemanticRole =
@@ -42,37 +42,37 @@ export type CombatBuffSemanticRole =
       readonly incomingElement: InflictionElement;
     };
 
-/** 目录动作可从常量或当前 Buff 黑板读取的数值。 */
-export type CombatBuffCatalogNumberOperand = number | { readonly blackboardKey: string };
+/** 定义动作可从常量或当前 Buff 黑板读取的数值。 */
+export type CombatBuffDefinitionNumberOperand = number | { readonly blackboardKey: string };
 
 /** StoreAttributeValue 在来源实体上选择属性的方式。 */
-export type CombatBuffCatalogAttributeSelector =
+export type CombatBuffDefinitionAttributeSelector =
   | { readonly kind: 'specific'; readonly key: string }
   | { readonly kind: 'main' | 'secondary' | 'all' };
 
 /** StoreAttributeValue 读取的原生属性聚合阶段，二者都必须排除 Converted 来源。 */
-export type CombatBuffCatalogAttributeStage = 'armedNonConverted' | 'finalNonConverted';
+export type CombatBuffDefinitionAttributeStage = 'armedNonConverted' | 'finalNonConverted';
 
-/** catalog 核心向战斗装配层提出的属性读取请求。 */
-export interface CombatBuffCatalogAttributeReadRequest {
+/** index 核心向战斗装配层提出的属性读取请求。 */
+export interface CombatBuffDefinitionAttributeReadRequest {
   readonly target: 'source';
-  readonly attribute: CombatBuffCatalogAttributeSelector;
-  readonly stage: CombatBuffCatalogAttributeStage;
+  readonly attribute: CombatBuffDefinitionAttributeSelector;
+  readonly stage: CombatBuffDefinitionAttributeStage;
 }
 
-/** 外部 Buff 目录当前允许表达的生命周期动作。 */
-export type CombatBuffCatalogAction =
+/** 外部 Buff 定义当前允许表达的生命周期动作。 */
+export type CombatBuffDefinitionAction =
   | { readonly kind: 'emitElementalInflictionStarted' }
   | { readonly kind: 'refreshAttributeModifierValues' }
   | {
       readonly kind: 'storeAttributeValue';
       readonly target: 'source';
-      readonly attribute: CombatBuffCatalogAttributeSelector;
-      readonly stage: CombatBuffCatalogAttributeStage;
+      readonly attribute: CombatBuffDefinitionAttributeSelector;
+      readonly stage: CombatBuffDefinitionAttributeStage;
       readonly useFloor: boolean;
-      readonly divisor: CombatBuffCatalogNumberOperand;
-      readonly multiplier: CombatBuffCatalogNumberOperand;
-      readonly base: CombatBuffCatalogNumberOperand;
+      readonly divisor: CombatBuffDefinitionNumberOperand;
+      readonly multiplier: CombatBuffDefinitionNumberOperand;
+      readonly base: CombatBuffDefinitionNumberOperand;
       readonly targetKey: string;
     }
   | {
@@ -82,7 +82,7 @@ export type CombatBuffCatalogAction =
       readonly value: number | { readonly blackboardKey: string };
     }
   | {
-      /** 触发法术爆发；伤害由运行时按目录 `spellBurst` 参数执行。 */
+      /** 触发法术爆发；伤害由运行时按定义中的 `spellBurst` 参数执行。 */
       readonly kind: 'triggerSpellBurst';
       readonly burstType: string;
     }
@@ -105,17 +105,17 @@ export interface CombatBuffSpellBurstDefinition {
   readonly atkScaleBase: number;
 }
 
-/** 目录 Buff 在各生命周期边界执行的动作集合。 */
-export interface CombatBuffCatalogLifecycleActions {
-  readonly start?: readonly CombatBuffCatalogAction[];
-  readonly trigger?: readonly CombatBuffCatalogAction[];
-  readonly enhanceChanged?: readonly CombatBuffCatalogAction[];
-  readonly afterEnhance?: readonly CombatBuffCatalogAction[];
-  readonly finish?: readonly CombatBuffCatalogAction[];
+/** Buff 定义 在各生命周期边界执行的动作集合。 */
+export interface CombatBuffDefinitionLifecycleActions {
+  readonly start?: readonly CombatBuffDefinitionAction[];
+  readonly trigger?: readonly CombatBuffDefinitionAction[];
+  readonly enhanceChanged?: readonly CombatBuffDefinitionAction[];
+  readonly afterEnhance?: readonly CombatBuffDefinitionAction[];
+  readonly finish?: readonly CombatBuffDefinitionAction[];
 }
 
-/** 外部目录中一项可序列化的原生八槽属性修正。 */
-export interface CombatBuffCatalogAttributeModifier {
+/** 外部定义中一项可序列化的原生八槽属性修正。 */
+export interface CombatBuffDefinitionAttributeModifier {
   readonly attribute: string;
   readonly slot: AttributeModifierSlot;
   readonly value: number | { readonly blackboardKey: string };
@@ -125,8 +125,8 @@ export interface CombatBuffCatalogAttributeModifier {
  * 游戏数据提取边界输出的稳定纯数据表示。
  * 原生表结构和可执行回调不得跨越此边界。
  */
-/** 外部目录中的一项稳定 Buff 定义。 */
-export interface CombatBuffCatalogEntry {
+/** 外部定义中的一项稳定 Buff 定义。 */
+export interface CombatBuffDefinitionEntry {
   readonly id: string;
   /** 解包数据中的原始有符号 int32 applyTags。 */
   readonly applyTagIds?: readonly number[];
@@ -141,32 +141,32 @@ export interface CombatBuffCatalogEntry {
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
-  readonly attributeModifiers?: readonly CombatBuffCatalogAttributeModifier[];
+  readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
   readonly role?: CombatBuffSemanticRole;
-  readonly actions?: CombatBuffCatalogLifecycleActions;
+  readonly actions?: CombatBuffDefinitionLifecycleActions;
   /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
   readonly spellBurst?: CombatBuffSpellBurstDefinition;
 }
 
-/** 带 schema 版本的外部 Buff 目录文档。 */
-export interface CombatBuffCatalogDocument {
-  readonly schemaVersion: typeof COMBAT_BUFF_CATALOG_SCHEMA_VERSION;
+/** 带 schema 版本的外部 Buff 定义文档。 */
+export interface CombatBuffDefinitionsDocument {
+  readonly schemaVersion: typeof COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION;
   readonly revision: string;
-  readonly buffs: readonly CombatBuffCatalogEntry[];
+  readonly buffs: readonly CombatBuffDefinitionEntry[];
 }
 
-/** 把目录语义角色和动作编译为核心定义时使用的受控端口。 */
-export interface CombatBuffCatalogCompilerPorts<Key extends string> {
+/** 把定义语义角色和动作编译为核心定义时使用的受控端口。 */
+export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
   readonly emitElementalInflictionStarted: (
     payload: ElementalInflictionStartedPayload,
     buff: CombatBuff<Key>,
   ) => void;
   /**
    * 读取动作来源实体的属性阶段值。实体定位、主副属性映射和排除 Converted 修正均由装配层负责；
-   * catalog 编译器只负责 StoreAttributeValue 已确认的算式和当前 Buff 黑板生命周期。
+   * index 编译器只负责 StoreAttributeValue 已确认的算式和当前 Buff 黑板生命周期。
    */
   readonly readAttribute?: (
-    request: CombatBuffCatalogAttributeReadRequest,
+    request: CombatBuffDefinitionAttributeReadRequest,
     buff: CombatBuff<Key>,
   ) => number;
   /** 法术爆发触发端口；爆发 Buff 存在该动作时必须提供。 */
@@ -177,9 +177,9 @@ export interface CombatBuffCatalogCompilerPorts<Key extends string> {
 }
 
 /** 元素附着运行时适配器使用的已编译索引。 */
-export class CompiledCombatBuffCatalog<
+export class CompiledCombatBuffDefinitions<
   Key extends string,
-> implements ElementalInflictionBuffCatalog<Key> {
+> implements ElementalInflictionBuffIndex<Key> {
   readonly #definitions = new Map<string, CombatBuffDefinition<Key>>();
   readonly #attachmentElements = new Map<CombatBuffDefinition<Key>, InflictionElement>();
   readonly #attachments = new Map<InflictionElement, CombatBuffDefinition<Key>>();
@@ -190,8 +190,8 @@ export class CompiledCombatBuffCatalog<
 
   constructor(
     readonly revision: string,
-    entries: readonly CombatBuffCatalogEntry[],
-    ports: CombatBuffCatalogCompilerPorts<Key>,
+    entries: readonly CombatBuffDefinitionEntry[],
+    ports: CombatBuffDefinitionCompilerPorts<Key>,
   ) {
     for (const entry of entries) this.register(entry, ports);
   }
@@ -225,12 +225,12 @@ export class CompiledCombatBuffCatalog<
   }
 
   private register(
-    entry: CombatBuffCatalogEntry,
-    ports: CombatBuffCatalogCompilerPorts<Key>,
+    entry: CombatBuffDefinitionEntry,
+    ports: CombatBuffDefinitionCompilerPorts<Key>,
   ): void {
-    if (entry.id.length === 0) throw new Error('buff catalog entry id must not be empty');
+    if (entry.id.length === 0) throw new Error('buff definition entry id must not be empty');
     if (this.#definitions.has(entry.id)) {
-      throw new Error(`duplicate buff catalog entry '${entry.id}'`);
+      throw new Error(`duplicate buff definition entry '${entry.id}'`);
     }
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
@@ -260,7 +260,7 @@ export class CompiledCombatBuffCatalog<
     this.registerSpellBurst(entry.spellBurst, entry.id);
   }
 
-  /** 按原生爆发类型查找爆发伤害参数；目录没有该爆发时返回 null。 */
+  /** 按原生爆发类型查找爆发伤害参数；定义没有该爆发时返回 null。 */
   getSpellBurst(burstType: string): CombatBuffSpellBurstDefinition | null {
     return this.#spellBursts.get(burstType) ?? null;
   }
@@ -302,34 +302,36 @@ export class CompiledCombatBuffCatalog<
   }
 }
 
-export function compileCombatBuffCatalog<Key extends string>(
-  document: CombatBuffCatalogDocument,
-  ports: CombatBuffCatalogCompilerPorts<Key>,
-): CompiledCombatBuffCatalog<Key> {
-  if (document.schemaVersion !== COMBAT_BUFF_CATALOG_SCHEMA_VERSION) {
-    throw new Error(`unsupported combat buff catalog schema version '${document.schemaVersion}'`);
+export function compileCombatBuffDefinitions<Key extends string>(
+  document: CombatBuffDefinitionsDocument,
+  ports: CombatBuffDefinitionCompilerPorts<Key>,
+): CompiledCombatBuffDefinitions<Key> {
+  if (document.schemaVersion !== COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION) {
+    throw new Error(
+      `unsupported combat buff definition schema version '${document.schemaVersion}'`,
+    );
   }
-  if (document.revision.length === 0) throw new Error('buff catalog revision must not be empty');
-  return new CompiledCombatBuffCatalog(document.revision, document.buffs, ports);
+  if (document.revision.length === 0) throw new Error('buff definition revision must not be empty');
+  return new CompiledCombatBuffDefinitions(document.revision, document.buffs, ports);
 }
 
-/** 生成或外部存储的语义目录进入核心前的严格 JSON 边界。 */
-export function parseCombatBuffCatalogDocument(input: unknown): CombatBuffCatalogDocument {
+/** 生成或外部存储的语义定义进入核心前的严格 JSON 边界。 */
+export function parseCombatBuffDefinitionsDocument(input: unknown): CombatBuffDefinitionsDocument {
   const root = requireObject(input, '$');
   requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'buffs']);
-  if (root.schemaVersion !== COMBAT_BUFF_CATALOG_SCHEMA_VERSION) {
-    throw new Error(`$.schemaVersion: expected ${COMBAT_BUFF_CATALOG_SCHEMA_VERSION}`);
+  if (root.schemaVersion !== COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION) {
+    throw new Error(`$.schemaVersion: expected ${COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION}`);
   }
   const revision = requireNonEmptyString(root.revision, '$.revision');
   if (!Array.isArray(root.buffs)) throw new Error('$.buffs: expected array');
   return {
-    schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
     revision,
-    buffs: root.buffs.map((entry, index) => parseCatalogEntry(entry, `$.buffs[${index}]`)),
+    buffs: root.buffs.map((entry, index) => parseDefinitionEntry(entry, `$.buffs[${index}]`)),
   };
 }
 
-function parseCatalogEntry(input: unknown, path: string): CombatBuffCatalogEntry {
+function parseDefinitionEntry(input: unknown, path: string): CombatBuffDefinitionEntry {
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',
@@ -417,7 +419,7 @@ function requireFiniteNumber(input: unknown, path: string): number {
 function parseOptionalAttributeModifiers(
   entry: Readonly<Record<string, unknown>>,
   path: string,
-): { attributeModifiers?: readonly CombatBuffCatalogAttributeModifier[] } {
+): { attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[] } {
   if (entry.attributeModifiers === undefined) return {};
   if (!Array.isArray(entry.attributeModifiers)) {
     throw new Error(`${path}.attributeModifiers: expected array`);
@@ -445,7 +447,7 @@ function parseOptionalGameplayTagIds(
   entry: Readonly<Record<string, unknown>>,
   key: 'applyTagIds' | 'extendTagIds',
   path: string,
-): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};
   if (!Array.isArray(entry[key])) {
     throw new Error(`${path}.${key}: expected array`);
@@ -458,7 +460,7 @@ function parseOptionalGameplayTagIds(
         throw new Error(`${path}.${key}[${index}]: expected signed 32-bit integer`);
       }
     }),
-  } as Partial<Pick<CombatBuffCatalogEntry, typeof key>>;
+  } as Partial<Pick<CombatBuffDefinitionEntry, typeof key>>;
 }
 
 function parseOptionalRole(
@@ -504,7 +506,7 @@ function parseOptionalRole(
 function parseOptionalActions(
   entry: Readonly<Record<string, unknown>>,
   path: string,
-): { actions?: CombatBuffCatalogLifecycleActions } {
+): { actions?: CombatBuffDefinitionLifecycleActions } {
   if (entry.actions === undefined) return {};
   const actionsPath = `${path}.actions`;
   const actions = requireObject(entry.actions, actionsPath);
@@ -517,20 +519,20 @@ function parseOptionalActions(
   ]);
   return {
     actions: {
-      ...parseOptionalCatalogActionList(actions, 'start', actionsPath),
-      ...parseOptionalCatalogActionList(actions, 'trigger', actionsPath),
-      ...parseOptionalCatalogActionList(actions, 'enhanceChanged', actionsPath),
-      ...parseOptionalCatalogActionList(actions, 'afterEnhance', actionsPath),
-      ...parseOptionalCatalogActionList(actions, 'finish', actionsPath),
+      ...parseOptionalDefinitionActionList(actions, 'start', actionsPath),
+      ...parseOptionalDefinitionActionList(actions, 'trigger', actionsPath),
+      ...parseOptionalDefinitionActionList(actions, 'enhanceChanged', actionsPath),
+      ...parseOptionalDefinitionActionList(actions, 'afterEnhance', actionsPath),
+      ...parseOptionalDefinitionActionList(actions, 'finish', actionsPath),
     },
   };
 }
 
-function parseOptionalCatalogActionList(
+function parseOptionalDefinitionActionList(
   actions: Readonly<Record<string, unknown>>,
-  key: keyof CombatBuffCatalogLifecycleActions,
+  key: keyof CombatBuffDefinitionLifecycleActions,
   path: string,
-): Partial<CombatBuffCatalogLifecycleActions> {
+): Partial<CombatBuffDefinitionLifecycleActions> {
   const input = actions[key];
   if (input === undefined) return {};
   if (!Array.isArray(input)) throw new Error(`${path}.${key}: expected array`);
@@ -579,9 +581,9 @@ function parseOptionalCatalogActionList(
             `${actionPath}.stage`,
           ),
           useFloor: action.useFloor,
-          divisor: parseCatalogNumberOperand(action.divisor, `${actionPath}.divisor`),
-          multiplier: parseCatalogNumberOperand(action.multiplier, `${actionPath}.multiplier`),
-          base: parseCatalogNumberOperand(action.base, `${actionPath}.base`),
+          divisor: parseDefinitionNumberOperand(action.divisor, `${actionPath}.divisor`),
+          multiplier: parseDefinitionNumberOperand(action.multiplier, `${actionPath}.multiplier`),
+          base: parseDefinitionNumberOperand(action.base, `${actionPath}.base`),
           targetKey: requireNonEmptyString(action.targetKey, `${actionPath}.targetKey`),
         };
       }
@@ -641,7 +643,7 @@ function parseOptionalScalar(
   entry: Readonly<Record<string, unknown>>,
   key: 'durationSeconds' | 'triggerIntervalSeconds',
   path: string,
-): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   const value = entry[key];
   if (value === undefined) return {};
   if (typeof value === 'number' && Number.isFinite(value)) return { [key]: value };
@@ -673,7 +675,7 @@ function parseOptionalPriority(
 function parseStoreAttributeSelector(
   input: unknown,
   path: string,
-): CombatBuffCatalogAttributeSelector {
+): CombatBuffDefinitionAttributeSelector {
   const selector = requireObject(input, path);
   const kind = requireNonEmptyString(selector.kind, `${path}.kind`);
   if (kind === 'specific') {
@@ -687,7 +689,10 @@ function parseStoreAttributeSelector(
   throw new Error(`${path}.kind: unknown value '${kind}'`);
 }
 
-function parseCatalogNumberOperand(input: unknown, path: string): CombatBuffCatalogNumberOperand {
+function parseDefinitionNumberOperand(
+  input: unknown,
+  path: string,
+): CombatBuffDefinitionNumberOperand {
   return typeof input === 'number' && Number.isFinite(input)
     ? input
     : parseBlackboardReference(input, path);
@@ -703,7 +708,7 @@ function parseOptionalString(
   entry: Readonly<Record<string, unknown>>,
   key: 'stackingKey',
   path: string,
-): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};
   return { [key]: requireNonEmptyString(entry[key], `${path}.${key}`) };
 }
@@ -712,7 +717,7 @@ function parseOptionalBoolean(
   entry: Readonly<Record<string, unknown>>,
   key: 'waitFirstTriggerInterval',
   path: string,
-): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};
   if (typeof entry[key] !== 'boolean') throw new Error(`${path}.${key}: expected boolean`);
   return { [key]: entry[key] };
@@ -722,7 +727,7 @@ function parseOptionalNonNegativeInteger(
   entry: Readonly<Record<string, unknown>>,
   key: 'maxStackCount',
   path: string,
-): Partial<Pick<CombatBuffCatalogEntry, typeof key>> {
+): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};
   if (!Number.isSafeInteger(entry[key]) || (entry[key] as number) < 0) {
     throw new Error(`${path}.${key}: expected non-negative safe integer`);
@@ -767,21 +772,26 @@ function requireEnum<const Values extends readonly string[]>(
 }
 
 function compileLifecycleActions<Key extends string>(
-  entry: CombatBuffCatalogEntry,
-  ports: CombatBuffCatalogCompilerPorts<Key>,
+  entry: CombatBuffDefinitionEntry,
+  ports: CombatBuffDefinitionCompilerPorts<Key>,
 ): BuffLifecycleActions<Key> | undefined {
   const actions = entry.actions;
   if (actions === undefined) return undefined;
-  const start = compileCatalogActionList(entry, 'start', actions.start, ports);
-  const trigger = compileCatalogActionList(entry, 'trigger', actions.trigger, ports);
-  const enhanceChanged = compileCatalogActionList(
+  const start = compileDefinitionActionList(entry, 'start', actions.start, ports);
+  const trigger = compileDefinitionActionList(entry, 'trigger', actions.trigger, ports);
+  const enhanceChanged = compileDefinitionActionList(
     entry,
     'enhanceChanged',
     actions.enhanceChanged,
     ports,
   );
-  const afterEnhance = compileCatalogActionList(entry, 'afterEnhance', actions.afterEnhance, ports);
-  const finish = compileCatalogActionList(entry, 'finish', actions.finish, ports);
+  const afterEnhance = compileDefinitionActionList(
+    entry,
+    'afterEnhance',
+    actions.afterEnhance,
+    ports,
+  );
+  const finish = compileDefinitionActionList(entry, 'finish', actions.finish, ports);
   if (
     start.length === 0 &&
     trigger.length === 0 &&
@@ -802,14 +812,14 @@ function compileLifecycleActions<Key extends string>(
   };
 }
 
-type CatalogActionHandler<Key extends string> = (buff: CombatBuff<Key>) => void;
+type BuffActionHandler<Key extends string> = (buff: CombatBuff<Key>) => void;
 
-function compileCatalogActionList<Key extends string>(
-  entry: CombatBuffCatalogEntry,
-  lifecycle: keyof CombatBuffCatalogLifecycleActions,
-  actions: readonly CombatBuffCatalogAction[] | undefined,
-  ports: CombatBuffCatalogCompilerPorts<Key>,
-): readonly CatalogActionHandler<Key>[] {
+function compileDefinitionActionList<Key extends string>(
+  entry: CombatBuffDefinitionEntry,
+  lifecycle: keyof CombatBuffDefinitionLifecycleActions,
+  actions: readonly CombatBuffDefinitionAction[] | undefined,
+  ports: CombatBuffDefinitionCompilerPorts<Key>,
+): readonly BuffActionHandler<Key>[] {
   return (actions ?? []).map(action => {
     switch (action.kind) {
       case 'modifyBlackboard':
@@ -862,8 +872,8 @@ function compileCatalogActionList<Key extends string>(
 
 function storeBuffAttributeValue<Key extends string>(
   buff: CombatBuff<Key>,
-  action: Extract<CombatBuffCatalogAction, { kind: 'storeAttributeValue' }>,
-  readAttribute: NonNullable<CombatBuffCatalogCompilerPorts<Key>['readAttribute']>,
+  action: Extract<CombatBuffDefinitionAction, { kind: 'storeAttributeValue' }>,
+  readAttribute: NonNullable<CombatBuffDefinitionCompilerPorts<Key>['readAttribute']>,
 ): void {
   const attributeValue = readAttribute(
     { target: action.target, attribute: action.attribute, stage: action.stage },
@@ -883,7 +893,7 @@ function storeBuffAttributeValue<Key extends string>(
 
 function modifyBuffBlackboard<Key extends string>(
   buff: CombatBuff<Key>,
-  action: Extract<CombatBuffCatalogAction, { kind: 'modifyBlackboard' }>,
+  action: Extract<CombatBuffDefinitionAction, { kind: 'modifyBlackboard' }>,
 ): void {
   const operand = resolveBuffBlackboardOperand(buff, action.value);
   if (action.operation === 'assign') {
@@ -913,8 +923,8 @@ function resolveBuffBlackboardOperand<Key extends string>(
 }
 
 function createLifecycleHandler<Key extends string>(
-  handlers: readonly CatalogActionHandler<Key>[],
-): CatalogActionHandler<Key> {
+  handlers: readonly BuffActionHandler<Key>[],
+): BuffActionHandler<Key> {
   return buff => {
     for (const handler of handlers) handler(buff);
   };
@@ -936,7 +946,7 @@ function registerUniqueRole<Key, Attribute extends string>(
   const existing = entries.get(key);
   if (existing !== undefined) {
     throw new Error(
-      `buff catalog role '${role}' is assigned to both '${existing.id}' and '${definition.id}'`,
+      `buff definition role '${role}' is assigned to both '${existing.id}' and '${definition.id}'`,
     );
   }
   entries.set(key, definition);
@@ -948,6 +958,6 @@ function requireRole<Key, Attribute extends string>(
   label: string,
 ): CombatBuffDefinition<Attribute> {
   const definition = entries.get(key);
-  if (definition === undefined) throw new Error(`buff catalog is missing ${label}`);
+  if (definition === undefined) throw new Error(`buff definition is missing ${label}`);
   return definition;
 }

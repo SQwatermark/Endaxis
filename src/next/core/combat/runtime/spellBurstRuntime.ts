@@ -2,10 +2,10 @@
  * 法术爆发的伤害执行。
  *
  * 倍率来自 SkillSetting 的"法术爆发伤害倍率"（原生 ReadSkillSettingData 语义，公式已由
- * combat-spec 复刻）：倍率 = 目录值 × 增强公式(来源附着增强属性)。之后走标准玩家伤害公式
+ * combat-spec 复刻）：倍率 = 定义值 × 增强公式(来源附着增强属性)。之后走标准玩家伤害公式
  * （防御、抗性、暴击），最后写入敌人生命账本。数据缺失时明确报错，不假装打出伤害。
  */
-import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffCatalog';
+import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffDefinitions';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
@@ -14,7 +14,7 @@ import {
   type HealthDamageSourceEvent,
   type HealthDamageTargetEvent,
 } from '../damage/healthDamage';
-import type { CompoundStatusSkillSettingSource } from '../infliction/skillSettingCatalog';
+import type { CompoundStatusSkillSettingSource } from '../infliction/skillSettings';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
@@ -25,8 +25,12 @@ export interface ExecuteSpellBurstInput {
   readonly sourceId: string;
   /** 来源攻击力（面板）。 */
   readonly attack: number;
-  /** 来源附着增强属性；面板尚未落地该属性时传 0（增强公式退化为 1）。 */
-  readonly enhance: number;
+  /**
+   * 来源附着增强属性；面板尚未落地该属性时传 `null`。
+   * `null` 只允许在爆发不需要增强公式（enhanceFormulaKey 为空）时使用，
+   * 需要增强公式的爆发必须显式失败，不能退化为无增强。
+   */
+  readonly enhance: number | null;
   readonly criticalRate: number;
   readonly criticalDamageIncrease: number;
   readonly criticalSample: number;
@@ -53,9 +57,14 @@ export interface SpellBurstResult {
 export function resolveSpellBurstEnhanceFactor(
   settings: CompoundStatusSkillSettingSource,
   enhanceFormulaKey: string,
-  enhance: number,
+  enhance: number | null,
 ): number {
   if (enhanceFormulaKey === '') return 1;
+  if (enhance === null) {
+    throw new Error(
+      `spell burst enhancement formula '${enhanceFormulaKey}' requires the source infliction-enhance attribute, which is not available`,
+    );
+  }
   const formula = settings.getEnhanceFormula(enhanceFormulaKey);
   if (formula === undefined) return 1;
   switch (formula.kind) {

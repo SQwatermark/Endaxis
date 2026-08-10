@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
-import { nextGameDataRepository } from '../../data/gameDataCatalog';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { perlica } from '../../data/operators';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 

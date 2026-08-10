@@ -143,7 +143,7 @@ describe('compile equipment contributions', () => {
     ]);
   });
 
-  it('compiles an active three-piece set at its single catalog level', () => {
+  it('compiles an active three-piece set at its single definition level', () => {
     const set: GearSetDefinition = {
       slug: 'hot-work',
       modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }],
@@ -155,7 +155,7 @@ describe('compile equipment contributions', () => {
     });
   });
 
-  it('fails when build levels cannot map one-to-one to catalog traits', () => {
+  it('fails when build levels cannot map one-to-one to definition traits', () => {
     expect(() => compileWeaponContributions(loneBarge, [1, 1], attributes)).toThrow(
       "weapon 'lone-barge' expects 3 trait levels",
     );

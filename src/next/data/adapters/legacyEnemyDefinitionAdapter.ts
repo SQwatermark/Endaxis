@@ -1,5 +1,5 @@
 /**
- * 把旧版静态敌人 sheet 单向转换为 Next 的只读敌人目录。
+ * 把旧版静态敌人 sheet 单向转换为 Next 的只读敌人定义。
  * 本适配器只读取数据文件，不经过旧版 store、聚合入口或本地化函数。
  */
 import type { EnemySheet } from '../../../data/types';

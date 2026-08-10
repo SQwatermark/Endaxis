@@ -1,6 +1,6 @@
 /**
- * 把场景轨道上的装备 Build 引用解析为按干员归属的目录贡献。
- * 本层只连接已有装备 DSL，不计算面板，也不安装运行时事件监听器。
+ * 把场景轨道上的装备 Build 引用解析为按干员归属的定义贡献。
+ * 这里只连接已有装备 DSL，不计算面板，也不安装运行时事件监听器。
  */
 import type { CompiledEquipmentContribution } from './compileEquipment';
 import {
@@ -12,7 +12,7 @@ import type { ScenarioDocument } from '../project/schema';
 import {
   resolveScenarioBuilds,
   type ResolvedScenarioBuild,
-  type ScenarioBuildCatalog,
+  type ScenarioBuildIndex,
 } from './resolveScenarioBuilds';
 
 export interface CompiledScenarioOperatorEquipment {
@@ -20,7 +20,7 @@ export interface CompiledScenarioOperatorEquipment {
   readonly contributions: readonly CompiledEquipmentContribution[];
 }
 
-/** 从已解析构筑编译武器、装备词条与三件套贡献，不再访问项目目录引用。 */
+/** 从已解析构筑编译武器、装备词条与三件套贡献，不再访问项目定义引用。 */
 export function compileResolvedScenarioEquipment(
   builds: readonly ResolvedScenarioBuild[],
 ): readonly CompiledScenarioOperatorEquipment[] {
@@ -49,7 +49,7 @@ export function compileResolvedScenarioEquipment(
 /** 按轨道顺序解析并编译上场干员的武器、装备词条与三件套贡献。 */
 export function compileScenarioEquipment(
   scenario: ScenarioDocument,
-  catalog: ScenarioBuildCatalog,
+  index: ScenarioBuildIndex,
 ): readonly CompiledScenarioOperatorEquipment[] {
-  return compileResolvedScenarioEquipment(resolveScenarioBuilds(scenario, catalog));
+  return compileResolvedScenarioEquipment(resolveScenarioBuilds(scenario, index));
 }

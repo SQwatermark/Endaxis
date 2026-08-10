@@ -9,7 +9,7 @@ import { ScenarioSimulationService } from '../../application/scenarioSimulationS
 import { useScenarioSimulation, type UseScenarioSimulationResult } from './useScenarioSimulation';
 
 const service = new ScenarioSimulationService({
-  catalog: {
+  index: {
     getOperator: (slug: string) =>
       slug === perlica.slug ? perlica : slug === zhuangFangyi.slug ? zhuangFangyi : null,
     getWeapon: () => null,

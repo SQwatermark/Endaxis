@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { parseCompoundStatusFactoryCatalog } from '../../core/combat/infliction/compoundStatusFactoryCatalog';
+import { parseCompoundStatusFactories } from '../../core/combat/infliction/compoundStatusFactories';
 import { INFLICTION_ELEMENTS } from '../../core/game-data/operatorDefinition';
-import { compoundStatusFactoryCatalog } from './compoundStatusFactoryCatalog';
+import { compoundStatusFactories } from './compoundStatusFactories';
 
-describe('compoundStatusFactoryCatalog', () => {
-  it('loads every ordered pair from the generated 1.4.4 catalog', () => {
-    expect(compoundStatusFactoryCatalog.revision).toBe('combat-1.4.4');
-    expect(compoundStatusFactoryCatalog.factories).toHaveLength(12);
+describe('compoundStatusFactories', () => {
+  it('loads every ordered pair from the generated 1.4.4 index', () => {
+    expect(compoundStatusFactories.revision).toBe('combat-1.4.4');
+    expect(compoundStatusFactories.factories).toHaveLength(12);
     expect(
       new Set(
-        compoundStatusFactoryCatalog.factories.map(
+        compoundStatusFactories.factories.map(
           factory => `${factory.consumedElement}:${factory.incomingElement}`,
         ),
       ).size,
     ).toBe(12);
     expect(
-      compoundStatusFactoryCatalog.factories.flatMap(factory => factory.skillSettingLookups),
+      compoundStatusFactories.factories.flatMap(factory => factory.skillSettingLookups),
     ).toHaveLength(39);
     expect(
-      compoundStatusFactoryCatalog.factories.filter(factory =>
+      compoundStatusFactories.factories.filter(factory =>
         factory.createdBuff.buffId.endsWith('_wrapper'),
       ),
     ).toHaveLength(3);
@@ -27,7 +27,7 @@ describe('compoundStatusFactoryCatalog', () => {
       for (const incomingElement of INFLICTION_ELEMENTS) {
         if (consumedElement === incomingElement) continue;
         expect(
-          compoundStatusFactoryCatalog.factories.some(
+          compoundStatusFactories.factories.some(
             factory =>
               factory.consumedElement === consumedElement &&
               factory.incomingElement === incomingElement,
@@ -39,7 +39,7 @@ describe('compoundStatusFactoryCatalog', () => {
 
   it('rejects schema drift instead of dropping factory fields', () => {
     expect(() =>
-      parseCompoundStatusFactoryCatalog({
+      parseCompoundStatusFactories({
         schemaVersion: 1,
         revision: 'test',
         factories: [

@@ -1,12 +1,12 @@
 /**
- * 把战斗实体身份与其属性集、主副属性元数据绑定，供 Buff catalog 的跨实体属性读取 port 使用。
+ * 把战斗实体身份与其属性集、主副属性元数据绑定，供 Buff index 的跨实体属性读取 port 使用。
  * 注册表只负责定位和阶段读取，不创建面板数据；调用方必须先完成真实养成与装备属性编译。
  */
 import { OPERATOR_ATTRIBUTES, type OperatorAttribute } from '../../game-data/operatorDefinition';
 import type {
-  CombatBuffCatalogAttributeReadRequest,
-  CombatBuffCatalogCompilerPorts,
-} from '../buffs/combatBuffCatalog';
+  CombatBuffDefinitionAttributeReadRequest,
+  CombatBuffDefinitionCompilerPorts,
+} from '../buffs/combatBuffDefinitions';
 import { ATTRIBUTE_MODIFIER_SOURCES, type CombatAttributeSet } from './combatAttributes';
 
 /** 一个可按来源身份读取的战斗实体属性上下文。 */
@@ -33,7 +33,7 @@ export class CombatAttributeEntityRegistry<Key extends string> {
   }
 
   /** 按 StoreAttributeValue 的已确认语义读取来源实体属性。 */
-  read(sourceId: string, request: CombatBuffCatalogAttributeReadRequest): number {
+  read(sourceId: string, request: CombatBuffDefinitionAttributeReadRequest): number {
     const entity = this.#entities.get(sourceId);
     if (entity === undefined) {
       throw new Error(`combat attribute source '${sourceId}' is not configured`);
@@ -46,16 +46,16 @@ export class CombatAttributeEntityRegistry<Key extends string> {
   }
 }
 
-/** 把实体属性注册表适配成 CombatBuffCatalogCompilerPorts.readAttribute。 */
-export function createCombatBuffCatalogAttributeReader<Key extends string>(
+/** 把实体属性注册表适配成 CombatBuffDefinitionCompilerPorts.readAttribute。 */
+export function createCombatBuffDefinitionAttributeReader<Key extends string>(
   registry: CombatAttributeEntityRegistry<Key>,
-): NonNullable<CombatBuffCatalogCompilerPorts<Key>['readAttribute']> {
+): NonNullable<CombatBuffDefinitionCompilerPorts<Key>['readAttribute']> {
   return (request, buff) => registry.read(buff.sourceId, request);
 }
 
 function resolveAttributeKeys<Key extends string>(
   entity: CombatAttributeEntity<Key>,
-  request: CombatBuffCatalogAttributeReadRequest,
+  request: CombatBuffDefinitionAttributeReadRequest,
 ): readonly string[] {
   switch (request.attribute.kind) {
     case 'specific':
@@ -73,7 +73,7 @@ function resolveAttributeKeys<Key extends string>(
 function readNonConvertedStage<Key extends string>(
   entity: CombatAttributeEntity<Key>,
   attribute: string,
-  stage: CombatBuffCatalogAttributeReadRequest['stage'],
+  stage: CombatBuffDefinitionAttributeReadRequest['stage'],
 ): number {
   if (!entity.attributes.has(attribute)) {
     throw new Error(`combat attribute entity '${entity.entityId}' has no attribute '${attribute}'`);

@@ -1,12 +1,21 @@
 /**
  * 把项目中的干员轨道和技能释放位置编译为战斗运行时可直接装配的程序与输入。
- * 本层只连接稳定目录身份和用户操作顺序；尚未闭环的养成修正、逐次释放编辑与武器技能必须显式失败。
+ *
+ * 每个技能释放编译成独立程序（携带 castId 与步骤 hitId），因此同干员同帧多次释放、
+ * 同技能多次放置都能在运行时区分；伤害回执会携带 castId + hitId，投影不再按帧反推。
+ * 还没做通的逐次释放编辑仍然直接报错。
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
+import type { CompiledSkillProgram, ResolvedCombatStep } from './combatProgram';
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
-import type { OperatorBuildDocument, ScenarioDocument, SkillCastDocument } from '../project/schema';
+import type {
+  CombatStepDocument,
+  OperatorBuildDocument,
+  ScenarioDocument,
+  SkillCastDocument,
+} from '../project/schema';
 import { compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
@@ -20,25 +29,14 @@ export interface CompiledScenarioTimeline {
   readonly inputs: readonly ScheduledSkillInput[];
 }
 
-type OperatorCatalog = Pick<GameDataRepository, 'getOperator'>;
+type OperatorIndex = Pick<GameDataRepository, 'getOperator'>;
 
-function requireOperator(
-  build: OperatorBuildDocument,
-  catalog: OperatorCatalog,
-): OperatorDefinition {
-  const operator = catalog.getOperator(build.operatorSlug);
+function requireOperator(build: OperatorBuildDocument, index: OperatorIndex): OperatorDefinition {
+  const operator = index.getOperator(build.operatorSlug);
   if (operator === null) {
     throw new Error(`operator definition '${build.operatorSlug}' does not exist`);
   }
   return operator;
-}
-
-function assertOperatorEventsAreNotActive(operator: OperatorDefinition): void {
-  if (operator.eventHandlers?.length) {
-    throw new Error(
-      `operator '${operator.slug}' has event handlers, but operator event compilation is not connected`,
-    );
-  }
 }
 
 function requireSkillLevel(build: OperatorBuildDocument, levelSource: string): number {
@@ -57,11 +55,77 @@ function assertSkillCanCompile(operator: OperatorDefinition, skill: SkillDefinit
   }
 }
 
-function compileOperatorPrograms(
+/** 文档步骤转运行时步骤；`hitId` 与定义步骤键一起随回执传递。 */
+function projectDocumentStep(step: CombatStepDocument): ResolvedCombatStep {
+  const base = {
+    kind: step.kind,
+    parameters: step.parameters,
+    ...(step.sourceStepKey === undefined ? {} : { key: step.sourceStepKey }),
+    ...(step.kind === 'dealDamage' || step.kind === 'dealFixedDamage' ? { hitId: step.hitId } : {}),
+  };
+  if (step.kind === 'conditional') {
+    return {
+      ...base,
+      kind: step.kind,
+      parameters: step.parameters,
+      whenTrue: { steps: step.whenTrue.steps.map(projectDocumentStep) },
+      ...(step.whenFalse === undefined
+        ? {}
+        : { whenFalse: { steps: step.whenFalse.steps.map(projectDocumentStep) } }),
+    } as ResolvedCombatStep;
+  }
+  if (step.kind === 'once') {
+    return {
+      ...base,
+      kind: step.kind,
+      parameters: step.parameters,
+      body: { steps: step.body.steps.map(projectDocumentStep) },
+    } as ResolvedCombatStep;
+  }
+  return base as ResolvedCombatStep;
+}
+
+/** 从技能释放文档编译一个独立程序；定义默认值、等级与养成补丁仍以定义为准。 */
+function compileCastSkillProgram(
   build: OperatorBuildDocument,
   operator: OperatorDefinition,
-): CombatOperatorProgram {
-  assertOperatorEventsAreNotActive(operator);
+  skill: SkillDefinition,
+  skillLevel: number,
+  cast: SkillCastDocument,
+): CompiledSkillProgram {
+  const source = cast.source;
+  if (source.kind !== 'operatorSkill') {
+    throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
+  }
+  const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
+  if (group === undefined) {
+    throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
+  }
+  const base = compileSkill({
+    operatorId: build.id,
+    skillGroupKey: group.key,
+    skillType: group.skillType,
+    skillLevel,
+    skill,
+  });
+  return {
+    ...base,
+    castId: cast.id,
+    timelineActions: cast.editable.scheduledSequences.map(scheduled => ({
+      startFrame: scheduled.startFrame,
+      sequence: { steps: scheduled.sequence.steps.map(projectDocumentStep) },
+    })),
+  };
+}
+
+/**
+ * 编译干员定义中的全部技能（已应用养成补丁，不带 castId）。
+ * 资源规则等与放置无关的解析使用这份名单；放置程序由 `compileCastSkillProgram` 单独产生。
+ */
+export function compileOperatorDefinitionSkills(
+  build: OperatorBuildDocument,
+  operator: OperatorDefinition,
+): readonly CompiledSkillProgram[] {
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
     const definitions = Array.isArray(group.skills) ? group.skills : [group.skills];
@@ -76,30 +140,17 @@ function compileOperatorPrograms(
       });
     });
   });
-  const patchedSkills = applyOperatorUpgradeSkillPatches(
-    skills,
-    resolveActiveOperatorUpgrades(build, operator),
-  );
-  const duplicateSkillId = patchedSkills.find(
-    (skill, index) =>
-      patchedSkills.findIndex(candidate => candidate.skillId === skill.skillId) !== index,
-  );
-  if (duplicateSkillId !== undefined) {
-    throw new Error(
-      `operator '${operator.slug}' has duplicate runtime skill id '${duplicateSkillId.skillId}'`,
-    );
-  }
-  return { operatorId: build.id, skills: patchedSkills };
+  return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator));
 }
 
-function assertCastUsesCatalogDefaults(cast: SkillCastDocument): void {
+function assertCastUsesDefinitionDefaults(cast: SkillCastDocument): void {
   const hasNestedEdits = cast.editable.scheduledSequences.some(
     scheduled =>
       scheduled.edited.length > 0 || scheduled.sequence.steps.some(step => step.edited.length > 0),
   );
   if (cast.edited.length > 0 || hasNestedEdits) {
     throw new Error(
-      `skill cast '${cast.id}' contains user overrides, but per-cast program compilation is not connected`,
+      `skill cast '${cast.id}' contains user overrides, but per-cast overrides are not supported yet`,
     );
   }
 }
@@ -137,19 +188,39 @@ function compileResolvedTimelineTracks(
   let order = 0;
 
   for (const { track, operatorBuild, operator } of tracks) {
-    operators.push(compileOperatorPrograms(operatorBuild, operator));
+    const skills: CompiledSkillProgram[] = [];
     for (const cast of track.skillCasts) {
       if (cast.editable.disabled) continue;
-      assertCastUsesCatalogDefaults(cast);
+      assertCastUsesDefinitionDefaults(cast);
       const skill = requireCastSkill(cast, operator);
+      assertSkillCanCompile(operator, skill);
+      const source = cast.source;
+      if (source.kind !== 'operatorSkill') {
+        throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
+      }
+      const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
+      if (group === undefined) {
+        throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
+      }
+      const level = requireSkillLevel(operatorBuild, group.levelSource);
+      skills.push(compileCastSkillProgram(operatorBuild, operator, skill, level, cast));
       pendingInputs.push({
         frame: cast.placement.startFrame,
         operatorId: operatorBuild.id,
         skillId: skill.key,
+        castId: cast.id,
         order,
       });
       order += 1;
     }
+    // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
+    operators.push({
+      operatorId: operatorBuild.id,
+      skills: applyOperatorUpgradeSkillPatches(
+        skills,
+        resolveActiveOperatorUpgrades(operatorBuild, operator),
+      ),
+    });
   }
 
   pendingInputs.sort((left, right) => left.frame - right.frame || left.order - right.order);
@@ -159,11 +230,16 @@ function compileResolvedTimelineTracks(
   };
 }
 
-/** 使用 Build Resolver 的共享结果编译技能程序和时间轴输入。 */
+/** 使用 Build Resolver 的共享结果编译每个技能释放的程序和时间轴输入。 */
 export function compileResolvedScenarioTimeline(
   builds: readonly ResolvedScenarioBuild[],
 ): CompiledScenarioTimeline {
-  return compileResolvedTimelineTracks(builds);
+  const tracks = builds.map(build => ({
+    track: build.track,
+    operatorBuild: build.operatorBuild,
+    operator: build.operator,
+  }));
+  return compileResolvedTimelineTracks(tracks);
 }
 
 /**
@@ -172,7 +248,7 @@ export function compileResolvedScenarioTimeline(
  */
 export function compileScenarioTimeline(
   scenario: ScenarioDocument,
-  catalog: OperatorCatalog,
+  index: OperatorIndex,
 ): CompiledScenarioTimeline {
   const tracks: ResolvedTimelineTrack[] = [];
   const seenOperatorIds = new Set<string>();
@@ -193,7 +269,7 @@ export function compileScenarioTimeline(
       throw new Error(`operator build '${build.id}' is assigned to multiple tracks`);
     }
     seenOperatorIds.add(build.id);
-    const operator = requireOperator(build, catalog);
+    const operator = requireOperator(build, index);
     tracks.push({ track, operatorBuild: build, operator });
   });
   return compileResolvedTimelineTracks(tracks);

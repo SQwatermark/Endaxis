@@ -74,7 +74,7 @@ export function swapTimelineTracks(
 }
 
 /**
- * 修改单条轨道的初始终结技能量。上限来自目录投影或显式项目覆盖，命令只负责维护用户输入；
+ * 修改单条轨道的初始终结技能量。上限来自定义推导或显式项目覆盖，命令只负责维护用户输入；
  * 空轨道和非有限上限表示调用边界错误，不能静默创建不完整轨道。
  */
 export function updateTrackInitialUltimateEnergy(
@@ -111,7 +111,7 @@ export type BooleanEditableSkillCastField = 'locked' | 'disabled';
 export type TrackGearSlot = keyof TrackDocument['gearBuildIds'];
 
 /**
- * 更换轨道使用的干员养成方案。已有技能块依赖旧干员目录身份，因此切换或移除干员时一并清理。
+ * 更换轨道使用的干员养成方案。已有技能块依赖旧干员定义身份，因此切换或移除干员时一并清理。
  * 调用方负责提供初始养成值；命令层只维护项目引用、孤立方案和连线的一致性。
  */
 export function setTrackOperator(
@@ -182,7 +182,7 @@ export function setTrackOperator(
 }
 
 /**
- * 更换轨道武器方案，并清理已经没有轨道引用的旧方案。武器兼容性由目录校验和选择器负责，
+ * 更换轨道武器方案，并清理已经没有轨道引用的旧方案。武器兼容性由定义校验和选择器负责，
  * 命令层只维护项目引用一致性；空轨道不能单独装备武器。
  */
 export function setTrackWeapon(
@@ -218,7 +218,7 @@ export function setTrackWeapon(
 
 /**
  * 更换轨道单个装备槽的方案，并清理已经没有槽位引用的旧方案。槽位与装备类型的匹配
- * 由目录校验和选择器负责；命令层只维护文档引用与方案生命周期。
+ * 由定义校验和选择器负责；命令层只维护文档引用与方案生命周期。
  */
 export function setTrackGear(
   scenario: ScenarioDocument,

@@ -1,6 +1,6 @@
 /**
- * 新版持久化模型的唯一事实来源。这里定义的是用户拥有的稳定输入，
- * 调用方不得把面板、编译产物、运行时状态、诊断或翻译文本写入这些结构。
+ * 项目存档的唯一数据定义。这里只放用户自己决定的内容（等级、放置、覆盖值）；
+ * 编译出来的面板、模拟状态、诊断结果一律不允许写进来。
  */
 import type {
   CombatStepKind,
@@ -10,7 +10,7 @@ import type {
 } from '../game-data/operatorDefinition';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
-export const PROJECT_SCHEMA_VERSION = 2 as const;
+export const PROJECT_SCHEMA_VERSION = 3 as const;
 export const PROJECT_FPS = 30 as const;
 
 /** 项目 JSON 允许直接保存的原始值。 */
@@ -35,7 +35,7 @@ export interface OperatorBuildDocument {
   baseStatOverrides?: Record<string, number>;
 }
 
-/** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器目录定义决定。 */
+/** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器定义决定。 */
 export interface WeaponBuildDocument {
   id: string;
   /** 引用当前游戏数据版本中的 `WeaponDefinition.slug`。 */
@@ -46,7 +46,7 @@ export interface WeaponBuildDocument {
   traitLevels: number[];
 }
 
-/** 一件装备的目录身份与精锻等级配置。 */
+/** 一件装备的定义身份与精锻等级配置。 */
 export interface GearBuildDocument {
   id: string;
   /** 引用当前游戏数据版本中的 `GearDefinition.slug`。 */
@@ -61,8 +61,8 @@ export interface ScenarioBuildsDocument {
   gears: Record<string, GearBuildDocument>;
 }
 
-/** 可从版本化游戏目录恢复身份和默认行为的技能来源。 */
-export type CatalogActionSource =
+/** 可从版本化游戏数据恢复身份和默认行为的技能来源。 */
+export type DefinitionActionSource =
   | {
       kind: 'operatorSkill';
       skillGroupKey: string;
@@ -73,7 +73,7 @@ export type CatalogActionSource =
       skillKey: string;
     };
 
-/** 完全由用户定义、无法从游戏目录恢复的时间轴行为。 */
+/** 完全由用户定义、无法从游戏数据恢复的时间轴行为。 */
 export interface CustomActionDefinition {
   kind: 'custom';
   /** 用户定义的身份标识，刻意保持开放而不限制为枚举。 */
@@ -83,8 +83,8 @@ export interface CustomActionDefinition {
   iconKey?: string;
 }
 
-/** 时间轴技能释放所引用的目录或自定义行为来源。 */
-export type SkillCastSource = CatalogActionSource | CustomActionDefinition;
+/** 时间轴技能释放所引用的定义或自定义行为来源。 */
+export type SkillCastSource = DefinitionActionSource | CustomActionDefinition;
 
 export const EDITABLE_SKILL_CAST_FIELDS = [
   'durationFrames',
@@ -101,13 +101,13 @@ export const EDITABLE_SKILL_CAST_FIELDS = [
   'scheduledSequences',
   'customBars',
 ] as const;
-/** 技能释放中允许由用户接管默认值的字段。 */
+/** 技能释放中允许用户覆盖默认值的字段。 */
 export type EditableSkillCastField = (typeof EDITABLE_SKILL_CAST_FIELDS)[number];
 
 type CombatStepDocumentForKind<K extends CombatStepKind> = {
   kind: K;
   parameters: CombatStepParameters[K];
-  /** 仅对支持定点覆盖的定义步骤保留目录键。 */
+  /** 仅对支持定点覆盖的定义步骤保留定义键。 */
   sourceStepKey?: string;
   /** 用户显式修改过的参数键。 */
   edited: Extract<keyof CombatStepParameters[K], string>[];
@@ -154,8 +154,8 @@ export type EnhancementDocument =
   { kind: 'duration'; frames: number } | { kind: 'status'; statusId: string };
 
 /**
- * 编辑器暴露的完整取值。即使数值仍等于目录默认值也会持久化，
- * `edited` 则记录该值是否已由用户接管。
+ * 编辑器暴露的完整取值。即使数值仍等于定义默认值也会持久化，
+ * `edited` 只标记哪些值被用户手动改过。
  */
 export interface EditableActionValues {
   durationFrames: number;
@@ -239,7 +239,7 @@ export interface ConnectionDocument {
   to: ConnectionEndpoint;
 }
 
-/** 敌人失衡规则的项目值；目录时间在创建实例时已经转换为项目帧。 */
+/** 敌人失衡规则的项目值；定义中的秒数在创建实例时已经转换为项目帧。 */
 export interface EnemyStaggerEditableValues {
   maximum: number;
   nodeCount: number;
@@ -270,12 +270,12 @@ export const ENEMY_EDITABLE_FIELDS = [
   'stagger.brokenDurationFrames',
   'stagger.finisherRecovery',
 ] as const;
-/** 用户可以接管的敌人默认值路径。 */
+/** 用户可以覆盖的敌人默认值路径。 */
 export type EnemyEditableField = (typeof ENEMY_EDITABLE_FIELDS)[number];
 
-/** 场景中的目录敌人或自定义敌人配置。 */
+/** 场景中的敌人：来自定义（prefab）的实例，或自定义敌人配置。 */
 export interface EnemyDocument {
-  source: { kind: 'catalog'; enemyId: string; level: number } | { kind: 'custom'; level: number };
+  source: { kind: 'prefab'; enemyId: string; level: number } | { kind: 'custom'; level: number };
   editable: EnemyEditableValues;
   /** `editable` 中被用户改离已捕获默认值的键。 */
   edited: EnemyEditableField[];
@@ -350,7 +350,7 @@ export interface GlobalConfigDocument {
 /** 场景机制参数允许持久化的标量类型。 */
 export type MechanicParameterValue = boolean | number | string;
 
-/** 用户选择的一项目录机制及其显式参数。 */
+/** 用户选择的一项定义机制及其显式参数。 */
 export interface MechanicSelectionDocument {
   id: string;
   mechanicId: string;

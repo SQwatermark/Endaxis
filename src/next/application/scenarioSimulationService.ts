@@ -7,16 +7,16 @@
  */
 import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CombatOperationExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
-import type { CombatBuffCatalogDocument } from '../core/combat/buffs/combatBuffCatalog';
-import type { SkillSettingCatalogDocument } from '../core/combat/infliction/skillSettingCatalog';
+import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
+import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
-import type { ScenarioBuildCatalog } from '../core/compiler/resolveScenarioBuilds';
+import type { ScenarioBuildIndex } from '../core/compiler/resolveScenarioBuilds';
 import type { ScenarioDocument } from '../core/project/schema';
-import { elementalAttachmentCatalog } from '../data/buffs/elementalAttachmentCatalog';
+import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import {
   projectEnemyHealthCurveFromReceipt,
   type EnemyHealthCurve,
@@ -48,19 +48,19 @@ export function createDefaultCriticalSampleSource(): CriticalSampleSource {
 }
 
 export interface ScenarioSimulationServiceOptions {
-  readonly catalog: ScenarioBuildCatalog;
+  readonly index: ScenarioBuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   /** 缓存键的一部分：游戏数据变了要改这个值，不然会拿到旧数据算出来的结果。 */
-  readonly catalogRevision?: string;
+  readonly repositoryRevision?: string;
   readonly criticalSamples?: CriticalSampleSource;
   readonly resolveNonRandomRuntimeSnapshot?: (
     context: CombatOperationExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
-  /** 元素附着目录；默认使用当前游戏数据版本已审核的附着目录。 */
-  readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
+  /** 元素附着定义集；默认使用当前游戏数据版本已审核的附着定义。 */
+  readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
-  readonly spellInflictionSettings?: SkillSettingCatalogDocument;
+  readonly spellInflictionSettings?: SkillSettingsDocument;
 }
 
 export interface ScenarioSimulationRun extends StandardPlayerDamageScenarioResult {
@@ -114,9 +114,9 @@ function buildScenarioRevision(scenario: ScenarioDocument): string {
  */
 export class ScenarioSimulationService {
   readonly #options: ScenarioSimulationServiceOptions & {
-    readonly elementalInflictionDocument: CombatBuffCatalogDocument;
+    readonly elementalInflictionDocument: CombatBuffDefinitionsDocument;
   };
-  readonly #catalogRevision: string;
+  readonly #repositoryRevision: string;
   readonly #cache = new Map<string, MutableCacheEntry>();
   readonly #cacheLimit: number;
 
@@ -129,10 +129,9 @@ export class ScenarioSimulationService {
       criticalSamples: options.criticalSamples ?? createDefaultCriticalSampleSource(),
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
-      elementalInflictionDocument:
-        options.elementalInflictionDocument ?? elementalAttachmentCatalog,
+      elementalInflictionDocument: options.elementalInflictionDocument ?? elementalAttachments,
     };
-    this.#catalogRevision = options.catalogRevision ?? 'catalog';
+    this.#repositoryRevision = options.repositoryRevision ?? 'definitions';
     this.#cacheLimit = cacheLimit;
   }
 
@@ -161,7 +160,7 @@ export class ScenarioSimulationService {
         ? {}
         : { spellInflictionSettings: this.#options.spellInflictionSettings }),
       options: {
-        catalog: this.#options.catalog,
+        index: this.#options.index,
         resources: this.#options.resources,
       },
     });
@@ -209,6 +208,6 @@ export class ScenarioSimulationService {
   }
 
   #cacheKey(scenario: ScenarioDocument, endFrame: number): string {
-    return `${this.#catalogRevision}\u0000${buildScenarioRevision(scenario)}\u0000${endFrame}`;
+    return `${this.#repositoryRevision}\u0000${buildScenarioRevision(scenario)}\u0000${endFrame}`;
   }
 }

@@ -60,7 +60,7 @@ export interface SkillPaymentResult {
   readonly changes: readonly SkillPaymentChange[];
 }
 
-/** 技能支付直接产生的资源变化；运行时据此记录事实，不再次读取或计算账本。 */
+/** 技能支付直接产生的资源变化；运行时凭它记录事实，不再次读取或计算账本。 */
 export type SkillPaymentChange =
   | {
       readonly resource: 'sp';

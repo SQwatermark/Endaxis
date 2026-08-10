@@ -31,7 +31,7 @@ function createPerlicaScenario() {
 }
 
 describe('placeSkillGroup', () => {
-  it('places the generated basic-attack chain with catalog defaults', () => {
+  it('places the generated basic-attack chain with definition defaults', () => {
     const original = createPerlicaScenario();
     const result = placeSkillGroup({
       scenario: original,
@@ -103,7 +103,7 @@ describe('placeSkillGroup', () => {
     expect(casts[0]!.placementGroup).toBeUndefined();
   });
 
-  it('rejects a catalog definition that does not match the track build', () => {
+  it('rejects a definition that does not match the track build', () => {
     const scenario = createPerlicaScenario();
     scenario.builds.operators.perlica!.operatorSlug = 'another';
 

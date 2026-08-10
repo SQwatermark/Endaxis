@@ -1,6 +1,6 @@
 /**
- * 将敌人目录默认值转换为项目实例，并提供不可变的敌人覆盖命令。
- * 目录切换会重新捕获完整默认值；单项编辑只记录用户接管的字段，不修改目录定义。
+ * 将敌人预制体默认值转换为项目实例，并提供不可变的敌人覆盖命令。
+ * 切换定义会重新捕获完整默认值；单项编辑只记录用户接管的字段，不修改定义。
  */
 import { getEnemyHpAtLevel, type EnemyDefinition } from '../../core/game-data/enemyDefinition';
 import type {
@@ -26,8 +26,8 @@ function secondsToFrames(seconds: number, fps: number): number {
   return Math.round(seconds * fps);
 }
 
-/** 从目录的明确等级节点创建一个没有用户覆盖的敌人实例。 */
-export function createCatalogEnemyDocument(
+/** 从敌人预制体的明确等级节点创建一个没有用户覆盖的敌人实例。 */
+export function createDefinitionEnemyDocument(
   definition: EnemyDefinition,
   level: number,
   fps: number,
@@ -37,7 +37,7 @@ export function createCatalogEnemyDocument(
     throw new Error(`enemy '${definition.id}' has no HP value at level ${level}`);
   }
   return {
-    source: { kind: 'catalog', enemyId: definition.id, level },
+    source: { kind: 'prefab', enemyId: definition.id, level },
     editable: {
       hp,
       defense: definition.defense,
@@ -64,7 +64,7 @@ export function setScenarioEnemy(
   return { ...scenario, enemy };
 }
 
-/** 创建一个带明确项目默认值的自定义敌人；这些值本来就由用户决定，因此不标记为目录覆盖。 */
+/** 创建一个带明确项目默认值的自定义敌人；这些值本来就由用户决定，因此不标记为预制体覆盖。 */
 export function createCustomEnemyDocument(level = 90): EnemyDocument {
   if (!Number.isInteger(level) || level <= 0) throw new Error('enemy level must be positive');
   return {

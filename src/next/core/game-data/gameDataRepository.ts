@@ -10,10 +10,10 @@ export const MECHANIC_FAMILIES = ['stage', 'contingencyContract', 'seasonTower',
 /** 决定一项场景机制由哪类 Adapter 解释。 */
 export type MechanicFamily = (typeof MECHANIC_FAMILIES)[number];
 
-/** 机制目录当前允许暴露给项目编辑器的参数类型。 */
+/** 机制定义当前允许暴露给项目编辑器的参数类型。 */
 export type MechanicParameterType = 'boolean' | 'number' | 'string';
 
-/** 一项机制参数的目录契约；项目值必须先按此定义校验。 */
+/** 一项机制参数的定义契约；项目值必须先按此定义校验。 */
 export interface MechanicParameterDefinition {
   key: string;
   type: MechanicParameterType;
@@ -21,7 +21,7 @@ export interface MechanicParameterDefinition {
   defaultValue?: boolean | number | string;
 }
 
-/** 这里只保存目录元数据；可执行行为由机制适配器编译。 */
+/** 这里只保存定义元数据；可执行行为由机制适配器编译。 */
 export interface MechanicDefinitionRef {
   id: string;
   family: MechanicFamily;
@@ -31,7 +31,7 @@ export interface MechanicDefinitionRef {
 
 /** 新核心使用的只读游戏数据边界。 */
 export interface GameDataRepository {
-  /** 当前整套目录内容的稳定身份；项目加载层据此判断是否需要迁移或拒绝打开。 */
+  /** 当前整套游戏数据内容的版本标记；项目加载层凭它判断要不要迁移或拒绝打开。 */
   readonly revision: string;
   getOperator(slug: string): OperatorDefinition | null;
   getWeapon(slug: string): WeaponDefinition | null;
@@ -41,7 +41,7 @@ export interface GameDataRepository {
   getMechanic(id: string): MechanicDefinitionRef | null;
 }
 
-/** 编辑器选择器在只读查询端口之外需要的目录枚举能力。编译器仅依赖 `GameDataRepository`。 */
+/** 编辑器选择器在只读查询端口之外需要的定义枚举能力。编译器仅依赖 `GameDataRepository`。 */
 export interface GameDataBrowser {
   getOperators(): readonly OperatorDefinition[];
   getWeapons(): readonly WeaponDefinition[];

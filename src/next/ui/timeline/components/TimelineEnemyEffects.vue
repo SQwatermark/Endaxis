@@ -35,8 +35,8 @@ const ELEMENT_ICONS: Readonly<Record<string, string>> = {
 const BURST_ICONS: Readonly<Record<string, string>> = {
   Fire: '/icons/icon_burst_fusion_fire.webp',
   Pulse: '/icons/icon_burst_fusion_pulse.webp',
-  Nature: '/icons/icon_burst_fusion_nature.webp',
-  Cryst: '/icons/icon_element_cryo.webp',
+  Natural: '/icons/icon_burst_fusion_nature.webp',
+  Cryst: '/icons/icon_burst_fusion_cryst.webp',
 };
 
 const REACTION_ICONS: Readonly<Record<string, string>> = {

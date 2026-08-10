@@ -50,7 +50,7 @@ export interface BuffOperationTarget {
   ): number;
 }
 
-/** 目录身份与本次施加覆盖值已经分离求值后的运行时请求。 */
+/** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
   readonly buffId: string;
   readonly sourceId: string;
@@ -77,7 +77,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
     if (step.kind === 'applyBuff') {
-      // 旧手写配置仍由原执行器解释；目录路径只接收原生身份和施加黑板覆盖值。
+      // 旧手写配置仍由原执行器解释；定义路径只接收原生身份和施加黑板覆盖值。
       if (
         step.parameters.durationSeconds !== undefined ||
         step.parameters.effectiveness !== undefined

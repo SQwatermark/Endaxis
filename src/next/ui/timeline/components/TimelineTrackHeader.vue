@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Next 时间轴单轨固定头部，只展示目录身份和稳定配装槽位。
+ * Next 时间轴单轨固定头部，只展示定义身份和稳定配装槽位。
  * 选择、排序和编辑动作由父层 command 处理，本组件不修改项目对象。
  */
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';

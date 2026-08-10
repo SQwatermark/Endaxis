@@ -22,6 +22,8 @@ type ReactionStep = Extract<
 /** 反应步骤执行所需的端口。 */
 export interface ElementalReactionOperationDependencies {
   readonly sourceOperatorId: string;
+  /** 存档中的技能释放身份；反应回执凭它与具体施放对应。单元测试程序可能缺失。 */
+  readonly castId?: string;
   readonly targetId: string;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
@@ -81,6 +83,7 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
       targetId: this.dependencies.targetId,
       data: {
         reaction: result.reaction,
+        ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         previousLevel: result.previousLevel,
         level: result.level,
         durationSeconds: result.durationSeconds,
@@ -102,8 +105,10 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
       targetId: this.dependencies.targetId,
       data: {
         reaction: step.parameters.reaction,
+        ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         level: consumed === null ? 0 : consumed.consumedLevel,
-        consumed: true,
+        // 敌人身上没有该反应时如实记录，不伪造一次消费。
+        consumed: consumed !== null,
       },
     });
   }

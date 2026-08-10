@@ -1,16 +1,16 @@
 /**
  * 外部生成的复合状态配方进入核心的严格 schema 边界。
- * 解析完成的目录才可交给工厂；未知字段和不完整映射不能被忽略。
+ * 解析完成的定义才可交给工厂；未知字段和不完整映射不能被忽略。
  */
 import { INFLICTION_ELEMENTS, type InflictionElement } from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 
-export const COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION = 1;
+export const COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION = 1;
 
-/** 复合状态目录能够直接保存或从黑板读取的标量。 */
+/** 复合状态定义能够直接保存或从黑板读取的标量。 */
 export type CompoundStatusFactoryScalar = number | { readonly blackboardKey: string };
 
-/** 从 SkillSetting 目录读取一个已确认数值的引用。 */
+/** 从 SkillSetting 定义读取一个已确认数值的引用。 */
 export interface CompoundStatusSkillSettingLookup {
   readonly dataKey: string;
   readonly column: CompoundStatusFactoryScalar;
@@ -38,21 +38,19 @@ export interface CompoundStatusFactoryEntry {
   };
 }
 
-/** 生成的复合状态工厂目录顶层版本化文档。 */
-export interface CompoundStatusFactoryCatalogDocument {
-  readonly schemaVersion: typeof COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION;
+/** 生成的复合状态工厂定义顶层版本化文档。 */
+export interface CompoundStatusFactoriesDocument {
+  readonly schemaVersion: typeof COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION;
   readonly revision: string;
   readonly factories: readonly CompoundStatusFactoryEntry[];
 }
 
 /** 生成复合状态配方进入核心前的严格边界。 */
-export function parseCompoundStatusFactoryCatalog(
-  input: unknown,
-): CompoundStatusFactoryCatalogDocument {
+export function parseCompoundStatusFactories(input: unknown): CompoundStatusFactoriesDocument {
   const root = requireObject(input, '$');
   requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'factories']);
-  if (root.schemaVersion !== COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION) {
-    throw new Error(`$.schemaVersion: expected ${COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION}`);
+  if (root.schemaVersion !== COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION) {
+    throw new Error(`$.schemaVersion: expected ${COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION}`);
   }
   if (!Array.isArray(root.factories)) throw new Error('$.factories: expected array');
 
@@ -61,7 +59,7 @@ export function parseCompoundStatusFactoryCatalog(
   );
   validateUniqueFactories(factories);
   return {
-    schemaVersion: COMPOUND_STATUS_FACTORY_CATALOG_SCHEMA_VERSION,
+    schemaVersion: COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION,
     revision: requireNonEmptyString(root.revision, '$.revision'),
     factories,
   };

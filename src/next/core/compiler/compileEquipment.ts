@@ -1,6 +1,6 @@
 /**
  * 武器词条、装备词条与套装贡献进入面板/战斗装配层前的编译边界。
- * 本层只解析等级值并保留来源，不负责计算面板，也不把贡献安装进可变战斗状态。
+ * 这里只解析等级值并保留来源，不负责计算面板，也不把贡献装进可变战斗状态。
  */
 import type {
   EquipmentContributionDefinition,
@@ -21,7 +21,7 @@ import type {
 import type { ResolvedActionSequence } from './combatProgram';
 import { compileActionSequence } from './compileSkill';
 
-/** 一项编译结果来自哪件目录对象及其中哪条能力。 */
+/** 一项编译结果来自哪件定义对象及其中哪条能力。 */
 export type EquipmentContributionSource =
   | { readonly kind: 'weaponTrait'; readonly slug: string; readonly traitKey: string }
   | { readonly kind: 'gearTrait'; readonly slug: string; readonly traitKey: string }
@@ -55,7 +55,7 @@ export interface CompiledEquipmentEventHandler {
   readonly sequence: ResolvedActionSequence;
 }
 
-/** 单个目录能力的解析结果；来源身份供面板明细、诊断和卸载使用。 */
+/** 单个定义能力的解析结果；来源身份供面板明细、诊断和卸载使用。 */
 export interface CompiledEquipmentContribution {
   readonly source: EquipmentContributionSource;
   readonly selectedLevel: number;

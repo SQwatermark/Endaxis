@@ -5,9 +5,9 @@ import {
   sharedGearDefinitions,
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
-} from './sharedEquipmentCatalog';
+} from './sharedEquipmentDefinitions';
 
-describe('sharedEquipmentCatalog', () => {
+describe('sharedEquipmentDefinitions', () => {
   it('loads real shared directories and keeps deterministic stable identities', () => {
     expect(sharedWeaponDefinitions.some(definition => definition.slug === 'tarr-11')).toBe(true);
     expect(

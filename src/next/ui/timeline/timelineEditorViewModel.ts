@@ -1,18 +1,18 @@
 /**
- * 将新版存档和只读干员目录投影为时间轴 UI 的稳定读取模型。
+ * 将新版存档和只读干员定义投影为时间轴 UI 的稳定读取模型。
  * 这里不保存编辑状态、不翻译文本，也不调用战斗模拟；组件只能把身份交给 i18n 和命令层处理。
  */
 import type { OperatorDefinition, SkillType } from '../../core/game-data/operatorDefinition';
 import type {
-  CatalogActionSource,
+  DefinitionActionSource,
   ScenarioDocument,
   SkillCastDocument,
   TrackIndex,
 } from '../../core/project/schema';
 import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
 
-/** UI 投影读取干员目录的最小端口。 */
-export interface TimelineOperatorCatalog {
+/** UI 投影读取干员定义的最小端口。 */
+export interface TimelineOperatorIndex {
   getOperator(slug: string): OperatorDefinition | null;
 }
 
@@ -24,7 +24,7 @@ export interface TimelineSkillLibraryEntryViewModel {
   readonly skills: readonly {
     readonly skillKey: string;
     readonly timelineBlockFrames: number;
-    readonly source: Extract<CatalogActionSource, { kind: 'operatorSkill' }>;
+    readonly source: Extract<DefinitionActionSource, { kind: 'operatorSkill' }>;
   }[];
 }
 
@@ -40,7 +40,7 @@ export interface TimelineSkillCastViewModel {
   readonly color?: string | null;
 }
 
-/** 一条轨道在编辑器中需要的目录身份、技能库和已放置动作。 */
+/** 一条轨道在编辑器中需要的定义身份、技能库和已放置动作。 */
 export interface TimelineTrackViewModel {
   readonly trackIndex: TrackIndex;
   readonly operatorBuildId: string | null;
@@ -54,7 +54,7 @@ export interface TimelineTrackViewModel {
 }
 
 /**
- * 从终结技定义中解析能量上限。原生资源上限与终结技消耗一致；若目录缺失或出现多个不同
+ * 从终结技定义中解析能量上限。原生资源上限与终结技消耗一致；若定义缺失或出现多个不同
  * 消耗值，则保持未知并交给后续资源规则解析器处理，UI 不自行猜测。
  */
 export function resolveOperatorMaxUltimateEnergy(
@@ -113,7 +113,7 @@ function projectSkillCast(
 function projectTrack(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
-  catalog: TimelineOperatorCatalog,
+  index: TimelineOperatorIndex,
 ): TimelineTrackViewModel {
   const track = scenario.tracks[trackIndex];
   if (track === null) {
@@ -138,7 +138,7 @@ function projectTrack(
   if (track.operatorBuildId !== null && operatorBuild === null) {
     issues.push(`missing operator build '${track.operatorBuildId}'`);
   }
-  const operator = operatorBuild === null ? null : catalog.getOperator(operatorBuild.operatorSlug);
+  const operator = operatorBuild === null ? null : index.getOperator(operatorBuild.operatorSlug);
   if (operatorBuild !== null && operator === null) {
     issues.push(`missing operator definition '${operatorBuild.operatorSlug}'`);
   }
@@ -184,13 +184,13 @@ function projectTrack(
 /** 从一个场景生成不含任何可变引用的时间轴页面模型。 */
 export function projectTimelineEditor(
   scenario: ScenarioDocument,
-  catalog: TimelineOperatorCatalog,
+  index: TimelineOperatorIndex,
 ): TimelineEditorViewModel {
   return {
     scenarioId: scenario.id,
     scenarioName: scenario.name,
     prepFrames: scenario.battle.prepFrames,
     durationFrames: scenario.battle.durationFrames,
-    tracks: ([0, 1, 2, 3] as const).map(trackIndex => projectTrack(scenario, trackIndex, catalog)),
+    tracks: ([0, 1, 2, 3] as const).map(trackIndex => projectTrack(scenario, trackIndex, index)),
   };
 }

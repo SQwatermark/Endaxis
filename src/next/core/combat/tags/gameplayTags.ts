@@ -33,7 +33,7 @@ export function gameplayTagIdFromPath(path: string): GameplayTagId {
 }
 
 /**
- * 标签路径目录。非精确查询依赖它展开父路径；只持有裸 ID 时只能进行精确匹配。
+ * 标签路径层级。非精确查询依赖它展开父路径；只持有裸 ID 时只能精确匹配。
  */
 export class GameplayTagRegistry {
   readonly #ancestors = new Map<GameplayTagId, ReadonlySet<GameplayTagId>>();

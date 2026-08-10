@@ -1,6 +1,6 @@
 /**
  * 从战斗事实回执投影技能开始时的可用性诊断。
- * 本层只归约运行时已经记录的事实，不读取或重算资源、冷却与技能定义。
+ * 这里只归拢运行时已经记录的事实，不读取或重算资源、冷却与技能定义。
  */
 import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import { reduceSkillDiagnostics } from './skillDiagnosticReducer';

@@ -1,5 +1,5 @@
 /**
- * 把只读目录定义转换为可编辑的初始养成实例。
+ * 把只读定义转换为可编辑的初始养成实例。
  * 这里集中的是编辑器默认策略，不是游戏事实；调用方必须提供文档身份，并可在创建后通过命令修改。
  */
 import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';

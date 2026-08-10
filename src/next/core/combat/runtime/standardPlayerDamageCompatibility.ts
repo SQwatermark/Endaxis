@@ -16,7 +16,7 @@ export const STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES = [
   'uninstalled-equipment-event-handler',
 ] as const;
 
-/** 标准伤害预检问题的稳定分类；UI 可以据此自行翻译。 */
+/** 标准伤害预检问题的稳定分类；UI 可以凭它自行翻译。 */
 export type StandardPlayerDamageCompatibilityCode =
   (typeof STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES)[number];
 
@@ -32,7 +32,7 @@ export interface StandardPlayerDamageCompatibilityInput {
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
   readonly endFrame: number;
-  /** 未提供元素附着目录时，`applyElementalInfliction` 仍视为不支持步骤。 */
+  /** 未提供元素附着定义时，`applyElementalInfliction` 仍视为不支持步骤。 */
   readonly supportsElementalInfliction?: boolean;
 }
 

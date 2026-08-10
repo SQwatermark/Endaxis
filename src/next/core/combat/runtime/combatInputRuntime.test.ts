@@ -7,24 +7,28 @@ describe('CombatInputRuntime', () => {
   it('preserves same-frame input order and records acceptance', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const tryStartSkill = vi.fn((_operatorId: string, skillId: string) => skillId === 'first');
+    const tryStartSkill = vi.fn(
+      (_operatorId: string, skillId: string, castId?: string) =>
+        skillId === 'first' && castId === 'cast:first',
+    );
     const runtime = new CombatInputRuntime({
       clock,
       receipt,
       tryStartSkill,
       inputs: [
-        { frame: 0, operatorId: 'operator', skillId: 'first' },
-        { frame: 0, operatorId: 'operator', skillId: 'second' },
+        { frame: 0, operatorId: 'operator', skillId: 'first', castId: 'cast:first' },
+        { frame: 0, operatorId: 'operator', skillId: 'second', castId: 'cast:second' },
       ],
     });
 
     runtime.applyCurrentFrame();
 
     expect(tryStartSkill.mock.calls).toEqual([
-      ['operator', 'first'],
-      ['operator', 'second'],
+      ['operator', 'first', 'cast:first'],
+      ['operator', 'second', 'cast:second'],
     ]);
     expect(receipt.entries.map(entry => entry.data?.accepted)).toEqual([true, false]);
+    expect(receipt.entries.map(entry => entry.data?.castId)).toEqual(['cast:first', 'cast:second']);
   });
 
   it('rejects out-of-order schedules instead of silently sorting them', () => {

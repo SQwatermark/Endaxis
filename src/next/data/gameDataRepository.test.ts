@@ -9,10 +9,10 @@ import {
   createGameDataRepository,
   NEXT_GAME_DATA_REVISION,
   nextGameDataRepository,
-} from './gameDataCatalog';
+} from './gameDataRepository';
 
-describe('gameDataCatalog', () => {
-  it('exposes the explicit catalog revision', () => {
+describe('gameDataRepository', () => {
+  it('exposes the explicit definition revision', () => {
     expect(nextGameDataRepository.revision).toBe(NEXT_GAME_DATA_REVISION);
     expect(NEXT_GAME_DATA_REVISION).not.toBe('');
   });
@@ -55,7 +55,7 @@ describe('gameDataCatalog', () => {
     expect(nextGameDataRepository.getEnemy('missing')).toBeNull();
   });
 
-  it('rejects duplicate stable identities while building a catalog', () => {
+  it('rejects duplicate stable identities while building a index', () => {
     expect(() =>
       createGameDataRepository({ revision: 'fixture', operators: [perlica, perlica] }),
     ).toThrow("duplicate operator definition 'perlica'");

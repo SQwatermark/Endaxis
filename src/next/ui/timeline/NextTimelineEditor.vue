@@ -42,7 +42,7 @@ import {
   type ScenarioDocument,
   type TrackIndex,
 } from '../../core/project/schema';
-import { nextGameDataRepository } from '../../data/gameDataCatalog';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
@@ -234,7 +234,7 @@ const {
 const {
   enemies,
   selectedDefinition: selectedEnemyDefinition,
-  selectCatalogEnemy,
+  selectDefinitionEnemy,
   selectCustomEnemy,
   saveEnemyValues,
 } = useTimelineEnemyEditor({
@@ -250,8 +250,8 @@ const ids: TimelineDocumentIdAllocator = {
 const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
 const simulationService = new ScenarioSimulationService({
-  catalog: nextGameDataRepository,
-  catalogRevision: nextGameDataRepository.revision,
+  index: nextGameDataRepository,
+  repositoryRevision: nextGameDataRepository.revision,
   resources: {
     sharedSpGain: { baseGainEfficiency: 1 },
     spRecoveryPauseDuration: 1.5,
@@ -1233,7 +1233,7 @@ function setPanelDialogVisible(visible: boolean): void {
             leader: t('enemyTier.leader'),
           },
         }"
-        @select-catalog="selectCatalogEnemy"
+        @select-index="selectDefinitionEnemy"
         @select-custom="selectCustomEnemy"
         @save="saveEnemyValues"
       />

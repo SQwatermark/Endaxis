@@ -1,6 +1,6 @@
 /**
  * 时间轴配装编辑器对既有武器、装备 Build 执行的不可变更新命令。
- * 本层只校验存档自身能够确定的数值形状；依赖具体目录的词条上限继续由目录校验负责。
+ * 本层只校验存档自身能够确定的数值形状；依赖具体定义词条的上限继续由定义校验负责。
  */
 import type {
   GearBuildDocument,
@@ -58,7 +58,7 @@ function getGearBuild(
   return build;
 }
 
-/** 更新当前轨道干员的养成输入，不改变 Build 身份和干员目录身份。 */
+/** 更新当前轨道干员的养成输入，不改变 Build 身份和干员定义身份。 */
 export function updateTrackOperatorBuild(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
@@ -98,7 +98,7 @@ export function updateTrackOperatorBuild(
   };
 }
 
-/** 更新当前轨道已装备武器的用户输入，不改变 Build 身份和武器目录身份。 */
+/** 更新当前轨道已装备武器的用户输入，不改变 Build 身份和武器定义身份。 */
 export function updateTrackWeaponBuild(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
@@ -125,7 +125,7 @@ export function updateTrackWeaponBuild(
   };
 }
 
-/** 更新当前轨道引用的一件装备的精锻档位，不改变 Build 和装备目录身份。 */
+/** 更新当前轨道引用的一件装备的精锻档位，不改变 Build 和装备定义身份。 */
 export function updateTrackGearBuild(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,

@@ -6,7 +6,7 @@ import { resolveElementalInfliction } from './elementalInfliction';
 import {
   createElementalAttachmentLifecycleActions,
   ElementalInflictionBuffAdapter,
-  type ElementalInflictionBuffCatalog,
+  type ElementalInflictionBuffIndex,
 } from './elementalInflictionBuffAdapter';
 
 type Attribute = 'attack';
@@ -21,7 +21,7 @@ function attachment(element: InflictionElement): CombatBuffDefinition<Attribute>
   };
 }
 
-const catalog: ElementalInflictionBuffCatalog<Attribute> = {
+const index: ElementalInflictionBuffIndex<Attribute> = {
   getAttachmentElement: definition =>
     definition.id.startsWith('attachment.')
       ? (definition.id.slice('attachment.'.length) as InflictionElement)
@@ -40,7 +40,7 @@ function createAdapter() {
   const target = new CombatBuffContainer('enemy', attributes);
   return {
     target,
-    adapter: new ElementalInflictionBuffAdapter(target, 'operator', catalog),
+    adapter: new ElementalInflictionBuffAdapter(target, 'operator', index),
   };
 }
 

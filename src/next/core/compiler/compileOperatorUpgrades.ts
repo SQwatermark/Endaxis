@@ -101,7 +101,7 @@ function multiplySkillCost(
 }
 
 /**
- * 按养成声明顺序修正技能程序。面板类 modifier 由面板编译器消费；其余尚未闭环的类型必须失败。
+ * 按养成声明顺序修正技能程序。面板类 modifier 由面板编译器消费；其余还没做通的类型必须失败。
  */
 export function applyOperatorUpgradeSkillPatches(
   programs: readonly CompiledSkillProgram[],

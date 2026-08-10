@@ -11,7 +11,7 @@ export interface TimelineHitMarker {
   readonly hitId: string;
   /** 相对技能块左边缘的帧偏移。 */
   readonly frameOffset: number;
-  /** 这个步骤在目录里的名字（如果有）；没有时和日志只能按帧对应。 */
+  /** 这个步骤在定义里的名字（如果有）；没有时和日志只能按帧对应。 */
   readonly stepKey?: string;
   /** 在条件分支里，跑不跑取决于当时的条件。 */
   readonly conditional: boolean;

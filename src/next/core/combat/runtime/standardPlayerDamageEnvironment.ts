@@ -8,10 +8,10 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type BuffFinishReason, type CombatBuff } from '../buffs/combatBuffs';
 import {
-  compileCombatBuffCatalog,
-  CompiledCombatBuffCatalog,
-  type CombatBuffCatalogDocument,
-} from '../buffs/combatBuffCatalog';
+  compileCombatBuffDefinitions,
+  CompiledCombatBuffDefinitions,
+  type CombatBuffDefinitionsDocument,
+} from '../buffs/combatBuffDefinitions';
 import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
@@ -20,17 +20,17 @@ import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiv
 import { ElementalInflictionBuffAdapter } from '../infliction/elementalInflictionBuffAdapter';
 import type { ElementalInflictionOperation } from '../infliction/elementalInfliction';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
-import { createSkillSettingSource } from '../infliction/skillSettingCatalog';
+import { createSkillSettingSource } from '../infliction/skillSettings';
 import type {
   CompoundStatusSkillSettingSource,
-  SkillSettingCatalogDocument,
-} from '../infliction/skillSettingCatalog';
+  SkillSettingsDocument,
+} from '../infliction/skillSettings';
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
-import { CatalogBuffOperationTarget } from './catalogBuffOperationTarget';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import type {
   CombatOperationExecutorContext,
   CombatRuntimeAssemblyOptions,
@@ -77,10 +77,10 @@ export interface StandardPlayerDamageEnvironmentOptions {
     context: CombatOperationExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
-  /** 提供后，`applyElementalInfliction` 步骤按目录附着状态机执行。 */
-  readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
+  /** 提供后，`applyElementalInfliction` 步骤按定义附着状态机执行。 */
+  readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率来源；缺失时爆发触发会明确失败。 */
-  readonly spellInflictionSettings?: SkillSettingCatalogDocument;
+  readonly spellInflictionSettings?: SkillSettingsDocument;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -105,17 +105,17 @@ export class StandardPlayerDamageEnvironment {
     undefined,
     (buff, reason) => this.#recordBuffFinished(buff, reason),
   );
-  readonly #enemyBuffRuntime = new CatalogBuffOperationTarget(this.#enemyBuffs, {
+  readonly #enemyBuffRuntime = new BuffDefinitionOperationTarget(this.#enemyBuffs, {
     get: () => undefined,
   });
-  readonly #operatorBuffRuntimes = new Map<string, CatalogBuffOperationTarget<string>>();
+  readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   #clock: CombatClock | null = null;
   #receipt: CombatReceiptSink | null = null;
-  #elementalCatalog: CompiledCombatBuffCatalog<string> | null = null;
+  #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
   #skillSettings: CompoundStatusSkillSettingSource | null = null;
   #enemyVitals: CombatVitals | null = null;
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
@@ -177,6 +177,7 @@ export class StandardPlayerDamageEnvironment {
     const operatorBuffs = this.#operatorBuffRuntime(context.program.operatorId).container;
     return new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
+      castId: context.program.castId,
       targetId: 'enemy',
       targetVitals: this.enemyVitals,
       clock: context.clock,
@@ -211,6 +212,7 @@ export class StandardPlayerDamageEnvironment {
   #createReactionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
     return new ElementalReactionOperationExecutor({
       sourceOperatorId: context.program.operatorId,
+      castId: context.program.castId,
       targetId: 'enemy',
       clock: context.clock,
       receipt: context.receipt,
@@ -224,6 +226,7 @@ export class StandardPlayerDamageEnvironment {
     const adapter = this.#inflictionAdapter(context.program.operatorId);
     return new ElementalInflictionOperationExecutor({
       sourceOperatorId: context.program.operatorId,
+      castId: context.program.castId,
       targetId: 'enemy',
       skillId: context.program.skillId,
       clock: context.clock,
@@ -265,10 +268,10 @@ export class StandardPlayerDamageEnvironment {
     });
   }
 
-  #operatorBuffRuntime(operatorId: string): CatalogBuffOperationTarget<string> {
+  #operatorBuffRuntime(operatorId: string): BuffDefinitionOperationTarget<string> {
     let runtime = this.#operatorBuffRuntimes.get(operatorId);
     if (runtime === undefined) {
-      runtime = new CatalogBuffOperationTarget(
+      runtime = new BuffDefinitionOperationTarget(
         new CombatBuffContainer(operatorId, new CombatAttributeSet<string>()),
         { get: () => undefined },
       );
@@ -283,33 +286,33 @@ export class StandardPlayerDamageEnvironment {
       adapter = new ElementalInflictionBuffAdapter(
         this.#enemyBuffs,
         operatorId,
-        this.#ensureElementalCatalog(),
+        this.#ensureElementalDefinitions(),
       );
       this.#inflictionAdapters.set(operatorId, adapter);
     }
     return adapter;
   }
 
-  #ensureElementalCatalog(): CompiledCombatBuffCatalog<string> {
-    if (this.#elementalCatalog !== null) return this.#elementalCatalog;
+  #ensureElementalDefinitions(): CompiledCombatBuffDefinitions<string> {
+    if (this.#elementalDefinitions !== null) return this.#elementalDefinitions;
     const document = this.options.elementalInflictionDocument;
     if (document === undefined) {
       throw new Error('elemental infliction requires an elemental infliction document');
     }
-    this.#elementalCatalog = compileCombatBuffCatalog(document, {
+    this.#elementalDefinitions = compileCombatBuffDefinitions(document, {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
       onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
     });
-    return this.#elementalCatalog;
+    return this.#elementalDefinitions;
   }
 
   /** 爆发 Buff 触发时执行爆发伤害；数据缺失处明确报错，不假装打出伤害。 */
   #onSpellBurstTriggered(payload: { readonly burstType: string; readonly sourceId: string }): void {
-    const catalog = this.#ensureElementalCatalog();
-    const definition = catalog.getSpellBurst(payload.burstType);
+    const index = this.#ensureElementalDefinitions();
+    const definition = index.getSpellBurst(payload.burstType);
     if (definition === null) {
-      throw new Error(`spell burst '${payload.burstType}' is not declared in the buff catalog`);
+      throw new Error(`spell burst '${payload.burstType}' is not declared in the buff definition`);
     }
     if (this.options.spellInflictionSettings === undefined) {
       throw new Error(
@@ -325,8 +328,8 @@ export class StandardPlayerDamageEnvironment {
       definition,
       sourceId: payload.sourceId,
       attack: panel.attack,
-      // 来源附着增强属性尚未在面板落地；以 0 作为中性基线，增强公式退化为 1。
-      enhance: 0,
+      // 来源附着增强属性尚未在面板落地；需要增强公式的爆发会在此明确失败。
+      enhance: null,
       criticalRate: panel.criticalRate,
       criticalDamageIncrease: panel.criticalDamage,
       criticalSample: this.options.criticalSamples.nextCriticalSample(),

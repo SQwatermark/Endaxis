@@ -1,7 +1,7 @@
 /**
  * 将项目持久化的敌人实例编译为战斗运行时使用的稳定输入。
  *
- * 本层只归一化已有字段，不重新查询目录默认值，也不把多节点失衡规则近似成现有单节点生命账本。
+ * 这里只规整已有字段，不重新查询定义默认值，也不把多节点失衡规则近似成现有单节点生命账本。
  * 操作执行器应从该结果读取防御、抗性和处决倍率，后续失衡运行时也必须消费同一份原始规则。
  */
 import type { PlayerDamageDefenderSnapshot } from '../combat/damage/playerActiveDamageInput';
@@ -65,9 +65,9 @@ function compileDefenderAttributes(enemy: EnemyDocument): PlayerDamageDefenderSn
 /** 编译单敌人场景中的完整静态敌人程序。 */
 export function compileScenarioEnemy(enemy: EnemyDocument): CombatEnemyProgram {
   const source =
-    enemy.source.kind === 'catalog'
+    enemy.source.kind === 'prefab'
       ? {
-          kind: 'catalog' as const,
+          kind: 'prefab' as const,
           enemyId: enemy.source.enemyId,
           level: requireNonNegativeInteger(enemy.source.level, 'enemy.source.level'),
         }

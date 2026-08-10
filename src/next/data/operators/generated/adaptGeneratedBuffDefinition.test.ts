@@ -23,7 +23,7 @@ describe('adaptGeneratedBuffDefinition', () => {
     ]);
   });
 
-  it('preserves extend tags in the stable Buff catalog shape', () => {
+  it('preserves extend tags in the stable Buff index shape', () => {
     const source = requireBuff('buff_chr_0030_zhuangfy_ult_skill_free');
     expect(
       adaptGeneratedBuffDefinition({ ...source, extendTagIds: [123] }).extendTagIds,

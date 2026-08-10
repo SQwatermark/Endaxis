@@ -5,7 +5,7 @@ import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
 describe('projectTimelineEditor', () => {
-  it('projects a catalog-backed operator track without leaking mutable definitions', () => {
+  it('projects a definition-backed operator track without leaking mutable definitions', () => {
     const scenario = createEmptyScenario('scenario:1', '佩丽卡样板');
     scenario.builds.operators.perlica = {
       id: 'perlica',
@@ -70,7 +70,7 @@ describe('projectTimelineEditor', () => {
     });
   });
 
-  it('reports broken build references instead of inventing catalog defaults', () => {
+  it('reports broken build references instead of inventing definition defaults', () => {
     const scenario = createEmptyScenario('scenario:1', '损坏引用');
     scenario.tracks[0] = {
       operatorBuildId: 'missing',

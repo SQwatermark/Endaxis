@@ -1,7 +1,7 @@
 /**
  * 把场景持久化的资源输入与上游已解析规则组合成完整战斗资源快照。
  *
- * 本模块只负责编译全新战斗的初始账本，不读取目录、面板或 Buff。调用方必须先解析项目中
+ * 本模块只负责编译全新战斗的初始账本，不读取定义、面板或 Buff。调用方必须先解析项目中
  * 没有保存的原生规则；场景继承需要来源边界快照，不能调用本入口并假定资源从零开始。
  */
 import type {
@@ -13,7 +13,7 @@ import type { SharedSpGainSettings } from '../combat/resources/sharedSpGainModif
 import type { GameplayTagId } from '../combat/tags/gameplayTags';
 import type { ScenarioDocument, TrackDocument } from '../project/schema';
 
-/** 存档没有保存、必须由目录与构筑解析层显式提供的单个干员资源规则。 */
+/** 存档没有保存、必须由定义与构筑解析层显式提供的单个干员资源规则。 */
 export interface ResolvedOperatorResourceRules {
   /** 轨道没有用户上限覆盖时使用的已解析终结技能量上限。 */
   readonly maxUltimateEnergy?: number;

@@ -171,6 +171,7 @@ describe('projectHitReactionReceipts', () => {
         targetId: 'enemy',
         reaction: 'electrification',
         applied: true,
+        consumed: true,
         level: 1,
         previousLevel: 0,
       },
@@ -182,9 +183,26 @@ describe('projectHitReactionReceipts', () => {
         targetId: 'enemy',
         reaction: 'electrification',
         applied: false,
+        consumed: true,
         level: 2,
         previousLevel: 0,
       },
     ]);
+  });
+
+  it('未消费成功的消费回执不输出', () => {
+    expect(
+      projectHitReactionReceipts([
+        {
+          sequence: 8,
+          frame: 130,
+          time: 13 / 3,
+          event: 'ElementalReactionConsumed',
+          sourceId: 'perlica',
+          targetId: 'enemy',
+          data: { reaction: 'electrification', level: 0, consumed: false },
+        },
+      ]),
+    ).toEqual([]);
   });
 });

@@ -7,7 +7,7 @@ import { PROJECT_SCHEMA_VERSION } from './schema';
 import type { LegacyProjectImporter } from './migration';
 import { validateProjectDocument, type ValidationIssue, type ValidationResult } from './validation';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
-import { validateProjectWithGameData } from './catalogValidation';
+import { validateProjectWithGameData } from './definitionValidation';
 
 /** 只做结构识别的输入类别，不代表文档已经通过完整校验。 */
 export type ProjectInputKind = 'current' | 'legacy' | 'unsupported';
@@ -18,7 +18,7 @@ export interface ProjectInspection {
   schemaVersion?: number;
 }
 
-/** 项目解析的完整可辨识结果；调用方必须处理每一种失败类型。 */
+/** 项目解析结果的完整分类；调用方必须处理每一种失败类型。 */
 export type ParseProjectResult =
   | { ok: true; value: EndaxisProjectDocument }
   | { ok: false; kind: 'invalid-json'; message: string }
@@ -30,7 +30,7 @@ export type ParseProjectResult =
 /** 解析项目时可选注入的旧格式迁移器。 */
 export interface ParseProjectOptions {
   legacyImporter?: LegacyProjectImporter;
-  /** 提供后，加载流程还会校验 build 与机制的版本化目录引用。 */
+  /** 提供后，加载流程还会校验 build 与机制的版本化定义引用。 */
   gameDataRepository?: GameDataRepository;
 }
 

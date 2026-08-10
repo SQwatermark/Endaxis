@@ -1,8 +1,8 @@
 /**
- * 将旧只读装备目录适配为 Next 装备定义。
+ * 将旧只读装备定义适配为 Next 装备定义。
  *
  * 这里是共享数据与 Next 契约之间的防腐层：只转换已经完成语义审计的字段。严格模式
- * 用于审计；宽松模式允许保留可确认的目录骨架，但每个被省略的效果都必须形成结构化问题。
+ * 用于审计；宽松模式允许保留可确认的定义骨架，但每个被省略的效果都必须形成结构化问题。
  */
 import type {
   Effect,
@@ -264,7 +264,7 @@ function adaptStaticStatus(
     return null;
   }
   if (effect.target !== undefined && effect.target !== 'self') {
-    addIssue(context, `${path}.target`, 'unsupported-scope', '当前静态目录修正只支持 self');
+    addIssue(context, `${path}.target`, 'unsupported-scope', '当前静态定义修正只支持 self');
     return null;
   }
   for (const field of DYNAMIC_STATUS_FIELDS) {

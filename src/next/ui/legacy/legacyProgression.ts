@@ -2,7 +2,7 @@
  * Next UI 对旧版养成范围与装备展示规则的集中适配。
  *
  * 这些规则目前仅服务于实例编辑界面，不属于 Next 项目模型或战斗运行时。调用方应使用
- * 本文件导出的 Next 侧类型；未来目录原生提供约束后，可在这里切换实现而不影响组件。
+ * 本文件导出的 Next 侧类型；未来游戏数据原生提供约束后，可在这里切换实现而不影响组件。
  */
 import { getOperatorSkillMax as getLegacyOperatorSkillMax } from '@/utils/operatorBounds';
 import { skillLevelLabel as getLegacySkillLevelLabel } from '@/utils/operatorBounds';

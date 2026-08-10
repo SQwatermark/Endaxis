@@ -160,6 +160,11 @@ export class SkillRuntime {
     return this.#program.skillId;
   }
 
+  /** 文档中的技能释放身份；单元测试程序可能缺失。 */
+  get castId(): string | undefined {
+    return this.#program.castId;
+  }
+
   get skillType(): CompiledSkillProgram['skillType'] {
     return this.#program.skillType;
   }
@@ -310,7 +315,11 @@ export class SkillRuntime {
       event,
       sourceId: this.#program.operatorId,
       ...(targetId === undefined ? {} : { targetId }),
-      data: { skillId: this.#program.skillId, ...data },
+      data: {
+        skillId: this.#program.skillId,
+        ...(this.#program.castId === undefined ? {} : { castId: this.#program.castId }),
+        ...data,
+      },
     });
   }
 

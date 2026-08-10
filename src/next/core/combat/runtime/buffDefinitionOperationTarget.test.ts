@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
-import { CatalogBuffOperationTarget } from './catalogBuffOperationTarget';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 
 type Attribute = 'cost';
 
-describe('CatalogBuffOperationTarget', () => {
+describe('BuffDefinitionOperationTarget', () => {
   it('resolves a stable identity and keeps application values on the created instance', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('cost', 100, { minimum: 0, maximum: 100 });
@@ -22,7 +22,7 @@ describe('CatalogBuffOperationTarget', () => {
         },
       ],
     };
-    const target = new CatalogBuffOperationTarget(container, {
+    const target = new BuffDefinitionOperationTarget(container, {
       get: id => (id === definition.id ? definition : undefined),
     });
 
@@ -37,7 +37,7 @@ describe('CatalogBuffOperationTarget', () => {
   });
 
   it('rejects an unknown identity instead of creating an empty definition', () => {
-    const target = new CatalogBuffOperationTarget(
+    const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
       { get: () => undefined },
     );
@@ -54,7 +54,7 @@ describe('CatalogBuffOperationTarget', () => {
       stackingType: 'unique',
       durationSeconds: 1 / 30,
     };
-    const target = new CatalogBuffOperationTarget(container, {
+    const target = new BuffDefinitionOperationTarget(container, {
       get: id => (id === definition.id ? definition : undefined),
     });
 
@@ -71,7 +71,7 @@ describe('CatalogBuffOperationTarget', () => {
       id: 'inherited-cast',
       stackingType: 'unique',
     };
-    const target = new CatalogBuffOperationTarget(container, {
+    const target = new BuffDefinitionOperationTarget(container, {
       get: () => definition,
     });
     const skillCastInfo = {

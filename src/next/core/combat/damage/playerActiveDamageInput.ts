@@ -37,9 +37,9 @@ export interface PlayerDamageDefenderSnapshot {
 /** 不含有状态随机取样、但参与一次伤害公式的运行时数值。 */
 export interface PlayerDamageNonRandomRuntimeSnapshot {
   readonly runtimeExtensionMultiplier: number;
-  /** 由目录适配器设置的原生修饰掩码解析得到。 */
+  /** 由定义适配器设置的原生修饰掩码解析得到。 */
   readonly appliesIgniteDamageMultiplier: boolean;
-  /** 由目录适配器设置的原生修饰掩码解析得到。 */
+  /** 由定义适配器设置的原生修饰掩码解析得到。 */
   readonly appliesPhysicalInflictionDamageMultiplier: boolean;
 }
 

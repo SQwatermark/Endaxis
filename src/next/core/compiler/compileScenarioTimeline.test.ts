@@ -27,7 +27,7 @@ function createScenario(): ScenarioDocument {
   return scenario;
 }
 
-function catalog() {
+function index() {
   return { getOperator: (slug: string) => (slug === perlica.slug ? perlica : null) };
 }
 
@@ -44,24 +44,26 @@ function place(scenario: ScenarioDocument, skillGroupKey: string, startFrame: nu
 }
 
 describe('compileScenarioTimeline', () => {
-  it('compiles the complete operator skill catalog and placed input', () => {
+  it('compiles the complete operator skill index and placed input', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
 
-    const compiled = compileScenarioTimeline(scenario, catalog());
+    const compiled = compileScenarioTimeline(scenario, index());
 
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('perlica');
     expect(compiled.operators[0]!.skills.map(skill => skill.skillId)).toContain('battleSkill');
-    expect(compiled.inputs).toEqual([{ frame: 60, operatorId: 'perlica', skillId: 'battleSkill' }]);
+    expect(compiled.inputs).toEqual([
+      { frame: 60, operatorId: 'perlica', skillId: 'battleSkill', castId: 'skillCast:1' },
+    ]);
   });
 
   it('preserves the declaration order of same-frame inputs', () => {
     let scenario = place(createScenario(), 'battleSkill', 60);
     scenario = place(scenario, 'ultimate', 60);
 
-    expect(compileScenarioTimeline(scenario, catalog()).inputs).toEqual([
-      { frame: 60, operatorId: 'perlica', skillId: 'battleSkill' },
-      { frame: 60, operatorId: 'perlica', skillId: 'ultimate' },
+    expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([
+      { frame: 60, operatorId: 'perlica', skillId: 'battleSkill', castId: 'skillCast:1' },
+      { frame: 60, operatorId: 'perlica', skillId: 'ultimate', castId: 'skillCast:1' },
     ]);
   });
 
@@ -69,11 +71,12 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'basicAttack', 30);
     const casts = scenario.tracks[0]!.skillCasts;
 
-    expect(compileScenarioTimeline(scenario, catalog()).inputs).toEqual(
+    expect(compileScenarioTimeline(scenario, index()).inputs).toEqual(
       casts.map(cast => ({
         frame: cast.placement.startFrame,
         operatorId: 'perlica',
         skillId: cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
+        castId: cast.id,
       })),
     );
   });
@@ -82,7 +85,7 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     scenario.tracks[0]!.skillCasts[0]!.editable.disabled = true;
 
-    expect(compileScenarioTimeline(scenario, catalog()).inputs).toEqual([]);
+    expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([]);
   });
 
   it('compiles an active ultimate-cost potential into the runtime program', () => {
@@ -106,7 +109,7 @@ describe('compileScenarioTimeline', () => {
       ],
     };
 
-    const compiled = compileScenarioTimeline(scenario, {
+    const compiled = compileScenarioTimeline(place(scenario, 'ultimate', 60), {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
     const ultimate = compiled.operators[0]!.skills.find(skill => skill.skillId === 'ultimate');
@@ -118,8 +121,8 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     scenario.tracks[0]!.skillCasts[0]!.edited.push('durationFrames');
 
-    expect(() => compileScenarioTimeline(scenario, catalog())).toThrow(
-      'per-cast program compilation is not connected',
+    expect(() => compileScenarioTimeline(scenario, index())).toThrow(
+      'per-cast overrides are not supported yet',
     );
   });
 
@@ -129,6 +132,6 @@ describe('compileScenarioTimeline', () => {
     if (cast.source.kind !== 'operatorSkill') throw new Error('unexpected fixture source');
     cast.source.skillKey = 'missing';
 
-    expect(() => compileScenarioTimeline(scenario, catalog())).toThrow("has no skill 'missing'");
+    expect(() => compileScenarioTimeline(scenario, index())).toThrow("has no skill 'missing'");
   });
 });

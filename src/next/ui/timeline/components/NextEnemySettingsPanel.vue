@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Next 敌人实例的选择与属性编辑界面。
- * 组件复用旧版布局语言，但只处理草稿和展示；目录解析、默认值捕获与事务提交由外层协调器负责。
+ * 组件复用旧版布局语言，但只处理草稿和展示；定义解析、默认值捕获与事务提交由外层协调器负责。
  */
 import { computed, reactive, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
@@ -54,7 +54,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  selectCatalog: [enemyId: string, level: number];
+  selectDefinition: [enemyId: string, level: number];
   selectCustom: [level: number];
   save: [values: EnemyEditableValues];
 }>();
@@ -96,9 +96,9 @@ function supportsLevel(enemy: EnemyDefinition): boolean {
   return enemy.levelHp.some(node => node.level === selectedLevel.value);
 }
 
-function selectCatalog(enemy: EnemyDefinition): void {
+function selectDefinition(enemy: EnemyDefinition): void {
   if (!supportsLevel(enemy)) return;
-  emit('selectCatalog', enemy.id, selectedLevel.value);
+  emit('selectDefinition', enemy.id, selectedLevel.value);
   selectorVisible.value = false;
 }
 
@@ -227,7 +227,7 @@ function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event
           :class="{ selected: definition?.id === candidate.id }"
           :disabled="!supportsLevel(candidate)"
           :style="{ '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color }"
-          @click="selectCatalog(candidate)"
+          @click="selectDefinition(candidate)"
         >
           <span class="card-avatar">
             <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />

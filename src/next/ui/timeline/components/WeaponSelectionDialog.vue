@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Next 时间轴的武器目录选择器。界面与旧时间轴保持一致，但只读取 Next 目录并返回稳定 slug；
+ * Next 时间轴的武器定义选择器。界面与旧时间轴保持一致，但只读取 Next 定义并返回稳定 slug；
  * 武器 Build 的创建和持久化仍由父层负责，组件内不依赖旧 store。
  */
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';

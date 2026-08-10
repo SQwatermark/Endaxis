@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import { createEmptyProject } from './createProject';
 import { parseProjectDocument, serializeProjectDocument } from './serialization';
-import { validateProjectWithGameData } from './catalogValidation';
+import { validateProjectWithGameData } from './definitionValidation';
 
 function createMissingRepository(): GameDataRepository {
   return {
@@ -16,7 +16,7 @@ function createMissingRepository(): GameDataRepository {
   };
 }
 
-function createProjectWithCatalogReferences() {
+function createProjectWithDefinitionReferences() {
   const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
   const scenario = project.scenarios[0]!;
   scenario.builds.weapons['weapon:1'] = {
@@ -33,7 +33,7 @@ function createProjectWithCatalogReferences() {
     enabled: true,
     parameters: {},
   });
-  scenario.enemy.source = { kind: 'catalog', enemyId: 'missing-enemy', level: 90 };
+  scenario.enemy.source = { kind: 'prefab', enemyId: 'missing-enemy', level: 90 };
   return project;
 }
 
@@ -44,15 +44,15 @@ describe('validateProjectWithGameData', () => {
     });
     const repository = { ...createMissingRepository(), getWeapon };
 
-    const result = validateProjectWithGameData({ schemaVersion: 2 }, repository);
+    const result = validateProjectWithGameData({ schemaVersion: 3 }, repository);
 
     expect(result.ok).toBe(false);
     expect(getWeapon).not.toHaveBeenCalled();
   });
 
-  it('combines build and mechanic catalog issues after structural validation', () => {
+  it('combines build and mechanic index issues after structural validation', () => {
     const result = validateProjectWithGameData(
-      createProjectWithCatalogReferences(),
+      createProjectWithDefinitionReferences(),
       createMissingRepository(),
     );
 
@@ -75,7 +75,7 @@ describe('validateProjectWithGameData', () => {
     });
   });
 
-  it('returns the structurally validated document when it has no catalog references', () => {
+  it('returns the structurally validated document when it has no definition references', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
 
     expect(validateProjectWithGameData(project, createMissingRepository())).toEqual({
@@ -85,9 +85,9 @@ describe('validateProjectWithGameData', () => {
   });
 });
 
-describe('parseProjectDocument catalog validation', () => {
-  it('runs catalog validation when the loading caller supplies a repository', () => {
-    const project = createProjectWithCatalogReferences();
+describe('parseProjectDocument index validation', () => {
+  it('runs index validation when the loading caller supplies a repository', () => {
+    const project = createProjectWithDefinitionReferences();
     const serialized = serializeProjectDocument(project);
 
     expect(parseProjectDocument(serialized).ok).toBe(true);
@@ -106,8 +106,8 @@ describe('parseProjectDocument catalog validation', () => {
     );
   });
 
-  it('applies the same catalog validation after legacy migration', () => {
-    const migrated = createProjectWithCatalogReferences();
+  it('applies the same index validation after legacy migration', () => {
+    const migrated = createProjectWithDefinitionReferences();
     const result = parseProjectDocument(
       { version: '1.0.0', scenarioList: [] },
       {

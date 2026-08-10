@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createGameDataRepository } from '../../data/gameDataCatalog';
+import { createGameDataRepository } from '../../data/gameDataRepository';
 import { perlica } from '../../data/operators';
 import {
   sharedGearDefinitions,
@@ -68,7 +68,7 @@ function createEquippedScenario(): ScenarioDocument {
 }
 
 describe('projectTrackLoadoutBuilds', () => {
-  it('解析指定轨道的完整 Build 输入与目录定义', () => {
+  it('解析指定轨道的完整 Build 输入与定义', () => {
     const scenario = createEquippedScenario();
 
     const projected = projectTrackLoadoutBuilds(scenario, 0, repository);
@@ -145,7 +145,7 @@ describe('projectTrackLoadoutBuilds', () => {
     );
   });
 
-  it('拒绝 Build 指向的缺失目录定义', () => {
+  it('拒绝 Build 指向的缺失定义', () => {
     const scenario = createEquippedScenario();
     scenario.builds.gears.armor!.gearSlug = 'missing-gear';
 
@@ -154,7 +154,7 @@ describe('projectTrackLoadoutBuilds', () => {
     );
   });
 
-  it('拒绝目录返回与查询身份不一致的定义', () => {
+  it('拒绝索引返回与查询身份不一致的定义', () => {
     const scenario = createEquippedScenario();
     const inconsistentRepository = {
       ...repository,
@@ -162,7 +162,7 @@ describe('projectTrackLoadoutBuilds', () => {
     };
 
     expect(() => projectTrackLoadoutBuilds(scenario, 0, inconsistentRepository)).toThrow(
-      `operator definition '${perlica.slug}' resolved catalog identity 'wrong-operator'`,
+      `operator definition '${perlica.slug}' resolved definition identity 'wrong-operator'`,
     );
   });
 });

@@ -1,5 +1,5 @@
 /**
- * 游戏目录与战斗运行时之间的解析后协议。这里的值已经确定等级和引用，
+ * 游戏数据与战斗运行时之间的解析后协议。这里的值已经确定等级和引用，
  * 运行时可以直接消费，但不得修改或重新解释原始干员配置。
  */
 import type {
@@ -105,6 +105,8 @@ export interface ResolvedCombatStepParameters {
 
 type ResolvedCombatStepForKind<K extends CombatStepKind> = {
   readonly key?: string;
+  /** 存档中的命中身份（放置时分配）；伤害回执凭它把伤害对应到具体命中点。 */
+  readonly hitId?: string;
   readonly kind: K;
   readonly parameters: Readonly<ResolvedCombatStepParameters[K]>;
 } & (K extends 'conditional'
@@ -116,7 +118,7 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
     ? { readonly body: ResolvedActionSequence }
     : {});
 
-/** 运行时可直接执行的、按 kind 收窄的单个步骤。 */
+/** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
   [K in CombatStepKind]: ResolvedCombatStepForKind<K>;
 }[CombatStepKind];
@@ -142,6 +144,8 @@ export interface CompiledSkillCost {
 /** 供运行时技能实例使用的完整单等级程序。 */
 export interface CompiledSkillProgram {
   readonly operatorId: string;
+  /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
+  readonly castId?: string;
   readonly skillGroupKey: string;
   readonly skillId: string;
   readonly skillType: SkillType;

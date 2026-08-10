@@ -1,7 +1,7 @@
 /**
  * 根据已解析构筑计算战斗开始前的干员面板与来源回执。
  *
- * 本模块只消费 Build Resolver 和已编译静态配装贡献，不读取目录或 UI。动态 Buff、按技能筛选的
+ * 本模块只消费 Build Resolver 和已编译静态配装贡献，不读取定义或 UI。动态 Buff、按技能筛选的
  * 伤害加成和运行时状态不进入可见面板；调用方应把返回快照同时用于属性详情与战斗初始属性。
  */
 import type { EquipmentPanelStat } from '../game-data/equipmentDefinition';

@@ -11,13 +11,15 @@ export interface ScheduledSkillInput {
   readonly frame: number;
   readonly operatorId: string;
   readonly skillId: string;
+  /** 文档中的技能释放身份；同技能多次放置靠它区分。 */
+  readonly castId?: string;
 }
 
 export interface CombatInputRuntimeOptions {
   readonly clock: CombatClock;
   readonly inputs: readonly ScheduledSkillInput[];
   readonly receipt: CombatReceiptSink;
-  readonly tryStartSkill: (operatorId: string, skillId: string) => boolean;
+  readonly tryStartSkill: (operatorId: string, skillId: string, castId?: string) => boolean;
 }
 
 /** 保持输入顺序并在当前帧同步提交施放请求。 */
@@ -54,13 +56,17 @@ export class CombatInputRuntime implements FrameRuntime {
     while (this.#inputs[this.#nextInputIndex]?.frame === this.#clock.frame) {
       const input = this.#inputs[this.#nextInputIndex]!;
       this.#nextInputIndex += 1;
-      const accepted = this.#tryStartSkill(input.operatorId, input.skillId);
+      const accepted = this.#tryStartSkill(input.operatorId, input.skillId, input.castId);
       this.#receipt.record({
         frame: this.#clock.frame,
         time: this.#clock.time,
         event: 'SkillInputProcessed',
         sourceId: input.operatorId,
-        data: { skillId: input.skillId, accepted },
+        data: {
+          skillId: input.skillId,
+          ...(input.castId === undefined ? {} : { castId: input.castId }),
+          accepted,
+        },
       });
     }
   }

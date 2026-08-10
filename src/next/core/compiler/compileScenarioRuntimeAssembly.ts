@@ -15,17 +15,17 @@ import {
   compileScenarioResources,
   type CompileScenarioResourcesOptions,
 } from './compileScenarioResources';
-import { compileResolvedScenarioTimeline } from './compileScenarioTimeline';
+import {
+  compileResolvedScenarioTimeline,
+  compileOperatorDefinitionSkills,
+} from './compileScenarioTimeline';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
 import { compileScenarioEnemy } from './compileScenarioEnemy';
 import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 
-type BuildCatalog = Pick<
-  GameDataRepository,
-  'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'
->;
+type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'>;
 
 /**
  * 已编译技能之外、单个干员进入战斗所需的可变运行时依赖。
@@ -49,7 +49,7 @@ export type CombatRuntimeEnvironmentOptions = Pick<
 
 /** 编译完整运行时装配参数所需的显式依赖。 */
 export interface CompileScenarioRuntimeAssemblyOptions {
-  readonly catalog: BuildCatalog;
+  readonly index: BuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   readonly environment: CombatRuntimeEnvironmentOptions;
   /** 以 `OperatorBuildDocument.id` 为键，不接受未上场干员。 */
@@ -78,13 +78,13 @@ function bindOperatorRuntimes(
 
 /**
  * 编译可直接传给 `CombatRuntimeAssembly` 的完整参数对象。
- * 子编译器的限制会原样向上传播，例如场景继承、养成效果或逐次技能编辑尚未闭环时必定失败。
+ * 子编译器的限制会原样向上传播：场景继承、养成效果或逐次技能编辑还没做通时必定失败。
  */
 export function compileScenarioRuntimeAssembly(
   scenario: ScenarioDocument,
   options: CompileScenarioRuntimeAssemblyOptions,
 ): CombatRuntimeAssemblyOptions {
-  const builds = resolveScenarioBuilds(scenario, options.catalog);
+  const builds = resolveScenarioBuilds(scenario, options.index);
   const timeline = compileResolvedScenarioTimeline(builds);
   const panels = new Map(
     resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
@@ -94,7 +94,22 @@ export function compileScenarioRuntimeAssembly(
   );
   const resources = compileScenarioResources(scenario, {
     ...options.resources,
-    operators: resolveScenarioOperatorResourceRules(timeline.operators, [...panels.values()]),
+    // 资源规则与放置无关：maxUltimateEnergy 来自定义全部技能（已应用养成补丁）的费用。
+    operators: resolveScenarioOperatorResourceRules(
+      timeline.operators.map(operator => {
+        const build = builds.find(candidate => candidate.operatorBuild.id === operator.operatorId);
+        if (build === undefined) {
+          throw new Error(
+            `timeline operator '${operator.operatorId}' has no resolved operator build`,
+          );
+        }
+        return {
+          operatorId: operator.operatorId,
+          skills: compileOperatorDefinitionSkills(build.operatorBuild, build.operator),
+        };
+      }),
+      [...panels.values()],
+    ),
   });
   const operators = bindOperatorRuntimes(
     timeline.operators.map(operator => ({

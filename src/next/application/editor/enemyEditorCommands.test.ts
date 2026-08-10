@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { nextGameDataRepository } from '../../data/gameDataCatalog';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
 import {
-  createCatalogEnemyDocument,
+  createDefinitionEnemyDocument,
   createCustomEnemyDocument,
   replaceEnemyEditableValues,
   setScenarioEnemy,
@@ -12,12 +12,12 @@ import {
 } from './enemyEditorCommands';
 
 describe('enemyEditorCommands', () => {
-  it('把目录敌人的完整默认值捕获为项目实例', () => {
+  it('把敌人预制体的完整默认值捕获为项目实例', () => {
     const definition = nextGameDataRepository.getEnemy('eny-0125-fdcentur')!;
 
-    const enemy = createCatalogEnemyDocument(definition, 90, 30);
+    const enemy = createDefinitionEnemyDocument(definition, 90, 30);
 
-    expect(enemy.source).toEqual({ kind: 'catalog', enemyId: definition.id, level: 90 });
+    expect(enemy.source).toEqual({ kind: 'prefab', enemyId: definition.id, level: 90 });
     expect(enemy.editable).toMatchObject({
       hp: 2476341,
       defense: 100,
@@ -33,10 +33,10 @@ describe('enemyEditorCommands', () => {
     expect(enemy.edited).toEqual([]);
   });
 
-  it('拒绝目录未提供的敌人等级，而不自行插值', () => {
+  it('拒绝定义未提供的敌人等级，而不自行插值', () => {
     const definition = nextGameDataRepository.getEnemy('eny-0125-fdcentur')!;
 
-    expect(() => createCatalogEnemyDocument(definition, 89, 30)).toThrow(
+    expect(() => createDefinitionEnemyDocument(definition, 89, 30)).toThrow(
       `enemy '${definition.id}' has no HP value at level 89`,
     );
   });
@@ -45,7 +45,7 @@ describe('enemyEditorCommands', () => {
     const definition = nextGameDataRepository.getEnemy('eny-0125-fdcentur')!;
     const initial = setScenarioEnemy(
       createEmptyScenario('scenario:enemy', '敌人场景'),
-      createCatalogEnemyDocument(definition, 90, 30),
+      createDefinitionEnemyDocument(definition, 90, 30),
     );
 
     const updatedHp = updateEnemyBasicField(initial, 'hp', 1000);
@@ -73,7 +73,7 @@ describe('enemyEditorCommands', () => {
     expect(replaceEnemyEditableValues(updated, updated.enemy.editable)).toBe(updated);
   });
 
-  it('创建自定义敌人时不伪装成目录覆盖', () => {
+  it('创建自定义敌人时不伪装成预制体覆盖', () => {
     expect(createCustomEnemyDocument(80)).toMatchObject({
       source: { kind: 'custom', level: 80 },
       edited: [],

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyProject } from '../project/createProject';
 import type { EndaxisProjectDocument, TrackDocument } from '../project/schema';
 import type { GearDefinition, GearSetDefinition, WeaponDefinition } from './equipmentDefinition';
-import { validateProjectBuildCatalogReferences } from './buildCatalogValidation';
+import { validateProjectBuildDefinitionReferences } from './buildDefinitionValidation';
 
 const operator = { slug: 'fixture-operator', weaponType: 'arts-unit' } as const;
 const weapon: WeaponDefinition = {
@@ -110,16 +110,18 @@ function createProject(): EndaxisProjectDocument {
   return project;
 }
 
-describe('validateProjectBuildCatalogReferences', () => {
-  it('accepts catalog-backed builds with compatible track equipment', () => {
-    expect(validateProjectBuildCatalogReferences(createProject(), createRepository())).toEqual([]);
+describe('validateProjectBuildDefinitionReferences', () => {
+  it('accepts definition-backed builds with compatible track equipment', () => {
+    expect(validateProjectBuildDefinitionReferences(createProject(), createRepository())).toEqual(
+      [],
+    );
   });
 
-  it('reports every unknown build catalog reference', () => {
+  it('reports every unknown build definition reference', () => {
     const project = createProject();
 
     expect(
-      validateProjectBuildCatalogReferences(project, {
+      validateProjectBuildDefinitionReferences(project, {
         getOperator: () => null,
         getWeapon: () => null,
         getGear: () => null,
@@ -157,7 +159,7 @@ describe('validateProjectBuildCatalogReferences', () => {
     };
 
     expect(
-      validateProjectBuildCatalogReferences(
+      validateProjectBuildDefinitionReferences(
         project,
         createRepository({
           weapon: incompatibleWeapon,
@@ -185,22 +187,22 @@ describe('validateProjectBuildCatalogReferences', () => {
     ]);
   });
 
-  it('rejects repositories that return a different catalog identity', () => {
+  it('rejects repositories that return a different definition identity', () => {
     const project = createProject();
     const mismatchedWeapon = { ...weapon, slug: 'different-weapon' };
 
     expect(
-      validateProjectBuildCatalogReferences(project, {
+      validateProjectBuildDefinitionReferences(project, {
         ...createRepository(),
         getWeapon: () => mismatchedWeapon,
       }),
     ).toContainEqual({
       path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
-      message: 'weapon catalog identity mismatch',
+      message: 'weapon definition identity mismatch',
     });
   });
 
-  it('validates weapon trait count and equipment level bounds against catalog definitions', () => {
+  it('validates weapon trait count and equipment level bounds against index definitions', () => {
     const project = createProject();
     const scenario = project.scenarios[0]!;
     scenario.builds.weapons['weapon:1']!.traitLevels = [10, 1];
@@ -211,7 +213,7 @@ describe('validateProjectBuildCatalogReferences', () => {
     scenario.builds.gears['gear:armor']!.artificingLevels = [4];
 
     expect(
-      validateProjectBuildCatalogReferences(
+      validateProjectBuildDefinitionReferences(
         project,
         createRepository({ gears: [leveledArmor, accessory] }),
       ),

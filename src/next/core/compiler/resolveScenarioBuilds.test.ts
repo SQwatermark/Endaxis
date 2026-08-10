@@ -74,7 +74,7 @@ function scenario() {
   return value;
 }
 
-function catalog() {
+function index() {
   const gears = new Map([armor, gloves, accessory].map(value => [value.slug, value]));
   return {
     getOperator: vi.fn((slug: string) => (slug === perlica.slug ? perlica : null)),
@@ -85,8 +85,8 @@ function catalog() {
 }
 
 describe('resolveScenarioBuilds', () => {
-  it('resolves each referenced catalog object once and exposes the active three-piece set', () => {
-    const source = catalog();
+  it('resolves each referenced index object once and exposes the active three-piece set', () => {
+    const source = index();
     const [resolved] = resolveScenarioBuilds(scenario(), source);
 
     expect(resolved).toMatchObject({
@@ -104,7 +104,7 @@ describe('resolveScenarioBuilds', () => {
   });
 
   it('rejects an incompatible weapon before downstream compilation', () => {
-    const source = catalog();
+    const source = index();
     source.getWeapon.mockReturnValue({ ...weapon, weaponType: 'greatsword' });
 
     expect(() => resolveScenarioBuilds(scenario(), source)).toThrow(
@@ -120,7 +120,7 @@ describe('resolveScenarioBuilds', () => {
       gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
     };
 
-    expect(() => resolveScenarioBuilds(value, catalog())).toThrow(
+    expect(() => resolveScenarioBuilds(value, index())).toThrow(
       "operator build 'operator' is assigned to multiple tracks",
     );
   });

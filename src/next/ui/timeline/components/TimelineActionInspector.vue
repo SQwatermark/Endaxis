@@ -2,7 +2,7 @@
 /**
  * Next 动作属性面板的基础字段区，照录旧版 PropertiesPanel 的头部与双列输入布局。
  *
- * 组件只显示持久化字段并发出编辑意图；目录默认值恢复、命中编辑和连接管理由后续独立模块负责。
+ * 组件只显示持久化字段并发出编辑意图；定义默认值恢复、命中编辑和连接管理由后续独立模块负责。
  */
 import { useI18n } from 'vue-i18n';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';

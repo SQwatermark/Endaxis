@@ -1,6 +1,6 @@
 /**
- * 项目 build 与版本化游戏目录之间的严格引用校验。
- * 调用方必须先完成项目结构校验；本层只负责目录身份、装备约束与跨目录引用。
+ * 项目 build 与版本化游戏数据之间的严格引用校验。
+ * 调用方必须先完成项目结构校验；本层只处理定义身份、装备约束和跨定义引用。
  */
 import type { EndaxisProjectDocument, TrackDocument } from '../project/schema';
 import type { ValidationIssue } from '../project/validation';
@@ -8,7 +8,7 @@ import type { GearDefinition, GearSlotType, WeaponDefinition } from './equipment
 import type { GameDataRepository } from './gameDataRepository';
 import type { OperatorDefinition } from './operatorDefinition';
 
-type BuildCatalogRepository = {
+type BuildDefinitionIndex = {
   getOperator(slug: string): Pick<OperatorDefinition, 'slug' | 'weaponType'> | null;
   getWeapon(slug: string): WeaponDefinition | null;
   getGear(slug: string): GearDefinition | null;
@@ -28,7 +28,7 @@ const trackGearSlots = [
   'accessory2',
 ] as const satisfies readonly (keyof TrackDocument['gearBuildIds'])[];
 
-function validateCatalogIdentity(
+function validateDefinitionIdentity(
   requestedSlug: string,
   resolvedSlug: string,
   path: string,
@@ -36,14 +36,14 @@ function validateCatalogIdentity(
   issues: ValidationIssue[],
 ): boolean {
   if (resolvedSlug === requestedSlug) return true;
-  issues.push({ path, message: `${kind} catalog identity mismatch` });
+  issues.push({ path, message: `${kind} definition identity mismatch` });
   return false;
 }
 
-/** 在目录装配完成后校验项目中全部养成引用及轨道装备约束。 */
-export function validateProjectBuildCatalogReferences(
+/** 在数据装配完成后校验项目中全部养成引用及轨道装备约束。 */
+export function validateProjectBuildDefinitionReferences(
   project: EndaxisProjectDocument,
-  repository: BuildCatalogRepository,
+  repository: BuildDefinitionIndex,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
@@ -59,7 +59,7 @@ export function validateProjectBuildCatalogReferences(
       if (definition === null) {
         issues.push({ path, message: 'unknown operator' });
       } else if (
-        validateCatalogIdentity(build.operatorSlug, definition.slug, path, 'operator', issues)
+        validateDefinitionIdentity(build.operatorSlug, definition.slug, path, 'operator', issues)
       ) {
         operators.set(buildId, definition);
       }
@@ -71,7 +71,7 @@ export function validateProjectBuildCatalogReferences(
       if (definition === null) {
         issues.push({ path, message: 'unknown weapon' });
       } else if (
-        validateCatalogIdentity(build.weaponSlug, definition.slug, path, 'weapon', issues)
+        validateDefinitionIdentity(build.weaponSlug, definition.slug, path, 'weapon', issues)
       ) {
         weapons.set(buildId, definition);
         if (build.traitLevels.length !== definition.traits.length) {
@@ -100,7 +100,8 @@ export function validateProjectBuildCatalogReferences(
         issues.push({ path, message: 'unknown gear' });
         continue;
       }
-      if (!validateCatalogIdentity(build.gearSlug, definition.slug, path, 'gear', issues)) continue;
+      if (!validateDefinitionIdentity(build.gearSlug, definition.slug, path, 'gear', issues))
+        continue;
 
       gears.set(buildId, definition);
       if (build.artificingLevels.length !== definition.traits.length) {
@@ -124,7 +125,13 @@ export function validateProjectBuildCatalogReferences(
         if (gearSet === null) {
           issues.push({ path, message: `unknown gear set '${definition.gearSetSlug}'` });
         } else {
-          validateCatalogIdentity(definition.gearSetSlug, gearSet.slug, path, 'gear set', issues);
+          validateDefinitionIdentity(
+            definition.gearSetSlug,
+            gearSet.slug,
+            path,
+            'gear set',
+            issues,
+          );
         }
       }
     }

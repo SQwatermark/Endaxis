@@ -3,7 +3,7 @@
  * Next 时间轴的干员养成编辑弹窗。
  *
  * 组件沿用旧版干员编辑器的布局与节点交互，但只读取 Next 的 Build 投影；所有修改都通过
- * `change` 事件交给父层持久化。这里不访问旧 Store，也不会为目录尚未提供的详情补造文本。
+ * `change` 事件交给父层持久化。这里不访问旧 Store，也不会为定义尚未提供的详情补造文本。
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

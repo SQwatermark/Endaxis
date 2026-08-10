@@ -21,7 +21,7 @@ describe('loadoutBuildFactory', () => {
     });
   });
 
-  it('按目录词条数量建立武器和装备初始等级', () => {
+  it('按定义词条数量建立武器和装备初始等级', () => {
     const weapon: WeaponDefinition = {
       slug: 'weapon',
       rarity: 6,

@@ -1,6 +1,6 @@
 /**
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
- * 本层只负责依赖接线与原生阶段顺序，不解析存档，也不为尚未闭环的战斗操作提供默认行为。
+ * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
@@ -33,7 +33,7 @@ import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 export type OperatorBuffRuntime = FrameRuntime &
   BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
 
-/** 一个干员按原生技能目录顺序进入运行时的完整程序。 */
+/** 一个干员按原生技能定义顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
@@ -51,10 +51,10 @@ export interface CombatOperatorProgram {
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
 export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {}
 
-/** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非目录回查。 */
+/** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非定义回查。 */
 export interface CombatEnemyProgram {
   readonly source:
-    | { readonly kind: 'catalog'; readonly enemyId: string; readonly level: number }
+    | { readonly kind: 'prefab'; readonly enemyId: string; readonly level: number }
     | { readonly kind: 'custom'; readonly level: number };
   readonly health: number;
   readonly superArmor: number;
@@ -82,7 +82,7 @@ export interface CombatOperationExecutorContext {
 
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
-  /** 由场景敌人实例编译得到，操作执行器不得另行读取目录默认值。 */
+  /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
@@ -218,7 +218,8 @@ export class CombatRuntimeAssembly {
       clock: this.clock,
       inputs: options.inputs ?? [],
       receipt: this.receipt,
-      tryStartSkill: (operatorId, skillId) => this.tryStartSkill(operatorId, skillId),
+      tryStartSkill: (operatorId, skillId, castId) =>
+        this.tryStartSkill(operatorId, skillId, castId),
     });
     this.simulation.add(inputRuntime);
     for (const operator of options.operators) {
@@ -227,8 +228,8 @@ export class CombatRuntimeAssembly {
     inputRuntime.applyCurrentFrame();
   }
 
-  tryStartSkill(operatorId: string, skillId: string): boolean {
-    return this.#requireAbilitySystem(operatorId).tryStartSkill(skillId);
+  tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {
+    return this.#requireAbilitySystem(operatorId).tryStartSkill(skillId, castId);
   }
 
   requestPostSkillCast(operatorId: string, request: PostSkillCastRequest): void {

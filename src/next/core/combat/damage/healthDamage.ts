@@ -41,8 +41,12 @@ export interface ExecuteHealthDamageInput {
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  /** 这个步骤在目录里的名字（如果有）。命中点提示用它把伤害日志对应到具体命中点。 */
+  /** 这个步骤在定义里的名字（如果有）。命中点提示用它把伤害日志对应到具体命中点。 */
   readonly stepKey?: string;
+  /** 存档中的技能释放身份；命中回执凭它与具体施放对应。 */
+  readonly castId?: string;
+  /** 存档中的命中身份；命中回执凭它与具体命中点对应。 */
+  readonly hitId?: string;
   readonly emitSourceEvent: (
     event: HealthDamageSourceEvent,
     payload: HealthDamageEventPayload,
@@ -85,6 +89,8 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       igniteMultiplier: input.result.igniteMultiplier,
       physicalInflictionMultiplier: input.result.physicalInflictionMultiplier,
       ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
+      ...(input.castId === undefined ? {} : { castId: input.castId }),
+      ...(input.hitId === undefined ? {} : { hitId: input.hitId }),
     },
   });
   input.emitTargetEvent('takeDamage', payload);

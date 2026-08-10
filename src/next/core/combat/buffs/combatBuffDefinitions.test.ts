@@ -3,11 +3,11 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import {
-  COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
-  compileCombatBuffCatalog,
-  parseCombatBuffCatalogDocument,
-  type CombatBuffCatalogDocument,
-} from './combatBuffCatalog';
+  COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+  compileCombatBuffDefinitions,
+  parseCombatBuffDefinitionsDocument,
+  type CombatBuffDefinitionsDocument,
+} from './combatBuffDefinitions';
 
 type Attribute = 'attack';
 
@@ -16,9 +16,9 @@ function requireAddedBuff<T>(buff: T | null): T {
   return buff;
 }
 
-function createDocument(): CombatBuffCatalogDocument {
+function createDocument(): CombatBuffDefinitionsDocument {
   return {
-    schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
     revision: 'test-1',
     buffs: [
       {
@@ -48,13 +48,13 @@ function createDocument(): CombatBuffCatalogDocument {
   };
 }
 
-describe('compileCombatBuffCatalog', () => {
+describe('compileCombatBuffDefinitions', () => {
   it('compiles data-only attachment roles and lifecycle actions', () => {
     const emitStarted = vi.fn();
-    const catalog = compileCombatBuffCatalog<Attribute>(createDocument(), {
+    const index = compileCombatBuffDefinitions<Attribute>(createDocument(), {
       emitElementalInflictionStarted: emitStarted,
     });
-    const definition = catalog.getAttachment('heat');
+    const definition = index.getAttachment('heat');
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
 
     const first = requireAddedBuff(
@@ -63,9 +63,9 @@ describe('compileCombatBuffCatalog', () => {
       }),
     );
     expect(first.remainingDuration).toBe(12);
-    expect(catalog.getAttachmentElement(definition)).toBe('heat');
-    expect(catalog.getBurst('heat').id).toBe('burst.heat');
-    expect(catalog.getCompoundStatus('heat', 'cryo').id).toBe('status.heat.cryo');
+    expect(index.getAttachmentElement(definition)).toBe('heat');
+    expect(index.getBurst('heat').id).toBe('burst.heat');
+    expect(index.getCompoundStatus('heat', 'cryo').id).toBe('status.heat.cryo');
     expect(emitStarted).not.toHaveBeenCalled();
 
     container.add(definition, 'operator');
@@ -78,7 +78,7 @@ describe('compileCombatBuffCatalog', () => {
   it('rejects duplicate semantic roles instead of choosing by insertion order', () => {
     const document = createDocument();
     expect(() =>
-      compileCombatBuffCatalog<Attribute>(
+      compileCombatBuffDefinitions<Attribute>(
         {
           ...document,
           buffs: [
@@ -97,9 +97,9 @@ describe('compileCombatBuffCatalog', () => {
 
   it('rejects executable semantics whose required role is missing', () => {
     expect(() =>
-      compileCombatBuffCatalog<Attribute>(
+      compileCombatBuffDefinitions<Attribute>(
         {
-          schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+          schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
           revision: 'test-1',
           buffs: [
             {
@@ -115,16 +115,16 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('fails explicitly when a required runtime role is absent', () => {
-    const catalog = compileCombatBuffCatalog<Attribute>(createDocument(), {
+    const index = compileCombatBuffDefinitions<Attribute>(createDocument(), {
       emitElementalInflictionStarted: vi.fn(),
     });
-    expect(() => catalog.getBurst('nature')).toThrow("missing elemental burst 'nature'");
+    expect(() => index.getBurst('nature')).toThrow("missing elemental burst 'nature'");
   });
 
   it('rejects unknown fields at the stored JSON boundary', () => {
     expect(() =>
-      parseCombatBuffCatalogDocument({
-        schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      parseCombatBuffDefinitionsDocument({
+        schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
         revision: 'test-1',
         buffs: [
           {
@@ -138,8 +138,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('parses and compiles dynamic priority without leaking native flag fields', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-priority',
       buffs: [
         {
@@ -150,10 +150,10 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('buff.dynamic-priority');
+    const definition = index.get('buff.dynamic-priority');
     if (definition === undefined) throw new Error('compiled test buff is missing');
 
     expect(definition.priority).toEqual({ blackboardKey: 'priority', negate: true });
@@ -164,15 +164,15 @@ describe('compileCombatBuffCatalog', () => {
   it('preserves raw applyTags and compiles them into queryable identities', () => {
     const path = 'Combat/Buff/Pulse/Triggered';
     const tagId = gameplayTagIdFromPath(path);
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-tags',
       buffs: [{ id: 'pulse-triggered', stackingType: 'unique', applyTagIds: [tagId] }],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('pulse-triggered');
+    const definition = index.get('pulse-triggered');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const container = new CombatBuffContainer(
       'enemy',
@@ -185,8 +185,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('parses and registers fixed and blackboard-backed attribute modifiers', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-attributes',
       buffs: [
         {
@@ -204,10 +204,10 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('buff.attack');
+    const definition = index.get('buff.attack');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -219,8 +219,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('refreshes registered attribute modifiers from the current buff blackboard on trigger', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-refresh-attribute-modifiers',
       buffs: [
         {
@@ -243,10 +243,10 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('status.nature.heat');
+    const definition = index.get('status.nature.heat');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -263,8 +263,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('executes direct blackboard assignment and addition before refreshing modifiers', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-modify-blackboard',
       buffs: [
         {
@@ -298,10 +298,10 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('status.nature.heat');
+    const definition = index.get('status.nature.heat');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -313,8 +313,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('treats a missing direct blackboard addition target as zero', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-add-missing-blackboard-target',
       buffs: [
         {
@@ -333,10 +333,10 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
     });
-    const definition = catalog.get('status.direct-add');
+    const definition = index.get('status.direct-add');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
 
@@ -345,10 +345,10 @@ describe('compileCombatBuffCatalog', () => {
     expect(buff.blackboard.getNumber('tick')).toBe(1);
   });
 
-  it('rejects unsupported blackboard operations at the strict catalog boundary', () => {
+  it('rejects unsupported blackboard operations at the strict index boundary', () => {
     expect(() =>
-      parseCombatBuffCatalogDocument({
-        schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+      parseCombatBuffDefinitionsDocument({
+        schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
         revision: 'test-invalid-blackboard-operation',
         buffs: [
           {
@@ -371,8 +371,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('stores a non-converted attribute value and immediately refreshes blackboard modifiers', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-store-attribute-value',
       buffs: [
         {
@@ -406,11 +406,11 @@ describe('compileCombatBuffCatalog', () => {
       ],
     });
     const readAttribute = vi.fn(() => 20);
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
       readAttribute,
     });
-    const definition = catalog.get('status.store-attribute');
+    const definition = index.get('status.store-attribute');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -431,8 +431,8 @@ describe('compileCombatBuffCatalog', () => {
   });
 
   it('floors after division and before multiplying when StoreAttributeValue requests it', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-store-floored-attribute-value',
       buffs: [
         {
@@ -457,11 +457,11 @@ describe('compileCombatBuffCatalog', () => {
         },
       ],
     });
-    const catalog = compileCombatBuffCatalog<Attribute>(document, {
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
       readAttribute: () => 11,
     });
-    const definition = catalog.get('status.store-floored-attribute');
+    const definition = index.get('status.store-floored-attribute');
     if (definition === undefined) throw new Error('compiled test buff is missing');
 
     const buff = requireAddedBuff(
@@ -474,9 +474,9 @@ describe('compileCombatBuffCatalog', () => {
     expect(buff.blackboard.getNumber('result')).toBe(7);
   });
 
-  it('fails during catalog compilation when StoreAttributeValue lacks its runtime port', () => {
-    const document = parseCombatBuffCatalogDocument({
-      schemaVersion: COMBAT_BUFF_CATALOG_SCHEMA_VERSION,
+  it('fails during index compilation when StoreAttributeValue lacks its runtime port', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-missing-store-attribute-port',
       buffs: [
         {
@@ -502,7 +502,7 @@ describe('compileCombatBuffCatalog', () => {
     });
 
     expect(() =>
-      compileCombatBuffCatalog<Attribute>(document, {
+      compileCombatBuffDefinitions<Attribute>(document, {
         emitElementalInflictionStarted: vi.fn(),
       }),
     ).toThrow("buff 'status.missing-port' stores an attribute value without a readAttribute port");

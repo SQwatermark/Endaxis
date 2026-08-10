@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { createEmptyScenario } from '../core/project/createProject';
 import { perlica } from '../data/operators/perlica';
-import { elementalAttachmentCatalog } from '../data/buffs/elementalAttachmentCatalog';
+import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
@@ -31,7 +31,7 @@ function createPerlicaScenario() {
 
 function standardOptions() {
   return {
-    catalog: {
+    index: {
       getOperator: (slug: string) => (slug === perlica.slug ? perlica : null),
       getWeapon: () => null,
       getGear: () => null,
@@ -133,7 +133,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
-      elementalInflictionDocument: elementalAttachmentCatalog,
+      elementalInflictionDocument: elementalAttachments,
       options: standardOptions(),
     });
 

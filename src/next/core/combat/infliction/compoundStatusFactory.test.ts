@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CompoundStatusFactoryEntry } from './compoundStatusFactoryCatalog';
+import type { CompoundStatusFactoryEntry } from './compoundStatusFactories';
 import { executeCompoundStatusFactory } from './compoundStatusFactory';
 
 const FACTORY: CompoundStatusFactoryEntry = {

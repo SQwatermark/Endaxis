@@ -43,7 +43,7 @@ function operationExecutor(): CombatOperationExecutor {
 
 function options(): CompileScenarioRuntimeAssemblyOptions {
   return {
-    catalog: {
+    index: {
       getOperator: () => null,
       getWeapon: () => null,
       getGear: () => null,
@@ -95,8 +95,8 @@ function ultimateOptions(): CompileScenarioRuntimeAssemblyOptions {
   const settings = options();
   return {
     ...settings,
-    catalog: {
-      ...settings.catalog,
+    index: {
+      ...settings.index,
       getOperator: slug => (slug === perlica.slug ? perlica : null),
     },
     resources: settings.resources,
@@ -187,12 +187,12 @@ describe('runScenarioSimulation', () => {
 
   it.each([-1, 1.5, Number.NaN])('rejects invalid endFrame %s before compilation', endFrame => {
     const settings = options();
-    const getOperator = vi.fn(settings.catalog.getOperator);
+    const getOperator = vi.fn(settings.index.getOperator);
 
     expect(() =>
       runScenarioSimulation({
         scenario: createScenario(),
-        options: { ...settings, catalog: { ...settings.catalog, getOperator } },
+        options: { ...settings, index: { ...settings.index, getOperator } },
         endFrame,
       }),
     ).toThrow('endFrame must be a non-negative integer');

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { createSkillSettingSource, parseSkillSettingCatalog } from './skillSettingCatalog';
+import { createSkillSettingSource, parseSkillSettings } from './skillSettings';
 
-describe('skillSettingCatalog', () => {
+describe('skillSettings', () => {
   it('parses generated settings and builds lookup indexes', () => {
-    const catalog = parseSkillSettingCatalog(createCatalog());
-    const source = createSkillSettingSource(catalog);
+    const index = parseSkillSettings(createSettings());
+    const source = createSkillSettingSource(index);
 
     expect(source.getSetting('compound')).toEqual({
       key: 'compound',
@@ -19,30 +19,30 @@ describe('skillSettingCatalog', () => {
   });
 
   it('rejects missing formula references', () => {
-    const catalog = createCatalog();
-    catalog.enhanceFormulas = [];
+    const index = createSettings();
+    index.enhanceFormulas = [];
 
-    expect(() => parseSkillSettingCatalog(catalog)).toThrow(
+    expect(() => parseSkillSettings(index)).toThrow(
       "setting 'compound' references missing formula 'linear'",
     );
   });
 
   it('rejects data that no longer has four columns', () => {
-    const catalog = createCatalog();
-    catalog.data[0]!.values = [1, 2, 3];
+    const index = createSettings();
+    index.data[0]!.values = [1, 2, 3];
 
-    expect(() => parseSkillSettingCatalog(catalog)).toThrow('expected four-element array');
+    expect(() => parseSkillSettings(index)).toThrow('expected four-element array');
   });
 
   it('rejects unknown formula types', () => {
-    const catalog = createCatalog();
-    catalog.enhanceFormulas[0]!.formulaType = 'quadratic';
+    const index = createSettings();
+    index.enhanceFormulas[0]!.formulaType = 'quadratic';
 
-    expect(() => parseSkillSettingCatalog(catalog)).toThrow("unknown formula 'quadratic'");
+    expect(() => parseSkillSettings(index)).toThrow("unknown formula 'quadratic'");
   });
 });
 
-function createCatalog(): {
+function createSettings(): {
   schemaVersion: number;
   revision: string;
   data: { key: string; values: number[]; enhanceFormulaKey: string }[];

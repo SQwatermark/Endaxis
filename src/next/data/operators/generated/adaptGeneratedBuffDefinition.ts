@@ -1,8 +1,8 @@
 /**
- * 将可审计的解包 Buff 中间表示收敛为通用运行时目录条目。
+ * 将可审计的解包 Buff 中间表示收敛为通用运行时定义条目。
  * 该边界只接受当前运行时能够完整表达的定义；缺源或残留行为不得静默降级。
  */
-import type { CombatBuffCatalogEntry } from '../../../core/combat/buffs/combatBuffCatalog';
+import type { CombatBuffDefinitionEntry } from '../../../core/combat/buffs/combatBuffDefinitions';
 import type {
   GeneratedBuffDefinitionSource,
   GeneratedScalarSource,
@@ -36,7 +36,7 @@ const ATTRIBUTE_SLOTS = {
 
 export function adaptGeneratedBuffDefinition(
   source: GeneratedBuffDefinitionSource,
-): CombatBuffCatalogEntry {
+): CombatBuffDefinitionEntry {
   if (!source.sourceAvailable || source.lifecycle === null) {
     throw new Error(`buff '${source.buffId}' has no available source definition`);
   }

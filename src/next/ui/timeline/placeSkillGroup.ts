@@ -1,6 +1,6 @@
 /**
- * 把新版干员目录中的技能库条目转换为存档中的稳定放置数据。
- * 本层只生成目录默认值和身份，不执行模拟；调用方必须提供可进入撤销历史的稳定 ID 分配器。
+ * 把新版干员定义中的技能库条目转换为存档中的稳定放置数据。
+ * 本层只生成定义默认值和身份，不执行模拟；调用方必须提供可进入撤销历史的稳定 ID 分配器。
  */
 import { compileSkill } from '../../core/compiler/compileSkill';
 import type { ResolvedCombatStep } from '../../core/compiler/combatProgram';

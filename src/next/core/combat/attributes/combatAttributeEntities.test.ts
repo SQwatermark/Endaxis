@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { compileCombatBuffCatalog } from '../buffs/combatBuffCatalog';
+import { compileCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
@@ -9,7 +9,7 @@ import {
 } from './combatAttributes';
 import {
   CombatAttributeEntityRegistry,
-  createCombatBuffCatalogAttributeReader,
+  createCombatBuffDefinitionAttributeReader,
 } from './combatAttributeEntities';
 
 type Attribute = 'strength' | 'agility' | 'intellect' | 'will' | 'special';
@@ -151,8 +151,8 @@ describe('CombatAttributeEntityRegistry', () => {
     ).toThrow("duplicate combat attribute entity 'operator-a'");
   });
 
-  it('adapts sourceId lookup into a real StoreAttributeValue catalog port', () => {
-    const catalog = compileCombatBuffCatalog<Attribute>(
+  it('adapts sourceId lookup into a real StoreAttributeValue index port', () => {
+    const index = compileCombatBuffDefinitions<Attribute>(
       {
         schemaVersion: 1,
         revision: 'attribute-reader-test',
@@ -180,10 +180,10 @@ describe('CombatAttributeEntityRegistry', () => {
       },
       {
         emitElementalInflictionStarted: vi.fn(),
-        readAttribute: createCombatBuffCatalogAttributeReader(createRegistry()),
+        readAttribute: createCombatBuffDefinitionAttributeReader(createRegistry()),
       },
     );
-    const definition = catalog.get('status.attribute-reader');
+    const definition = index.get('status.attribute-reader');
     if (definition === undefined) throw new Error('compiled test buff is missing');
     const target = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
 

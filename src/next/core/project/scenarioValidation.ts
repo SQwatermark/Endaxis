@@ -1,6 +1,6 @@
 /**
  * 顶层项目校验器使用的场景内部一致性规则。
- * 这里只检查持久化结构和引用关系，不应调用游戏目录或执行战斗规则。
+ * 这里只检查持久化结构和引用关系，不应调用游戏数据或执行战斗规则。
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
 import { SKILL_TYPES } from '../game-data/operatorDefinition';
@@ -77,7 +77,7 @@ export function validateEnemy(value: unknown, path: string, issues: ValidationIs
   }
   if (!isObject(value.source)) {
     issues.push({ path: `${path}.source`, message: 'expected an object' });
-  } else if (value.source.kind === 'catalog') {
+  } else if (value.source.kind === 'prefab') {
     requireString(value.source, 'enemyId', `${path}.source`, issues);
     requirePositiveInteger(value.source.level, `${path}.source.level`, issues);
   } else if (value.source.kind === 'custom') {

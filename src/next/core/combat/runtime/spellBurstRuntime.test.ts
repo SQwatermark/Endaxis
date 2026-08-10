@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffCatalog';
+import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffDefinitions';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
-import {
-  createSkillSettingSource,
-  type SkillSettingCatalogDocument,
-} from '../infliction/skillSettingCatalog';
+import { createSkillSettingSource, type SkillSettingsDocument } from '../infliction/skillSettings';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
@@ -18,7 +15,7 @@ const definition: CombatBuffSpellBurstDefinition = {
   atkScaleBase: 50,
 };
 
-function settings(): SkillSettingCatalogDocument {
+function settings(): SkillSettingsDocument {
   return {
     schemaVersion: 1,
     revision: 'test',
@@ -66,6 +63,15 @@ describe('resolveSpellBurstEnhanceFactor', () => {
     expect(resolveSpellBurstEnhanceFactor(source, 'linear', 2)).toBe(2);
     expect(resolveSpellBurstEnhanceFactor(source, 'missing', 3)).toBe(1);
     expect(resolveSpellBurstEnhanceFactor(source, '', 3)).toBe(1);
+  });
+
+  it('增强公式存在但来源增强属性不可用时明确失败', () => {
+    const source = createSkillSettingSource(settings());
+    expect(() => resolveSpellBurstEnhanceFactor(source, 'linear', null)).toThrow(
+      'requires the source infliction-enhance attribute',
+    );
+    // 无增强公式的倍率不需要来源属性。
+    expect(resolveSpellBurstEnhanceFactor(source, '', null)).toBe(1);
   });
 });
 
@@ -130,7 +136,7 @@ describe('executeSpellBurst', () => {
   });
 
   it('SkillSetting 缺少倍率数据时严格失败', () => {
-    const missing: SkillSettingCatalogDocument = {
+    const missing: SkillSettingsDocument = {
       schemaVersion: 1,
       revision: 'test',
       data: [],
@@ -154,5 +160,52 @@ describe('executeSpellBurst', () => {
         emitTargetEvent: () => undefined,
       }),
     ).toThrow("requires SkillSetting '法术爆发伤害倍率'");
+  });
+
+  it('增强公式存在但来源增强属性不可用时严格失败', () => {
+    expect(() =>
+      executeSpellBurst({
+        definition,
+        sourceId: 'perlica',
+        attack: 1000,
+        enhance: null,
+        criticalRate: 0,
+        criticalDamageIncrease: 0,
+        criticalSample: 1,
+        settings: createSkillSettingSource(settings()),
+        defender: defender(),
+        target: createVitals(),
+        clock: new CombatClock(),
+        receipt: new CombatReceiptCollector(),
+        emitSourceEvent: () => undefined,
+        emitTargetEvent: () => undefined,
+      }),
+    ).toThrow('requires the source infliction-enhance attribute');
+  });
+
+  it('无增强公式的爆发在来源增强属性缺失时仍可执行', () => {
+    const noEnhance: SkillSettingsDocument = {
+      schemaVersion: 1,
+      revision: 'test',
+      data: [{ key: '法术爆发伤害倍率', values: [2, 3], enhanceFormulaKey: '' }],
+      enhanceFormulas: [],
+    };
+    const result = executeSpellBurst({
+      definition,
+      sourceId: 'perlica',
+      attack: 1000,
+      enhance: null,
+      criticalRate: 0,
+      criticalDamageIncrease: 0,
+      criticalSample: 1,
+      settings: createSkillSettingSource(noEnhance),
+      defender: defender(),
+      target: createVitals(),
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      emitSourceEvent: () => undefined,
+      emitTargetEvent: () => undefined,
+    });
+    expect(result).toMatchObject({ skillScale: 2, enhanceFactor: 1, value: 2000 });
   });
 });

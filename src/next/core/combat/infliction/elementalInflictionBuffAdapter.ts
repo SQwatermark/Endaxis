@@ -15,8 +15,8 @@ import type {
 } from './elementalInfliction';
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
-/** 附着适配器读取 Buff 定义和复合状态工厂的目录端口。 */
-export interface ElementalInflictionBuffCatalog<Key extends string> {
+/** 附着适配器读取 Buff 定义和复合状态工厂的定义端口。 */
+export interface ElementalInflictionBuffIndex<Key extends string> {
   getAttachmentElement(definition: CombatBuffDefinition<Key>): InflictionElement | null;
   getAttachment(element: InflictionElement): CombatBuffDefinition<Key>;
   getBurst(element: InflictionElement): CombatBuffDefinition<Key>;
@@ -57,7 +57,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
   constructor(
     readonly target: CombatBuffContainer<Key>,
     readonly sourceId: string,
-    readonly catalog: ElementalInflictionBuffCatalog<Key>,
+    readonly index: ElementalInflictionBuffIndex<Key>,
     readonly addOptions?: CombatBuffAddOptions,
   ) {}
 
@@ -71,19 +71,19 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     switch (operation.kind) {
       case 'addAttachment':
         this.target.add(
-          this.catalog.getAttachment(operation.element),
+          this.index.getAttachment(operation.element),
           this.sourceId,
           this.addOptions,
         );
         return;
       case 'triggerBurst':
-        this.target.add(this.catalog.getBurst(operation.element), this.sourceId, this.addOptions);
+        this.target.add(this.index.getBurst(operation.element), this.sourceId, this.addOptions);
         return;
       case 'consumeAttachment': {
         const projected = this.#projectedAttachment;
         if (
           projected === null ||
-          this.catalog.getAttachmentElement(projected.definition) !== operation.attachment.element
+          this.index.getAttachmentElement(projected.definition) !== operation.attachment.element
         ) {
           throw new Error('projected elemental attachment no longer matches the target');
         }
@@ -95,7 +95,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
       }
       case 'createCompoundStatus':
         this.target.add(
-          this.catalog.getCompoundStatus(operation.consumedElement, operation.incomingElement),
+          this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
           this.sourceId,
           {
             ...this.addOptions,
@@ -114,12 +114,12 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
   private findAttachment():
     { readonly buff: CombatBuff<Key>; readonly element: InflictionElement } | undefined {
     const buff = this.target.findFirst(
-      candidate => this.catalog.getAttachmentElement(candidate.definition) !== null,
+      candidate => this.index.getAttachmentElement(candidate.definition) !== null,
     );
     if (buff === undefined) return undefined;
-    const element = this.catalog.getAttachmentElement(buff.definition);
+    const element = this.index.getAttachmentElement(buff.definition);
     if (element === null) {
-      throw new Error('elemental attachment catalog changed during lookup');
+      throw new Error('elemental attachment index changed during lookup');
     }
     return { buff, element };
   }

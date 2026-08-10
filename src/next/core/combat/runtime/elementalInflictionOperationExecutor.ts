@@ -37,6 +37,8 @@ export interface ElementalInflictionEventPayload {
 /** 元素附着执行节点所需的状态读写、事件、回执和后继执行端口。 */
 export interface ElementalInflictionOperationDependencies {
   readonly sourceOperatorId: string;
+  /** 存档中的技能释放身份；附着回执凭它与具体施放对应。单元测试程序可能缺失。 */
+  readonly castId?: string;
   readonly targetId: string;
   readonly skillId: string;
   readonly clock: CombatClock;
@@ -99,6 +101,7 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
       targetId: this.dependencies.targetId,
       data: {
         skillId: this.dependencies.skillId,
+        ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         requestedElement: step.parameters.element,
         isExtra: payload.isExtra,
         previousElement: existing?.element ?? null,

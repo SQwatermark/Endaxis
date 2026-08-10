@@ -1,7 +1,7 @@
 /**
  * 把敌人身上的元素效果回执整理成曲线面板可画的效果可视化：
  * 附着段（从施加到到期）和标记点（附着施加、爆发、反应）。
- * 本层只按回执整理起止帧，不计算任何战斗数值。
+ * 这里只按回执整理起止帧，不计算任何战斗数值。
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
 
@@ -72,6 +72,18 @@ function requireString(
   return value;
 }
 
+function requireBoolean(
+  entry: CombatReceiptEntry,
+  data: Readonly<Record<string, CombatReceiptValue>>,
+  key: string,
+): boolean {
+  const value = data[key];
+  if (typeof value !== 'boolean') {
+    throw new Error(`receipt ${entry.sequence} '${entry.event}' has no boolean ${key}`);
+  }
+  return value;
+}
+
 /** 把回执整理成效果段和标记；`endFrame` 是模拟终点，用于给未到期附着收尾。 */
 export function projectEnemyEffectViz(
   entries: readonly CombatReceiptEntry[],
@@ -80,19 +92,26 @@ export function projectEnemyEffectViz(
   if (!Number.isInteger(endFrame) || endFrame < 0) {
     throw new RangeError('endFrame must be a non-negative integer');
   }
-  const segments = new Map<string, EnemyEffectSegment>();
-  const segmentOrder: string[] = [];
+  // 同元素当前仍生效的段（层数或时长变化时关闭旧段再开新段，保留完整历史）。
+  const openSegments = new Map<string, EnemyEffectSegment>();
+  const closedSegments: EnemyEffectSegment[] = [];
   const markers: EnemyEffectMarker[] = [];
+
+  function closeOpenSegment(element: string, closeFrame: number): void {
+    const open = openSegments.get(element);
+    if (open === undefined) return;
+    openSegments.delete(element);
+    closedSegments.push({ ...open, endFrame: closeFrame });
+  }
 
   for (const entry of entries) {
     if (entry.event === 'ElementalInflictionApplied') {
       const data = requireData(entry);
       const element = requireString(entry, data, 'requestedElement');
       const layers = requireNumber(entry, data, 'currentLayers');
-      // 同元素附着段从头开始（元素变化时旧段由 BuffFinished 收尾）。
-      segments.delete(element);
-      segmentOrder.push(element);
-      segments.set(element, {
+      // 同元素再次施加（可能是层数增强）：关闭旧段保留历史，再开新段。
+      closeOpenSegment(element, entry.frame);
+      openSegments.set(element, {
         kind: 'attachment',
         element,
         startFrame: entry.frame,
@@ -106,10 +125,7 @@ export function projectEnemyEffectViz(
       const buffId = requireString(entry, data, 'buffId');
       const element = ATTACHMENT_BUFF_ELEMENTS[buffId];
       if (element === undefined) continue;
-      const segment = segments.get(element);
-      if (segment === undefined) continue;
-      segmentOrder.splice(segmentOrder.indexOf(element), 1);
-      segments.set(element, { ...segment, endFrame: entry.frame });
+      closeOpenSegment(element, entry.frame);
       continue;
     }
     if (entry.event === 'SpellBurstApplied') {
@@ -133,6 +149,8 @@ export function projectEnemyEffectViz(
     }
     if (entry.event === 'ElementalReactionConsumed') {
       const data = requireData(entry);
+      // 未消费成功（敌人身上没有该反应）时不生成消费标记。
+      if (!requireBoolean(entry, data, 'consumed')) continue;
       markers.push({
         frame: entry.frame,
         kind: 'reactionConsumed',
@@ -143,7 +161,7 @@ export function projectEnemyEffectViz(
   }
 
   return {
-    segments: segmentOrder.map(element => segments.get(element)!),
+    segments: [...closedSegments, ...openSegments.values()],
     markers,
   };
 }

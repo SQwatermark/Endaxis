@@ -8,7 +8,7 @@ import {
   type GameDataRevisionMigrationResolver,
 } from './openProject';
 
-function createRepository(revision = 'catalog:current'): GameDataRepository {
+function createRepository(revision = 'definitions:current'): GameDataRepository {
   return {
     revision,
     getOperator: () => null,
@@ -20,7 +20,7 @@ function createRepository(revision = 'catalog:current'): GameDataRepository {
   };
 }
 
-function createProject(gameDataRevision = 'catalog:current') {
+function createProject(gameDataRevision = 'definitions:current') {
   return createEmptyProject({ createdWith: 'test', gameDataRevision });
 }
 
@@ -41,7 +41,7 @@ describe('openProject', () => {
     expect(getOperator).not.toHaveBeenCalled();
   });
 
-  it('opens a structurally and catalog-valid project with the matching revision', () => {
+  it('opens a structurally and definition-valid project with the matching revision', () => {
     const project = createProject();
 
     expect(
@@ -52,11 +52,11 @@ describe('openProject', () => {
       ok: true,
       kind: 'opened',
       project,
-      gameDataRevision: 'catalog:current',
+      gameDataRevision: 'definitions:current',
     });
   });
 
-  it('reports catalog reference issues when the revision matches', () => {
+  it('reports definition reference issues when the revision matches', () => {
     const project = createProject();
     project.scenarios[0]!.builds.weapons['weapon:1'] = {
       id: 'weapon:1',
@@ -69,7 +69,7 @@ describe('openProject', () => {
 
     expect(openProject(project, { gameDataRepository: createRepository() })).toEqual({
       ok: false,
-      kind: 'catalog-validation-failed',
+      kind: 'definition-validation-failed',
       project,
       issues: [
         {
@@ -80,23 +80,23 @@ describe('openProject', () => {
     });
   });
 
-  it('does not silently open a project created with another catalog revision', () => {
-    const project = createProject('catalog:old');
+  it('does not silently open a project created with another definition revision', () => {
+    const project = createProject('definitions:old');
 
     expect(openProject(project, { gameDataRepository: createRepository() })).toEqual({
       ok: false,
       kind: 'game-data-revision-mismatch',
       project,
-      projectRevision: 'catalog:old',
-      repositoryRevision: 'catalog:current',
-      catalogIssues: [],
+      projectRevision: 'definitions:old',
+      repositoryRevision: 'definitions:current',
+      indexIssues: [],
     });
   });
 
-  it('keeps target-catalog reference issues subordinate to a revision mismatch', () => {
-    const project = createProject('catalog:old');
+  it('keeps target-definition reference issues subordinate to a revision mismatch', () => {
+    const project = createProject('definitions:old');
     project.scenarios[0]!.enemy.source = {
-      kind: 'catalog',
+      kind: 'prefab',
       enemyId: 'enemy:removed',
       level: 90,
     };
@@ -107,7 +107,7 @@ describe('openProject', () => {
       expect.objectContaining({
         ok: false,
         kind: 'game-data-revision-mismatch',
-        catalogIssues: [
+        indexIssues: [
           {
             path: '$.scenarios[0].enemy.source.enemyId',
             message: 'unknown enemy',
@@ -118,11 +118,11 @@ describe('openProject', () => {
   });
 
   it('reports an explicitly registered migration without executing it', () => {
-    const project = createProject('catalog:old');
+    const project = createProject('definitions:old');
     const migrate = vi.fn(() => ({ ok: true as const, value: project, warnings: [] }));
     const migrator: GameDataRevisionMigrator = {
-      fromRevision: 'catalog:old',
-      toRevision: 'catalog:current',
+      fromRevision: 'definitions:old',
+      toRevision: 'definitions:current',
       migrate,
     };
     const findMigration = vi.fn(() => migrator);
@@ -137,20 +137,20 @@ describe('openProject', () => {
       ok: false,
       kind: 'game-data-migration-available',
       project,
-      projectRevision: 'catalog:old',
-      repositoryRevision: 'catalog:current',
-      catalogIssues: [],
+      projectRevision: 'definitions:old',
+      repositoryRevision: 'definitions:current',
+      indexIssues: [],
       migrator,
     });
-    expect(findMigration).toHaveBeenCalledWith('catalog:old', 'catalog:current');
+    expect(findMigration).toHaveBeenCalledWith('definitions:old', 'definitions:current');
     expect(migrate).not.toHaveBeenCalled();
   });
 
   it('reports a resolver that returns a migrator for another revision pair', () => {
-    const project = createProject('catalog:old');
+    const project = createProject('definitions:old');
     const migrator: GameDataRevisionMigrator = {
-      fromRevision: 'catalog:other',
-      toRevision: 'catalog:current',
+      fromRevision: 'index:other',
+      toRevision: 'definitions:current',
       migrate: () => ({ ok: true, value: project, warnings: [] }),
     };
     const resolver: GameDataRevisionMigrationResolver = {
@@ -166,15 +166,15 @@ describe('openProject', () => {
       ok: false,
       kind: 'game-data-migrator-invalid',
       project,
-      projectRevision: 'catalog:old',
-      repositoryRevision: 'catalog:current',
-      catalogIssues: [],
+      projectRevision: 'definitions:old',
+      repositoryRevision: 'definitions:current',
+      indexIssues: [],
       migrator,
     });
   });
 
   it('applies revision checks after an explicitly injected legacy format migration', () => {
-    const migrated = createProject('catalog:old');
+    const migrated = createProject('definitions:old');
     const result = openProject(
       { version: '1.0.0', scenarioList: [] },
       {
@@ -190,8 +190,8 @@ describe('openProject', () => {
         ok: false,
         kind: 'game-data-revision-mismatch',
         project: migrated,
-        projectRevision: 'catalog:old',
-        repositoryRevision: 'catalog:current',
+        projectRevision: 'definitions:old',
+        repositoryRevision: 'definitions:current',
       }),
     );
   });

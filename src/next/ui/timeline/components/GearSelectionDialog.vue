@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Next 时间轴的单槽装备选择器。父层决定正在编辑的轨道和槽位，并负责把选择、卸下及精锻档位写回项目；
- * 本组件只复刻旧版装备选择弹窗的目录浏览流程，不读取旧 store，也不把适配状态写入存档。
+ * 本组件只复刻旧版装备选择弹窗的定义浏览流程，不读取旧 store，也不把适配状态写入存档。
  */
 import { computed, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
@@ -26,7 +26,7 @@ export interface GearSelectionDialogLabels {
 const props = withDefaults(
   defineProps<{
     visible: boolean;
-    /** 父层已经按当前槽位筛选好的装备目录。 */
+    /** 父层已经按当前槽位筛选好的装备定义。 */
     gears: readonly GearDefinition[];
     selectedSlug: string | null;
     /** 已装备 Build 的精锻档位；未装备时默认预选满精锻，与旧版一致。 */

@@ -50,7 +50,7 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('inflictCnt')).toBe(2);
   });
 
-  it('resolves action-blackboard assignments before applying a catalog buff', () => {
+  it('resolves action-blackboard assignments before applying a index buff', () => {
     const applied: unknown[] = [];
     const target = {
       ownerId: 'caster',
@@ -286,7 +286,7 @@ describe('BuffOperationExecutor', () => {
       resolveTarget: () => ({
         ownerId: 'enemy',
         apply: () => {
-          calls.push('catalog');
+          calls.push('index');
           return true;
         },
         getCountByIds: () => 0,

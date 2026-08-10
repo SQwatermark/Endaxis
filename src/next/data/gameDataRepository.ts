@@ -1,6 +1,6 @@
 /**
- * 将新版已经审核的数据定义装配成核心可读取的只读目录。
- * 目录只按稳定身份查找，不读取旧版 store，也不为尚未迁移的数据伪造默认定义。
+ * 将新版已经审核的数据定义装配成核心可读取的只读定义。
+ * 数据仓库只按稳定身份查找，不读取旧版 store，也不为尚未迁移的数据伪造默认定义。
  */
 import type {
   GameDataBrowser,
@@ -20,12 +20,12 @@ import {
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
 } from './equipment';
-import { legacyEnemyDefinitions } from './adapters/legacyEnemyCatalogAdapter';
+import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 
-/** 目录内容发生任何会影响项目解析的变化时必须显式更新。 */
-export const NEXT_GAME_DATA_REVISION = 'endaxis-next-catalog-v1';
+/** 游戏数据内容发生任何会影响项目解析的变化时必须显式更新。 */
+export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-v1';
 
-export interface GameDataCatalogInput {
+export interface GameDataRepositoryInput {
   readonly revision: string;
   readonly operators?: readonly OperatorDefinition[];
   readonly weapons?: readonly WeaponDefinition[];
@@ -50,9 +50,9 @@ function indexDefinitions<T>(
   return indexed;
 }
 
-/** 创建一个封闭目录；后续修改输入数组不会改变已经创建的查询结果。 */
+/** 创建查询结果封闭的数据仓库；后续修改输入数组不会改变已经创建的查询结果。 */
 export function createGameDataRepository(
-  input: GameDataCatalogInput,
+  input: GameDataRepositoryInput,
 ): GameDataRepository & GameDataBrowser {
   if (input.revision.length === 0) throw new Error('game data revision must not be empty');
   const operatorList = Object.freeze([...(input.operators ?? [])]);
@@ -83,7 +83,7 @@ export function createGameDataRepository(
   });
 }
 
-/** 当前正式进入 Next 的默认目录；其他数据迁移完成后必须在这里显式注册。 */
+/** 当前正式进入 Next 的默认数据仓库；其他数据迁移完成后必须在这里显式注册。 */
 export const nextGameDataRepository = createGameDataRepository({
   revision: NEXT_GAME_DATA_REVISION,
   operators: [perlica, arcane, zhuangFangyi],

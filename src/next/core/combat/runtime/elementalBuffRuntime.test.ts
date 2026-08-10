@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import {
-  compileCombatBuffCatalog,
-  type CombatBuffCatalogDocument,
-} from '../buffs/combatBuffCatalog';
+  compileCombatBuffDefinitions,
+  type CombatBuffDefinitionsDocument,
+} from '../buffs/combatBuffDefinitions';
 import { resolveElementalInfliction } from '../infliction/elementalInfliction';
 import { ElementalBuffRuntime } from './elementalBuffRuntime';
 
-const DOCUMENT: CombatBuffCatalogDocument = {
+const DOCUMENT: CombatBuffDefinitionsDocument = {
   schemaVersion: 1,
   revision: 'test',
   buffs: [
@@ -39,7 +39,7 @@ function createRuntime() {
   return new ElementalBuffRuntime({
     ownerId: 'enemy',
     attributes: new CombatAttributeSet(),
-    catalog: compileCombatBuffCatalog(DOCUMENT, {
+    index: compileCombatBuffDefinitions(DOCUMENT, {
       emitElementalInflictionStarted: vi.fn(),
     }),
   });

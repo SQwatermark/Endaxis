@@ -34,8 +34,8 @@ function createPerlicaScenario(): ScenarioDocument {
 function createService(cacheLimit?: number): ScenarioSimulationService {
   return new ScenarioSimulationService(
     {
-      catalog: testCatalog,
-      catalogRevision: 'test-catalog',
+      index: testIndex,
+      repositoryRevision: 'test-definitions',
       resources: {
         sharedSpGain: { baseGainEfficiency: 1 },
         spRecoveryPauseDuration: 1.5,
@@ -47,8 +47,8 @@ function createService(cacheLimit?: number): ScenarioSimulationService {
   );
 }
 
-const testCatalog = {
-  revision: 'test-catalog',
+const testIndex = {
+  revision: 'test-definitions',
   getOperator: (slug: string) => (slug === perlica.slug ? perlica : null),
   getWeapon: () => null,
   getGear: () => null,
@@ -140,7 +140,7 @@ describe('ScenarioSimulationService', () => {
       ids,
     }).scenario;
     const service = new ScenarioSimulationService({
-      catalog: {
+      index: {
         getOperator: (slug: string) => (slug === perlica.slug ? perlica : null),
         getWeapon: () => null,
         getGear: () => null,

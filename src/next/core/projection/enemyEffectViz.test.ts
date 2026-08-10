@@ -91,6 +91,7 @@ describe('projectEnemyEffectViz', () => {
       100,
     );
     expect(viz.segments).toEqual([
+      { kind: 'attachment', element: 'electric', startFrame: 10, endFrame: 20, layers: 1 },
       { kind: 'attachment', element: 'electric', startFrame: 20, endFrame: 50, layers: 2 },
       { kind: 'attachment', element: 'heat', startFrame: 60, endFrame: 100, layers: 1 },
     ]);

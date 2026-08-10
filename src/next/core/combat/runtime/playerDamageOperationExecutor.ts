@@ -54,6 +54,8 @@ export interface PoiseDamageMultipliers {
 /** 玩家伤害执行节点需要由战斗装配层提供的全部状态与事件端口。 */
 export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
+  /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
+  readonly castId?: string;
   readonly targetId: string;
   readonly targetVitals: CombatVitals;
   readonly clock: CombatClock;
@@ -156,7 +158,9 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       target: this.dependencies.targetVitals,
       clock: this.dependencies.clock,
       receipt: this.dependencies.receipt,
+      ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
       ...(step.key === undefined ? {} : { stepKey: step.key }),
+      ...(step.hitId === undefined ? {} : { hitId: step.hitId }),
       emitSourceEvent: this.dependencies.emitHealthSourceEvent,
       emitTargetEvent: this.dependencies.emitHealthTargetEvent,
     });

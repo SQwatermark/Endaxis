@@ -1,6 +1,6 @@
 /**
  * 玩家主动伤害共享的暴击随机样本端口及已恢复的 56 项减法随机流。
- * 原生初始化算法尚未闭环，因此这里只接受完整状态或显式测试样本，不提供 seed 便捷构造。
+ * 原生初始化算法还没做通，因此这里只接受完整状态或显式测试样本，不提供 seed 便捷构造。
  */
 const BATTLE_RANDOM_STATE_LENGTH = 56;
 const BATTLE_RANDOM_MAX_VALUE = 0x7fffffff;

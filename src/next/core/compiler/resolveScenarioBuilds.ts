@@ -1,5 +1,5 @@
 /**
- * 将场景中的 Build 引用和只读目录解析为编译阶段共享的构筑视图。
+ * 将场景中的 Build 引用和只读定义解析为编译阶段共享的构筑视图。
  *
  * 本模块只确认身份、兼容性、装备槽位和三件套，不计算面板，也不补齐缺失配置。
  * 时间轴、资源、面板和战斗装配应复用这里的结果，避免各自解释同一份项目数据。
@@ -20,21 +20,21 @@ import type {
   WeaponBuildDocument,
 } from '../project/schema';
 
-export type ScenarioBuildCatalog = Pick<
+export type ScenarioBuildIndex = Pick<
   GameDataRepository,
   'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'
 >;
 
 export type ResolvedGearSlot = keyof TrackDocument['gearBuildIds'];
 
-/** 一件已经确认槽位兼容的装备实例及其目录定义。 */
+/** 一件已经确认槽位兼容的装备实例及其定义。 */
 export interface ResolvedGearBuild {
   readonly slot: ResolvedGearSlot;
   readonly build: GearBuildDocument;
   readonly definition: GearDefinition;
 }
 
-/** 一条有干员轨道的完整构筑输入；后续阶段不得再次按 slug 查询这些目录对象。 */
+/** 一条有干员轨道的完整构筑输入；后续阶段不得再次按 slug 查询这些定义对象。 */
 export interface ResolvedScenarioBuild {
   readonly trackIndex: TrackIndex;
   readonly track: TrackDocument;
@@ -55,14 +55,14 @@ const GEAR_SLOTS = [
   ['accessory2', 'accessory'],
 ] as const satisfies readonly (readonly [ResolvedGearSlot, GearDefinition['slotType']])[];
 
-function requireCatalogEntry<T>(value: T | null, kind: string, slug: string): T {
+function requireDefinitionEntry<T>(value: T | null, kind: string, slug: string): T {
   if (value === null) throw new Error(`${kind} definition '${slug}' does not exist`);
   return value;
 }
 
-function requireCatalogIdentity(actual: string, expected: string, path: string): void {
+function requireDefinitionIdentity(actual: string, expected: string, path: string): void {
   if (actual !== expected) {
-    throw new Error(`${path} resolved catalog identity '${actual}', expected '${expected}'`);
+    throw new Error(`${path} resolved definition identity '${actual}', expected '${expected}'`);
   }
 }
 
@@ -71,19 +71,19 @@ function resolveWeapon(
   track: TrackDocument,
   operator: OperatorDefinition,
   trackPath: string,
-  catalog: ScenarioBuildCatalog,
+  index: ScenarioBuildIndex,
 ): ResolvedScenarioBuild['weapon'] {
   if (track.weaponBuildId === null) return null;
   const build = scenario.builds.weapons[track.weaponBuildId];
   if (build === undefined) {
     throw new Error(`${trackPath}.weaponBuildId references missing build '${track.weaponBuildId}'`);
   }
-  const definition = requireCatalogEntry(
-    catalog.getWeapon(build.weaponSlug),
+  const definition = requireDefinitionEntry(
+    index.getWeapon(build.weaponSlug),
     'weapon',
     build.weaponSlug,
   );
-  requireCatalogIdentity(definition.slug, build.weaponSlug, `${trackPath}.weaponBuildId`);
+  requireDefinitionIdentity(definition.slug, build.weaponSlug, `${trackPath}.weaponBuildId`);
   if (definition.weaponType !== operator.weaponType) {
     throw new Error(
       `${trackPath}.weaponBuildId weapon type '${definition.weaponType}' is incompatible with operator weapon type '${operator.weaponType}'`,
@@ -96,7 +96,7 @@ function resolveGears(
   scenario: ScenarioDocument,
   track: TrackDocument,
   trackPath: string,
-  catalog: ScenarioBuildCatalog,
+  index: ScenarioBuildIndex,
 ): readonly ResolvedGearBuild[] {
   const resolved: ResolvedGearBuild[] = [];
   for (const [slot, expectedSlotType] of GEAR_SLOTS) {
@@ -106,8 +106,12 @@ function resolveGears(
     if (build === undefined) {
       throw new Error(`${trackPath}.gearBuildIds.${slot} references missing build '${buildId}'`);
     }
-    const definition = requireCatalogEntry(catalog.getGear(build.gearSlug), 'gear', build.gearSlug);
-    requireCatalogIdentity(definition.slug, build.gearSlug, `${trackPath}.gearBuildIds.${slot}`);
+    const definition = requireDefinitionEntry(
+      index.getGear(build.gearSlug),
+      'gear',
+      build.gearSlug,
+    );
+    requireDefinitionIdentity(definition.slug, build.gearSlug, `${trackPath}.gearBuildIds.${slot}`);
     if (definition.slotType !== expectedSlotType) {
       throw new Error(
         `${trackPath}.gearBuildIds.${slot} gear slot '${definition.slotType}' is incompatible with track slot '${slot}'`,
@@ -121,7 +125,7 @@ function resolveGears(
 function resolveActiveGearSets(
   gears: readonly ResolvedGearBuild[],
   trackPath: string,
-  catalog: ScenarioBuildCatalog,
+  index: ScenarioBuildIndex,
 ): readonly GearSetDefinition[] {
   const counts = new Map<string, number>();
   for (const { definition } of gears) {
@@ -132,8 +136,8 @@ function resolveActiveGearSets(
   return [...counts]
     .filter(([, count]) => count >= 3)
     .map(([slug]) => {
-      const definition = requireCatalogEntry(catalog.getGearSet(slug), 'gear set', slug);
-      requireCatalogIdentity(definition.slug, slug, `${trackPath}.gearBuildIds`);
+      const definition = requireDefinitionEntry(index.getGearSet(slug), 'gear set', slug);
+      requireDefinitionIdentity(definition.slug, slug, `${trackPath}.gearBuildIds`);
       return definition;
     });
 }
@@ -141,7 +145,7 @@ function resolveActiveGearSets(
 /** 按轨道顺序严格解析全部上场干员构筑。 */
 export function resolveScenarioBuilds(
   scenario: ScenarioDocument,
-  catalog: ScenarioBuildCatalog,
+  index: ScenarioBuildIndex,
 ): readonly ResolvedScenarioBuild[] {
   const resolved: ResolvedScenarioBuild[] = [];
   const seenOperatorBuildIds = new Set<string>();
@@ -172,18 +176,18 @@ export function resolveScenarioBuilds(
     }
     seenOperatorBuildIds.add(operatorBuild.id);
 
-    const operator = requireCatalogEntry(
-      catalog.getOperator(operatorBuild.operatorSlug),
+    const operator = requireDefinitionEntry(
+      index.getOperator(operatorBuild.operatorSlug),
       'operator',
       operatorBuild.operatorSlug,
     );
-    requireCatalogIdentity(
+    requireDefinitionIdentity(
       operator.slug,
       operatorBuild.operatorSlug,
       `${trackPath}.operatorBuildId`,
     );
-    const weapon = resolveWeapon(scenario, track, operator, trackPath, catalog);
-    const gears = resolveGears(scenario, track, trackPath, catalog);
+    const weapon = resolveWeapon(scenario, track, operator, trackPath, index);
+    const gears = resolveGears(scenario, track, trackPath, index);
     resolved.push({
       trackIndex,
       track,
@@ -191,7 +195,7 @@ export function resolveScenarioBuilds(
       operator,
       weapon,
       gears,
-      activeGearSets: resolveActiveGearSets(gears, trackPath, catalog),
+      activeGearSets: resolveActiveGearSets(gears, trackPath, index),
     });
   });
 

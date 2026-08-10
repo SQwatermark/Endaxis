@@ -4,8 +4,8 @@
  */
 import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
-import type { CombatBuffCatalogDocument } from '../core/combat/buffs/combatBuffCatalog';
-import type { SkillSettingCatalogDocument } from '../core/combat/infliction/skillSettingCatalog';
+import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
+import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import {
@@ -32,10 +32,10 @@ export interface RunStandardPlayerDamageScenarioInput {
     context: CombatOperationExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
-  /** 提供后 `applyElementalInfliction` 步骤按目录附着状态机执行。 */
-  readonly elementalInflictionDocument?: CombatBuffCatalogDocument;
+  /** 提供后 `applyElementalInfliction` 步骤按定义附着状态机执行。 */
+  readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
-  readonly spellInflictionSettings?: SkillSettingCatalogDocument;
+  readonly spellInflictionSettings?: SkillSettingsDocument;
 }
 
 export interface StandardPlayerDamageScenarioResult extends ScenarioSimulationResult {

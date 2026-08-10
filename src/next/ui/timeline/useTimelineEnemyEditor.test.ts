@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument } from '../../core/project/schema';
-import { nextGameDataRepository } from '../../data/gameDataCatalog';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 
 function createEditor() {
@@ -26,15 +26,15 @@ function createEditor() {
 }
 
 describe('useTimelineEnemyEditor', () => {
-  it('选择目录敌人会提交一次完整实例', () => {
+  it('选择敌人预制体会提交一次完整实例', () => {
     const { editor, scenario, session } = createEditor();
 
-    editor.selectCatalogEnemy('eny-0125-fdcentur', 90);
+    editor.selectDefinitionEnemy('eny-0125-fdcentur', 90);
 
     expect(session.snapshot.revision).toBe(1);
     expect(session.snapshot.lastCommand).toBe('setScenarioEnemy');
     expect(scenario.value.enemy.source).toEqual({
-      kind: 'catalog',
+      kind: 'prefab',
       enemyId: 'eny-0125-fdcentur',
       level: 90,
     });
@@ -53,7 +53,7 @@ describe('useTimelineEnemyEditor', () => {
     expect(scenario.value.enemy.edited).toEqual(['hp', 'stagger.maximum']);
   });
 
-  it('切换自定义敌人不会伪造目录身份', () => {
+  it('切换自定义敌人不会伪造预制体身份', () => {
     const { editor, scenario } = createEditor();
 
     editor.selectCustomEnemy(80);

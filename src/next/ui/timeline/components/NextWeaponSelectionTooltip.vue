@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Next 武器选择器的只读预览。它复刻旧选择器的 tooltip 内容，但只从 WeaponDefinition
- * 和按需加载的游戏文本推导显示值，不读取旧武器目录或 Build 状态。
+ * 和按需加载的游戏文本推导显示值，不读取旧武器定义或 Build 状态。
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -1,8 +1,8 @@
 /**
  * 原生 SkillSetting 中已确认子集进入复合状态计算的严格边界。
- * 这里只暴露工厂实际消费的字段，调用方不能据此假定完整原生资源已经被支持。
+ * 这里只暴露工厂实际消费的字段，调用方不能凭此假定完整原生资源已经被支持。
  */
-export const SKILL_SETTING_CATALOG_SCHEMA_VERSION = 1;
+export const SKILL_SETTINGS_SCHEMA_VERSION = 1;
 
 /** 复合状态强度计算当前支持的原生公式。 */
 export type InflictionEnhanceFormula =
@@ -22,20 +22,20 @@ export interface CompoundStatusSkillSettingSource {
   getEnhanceFormula(formulaKey: string): InflictionEnhanceFormula | undefined;
 }
 
-/** 从原生资源生成的 SkillSetting 子集目录文档。 */
-export interface SkillSettingCatalogDocument {
-  readonly schemaVersion: typeof SKILL_SETTING_CATALOG_SCHEMA_VERSION;
+/** 从原生资源生成的 SkillSetting 子集定义文档。 */
+export interface SkillSettingsDocument {
+  readonly schemaVersion: typeof SKILL_SETTINGS_SCHEMA_VERSION;
   readonly revision: string;
   readonly data: readonly ({ readonly key: string } & CompoundStatusSkillSetting)[];
   readonly enhanceFormulas: readonly ({ readonly key: string } & InflictionEnhanceFormula)[];
 }
 
 /** 原生 `SkillSetting` 资源生成子集进入核心前的严格边界。 */
-export function parseSkillSettingCatalog(input: unknown): SkillSettingCatalogDocument {
+export function parseSkillSettings(input: unknown): SkillSettingsDocument {
   const root = requireObject(input, '$');
   requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'data', 'enhanceFormulas']);
-  if (root.schemaVersion !== SKILL_SETTING_CATALOG_SCHEMA_VERSION) {
-    throw new Error(`$.schemaVersion: expected ${SKILL_SETTING_CATALOG_SCHEMA_VERSION}`);
+  if (root.schemaVersion !== SKILL_SETTINGS_SCHEMA_VERSION) {
+    throw new Error(`$.schemaVersion: expected ${SKILL_SETTINGS_SCHEMA_VERSION}`);
   }
   if (!Array.isArray(root.data)) throw new Error('$.data: expected array');
   if (!Array.isArray(root.enhanceFormulas)) {
@@ -50,7 +50,7 @@ export function parseSkillSettingCatalog(input: unknown): SkillSettingCatalogDoc
   requireUniqueKeys(enhanceFormulas, '$.enhanceFormulas');
   requireFormulaReferences(data, enhanceFormulas);
   return {
-    schemaVersion: SKILL_SETTING_CATALOG_SCHEMA_VERSION,
+    schemaVersion: SKILL_SETTINGS_SCHEMA_VERSION,
     revision: requireNonEmptyString(root.revision, '$.revision'),
     data,
     enhanceFormulas,
@@ -58,10 +58,10 @@ export function parseSkillSettingCatalog(input: unknown): SkillSettingCatalogDoc
 }
 
 export function createSkillSettingSource(
-  catalog: SkillSettingCatalogDocument,
+  index: SkillSettingsDocument,
 ): CompoundStatusSkillSettingSource {
-  const settings = new Map(catalog.data.map(entry => [entry.key, entry]));
-  const formulas = new Map(catalog.enhanceFormulas.map(entry => [entry.key, entry]));
+  const settings = new Map(index.data.map(entry => [entry.key, entry]));
+  const formulas = new Map(index.enhanceFormulas.map(entry => [entry.key, entry]));
   return {
     getSetting: dataKey => settings.get(dataKey),
     getEnhanceFormula: formulaKey => formulas.get(formulaKey),
@@ -109,8 +109,8 @@ function parseFormula(
 }
 
 function requireFormulaReferences(
-  data: SkillSettingCatalogDocument['data'],
-  formulas: SkillSettingCatalogDocument['enhanceFormulas'],
+  data: SkillSettingsDocument['data'],
+  formulas: SkillSettingsDocument['enhanceFormulas'],
 ): void {
   const formulaKeys = new Set(formulas.map(formula => formula.key));
   for (const setting of data) {

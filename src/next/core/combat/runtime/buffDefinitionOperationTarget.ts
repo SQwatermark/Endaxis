@@ -1,6 +1,6 @@
 /**
- * 把只读 Buff 目录与单场战斗的 Buff 容器组合成技能操作端口。
- * 目录负责稳定身份解析，容器只持有实例；未知身份必须在施加点明确失败。
+ * 把只读 Buff 定义与单场战斗的 Buff 容器组合成技能操作端口。
+ * 定义负责稳定身份解析，容器只持有实例；未知身份必须在施加点明确失败。
  */
 import {
   CombatBuffContainer,
@@ -20,7 +20,7 @@ export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
 }
 
-export class CatalogBuffOperationTarget<Key extends string>
+export class BuffDefinitionOperationTarget<Key extends string>
   implements BuffOperationTarget, FrameRuntime
 {
   constructor(
