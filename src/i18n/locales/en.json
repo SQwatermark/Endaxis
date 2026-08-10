@@ -1305,6 +1305,11 @@
     "reSimulate": "Re-simulate",
     "hitInflictionSuffix": " infliction",
     "hitReactionConsumed": " consumed",
+    "effect": {
+      "burst": "Burst",
+      "reaction": "Reaction",
+      "reactionConsumed": "Reaction consumed"
+    },
     "hitDetail": {
       "frame": "Frame",
       "damage": "Damage",

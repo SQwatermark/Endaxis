@@ -57,6 +57,7 @@ export * from './mechanics/mechanicContribution';
 export * from './mechanics/mechanicRuntime';
 export * from './pipeline/simulationPipeline';
 export * from './projection/elementalInflictionChangePoints';
+export * from './projection/enemyEffectViz';
 export * from './projection/poiseChangePoints';
 export * from './projection/poiseCurves';
 export * from './projection/resourceChangePoints';

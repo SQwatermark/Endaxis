@@ -410,6 +410,32 @@ describe('StandardPlayerDamageEnvironment', () => {
     }).toThrow('requires SkillSetting data');
   });
 
+  it('records attachment expiry as a BuffFinished fact for effect segments', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = createInflictionEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const step = {
+      kind: 'applyElementalInfliction' as const,
+      parameters: { element: 'electric' as const, isExtra: false },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    const buffRuntime = environment.runtimeOptions.enemyBuffRuntime;
+    for (let frame = 0; frame < 310; frame += 1) buffRuntime.advanceFrame();
+
+    const finished = receipt.entries.filter(entry => entry.event === 'BuffFinished');
+    expect(finished.length).toBe(1);
+    expect(finished[0]).toMatchObject({
+      targetId: 'enemy',
+      data: {
+        buffId: 'attachment.electric',
+        reason: 'lifetime',
+        layers: 1,
+      },
+    });
+  });
+
   it('applies reactions with levels and evaluates reaction conditions', () => {
     const context = createContext();
     const receipt = context.receipt as CombatReceiptCollector;

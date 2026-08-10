@@ -6,7 +6,7 @@
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
-import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CombatBuffContainer, type BuffFinishReason, type CombatBuff } from '../buffs/combatBuffs';
 import {
   compileCombatBuffCatalog,
   CompiledCombatBuffCatalog,
@@ -97,7 +97,14 @@ const strictTerminal: CombatOperationExecutor = {
 /** 一场模拟独占的标准生命/失衡伤害状态所有者。 */
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
-  readonly #enemyBuffs = new CombatBuffContainer('enemy', new CombatAttributeSet<string>());
+  readonly #enemyBuffs = new CombatBuffContainer(
+    'enemy',
+    new CombatAttributeSet<string>(),
+    undefined,
+    null,
+    undefined,
+    (buff, reason) => this.#recordBuffFinished(buff, reason),
+  );
   readonly #enemyBuffRuntime = new CatalogBuffOperationTarget(this.#enemyBuffs, {
     get: () => undefined,
   });
@@ -366,6 +373,24 @@ export class StandardPlayerDamageEnvironment {
       throw new Error('standard player damage environment has no battle receipt');
     }
     return receipt;
+  }
+
+  /** 敌人 Buff 结束（到期、消费、驱散等）时记录结束事实，供效果投影画段。 */
+  #recordBuffFinished(buff: CombatBuff<string>, reason: BuffFinishReason): void {
+    if (this.#clock === null || this.#receipt === null) {
+      throw new Error('enemy buff finished before the environment was bound to a battle');
+    }
+    this.#receipt.record({
+      frame: this.#clock.frame,
+      time: this.#clock.time,
+      event: 'BuffFinished',
+      targetId: 'enemy',
+      data: {
+        buffId: buff.definition.id,
+        reason,
+        layers: buff.enhanceCount,
+      },
+    });
   }
 
   #buffContainer(

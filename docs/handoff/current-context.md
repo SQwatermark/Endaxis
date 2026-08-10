@@ -20,7 +20,7 @@
 ## 最新验证
 
 - `npm.cmd run type-check:next`：通过；
-- `npm.cmd exec vitest run src/next`：137 个文件、703 项测试通过；
+- `npm.cmd exec vitest run src/next`：138 个文件、709 项测试通过；
 - 生成器：202 项 Python 测试通过；
 - 页面：`http://127.0.0.1:5173/next/timeline`。
 
@@ -49,7 +49,11 @@
   - `spellBurstRuntime` 按 combat-spec 已复刻语义执行：倍率 × 增强公式（linear/saturating/none）→ 标准玩家伤害公式（防御/抗性/暴击）→ 敌人生命写入，回执 `SpellBurstApplied`；
   - **数据缺口**：SkillSetting 数值（法术爆发伤害倍率）是游戏内 ScriptableObject，AKEDB 与本地均无，需从游戏客户端导出（combat-spec 的 `SkillSettingCatalogExportCommand` 已就绪）；导出后放入 `src/next/data/buffs/skill-setting-catalog.combat-1.4.4.json` 并注入服务即生效；缺失时爆发触发明确报错，不假装打出伤害；
   - 来源附着增强属性（`PhysicalAndSpellInflictionEnhance`）尚未在面板落地，以 0 作中性基线；
-- **技能生命周期补全**：时间轴动作全部执行后技能自然结束（`SkillEnded`），同技能可连续释放（此前第二个战技会被拒绝）；
+- **敌人效果渲染（附着段 + 爆发/反应标记）**：
+  - 敌人 Buff 结束（到期/消费/驱散）由容器回调记录 `BuffFinished` 回执（buffId、reason、层数）；
+  - `projectEnemyEffectViz` 把附着施加/结束整理成元素段（起止帧、层数），把爆发/反应整理成标记点；
+  - 底部"敌"面板新增敌人效果区：生命读数 + 元素色附着段 + 爆发/反应圆点标记，坐标与资源曲线同一体系并跟随时间轴滚动；
+  - 已知严格缺口：异元素附着组合仍会因复合状态 Buff 定义缺失而失败（与爆发同类的数据问题，等复合状态目录导入）。
   - 佩丽卡战技、终结技、连携技现已全部可完整模拟；庄方宜等带 `applyStatus`/语义状态条件的干员仍严格失败；
 - **时间轴命中点（对齐旧版样式与交互）**：
   - 命中点画在技能块底部，红色菱形、hover 金色放大发光，与旧版一致；

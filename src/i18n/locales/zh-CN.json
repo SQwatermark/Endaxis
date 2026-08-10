@@ -1305,6 +1305,11 @@
     "reSimulate": "重新模拟",
     "hitInflictionSuffix": "附着",
     "hitReactionConsumed": " 已消费",
+    "effect": {
+      "burst": "爆发",
+      "reaction": "反应",
+      "reactionConsumed": "反应消费"
+    },
     "hitDetail": {
       "frame": "帧",
       "damage": "伤害",

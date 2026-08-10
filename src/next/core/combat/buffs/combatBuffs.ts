@@ -327,6 +327,7 @@ export class CombatBuff<Key extends string> {
     }
     this.endDuringEnableAction();
     this.#finishing = false;
+    this.owner.handleBuffFinished(this, reason);
     return true;
   }
 
@@ -508,11 +509,18 @@ export class CombatBuffContainer<Key extends string> {
     readonly ownerId: string,
     readonly attributes: CombatAttributeSet<Key>,
     readonly tagRegistry = new GameplayTagRegistry([]),
-    /** 一次战斗唯一的共享 SP 修正注册表；仅使用相关 Buff 的容器需要提供。 */
+    /** 一次战斗唯一的共享 SP 修正注册表；仅使用相应 Buff 的容器需要提供。 */
     readonly sharedSpGainModifiers: SharedSpGainModifierSet | null = null,
     /** 该实体的技能与 Buff 共同回退读写的持久运行时黑板。 */
     readonly entityBlackboard = new ActionBlackboard(),
+    /** Buff 结束（到期、消费、驱散等）时通知，供回执记录结束事实。 */
+    readonly onBuffFinished?: (buff: CombatBuff<Key>, reason: BuffFinishReason) => void,
   ) {}
+
+  /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
+  handleBuffFinished(buff: CombatBuff<Key>, reason: BuffFinishReason): void {
+    this.onBuffFinished?.(buff, reason);
+  }
 
   get buffs(): readonly CombatBuff<Key>[] {
     return this.#buffs;

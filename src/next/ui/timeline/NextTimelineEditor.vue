@@ -26,6 +26,7 @@ import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
+import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
 import { createEmptyScenario } from '../../core/project/createProject';
@@ -33,6 +34,7 @@ import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSe
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { sampleStepCurve } from '../../core/projection/curveSampling';
+import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import {
   PROJECT_FPS,
@@ -328,6 +330,15 @@ const castHitEffects = computed(() => {
     }
   }
   return byCastId;
+});
+
+/** 敌人效果面板数据：附着段与爆发/反应标记，全部来自同一份回执。 */
+const enemyEffectViz = computed(() => {
+  const current = simulationRun.value;
+  if (current === null || simulationStale.value) {
+    return { segments: [], markers: [] };
+  }
+  return projectEnemyEffectViz(current.receiptEntries, scenario.value.battle.durationFrames);
 });
 
 function damageElementLabel(element: string): string {
@@ -1459,6 +1470,22 @@ function setPanelDialogVisible(visible: boolean): void {
           </button>
         </div>
         <div v-if="simulationRun !== null" class="simulation-curves">
+          <TimelineEnemyEffects
+            :viz="enemyEffectViz"
+            :timeline-width="timelineWidth"
+            :prep-frames="scenario.battle.prepFrames"
+            :px-per-frame="pxPerFrame"
+            :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
+            :scroll-left="timelineScrollLeft"
+            :max-health="simulationRun.enemy.health"
+            :remaining-health="simulationRun.finalEnemyHealth"
+            :labels="{
+              enemyHp: t('nextTimeline.simGuide.enemyHp'),
+              burst: t('nextTimeline.effect.burst'),
+              reaction: t('nextTimeline.effect.reaction'),
+              reactionConsumed: t('nextTimeline.effect.reactionConsumed'),
+            }"
+          />
           <TimelineResourceCurves
             :sp-curve="simulationRun.resourceCurves.sp"
             :enemy-health-curve="simulationRun.enemyHealthCurve"
