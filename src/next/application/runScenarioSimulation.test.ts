@@ -54,7 +54,6 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       spRecoveryPauseDuration: 1.5,
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
-      operators: new Map(),
     },
     environment: {
       enemyBuffRuntime: enemyBuffRuntime(),
@@ -79,7 +78,7 @@ function createUltimateScenario(): ScenarioDocument {
     operatorBuildId: 'perlica',
     weaponBuildId: null,
     gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
-    initialState: { ultimateEnergy: 100 },
+    initialState: { ultimateEnergy: 80 },
     skillCasts: [],
   };
   return placeSkillGroup({
@@ -100,19 +99,7 @@ function ultimateOptions(): CompileScenarioRuntimeAssemblyOptions {
       ...settings.catalog,
       getOperator: slug => (slug === perlica.slug ? perlica : null),
     },
-    resources: {
-      ...settings.resources,
-      operators: new Map([
-        [
-          'perlica',
-          {
-            maxUltimateEnergy: 100,
-            ultimateEnergyGainMultiplier: 1,
-            allowedUltimateEnergyRecoveryTagIds: null,
-          },
-        ],
-      ]),
-    },
+    resources: settings.resources,
   };
 }
 
@@ -175,26 +162,26 @@ describe('runScenarioSimulation', () => {
     });
     expect(result.finalResources.squad[0]).toMatchObject({
       operatorId: 'perlica',
-      ultimateEnergy: 20,
-      maxUltimateEnergy: 100,
+      ultimateEnergy: 0,
+      maxUltimateEnergy: 80,
     });
     expect(result.resourceCurves.ultimateEnergy).toHaveLength(1);
     expect(result.resourceCurves.ultimateEnergy[0]).toMatchObject({
       resource: 'ultimateEnergy',
       operatorId: 'perlica',
-      maxValue: 100,
+      maxValue: 80,
     });
     expect(result.resourceCurves.ultimateEnergy[0]!.points).toHaveLength(2);
     expect(result.resourceCurves.ultimateEnergy[0]!.points[0]).toEqual({
       frame: 0,
       time: 0,
       sequence: null,
-      value: 100,
+      value: 80,
     });
     expect(result.resourceCurves.ultimateEnergy[0]!.points[1]).toMatchObject({
       frame: 1,
       time: 1 / 30,
-      value: 20,
+      value: 0,
     });
   });
 

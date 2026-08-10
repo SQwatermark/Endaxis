@@ -41,16 +41,6 @@ function standardOptions() {
       spRecoveryPauseDuration: 1.5,
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
-      operators: new Map([
-        [
-          'perlica',
-          {
-            maxUltimateEnergy: 100,
-            ultimateEnergyGainMultiplier: 1,
-            allowedUltimateEnergyRecoveryTagIds: null,
-          },
-        ],
-      ]),
     },
   };
 }

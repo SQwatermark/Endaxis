@@ -41,6 +41,7 @@ export * from './compiler/compileScenarioResources';
 export * from './compiler/compileScenarioRuntimeAssembly';
 export * from './compiler/resolveScenarioBuilds';
 export * from './compiler/resolveOperatorPanel';
+export * from './compiler/resolveScenarioResourceRules';
 export * from './compiler/compileScenarioTimeline';
 export * from './compiler/compileOperatorUpgrades';
 export * from './compiler/compileSkill';

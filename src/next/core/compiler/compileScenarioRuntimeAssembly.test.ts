@@ -77,16 +77,6 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       spRecoveryPauseDuration: 1.5,
       ultimateEnergySystemUnlocked: true,
       normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
-      operators: new Map([
-        [
-          'perlica',
-          {
-            maxUltimateEnergy: 100,
-            ultimateEnergyGainMultiplier: 1,
-            allowedUltimateEnergyRecoveryTagIds: null,
-          },
-        ],
-      ]),
     },
     environment: {
       enemyBuffRuntime: enemyBuffRuntime(),
@@ -112,7 +102,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.resources.squad[0]).toMatchObject({
       operatorId: 'perlica',
       ultimateEnergy: 20,
-      maxUltimateEnergy: 100,
+      maxUltimateEnergy: 80,
     });
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('perlica');
@@ -212,11 +202,10 @@ describe('compileScenarioRuntimeAssembly', () => {
     ).toThrow(`operator definition '${perlica.slug}' does not exist`);
     expect(getOperator).toHaveBeenCalledWith(perlica.slug);
 
-    expect(() =>
-      compileScenarioRuntimeAssembly(createScenario(), {
-        ...settings,
-        resources: { ...settings.resources, operators: new Map() },
-      }),
-    ).toThrow("resolved resource rules for operator build 'perlica' do not exist");
+    const invalidInitialEnergy = createScenario();
+    invalidInitialEnergy.tracks[0]!.initialState.ultimateEnergy = 81;
+    expect(() => compileScenarioRuntimeAssembly(invalidInitialEnergy, settings)).toThrow(
+      'scenario.tracks[0].initialState.ultimateEnergy exceeds its maximum',
+    );
   });
 });

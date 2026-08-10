@@ -20,6 +20,7 @@ import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
 import { compileScenarioEnemy } from './compileScenarioEnemy';
+import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 
 type BuildCatalog = Pick<
   GameDataRepository,
@@ -49,7 +50,7 @@ export type CombatRuntimeEnvironmentOptions = Pick<
 /** 编译完整运行时装配参数所需的显式依赖。 */
 export interface CompileScenarioRuntimeAssemblyOptions {
   readonly catalog: BuildCatalog;
-  readonly resources: CompileScenarioResourcesOptions;
+  readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   readonly environment: CombatRuntimeEnvironmentOptions;
   /** 以 `OperatorBuildDocument.id` 为键，不接受未上场干员。 */
   readonly operatorRuntimeBindings?: ReadonlyMap<string, CombatOperatorRuntimeBindings>;
@@ -91,7 +92,10 @@ export function compileScenarioRuntimeAssembly(
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
-  const resources = compileScenarioResources(scenario, options.resources);
+  const resources = compileScenarioResources(scenario, {
+    ...options.resources,
+    operators: resolveScenarioOperatorResourceRules(timeline.operators, [...panels.values()]),
+  });
   const operators = bindOperatorRuntimes(
     timeline.operators.map(operator => ({
       ...operator,
