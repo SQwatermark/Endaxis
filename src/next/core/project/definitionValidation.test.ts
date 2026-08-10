@@ -19,13 +19,19 @@ function createMissingRepository(): GameDataRepository {
 function createProjectWithDefinitionReferences() {
   const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
   const scenario = project.scenarios[0]!;
-  scenario.builds.weapons['weapon:1'] = {
-    id: 'weapon:1',
-    weaponSlug: 'missing-weapon',
-    level: 90,
-    tuned: true,
-    potential: 0,
-    traitLevels: [1, 1, 1],
+  scenario.tracks[0] = {
+    operator: null,
+    weapon: {
+      id: 'weapon:1',
+      weaponSlug: 'missing-weapon',
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [1, 1, 1],
+    },
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
   };
   scenario.mechanics.selections.push({
     id: 'mechanic:1',
@@ -60,7 +66,7 @@ describe('validateProjectWithGameData', () => {
       ok: false,
       issues: [
         {
-          path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
+          path: '$.scenarios[0].tracks[0].weapon.weaponSlug',
           message: 'unknown weapon',
         },
         {

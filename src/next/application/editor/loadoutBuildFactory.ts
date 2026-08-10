@@ -5,15 +5,15 @@
 import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type {
-  GearBuildDocument,
-  OperatorBuildDocument,
-  WeaponBuildDocument,
+  GearInstanceDocument,
+  OperatorInstanceDocument,
+  WeaponInstanceDocument,
 } from '../../core/project/schema';
 
-export function createDefaultOperatorBuild(
+export function createDefaultOperatorInstance(
   id: string,
   operator: OperatorDefinition,
-): OperatorBuildDocument {
+): OperatorInstanceDocument {
   const skillLevels = Object.fromEntries(
     [...new Set(operator.skillGroups.map(group => group.levelSource))].map(source => [source, 12]),
   );
@@ -29,10 +29,10 @@ export function createDefaultOperatorBuild(
   };
 }
 
-export function createDefaultWeaponBuild(
+export function createDefaultWeaponInstance(
   id: string,
   weapon: WeaponDefinition,
-): WeaponBuildDocument {
+): WeaponInstanceDocument {
   return {
     id,
     weaponSlug: weapon.slug,
@@ -43,11 +43,11 @@ export function createDefaultWeaponBuild(
   };
 }
 
-export function createDefaultGearBuild(
+export function createDefaultGearInstance(
   id: string,
   gear: GearDefinition,
   artificingTier: number,
-): GearBuildDocument {
+): GearInstanceDocument {
   return {
     id,
     gearSlug: gear.slug,

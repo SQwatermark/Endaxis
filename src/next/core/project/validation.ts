@@ -35,11 +35,11 @@ import {
   validateBattle,
   validateEditor,
   validateEnemy,
-  validateGearBuild,
+  validateGearInstance,
   validateGlobalConfig,
   validateMechanics,
-  validateOperatorBuild,
-  validateWeaponBuild,
+  validateOperatorInstance,
+  validateWeaponInstance,
 } from './scenarioValidation';
 import {
   isObject,
@@ -712,40 +712,6 @@ function validateCombatStepParameters(
   }
 }
 
-function collectBuildIds(
-  builds: JsonObject,
-  key: 'operators' | 'weapons' | 'gears',
-  path: string,
-  issues: ValidationIssue[],
-): Set<string> {
-  const collection = builds[key];
-  if (!isObject(collection)) {
-    issues.push({ path: `${path}.${key}`, message: 'expected an object' });
-    return new Set();
-  }
-
-  const ids = new Set<string>();
-  for (const [recordKey, value] of Object.entries(collection)) {
-    if (!isObject(value)) {
-      issues.push({ path: `${path}.${key}.${recordKey}`, message: 'expected an object' });
-      continue;
-    }
-    const id = requireString(value, 'id', `${path}.${key}.${recordKey}`, issues);
-    if (id !== null && id !== recordKey) {
-      issues.push({
-        path: `${path}.${key}.${recordKey}.id`,
-        message: 'build id must match its record key',
-      });
-    }
-    if (id !== null) ids.add(id);
-
-    if (key === 'operators') validateOperatorBuild(value, `${path}.${key}.${recordKey}`, issues);
-    if (key === 'weapons') validateWeaponBuild(value, `${path}.${key}.${recordKey}`, issues);
-    if (key === 'gears') validateGearBuild(value, `${path}.${key}.${recordKey}`, issues);
-  }
-  return ids;
-}
-
 function collectDamageHitIds(
   sequence: JsonObject,
   path: string,
@@ -1076,7 +1042,6 @@ export function validateProjectDocument(value: unknown): ValidationResult {
       message: `expected schema version ${PROJECT_SCHEMA_VERSION}`,
     });
   }
-  if (value.timeUnit !== 'frame') issues.push({ path: '$.timeUnit', message: "expected 'frame'" });
   if (value.fps !== PROJECT_FPS) issues.push({ path: '$.fps', message: `expected ${PROJECT_FPS}` });
 
   const activeScenarioId = requireString(value, 'activeScenarioId', '$', issues);
@@ -1131,14 +1096,6 @@ export function validateProjectDocument(value: unknown): ValidationResult {
         }
       }
 
-      if (!isObject(scenario.builds)) {
-        issues.push({ path: `${path}.builds`, message: 'expected an object' });
-        return;
-      }
-      const operatorIds = collectBuildIds(scenario.builds, 'operators', `${path}.builds`, issues);
-      const weaponIds = collectBuildIds(scenario.builds, 'weapons', `${path}.builds`, issues);
-      const gearIds = collectBuildIds(scenario.builds, 'gears', `${path}.builds`, issues);
-
       if (!Array.isArray(scenario.tracks) || scenario.tracks.length !== 4) {
         issues.push({ path: `${path}.tracks`, message: 'expected exactly four track slots' });
         return;
@@ -1146,6 +1103,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
 
       const skillCastIds = new Set<string>();
       const damageHitIdsByCast = new Map<string, Set<string>>();
+      const operatorInstanceIds = new Set<string>();
       scenario.tracks.forEach((track, trackIndex) => {
         if (track === null) return;
         const trackPath = `${path}.tracks[${trackIndex}]`;
@@ -1153,39 +1111,55 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           issues.push({ path: trackPath, message: 'expected an object or null' });
           return;
         }
-        if (
-          track.operatorBuildId !== null &&
-          (typeof track.operatorBuildId !== 'string' || !operatorIds.has(track.operatorBuildId))
-        ) {
-          issues.push({ path: `${trackPath}.operatorBuildId`, message: 'unknown operator build' });
+        if (track.operator !== null && track.operator !== undefined) {
+          const instancePath = `${trackPath}.operator`;
+          if (!isObject(track.operator)) {
+            issues.push({ path: instancePath, message: 'expected an object or null' });
+          } else {
+            validateOperatorInstance(track.operator, instancePath, issues);
+            const id = requireString(track.operator, 'id', instancePath, issues);
+            if (id !== null) {
+              if (operatorInstanceIds.has(id)) {
+                issues.push({
+                  path: `${instancePath}.id`,
+                  message: 'duplicate operator instance id',
+                });
+              }
+              operatorInstanceIds.add(id);
+            }
+          }
+        } else if (!('operator' in track)) {
+          issues.push({ path: `${trackPath}.operator`, message: 'missing operator instance' });
         }
-        if (
-          track.weaponBuildId !== null &&
-          (typeof track.weaponBuildId !== 'string' || !weaponIds.has(track.weaponBuildId))
-        ) {
-          issues.push({ path: `${trackPath}.weaponBuildId`, message: 'unknown weapon build' });
+        if (track.weapon !== null && track.weapon !== undefined) {
+          if (!isObject(track.weapon)) {
+            issues.push({ path: `${trackPath}.weapon`, message: 'expected an object or null' });
+          } else {
+            validateWeaponInstance(track.weapon, `${trackPath}.weapon`, issues);
+          }
+        } else if (!('weapon' in track)) {
+          issues.push({ path: `${trackPath}.weapon`, message: 'missing weapon instance' });
         }
-        if (isObject(track.gearBuildIds)) {
-          for (const [slot, gearId] of Object.entries(track.gearBuildIds)) {
-            if (gearId !== null && (typeof gearId !== 'string' || !gearIds.has(gearId))) {
-              issues.push({
-                path: `${trackPath}.gearBuildIds.${slot}`,
-                message: 'unknown gear build',
-              });
+        if (track.gears !== null && track.gears !== undefined && isObject(track.gears)) {
+          for (const slot of ['armor', 'gloves', 'accessory1', 'accessory2']) {
+            if (!(slot in track.gears)) {
+              issues.push({ path: `${trackPath}.gears.${slot}`, message: 'missing gear slot' });
+              continue;
+            }
+            const gearInstance = track.gears[slot as keyof typeof track.gears];
+            if (gearInstance !== null && gearInstance !== undefined) {
+              if (!isObject(gearInstance)) {
+                issues.push({
+                  path: `${trackPath}.gears.${slot}`,
+                  message: 'expected an object or null',
+                });
+              } else {
+                validateGearInstance(gearInstance, `${trackPath}.gears.${slot}`, issues);
+              }
             }
           }
         } else {
-          issues.push({ path: `${trackPath}.gearBuildIds`, message: 'expected an object' });
-        }
-        if (isObject(track.gearBuildIds)) {
-          for (const slot of ['armor', 'gloves', 'accessory1', 'accessory2']) {
-            if (!(slot in track.gearBuildIds)) {
-              issues.push({
-                path: `${trackPath}.gearBuildIds.${slot}`,
-                message: 'missing gear slot',
-              });
-            }
-          }
+          issues.push({ path: `${trackPath}.gears`, message: 'expected an object' });
         }
         if (!isObject(track.initialState)) {
           issues.push({ path: `${trackPath}.initialState`, message: 'expected an object' });

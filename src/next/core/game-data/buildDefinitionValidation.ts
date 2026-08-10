@@ -1,5 +1,5 @@
 /**
- * 项目 build 与版本化游戏数据之间的严格引用校验。
+ * 轨道内嵌的干员、武器与装备实例和版本化游戏数据之间的严格校验。
  * 调用方必须先完成项目结构校验；本层只处理定义身份、装备约束和跨定义引用。
  */
 import type { EndaxisProjectDocument, TrackDocument } from '../project/schema';
@@ -20,13 +20,13 @@ const trackGearSlotTypes = {
   gloves: 'gloves',
   accessory1: 'accessory',
   accessory2: 'accessory',
-} as const satisfies Record<keyof TrackDocument['gearBuildIds'], GearSlotType>;
+} as const satisfies Record<keyof TrackDocument['gears'], GearSlotType>;
 const trackGearSlots = [
   'armor',
   'gloves',
   'accessory1',
   'accessory2',
-] as const satisfies readonly (keyof TrackDocument['gearBuildIds'])[];
+] as const satisfies readonly (keyof TrackDocument['gears'])[];
 
 function validateDefinitionIdentity(
   requestedSlug: string,
@@ -40,7 +40,7 @@ function validateDefinitionIdentity(
   return false;
 }
 
-/** 在数据装配完成后校验项目中全部养成引用及轨道装备约束。 */
+/** 在数据装配完成后校验项目中全部养成实例及轨道装备约束。 */
 export function validateProjectBuildDefinitionReferences(
   project: EndaxisProjectDocument,
   repository: BuildDefinitionIndex,
@@ -49,121 +49,136 @@ export function validateProjectBuildDefinitionReferences(
 
   project.scenarios.forEach((scenario, scenarioIndex) => {
     const scenarioPath = `$.scenarios[${scenarioIndex}]`;
-    const operators = new Map<string, Pick<OperatorDefinition, 'slug' | 'weaponType'>>();
-    const weapons = new Map<string, WeaponDefinition>();
-    const gears = new Map<string, GearDefinition>();
-
-    for (const [buildId, build] of Object.entries(scenario.builds.operators)) {
-      const path = `${scenarioPath}.builds.operators.${buildId}.operatorSlug`;
-      const definition = repository.getOperator(build.operatorSlug);
-      if (definition === null) {
-        issues.push({ path, message: 'unknown operator' });
-      } else if (
-        validateDefinitionIdentity(build.operatorSlug, definition.slug, path, 'operator', issues)
-      ) {
-        operators.set(buildId, definition);
-      }
-    }
-
-    for (const [buildId, build] of Object.entries(scenario.builds.weapons)) {
-      const path = `${scenarioPath}.builds.weapons.${buildId}.weaponSlug`;
-      const definition = repository.getWeapon(build.weaponSlug);
-      if (definition === null) {
-        issues.push({ path, message: 'unknown weapon' });
-      } else if (
-        validateDefinitionIdentity(build.weaponSlug, definition.slug, path, 'weapon', issues)
-      ) {
-        weapons.set(buildId, definition);
-        if (build.traitLevels.length !== definition.traits.length) {
-          issues.push({
-            path: `${scenarioPath}.builds.weapons.${buildId}.traitLevels`,
-            message: `expected ${definition.traits.length} weapon trait levels`,
-          });
-        } else {
-          build.traitLevels.forEach((level, index) => {
-            const trait = definition.traits[index]!;
-            if (level > trait.levelCount) {
-              issues.push({
-                path: `${scenarioPath}.builds.weapons.${buildId}.traitLevels[${index}]`,
-                message: `weapon trait level exceeds maximum ${trait.levelCount}`,
-              });
-            }
-          });
-        }
-      }
-    }
-
-    for (const [buildId, build] of Object.entries(scenario.builds.gears)) {
-      const path = `${scenarioPath}.builds.gears.${buildId}.gearSlug`;
-      const definition = repository.getGear(build.gearSlug);
-      if (definition === null) {
-        issues.push({ path, message: 'unknown gear' });
-        continue;
-      }
-      if (!validateDefinitionIdentity(build.gearSlug, definition.slug, path, 'gear', issues))
-        continue;
-
-      gears.set(buildId, definition);
-      if (build.artificingLevels.length !== definition.traits.length) {
-        issues.push({
-          path: `${scenarioPath}.builds.gears.${buildId}.artificingLevels`,
-          message: `expected ${definition.traits.length} gear trait levels`,
-        });
-      } else {
-        build.artificingLevels.forEach((level, index) => {
-          const trait = definition.traits[index]!;
-          if (level >= trait.levelCount) {
-            issues.push({
-              path: `${scenarioPath}.builds.gears.${buildId}.artificingLevels[${index}]`,
-              message: `gear trait level exceeds maximum ${trait.levelCount - 1}`,
-            });
-          }
-        });
-      }
-      if (definition.gearSetSlug !== undefined) {
-        const gearSet = repository.getGearSet(definition.gearSetSlug);
-        if (gearSet === null) {
-          issues.push({ path, message: `unknown gear set '${definition.gearSetSlug}'` });
-        } else {
-          validateDefinitionIdentity(
-            definition.gearSetSlug,
-            gearSet.slug,
-            path,
-            'gear set',
-            issues,
-          );
-        }
-      }
-    }
 
     scenario.tracks.forEach((track, trackIndex) => {
       if (track === null) return;
       const trackPath = `${scenarioPath}.tracks[${trackIndex}]`;
-      const operator =
-        track.operatorBuildId === null ? undefined : operators.get(track.operatorBuildId);
-      const weapon = track.weaponBuildId === null ? undefined : weapons.get(track.weaponBuildId);
 
-      if (
-        operator !== undefined &&
-        weapon !== undefined &&
-        operator.weaponType !== weapon.weaponType
-      ) {
-        issues.push({
-          path: `${trackPath}.weaponBuildId`,
-          message: `weapon type '${weapon.weaponType}' is incompatible with operator weapon type '${operator.weaponType}'`,
-        });
+      const operator = track.operator;
+      if (operator !== null) {
+        const operatorPath = `${trackPath}.operator`;
+        const definition = repository.getOperator(operator.operatorSlug);
+        if (definition === null) {
+          issues.push({ path: `${operatorPath}.operatorSlug`, message: 'unknown operator' });
+        } else if (
+          validateDefinitionIdentity(
+            operator.operatorSlug,
+            definition.slug,
+            `${operatorPath}.operatorSlug`,
+            'operator',
+            issues,
+          )
+        ) {
+          const weapon = track.weapon;
+          if (weapon !== null) {
+            const weaponDefinition = repository.getWeapon(weapon.weaponSlug);
+            if (
+              weaponDefinition !== null &&
+              weaponDefinition.weaponType !== definition.weaponType
+            ) {
+              issues.push({
+                path: `${trackPath}.weapon.weaponSlug`,
+                message: `weapon type '${weaponDefinition.weaponType}' is incompatible with operator weapon type '${definition.weaponType}'`,
+              });
+            }
+          }
+        }
+      }
+
+      const weapon = track.weapon;
+      if (weapon !== null) {
+        const weaponPath = `${trackPath}.weapon`;
+        const definition = repository.getWeapon(weapon.weaponSlug);
+        if (definition === null) {
+          issues.push({ path: `${weaponPath}.weaponSlug`, message: 'unknown weapon' });
+        } else if (
+          validateDefinitionIdentity(
+            weapon.weaponSlug,
+            definition.slug,
+            `${weaponPath}.weaponSlug`,
+            'weapon',
+            issues,
+          )
+        ) {
+          if (weapon.traitLevels.length !== definition.traits.length) {
+            issues.push({
+              path: `${weaponPath}.traitLevels`,
+              message: `expected ${definition.traits.length} weapon trait levels`,
+            });
+          } else {
+            weapon.traitLevels.forEach((level, index) => {
+              const trait = definition.traits[index]!;
+              if (level > trait.levelCount) {
+                issues.push({
+                  path: `${weaponPath}.traitLevels[${index}]`,
+                  message: `weapon trait level exceeds maximum ${trait.levelCount}`,
+                });
+              }
+            });
+          }
+        }
       }
 
       for (const slot of trackGearSlots) {
-        const gearBuildId = track.gearBuildIds[slot];
-        if (gearBuildId === null) continue;
-        const gear = gears.get(gearBuildId);
+        const instance = track.gears[slot];
+        if (instance === null) continue;
+        const gearPath = `${trackPath}.gears.${slot}`;
+        const definition = repository.getGear(instance.gearSlug);
+        if (definition === null) {
+          issues.push({ path: `${gearPath}.gearSlug`, message: 'unknown gear' });
+          continue;
+        }
+        if (
+          !validateDefinitionIdentity(
+            instance.gearSlug,
+            definition.slug,
+            `${gearPath}.gearSlug`,
+            'gear',
+            issues,
+          )
+        ) {
+          continue;
+        }
+
         const expectedSlotType = trackGearSlotTypes[slot];
-        if (gear !== undefined && gear.slotType !== expectedSlotType) {
+        if (definition.slotType !== expectedSlotType) {
           issues.push({
-            path: `${trackPath}.gearBuildIds.${slot}`,
-            message: `gear slot '${gear.slotType}' is incompatible with track slot '${slot}'`,
+            path: `${gearPath}.gearSlug`,
+            message: `gear slot '${definition.slotType}' is incompatible with track slot '${slot}'`,
           });
+        }
+        if (instance.artificingLevels.length !== definition.traits.length) {
+          issues.push({
+            path: `${gearPath}.artificingLevels`,
+            message: `expected ${definition.traits.length} gear trait levels`,
+          });
+        } else {
+          instance.artificingLevels.forEach((level, index) => {
+            const trait = definition.traits[index]!;
+            if (level >= trait.levelCount) {
+              issues.push({
+                path: `${gearPath}.artificingLevels[${index}]`,
+                message: `gear trait level exceeds maximum ${trait.levelCount - 1}`,
+              });
+            }
+          });
+        }
+        if (definition.gearSetSlug !== undefined) {
+          const gearSet = repository.getGearSet(definition.gearSetSlug);
+          if (gearSet === null) {
+            issues.push({
+              path: `${gearPath}.gearSlug`,
+              message: `unknown gear set '${definition.gearSetSlug}'`,
+            });
+          } else {
+            validateDefinitionIdentity(
+              definition.gearSetSlug,
+              gearSet.slug,
+              `${gearPath}.gearSlug`,
+              'gear set',
+              issues,
+            );
+          }
         }
       }
     });

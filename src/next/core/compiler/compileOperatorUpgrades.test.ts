@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { perlica } from '../../data/operators/perlica';
 import type { CompiledSkillProgram } from './combatProgram';
-import type { OperatorBuildDocument } from '../project/schema';
+import type { OperatorInstanceDocument } from '../project/schema';
 import {
   applyOperatorUpgradeSkillPatches,
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
 
-function build(overrides: Partial<OperatorBuildDocument> = {}): OperatorBuildDocument {
+function build(overrides: Partial<OperatorInstanceDocument> = {}): OperatorInstanceDocument {
   return {
     id: 'operator:1',
     operatorSlug: perlica.slug,

@@ -10,20 +10,20 @@ function createIds(): TimelineDocumentIdAllocator {
 
 function createPerlicaScenario() {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡样板');
-  scenario.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: 'perlica',
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
+
   scenario.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'perlica',
+      operatorSlug: 'perlica',
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
@@ -105,7 +105,7 @@ describe('placeSkillGroup', () => {
 
   it('rejects a definition that does not match the track build', () => {
     const scenario = createPerlicaScenario();
-    scenario.builds.operators.perlica!.operatorSlug = 'another';
+    scenario.tracks[0]!.operator!.operatorSlug = 'another';
 
     expect(() =>
       placeSkillGroup({

@@ -1,5 +1,5 @@
 /**
- * 将场景中的 Build 引用和只读定义解析为编译阶段共享的构筑视图。
+ * 将轨道内嵌的干员、武器与装备实例和只读定义解析为编译阶段共享的构筑视图。
  *
  * 本模块只确认身份、兼容性、装备槽位和三件套，不计算面板，也不补齐缺失配置。
  * 时间轴、资源、面板和战斗装配应复用这里的结果，避免各自解释同一份项目数据。
@@ -12,12 +12,12 @@ import type {
 } from '../game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import type {
-  GearBuildDocument,
-  OperatorBuildDocument,
+  GearInstanceDocument,
+  OperatorInstanceDocument,
   ScenarioDocument,
   TrackDocument,
   TrackIndex,
-  WeaponBuildDocument,
+  WeaponInstanceDocument,
 } from '../project/schema';
 
 export type ScenarioBuildIndex = Pick<
@@ -25,12 +25,12 @@ export type ScenarioBuildIndex = Pick<
   'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'
 >;
 
-export type ResolvedGearSlot = keyof TrackDocument['gearBuildIds'];
+export type ResolvedGearSlot = keyof TrackDocument['gears'];
 
 /** 一件已经确认槽位兼容的装备实例及其定义。 */
 export interface ResolvedGearBuild {
   readonly slot: ResolvedGearSlot;
-  readonly build: GearBuildDocument;
+  readonly instance: GearInstanceDocument;
   readonly definition: GearDefinition;
 }
 
@@ -38,10 +38,10 @@ export interface ResolvedGearBuild {
 export interface ResolvedScenarioBuild {
   readonly trackIndex: TrackIndex;
   readonly track: TrackDocument;
-  readonly operatorBuild: OperatorBuildDocument;
+  readonly operatorInstance: OperatorInstanceDocument;
   readonly operator: OperatorDefinition;
   readonly weapon: {
-    readonly build: WeaponBuildDocument;
+    readonly instance: WeaponInstanceDocument;
     readonly definition: WeaponDefinition;
   } | null;
   readonly gears: readonly ResolvedGearBuild[];
@@ -67,57 +67,48 @@ function requireDefinitionIdentity(actual: string, expected: string, path: strin
 }
 
 function resolveWeapon(
-  scenario: ScenarioDocument,
   track: TrackDocument,
   operator: OperatorDefinition,
   trackPath: string,
   index: ScenarioBuildIndex,
 ): ResolvedScenarioBuild['weapon'] {
-  if (track.weaponBuildId === null) return null;
-  const build = scenario.builds.weapons[track.weaponBuildId];
-  if (build === undefined) {
-    throw new Error(`${trackPath}.weaponBuildId references missing build '${track.weaponBuildId}'`);
-  }
+  const instance = track.weapon;
+  if (instance === null) return null;
   const definition = requireDefinitionEntry(
-    index.getWeapon(build.weaponSlug),
+    index.getWeapon(instance.weaponSlug),
     'weapon',
-    build.weaponSlug,
+    instance.weaponSlug,
   );
-  requireDefinitionIdentity(definition.slug, build.weaponSlug, `${trackPath}.weaponBuildId`);
+  requireDefinitionIdentity(definition.slug, instance.weaponSlug, `${trackPath}.weapon`);
   if (definition.weaponType !== operator.weaponType) {
     throw new Error(
-      `${trackPath}.weaponBuildId weapon type '${definition.weaponType}' is incompatible with operator weapon type '${operator.weaponType}'`,
+      `${trackPath}.weapon weapon type '${definition.weaponType}' is incompatible with operator weapon type '${operator.weaponType}'`,
     );
   }
-  return { build, definition };
+  return { instance, definition };
 }
 
 function resolveGears(
-  scenario: ScenarioDocument,
   track: TrackDocument,
   trackPath: string,
   index: ScenarioBuildIndex,
 ): readonly ResolvedGearBuild[] {
   const resolved: ResolvedGearBuild[] = [];
   for (const [slot, expectedSlotType] of GEAR_SLOTS) {
-    const buildId = track.gearBuildIds[slot];
-    if (buildId === null) continue;
-    const build = scenario.builds.gears[buildId];
-    if (build === undefined) {
-      throw new Error(`${trackPath}.gearBuildIds.${slot} references missing build '${buildId}'`);
-    }
+    const instance = track.gears[slot];
+    if (instance === null) continue;
     const definition = requireDefinitionEntry(
-      index.getGear(build.gearSlug),
+      index.getGear(instance.gearSlug),
       'gear',
-      build.gearSlug,
+      instance.gearSlug,
     );
-    requireDefinitionIdentity(definition.slug, build.gearSlug, `${trackPath}.gearBuildIds.${slot}`);
+    requireDefinitionIdentity(definition.slug, instance.gearSlug, `${trackPath}.gears.${slot}`);
     if (definition.slotType !== expectedSlotType) {
       throw new Error(
-        `${trackPath}.gearBuildIds.${slot} gear slot '${definition.slotType}' is incompatible with track slot '${slot}'`,
+        `${trackPath}.gears.${slot} gear slot '${definition.slotType}' is incompatible with track slot '${slot}'`,
       );
     }
-    resolved.push({ slot, build, definition });
+    resolved.push({ slot, instance, definition });
   }
   return resolved;
 }
@@ -137,7 +128,7 @@ function resolveActiveGearSets(
     .filter(([, count]) => count >= 3)
     .map(([slug]) => {
       const definition = requireDefinitionEntry(index.getGearSet(slug), 'gear set', slug);
-      requireDefinitionIdentity(definition.slug, slug, `${trackPath}.gearBuildIds`);
+      requireDefinitionIdentity(definition.slug, slug, `${trackPath}.gears`);
       return definition;
     });
 }
@@ -148,50 +139,45 @@ export function resolveScenarioBuilds(
   index: ScenarioBuildIndex,
 ): readonly ResolvedScenarioBuild[] {
   const resolved: ResolvedScenarioBuild[] = [];
-  const seenOperatorBuildIds = new Set<string>();
+  const seenOperatorInstanceIds = new Set<string>();
 
   scenario.tracks.forEach((track, rawTrackIndex) => {
     if (track === null) return;
     const trackIndex = rawTrackIndex as TrackIndex;
     const trackPath = `scenario.tracks[${trackIndex}]`;
-    if (track.operatorBuildId === null) {
+    const operatorInstance = track.operator;
+    if (operatorInstance === null) {
       const hasEquipment =
-        track.weaponBuildId !== null || Object.values(track.gearBuildIds).some(id => id !== null);
+        track.weapon !== null || Object.values(track.gears).some(instance => instance !== null);
       if (hasEquipment) {
-        throw new Error(`${trackPath} configures equipment without an operator build`);
+        throw new Error(`${trackPath} configures equipment without an operator instance`);
       }
       if (track.skillCasts.length > 0) {
-        throw new Error(`track ${trackIndex} has skill casts but no operator build`);
+        throw new Error(`track ${trackIndex} has skill casts but no operator instance`);
       }
       return;
     }
-    const operatorBuild = scenario.builds.operators[track.operatorBuildId];
-    if (operatorBuild === undefined) {
-      throw new Error(
-        `${trackPath}.operatorBuildId references missing build '${track.operatorBuildId}'`,
-      );
+    if (seenOperatorInstanceIds.has(operatorInstance.id)) {
+      throw new Error(`operator instance '${operatorInstance.id}' is assigned to multiple tracks`);
     }
-    if (seenOperatorBuildIds.has(operatorBuild.id)) {
-      throw new Error(`operator build '${operatorBuild.id}' is assigned to multiple tracks`);
-    }
-    seenOperatorBuildIds.add(operatorBuild.id);
+    seenOperatorInstanceIds.add(operatorInstance.id);
 
     const operator = requireDefinitionEntry(
-      index.getOperator(operatorBuild.operatorSlug),
+      index.getOperator(operatorInstance.operatorSlug),
       'operator',
-      operatorBuild.operatorSlug,
+      operatorInstance.operatorSlug,
     );
     requireDefinitionIdentity(
       operator.slug,
-      operatorBuild.operatorSlug,
-      `${trackPath}.operatorBuildId`,
+      operatorInstance.operatorSlug,
+      `${trackPath}.operator`,
     );
-    const weapon = resolveWeapon(scenario, track, operator, trackPath, index);
-    const gears = resolveGears(scenario, track, trackPath, index);
+    const weapon = resolveWeapon(track, operator, trackPath, index);
+    const gears = resolveGears(track, trackPath, index);
     resolved.push({
       trackIndex,
       track,
-      operatorBuild,
+      operatorInstance,
       operator,
       weapon,
       gears,

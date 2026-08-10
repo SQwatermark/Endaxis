@@ -34,38 +34,29 @@ const gearSet: GearSetDefinition = { slug: 'resolver-set' };
 
 function scenario() {
   const value = createEmptyScenario('scenario:resolver', '构筑解析样本');
-  value.builds.operators.operator = {
-    id: 'operator',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
-  value.builds.weapons.weapon = {
-    id: 'weapon',
-    weaponSlug: weapon.slug,
-    level: 90,
-    tuned: true,
-    potential: 0,
-    traitLevels: [],
-  };
-  for (const definition of [armor, gloves, accessory]) {
-    value.builds.gears[definition.slug] = {
-      id: definition.slug,
-      gearSlug: definition.slug,
-      artificingLevels: [],
-    };
-  }
   value.tracks[0] = {
-    operatorBuildId: 'operator',
-    weaponBuildId: 'weapon',
-    gearBuildIds: {
-      armor: armor.slug,
-      gloves: gloves.slug,
-      accessory1: accessory.slug,
+    operator: {
+      id: 'operator',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: {
+      id: 'weapon',
+      weaponSlug: weapon.slug,
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [],
+    },
+    gears: {
+      armor: { id: armor.slug, gearSlug: armor.slug, artificingLevels: [] },
+      gloves: { id: gloves.slug, gearSlug: gloves.slug, artificingLevels: [] },
+      accessory1: { id: accessory.slug, gearSlug: accessory.slug, artificingLevels: [] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -91,9 +82,9 @@ describe('resolveScenarioBuilds', () => {
 
     expect(resolved).toMatchObject({
       trackIndex: 0,
-      operatorBuild: { id: 'operator' },
+      operatorInstance: { id: 'operator' },
       operator: { slug: perlica.slug },
-      weapon: { build: { id: 'weapon' }, definition: { slug: weapon.slug } },
+      weapon: { instance: { id: 'weapon' }, definition: { slug: weapon.slug } },
     });
     expect(resolved!.gears.map(value => value.slot)).toEqual(['armor', 'gloves', 'accessory1']);
     expect(resolved!.activeGearSets).toEqual([gearSet]);
@@ -116,12 +107,12 @@ describe('resolveScenarioBuilds', () => {
     const value = scenario();
     value.tracks[1] = {
       ...value.tracks[0]!,
-      weaponBuildId: null,
-      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     };
 
     expect(() => resolveScenarioBuilds(value, index())).toThrow(
-      "operator build 'operator' is assigned to multiple tracks",
+      "operator instance 'operator' is assigned to multiple tracks",
     );
   });
 });

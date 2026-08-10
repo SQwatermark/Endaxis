@@ -1,24 +1,24 @@
 /**
- * 将指定轨道的养成 Build 引用与版本化游戏数据解析为配装 UI 可直接读取的稳定模型。
+ * 将指定轨道的养成实例与版本化游戏数据解析为配装 UI 可直接读取的稳定模型。
  * 本模块只负责身份解析和用户输入快照，不翻译、不计算面板，也不修复损坏引用；调用方应在渲染前处理抛出的数据错误。
  */
 import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
 import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type {
-  GearBuildDocument,
-  OperatorBuildDocument,
+  GearInstanceDocument,
+  OperatorInstanceDocument,
   ScenarioDocument,
   TrackDocument,
   TrackIndex,
-  WeaponBuildDocument,
+  WeaponInstanceDocument,
 } from '../../core/project/schema';
 
 /** 时间轴固定装备槽的稳定身份；两个配件槽必须分别保留。 */
-export type LoadoutGearSlot = keyof TrackDocument['gearBuildIds'];
+export type LoadoutGearSlot = keyof TrackDocument['gears'];
 
 /** 干员 Build 的用户输入及其定义，不包含名称等本地化文本。 */
-export interface OperatorBuildViewModel {
+export interface OperatorInstanceViewModel {
   readonly buildId: string;
   readonly operatorSlug: string;
   readonly level: number;
@@ -32,7 +32,7 @@ export interface OperatorBuildViewModel {
 }
 
 /** 武器 Build 的用户输入及其定义；词条等级顺序与定义中的词条顺序一致。 */
-export interface WeaponBuildViewModel {
+export interface WeaponInstanceViewModel {
   readonly buildId: string;
   readonly weaponSlug: string;
   readonly level: number;
@@ -43,7 +43,7 @@ export interface WeaponBuildViewModel {
 }
 
 /** 单个装备槽中的 Build；精锻等级顺序与定义中的词条顺序一致。 */
-export interface GearBuildViewModel {
+export interface GearInstanceViewModel {
   readonly slot: LoadoutGearSlot;
   readonly buildId: string;
   readonly gearSlug: string;
@@ -53,23 +53,18 @@ export interface GearBuildViewModel {
 
 /** 四个装备槽的固定形状；未装备的槽位明确表示为 `null`。 */
 export interface GearSlotsViewModel {
-  readonly armor: GearBuildViewModel | null;
-  readonly gloves: GearBuildViewModel | null;
-  readonly accessory1: GearBuildViewModel | null;
-  readonly accessory2: GearBuildViewModel | null;
+  readonly armor: GearInstanceViewModel | null;
+  readonly gloves: GearInstanceViewModel | null;
+  readonly accessory1: GearInstanceViewModel | null;
+  readonly accessory2: GearInstanceViewModel | null;
 }
 
 /** 一条轨道的完整只读配装投影；空轨道同样返回固定形状。 */
-export interface TrackLoadoutBuildViewModel {
+export interface TrackLoadoutInstanceViewModel {
   readonly trackIndex: TrackIndex;
-  readonly operator: OperatorBuildViewModel | null;
-  readonly weapon: WeaponBuildViewModel | null;
+  readonly operator: OperatorInstanceViewModel | null;
+  readonly weapon: WeaponInstanceViewModel | null;
   readonly gears: GearSlotsViewModel;
-}
-
-function requireBuild<T>(build: T | undefined, path: string, buildId: string): T {
-  if (build === undefined) throw new Error(`${path} references missing build '${buildId}'`);
-  return build;
 }
 
 function requireDefinition<T>(
@@ -89,45 +84,45 @@ function requireDefinition<T>(
 }
 
 function projectOperator(
-  build: OperatorBuildDocument,
+  instance: OperatorInstanceDocument,
   repository: GameDataRepository,
-): OperatorBuildViewModel {
+): OperatorInstanceViewModel {
   const definition = requireDefinition(
-    repository.getOperator(build.operatorSlug),
-    build.operatorSlug,
+    repository.getOperator(instance.operatorSlug),
+    instance.operatorSlug,
     'operator',
     value => value.slug,
   );
   return {
-    buildId: build.id,
-    operatorSlug: build.operatorSlug,
-    level: build.level,
-    promoted: build.promoted,
-    potential: build.potential,
-    trustLevel: build.trustLevel,
-    skillLevels: { ...build.skillLevels },
-    talentStates: { ...build.talentStates },
-    ...(build.baseStatOverrides === undefined
+    buildId: instance.id,
+    operatorSlug: instance.operatorSlug,
+    level: instance.level,
+    promoted: instance.promoted,
+    potential: instance.potential,
+    trustLevel: instance.trustLevel,
+    skillLevels: { ...instance.skillLevels },
+    talentStates: { ...instance.talentStates },
+    ...(instance.baseStatOverrides === undefined
       ? {}
-      : { baseStatOverrides: { ...build.baseStatOverrides } }),
+      : { baseStatOverrides: { ...instance.baseStatOverrides } }),
     definition,
   };
 }
 
 function projectWeapon(
-  build: WeaponBuildDocument,
+  instance: WeaponInstanceDocument,
   repository: GameDataRepository,
-): WeaponBuildViewModel {
+): WeaponInstanceViewModel {
   return {
-    buildId: build.id,
-    weaponSlug: build.weaponSlug,
-    level: build.level,
-    tuned: build.tuned,
-    potential: build.potential,
-    traitLevels: [...build.traitLevels],
+    buildId: instance.id,
+    weaponSlug: instance.weaponSlug,
+    level: instance.level,
+    tuned: instance.tuned,
+    potential: instance.potential,
+    traitLevels: [...instance.traitLevels],
     definition: requireDefinition(
-      repository.getWeapon(build.weaponSlug),
-      build.weaponSlug,
+      repository.getWeapon(instance.weaponSlug),
+      instance.weaponSlug,
       'weapon',
       value => value.slug,
     ),
@@ -136,17 +131,17 @@ function projectWeapon(
 
 function projectGear(
   slot: LoadoutGearSlot,
-  build: GearBuildDocument,
+  instance: GearInstanceDocument,
   repository: GameDataRepository,
-): GearBuildViewModel {
+): GearInstanceViewModel {
   return {
     slot,
-    buildId: build.id,
-    gearSlug: build.gearSlug,
-    artificingLevels: [...build.artificingLevels],
+    buildId: instance.id,
+    gearSlug: instance.gearSlug,
+    artificingLevels: [...instance.artificingLevels],
     definition: requireDefinition(
-      repository.getGear(build.gearSlug),
-      build.gearSlug,
+      repository.getGear(instance.gearSlug),
+      instance.gearSlug,
       'gear',
       value => value.slug,
     ),
@@ -154,14 +149,14 @@ function projectGear(
 }
 
 /**
- * 解析指定轨道当前引用的全部 Build。任何非空引用都必须同时存在 Build 和定义；
+ * 解析指定轨道的全部实例。任何非空实例都必须同时存在定义；
  * 本函数不会用定义默认值掩盖损坏项目，也不会校验装备兼容性或计算面板。
  */
 export function projectTrackLoadoutBuilds(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
   repository: GameDataRepository,
-): TrackLoadoutBuildViewModel {
+): TrackLoadoutInstanceViewModel {
   const track = scenario.tracks[trackIndex];
   if (track === null) {
     return {
@@ -172,38 +167,13 @@ export function projectTrackLoadoutBuilds(
     };
   }
 
-  const trackPath = `scenario.tracks[${trackIndex}]`;
-  const operator =
-    track.operatorBuildId === null
-      ? null
-      : projectOperator(
-          requireBuild(
-            scenario.builds.operators[track.operatorBuildId],
-            `${trackPath}.operatorBuildId`,
-            track.operatorBuildId,
-          ),
-          repository,
-        );
-  const weapon =
-    track.weaponBuildId === null
-      ? null
-      : projectWeapon(
-          requireBuild(
-            scenario.builds.weapons[track.weaponBuildId],
-            `${trackPath}.weaponBuildId`,
-            track.weaponBuildId,
-          ),
-          repository,
-        );
+  const operator = track.operator === null ? null : projectOperator(track.operator, repository);
+  const weapon = track.weapon === null ? null : projectWeapon(track.weapon, repository);
 
-  const projectSlot = (slot: LoadoutGearSlot): GearBuildViewModel | null => {
-    const buildId = track.gearBuildIds[slot];
-    if (buildId === null) return null;
-    return projectGear(
-      slot,
-      requireBuild(scenario.builds.gears[buildId], `${trackPath}.gearBuildIds.${slot}`, buildId),
-      repository,
-    );
+  const projectSlot = (slot: LoadoutGearSlot): GearInstanceViewModel | null => {
+    const instance = track.gears[slot];
+    if (instance === null) return null;
+    return projectGear(slot, instance, repository);
   };
 
   return {

@@ -17,7 +17,7 @@ import {
 import { getEquipmentLevelColor, isEquipmentArtificable } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type {
-  GearBuildViewModel,
+  GearInstanceViewModel,
   GearSlotsViewModel,
   LoadoutGearSlot,
 } from '../loadoutBuildViewModel';
@@ -70,16 +70,16 @@ function translate(key: string, fallback: string): string {
   return translated === key ? fallback : translated;
 }
 
-function normalizedArtificingLevels(build: GearBuildViewModel): readonly number[] {
+function normalizedArtificingLevels(build: GearInstanceViewModel): readonly number[] {
   return build.artificingLevels.map(level => Math.max(0, Math.min(3, Number(level) || 0)));
 }
 
-function isUniformLevel(build: GearBuildViewModel, level: number): boolean {
+function isUniformLevel(build: GearInstanceViewModel, level: number): boolean {
   const levels = normalizedArtificingLevels(build);
   return levels.length > 0 && levels.every(candidate => candidate === level);
 }
 
-function setUniformLevel(build: GearBuildViewModel, level: number): void {
+function setUniformLevel(build: GearInstanceViewModel, level: number): void {
   if (!isEquipmentArtificable(build.definition.levelRequirement)) return;
   emit(
     'update',

@@ -54,8 +54,14 @@ describe('updateBattleResourceRule', () => {
 describe('swapTimelineTracks', () => {
   it('swaps complete track slots and remaps control switches', () => {
     const original = createEmptyScenario('scenario:tracks', '轨道排序样本');
-    original.tracks[0] = { ...scenario().tracks[0]!, operatorBuildId: 'operator:a' };
-    original.tracks[1] = { ...scenario().tracks[0]!, operatorBuildId: 'operator:b' };
+    original.tracks[0] = {
+      ...scenario().tracks[0]!,
+      operator: { ...perlicaBuild, id: 'operator:a' },
+    };
+    original.tracks[1] = {
+      ...scenario().tracks[0]!,
+      operator: { ...perlicaBuild, id: 'operator:b' },
+    };
     original.battle.controlSwitches = [
       { id: 'switch:a', frame: 0, trackIndex: 0 },
       { id: 'switch:b', frame: 30, trackIndex: 1 },
@@ -64,10 +70,10 @@ describe('swapTimelineTracks', () => {
 
     const swapped = swapTimelineTracks(original, 0, 1);
 
-    expect(swapped.tracks[0]?.operatorBuildId).toBe('operator:b');
-    expect(swapped.tracks[1]?.operatorBuildId).toBe('operator:a');
+    expect(swapped.tracks[0]?.operator?.id).toBe('operator:b');
+    expect(swapped.tracks[1]?.operator?.id).toBe('operator:a');
     expect(swapped.battle.controlSwitches.map(value => value.trackIndex)).toEqual([1, 0, 2]);
-    expect(original.tracks[0]?.operatorBuildId).toBe('operator:a');
+    expect(original.tracks[0]?.operator?.id).toBe('operator:a');
   });
 });
 
@@ -120,9 +126,9 @@ function cast(locked = false): SkillCastDocument {
 function scenario(locked = false) {
   const value = createEmptyScenario('scenario:move', '移动样本');
   value.tracks[0] = {
-    operatorBuildId: null,
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: null,
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [cast(locked)],
   };
@@ -130,37 +136,37 @@ function scenario(locked = false) {
 }
 
 describe('moveSkillCast', () => {
-  it('assigns an operator build to an empty track', () => {
+  it('assigns an operator to an empty track', () => {
     const original = createEmptyScenario('scenario:operator', '干员样本');
     const updated = setTrackOperator(original, 2, perlicaBuild);
 
     expect(updated.tracks[2]).toMatchObject({
-      operatorBuildId: perlicaBuild.id,
-      weaponBuildId: null,
+      operator: perlicaBuild,
+      weapon: null,
       skillCasts: [],
     });
-    expect(updated.builds.operators[perlicaBuild.id]).toEqual(perlicaBuild);
     expect(original.tracks[2]).toBeNull();
   });
 
-  it('clears stale casts, connections and an orphaned build when changing operator', () => {
+  it('clears stale casts, connections and track equipment when changing operator', () => {
     const original = scenario();
-    original.builds.operators[perlicaBuild.id] = perlicaBuild;
-    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
-    original.tracks[0]!.weaponBuildId = 'weapon:old';
-    original.tracks[0]!.gearBuildIds.armor = 'gear:old';
-    original.builds.weapons['weapon:old'] = {
-      id: 'weapon:old',
-      weaponSlug: 'old',
-      level: 90,
-      tuned: true,
-      potential: 0,
-      traitLevels: [1],
-    };
-    original.builds.gears['gear:old'] = {
-      id: 'gear:old',
-      gearSlug: 'old',
-      artificingLevels: [0],
+    original.tracks[0] = {
+      ...original.tracks[0]!,
+      operator: perlicaBuild,
+      weapon: {
+        id: 'weapon:old',
+        weaponSlug: 'old',
+        level: 90,
+        tuned: true,
+        potential: 0,
+        traitLevels: [1],
+      },
+      gears: {
+        armor: { id: 'gear:old', gearSlug: 'old', artificingLevels: [0] },
+        gloves: null,
+        accessory1: null,
+        accessory2: null,
+      },
     };
     original.connections = [
       {
@@ -174,27 +180,28 @@ describe('moveSkillCast', () => {
 
     const updated = setTrackOperator(original, 0, arcaneBuild);
 
-    expect(updated.tracks[0]!.operatorBuildId).toBe(arcaneBuild.id);
+    expect(updated.tracks[0]!.operator).toEqual(arcaneBuild);
     expect(updated.tracks[0]!.skillCasts).toEqual([]);
     expect(updated.connections).toEqual([]);
-    expect(updated.builds.operators[perlicaBuild.id]).toBeUndefined();
-    expect(updated.builds.operators[arcaneBuild.id]).toEqual(arcaneBuild);
-    expect(updated.builds.weapons['weapon:old']).toBeUndefined();
-    expect(updated.builds.gears['gear:old']).toBeUndefined();
+    expect(updated.tracks[0]!.weapon).toBeNull();
+    expect(updated.tracks[0]!.gears).toEqual({
+      armor: null,
+      gloves: null,
+      accessory1: null,
+      accessory2: null,
+    });
   });
 
   it('leaves the document unchanged when selecting the current operator again', () => {
     const original = scenario();
-    original.builds.operators[perlicaBuild.id] = perlicaBuild;
-    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+    original.tracks[0] = { ...original.tracks[0]!, operator: perlicaBuild };
 
     expect(setTrackOperator(original, 0, { ...perlicaBuild })).toBe(original);
   });
 
-  it('assigns, replaces and removes a weapon build without leaving orphaned builds', () => {
+  it('assigns, replaces and removes a weapon on a track', () => {
     const original = scenario();
-    original.builds.operators[perlicaBuild.id] = perlicaBuild;
-    original.tracks[0]!.operatorBuildId = perlicaBuild.id;
+    original.tracks[0] = { ...original.tracks[0]!, operator: perlicaBuild };
     const first = {
       id: 'weapon:first',
       weaponSlug: 'first',
@@ -209,12 +216,10 @@ describe('moveSkillCast', () => {
     const replaced = setTrackWeapon(equipped, 0, second);
     const cleared = setTrackWeapon(replaced, 0, null);
 
-    expect(equipped.tracks[0]!.weaponBuildId).toBe(first.id);
-    expect(replaced.builds.weapons[first.id]).toBeUndefined();
-    expect(replaced.builds.weapons[second.id]).toEqual(second);
-    expect(cleared.tracks[0]!.weaponBuildId).toBeNull();
-    expect(cleared.builds.weapons).toEqual({});
-    expect(original.builds.weapons).toEqual({});
+    expect(equipped.tracks[0]!.weapon).toEqual(first);
+    expect(replaced.tracks[0]!.weapon).toEqual(second);
+    expect(cleared.tracks[0]!.weapon).toBeNull();
+    expect(original.tracks[0]!.weapon).toBeNull();
   });
 
   it('rejects equipping a weapon on an empty track', () => {
@@ -231,7 +236,7 @@ describe('moveSkillCast', () => {
     ).toThrow('track 0 is empty');
   });
 
-  it('assigns independent gear slots and removes only orphaned gear builds', () => {
+  it('assigns independent gear slots and clears them separately', () => {
     const original = scenario();
     const armor = { id: 'gear:armor', gearSlug: 'armor', artificingLevels: [0, 0, 0] };
     const accessory = {
@@ -244,15 +249,20 @@ describe('moveSkillCast', () => {
     const equipped = setTrackGear(armored, 0, 'accessory1', accessory);
     const cleared = setTrackGear(equipped, 0, 'armor', null);
 
-    expect(equipped.tracks[0]!.gearBuildIds).toEqual({
-      armor: armor.id,
+    expect(equipped.tracks[0]!.gears).toEqual({
+      armor: armor,
       gloves: null,
-      accessory1: accessory.id,
+      accessory1: accessory,
       accessory2: null,
     });
-    expect(cleared.builds.gears[armor.id]).toBeUndefined();
-    expect(cleared.builds.gears[accessory.id]).toEqual(accessory);
-    expect(original.builds.gears).toEqual({});
+    expect(cleared.tracks[0]!.gears.armor).toBeNull();
+    expect(cleared.tracks[0]!.gears.accessory1).toEqual(accessory);
+    expect(original.tracks[0]!.gears).toEqual({
+      armor: null,
+      gloves: null,
+      accessory1: null,
+      accessory2: null,
+    });
   });
 
   it('rejects equipping gear on an empty track', () => {
@@ -379,9 +389,9 @@ describe('moveSkillCast', () => {
     const original = scenario();
     original.tracks[0]!.skillCasts.push({ ...cast(), id: 'cast:2' });
     original.tracks[1] = {
-      operatorBuildId: null,
-      weaponBuildId: null,
-      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
       skillCasts: [{ ...cast(), id: 'cast:3' }],
     };
@@ -418,9 +428,9 @@ describe('moveSkillCasts', () => {
       placement: { startFrame: 60 },
     });
     value.tracks[1] = {
-      operatorBuildId: null,
-      weaponBuildId: null,
-      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
       skillCasts: [{ ...cast(), id: 'cast:3', placement: { startFrame: 90 } }],
     };

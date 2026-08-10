@@ -8,7 +8,7 @@ import type {
   OperatorUpgradeDefinition,
   UpgradeModifierDefinition,
 } from '../game-data/operatorDefinition';
-import type { OperatorBuildDocument } from '../project/schema';
+import type { OperatorInstanceDocument } from '../project/schema';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
@@ -18,7 +18,7 @@ export interface ActiveOperatorUpgrade {
 
 /** 解析构筑当前实际启用的养成项；返回顺序固定为天赋声明顺序、潜能解锁顺序。 */
 export function resolveActiveOperatorUpgrades(
-  build: OperatorBuildDocument,
+  build: OperatorInstanceDocument,
   operator: OperatorDefinition,
 ): readonly ActiveOperatorUpgrade[] {
   const active: ActiveOperatorUpgrade[] = [];

@@ -20,7 +20,7 @@ const enemyEditableFields = new Set<string>(ENEMY_EDITABLE_FIELDS);
 const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIERS);
 const skillTypes = new Set<string>(SKILL_TYPES);
 
-export function validateOperatorBuild(
+export function validateOperatorInstance(
   value: JsonObject,
   path: string,
   issues: ValidationIssue[],
@@ -37,7 +37,7 @@ export function validateOperatorBuild(
   }
 }
 
-export function validateWeaponBuild(
+export function validateWeaponInstance(
   value: JsonObject,
   path: string,
   issues: ValidationIssue[],
@@ -55,7 +55,7 @@ export function validateWeaponBuild(
   }
 }
 
-export function validateGearBuild(
+export function validateGearInstance(
   value: JsonObject,
   path: string,
   issues: ValidationIssue[],

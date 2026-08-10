@@ -12,7 +12,7 @@ import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import type {
   CombatStepDocument,
-  OperatorBuildDocument,
+  OperatorInstanceDocument,
   ScenarioDocument,
   SkillCastDocument,
 } from '../project/schema';
@@ -31,7 +31,10 @@ export interface CompiledScenarioTimeline {
 
 type OperatorIndex = Pick<GameDataRepository, 'getOperator'>;
 
-function requireOperator(build: OperatorBuildDocument, index: OperatorIndex): OperatorDefinition {
+function requireOperator(
+  build: OperatorInstanceDocument,
+  index: OperatorIndex,
+): OperatorDefinition {
   const operator = index.getOperator(build.operatorSlug);
   if (operator === null) {
     throw new Error(`operator definition '${build.operatorSlug}' does not exist`);
@@ -39,7 +42,7 @@ function requireOperator(build: OperatorBuildDocument, index: OperatorIndex): Op
   return operator;
 }
 
-function requireSkillLevel(build: OperatorBuildDocument, levelSource: string): number {
+function requireSkillLevel(build: OperatorInstanceDocument, levelSource: string): number {
   const level = build.skillLevels[levelSource];
   if (level === undefined) {
     throw new Error(`operator build '${build.id}' has no '${levelSource}' skill level`);
@@ -87,7 +90,7 @@ function projectDocumentStep(step: CombatStepDocument): ResolvedCombatStep {
 
 /** 从技能释放文档编译一个独立程序；定义默认值、等级与养成补丁仍以定义为准。 */
 function compileCastSkillProgram(
-  build: OperatorBuildDocument,
+  build: OperatorInstanceDocument,
   operator: OperatorDefinition,
   skill: SkillDefinition,
   skillLevel: number,
@@ -123,7 +126,7 @@ function compileCastSkillProgram(
  * 资源规则等与放置无关的解析使用这份名单；放置程序由 `compileCastSkillProgram` 单独产生。
  */
 export function compileOperatorDefinitionSkills(
-  build: OperatorBuildDocument,
+  build: OperatorInstanceDocument,
   operator: OperatorDefinition,
 ): readonly CompiledSkillProgram[] {
   const skills = operator.skillGroups.flatMap(group => {
@@ -176,7 +179,7 @@ function requireCastSkill(cast: SkillCastDocument, operator: OperatorDefinition)
 
 interface ResolvedTimelineTrack {
   readonly track: NonNullable<ScenarioDocument['tracks'][number]>;
-  readonly operatorBuild: OperatorBuildDocument;
+  readonly operatorInstance: OperatorInstanceDocument;
   readonly operator: OperatorDefinition;
 }
 
@@ -187,7 +190,7 @@ function compileResolvedTimelineTracks(
   const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
   let order = 0;
 
-  for (const { track, operatorBuild, operator } of tracks) {
+  for (const { track, operatorInstance, operator } of tracks) {
     const skills: CompiledSkillProgram[] = [];
     for (const cast of track.skillCasts) {
       if (cast.editable.disabled) continue;
@@ -202,11 +205,11 @@ function compileResolvedTimelineTracks(
       if (group === undefined) {
         throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
       }
-      const level = requireSkillLevel(operatorBuild, group.levelSource);
-      skills.push(compileCastSkillProgram(operatorBuild, operator, skill, level, cast));
+      const level = requireSkillLevel(operatorInstance, group.levelSource);
+      skills.push(compileCastSkillProgram(operatorInstance, operator, skill, level, cast));
       pendingInputs.push({
         frame: cast.placement.startFrame,
-        operatorId: operatorBuild.id,
+        operatorId: operatorInstance.id,
         skillId: skill.key,
         castId: cast.id,
         order,
@@ -215,10 +218,10 @@ function compileResolvedTimelineTracks(
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
     operators.push({
-      operatorId: operatorBuild.id,
+      operatorId: operatorInstance.id,
       skills: applyOperatorUpgradeSkillPatches(
         skills,
-        resolveActiveOperatorUpgrades(operatorBuild, operator),
+        resolveActiveOperatorUpgrades(operatorInstance, operator),
       ),
     });
   }
@@ -236,7 +239,7 @@ export function compileResolvedScenarioTimeline(
 ): CompiledScenarioTimeline {
   const tracks = builds.map(build => ({
     track: build.track,
-    operatorBuild: build.operatorBuild,
+    operatorInstance: build.operatorInstance,
     operator: build.operator,
   }));
   return compileResolvedTimelineTracks(tracks);
@@ -255,22 +258,19 @@ export function compileScenarioTimeline(
 
   scenario.tracks.forEach((track, trackIndex) => {
     if (track === null) return;
-    if (track.operatorBuildId === null) {
+    const operatorInstance = track.operator;
+    if (operatorInstance === null) {
       if (track.skillCasts.length > 0) {
-        throw new Error(`track ${trackIndex} has skill casts but no operator build`);
+        throw new Error(`track ${trackIndex} has skill casts but no operator instance`);
       }
       return;
     }
-    const build = scenario.builds.operators[track.operatorBuildId];
-    if (build === undefined) {
-      throw new Error(`operator build '${track.operatorBuildId}' does not exist`);
+    if (seenOperatorIds.has(operatorInstance.id)) {
+      throw new Error(`operator instance '${operatorInstance.id}' is assigned to multiple tracks`);
     }
-    if (seenOperatorIds.has(build.id)) {
-      throw new Error(`operator build '${build.id}' is assigned to multiple tracks`);
-    }
-    seenOperatorIds.add(build.id);
-    const operator = requireOperator(build, index);
-    tracks.push({ track, operatorBuild: build, operator });
+    seenOperatorIds.add(operatorInstance.id);
+    const operator = requireOperator(operatorInstance, index);
+    tracks.push({ track, operatorInstance, operator });
   });
   return compileResolvedTimelineTracks(tracks);
 }

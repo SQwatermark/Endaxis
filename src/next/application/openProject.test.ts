@@ -58,13 +58,19 @@ describe('openProject', () => {
 
   it('reports definition reference issues when the revision matches', () => {
     const project = createProject();
-    project.scenarios[0]!.builds.weapons['weapon:1'] = {
-      id: 'weapon:1',
-      weaponSlug: 'missing-weapon',
-      level: 90,
-      tuned: true,
-      potential: 0,
-      traitLevels: [1, 1, 1],
+    project.scenarios[0]!.tracks[0] = {
+      operator: null,
+      weapon: {
+        id: 'weapon:1',
+        weaponSlug: 'missing-weapon',
+        level: 90,
+        tuned: true,
+        potential: 0,
+        traitLevels: [1, 1, 1],
+      },
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
     };
 
     expect(openProject(project, { gameDataRepository: createRepository() })).toEqual({
@@ -73,7 +79,7 @@ describe('openProject', () => {
       project,
       issues: [
         {
-          path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
+          path: '$.scenarios[0].tracks[0].weapon.weaponSlug',
           message: 'unknown weapon',
         },
       ],

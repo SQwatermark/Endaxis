@@ -49,20 +49,20 @@ function createHarness(initial: ScenarioDocument) {
 function createPerlicaScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:composable', '组合式函数样本');
   scenario.battle.durationFrames = 300;
-  scenario.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
+
   scenario.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
@@ -108,20 +108,19 @@ describe('useScenarioSimulation', () => {
       // 庄方宜的普攻带语义状态条件与状态步骤，标准环境尚未接入，会触发严格失败。
       session.commit('placeUnsupportedOperator', () => {
         const next = createPerlicaScenario();
-        next.builds.operators[zhuangFangyi.slug] = {
-          id: zhuangFangyi.slug,
-          operatorSlug: zhuangFangyi.slug,
-          level: 90,
-          promoted: true,
-          potential: 0,
-          trustLevel: 4,
-          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-          talentStates: {},
-        };
         next.tracks[0] = {
-          operatorBuildId: zhuangFangyi.slug,
-          weaponBuildId: null,
-          gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+          operator: {
+            id: zhuangFangyi.slug,
+            operatorSlug: zhuangFangyi.slug,
+            level: 90,
+            promoted: true,
+            potential: 0,
+            trustLevel: 4,
+            skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+            talentStates: {},
+          },
+          weapon: null,
+          gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
           initialState: { ultimateEnergy: 0 },
           skillCasts: [],
         };

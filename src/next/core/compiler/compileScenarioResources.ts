@@ -28,7 +28,7 @@ export interface CompileScenarioResourcesOptions {
   readonly spRecoveryPauseDuration: number;
   readonly ultimateEnergySystemUnlocked: boolean;
   readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
-  /** 以 `OperatorBuildDocument.id` 为键；运行时干员身份与时间轴编译保持一致。 */
+  /** 以 `OperatorInstanceDocument.id` 为键；运行时干员身份与时间轴编译保持一致。 */
   readonly operators: ReadonlyMap<string, ResolvedOperatorResourceRules>;
 }
 
@@ -43,29 +43,27 @@ function requireFinite(value: number, path: string): void {
 }
 
 function compileOperatorResource(
-  scenario: ScenarioDocument,
   track: TrackDocument,
   trackIndex: number,
   options: CompileScenarioResourcesOptions,
 ): OperatorResourceSnapshot | null {
   const trackPath = `scenario.tracks[${trackIndex}]`;
-  if (track.operatorBuildId === null) {
+  if (track.operator === null) {
     if (
       track.initialState.ultimateEnergy !== 0 ||
       track.initialState.maxUltimateEnergyOverride !== undefined
     ) {
-      throw new Error(`${trackPath}.initialState configures resources without an operator build`);
+      throw new Error(
+        `${trackPath}.initialState configures resources without an operator instance`,
+      );
     }
     return null;
   }
 
-  const operatorId = track.operatorBuildId;
-  if (scenario.builds.operators[operatorId] === undefined) {
-    throw new Error(`${trackPath}.operatorBuildId references missing build '${operatorId}'`);
-  }
+  const operatorId = track.operator.id;
   const resolved = options.operators.get(operatorId);
   if (resolved === undefined) {
-    throw new Error(`resolved resource rules for operator build '${operatorId}' do not exist`);
+    throw new Error(`resolved resource rules for operator instance '${operatorId}' do not exist`);
   }
 
   requireNonNegativeFinite(
@@ -148,10 +146,10 @@ export function compileScenarioResources(
   const squad: OperatorResourceSnapshot[] = [];
   scenario.tracks.forEach((track, trackIndex) => {
     if (track === null) return;
-    const member = compileOperatorResource(scenario, track, trackIndex, options);
+    const member = compileOperatorResource(track, trackIndex, options);
     if (member === null) return;
     if (seenOperatorIds.has(member.operatorId)) {
-      throw new Error(`operator build '${member.operatorId}' is assigned to multiple tracks`);
+      throw new Error(`operator instance '${member.operatorId}' is assigned to multiple tracks`);
     }
     seenOperatorIds.add(member.operatorId);
     squad.push(member);

@@ -24,25 +24,25 @@ export interface CompiledScenarioOperatorEquipment {
 export function compileResolvedScenarioEquipment(
   builds: readonly ResolvedScenarioBuild[],
 ): readonly CompiledScenarioOperatorEquipment[] {
-  return builds.map(({ operatorBuild, operator, weapon, gears, activeGearSets }) => {
+  return builds.map(({ operatorInstance, operator, weapon, gears, activeGearSets }) => {
     const attributes = { main: operator.mainAttribute, secondary: operator.secondaryAttribute };
     const contributions: CompiledEquipmentContribution[] = [];
 
     if (weapon !== null) {
       contributions.push(
-        ...compileWeaponContributions(weapon.definition, weapon.build.traitLevels, attributes),
+        ...compileWeaponContributions(weapon.definition, weapon.instance.traitLevels, attributes),
       );
     }
 
     for (const gear of gears) {
       contributions.push(
-        ...compileGearContributions(gear.definition, gear.build.artificingLevels, attributes),
+        ...compileGearContributions(gear.definition, gear.instance.artificingLevels, attributes),
       );
     }
     for (const gearSet of activeGearSets) {
       contributions.push(compileGearSetContribution(gearSet, attributes));
     }
-    return { operatorId: operatorBuild.id, contributions };
+    return { operatorId: operatorInstance.id, contributions };
   });
 }
 

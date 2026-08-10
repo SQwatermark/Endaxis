@@ -27,8 +27,8 @@ import {
 } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type { SkillLevelSource } from '../../../core/game-data/operatorDefinition';
-import type { OperatorBuildChanges } from '../loadoutBuildCommands';
-import type { OperatorBuildViewModel } from '../loadoutBuildViewModel';
+import type { OperatorInstanceChanges } from '../loadoutBuildCommands';
+import type { OperatorInstanceViewModel } from '../loadoutBuildViewModel';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextOperatorLevel[];
 const SKILL_ORDER = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'] as const;
@@ -48,12 +48,12 @@ const WEAPON_ATTACK_ICON: Readonly<Record<string, string>> = {
 
 const props = defineProps<{
   visible: boolean;
-  operator: OperatorBuildViewModel | null;
+  operator: OperatorInstanceViewModel | null;
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
-  change: [changes: OperatorBuildChanges];
+  change: [changes: OperatorInstanceChanges];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -100,7 +100,7 @@ const availableSkillSources = computed(() => {
 });
 const trustAttribute = computed(() => definition.value?.mainAttribute ?? null);
 
-function update(changes: OperatorBuildChanges): void {
+function update(changes: OperatorInstanceChanges): void {
   if (props.operator !== null) emit('change', changes);
 }
 

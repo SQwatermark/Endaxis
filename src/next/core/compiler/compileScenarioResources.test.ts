@@ -8,11 +8,23 @@ import {
   type ResolvedOperatorResourceRules,
 } from './compileScenarioResources';
 
-function track(operatorBuildId: string | null, ultimateEnergy = 0): TrackDocument {
+function track(operatorId: string | null, ultimateEnergy = 0): TrackDocument {
   return {
-    operatorBuildId,
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator:
+      operatorId === null
+        ? null
+        : {
+            id: operatorId,
+            operatorSlug: operatorId,
+            level: 90,
+            promoted: true,
+            potential: 0,
+            trustLevel: 4,
+            skillLevels: {},
+            talentStates: {},
+          },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy },
     skillCasts: [],
   };
@@ -20,26 +32,6 @@ function track(operatorBuildId: string | null, ultimateEnergy = 0): TrackDocumen
 
 function scenario(): ScenarioDocument {
   const value = createEmptyScenario('scenario:resources', '资源编译样本');
-  value.builds.operators.alpha = {
-    id: 'alpha',
-    operatorSlug: 'alpha',
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: {},
-    talentStates: {},
-  };
-  value.builds.operators.beta = {
-    id: 'beta',
-    operatorSlug: 'beta',
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: {},
-    talentStates: {},
-  };
   value.tracks[0] = track('alpha', 30);
   value.tracks[2] = track('beta', 40);
   value.battle.resourceRules = {
@@ -141,7 +133,7 @@ describe('compileScenarioResources', () => {
     operators.delete('beta');
 
     expect(() => compileScenarioResources(scenario(), { ...settings, operators })).toThrow(
-      "resolved resource rules for operator build 'beta' do not exist",
+      "resolved resource rules for operator instance 'beta' do not exist",
     );
   });
 
@@ -171,7 +163,7 @@ describe('compileScenarioResources', () => {
     value.tracks[1] = track(null, 1);
 
     expect(() => compileScenarioResources(value, options())).toThrow(
-      'configures resources without an operator build',
+      'configures resources without an operator instance',
     );
   });
 
@@ -180,7 +172,7 @@ describe('compileScenarioResources', () => {
     value.tracks[1] = track('alpha', 0);
 
     expect(() => compileScenarioResources(value, options())).toThrow(
-      "operator build 'alpha' is assigned to multiple tracks",
+      "operator instance 'alpha' is assigned to multiple tracks",
     );
   });
 });

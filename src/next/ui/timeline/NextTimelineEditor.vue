@@ -150,20 +150,19 @@ const contextMenuTarget = ref<{
 function createSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
   scenario.battle.durationFrames = 900;
-  scenario.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
   scenario.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
@@ -368,14 +367,13 @@ function gaugeColorFor(trackIndex: TrackIndex): string {
 function gaugeCurveFor(trackIndex: TrackIndex): OperatorUltimateEnergyCurve | null {
   const current = simulationRun.value;
   const track = viewModel.value.tracks[trackIndex];
-  if (current === null || track === undefined || track.operatorBuildId === null) return null;
+  if (current === null || track === undefined || track.operatorInstanceId === null) return null;
   return (
     current.resourceCurves.ultimateEnergy.find(
-      curve => curve.operatorId === track.operatorBuildId,
+      curve => curve.operatorId === track.operatorInstanceId,
     ) ?? null
   );
 }
-
 function reactionName(reaction: string): string {
   const key = `effects.name.${reaction}`;
   const translated = t(key);
@@ -429,14 +427,15 @@ const hitDetail = computed(() => {
   if (target === null || current === null) return null;
   const track = scenario.value.tracks[target.trackIndex];
   const cast = track?.skillCasts.find(candidate => candidate.id === target.castId);
-  if (track === null || cast === undefined || track.operatorBuildId === null) return null;
+  if (track === null || cast === undefined || track.operator === null) return null;
   const marker = findCastHitMarker(cast, target.hitId);
   if (marker === null) return null;
   const absoluteFrame = cast.placement.startFrame + marker.frameOffset;
+  const operatorId = track.operator.id;
   const entries = current.receiptEntries.filter(
     entry =>
       entry.frame === absoluteFrame &&
-      entry.sourceId === track.operatorBuildId &&
+      entry.sourceId === operatorId &&
       (marker.stepKey === undefined || entry.data?.stepKey === marker.stepKey),
   );
   return { cast, marker, entries };

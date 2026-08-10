@@ -11,7 +11,7 @@ export function findAdjacentOccupiedTrack(
 ): TrackIndex | null {
   for (let offset = 1; offset <= tracks.length; offset += 1) {
     const candidate = (currentTrackIndex + direction * offset + tracks.length) % tracks.length;
-    if (tracks[candidate]?.operatorBuildId != null) return candidate as TrackIndex;
+    if (tracks[candidate]?.operator != null) return candidate as TrackIndex;
   }
   return null;
 }

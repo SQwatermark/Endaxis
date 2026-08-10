@@ -51,9 +51,18 @@ function cast(id: string, scheduledHitId?: string): SkillCastDocument {
 function scenarioWithCasts(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', 'test');
   scenario.tracks[0] = {
-    operatorBuildId: 'operator:1',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'operator:1',
+      operatorSlug: 'perlica',
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: {},
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [cast('cast:1'), cast('cast:2', 'hit:2')],
   };

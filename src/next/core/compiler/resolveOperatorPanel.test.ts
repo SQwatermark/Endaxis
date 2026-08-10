@@ -7,15 +7,15 @@ import type {
   WeaponDefinition,
 } from '../game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
-import type { OperatorBuildDocument, TrackDocument } from '../project/schema';
+import type { OperatorInstanceDocument, TrackDocument } from '../project/schema';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 
 function resolvedBuild(
   operator: OperatorDefinition,
-  changes: Partial<OperatorBuildDocument> = {},
+  changes: Partial<OperatorInstanceDocument> = {},
 ): ResolvedScenarioBuild {
-  const operatorBuild: OperatorBuildDocument = {
+  const operatorInstance: OperatorInstanceDocument = {
     id: `operator:${operator.slug}`,
     operatorSlug: operator.slug,
     level: 90,
@@ -27,16 +27,16 @@ function resolvedBuild(
     ...changes,
   };
   const track: TrackDocument = {
-    operatorBuildId: operatorBuild.id,
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: operatorInstance,
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
   return {
     trackIndex: 0,
     track,
-    operatorBuild,
+    operatorInstance,
     operator,
     weapon: null,
     gears: [],
@@ -215,7 +215,7 @@ describe('resolveOperatorPanel', () => {
     const build: ResolvedScenarioBuild = {
       ...baseBuild,
       weapon: {
-        build: {
+        instance: {
           id: 'weapon',
           weaponSlug: weapon.slug,
           level: 90,
@@ -228,7 +228,7 @@ describe('resolveOperatorPanel', () => {
       gears: [
         {
           slot: 'armor',
-          build: { id: 'gear', gearSlug: gear.slug, artificingLevels: [0] },
+          instance: { id: 'gear', gearSlug: gear.slug, artificingLevels: [0] },
           definition: gear,
         },
       ],

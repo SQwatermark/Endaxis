@@ -4,9 +4,9 @@
  */
 import { computed, ref, type Ref } from 'vue';
 import {
-  createDefaultGearBuild,
-  createDefaultOperatorBuild,
-  createDefaultWeaponBuild,
+  createDefaultGearInstance,
+  createDefaultOperatorInstance,
+  createDefaultWeaponInstance,
 } from '../../application/editor/loadoutBuildFactory';
 import type {
   ScenarioCommand,
@@ -20,11 +20,11 @@ import {
 } from '../../core/compiler/resolveOperatorPanel';
 import { resolveScenarioBuilds } from '../../core/compiler/resolveScenarioBuilds';
 import {
-  updateTrackGearBuild,
-  updateTrackOperatorBuild,
-  updateTrackWeaponBuild,
-  type OperatorBuildChanges,
-  type WeaponBuildChanges,
+  updateTrackGearInstance,
+  updateTrackOperatorInstance,
+  updateTrackWeaponInstance,
+  type OperatorInstanceChanges,
+  type WeaponInstanceChanges,
 } from './loadoutBuildCommands';
 import { projectTrackLoadoutBuilds } from './loadoutBuildViewModel';
 import {
@@ -65,8 +65,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   const selectedLoadoutModel = computed(() => loadoutModels.value[options.selectedTrack.value]!);
   const selectedWeaponSlug = computed(() => {
     const track = options.scenario.value.tracks[options.selectedTrack.value];
-    if (track?.weaponBuildId == null) return null;
-    return options.scenario.value.builds.weapons[track.weaponBuildId]?.weaponSlug ?? null;
+    return track?.weapon?.weaponSlug ?? null;
   });
   const selectableWeapons = computed(() => {
     const operatorSlug = selectedLoadoutModel.value.operator?.definition.slug ?? null;
@@ -79,11 +78,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   const selectedGearSlug = computed(() => {
     const target = gearDialogTarget.value;
     if (target === null) return null;
-    const buildId =
-      options.scenario.value.tracks[target.trackIndex]?.gearBuildIds[target.slot] ?? null;
-    return buildId === null
-      ? null
-      : (options.scenario.value.builds.gears[buildId]?.gearSlug ?? null);
+    return options.scenario.value.tracks[target.trackIndex]?.gears[target.slot]?.gearSlug ?? null;
   });
   const selectableGears = computed(() => {
     const target = gearDialogTarget.value;
@@ -133,7 +128,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   function selectTrack(trackIndex: TrackIndex): void {
     options.selectedTrack.value = trackIndex;
     const track = options.scenario.value.tracks[trackIndex];
-    if (track?.operatorBuildId == null) openOperatorDialog(trackIndex);
+    if (track?.operator == null) openOperatorDialog(trackIndex);
   }
 
   function selectOperator(slug: string): void {
@@ -145,7 +140,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
       setTrackOperator(
         current,
         trackIndex,
-        createDefaultOperatorBuild(`operator:${trackIndex}:${operator.slug}`, operator),
+        createDefaultOperatorInstance(`operator:${trackIndex}:${operator.slug}`, operator),
       ),
     );
     operatorDialogTrack.value = null;
@@ -159,7 +154,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
   }
 
   function openWeaponDialog(trackIndex = options.selectedTrack.value): void {
-    if (options.scenario.value.tracks[trackIndex]?.operatorBuildId == null) return;
+    if (options.scenario.value.tracks[trackIndex]?.operator == null) return;
     options.selectedTrack.value = trackIndex;
     options.clearTimelineSelection();
     weaponDialogTrack.value = trackIndex;
@@ -181,7 +176,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
       setTrackWeapon(
         current,
         trackIndex,
-        createDefaultWeaponBuild(`weapon:${trackIndex}:${weapon.slug}`, weapon),
+        createDefaultWeaponInstance(`weapon:${trackIndex}:${weapon.slug}`, weapon),
       ),
     );
     weaponDialogTrack.value = null;
@@ -198,7 +193,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     trackIndex = options.selectedTrack.value,
     slot: TrackGearSlot = 'armor',
   ): void {
-    if (options.scenario.value.tracks[trackIndex]?.operatorBuildId == null) return;
+    if (options.scenario.value.tracks[trackIndex]?.operator == null) return;
     options.selectedTrack.value = trackIndex;
     options.clearTimelineSelection();
     gearDialogTarget.value = { trackIndex, slot };
@@ -214,7 +209,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
         current,
         target.trackIndex,
         target.slot,
-        createDefaultGearBuild(
+        createDefaultGearInstance(
           `gear:${target.trackIndex}:${target.slot}:${gear.slug}`,
           gear,
           artificingTier,
@@ -236,34 +231,34 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     const build = selectedGearBuild.value;
     if (target === null || build === null) return;
     commit('changeGearRefineTier', current =>
-      updateTrackGearBuild(
+      updateTrackGearInstance(
         current,
         target.trackIndex,
-        build.buildId,
+        target.slot,
         build.definition.traits.map(() => artificingTier),
       ),
     );
   }
 
-  function updateWeaponBuild(changes: WeaponBuildChanges): void {
-    commit('updateTrackWeaponBuild', current =>
-      updateTrackWeaponBuild(current, options.selectedTrack.value, changes),
+  function updateWeaponBuild(changes: WeaponInstanceChanges): void {
+    commit('updateTrackWeaponInstance', current =>
+      updateTrackWeaponInstance(current, options.selectedTrack.value, changes),
     );
   }
 
-  function updateOperatorBuild(changes: OperatorBuildChanges): void {
-    commit('updateTrackOperatorBuild', current =>
-      updateTrackOperatorBuild(current, options.selectedTrack.value, changes),
+  function updateOperatorBuild(changes: OperatorInstanceChanges): void {
+    commit('updateTrackOperatorInstance', current =>
+      updateTrackOperatorInstance(current, options.selectedTrack.value, changes),
     );
   }
 
   function updateGearBuild(
-    _slot: TrackGearSlot,
-    buildId: string,
+    slot: TrackGearSlot,
+    _buildId: string,
     artificingLevels: readonly number[],
   ): void {
-    commit('updateTrackGearBuild', current =>
-      updateTrackGearBuild(current, options.selectedTrack.value, buildId, artificingLevels),
+    commit('updateTrackGearInstance', current =>
+      updateTrackGearInstance(current, options.selectedTrack.value, slot, artificingLevels),
     );
   }
 

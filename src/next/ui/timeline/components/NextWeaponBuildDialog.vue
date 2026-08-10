@@ -18,8 +18,8 @@ import {
   type WeaponTraitLevelBounds,
 } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
-import type { WeaponBuildChanges } from '../loadoutBuildCommands';
-import type { WeaponBuildViewModel } from '../loadoutBuildViewModel';
+import type { WeaponInstanceChanges } from '../loadoutBuildCommands';
+import type { WeaponInstanceViewModel } from '../loadoutBuildViewModel';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextWeaponLevel[];
 const ABSOLUTE_MAX_TRAIT_LEVEL = 9;
@@ -27,12 +27,12 @@ type WeaponTraitKey = 'skill1' | 'skill2' | 'skill3';
 
 const props = defineProps<{
   visible: boolean;
-  weapon: WeaponBuildViewModel | null;
+  weapon: WeaponInstanceViewModel | null;
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
-  change: [changes: WeaponBuildChanges];
+  change: [changes: WeaponInstanceChanges];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -117,7 +117,7 @@ function clampTraitLevels(level: NextWeaponLevel, tuned: boolean, potential: num
   });
 }
 
-function emitChange(changes: WeaponBuildChanges): void {
+function emitChange(changes: WeaponInstanceChanges): void {
   emit('change', changes);
 }
 

@@ -12,7 +12,7 @@ import type {
   UpgradeModifierDefinition,
   UpgradeStaticDamageIncreaseTarget,
 } from '../game-data/operatorDefinition';
-import type { OperatorBuildDocument } from '../project/schema';
+import type { OperatorInstanceDocument } from '../project/schema';
 import type {
   CompiledEquipmentContribution,
   EquipmentContributionSource,
@@ -166,7 +166,7 @@ function resolveTrustAttribute(
       : attribute;
 }
 
-function maxTrustLevel(build: OperatorBuildDocument): number {
+function maxTrustLevel(build: OperatorInstanceDocument): number {
   if (build.level >= 90) return 4;
   if (build.level >= 80) return build.promoted ? 4 : 3;
   if (build.level >= 60) return build.promoted ? 3 : 2;
@@ -246,14 +246,14 @@ function applyEquipmentContribution(
 
 /** 计算单个已解析干员构筑的静态面板。 */
 export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOperatorPanel {
-  if (build.operatorBuild.baseStatOverrides !== undefined) {
+  if (build.operatorInstance.baseStatOverrides !== undefined) {
     throw new Error(
-      `operator build '${build.operatorBuild.id}' has base stat overrides, but Next panel override semantics are not normalized`,
+      `operator build '${build.operatorInstance.id}' has base stat overrides, but Next panel override semantics are not normalized`,
     );
   }
   const operatorLevelIndex = requireLevelIndex(
-    build.operatorBuild.level,
-    `operator build '${build.operatorBuild.id}'.level`,
+    build.operatorInstance.level,
+    `operator build '${build.operatorInstance.id}'.level`,
   );
   const receipt: OperatorPanelContributionReceipt[] = [];
   const operatorSource = { kind: 'operatorBase', operatorSlug: build.operator.slug } as const;
@@ -318,17 +318,17 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   );
 
   const trust = build.operator.trustAttributeBonus ?? DEFAULT_TRUST_BONUS;
-  const unlockedTrustLevel = maxTrustLevel(build.operatorBuild);
+  const unlockedTrustLevel = maxTrustLevel(build.operatorInstance);
   if (
-    !Number.isInteger(build.operatorBuild.trustLevel) ||
-    build.operatorBuild.trustLevel < 0 ||
-    build.operatorBuild.trustLevel > unlockedTrustLevel
+    !Number.isInteger(build.operatorInstance.trustLevel) ||
+    build.operatorInstance.trustLevel < 0 ||
+    build.operatorInstance.trustLevel > unlockedTrustLevel
   ) {
     throw new RangeError(
-      `operator build '${build.operatorBuild.id}'.trustLevel must be an integer between 0 and ${unlockedTrustLevel}`,
+      `operator build '${build.operatorInstance.id}'.trustLevel must be an integer between 0 and ${unlockedTrustLevel}`,
     );
   }
-  for (let index = 0; index < build.operatorBuild.trustLevel; index += 1) {
+  for (let index = 0; index < build.operatorInstance.trustLevel; index += 1) {
     const bonus = requireFinite(
       trust.values[index],
       `operator '${build.operator.slug}'.trustAttributeBonus.values[${index}]`,
@@ -345,7 +345,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     }
   }
 
-  for (const upgrade of resolveActiveOperatorUpgrades(build.operatorBuild, build.operator)) {
+  for (const upgrade of resolveActiveOperatorUpgrades(build.operatorInstance, build.operator)) {
     const source = { kind: 'operatorUpgrade', upgradeKey: upgrade.definition.key } as const;
     for (const modifier of upgrade.definition.modifiers ?? []) {
       applyUpgradeModifier(modifier, source, values, receipt, combatModifiers);
@@ -354,8 +354,8 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
 
   if (build.weapon !== null) {
     const weaponLevelIndex = requireLevelIndex(
-      build.weapon.build.level,
-      `weapon build '${build.weapon.build.id}'.level`,
+      build.weapon.instance.level,
+      `weapon instance '${build.weapon.instance.id}'.level`,
     );
     values.weaponBaseAttack = requireFinite(
       build.weapon.definition.baseAttackAtLevelNodes[weaponLevelIndex],
@@ -412,7 +412,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   );
 
   return {
-    operatorId: build.operatorBuild.id,
+    operatorId: build.operatorInstance.id,
     attributes: { ...values.attributes },
     attack,
     health,

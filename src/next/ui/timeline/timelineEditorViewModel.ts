@@ -43,7 +43,7 @@ export interface TimelineSkillCastViewModel {
 /** 一条轨道在编辑器中需要的定义身份、技能库和已放置动作。 */
 export interface TimelineTrackViewModel {
   readonly trackIndex: TrackIndex;
-  readonly operatorBuildId: string | null;
+  readonly operatorInstanceId: string | null;
   readonly operatorSlug: string | null;
   readonly operatorSupport: OperatorSupportViewModel | null;
   readonly initialUltimateEnergy: number;
@@ -56,8 +56,7 @@ export interface TimelineTrackViewModel {
 /**
  * 从终结技定义中解析能量上限。原生资源上限与终结技消耗一致；若定义缺失或出现多个不同
  * 消耗值，则保持未知并交给后续资源规则解析器处理，UI 不自行猜测。
- */
-export function resolveOperatorMaxUltimateEnergy(
+ */ export function resolveOperatorMaxUltimateEnergy(
   operator: OperatorDefinition,
   skillLevel: number,
 ): number | null {
@@ -119,7 +118,7 @@ function projectTrack(
   if (track === null) {
     return {
       trackIndex,
-      operatorBuildId: null,
+      operatorInstanceId: null,
       operatorSlug: null,
       operatorSupport: null,
       initialUltimateEnergy: 0,
@@ -131,27 +130,25 @@ function projectTrack(
   }
 
   const issues: string[] = [];
-  const operatorBuild =
-    track.operatorBuildId === null
-      ? null
-      : (scenario.builds.operators[track.operatorBuildId] ?? null);
-  if (track.operatorBuildId !== null && operatorBuild === null) {
-    issues.push(`missing operator build '${track.operatorBuildId}'`);
+  const operatorInstance = track.operator;
+  if (track.operator === null) {
+    issues.push(`missing operator instance`);
   }
-  const operator = operatorBuild === null ? null : index.getOperator(operatorBuild.operatorSlug);
-  if (operatorBuild !== null && operator === null) {
-    issues.push(`missing operator definition '${operatorBuild.operatorSlug}'`);
+  const operator =
+    operatorInstance === null ? null : index.getOperator(operatorInstance.operatorSlug);
+  if (operatorInstance !== null && operator === null) {
+    issues.push(`missing operator definition '${operatorInstance.operatorSlug}'`);
   }
 
   const skillLibrary =
-    operator === null || operatorBuild === null
+    operator === null || operatorInstance === null
       ? []
       : operator.skillGroups.map(group => {
           const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
           return {
             skillGroupKey: group.key,
             skillType: group.skillType,
-            level: operatorBuild.skillLevels[group.levelSource] ?? 1,
+            level: operatorInstance.skillLevels[group.levelSource] ?? 1,
             skills: skills.map(skill => ({
               skillKey: skill.key,
               timelineBlockFrames: skill.timelineBlockFrames,
@@ -166,15 +163,15 @@ function projectTrack(
 
   return {
     trackIndex,
-    operatorBuildId: track.operatorBuildId,
-    operatorSlug: operatorBuild?.operatorSlug ?? null,
+    operatorInstanceId: track.operator?.id ?? null,
+    operatorSlug: operatorInstance?.operatorSlug ?? null,
     operatorSupport: operator === null ? null : projectOperatorSupport(operator),
     initialUltimateEnergy: track.initialState.ultimateEnergy,
     maxUltimateEnergy:
       track.initialState.maxUltimateEnergyOverride ??
-      (operator === null || operatorBuild === null
+      (operator === null || operatorInstance === null
         ? null
-        : resolveOperatorMaxUltimateEnergy(operator, operatorBuild.skillLevels.ultimate ?? 1)),
+        : resolveOperatorMaxUltimateEnergy(operator, operatorInstance.skillLevels.ultimate ?? 1)),
     skillLibrary,
     skillCasts: track.skillCasts.map(skillCast => projectSkillCast(skillCast, operator, issues)),
     issues,

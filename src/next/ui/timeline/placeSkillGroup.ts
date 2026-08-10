@@ -103,15 +103,12 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   }
   const track = input.scenario.tracks[input.trackIndex];
   if (track === null) throw new Error(`track ${input.trackIndex} is empty`);
-  if (track.operatorBuildId === null)
-    throw new Error(`track ${input.trackIndex} has no operator build`);
-  const operatorBuild = input.scenario.builds.operators[track.operatorBuildId];
-  if (operatorBuild === undefined) {
-    throw new Error(`operator build '${track.operatorBuildId}' does not exist`);
-  }
-  if (operatorBuild.operatorSlug !== input.operator.slug) {
+  const operatorInstance = track.operator;
+  if (operatorInstance === null)
+    throw new Error(`track ${input.trackIndex} has no operator instance`);
+  if (operatorInstance.operatorSlug !== input.operator.slug) {
     throw new Error(
-      `operator build '${operatorBuild.id}' references '${operatorBuild.operatorSlug}', not '${input.operator.slug}'`,
+      `operator instance '${operatorInstance.id}' references '${operatorInstance.operatorSlug}', not '${input.operator.slug}'`,
     );
   }
   const group = input.operator.skillGroups.find(candidate => candidate.key === input.skillGroupKey);
@@ -120,10 +117,10 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
       `operator '${input.operator.slug}' has no skill group '${input.skillGroupKey}'`,
     );
   }
-  const level = operatorBuild.skillLevels[group.levelSource];
+  const level = operatorInstance.skillLevels[group.levelSource];
   if (level === undefined) {
     throw new Error(
-      `operator build '${operatorBuild.id}' has no '${group.levelSource}' skill level`,
+      `operator build '${operatorInstance.id}' has no '${group.levelSource}' skill level`,
     );
   }
 
@@ -141,7 +138,7 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
 
   skills.forEach((skill, index) => {
     const program = compileSkill({
-      operatorId: operatorBuild.id,
+      operatorId: operatorInstance.id,
       skillGroupKey: group.key,
       skillType: group.skillType,
       skill,

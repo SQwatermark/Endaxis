@@ -22,7 +22,6 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
   return {
     id,
     name,
-    builds: { operators: {}, weapons: {}, gears: {} },
     tracks: [null, null, null, null],
     connections: [],
     enemy: {
@@ -71,7 +70,6 @@ export function createEmptyProject(options: CreateProjectOptions): EndaxisProjec
     schemaVersion: PROJECT_SCHEMA_VERSION,
     createdWith: options.createdWith,
     gameDataRevision: options.gameDataRevision,
-    timeUnit: 'frame',
     fps: PROJECT_FPS,
     activeScenarioId: scenarioId,
     scenarios: [createEmptyScenario(scenarioId, options.scenarioName ?? 'Scenario 1')],

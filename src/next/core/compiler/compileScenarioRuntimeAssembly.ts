@@ -52,7 +52,7 @@ export interface CompileScenarioRuntimeAssemblyOptions {
   readonly index: BuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   readonly environment: CombatRuntimeEnvironmentOptions;
-  /** 以 `OperatorBuildDocument.id` 为键，不接受未上场干员。 */
+  /** 以 `OperatorInstanceDocument.id` 为键，不接受未上场干员。 */
   readonly operatorRuntimeBindings?: ReadonlyMap<string, CombatOperatorRuntimeBindings>;
 }
 
@@ -97,7 +97,9 @@ export function compileScenarioRuntimeAssembly(
     // 资源规则与放置无关：maxUltimateEnergy 来自定义全部技能（已应用养成补丁）的费用。
     operators: resolveScenarioOperatorResourceRules(
       timeline.operators.map(operator => {
-        const build = builds.find(candidate => candidate.operatorBuild.id === operator.operatorId);
+        const build = builds.find(
+          candidate => candidate.operatorInstance.id === operator.operatorId,
+        );
         if (build === undefined) {
           throw new Error(
             `timeline operator '${operator.operatorId}' has no resolved operator build`,
@@ -105,7 +107,7 @@ export function compileScenarioRuntimeAssembly(
         }
         return {
           operatorId: operator.operatorId,
-          skills: compileOperatorDefinitionSkills(build.operatorBuild, build.operator),
+          skills: compileOperatorDefinitionSkills(build.operatorInstance, build.operator),
         };
       }),
       [...panels.values()],

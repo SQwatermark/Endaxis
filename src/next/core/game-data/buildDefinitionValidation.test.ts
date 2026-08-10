@@ -62,12 +62,28 @@ function createRepository(overrides?: {
 
 function createTrack(): TrackDocument {
   return {
-    operatorBuildId: 'operator:1',
-    weaponBuildId: 'weapon:1',
-    gearBuildIds: {
-      armor: 'gear:armor',
+    operator: {
+      id: 'operator:1',
+      operatorSlug: operator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: {},
+      talentStates: {},
+    },
+    weapon: {
+      id: 'weapon:1',
+      weaponSlug: weapon.slug,
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [1, 1, 1],
+    },
+    gears: {
+      armor: { id: 'gear:armor', gearSlug: armor.slug, artificingLevels: [] },
       gloves: null,
-      accessory1: 'gear:accessory',
+      accessory1: { id: 'gear:accessory', gearSlug: accessory.slug, artificingLevels: [] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -77,36 +93,7 @@ function createTrack(): TrackDocument {
 
 function createProject(): EndaxisProjectDocument {
   const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
-  const scenario = project.scenarios[0]!;
-  scenario.builds.operators['operator:1'] = {
-    id: 'operator:1',
-    operatorSlug: operator.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: {},
-    talentStates: {},
-  };
-  scenario.builds.weapons['weapon:1'] = {
-    id: 'weapon:1',
-    weaponSlug: weapon.slug,
-    level: 90,
-    tuned: true,
-    potential: 0,
-    traitLevels: [1, 1, 1],
-  };
-  scenario.builds.gears['gear:armor'] = {
-    id: 'gear:armor',
-    gearSlug: armor.slug,
-    artificingLevels: [],
-  };
-  scenario.builds.gears['gear:accessory'] = {
-    id: 'gear:accessory',
-    gearSlug: accessory.slug,
-    artificingLevels: [],
-  };
-  scenario.tracks[0] = createTrack();
+  project.scenarios[0]!.tracks[0] = createTrack();
   return project;
 }
 
@@ -129,19 +116,19 @@ describe('validateProjectBuildDefinitionReferences', () => {
       }),
     ).toEqual([
       {
-        path: '$.scenarios[0].builds.operators.operator:1.operatorSlug',
+        path: '$.scenarios[0].tracks[0].operator.operatorSlug',
         message: 'unknown operator',
       },
       {
-        path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
+        path: '$.scenarios[0].tracks[0].weapon.weaponSlug',
         message: 'unknown weapon',
       },
       {
-        path: '$.scenarios[0].builds.gears.gear:armor.gearSlug',
+        path: '$.scenarios[0].tracks[0].gears.armor.gearSlug',
         message: 'unknown gear',
       },
       {
-        path: '$.scenarios[0].builds.gears.gear:accessory.gearSlug',
+        path: '$.scenarios[0].tracks[0].gears.accessory1.gearSlug',
         message: 'unknown gear',
       },
     ]);
@@ -169,20 +156,20 @@ describe('validateProjectBuildDefinitionReferences', () => {
       ),
     ).toEqual([
       {
-        path: '$.scenarios[0].builds.gears.gear:armor.gearSlug',
-        message: "unknown gear set 'fixture-set'",
-      },
-      {
-        path: '$.scenarios[0].builds.gears.gear:accessory.gearSlug',
-        message: "unknown gear set 'fixture-set'",
-      },
-      {
-        path: '$.scenarios[0].tracks[0].weaponBuildId',
+        path: '$.scenarios[0].tracks[0].weapon.weaponSlug',
         message: "weapon type 'sword' is incompatible with operator weapon type 'arts-unit'",
       },
       {
-        path: '$.scenarios[0].tracks[0].gearBuildIds.armor',
+        path: '$.scenarios[0].tracks[0].gears.armor.gearSlug',
         message: "gear slot 'gloves' is incompatible with track slot 'armor'",
+      },
+      {
+        path: '$.scenarios[0].tracks[0].gears.armor.gearSlug',
+        message: "unknown gear set 'fixture-set'",
+      },
+      {
+        path: '$.scenarios[0].tracks[0].gears.accessory1.gearSlug',
+        message: "unknown gear set 'fixture-set'",
       },
     ]);
   });
@@ -197,7 +184,7 @@ describe('validateProjectBuildDefinitionReferences', () => {
         getWeapon: () => mismatchedWeapon,
       }),
     ).toContainEqual({
-      path: '$.scenarios[0].builds.weapons.weapon:1.weaponSlug',
+      path: '$.scenarios[0].tracks[0].weapon.weaponSlug',
       message: 'weapon definition identity mismatch',
     });
   });
@@ -205,12 +192,12 @@ describe('validateProjectBuildDefinitionReferences', () => {
   it('validates weapon trait count and equipment level bounds against index definitions', () => {
     const project = createProject();
     const scenario = project.scenarios[0]!;
-    scenario.builds.weapons['weapon:1']!.traitLevels = [10, 1];
+    scenario.tracks[0]!.weapon!.traitLevels = [10, 1];
     const leveledArmor: GearDefinition = {
       ...armor,
       traits: [{ key: 'attribute', levelCount: 4 }],
     };
-    scenario.builds.gears['gear:armor']!.artificingLevels = [4];
+    scenario.tracks[0]!.gears.armor!.artificingLevels = [4];
 
     expect(
       validateProjectBuildDefinitionReferences(
@@ -219,11 +206,11 @@ describe('validateProjectBuildDefinitionReferences', () => {
       ),
     ).toEqual([
       {
-        path: '$.scenarios[0].builds.weapons.weapon:1.traitLevels',
+        path: '$.scenarios[0].tracks[0].weapon.traitLevels',
         message: 'expected 3 weapon trait levels',
       },
       {
-        path: '$.scenarios[0].builds.gears.gear:armor.artificingLevels[0]',
+        path: '$.scenarios[0].tracks[0].gears.armor.artificingLevels[0]',
         message: 'gear trait level exceeds maximum 3',
       },
     ]);

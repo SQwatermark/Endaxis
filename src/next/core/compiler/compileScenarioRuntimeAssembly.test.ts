@@ -17,20 +17,20 @@ import {
 
 function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:assembly', '运行时装配样本');
-  scenario.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
+
   scenario.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 20 },
     skillCasts: [],
   };
@@ -134,7 +134,8 @@ describe('compileScenarioRuntimeAssembly', () => {
         },
       ],
     };
-    scenario.builds.weapons.weapon = {
+
+    scenario.tracks[0]!.weapon = {
       id: 'weapon',
       weaponSlug: weapon.slug,
       level: 90,
@@ -142,7 +143,6 @@ describe('compileScenarioRuntimeAssembly', () => {
       potential: 0,
       traitLevels: [1],
     };
-    scenario.tracks[0]!.weaponBuildId = 'weapon';
     // 执行器只在有技能实例时构造；放置一个技能让装备贡献能到达运行时装订层。
     let nextId = 0;
     const placed = placeSkillGroup({

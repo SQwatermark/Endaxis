@@ -10,9 +10,18 @@ import { validateProjectDocument } from './validation';
 
 function createTrack(): TrackDocument {
   return {
-    operatorBuildId: 'operator:1',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'operator:1',
+      operatorSlug: 'perlica',
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: {},
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
@@ -157,25 +166,16 @@ describe('V2 project document', () => {
     }
   });
 
-  it('rejects malformed values across builds, battle, enemy, and editor state', () => {
+  it('rejects malformed values across loadout instances, battle, enemy, and editor state', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
     });
     const scenario = project.scenarios[0]!;
-    scenario.builds.operators['operator:1'] = {
-      id: 'operator:1',
-      operatorSlug: 'perlica',
-      level: 90,
-      promoted: true,
-      potential: 0,
-      trustLevel: 4,
-      skillLevels: {},
-      talentStates: {},
-    };
+    scenario.tracks[0] = createTrack();
 
     const malformed = JSON.parse(serializeProjectDocument(project));
-    malformed.scenarios[0].builds.operators['operator:1'].promoted = 'yes';
+    malformed.scenarios[0].tracks[0].operator.promoted = 'yes';
     malformed.scenarios[0].enemy.editable.finisherMultiplier = 'one';
     malformed.scenarios[0].battle.controlSwitches.push({
       id: 'switch:invalid',
@@ -197,7 +197,7 @@ describe('V2 project document', () => {
       expect(result.issues).toEqual(
         expect.arrayContaining([
           {
-            path: '$.scenarios[0].builds.operators.operator:1.promoted',
+            path: '$.scenarios[0].tracks[0].operator.promoted',
             message: 'expected a boolean',
           },
           {
@@ -221,20 +221,21 @@ describe('V2 project document', () => {
     }
   });
 
-  it('rejects dangling build references', () => {
+  it('rejects duplicate operator instance ids across tracks', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
     });
     project.scenarios[0]!.tracks[0] = createTrack();
+    project.scenarios[0]!.tracks[1] = createTrack();
 
     const result = validateProjectDocument(project);
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.issues).toContainEqual({
-        path: '$.scenarios[0].tracks[0].operatorBuildId',
-        message: 'unknown operator build',
+        path: '$.scenarios[0].tracks[1].operator.id',
+        message: 'duplicate operator instance id',
       });
     }
   });
@@ -267,16 +268,6 @@ describe('V2 project document', () => {
       gameDataRevision: 'fixture',
     });
     const scenario = project.scenarios[0]!;
-    scenario.builds.operators['operator:1'] = {
-      id: 'operator:1',
-      operatorSlug: 'perlica',
-      level: 90,
-      promoted: true,
-      potential: 0,
-      trustLevel: 4,
-      skillLevels: {},
-      talentStates: {},
-    };
     const track = createTrack();
     track.skillCasts.push({
       id: 'cast:1',

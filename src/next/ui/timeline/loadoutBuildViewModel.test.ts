@@ -23,42 +23,39 @@ const repository = createGameDataRepository({
 
 function createEquippedScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario', 'Scenario');
-  scenario.builds.operators.operator = {
-    id: 'operator',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 3,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 11 },
-    talentStates: { talent1: 2 },
-    baseStatOverrides: { attack: 1234 },
-  };
-  scenario.builds.weapons.weapon = {
-    id: 'weapon',
-    weaponSlug: weapon.slug,
-    level: 80,
-    tuned: true,
-    potential: 2,
-    traitLevels: [3, 4, 5],
-  };
-  scenario.builds.gears.armor = {
-    id: 'armor',
-    gearSlug: armor.slug,
-    artificingLevels: [1, 2],
-  };
-  scenario.builds.gears.accessory = {
-    id: 'accessory',
-    gearSlug: accessory.slug,
-    artificingLevels: [3],
-  };
+
   scenario.tracks[0] = {
-    operatorBuildId: 'operator',
-    weaponBuildId: 'weapon',
-    gearBuildIds: {
-      armor: 'armor',
+    operator: {
+      id: 'operator',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 3,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 11 },
+      talentStates: { talent1: 2 },
+      baseStatOverrides: { attack: 1234 },
+    },
+    weapon: {
+      id: 'weapon',
+      weaponSlug: weapon.slug,
+      level: 80,
+      tuned: true,
+      potential: 2,
+      traitLevels: [3, 4, 5],
+    },
+    gears: {
+      armor: {
+        id: 'armor',
+        gearSlug: armor.slug,
+        artificingLevels: [1, 2],
+      },
       gloves: null,
-      accessory1: 'accessory',
+      accessory1: {
+        id: 'accessory',
+        gearSlug: accessory.slug,
+        artificingLevels: [3],
+      },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -116,9 +113,9 @@ describe('projectTrackLoadoutBuilds', () => {
     const scenario = createEquippedScenario();
     const projected = projectTrackLoadoutBuilds(scenario, 0, repository);
 
-    scenario.builds.operators.operator!.skillLevels.basicAttack = 1;
-    scenario.builds.weapons.weapon!.traitLevels[0] = 9;
-    scenario.builds.gears.armor!.artificingLevels[0] = 3;
+    scenario.tracks[0]!.operator!.skillLevels.basicAttack = 1;
+    scenario.tracks[0]!.weapon!.traitLevels[0] = 9;
+    scenario.tracks[0]!.gears.armor!.artificingLevels[0] = 3;
 
     expect(projected.operator?.skillLevels.basicAttack).toBe(12);
     expect(projected.weapon?.traitLevels).toEqual([3, 4, 5]);
@@ -136,18 +133,18 @@ describe('projectTrackLoadoutBuilds', () => {
     });
   });
 
-  it('拒绝非空但缺失的 Build 引用', () => {
+  it('拒绝武器实例指向的缺失定义', () => {
     const scenario = createEquippedScenario();
-    delete scenario.builds.weapons.weapon;
+    scenario.tracks[0]!.weapon!.weaponSlug = 'missing-weapon';
 
     expect(() => projectTrackLoadoutBuilds(scenario, 0, repository)).toThrow(
-      "scenario.tracks[0].weaponBuildId references missing build 'weapon'",
+      "weapon definition 'missing-weapon' does not exist",
     );
   });
 
   it('拒绝 Build 指向的缺失定义', () => {
     const scenario = createEquippedScenario();
-    scenario.builds.gears.armor!.gearSlug = 'missing-gear';
+    scenario.tracks[0]!.gears.armor!.gearSlug = 'missing-gear';
 
     expect(() => projectTrackLoadoutBuilds(scenario, 0, repository)).toThrow(
       "gear definition 'missing-gear' does not exist",

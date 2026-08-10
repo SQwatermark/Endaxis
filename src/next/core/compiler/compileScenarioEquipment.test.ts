@@ -51,38 +51,29 @@ const gearSet: GearSetDefinition = {
 
 function scenario() {
   const value = createEmptyScenario('scenario:equipment', '装备编译样本');
-  value.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
-  value.builds.weapons.weapon = {
-    id: 'weapon',
-    weaponSlug: weapon.slug,
-    level: 90,
-    tuned: true,
-    potential: 0,
-    traitLevels: [2],
-  };
-  for (const definition of [armor, gloves, accessory]) {
-    value.builds.gears[definition.slug] = {
-      id: definition.slug,
-      gearSlug: definition.slug,
-      artificingLevels: [1],
-    };
-  }
   value.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: 'weapon',
-    gearBuildIds: {
-      armor: armor.slug,
-      gloves: gloves.slug,
-      accessory1: accessory.slug,
+    operator: {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: {
+      id: 'weapon',
+      weaponSlug: weapon.slug,
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [2],
+    },
+    gears: {
+      armor: { id: armor.slug, gearSlug: armor.slug, artificingLevels: [1] },
+      gloves: { id: gloves.slug, gearSlug: gloves.slug, artificingLevels: [1] },
+      accessory1: { id: accessory.slug, gearSlug: accessory.slug, artificingLevels: [1] },
       accessory2: null,
     },
     initialState: { ultimateEnergy: 0 },
@@ -142,10 +133,10 @@ describe('compileScenarioEquipment', () => {
 
   it('rejects equipment references on a track without an operator', () => {
     const value = scenario();
-    value.tracks[0]!.operatorBuildId = null;
+    value.tracks[0]!.operator = null;
 
     expect(() => compileScenarioEquipment(value, index())).toThrow(
-      'configures equipment without an operator build',
+      'configures equipment without an operator instance',
     );
   });
 });

@@ -49,9 +49,9 @@ describe('useTimelineLoadoutEditor', () => {
 
     expect(session.snapshot.revision).toBe(1);
     expect(session.snapshot.lastCommand).toBe('setTrackOperator');
-    const buildId = scenario.value.tracks[0]?.operatorBuildId;
-    expect(buildId).toBe(`operator:0:${perlica.slug}`);
-    expect(scenario.value.builds.operators[buildId!]?.operatorSlug).toBe(perlica.slug);
+    const instanceId = scenario.value.tracks[0]?.operator?.id;
+    expect(instanceId).toBe(`operator:0:${perlica.slug}`);
+    expect(scenario.value.tracks[0]?.operator?.operatorSlug).toBe(perlica.slug);
     expect(editor.operatorDialogTrack.value).toBeNull();
   });
 

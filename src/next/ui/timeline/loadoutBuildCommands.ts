@@ -1,24 +1,24 @@
 /**
- * 时间轴配装编辑器对既有武器、装备 Build 执行的不可变更新命令。
+ * 时间轴配装编辑器对轨道内嵌的武器、装备实例执行的不可变更新命令。
  * 本层只校验存档自身能够确定的数值形状；依赖具体定义词条的上限继续由定义校验负责。
  */
 import type {
-  GearBuildDocument,
-  OperatorBuildDocument,
+  OperatorInstanceDocument,
   ScenarioDocument,
   TrackIndex,
-  WeaponBuildDocument,
+  WeaponInstanceDocument,
 } from '../../core/project/schema';
+import type { TrackGearSlot } from './timelineDocumentCommands';
 
-export type OperatorBuildChanges = Partial<
+export type OperatorInstanceChanges = Partial<
   Pick<
-    OperatorBuildDocument,
+    OperatorInstanceDocument,
     'level' | 'promoted' | 'potential' | 'trustLevel' | 'skillLevels' | 'talentStates'
   >
 >;
 
-export type WeaponBuildChanges = Partial<
-  Pick<WeaponBuildDocument, 'level' | 'tuned' | 'potential' | 'traitLevels'>
+export type WeaponInstanceChanges = Partial<
+  Pick<WeaponInstanceDocument, 'level' | 'tuned' | 'potential' | 'traitLevels'>
 >;
 
 function requireIntegerAtLeast(value: number, minimum: number, field: string): void {
@@ -27,44 +27,21 @@ function requireIntegerAtLeast(value: number, minimum: number, field: string): v
   }
 }
 
-function getOperatorBuild(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-): OperatorBuildDocument {
-  const buildId = scenario.tracks[trackIndex]?.operatorBuildId ?? null;
-  const build = buildId === null ? undefined : scenario.builds.operators[buildId];
-  if (build === undefined) throw new Error(`track ${trackIndex} has no operator build`);
-  return build;
-}
-
-function getWeaponBuild(scenario: ScenarioDocument, trackIndex: TrackIndex): WeaponBuildDocument {
-  const buildId = scenario.tracks[trackIndex]?.weaponBuildId ?? null;
-  const build = buildId === null ? undefined : scenario.builds.weapons[buildId];
-  if (build === undefined) throw new Error(`track ${trackIndex} has no weapon build`);
-  return build;
-}
-
-function getGearBuild(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-  buildId: string,
-): GearBuildDocument {
+function requireTrack(scenario: ScenarioDocument, trackIndex: TrackIndex) {
   const track = scenario.tracks[trackIndex];
-  if (track === null || !Object.values(track.gearBuildIds).includes(buildId)) {
-    throw new Error(`track ${trackIndex} does not reference gear build '${buildId}'`);
-  }
-  const build = scenario.builds.gears[buildId];
-  if (build === undefined) throw new Error(`gear build '${buildId}' does not exist`);
-  return build;
+  if (track === null) throw new Error(`track ${trackIndex} is empty`);
+  return track;
 }
 
-/** 更新当前轨道干员的养成输入，不改变 Build 身份和干员定义身份。 */
-export function updateTrackOperatorBuild(
+/** 更新轨道干员实例的养成输入，不改变实例身份和干员定义身份。 */
+export function updateTrackOperatorInstance(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
-  changes: OperatorBuildChanges,
+  changes: OperatorInstanceChanges,
 ): ScenarioDocument {
-  const build = getOperatorBuild(scenario, trackIndex);
+  const track = requireTrack(scenario, trackIndex);
+  const instance = track.operator;
+  if (instance === null) throw new Error(`track ${trackIndex} has no operator instance`);
   if (changes.level !== undefined) requireIntegerAtLeast(changes.level, 1, 'operator level');
   if (changes.potential !== undefined) {
     requireIntegerAtLeast(changes.potential, 0, 'operator potential');
@@ -84,27 +61,25 @@ export function updateTrackOperatorBuild(
   }
 
   const updated = {
-    ...build,
+    ...instance,
     ...changes,
     ...(changes.skillLevels === undefined ? {} : { skillLevels: { ...changes.skillLevels } }),
     ...(changes.talentStates === undefined ? {} : { talentStates: { ...changes.talentStates } }),
   };
-  return {
-    ...scenario,
-    builds: {
-      ...scenario.builds,
-      operators: { ...scenario.builds.operators, [build.id]: updated },
-    },
-  };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, operator: updated };
+  return { ...scenario, tracks };
 }
 
-/** 更新当前轨道已装备武器的用户输入，不改变 Build 身份和武器定义身份。 */
-export function updateTrackWeaponBuild(
+/** 更新轨道已装备武器的用户输入，不改变实例身份和武器定义身份。 */
+export function updateTrackWeaponInstance(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
-  changes: WeaponBuildChanges,
+  changes: WeaponInstanceChanges,
 ): ScenarioDocument {
-  const build = getWeaponBuild(scenario, trackIndex);
+  const track = requireTrack(scenario, trackIndex);
+  const instance = track.weapon;
+  if (instance === null) throw new Error(`track ${trackIndex} has no weapon instance`);
   if (changes.level !== undefined) requireIntegerAtLeast(changes.level, 1, 'weapon level');
   if (changes.potential !== undefined) {
     requireIntegerAtLeast(changes.potential, 0, 'weapon potential');
@@ -115,35 +90,31 @@ export function updateTrackWeaponBuild(
     );
   }
 
-  const updated = { ...build, ...changes };
-  return {
-    ...scenario,
-    builds: {
-      ...scenario.builds,
-      weapons: { ...scenario.builds.weapons, [build.id]: updated },
-    },
-  };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, weapon: { ...instance, ...changes } };
+  return { ...scenario, tracks };
 }
 
-/** 更新当前轨道引用的一件装备的精锻档位，不改变 Build 和装备定义身份。 */
-export function updateTrackGearBuild(
+/** 更新轨道某个装备槽实例的精锻档位，不改变实例和装备定义身份。 */
+export function updateTrackGearInstance(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
-  buildId: string,
+  slot: TrackGearSlot,
   artificingLevels: readonly number[],
 ): ScenarioDocument {
-  const build = getGearBuild(scenario, trackIndex, buildId);
+  const track = requireTrack(scenario, trackIndex);
+  const instance = track.gears[slot];
+  if (instance === null) throw new Error(`track ${trackIndex} has no gear instance in '${slot}'`);
   artificingLevels.forEach((level, index) =>
     requireIntegerAtLeast(level, 0, `gear artificing level ${index}`),
   );
-  return {
-    ...scenario,
-    builds: {
-      ...scenario.builds,
-      gears: {
-        ...scenario.builds.gears,
-        [build.id]: { ...build, artificingLevels: [...artificingLevels] },
-      },
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = {
+    ...track,
+    gears: {
+      ...track.gears,
+      [slot]: { ...instance, artificingLevels: [...artificingLevels] },
     },
   };
+  return { ...scenario, tracks };
 }

@@ -7,25 +7,25 @@ import { projectTimelineEditor } from './timelineEditorViewModel';
 describe('projectTimelineEditor', () => {
   it('projects a definition-backed operator track without leaking mutable definitions', () => {
     const scenario = createEmptyScenario('scenario:1', '佩丽卡样板');
-    scenario.builds.operators.perlica = {
-      id: 'perlica',
-      operatorSlug: 'perlica',
-      level: 90,
-      promoted: true,
-      potential: 0,
-      trustLevel: 4,
-      skillLevels: {
-        basicAttack: 12,
-        battleSkill: 11,
-        comboSkill: 10,
-        ultimate: 9,
-      },
-      talentStates: {},
-    };
+
     scenario.tracks[0] = {
-      operatorBuildId: 'perlica',
-      weaponBuildId: null,
-      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      operator: {
+        id: 'perlica',
+        operatorSlug: 'perlica',
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: {
+          basicAttack: 12,
+          battleSkill: 11,
+          comboSkill: 10,
+          ultimate: 9,
+        },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
       skillCasts: [],
     };
@@ -70,19 +70,28 @@ describe('projectTimelineEditor', () => {
     });
   });
 
-  it('reports broken build references instead of inventing definition defaults', () => {
+  it('reports missing operator definitions instead of inventing definition defaults', () => {
     const scenario = createEmptyScenario('scenario:1', '损坏引用');
     scenario.tracks[0] = {
-      operatorBuildId: 'missing',
-      weaponBuildId: null,
-      gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      operator: {
+        id: 'missing',
+        operatorSlug: 'missing',
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: {},
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
       skillCasts: [],
     };
 
     const viewModel = projectTimelineEditor(scenario, { getOperator: () => null });
 
-    expect(viewModel.tracks[0]?.issues).toEqual(["missing operator build 'missing'"]);
+    expect(viewModel.tracks[0]?.issues).toEqual(["missing operator definition 'missing'"]);
     expect(viewModel.tracks[0]?.skillLibrary).toEqual([]);
   });
 });

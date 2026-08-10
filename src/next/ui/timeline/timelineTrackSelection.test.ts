@@ -3,11 +3,20 @@ import { createEmptyScenario } from '../../core/project/createProject';
 import type { TrackDocument } from '../../core/project/schema';
 import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
 
-function occupiedTrack(operatorBuildId: string): TrackDocument {
+function occupiedTrack(operatorId: string): TrackDocument {
   return {
-    operatorBuildId,
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: operatorId,
+      operatorSlug: 'perlica',
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: {},
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };

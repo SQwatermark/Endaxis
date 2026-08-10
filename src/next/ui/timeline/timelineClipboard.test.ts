@@ -56,9 +56,9 @@ function cast(id: string, startFrame: number, groupIndex: number): SkillCastDocu
 function scenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:clipboard', '剪贴板样本');
   scenario.tracks[0] = {
-    operatorBuildId: null,
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: null,
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [cast('cast:1', 30, 0), cast('cast:2', 45, 1), cast('cast:outside', 90, 0)],
   };

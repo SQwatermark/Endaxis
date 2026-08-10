@@ -13,12 +13,12 @@ export function resolveControlTimeline(
   switches: readonly ControlSwitchDocument[],
 ): OperatorControlTimeline {
   const operatorByFrame = new Map<number, string | null>();
-  operatorByFrame.set(0, tracks[0]?.operatorBuildId ?? null);
+  operatorByFrame.set(0, tracks[0]?.operator?.id ?? null);
 
   for (const controlSwitch of switches) {
     operatorByFrame.set(
       controlSwitch.frame,
-      tracks[controlSwitch.trackIndex]?.operatorBuildId ?? null,
+      tracks[controlSwitch.trackIndex]?.operator?.id ?? null,
     );
   }
 

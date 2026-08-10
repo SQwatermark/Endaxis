@@ -7,20 +7,20 @@ import { compileScenarioTimeline } from './compileScenarioTimeline';
 
 function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡编译样本');
-  scenario.builds.operators.perlica = {
-    id: 'perlica',
-    operatorSlug: perlica.slug,
-    level: 90,
-    promoted: true,
-    potential: 0,
-    trustLevel: 4,
-    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-    talentStates: {},
-  };
+
   scenario.tracks[0] = {
-    operatorBuildId: 'perlica',
-    weaponBuildId: null,
-    gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    operator: {
+      id: 'perlica',
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
@@ -90,7 +90,7 @@ describe('compileScenarioTimeline', () => {
 
   it('compiles an active ultimate-cost potential into the runtime program', () => {
     const scenario = createScenario();
-    scenario.builds.operators.perlica!.potential = 1;
+    scenario.tracks[0]!.operator!.potential = 1;
     const operator = {
       ...perlica,
       potentials: [

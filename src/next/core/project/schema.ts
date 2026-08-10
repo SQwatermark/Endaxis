@@ -1,6 +1,7 @@
 /**
- * 项目存档的唯一数据定义。这里只放用户自己决定的内容（等级、放置、覆盖值）；
- * 编译出来的面板、模拟状态、诊断结果一律不允许写进来。
+ * 项目存档的数据结构。
+ * 存档包含用户编辑内容以及编辑器版本元数据；
+ * 通过计算得到的面板数据、模拟状态、投影结果一概不保存
  */
 import type {
   CombatStepKind,
@@ -10,20 +11,18 @@ import type {
 } from '../game-data/operatorDefinition';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
-export const PROJECT_SCHEMA_VERSION = 3 as const;
+export const PROJECT_SCHEMA_VERSION = 1 as const;
 export const PROJECT_FPS = 30 as const;
 
-/** 项目 JSON 允许直接保存的原始值。 */
+/** 存档 JSON 相关结构定义 */
 export type JsonPrimitive = boolean | number | string | null;
-/** 项目 JSON 中递归允许的全部值。 */
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
-/** 使用字符串键组织的项目 JSON 对象。 */
 export interface JsonObject {
   [key: string]: JsonValue;
 }
 
 /** 一个干员养成方案中由用户决定的稳定输入。 */
-export interface OperatorBuildDocument {
+export interface OperatorInstanceDocument {
   id: string;
   operatorSlug: string;
   level: number;
@@ -36,7 +35,7 @@ export interface OperatorBuildDocument {
 }
 
 /** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器定义决定。 */
-export interface WeaponBuildDocument {
+export interface WeaponInstanceDocument {
   id: string;
   /** 引用当前游戏数据版本中的 `WeaponDefinition.slug`。 */
   weaponSlug: string;
@@ -47,18 +46,11 @@ export interface WeaponBuildDocument {
 }
 
 /** 一件装备的定义身份与精锻等级配置。 */
-export interface GearBuildDocument {
+export interface GearInstanceDocument {
   id: string;
   /** 引用当前游戏数据版本中的 `GearDefinition.slug`。 */
   gearSlug: string;
   artificingLevels: number[];
-}
-
-/** 场景引用的全部干员、武器与装备方案。 */
-export interface ScenarioBuildsDocument {
-  operators: Record<string, OperatorBuildDocument>;
-  weapons: Record<string, WeaponBuildDocument>;
-  gears: Record<string, GearBuildDocument>;
 }
 
 /** 可从版本化游戏数据恢复身份和默认行为的技能来源。 */
@@ -192,15 +184,21 @@ export interface SkillCastDocument {
   edited: EditableSkillCastField[];
 }
 
-/** 一条干员轨道的养成引用、初始资源和技能释放。 */
+/**
+ * 一条干员轨道持有自己的养成与配装实例。
+ * 实例属于轨道本身，不与其他轨道共享；空轨道整体为 `null`。
+ */
 export interface TrackDocument {
-  operatorBuildId: string | null;
-  weaponBuildId: string | null;
-  gearBuildIds: {
-    armor: string | null;
-    gloves: string | null;
-    accessory1: string | null;
-    accessory2: string | null;
+  /** 轨道的干员实例；null 表示空轨道。 */
+  operator: OperatorInstanceDocument | null;
+  /** 轨道当前装备的武器实例；null 表示未装备。 */
+  weapon: WeaponInstanceDocument | null;
+  /** 轨道四个装备槽的实例；未装备的槽位为 null。 */
+  gears: {
+    armor: GearInstanceDocument | null;
+    gloves: GearInstanceDocument | null;
+    accessory1: GearInstanceDocument | null;
+    accessory2: GearInstanceDocument | null;
   };
   initialState: {
     ultimateEnergy: number;
@@ -209,16 +207,14 @@ export interface TrackDocument {
   skillCasts: SkillCastDocument[];
 }
 
-/** 四人队伍中一个允许为空的轨道槽位。 */
-export type TrackSlotDocument = TrackDocument | null;
 /** 四条时间轴轨道使用的稳定零基序号。 */
 export type TrackIndex = 0 | 1 | 2 | 3;
 /** 固定包含四个槽位的队伍轨道列表。 */
 export type TrackListDocument = [
-  TrackSlotDocument,
-  TrackSlotDocument,
-  TrackSlotDocument,
-  TrackSlotDocument,
+  TrackDocument | null,
+  TrackDocument | null,
+  TrackDocument | null,
+  TrackDocument | null,
 ];
 
 /** 用户连线可以指向的技能块或具体伤害命中端点。 */
@@ -374,7 +370,6 @@ export interface ScenarioDocument {
   id: string;
   name: string;
   inheritance?: ScenarioInheritanceDocument;
-  builds: ScenarioBuildsDocument;
   tracks: TrackListDocument;
   connections: ConnectionDocument[];
   enemy: EnemyDocument;
@@ -384,14 +379,15 @@ export interface ScenarioDocument {
   editor: ScenarioEditorDocument;
 }
 
-/** 新版项目文件的顶层、带版本持久化结构。 */
+/** 项目存档的顶层、带版本的持久化结构。 */
 export interface EndaxisProjectDocument {
   kind: typeof PROJECT_KIND;
   schemaVersion: typeof PROJECT_SCHEMA_VERSION;
   createdWith: string;
+  /** 游戏数据版本 */
   gameDataRevision: string;
-  timeUnit: 'frame';
   fps: typeof PROJECT_FPS;
+  /** 打开的方案id */
   activeScenarioId: string;
   scenarios: ScenarioDocument[];
 }

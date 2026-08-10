@@ -24,12 +24,20 @@ function scenarioWithCast(): ScenarioDocument {
   return {
     id: 'scenario:hit-effects',
     name: '命中效果',
-    builds: { operators: {}, weapons: {}, gears: {} },
     tracks: [
       {
-        operatorBuildId: 'perlica',
-        weaponBuildId: null,
-        gearBuildIds: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        operator: {
+          id: 'perlica',
+          operatorSlug: 'perlica',
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: {},
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
         initialState: { ultimateEnergy: 0 },
         skillCasts: [
           {
