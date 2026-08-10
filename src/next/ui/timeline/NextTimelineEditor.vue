@@ -41,7 +41,12 @@ import {
   projectTimelineEditor,
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
-import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
+import {
+  frameToTimelinePx,
+  resolveTimelineCursorGuidePosition,
+  timelinePxToFrame,
+  timelineTotalWidth,
+} from './timelineGeometry';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
@@ -87,6 +92,7 @@ import {
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
+const TIMELINE_RULER_HEIGHT = 76;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(true);
@@ -96,6 +102,7 @@ const selectedCastId = ref<string | null>(null);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
+const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
@@ -259,9 +266,10 @@ const timelineWidth = computed(() =>
     pxPerFrame.value,
   ),
 );
-const cursorLeft = computed(() =>
-  frameToTimelinePx(cursorFrame.value, scenario.value.battle.prepFrames, pxPerFrame.value),
-);
+const cursorGuideTime = computed(() => {
+  const frame = cursorGuide.value?.sampleFrame ?? 0;
+  return `${Number((frame / PROJECT_FPS).toFixed(2))}s`;
+});
 
 function operatorName(slug: string | null): string {
   return slug === null ? t('nextTimeline.emptyTrack') : getOperatorGameName(slug, locale.value);
@@ -473,6 +481,30 @@ function handleTimelineLanePointerDown(event: PointerEvent): void {
 function handleTimelineLaneClick(event: MouseEvent): void {
   if (consumeLaneClickSuppression()) return;
   selectTimelinePosition(event);
+}
+
+function updateCursorGuide(event: MouseEvent): void {
+  const surface = timelineSurface.value;
+  if (surface === null || !showCursorGuide.value) {
+    cursorGuide.value = null;
+    return;
+  }
+  const surfaceRect = surface.getBoundingClientRect();
+  if (event.clientY < surfaceRect.top + TIMELINE_RULER_HEIGHT) {
+    cursorGuide.value = null;
+    return;
+  }
+  const pointerPx = event.clientX - surfaceRect.left - TIMELINE_TRACK_HEADER_WIDTH;
+  cursorGuide.value = resolveTimelineCursorGuidePosition(
+    pointerPx,
+    scenario.value.battle.prepFrames,
+    scenario.value.battle.durationFrames,
+    pxPerFrame.value,
+  );
+}
+
+function hideCursorGuide(): void {
+  cursorGuide.value = null;
 }
 
 function placeGroup(
@@ -1021,6 +1053,8 @@ function setPanelDialogVisible(visible: boolean): void {
           ref="timelineSurface"
           class="timeline-surface"
           :style="{ width: `${180 + timelineWidth}px` }"
+          @mousemove="updateCursorGuide"
+          @mouseleave="hideCursorGuide"
         >
           <div class="corner-placeholder">
             <TimelineCornerToolbar
@@ -1061,6 +1095,13 @@ function setPanelDialogVisible(visible: boolean): void {
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />
+          <div
+            v-if="showCursorGuide && cursorGuide !== null"
+            class="cursor-guide"
+            :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH + cursorGuide.leftPx}px` }"
+          >
+            <div class="cursor-guide-label">{{ cursorGuideTime }}</div>
+          </div>
 
           <div
             v-for="track in viewModel.tracks"
@@ -1121,11 +1162,6 @@ function setPanelDialogVisible(visible: boolean): void {
               <div
                 class="battle-start-line"
                 :style="{ left: `${scenario.battle.prepFrames * pxPerFrame}px` }"
-              ></div>
-              <div
-                v-if="showCursorGuide"
-                class="cursor-line"
-                :style="{ left: `${cursorLeft}px` }"
               ></div>
               <TimelineActionBlock
                 v-for="cast in track.skillCasts"
@@ -1409,14 +1445,29 @@ button:disabled {
   margin-left: 180px;
 }
 
-.cursor-line {
+.cursor-guide {
   position: absolute;
-  top: 0;
+  top: 76px;
   bottom: 0;
   width: 1px;
-  background: var(--ea-fg);
-  z-index: 4;
+  background: color-mix(in srgb, var(--ea-gold) 80%, transparent);
+  box-shadow: 0 0 6px var(--ea-gold);
+  z-index: 9;
   pointer-events: none;
+}
+
+.cursor-guide-label {
+  width: fit-content;
+  padding: 3px 6px;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-tooltip-bg);
+  color: var(--ea-fg);
+  box-shadow: 0 2px 8px var(--ea-shadow);
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .track-row {

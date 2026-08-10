@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from './timelineGeometry';
+import {
+  frameToTimelinePx,
+  resolveTimelineCursorGuidePosition,
+  timelinePxToFrame,
+  timelineTotalWidth,
+} from './timelineGeometry';
 
 describe('timeline geometry', () => {
   it('places battle frame zero after the preparation area', () => {
@@ -13,5 +18,20 @@ describe('timeline geometry', () => {
 
   it('includes preparation and battle spans in total width', () => {
     expect(timelineTotalWidth(150, 900, 2)).toBe(2100);
+  });
+
+  it('keeps the guide under the pointer while clamping its sample frame', () => {
+    expect(resolveTimelineCursorGuidePosition(120, 150, 900, 2)).toEqual({
+      leftPx: 120,
+      sampleFrame: 0,
+    });
+    expect(resolveTimelineCursorGuidePosition(384, 150, 900, 2)).toEqual({
+      leftPx: 384,
+      sampleFrame: 42,
+    });
+    expect(resolveTimelineCursorGuidePosition(9999, 150, 900, 2)).toEqual({
+      leftPx: 2100,
+      sampleFrame: 900,
+    });
   });
 });
