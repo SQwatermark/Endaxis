@@ -11,7 +11,7 @@ import {
   projectHitReactionReceipts,
 } from '../../core/projection/hitEffectProjection';
 import type { ScenarioDocument } from '../../core/project/schema';
-import { projectCastHitMarkers } from './timelineHitProjection';
+import type { TimelineHitMarker } from './timelineHitProjection';
 
 /** 一个命中点上发生的伤害（保持日志顺序）。 */
 export interface TimelineHitDamageEffect {
@@ -47,6 +47,7 @@ export function projectHitEffectsByCast(
   scenario: ScenarioDocument,
   entries: readonly CombatReceiptEntry[],
   castId: string,
+  markers: readonly TimelineHitMarker[],
 ): ReadonlyMap<string, TimelineHitEffectLabel> {
   let targetTrack = null;
   let targetCast = null;
@@ -62,7 +63,6 @@ export function projectHitEffectsByCast(
     return new Map<string, TimelineHitEffectLabel>();
   }
   const operatorId = targetTrack.id;
-  const markers = projectCastHitMarkers(targetCast);
   const damages = projectHitDamageReceipts(entries).filter(
     receipt => receipt.sourceId === operatorId,
   );

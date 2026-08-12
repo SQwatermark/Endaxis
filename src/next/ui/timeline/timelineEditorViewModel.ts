@@ -9,7 +9,12 @@ import type {
   SkillCastDocument,
   TrackIndex,
 } from '../../core/project/schema';
+import {
+  resolveEffectiveSkillDefinition,
+  type ResolvedSkillDefinition,
+} from '../../core/compiler/resolveSkillDefinition';
 import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
+import { projectCastHitMarkers, type TimelineHitMarker } from './timelineHitProjection';
 
 /** UI 投影读取干员定义的最小端口。 */
 export interface TimelineOperatorIndex {
@@ -35,8 +40,11 @@ export interface TimelineSkillCastViewModel {
   readonly durationFrames: number;
   readonly source: SkillCastDocument['source'];
   readonly skillType: SkillType | null;
+  /** 已投影的命中点；UI 直接消费，不再从存档或定义重新推算。 */
+  readonly hitMarkers: readonly TimelineHitMarker[];
   readonly disabled: boolean;
   readonly locked: boolean;
+  readonly edited: boolean;
   readonly color?: string | null;
 }
 
@@ -86,26 +94,25 @@ export interface TimelineEditorViewModel {
 
 function projectSkillCast(
   skillCast: SkillCastDocument,
-  operator: OperatorDefinition | null,
+  resolved: ResolvedSkillDefinition | null,
   issues: string[],
 ): TimelineSkillCastViewModel {
   const source = skillCast.source;
-  const skillType =
-    source.kind === 'operatorSkill'
-      ? (operator?.skillGroups.find(group => group.key === source.skillGroupKey)?.skillType ?? null)
-      : null;
+  const skillType = resolved?.group.skillType ?? null;
   if (source.kind === 'operatorSkill' && skillType === null) {
     issues.push(`missing skill group '${source.skillGroupKey}' for cast '${skillCast.id}'`);
   }
   return {
     id: skillCast.id,
     startFrame: skillCast.placement.startFrame,
-    durationFrames: skillCast.editable.durationFrames,
+    durationFrames: resolved !== null ? resolved.definition.timelineBlockFrames : 0,
     source: skillCast.source,
     skillType,
-    disabled: skillCast.editable.disabled,
-    locked: skillCast.editable.locked,
-    ...(skillCast.editable.color === undefined ? {} : { color: skillCast.editable.color }),
+    hitMarkers: resolved !== null ? projectCastHitMarkers(skillCast, resolved.definition) : [],
+    disabled: skillCast.presentation?.disabled ?? false,
+    locked: skillCast.presentation?.locked ?? false,
+    edited: skillCast.customDefinition !== undefined,
+    ...(skillCast.presentation?.color === undefined ? {} : { color: skillCast.presentation.color }),
   };
 }
 
@@ -161,6 +168,14 @@ function projectTrack(
           };
         });
 
+  const skillCasts = track.skillCasts.map(skillCast => {
+    const resolved =
+      operator !== null && operatorInstance !== null
+        ? resolveEffectiveSkillDefinition(skillCast, operator)
+        : null;
+    return projectSkillCast(skillCast, resolved, issues);
+  });
+
   return {
     trackIndex,
     operatorInstanceId: track.id,
@@ -173,7 +188,7 @@ function projectTrack(
         ? null
         : resolveOperatorMaxUltimateEnergy(operator, operatorInstance.skillLevels.ultimate ?? 1)),
     skillLibrary,
-    skillCasts: track.skillCasts.map(skillCast => projectSkillCast(skillCast, operator, issues)),
+    skillCasts,
     issues,
   };
 }

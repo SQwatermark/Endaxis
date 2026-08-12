@@ -3,6 +3,7 @@
  * 把已保存的连线画到时间轴上。
  *
  * 只负责画，不改数据；连到命中点的线，端点按命中点实际位置算，不用技能块位置顶替。
+ * 技能块宽度与命中标记来自父级传入的轨道视图模型，本组件不再读取存档定义。
  */
 import { computed } from 'vue';
 import type {
@@ -11,7 +12,7 @@ import type {
   ScenarioDocument,
 } from '../../../core/project/schema';
 import type { TimelineConnectionPort } from '../timelineConnections';
-import { findCastHitMarker } from '../timelineHitProjection';
+import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import { frameToTimelinePx } from '../timelineGeometry';
 
 interface Point {
@@ -33,6 +34,8 @@ interface ConnectionPreview {
 const props = withDefaults(
   defineProps<{
     scenario: ScenarioDocument;
+    /** 已投影的时间轴轨道视图模型，提供技能块宽度与命中标记。 */
+    tracks: readonly TimelineTrackViewModel[];
     pxPerFrame: number;
     trackHeaderWidth: number;
     rulerHeight?: number;
@@ -66,9 +69,10 @@ const directions: Record<TimelineConnectionPort, Point> = {
   left: { x: -1, y: 0 },
 };
 
+/** 在视图模型中按技能块 id 定位轨道与技能块；找不到返回 null。 */
 function findSkillCast(skillCastId: string) {
-  for (const [trackIndex, track] of props.scenario.tracks.entries()) {
-    const skillCast = track?.skillCasts.find(candidate => candidate.id === skillCastId);
+  for (const [trackIndex, trackModel] of props.tracks.entries()) {
+    const skillCast = trackModel.skillCasts.find(candidate => candidate.id === skillCastId);
     if (skillCast !== undefined) return { skillCast, trackIndex };
   }
   return null;
@@ -78,14 +82,14 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   const found = findSkillCast(endpoint.skillCastId);
   if (found === null) return null;
   if (endpoint.kind === 'damageHit') {
-    const hit = findCastHitMarker(found.skillCast, endpoint.hitId);
-    if (hit === null) return null;
+    const hit = found.skillCast.hitMarkers.find(marker => marker.stepKey === endpoint.stepKey);
+    if (hit === undefined) return null;
     return {
       point: {
         x:
           props.trackHeaderWidth +
           frameToTimelinePx(
-            found.skillCast.placement.startFrame + hit.frameOffset,
+            found.skillCast.startFrame + hit.frameOffset,
             props.scenario.battle.prepFrames,
             props.pxPerFrame,
           ),
@@ -103,11 +107,11 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   const left =
     props.trackHeaderWidth +
     frameToTimelinePx(
-      found.skillCast.placement.startFrame,
+      found.skillCast.startFrame,
       props.scenario.battle.prepFrames,
       props.pxPerFrame,
     );
-  const width = Math.max(48, found.skillCast.editable.durationFrames * props.pxPerFrame);
+  const width = found.skillCast.durationFrames * props.pxPerFrame;
   const top = props.rulerHeight + found.trackIndex * props.trackHeight + props.actionTop;
   const ratio = ports[port];
   return {

@@ -392,6 +392,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 5,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -572,7 +582,10 @@ export const perlicaGeneratedSource = {
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "basicAttack2",
@@ -908,6 +921,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1063,6 +1086,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1266,7 +1299,10 @@ export const perlicaGeneratedSource = {
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "basicAttack3",
@@ -1661,6 +1697,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1833,6 +1879,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2005,6 +2061,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2208,7 +2274,10 @@ export const perlicaGeneratedSource = {
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "basicAttack4",
@@ -2629,6 +2698,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 6,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2837,7 +2916,10 @@ export const perlicaGeneratedSource = {
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "finisher",
@@ -3395,7 +3477,10 @@ export const perlicaGeneratedSource = {
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "plungingAttack",
@@ -4126,7 +4211,10 @@ export const perlicaGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "battleSkill",
@@ -4800,7 +4888,10 @@ export const perlicaGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "comboSkill",
@@ -5260,6 +5351,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 4,
                   "blackboardMutation": {
                     "key": "EntityBB_bounced",
                     "operation": "Assign",
@@ -5273,6 +5374,16 @@ export const perlicaGeneratedSource = {
                 {
                   "actionType": "LaunchProjectile",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 6,
                   "projectileLaunch": {
                     "projectileId": "projectile_chr_0004_pelica_combo_skill",
                     "skillTriggers": [
@@ -5509,6 +5620,16 @@ export const perlicaGeneratedSource = {
                             {
                               "actionType": "ModifyDynamicBlackboard",
                               "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 4,
                               "blackboardMutation": {
                                 "key": "EntityBB_bounced",
                                 "operation": "Assign",
@@ -5522,6 +5643,16 @@ export const perlicaGeneratedSource = {
                             {
                               "actionType": "LaunchProjectile",
                               "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 6,
                               "projectileLaunch": {
                                 "projectileId": "projectile_chr_0004_pelica_combo_skill",
                                 "skillTriggers": [
@@ -6197,7 +6328,100 @@ export const perlicaGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "auraActions": []
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 11,
+          "actionIndex": 1,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              }
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[1]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 4
+            }
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 23,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              }
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 18
+            }
+          ]
+        }
+      ],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     },
     {
       "key": "ultimate",
@@ -6906,7 +7130,10 @@ export const perlicaGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "auraActions": []
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

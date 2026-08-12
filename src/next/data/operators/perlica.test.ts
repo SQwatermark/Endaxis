@@ -172,13 +172,23 @@ describe('next Perlica definition', () => {
     expect(serialized).not.toContain('onReactionApplied');
   });
 
-  it('only keys a child step when an upgrade addresses it', () => {
-    const keyedSteps = perlica.skillGroups
-      .flatMap(getGroupSkills)
-      .flatMap(skill => skill.scheduledSequences)
-      .flatMap(scheduledSequence => collectSteps(scheduledSequence.sequence))
-      .filter(step => step.key !== undefined);
+  it('keys every damage step with a non-empty unique identity', () => {
+    const entries: Array<{ skillKey: string; stepKey: string }> = [];
+    for (const skill of perlica.skillGroups.flatMap(getGroupSkills)) {
+      for (const scheduledSequence of skill.scheduledSequences) {
+        for (const step of collectSteps(scheduledSequence.sequence)) {
+          if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
+            entries.push({ skillKey: skill.key, stepKey: step.key ?? '' });
+          }
+        }
+      }
+    }
 
-    expect(keyedSteps.map(step => step.key)).toEqual(['comboSkill.electrification']);
+    expect(entries.length).toBeGreaterThan(0);
+    for (const entry of entries) {
+      expect(entry.stepKey.length).toBeGreaterThan(0);
+    }
+    const allKeys = entries.map(entry => entry.stepKey);
+    expect(allKeys.length).toBe(new Set(allKeys).size);
   });
 });

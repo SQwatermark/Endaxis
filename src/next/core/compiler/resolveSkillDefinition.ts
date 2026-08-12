@@ -1,0 +1,73 @@
+/**
+ * 决定一个技能块在模拟、显示和编辑时使用哪份技能定义。
+ * 编译、投影和后续编辑器必须复用这里；各层不得自己推断定义来源。
+ */
+import type {
+  OperatorDefinition,
+  SkillDefinition,
+  SkillGroupDefinition,
+} from '../game-data/operatorDefinition';
+import type { SkillCastDocument } from '../project/schema';
+
+/** 一次技能释放使用的技能定义及其所属技能组。 */
+export interface ResolvedSkillDefinition {
+  /** 模拟和显示使用的技能定义。自定义定义优先，否则使用技能模板。 */
+  readonly definition: SkillDefinition;
+  /** 定义所属的技能组（提供 skillType 与 levelSource）。 */
+  readonly group: SkillGroupDefinition;
+}
+
+/** 解析技能块当前引用的游戏数据模板，不考虑完整自定义覆盖。 */
+export function resolveSkillTemplateDefinition(
+  cast: SkillCastDocument,
+  operator: OperatorDefinition,
+): ResolvedSkillDefinition {
+  const source = cast.source;
+  if (source.kind !== 'operatorSkill') {
+    throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
+  }
+
+  const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
+  if (group === undefined) {
+    throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
+  }
+  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const definition = skills.find(candidate => candidate.key === source.skillKey);
+  if (definition === undefined) {
+    throw new Error(
+      `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
+    );
+  }
+  return { definition, group };
+}
+
+/**
+ * 统一处理技能模板与自定义技能定义，调用方不应自行重复选择逻辑。
+ * 先按 `source.kind` 确认来源类型，再决定定义来源：
+ * - 已脱离模板（存在 `customDefinition`）：使用它，且 key 必须与 `source.skillKey` 一致；
+ * - 未编辑块：从干员目录按 `source.skillGroupKey`/`source.skillKey` 反查。
+ *
+ * 调用方仍需按当前技能等级解析 `LevelValues`，并应用构筑修正。
+ */
+export function resolveEffectiveSkillDefinition(
+  cast: SkillCastDocument,
+  operator: OperatorDefinition,
+): ResolvedSkillDefinition {
+  const source = cast.source;
+  if (source.kind !== 'operatorSkill') {
+    throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
+  }
+
+  const template = resolveSkillTemplateDefinition(cast, operator);
+
+  if (cast.customDefinition !== undefined) {
+    const definition = cast.customDefinition;
+    if (definition.key !== source.skillKey) {
+      throw new Error(
+        `custom definition key '${definition.key}' does not match source skill key '${source.skillKey}'`,
+      );
+    }
+    return { definition, group: template.group };
+  }
+  return template;
+}

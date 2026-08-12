@@ -3,22 +3,28 @@
  *
  * 位置只由存档决定（技能放在第几帧 + 序列从第几帧开始），和模拟结果无关；
  * 条件分支里的命中点会标记出来，由页面决定怎么显示。
+ * 命中点来自调用方提供的 SkillDefinition（目录或自定义），投影层不再从存档快照读取。
  */
-import type { CombatStepDocument, SkillCastDocument } from '../../core/project/schema';
+import type {
+  SkillDefinition,
+  CombatStepDefinition,
+} from '../../core/game-data/operatorDefinition';
+import type { SkillCastDocument } from '../../core/project/schema';
+import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 
 /** 一个可渲染的命中点。 */
 export interface TimelineHitMarker {
+  readonly stepKey: string;
   readonly hitId: string;
   /** 相对技能块左边缘的帧偏移。 */
   readonly frameOffset: number;
-  /** 这个步骤在定义里的名字（如果有）；没有时和日志只能按帧对应。 */
-  readonly stepKey?: string;
   /** 在条件分支里，跑不跑取决于当时的条件。 */
   readonly conditional: boolean;
 }
 
 /** 页面算好像素位置后交给组件画出来的命中点。 */
 export interface TimelineHitMarkerView {
+  readonly stepKey: string;
   readonly hitId: string;
   /** 相对技能块左边缘的像素偏移。 */
   readonly leftPx: number;
@@ -26,16 +32,22 @@ export interface TimelineHitMarkerView {
 }
 
 function collectDamageSteps(
-  step: CombatStepDocument,
+  step: CombatStepDefinition,
   conditional: boolean,
   markers: TimelineHitMarker[],
+  cast: SkillCastDocument,
   frameOffset: number,
 ): void {
   if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
+    if (step.key === undefined || step.key.length === 0) {
+      throw new Error(
+        `damage step '${step.kind}' in cast '${cast.id}' is missing a stable key for projection`,
+      );
+    }
     markers.push({
-      hitId: step.hitId,
+      stepKey: step.key,
+      hitId: deriveHitId(cast.id, step.key),
       frameOffset,
-      ...(step.sourceStepKey === undefined ? {} : { stepKey: step.sourceStepKey }),
       conditional,
     });
     return;
@@ -43,36 +55,40 @@ function collectDamageSteps(
   if (step.kind === 'conditional') {
     // 条件分支里的步骤跑不跑取决于当时条件，一律标记为 conditional。
     for (const nested of step.whenTrue.steps)
-      collectDamageSteps(nested, true, markers, frameOffset);
+      collectDamageSteps(nested, true, markers, cast, frameOffset);
     for (const nested of step.whenFalse?.steps ?? []) {
-      collectDamageSteps(nested, true, markers, frameOffset);
+      collectDamageSteps(nested, true, markers, cast, frameOffset);
     }
     return;
   }
   if (step.kind === 'once') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, frameOffset);
+      collectDamageSteps(nested, conditional, markers, cast, frameOffset);
   }
 }
 
 /**
  * 收集一次技能释放的全部命中点，按序列声明顺序返回。
- * 条件分支里的命中点始终标记为 conditional。
+ * 调用方传入本次使用的技能定义；伤害步骤缺少 key 时直接报错。
  */
-export function projectCastHitMarkers(cast: SkillCastDocument): readonly TimelineHitMarker[] {
+export function projectCastHitMarkers(
+  cast: SkillCastDocument,
+  definition: SkillDefinition,
+): readonly TimelineHitMarker[] {
   const markers: TimelineHitMarker[] = [];
-  for (const scheduled of cast.editable.scheduledSequences) {
+  for (const scheduled of definition.scheduledSequences) {
     for (const step of scheduled.sequence.steps) {
-      collectDamageSteps(step, false, markers, scheduled.startFrame);
+      collectDamageSteps(step, false, markers, cast, scheduled.startFrame);
     }
   }
   return markers;
 }
 
-/** 按稳定身份查询一次释放中的命中标记；找不到时返回 null。 */
+/** 按稳定 step key 查询一次释放中的命中标记；找不到时返回 null。 */
 export function findCastHitMarker(
   cast: SkillCastDocument,
-  hitId: string,
+  stepKey: string,
+  definition: SkillDefinition,
 ): TimelineHitMarker | null {
-  return projectCastHitMarkers(cast).find(marker => marker.hitId === hitId) ?? null;
+  return projectCastHitMarkers(cast, definition).find(marker => marker.stepKey === stepKey) ?? null;
 }

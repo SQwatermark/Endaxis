@@ -83,7 +83,7 @@ describe('compileScenarioTimeline', () => {
 
   it('omits explicitly disabled casts', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
-    scenario.tracks[0]!.skillCasts[0]!.editable.disabled = true;
+    scenario.tracks[0]!.skillCasts[0]!.presentation = { disabled: true };
 
     expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([]);
   });
@@ -115,15 +115,6 @@ describe('compileScenarioTimeline', () => {
     const ultimate = compiled.operators[0]!.skills.find(skill => skill.skillId === 'ultimate');
 
     expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 68 }]);
-  });
-
-  it('fails closed when one cast contains user overrides', () => {
-    const scenario = place(createScenario(), 'battleSkill', 60);
-    scenario.tracks[0]!.skillCasts[0]!.edited.push('durationFrames');
-
-    expect(() => compileScenarioTimeline(scenario, index())).toThrow(
-      'per-cast overrides are not supported yet',
-    );
   });
 
   it('rejects a dangling skill identity', () => {

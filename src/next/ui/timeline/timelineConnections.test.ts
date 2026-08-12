@@ -6,45 +6,36 @@ import {
   createSkillCastConnection,
   removeTimelineConnection,
 } from './timelineConnections';
+import { projectCastHitMarkers } from './timelineHitProjection';
 
 function cast(id: string, scheduledHitId?: string): SkillCastDocument {
   return {
     id,
     source: { kind: 'custom', actionType: 'test', name: id },
     placement: { startFrame: 0 },
-    editable: {
-      durationFrames: 30,
-      cooldownFrames: 0,
-      comboFollowupDelayFrames: 0,
-      triggerWindowFrames: 0,
-      spCost: 0,
-      ultimateEnergyCost: 0,
-      locked: false,
-      disabled: false,
-      color: null,
-      scheduledSequences:
-        scheduledHitId === undefined
-          ? []
-          : [
+    ...(scheduledHitId === undefined
+      ? {}
+      : {
+          customDefinition: {
+            key: id,
+            timelineBlockFrames: 30,
+            costs: [],
+            scheduledSequences: [
               {
-                id: `${id}:sequence`,
                 startFrame: 5,
                 sequence: {
                   steps: [
                     {
                       kind: 'dealDamage',
                       parameters: { damageType: 'physical', attackScale: 1, tags: [] },
-                      hitId: scheduledHitId,
-                      edited: [],
+                      key: scheduledHitId,
                     },
                   ],
                 },
-                edited: [],
               },
             ],
-      customBars: [],
-    },
-    edited: [],
+          },
+        }),
   };
 }
 
@@ -132,12 +123,15 @@ describe('timeline connections', () => {
 
   it('creates a connection to a documented damage hit and rejects invalid targets', () => {
     const original = scenarioWithCasts();
+    const targetCast = original.tracks[0]!.skillCasts.find(candidate => candidate.id === 'cast:2')!;
+    const targetMarkers = projectCastHitMarkers(targetCast, targetCast.customDefinition!);
     const connected = createDamageHitConnection(original, {
       id: 'connection:hit',
       fromSkillCastId: 'cast:1',
       fromPort: 'right',
       toSkillCastId: 'cast:2',
-      toHitId: 'hit:2',
+      toStepKey: 'hit:2',
+      targetMarkers,
     });
 
     expect(connected.connections).toEqual([
@@ -145,7 +139,7 @@ describe('timeline connections', () => {
         id: 'connection:hit',
         consumption: false,
         from: { kind: 'skillCast', skillCastId: 'cast:1', port: 'right' },
-        to: { kind: 'damageHit', skillCastId: 'cast:2', hitId: 'hit:2' },
+        to: { kind: 'damageHit', skillCastId: 'cast:2', stepKey: 'hit:2' },
       },
     ]);
     expect(
@@ -154,7 +148,8 @@ describe('timeline connections', () => {
         fromSkillCastId: 'cast:1',
         fromPort: 'right',
         toSkillCastId: 'cast:2',
-        toHitId: 'hit:missing',
+        toStepKey: 'hit:missing',
+        targetMarkers,
       }),
     ).toBe(original);
     expect(
@@ -163,7 +158,8 @@ describe('timeline connections', () => {
         fromSkillCastId: 'cast:1',
         fromPort: 'right',
         toSkillCastId: 'cast:1',
-        toHitId: 'hit:2',
+        toStepKey: 'hit:2',
+        targetMarkers,
       }),
     ).toBe(original);
     expect(
@@ -172,7 +168,8 @@ describe('timeline connections', () => {
         fromSkillCastId: 'cast:1',
         fromPort: 'left',
         toSkillCastId: 'cast:2',
-        toHitId: 'hit:2',
+        toStepKey: 'hit:2',
+        targetMarkers,
       }),
     ).toBe(connected);
   });

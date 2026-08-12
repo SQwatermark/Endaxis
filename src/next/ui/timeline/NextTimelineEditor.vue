@@ -36,14 +36,11 @@ import { useScenarioSimulation } from './useScenarioSimulation';
 import { sampleStepCurve } from '../../core/projection/curveSampling';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
-import {
-  PROJECT_FPS,
-  type EditableActionValues,
-  type ScenarioDocument,
-  type TrackIndex,
-} from '../../core/project/schema';
+import { PROJECT_FPS, type ScenarioDocument, type TrackIndex } from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { perlica } from '../../data/operators';
+import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
+import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
   projectTimelineEditor,
@@ -72,13 +69,13 @@ import {
 import {
   moveSkillCasts,
   swapTimelineTracks,
+  setSkillCastLocked,
+  setSkillCastDisabled,
+  setSkillCastColor,
+  resetSkillCastToTemplate,
   updateBattleResourceRule,
   type EditableBattleResourceRule,
   updateTrackInitialUltimateEnergy,
-  updateSkillCastBasicField,
-  updateSkillCastBooleanField,
-  updateSkillCastColor,
-  type BasicEditableSkillCastField,
 } from './timelineDocumentCommands';
 import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { basicAttackSegmentLabel } from './timelineSkillLabels';
@@ -98,11 +95,7 @@ import {
   removeTimelineConnection,
   type TimelineConnectionPort,
 } from './timelineConnections';
-import {
-  projectCastHitMarkers,
-  findCastHitMarker,
-  type TimelineHitMarkerView,
-} from './timelineHitProjection';
+import { type TimelineHitMarkerView } from './timelineHitProjection';
 import { projectHitEffectsByCast, type TimelineHitEffectLabel } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 
@@ -287,11 +280,21 @@ const selectedCastModel = computed(() => {
       candidate => candidate.id === selectedCastId.value,
     );
     if (castModel !== undefined && cast !== undefined) {
+      const operator = nextGameDataRepository.getOperator(trackModel.operatorSlug ?? '');
+      const diffCount =
+        cast.customDefinition === undefined || operator === null
+          ? 0
+          : diffSkillDefinition(
+              resolveSkillTemplateDefinition(cast, operator).definition,
+              cast.customDefinition,
+            ).length;
       return {
         trackIndex: trackModel.trackIndex,
         cast,
         skillType: castModel.skillType,
         label: timelineCastLabel(castModel, trackModel),
+        edited: cast.customDefinition !== undefined,
+        diffCount,
       };
     }
   }
@@ -323,9 +326,17 @@ const castHitEffects = computed(() => {
   for (const track of scenario.value.tracks) {
     if (track === null) continue;
     for (const cast of track.skillCasts) {
+      const castModel = viewModel.value.tracks
+        .flatMap(trackModel => trackModel.skillCasts)
+        .find(candidate => candidate.id === cast.id);
       byCastId.set(
         cast.id,
-        projectHitEffectsByCast(scenario.value, current.receiptEntries, cast.id),
+        projectHitEffectsByCast(
+          scenario.value,
+          current.receiptEntries,
+          cast.id,
+          castModel?.hitMarkers ?? [],
+        ),
       );
     }
   }
@@ -404,16 +415,17 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
 }
 
 function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMarkerView[] {
-  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+  const castModel = viewModel.value.tracks[trackIndex]?.skillCasts.find(
     candidate => candidate.id === castId,
   );
-  if (cast === undefined) return [];
+  if (castModel === undefined) return [];
   const effects = castHitEffects.value.get(castId);
   return (
-    projectCastHitMarkers(cast)
+    castModel.hitMarkers
       // 条件分支里的命中只在真的触发过时才显示，和旧版一致。
       .filter(marker => !marker.conditional || (effects !== undefined && effects.has(marker.hitId)))
       .map(marker => ({
+        stepKey: marker.stepKey,
         hitId: marker.hitId,
         leftPx: marker.frameOffset * pxPerFrame.value,
         ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
@@ -421,7 +433,9 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   );
 }
 
-const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
+const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; stepKey: string } | null>(
+  null,
+);
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
@@ -429,7 +443,11 @@ const hitDetail = computed(() => {
   const track = scenario.value.tracks[target.trackIndex];
   const cast = track?.skillCasts.find(candidate => candidate.id === target.castId);
   if (track === null || cast === undefined || track.operator === null) return null;
-  const marker = findCastHitMarker(cast, target.hitId);
+  const castModel = viewModel.value.tracks[target.trackIndex]?.skillCasts.find(
+    candidate => candidate.id === target.castId,
+  );
+  const marker =
+    castModel?.hitMarkers.find(candidate => candidate.stepKey === target.stepKey) ?? null;
   if (marker === null) return null;
   const absoluteFrame = cast.placement.startFrame + marker.frameOffset;
   const operatorId = track.id;
@@ -437,7 +455,7 @@ const hitDetail = computed(() => {
     entry =>
       entry.frame === absoluteFrame &&
       entry.sourceId === operatorId &&
-      (marker.stepKey === undefined || entry.data?.stepKey === marker.stepKey),
+      entry.data?.stepKey === marker.stepKey,
   );
   return { cast, marker, entries };
 });
@@ -609,13 +627,19 @@ function finishConnectionDrag(event: PointerEvent): void {
   if (targetSkillCastId === undefined || targetPortValue === undefined) return;
 
   if (targetPortValue.startsWith('hit:')) {
+    const toStepKey = targetPortValue.slice('hit:'.length);
+    const targetMarkers =
+      viewModel.value.tracks
+        .flatMap(track => track.skillCasts)
+        .find(castModel => castModel.id === targetSkillCastId)?.hitMarkers ?? [];
     commitScenario('createDamageHitConnection', current =>
       createDamageHitConnection(current, {
         id: ids.allocate('connection'),
         fromSkillCastId: drag.skillCastId,
         fromPort: drag.port,
         toSkillCastId: targetSkillCastId,
-        toHitId: targetPortValue.slice('hit:'.length),
+        toStepKey,
+        targetMarkers,
       }),
     );
     return;
@@ -755,8 +779,26 @@ function placeGroup(
   const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
   const last = placed.at(-1);
   if (last !== undefined) {
-    cursorFrame.value = last.placement.startFrame + last.editable.durationFrames;
+    const lastSkillDuration = resolvePlacedSkillDurationFrames(operator, skillGroupKey, skillKey);
+    cursorFrame.value = last.placement.startFrame + lastSkillDuration;
   }
+}
+function resolvePlacedSkillDurationFrames(
+  operator: ReturnType<typeof nextGameDataRepository.getOperator>,
+  skillGroupKey: string,
+  skillKey?: string,
+): number {
+  if (operator === null) return 0;
+  const group = operator.skillGroups.find(g => g.key === skillGroupKey);
+  if (group === undefined) return 0;
+  const skills: readonly { timelineBlockFrames: number; key: string }[] = Array.isArray(
+    group.skills,
+  )
+    ? group.skills
+    : [group.skills];
+  const filtered = skillKey === undefined ? skills : skills.filter(s => s.key === skillKey);
+  const lastSkill = filtered.at(-1);
+  return lastSkill?.timelineBlockFrames ?? 0;
 }
 
 function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
@@ -887,14 +929,10 @@ function toggleContextCastField(field: 'locked' | 'disabled'): void {
     candidate => candidate.id === target.skillCastId,
   );
   if (cast === undefined) return;
-  commitScenario('toggleSkillCastField', current =>
-    updateSkillCastBooleanField(
-      current,
-      target.trackIndex,
-      target.skillCastId,
-      field,
-      !cast.editable[field],
-    ),
+  const currentValue = cast.presentation?.[field] ?? false;
+  const command = field === 'locked' ? setSkillCastLocked : setSkillCastDisabled;
+  commitScenario(`toggleSkillCast${field.charAt(0).toUpperCase() + field.slice(1)}`, current =>
+    command(current, target.trackIndex, target.skillCastId, !currentValue),
   );
   contextMenuTarget.value = null;
 }
@@ -1101,20 +1139,17 @@ function setBattleResourceRule(field: EditableBattleResourceRule, value: number)
 function setContextCastColor(color: string | null): void {
   const target = contextMenuTarget.value;
   if (target === null) return;
-  commitScenario('updateSkillCastColor', current =>
-    updateSkillCastColor(current, target.trackIndex, target.skillCastId, color),
+  commitScenario('setSkillCastColor', current =>
+    setSkillCastColor(current, target.trackIndex, target.skillCastId, color),
   );
   contextMenuTarget.value = null;
 }
 
-function updateSelectedCast(
-  field: BasicEditableSkillCastField,
-  value: EditableActionValues[BasicEditableSkillCastField],
-): void {
+function resetSelectedCastDefinition(): void {
   const selected = selectedCastModel.value;
-  if (selected === null) return;
-  commitScenario('updateSkillCastField', current =>
-    updateSkillCastBasicField(current, selected.trackIndex, selected.cast.id, field, value),
+  if (selected === null || !selected.edited) return;
+  commitScenario('resetSkillCastToTemplate', current =>
+    resetSkillCastToTemplate(current, selected.trackIndex, selected.cast.id),
   );
 }
 
@@ -1314,6 +1349,7 @@ function setPanelDialogVisible(visible: boolean): void {
           />
           <TimelineConnectionLayer
             :scenario="scenario"
+            :tracks="viewModel.tracks"
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :preview="connectionDrag"
@@ -1406,6 +1442,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :selected="actionSelection.selectedIds.has(cast.id)"
                 :disabled="cast.disabled"
                 :locked="cast.locked"
+                :edited="cast.edited"
                 :color="cast.color"
                 :connection-tool-enabled="connectionToolEnabled"
                 :warning="diagnosticsByCastId.has(cast.id)"
@@ -1417,7 +1454,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 "
                 @select="handleActionSelection($event, cast.id)"
                 @hit-click="
-                  hitDetailTarget = { trackIndex: track.trackIndex, castId: cast.id, hitId: $event }
+                  hitDetailTarget = {
+                    trackIndex: track.trackIndex,
+                    castId: cast.id,
+                    stepKey: $event,
+                  }
                 "
                 @connection-pointer-down="
                   (event, port) => beginConnectionDrag(event, cast.id, port)
@@ -1506,7 +1547,9 @@ function setPanelDialogVisible(visible: boolean): void {
         :cast="selectedCastModel?.cast ?? null"
         :label="selectedCastModel?.label ?? ''"
         :skill-type="selectedCastModel?.skillType ?? null"
-        @update="updateSelectedCast"
+        :edited="selectedCastModel?.edited ?? false"
+        :diff-count="selectedCastModel?.diffCount ?? 0"
+        @reset-definition="resetSelectedCastDefinition"
       />
       <div v-else class="empty-panel">{{ tool }}</div>
     </template>
@@ -1516,9 +1559,9 @@ function setPanelDialogVisible(visible: boolean): void {
     :x="contextMenuTarget?.x ?? 0"
     :y="contextMenuTarget?.y ?? 0"
     :label="selectedCastModel?.label ?? ''"
-    :locked="selectedCastModel?.cast.editable.locked ?? false"
-    :disabled="selectedCastModel?.cast.editable.disabled ?? false"
-    :color="selectedCastModel?.cast.editable.color ?? null"
+    :locked="selectedCastModel?.cast.presentation?.locked ?? false"
+    :disabled="selectedCastModel?.cast.presentation?.disabled ?? false"
+    :color="selectedCastModel?.cast.presentation?.color ?? null"
     @close="contextMenuTarget = null"
     @copy="copyContextSelection"
     @delete="deleteContextCast"

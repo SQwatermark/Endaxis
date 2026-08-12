@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import type { ScenarioDocument } from '../../core/project/schema';
+import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 import { projectHitEffectsByCast } from './timelineHitEffects';
+import { projectCastHitMarkers } from './timelineHitProjection';
 
 function baseDamage(): Record<string, number | boolean | string | null> {
   return {
@@ -48,37 +50,34 @@ function scenarioWithCast(): ScenarioDocument {
               skillKey: 'battleSkill',
             },
             placement: { startFrame: 30 },
-            editable: {
-              durationFrames: 30,
+            presentation: {
               locked: false,
               disabled: false,
+              customBars: [],
+            },
+            customDefinition: {
+              key: 'battleSkill',
+              timelineBlockFrames: 30,
               scheduledSequences: [
                 {
-                  id: 'sequence:1',
                   startFrame: 10,
                   sequence: {
                     steps: [
                       {
                         kind: 'dealDamage',
                         parameters: { damageType: 'electric', attackScale: 1, tags: [] },
-                        sourceStepKey: 'step:damage',
-                        hitId: 'hit:keyed',
-                        edited: [],
+                        key: 'step:damage',
                       },
                       {
                         kind: 'dealDamage',
                         parameters: { damageType: 'physical', attackScale: 1, tags: [] },
-                        hitId: 'hit:plain',
-                        edited: [],
+                        key: 'step:secondary',
                       },
                     ],
                   },
-                  edited: [],
                 },
               ],
-              customBars: [],
             },
-            edited: [],
           },
         ],
       },
@@ -123,6 +122,12 @@ function scenarioWithCast(): ScenarioDocument {
   };
 }
 
+function markersForCast(scenario: ScenarioDocument, castId: string) {
+  const cast = scenario.tracks.flatMap(track => track?.skillCasts ?? []).find(c => c.id === castId);
+  if (cast === undefined || cast.customDefinition === undefined) return [];
+  return projectCastHitMarkers(cast, cast.customDefinition);
+}
+
 function damageEntry(sequence: number, frame: number, stepKey?: string): CombatReceiptEntry {
   return {
     sequence,
@@ -164,22 +169,16 @@ describe('projectHitEffectsByCast', () => {
       scenario,
       [damageEntry(1, 40, 'step:damage'), damageEntry(2, 40), damageEntry(3, 90)],
       'cast:1',
+      markersForCast(scenario, 'cast:1'),
     );
 
-    // 带步骤键的标记只匹配同键事实；无步骤键的标记按（帧、来源）匹配全部事实。
-    expect(effects.get('hit:keyed')).toEqual({
+    const hitId = deriveHitId('cast:1', 'step:damage');
+    expect(effects.get(hitId)).toEqual({
       damage: [{ value: 100, damageType: 'physical', isCritical: false }],
       infliction: [],
       reactions: [],
     });
-    expect(effects.get('hit:plain')).toEqual({
-      damage: [
-        { value: 100, damageType: 'physical', isCritical: false },
-        { value: 100, damageType: 'physical', isCritical: false },
-      ],
-      infliction: [],
-      reactions: [],
-    });
+    expect(effects.size).toBe(1);
   });
 
   it('把同帧附着归因到命中标记', () => {
@@ -188,9 +187,10 @@ describe('projectHitEffectsByCast', () => {
       scenario,
       [damageEntry(1, 40), inflictionEntry(2, 40)],
       'cast:1',
+      markersForCast(scenario, 'cast:1'),
     );
 
-    expect(effects.get('hit:keyed')?.infliction).toEqual([
+    expect(effects.get(deriveHitId('cast:1', 'step:damage'))?.infliction).toEqual([
       { element: 'electric', outcomeKind: 'attachmentOnly', currentLayers: 1 },
     ]);
   });
@@ -218,17 +218,30 @@ describe('projectHitEffectsByCast', () => {
         },
       ],
       'cast:1',
+      markersForCast(scenario, 'cast:1'),
     );
 
-    expect(effects.get('hit:keyed')?.reactions).toEqual([
+    expect(effects.get(deriveHitId('cast:1', 'step:damage'))?.reactions).toEqual([
       { reaction: 'electrification', applied: true, level: 1, previousLevel: 0 },
     ]);
   });
 
   it('无匹配事实的命中标记不出现，未知释放返回空映射', () => {
     const scenario = scenarioWithCast();
-    const effects = projectHitEffectsByCast(scenario, [damageEntry(1, 999)], 'cast:1');
+    const effects = projectHitEffectsByCast(
+      scenario,
+      [damageEntry(1, 999)],
+      'cast:1',
+      markersForCast(scenario, 'cast:1'),
+    );
     expect(effects.size).toBe(0);
-    expect(projectHitEffectsByCast(scenario, [damageEntry(1, 40)], 'cast:missing').size).toBe(0);
+    expect(
+      projectHitEffectsByCast(
+        scenario,
+        [damageEntry(1, 40)],
+        'cast:missing',
+        markersForCast(scenario, 'cast:1'),
+      ).size,
+    ).toBe(0);
   });
 });

@@ -270,6 +270,7 @@ describe('compileSkill', () => {
         parameters: { element: 'electric', isExtra: false },
       },
       {
+        key: expect.any(String),
         kind: 'dealDamage',
         parameters: {
           damageType: 'electric',
@@ -283,6 +284,7 @@ describe('compileSkill', () => {
         parameters: { coefficient: 1 },
       },
     ]);
+    expect(program.timelineActions[0]?.sequence.steps[1]?.key).not.toBe('');
   });
 
   it('resolves nested level values without retaining level arrays', () => {

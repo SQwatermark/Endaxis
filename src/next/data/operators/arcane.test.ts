@@ -116,7 +116,7 @@ describe('next Arcane definition', () => {
     );
   });
 
-  it('blocks ultimate gain during the array and keys only the upgraded arcana hit', () => {
+  it('blocks ultimate gain during the array and gives every damage step a stable key', () => {
     const steps = getSkill('ultimate')
       .scheduledSequences.flatMap(item => item.sequence.steps)
       .flatMap(step => collectSteps({ steps: [step] }));
@@ -131,6 +131,7 @@ describe('next Arcane definition', () => {
       },
     });
     expect(steps.filter(step => step.key !== undefined).map(step => step.key)).toEqual([
+      'ultimate.arrayStrike',
       'ultimate.arcanaDamage',
       'ultimate.arcanaDamage',
     ]);

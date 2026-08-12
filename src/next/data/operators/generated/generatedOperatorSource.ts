@@ -105,6 +105,33 @@ export interface GeneratedTimedInflictionSource extends GeneratedInflictionPaylo
   readonly actionIndex: number;
 }
 
+export interface GeneratedPhysicalInflictionPayload {
+  readonly physicalType: string;
+  readonly attackerTarget: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly blowOffDistance: GeneratedScalarSource;
+  readonly distanceRandomRange: GeneratedScalarSource;
+  readonly overwriteHeight: boolean;
+  readonly blowOffHeight: GeneratedScalarSource;
+  readonly directionType: string;
+  readonly sourceMountPoint: string;
+  readonly targetMountPoint: string;
+  readonly customSourceAndTarget: boolean;
+  readonly clampToXZ: boolean;
+  readonly invertDirection: boolean;
+  readonly totalTime: GeneratedScalarSource;
+  readonly isExtra: boolean;
+  readonly deadOption: string;
+  readonly immobilizedTime: number;
+}
+
+export interface GeneratedTimedPhysicalInflictionSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly payload: GeneratedPhysicalInflictionPayload;
+}
+
 export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainPayload {
   readonly startFrame: number;
   readonly endFrame: number;
@@ -598,6 +625,10 @@ export interface GeneratedConditionalBranchActionSource {
   readonly actionType: string;
   /** 在所属 succeedActions/failActions 原始 actionData 中的下标。 */
   readonly actionIndex: number;
+  /** 从技能根节点到当前动作的原始路径。 */
+  readonly actionPath: readonly string[];
+  /** 原始 SequenceAction 中用于同帧排序的序号。 */
+  readonly serverActionIndex?: number;
   readonly nestedCondition?: GeneratedConditionalActionSource;
   /** 同一个原生动作实例生命周期内共享的 DoOnceAction 身份。 */
   readonly onceScopeKey?: string;
@@ -612,6 +643,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly globalCooldownApplication?: GeneratedGlobalCooldownApplicationPayload;
   readonly resourceGain?: GeneratedResourceGainPayload;
   readonly infliction?: GeneratedInflictionPayload;
+  readonly physicalInfliction?: GeneratedPhysicalInflictionPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
@@ -725,6 +757,22 @@ export interface GeneratedEventBuffApplicationSource {
   readonly payload: GeneratedBuffApplicationPayload;
 }
 
+export interface GeneratedSkillEventActionSequenceSource {
+  readonly onlyMainOperator: boolean;
+  readonly onlyGuard: boolean;
+  readonly orderedActionTypes: readonly string[];
+  readonly combatActions: readonly string[];
+  readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
+}
+
+export interface GeneratedSkillEventListenerSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly event: string;
+  readonly sequences: readonly GeneratedSkillEventActionSequenceSource[];
+}
+
 export interface GeneratedSkillSource {
   readonly key: string;
   readonly skillId: string;
@@ -772,8 +820,12 @@ export interface GeneratedSkillSource {
   readonly blackboardProvenance: readonly GeneratedBlackboardKeyProvenanceSource[];
   /** 条件读取命名目标组前，用于证明该组由哪个动作和分支产生。 */
   readonly targetGroupWrites: readonly GeneratedTargetGroupWriteSource[];
+  /** 参与命名目标组控制流的条件动作。 */
+  readonly targetGroupControlFlowActions: readonly GeneratedConditionalActionSource[];
   /** 原生区域持续动作；当前保留完整审计结构，由后续专用运行时消费。 */
   readonly auraActions: readonly GeneratedAuraActionSource[];
+  readonly physicalInflictions: readonly GeneratedTimedPhysicalInflictionSource[];
+  readonly eventListeners: readonly GeneratedSkillEventListenerSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

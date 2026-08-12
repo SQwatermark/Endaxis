@@ -14,6 +14,8 @@
 
 ## 2. 战斗系统
 
+- [技能全生命周期与编辑语义](./11-skill-lifecycle.md)
+- [SkillDefinition 数据结构蓝图](./12-skill-definition-blueprint.md)
 - [玩家主动伤害流水线](../architecture/endaxis-next-damage-pipeline.md)
 - [通用语义状态运行时](../architecture/endaxis-next-semantic-status-runtime.md)
 - [处决和下落攻击](../research/finisher-and-plunging-attacks.md)

@@ -179,7 +179,11 @@ export function basicAttackOfType(damageType: DamageType) {
         return scheduled(
           frame,
           sequence(
-            step('dealDamage', { damageType, attackScale, tags, ...damageOptions }),
+            step(
+              'dealDamage',
+              { damageType, attackScale, tags, ...damageOptions },
+              `${key}.hit.${index + 1}`,
+            ),
             ...(last && spRecovery !== undefined
               ? [
                   step('changeResource', {
@@ -227,8 +231,20 @@ export function scaleDamageByStatusStacks(
 export function damageHits(
   frames: readonly number[],
   parameters: DealDamageParameters,
+  keyPrefix?: string,
 ): ScheduledSequenceDefinition[] {
-  return frames.map(frame => scheduled(frame, sequence(step('dealDamage', parameters))));
+  return frames.map((frame, index) =>
+    scheduled(
+      frame,
+      sequence(
+        step(
+          'dealDamage',
+          parameters,
+          keyPrefix === undefined ? undefined : `${keyPrefix}.hit.${index + 1}`,
+        ),
+      ),
+    ),
+  );
 }
 
 /** 将来源表中的百分数转换为战斗计算使用的小数倍率。 */

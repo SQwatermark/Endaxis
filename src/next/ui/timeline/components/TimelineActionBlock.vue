@@ -6,6 +6,7 @@
  * 由外部算好传进来，不让这个组件像旧版 ActionItem 那样什么都管。
  */
 import { computed } from 'vue';
+import { EditPen } from '@element-plus/icons-vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
 import type { TimelineConnectionPort } from '../timelineConnections';
 import type { TimelineHitMarkerView } from '../timelineHitProjection';
@@ -19,6 +20,7 @@ const props = defineProps<{
   selected?: boolean;
   disabled?: boolean;
   locked?: boolean;
+  edited?: boolean;
   color?: string | null;
   connectionToolEnabled?: boolean;
   /** 合法性诊断归约到该技能块的警告标记。 */
@@ -83,6 +85,12 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       @click.stop="$emit('hitClick', hit.hitId)"
     ></span>
     <span v-if="warning" class="warning-mark" aria-label="warning"></span>
+    <EditPen
+      v-if="edited"
+      class="edited-mark"
+      :class="{ 'is-shifted': disabled }"
+      aria-label="edited"
+    />
     <span v-if="locked" class="status-mark lock-mark" aria-label="locked"></span>
     <span v-if="disabled" class="status-mark disabled-mark" aria-label="disabled"></span>
     <span
@@ -229,6 +237,20 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   width: 9px;
   height: 9px;
   opacity: 0.9;
+}
+
+.edited-mark {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 11px;
+  height: 11px;
+  color: var(--ea-gold);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+.edited-mark.is-shifted {
+  right: 16px;
 }
 
 .lock-mark {

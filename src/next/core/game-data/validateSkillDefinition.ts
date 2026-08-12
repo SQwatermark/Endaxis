@@ -1,0 +1,1015 @@
+/**
+ * SkillDefinition 的严格结构验证。
+ *
+ * 干员 TS、技能库和项目存档中的 customDefinition 共用同一套 SkillDefinition 结构，
+ * 技能数据、编译器和项目存档共用这里的校验规则，避免各层各写一套。
+ *
+ * 本模块只做结构与取值合法性检查，不做语义解析；
+ * 传入不可信 unknown，先结构判断再缩窄 Record<string, unknown>，不得用类型断言跳过字段。
+ */
+import {
+  ACTION_VALUE_CALCULATION_OPERATIONS,
+  ACTION_VALUE_OPERATIONS,
+  BUFF_APPLICATION_TARGETS,
+  COMBAT_CONDITION_KINDS,
+  COMBAT_RESOURCES,
+  COMBAT_STEP_KINDS,
+  COMBAT_TARGETS,
+  COMPARISON_OPERATORS,
+  DAMAGE_CALCULATIONS,
+  DAMAGE_ELEMENTS,
+  DAMAGE_TAGS,
+  DAMAGE_TYPES,
+  ELEMENTAL_REACTIONS,
+  INFLICTION_ELEMENTS,
+  OPERATOR_ATTRIBUTES,
+  RESOURCE_RECIPIENTS,
+  SP_GAIN_KINDS,
+  SP_GAIN_SOURCES,
+  STATUS_MODIFIER_KINDS,
+} from './operatorDefinition';
+import { collectDamageStepKeys } from './collectDamageStepKeys';
+
+export interface SkillDefinitionValidationIssue {
+  path: string;
+  message: string;
+}
+
+const STEP_KINDS = new Set<string>(COMBAT_STEP_KINDS);
+const CONDITION_KINDS = new Set<string>(COMBAT_CONDITION_KINDS);
+const DAMAGE_TYPES_SET = new Set<string>(DAMAGE_TYPES);
+const DAMAGE_TAGS_SET = new Set<string>(DAMAGE_TAGS);
+const DAMAGE_ELEMENTS_SET = new Set<string>(DAMAGE_ELEMENTS);
+const INFLICTION_ELEMENTS_SET = new Set<string>(INFLICTION_ELEMENTS);
+const ELEMENTAL_REACTIONS_SET = new Set<string>(ELEMENTAL_REACTIONS);
+const COMBAT_RESOURCES_SET = new Set<string>(COMBAT_RESOURCES);
+const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
+const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
+const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
+const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
+const OPERATOR_ATTRIBUTES_SET = new Set<string>(OPERATOR_ATTRIBUTES);
+const DAMAGE_CALCULATIONS_SET = new Set<string>(DAMAGE_CALCULATIONS);
+const SP_GAIN_KINDS_SET = new Set<string>(SP_GAIN_KINDS);
+const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
+const STATUS_MODIFIER_KINDS_SET = new Set<string>(STATUS_MODIFIER_KINDS);
+const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
+const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
+  ACTION_VALUE_CALCULATION_OPERATIONS,
+);
+const HEALTH_VALUE_TYPES_SET = new Set<string>(['current', 'ratio']);
+const TAG_QUERY_TYPES_SET = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
+const BUFF_FINISH_REASONS_SET = new Set<string>(['early', 'absorbed', 'other']);
+const TRIGGER_SCOPES_SET = new Set<string>(['operator', 'team']);
+
+function issue(path: string, message: string): SkillDefinitionValidationIssue {
+  return { path, message };
+}
+
+function push(out: SkillDefinitionValidationIssue[], path: string, message: string): void {
+  out.push(issue(path, message));
+}
+
+/** 结构判断：仅当是普通对象时返回 Record，否则记录 issue 并返回 null。 */
+function asRecord(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): Record<string, unknown> | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    push(out, path, 'expected an object');
+    return null;
+  }
+  return value as Record<string, unknown>;
+}
+
+function requireString(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): string | null {
+  const v = value[key];
+  if (typeof v !== 'string' || v.length === 0) {
+    push(out, `${path}.${key}`, 'expected a non-empty string');
+    return null;
+  }
+  return v;
+}
+
+function requireFiniteNumber(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): number | null {
+  const v = value[key];
+  if (typeof v !== 'number' || !Number.isFinite(v)) {
+    push(out, `${path}.${key}`, 'expected a finite number');
+    return null;
+  }
+  return v;
+}
+
+function requireNonNegativeInteger(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): number | null {
+  const v = value[key];
+  if (typeof v !== 'number' || !Number.isInteger(v) || v < 0) {
+    push(out, `${path}.${key}`, 'expected a non-negative integer');
+    return null;
+  }
+  return v;
+}
+
+function requireBoolean(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): boolean | null {
+  const v = value[key];
+  if (typeof v !== 'boolean') {
+    push(out, `${path}.${key}`, 'expected a boolean');
+    return null;
+  }
+  return v;
+}
+
+function requireEnum(
+  value: Record<string, unknown>,
+  key: string,
+  allowed: ReadonlySet<string>,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): string | null {
+  const v = value[key];
+  if (typeof v !== 'string' || !allowed.has(v)) {
+    push(out, `${path}.${key}`, `expected one of ${[...allowed].join(', ')}`);
+    return null;
+  }
+  return v;
+}
+
+/**
+ * LevelValues：接受 finite number 或非空 finite number 数组。
+ * 数组元素逐项校验；空数组、非数值、无穷均报错。
+ */
+function validateLevelValues(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) push(out, path, 'expected a finite number');
+    return;
+  }
+  if (!Array.isArray(value) || value.length === 0) {
+    push(out, path, 'expected a finite number or a non-empty number array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'number' || !Number.isFinite(entry)) {
+      push(out, `${path}[${index}]`, 'expected a finite number');
+    }
+  });
+}
+
+/** ActionValueOperand：blackboard（key）或 constant（value）。 */
+function validateActionValueOperand(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === 'blackboard') {
+    requireString(record, 'key', path, out);
+  } else if (kind === 'constant') {
+    requireFiniteNumber(record, 'value', path, out);
+  } else if (kind !== null) {
+    push(out, `${path}.kind`, "expected 'blackboard' or 'constant'");
+  }
+}
+
+/** 值可以是 LevelValues 或 ActionValueOperand 的字段。 */
+function validateLevelValuesOrActionValueOperand(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    validateActionValueOperand(value, path, out);
+  } else {
+    validateLevelValues(value, path, out);
+  }
+}
+
+/** 非空整数数组（buff 标签、tag id 等）。 */
+function validateNonEmptyIntegerArray(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (!Array.isArray(value) || value.length === 0) {
+    push(out, path, 'expected a non-empty array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'number' || !Number.isInteger(entry)) {
+      push(out, `${path}[${index}]`, 'expected an integer');
+    }
+  });
+}
+
+/** 非空字符串数组。 */
+function validateNonEmptyStringArray(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (!Array.isArray(value) || value.length === 0) {
+    push(out, path, 'expected a non-empty array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || entry.length === 0) {
+      push(out, `${path}[${index}]`, 'expected a non-empty string');
+    }
+  });
+}
+
+/** 布尔/数字/字符串三选一。 */
+function validateScalar(value: unknown, path: string, out: SkillDefinitionValidationIssue[]): void {
+  if (typeof value !== 'boolean' && typeof value !== 'number' && typeof value !== 'string') {
+    push(out, path, 'expected a boolean, number, or string');
+  }
+}
+
+/** 元素或元素数组。 */
+function validateElements(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (Array.isArray(value)) {
+    value.forEach((element, index) => {
+      if (typeof element !== 'string' || !DAMAGE_ELEMENTS_SET.has(element)) {
+        push(out, `${path}[${index}]`, 'unknown damage element');
+      }
+    });
+    return;
+  }
+  if (typeof value !== 'string' || !DAMAGE_ELEMENTS_SET.has(value)) {
+    push(out, path, 'unknown damage element');
+  }
+}
+
+/**
+ * CombatCondition 的严格验证。覆盖全部条件 kind 及其必填/可选字段。
+ */
+function validateCombatCondition(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === null || !CONDITION_KINDS.has(kind)) {
+    if (kind !== null) push(out, `${path}.kind`, 'unknown condition kind');
+    return;
+  }
+
+  switch (kind) {
+    case 'combatActive':
+    case 'singleEnemyPresent':
+    case 'casterControlled':
+      break;
+    case 'skillBranchEnabled':
+      requireString(record, 'branchKey', path, out);
+      break;
+    case 'targetStaggered':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      break;
+    case 'healthCompare':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'valueType', HEALTH_VALUE_TYPES_SET, path, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
+    case 'contextFlagEquals':
+      requireString(record, 'flag', path, out);
+      validateScalar(record.value, `${path}.value`, out);
+      break;
+    case 'actionValueCompare':
+      validateActionValueOperand(record.left, `${path}.left`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.right, `${path}.right`, out);
+      break;
+    case 'statusActive':
+      requireString(record, 'statusKey', path, out);
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      if (record.minimumStacks !== undefined) {
+        requireNonNegativeInteger(record, 'minimumStacks', path, out);
+      }
+      break;
+    case 'buffStackCompare':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
+    case 'entityTagMatch':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
+      break;
+    case 'buffIdStackCompare':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateLevelValuesOrActionValueOperand(record.value, `${path}.value`, out);
+      break;
+    case 'timedMarkerPresent':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireString(record, 'markerId', path, out);
+      break;
+    case 'elementalInflictionPresent':
+      validateElements(record.elements, `${path}.elements`, out);
+      if (record.minimumStacks !== undefined) {
+        requireNonNegativeInteger(record, 'minimumStacks', path, out);
+      }
+      break;
+    case 'elementalReactionActive':
+      requireEnum(record, 'reaction', ELEMENTAL_REACTIONS_SET, path, out);
+      if (record.minimumLevel !== undefined) {
+        requireNonNegativeInteger(record, 'minimumLevel', path, out);
+      }
+      break;
+    case 'not':
+      validateCombatCondition(record.condition, `${path}.condition`, out);
+      break;
+    case 'all':
+    case 'any':
+      if (!Array.isArray(record.conditions) || record.conditions.length === 0) {
+        push(out, `${path}.conditions`, 'expected a non-empty array');
+      } else {
+        record.conditions.forEach((condition, index) => {
+          validateCombatCondition(condition, `${path}.conditions[${index}]`, out);
+        });
+      }
+      break;
+    case 'deckAttributeCompare':
+      requireEnum(record, 'left', OPERATOR_ATTRIBUTES_SET, path, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      requireEnum(record, 'right', OPERATOR_ATTRIBUTES_SET, path, out);
+      break;
+  }
+}
+
+/**
+ * StatusModifierDefinition 的严格验证，覆盖全部修正 kind。
+ */
+function validateStatusModifier(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === null || !STATUS_MODIFIER_KINDS_SET.has(kind)) {
+    if (kind !== null) push(out, `${path}.kind`, 'unknown status modifier kind');
+    return;
+  }
+
+  switch (kind) {
+    case 'attackPercent':
+      validateLevelValues(record.value, `${path}.value`, out);
+      break;
+    case 'susceptibility':
+      if (!Array.isArray(record.damageTypes) || record.damageTypes.length === 0) {
+        push(out, `${path}.damageTypes`, 'expected a non-empty array');
+      } else {
+        record.damageTypes.forEach((damageType, index) => {
+          if (typeof damageType !== 'string' || !DAMAGE_TYPES_SET.has(damageType)) {
+            push(out, `${path}.damageTypes[${index}]`, 'unknown damage type');
+          }
+        });
+      }
+      validateLevelValues(record.value, `${path}.value`, out);
+      if (record.attributeScaling !== undefined) {
+        const scaling = asRecord(record.attributeScaling, `${path}.attributeScaling`, out);
+        if (scaling !== null) {
+          requireEnum(
+            scaling,
+            'attribute',
+            OPERATOR_ATTRIBUTES_SET,
+            `${path}.attributeScaling`,
+            out,
+          );
+          validateLevelValues(scaling.coefficient, `${path}.attributeScaling.coefficient`, out);
+        }
+      }
+      if (record.cap !== undefined) validateLevelValues(record.cap, `${path}.cap`, out);
+      break;
+    case 'blockResourceGain':
+      requireEnum(record, 'resource', COMBAT_RESOURCES_SET, path, out);
+      break;
+    case 'resourceCostMultiplier':
+      requireEnum(record, 'resource', COMBAT_RESOURCES_SET, path, out);
+      requireFiniteNumber(record, 'value', path, out);
+      break;
+    case 'skillCooldownMultiplier':
+      requireString(record, 'skillGroupKey', path, out);
+      requireFiniteNumber(record, 'value', path, out);
+      break;
+    case 'slowed':
+      break;
+  }
+}
+
+/**
+ * changeResource / changeResourceByActionValue 的资源变化元数据：
+ * 校验 recipient 与资源互斥字段（sp 专属、ultimateEnergy 专属）。
+ */
+function validateResourceChangeMetadata(
+  record: Record<string, unknown>,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const resource = requireEnum(record, 'resource', COMBAT_RESOURCES_SET, path, out);
+  requireEnum(record, 'recipient', RESOURCE_RECIPIENTS_SET, path, out);
+
+  if (record.spGainKind !== undefined) {
+    const kind = requireEnum(record, 'spGainKind', SP_GAIN_KINDS_SET, path, out);
+    if (kind !== null && resource !== 'sp') {
+      push(out, `${path}.spGainKind`, "is only valid when resource is 'sp'");
+    }
+  }
+  if (record.spGainSource !== undefined) {
+    const source = requireEnum(record, 'spGainSource', SP_GAIN_SOURCES_SET, path, out);
+    if (source !== null && resource !== 'sp') {
+      push(out, `${path}.spGainSource`, "is only valid when resource is 'sp'");
+    }
+  }
+  for (const field of ['isPercentValue', 'ignoreUltimateEnergyGainMultiplier'] as const) {
+    if (record[field] !== undefined) {
+      requireBoolean(record, field, path, out);
+      if (resource !== 'ultimateEnergy') {
+        push(out, `${path}.${field}`, "is only valid when resource is 'ultimateEnergy'");
+      }
+    }
+  }
+  if (record.ultimateRecoveryTagId !== undefined) {
+    requireFiniteNumber(record, 'ultimateRecoveryTagId', path, out);
+    if (resource !== 'ultimateEnergy') {
+      push(out, `${path}.ultimateRecoveryTagId`, "is only valid when resource is 'ultimateEnergy'");
+    }
+  }
+}
+
+/**
+ * CombatStep 的严格验证，覆盖全部 kind 及其参数、互斥/条件字段。
+ * dealDamage / dealFixedDamage 的非空 key 由调用方通过 collectDamageStepKeys 统一报告。
+ */
+function validateCombatStep(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === null || !STEP_KINDS.has(kind)) {
+    if (kind !== null) push(out, `${path}.kind`, 'unknown combat step kind');
+    return;
+  }
+  if (record.key !== undefined && typeof record.key !== 'string') {
+    push(out, `${path}.key`, 'expected a string');
+  }
+
+  const parameters = asRecord(record.parameters, `${path}.parameters`, out);
+  if (parameters === null) return;
+
+  const requireTarget = (): void => {
+    requireEnum(parameters, 'target', COMBAT_TARGETS_SET, `${path}.parameters`, out);
+  };
+
+  switch (kind) {
+    case 'applyElementalInfliction':
+      requireEnum(parameters, 'element', INFLICTION_ELEMENTS_SET, `${path}.parameters`, out);
+      requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
+      break;
+    case 'applyElementalReaction':
+      requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
+      requireTarget();
+      requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);
+      requireFiniteNumber(parameters, 'effectiveness', `${path}.parameters`, out);
+      break;
+    case 'consumeElementalReaction':
+      requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
+      if (parameters.target !== 'enemy') {
+        push(out, `${path}.parameters.target`, "expected 'enemy'");
+      }
+      break;
+    case 'dealDamage': {
+      requireEnum(parameters, 'damageType', DAMAGE_TYPES_SET, `${path}.parameters`, out);
+      if (parameters.calculation !== undefined) {
+        requireEnum(parameters, 'calculation', DAMAGE_CALCULATIONS_SET, `${path}.parameters`, out);
+      }
+      validateLevelValuesOrActionValueOperand(
+        parameters.attackScale,
+        `${path}.parameters.attackScale`,
+        out,
+      );
+      if (parameters.calculationMultiplier !== undefined) {
+        validateLevelValues(
+          parameters.calculationMultiplier,
+          `${path}.parameters.calculationMultiplier`,
+          out,
+        );
+        if (parameters.calculation !== 'breakingAttack') {
+          push(
+            out,
+            `${path}.parameters.calculationMultiplier`,
+            "requires calculation 'breakingAttack'",
+          );
+        }
+      }
+      if (!Array.isArray(parameters.tags) || parameters.tags.length === 0) {
+        push(out, `${path}.parameters.tags`, 'expected a non-empty array');
+      } else {
+        parameters.tags.forEach((tag, index) => {
+          if (typeof tag !== 'string' || !DAMAGE_TAGS_SET.has(tag)) {
+            push(out, `${path}.parameters.tags[${index}]`, 'unknown damage tag');
+          }
+        });
+      }
+      if (parameters.stagger !== undefined) {
+        validateLevelValuesOrActionValueOperand(
+          parameters.stagger,
+          `${path}.parameters.stagger`,
+          out,
+        );
+      }
+      if (parameters.attackScalePerStatusStack !== undefined) {
+        const stack = asRecord(
+          parameters.attackScalePerStatusStack,
+          `${path}.parameters.attackScalePerStatusStack`,
+          out,
+        );
+        if (stack !== null) {
+          requireString(stack, 'statusKey', `${path}.parameters.attackScalePerStatusStack`, out);
+          requireEnum(
+            stack,
+            'target',
+            COMBAT_TARGETS_SET,
+            `${path}.parameters.attackScalePerStatusStack`,
+            out,
+          );
+          validateLevelValues(
+            stack.coefficient,
+            `${path}.parameters.attackScalePerStatusStack.coefficient`,
+            out,
+          );
+        }
+      }
+      break;
+    }
+    case 'dealFixedDamage': {
+      requireEnum(parameters, 'damageType', DAMAGE_TYPES_SET, `${path}.parameters`, out);
+      validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
+      if (!Array.isArray(parameters.tags) || parameters.tags.length === 0) {
+        push(out, `${path}.parameters.tags`, 'expected a non-empty array');
+      } else {
+        parameters.tags.forEach((tag, index) => {
+          if (typeof tag !== 'string' || !DAMAGE_TAGS_SET.has(tag)) {
+            push(out, `${path}.parameters.tags[${index}]`, 'unknown damage tag');
+          }
+        });
+      }
+      if (parameters.stagger !== undefined) {
+        validateLevelValuesOrActionValueOperand(
+          parameters.stagger,
+          `${path}.parameters.stagger`,
+          out,
+        );
+      }
+      break;
+    }
+    case 'dealStagger':
+      validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
+      break;
+    case 'applyBuff': {
+      requireString(parameters, 'buffId', `${path}.parameters`, out);
+      requireEnum(parameters, 'target', BUFF_APPLICATION_TARGETS_SET, `${path}.parameters`, out);
+      if (parameters.count !== undefined) {
+        validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
+      }
+      if (parameters.source !== undefined) {
+        requireEnum(parameters, 'source', COMBAT_TARGETS_SET, `${path}.parameters`, out);
+      }
+      if (parameters.blackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          parameters.blackboardAssignments,
+          `${path}.parameters.blackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, operand] of Object.entries(assignments)) {
+            validateActionValueOperand(
+              operand,
+              `${path}.parameters.blackboardAssignments.${key}`,
+              out,
+            );
+          }
+        }
+      }
+      if (parameters.inheritSourceSkillCastInfo !== undefined) {
+        requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
+      }
+      if (parameters.durationSeconds !== undefined) {
+        requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);
+      }
+      if (parameters.effectiveness !== undefined) {
+        requireFiniteNumber(parameters, 'effectiveness', `${path}.parameters`, out);
+      }
+      break;
+    }
+    case 'readBuffBlackboard':
+    case 'readBuffStackCount': {
+      requireTarget();
+      requireString(parameters, 'outputKey', `${path}.parameters`, out);
+      if (kind === 'readBuffBlackboard') {
+        requireString(parameters, 'desiredKey', `${path}.parameters`, out);
+      }
+      const query = asRecord(parameters.query, `${path}.parameters.query`, out);
+      if (query === null) break;
+      const queryKind = requireString(query, 'kind', `${path}.parameters.query`, out);
+      if (queryKind === 'id') {
+        validateNonEmptyStringArray(query.buffIds, `${path}.parameters.query.buffIds`, out);
+      } else if (queryKind === 'tag') {
+        requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters.query`, out);
+        validateNonEmptyIntegerArray(query.buffTagIds, `${path}.parameters.query.buffTagIds`, out);
+      } else if (queryKind !== null) {
+        push(out, `${path}.parameters.query.kind`, "expected 'id' or 'tag'");
+      }
+      break;
+    }
+    case 'finishBuffsByTag':
+      requireTarget();
+      requireEnum(parameters, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters`, out);
+      validateNonEmptyIntegerArray(parameters.buffTagIds, `${path}.parameters.buffTagIds`, out);
+      requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      break;
+    case 'finishBuffsById':
+      requireTarget();
+      validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
+      requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      break;
+    case 'holdBuffsById':
+      if (parameters.target !== 'caster') {
+        push(out, `${path}.parameters.target`, "expected 'caster'");
+      }
+      validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
+      break;
+    case 'createTimedMarker':
+      requireTarget();
+      requireString(parameters, 'markerId', `${path}.parameters`, out);
+      validateActionValueOperand(
+        parameters.durationSeconds,
+        `${path}.parameters.durationSeconds`,
+        out,
+      );
+      requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
+      break;
+    case 'modifyActionValue':
+      requireString(parameters, 'key', `${path}.parameters`, out);
+      requireEnum(parameters, 'operation', ACTION_VALUE_OPERATIONS_SET, `${path}.parameters`, out);
+      validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
+      break;
+    case 'calculateActionValue':
+      requireString(parameters, 'key', `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'operation',
+        ACTION_VALUE_CALCULATION_OPERATIONS_SET,
+        `${path}.parameters`,
+        out,
+      );
+      validateActionValueOperand(parameters.left, `${path}.parameters.left`, out);
+      validateActionValueOperand(parameters.right, `${path}.parameters.right`, out);
+      break;
+    case 'changeResource':
+      validateLevelValues(parameters.amount, `${path}.parameters.amount`, out);
+      if (parameters.coefficient !== undefined) {
+        validateLevelValues(parameters.coefficient, `${path}.parameters.coefficient`, out);
+      }
+      validateResourceChangeMetadata(parameters, `${path}.parameters`, out);
+      break;
+    case 'changeResourceByActionValue':
+      validateActionValueOperand(parameters.amount, `${path}.parameters.amount`, out);
+      if (parameters.coefficient !== undefined) {
+        validateLevelValues(parameters.coefficient, `${path}.parameters.coefficient`, out);
+      }
+      validateResourceChangeMetadata(parameters, `${path}.parameters`, out);
+      break;
+    case 'gainSquadUltimateEnergyFromSkillCost':
+      validateLevelValues(parameters.coefficient, `${path}.parameters.coefficient`, out);
+      break;
+    case 'gainFinisherSp':
+      requireFiniteNumber(parameters, 'factor', `${path}.parameters`, out);
+      if (parameters.recipient !== 'team') {
+        push(out, `${path}.parameters.recipient`, "expected 'team'");
+      }
+      break;
+    case 'applyStatus':
+      requireString(parameters, 'statusKey', `${path}.parameters`, out);
+      requireTarget();
+      if (parameters.durationFrames !== undefined) {
+        validateLevelValues(parameters.durationFrames, `${path}.parameters.durationFrames`, out);
+      }
+      if (parameters.stacks !== undefined) {
+        requireNonNegativeInteger(parameters, 'stacks', `${path}.parameters`, out);
+      }
+      if (parameters.maxStacks !== undefined) {
+        requireNonNegativeInteger(parameters, 'maxStacks', `${path}.parameters`, out);
+      }
+      if (parameters.modifiers !== undefined) {
+        if (!Array.isArray(parameters.modifiers)) {
+          push(out, `${path}.parameters.modifiers`, 'expected an array');
+        } else {
+          parameters.modifiers.forEach((modifier, index) => {
+            validateStatusModifier(modifier, `${path}.parameters.modifiers[${index}]`, out);
+          });
+        }
+      }
+      break;
+    case 'consumeStatus':
+      requireString(parameters, 'statusKey', `${path}.parameters`, out);
+      requireTarget();
+      if (parameters.stacks !== undefined) {
+        requireNonNegativeInteger(parameters, 'stacks', `${path}.parameters`, out);
+      }
+      break;
+    case 'conditional':
+      validateCombatCondition(parameters.condition, `${path}.parameters.condition`, out);
+      break;
+    case 'once':
+      requireString(parameters, 'scopeKey', `${path}.parameters`, out);
+      break;
+    case 'setContextFlag':
+      requireString(parameters, 'flag', `${path}.parameters`, out);
+      validateScalar(parameters.value, `${path}.parameters.value`, out);
+      if (parameters.target !== 'caster') {
+        push(out, `${path}.parameters.target`, "expected 'caster'");
+      }
+      break;
+  }
+}
+
+/** ActionSequenceDefinition：严格按数组顺序同步执行的步骤集合。 */
+function validateActionSequence(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  if (!Array.isArray(record.steps)) {
+    push(out, `${path}.steps`, 'expected an array');
+    return;
+  }
+  record.steps.forEach((step, index) => {
+    validateCombatStep(step, `${path}.steps[${index}]`, out);
+  });
+  // 嵌套结构校验：conditional/once 必须有对应分支；非 conditional/once 不得携带分支。
+  record.steps.forEach((step, index) => {
+    const recordStep = asRecord(step, `${path}.steps[${index}]`, out);
+    if (recordStep === null) return;
+    const stepKind = recordStep.kind;
+    if (stepKind === 'conditional') {
+      validateActionSequence(recordStep.whenTrue, `${path}.steps[${index}].whenTrue`, out);
+      if (recordStep.whenFalse !== undefined) {
+        validateActionSequence(recordStep.whenFalse, `${path}.steps[${index}].whenFalse`, out);
+      }
+    } else if (stepKind === 'once') {
+      validateActionSequence(recordStep.body, `${path}.steps[${index}].body`, out);
+    }
+  });
+}
+
+/** ScheduledSequenceDefinition：相对释放帧的调度项。 */
+function validateScheduledSequence(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const startFrame = requireNonNegativeInteger(record, 'startFrame', path, out);
+  if (record.endFrame !== undefined) {
+    const endFrame = requireNonNegativeInteger(record, 'endFrame', path, out);
+    if (endFrame !== null && startFrame !== null && endFrame < startFrame) {
+      push(out, `${path}.endFrame`, 'must not be less than startFrame');
+    }
+  }
+  validateActionSequence(record.sequence, `${path}.sequence`, out);
+}
+
+/**
+ * CombatEventTrigger 的严格验证，覆盖全部事件 kind。
+ */
+function validateEventTrigger(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === null) return;
+  switch (kind) {
+    case 'damageTagHit':
+      requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);
+      requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
+      break;
+    case 'elementalInflictionApplied':
+      validateElements(record.elements, `${path}.elements`, out);
+      requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
+      break;
+    case 'skillHit':
+      requireString(record, 'skillGroupKey', path, out);
+      requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
+      break;
+    case 'statusExpired':
+    case 'statusConsumed':
+      requireString(record, 'statusKey', path, out);
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      break;
+    default:
+      push(out, `${path}.kind`, 'unknown event trigger kind');
+      break;
+  }
+}
+
+/** SkillActivationRule：连携窗口的开启规则。 */
+function validateActivationRule(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const trigger = asRecord(record.trigger, `${path}.trigger`, out);
+  if (trigger !== null) {
+    const kind = requireString(trigger, 'kind', `${path}.trigger`, out);
+    if (kind === 'damageTagHit') {
+      requireEnum(trigger, 'tag', DAMAGE_TAGS_SET, `${path}.trigger`, out);
+      requireEnum(trigger, 'scope', TRIGGER_SCOPES_SET, `${path}.trigger`, out);
+    } else if (kind === 'elementalInflictionApplied') {
+      validateElements(trigger.elements, `${path}.trigger.elements`, out);
+      requireEnum(trigger, 'scope', TRIGGER_SCOPES_SET, `${path}.trigger`, out);
+    } else if (kind !== null) {
+      push(out, `${path}.trigger.kind`, "expected 'damageTagHit' or 'elementalInflictionApplied'");
+    }
+  }
+  if (record.condition !== undefined) {
+    validateCombatCondition(record.condition, `${path}.condition`, out);
+  }
+}
+
+/** CombatEventHandlerDefinition：事件处理器的完整结构。 */
+function validateEventHandler(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  requireString(record, 'key', path, out);
+  validateEventTrigger(record.event, `${path}.event`, out);
+  if (record.condition !== undefined) {
+    validateCombatCondition(record.condition, `${path}.condition`, out);
+  }
+  if (!Array.isArray(record.scheduledSequences) || record.scheduledSequences.length === 0) {
+    push(out, `${path}.scheduledSequences`, 'expected a non-empty array');
+  } else {
+    record.scheduledSequences.forEach((sequence, index) => {
+      validateScheduledSequence(sequence, `${path}.scheduledSequences[${index}]`, out);
+    });
+  }
+}
+
+/**
+ * 严格验证 SkillDefinition 的结构与取值，返回问题列表（空数组表示通过）。
+ * 调用方传入不可信 unknown；本模块不修改输入，不产生运行时对象。
+ */
+export function validateSkillDefinition(
+  value: unknown,
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  const record = asRecord(value, path, out);
+  if (record === null) return out;
+
+  requireString(record, 'key', path, out);
+  requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
+
+  if (record.blackboard !== undefined) {
+    const blackboard = asRecord(record.blackboard, `${path}.blackboard`, out);
+    if (blackboard !== null) {
+      for (const [key, levelValue] of Object.entries(blackboard)) {
+        validateLevelValues(levelValue, `${path}.blackboard.${key}`, out);
+      }
+    }
+  }
+
+  if (record.availability !== undefined) {
+    validateCombatCondition(record.availability, `${path}.availability`, out);
+  }
+  if (record.cooldownFrames !== undefined) {
+    validateLevelValues(record.cooldownFrames, `${path}.cooldownFrames`, out);
+  }
+  if (record.costs !== undefined) {
+    if (!Array.isArray(record.costs)) {
+      push(out, `${path}.costs`, 'expected an array');
+    } else {
+      record.costs.forEach((cost, index) => {
+        const costRecord = asRecord(cost, `${path}.costs[${index}]`, out);
+        if (costRecord !== null) {
+          requireEnum(costRecord, 'resource', COMBAT_RESOURCES_SET, `${path}.costs[${index}]`, out);
+          validateLevelValues(costRecord.value, `${path}.costs[${index}].value`, out);
+        }
+      });
+    }
+  }
+  if (record.costFrame !== undefined) {
+    requireNonNegativeInteger(record, 'costFrame', path, out);
+  }
+  if (record.scheduledSequences !== undefined) {
+    if (!Array.isArray(record.scheduledSequences)) {
+      push(out, `${path}.scheduledSequences`, 'expected an array');
+    } else {
+      record.scheduledSequences.forEach((sequence, index) => {
+        validateScheduledSequence(sequence, `${path}.scheduledSequences[${index}]`, out);
+      });
+    }
+  } else {
+    push(out, `${path}.scheduledSequences`, 'expected an array');
+  }
+
+  if (record.activationWindow !== undefined) {
+    const window = asRecord(record.activationWindow, `${path}.activationWindow`, out);
+    if (window !== null) {
+      requireNonNegativeInteger(window, 'durationFrames', `${path}.activationWindow`, out);
+      if (window.rules !== undefined) {
+        if (Array.isArray(window.rules)) {
+          if (window.rules.length === 0) {
+            push(out, `${path}.activationWindow.rules`, 'expected a non-empty array');
+          } else {
+            window.rules.forEach((rule, index) => {
+              validateActivationRule(rule, `${path}.activationWindow.rules[${index}]`, out);
+            });
+          }
+        } else {
+          validateActivationRule(window.rules, `${path}.activationWindow.rules`, out);
+        }
+      }
+    }
+  }
+
+  if (record.eventHandlers !== undefined) {
+    if (!Array.isArray(record.eventHandlers)) {
+      push(out, `${path}.eventHandlers`, 'expected an array');
+    } else {
+      record.eventHandlers.forEach((handler, index) => {
+        validateEventHandler(handler, `${path}.eventHandlers[${index}]`, out);
+      });
+    }
+  }
+
+  // 伤害步骤 key：非空 + 同一 SkillDefinition 内全局唯一。
+  // 遍历结果同时携带路径，缺失与重复都能精确定位。
+  const seenKeys = new Map<string, string>();
+  for (const entry of collectDamageStepKeys(record as never)) {
+    if (entry.key.length === 0) {
+      push(out, `${path}.${entry.path}`, 'damage step must have a non-empty key');
+      continue;
+    }
+    const previousPath = seenKeys.get(entry.key);
+    if (previousPath !== undefined) {
+      push(out, `${path}.${entry.path}`, `duplicate damage step key '${entry.key}'`);
+    } else {
+      seenKeys.set(entry.key, `${path}.${entry.path}`);
+    }
+  }
+
+  return out;
+}

@@ -1253,6 +1253,11 @@
     }
   },
   "nextTimeline": {
+    "skillEditing": {
+      "section": "Skill Logic",
+      "diffCount": "{count} differences from the current template",
+      "reset": "Restore Template"
+    },
     "emptyTrack": "No operator",
     "cursorFrame": "Cursor: frame {frame}",
     "simulationPending": "The scenario compiler is not connected yet",

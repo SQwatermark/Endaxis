@@ -232,6 +232,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "globalCooldownApplication",
         "resourceGain",
         "infliction",
+        "physicalInfliction",
         "projectileLaunch",
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
@@ -5135,6 +5136,10 @@ def compile_immediate_projectile_children(
     damage_tags: tuple[str, ...],
     runtime_blackboard_keys: frozenset[str],
     path: str,
+    *,
+    step_key_prefix: str | None = None,
+    source_path: tuple[str, ...] = (),
+    source_order: tuple[int, ...] = (),
 ) -> str | None:
     """编译命中帧同步完成的投射物子技能；延迟、递归与实体生成继续留给调度层。"""
 
@@ -5144,12 +5149,21 @@ def compile_immediate_projectile_children(
 
     ordered_steps: list[tuple[int, str]] = []
     for index, damage in enumerate(hit.directDamageHits):
+        step_key: str | None = None
+        if step_key_prefix is not None:
+            step_key = encode_damage_step_key(
+                step_key_prefix,
+                "conditional",
+                (*source_path, hit.triggerSkillId),
+                (*source_order, damage.actionIndex),
+            )
         compiled = "\n".join(
             compile_damage_units_step(
                 damage.damageUnits,
                 damage_tags,
                 f"{path}.triggeredSkills[0].directDamageHits[{index}]",
                 runtime_blackboard_keys,
+                step_key,
             )
         )
         ordered_steps.append((damage.actionIndex, compiled))
@@ -5178,6 +5192,7 @@ def compile_conditional_branch_action(
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
     context_action: ConditionalActionSource | None = None,
+    step_key_prefix: str | None = None,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if action.actionType in {
@@ -5197,6 +5212,7 @@ def compile_conditional_branch_action(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
             input_target=input_target,
+            step_key_prefix=step_key_prefix,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -5215,6 +5231,7 @@ def compile_conditional_branch_action(
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
             context_action=context_action,
+            step_key_prefix=step_key_prefix,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -5246,17 +5263,29 @@ def compile_conditional_branch_action(
             damage_tags,
             runtime_blackboard_keys,
             path,
+            step_key_prefix=step_key_prefix,
+            source_path=action.actionPath,
+            source_order=(getattr(action, "serverActionIndex", None) or action.actionIndex,),
         )
         if compiled is not None:
             return compiled
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     if getattr(action, "damageUnits", None) is not None:
+        step_key: str | None = None
+        if step_key_prefix is not None:
+            step_key = encode_damage_step_key(
+                step_key_prefix,
+                "conditional",
+                action.actionPath,
+                (getattr(action, "serverActionIndex", None) or action.actionIndex,),
+            )
         return "\n".join(
             compile_damage_units_step(
                 action.damageUnits,
                 damage_tags,
                 path,
                 runtime_blackboard_keys,
+                step_key,
             )
         )
     if getattr(action, "buffBlackboardRead", None) is not None:
@@ -5378,6 +5407,7 @@ def compile_conditional_branch(
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = (),
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
     context_action: ConditionalActionSource | None = None,
+    step_key_prefix: str | None = None,
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5397,6 +5427,7 @@ def compile_conditional_branch(
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
             context_action=context_action,
+            step_key_prefix=step_key_prefix,
         )
         if compiled == "sequence()":
             continue
@@ -5446,6 +5477,7 @@ def compile_conditional_action(
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
+    step_key_prefix: str | None = None,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     if isinstance(action, DoOnceActionSource):
@@ -5461,6 +5493,7 @@ def compile_conditional_action(
             projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
             projected_projectile_launches=action.projectedProjectileLaunches,
             context_action=action,
+            step_key_prefix=step_key_prefix,
         )
         if body == "sequence()":
             return body
@@ -5487,6 +5520,7 @@ def compile_conditional_action(
             projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
             projected_projectile_launches=action.projectedProjectileLaunches,
             context_action=action,
+            step_key_prefix=step_key_prefix,
         )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
@@ -5515,6 +5549,7 @@ def compile_conditional_action(
         projected_ability_entity_spawns=projected_ability_entity_spawns,
         projected_projectile_launches=projected_projectile_launches,
         context_action=action,
+        step_key_prefix=step_key_prefix,
     )
     fail = (
         compile_conditional_branch(
@@ -5529,6 +5564,7 @@ def compile_conditional_action(
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
             context_action=action,
+            step_key_prefix=step_key_prefix,
         )
         if action.failActions
         else None
@@ -6141,11 +6177,17 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             raise ValueError(f"{skill.key}: Poise unit has no value")
         stagger = compact_level_values(require_level_values(poise, f"{skill.key}.stagger"))
         damage_fields.append(f"stagger: {ts_inline_literal(stagger)}")
+    step_key = encode_damage_step_key(
+        skill.key,
+        "direct",
+        (skill.skillId,),
+        (hit.actionIndex,),
+    )
     damage_step = "\n".join(
         [
             "step('dealDamage', {",
             *(f"  {field}," for field in damage_fields),
-            "})",
+            f"}}, {ts_inline_literal(step_key)})",
         ]
     )
     ordered_steps: list[tuple[float, str]] = [(hit.actionIndex, damage_step)]
@@ -6325,8 +6367,18 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         damage_fields.append(
             f"stagger: {ts_inline_literal(compact_level_values(require_level_values(poise, f'{skill.key}.stagger')))}"
         )
+    step_key = encode_damage_step_key(
+        skill.key,
+        "projectile",
+        (skill.skillId, hit.triggerSkillId),
+        (*hit.actionOrder, damage.actionIndex),
+    )
     damage_step = "\n".join(
-        ["step('dealDamage', {", *(f"  {field}," for field in damage_fields), "})"]
+        [
+            "step('dealDamage', {",
+            *(f"  {field}," for field in damage_fields),
+            f"}}, {ts_inline_literal(step_key)})",
+        ]
     )
     ordered_steps: list[tuple[int, str]] = [(damage.actionIndex, damage_step)]
     for action in hit.auxiliaryActions:
@@ -6433,11 +6485,29 @@ def validate_ignored_recursive_projectile_conditions(
         raise ValueError(f"{path}: recursive launch does not target the same projectile event skill")
 
 
+def encode_step_key_parts(parts: tuple[int | str, ...]) -> str:
+    """编码多个字段，并保留字段边界。"""
+    return "".join(f"{len(str(part))}:{part}" for part in parts)
+
+
+def encode_damage_step_key(
+    skill_key: str,
+    source_kind: str,
+    source_path: tuple[str, ...],
+    action_order: tuple[int, ...],
+) -> str:
+    """根据源数据中的命中位置生成稳定的伤害步骤 key。"""
+    return encode_step_key_parts(
+        (skill_key, source_kind, *source_path, "actionOrder", *action_order)
+    )
+
+
 def compile_damage_units_step(
     damage_units: tuple[DamageUnitSource, ...],
     tags: tuple[str, ...],
     path: str,
     runtime_blackboard_keys: frozenset[str] = frozenset(),
+    step_key: str | None = None,
 ) -> list[str]:
     """按原生 DamageUnit 顺序编译生命伤害及独立失衡单元。"""
     hp_units = [unit for unit in damage_units if unit.attributeType == "Hp"]
@@ -6530,6 +6600,12 @@ def compile_damage_units_step(
                 f"{ts_inline_literal(compact_level_values(require_level_values(poise, f'{path}.stagger')))}"
             )
     step_kind = "dealFixedDamage" if hp.calculation == "definiteValue" else "dealDamage"
+    if step_key is not None:
+        return [
+            f"step('{step_kind}', {{",
+            *(f"  {field}," for field in fields),
+            f"}}, {ts_inline_literal(step_key)})",
+        ]
     return [f"step('{step_kind}', {{", *(f"  {field}," for field in fields), "})"]
 
 
@@ -6543,11 +6619,18 @@ def compile_resolved_damage_steps(
 ) -> list[str]:
     """把一个已解析命中编译成同步步骤；收尾效果紧跟最后一次伤害。"""
     tags = tuple(require_list(config.get("tags"), f"{skill.key}.compile.tags"))
+    step_key = encode_damage_step_key(
+        skill.key,
+        hit.sourceKind,
+        hit.sourcePath,
+        hit.actionOrder,
+    )
     result = compile_damage_units_step(
         hit.damageUnits,
         tags,
         f"{skill.key}.resolvedDamageHits[{index}]",
         runtime_blackboard_keys,
+        step_key,
     )
     if is_last_damage and config.get("afterDamage") == "gainFinisherSp":
         result.append("step('gainFinisherSp', { factor: 1, recipient: 'team' })")
@@ -6711,6 +6794,7 @@ def compile_resolved_sequence(
                 skill_has_output_damage=root_skill_has_output_damage_before(
                     schedule, schedule_index, skill.skillId
                 ),
+                step_key_prefix=skill.key,
             )
             if compiled_condition == "sequence()":
                 continue
@@ -7058,6 +7142,7 @@ PANEL_ATTRIBUTE_TYPES = {
     "baseAttack": 2,
     "baseHealth": 1,
 }
+ATTRIBUTE_TYPE_MAP = {value: key for key, value in PANEL_ATTRIBUTE_TYPES.items()}
 PANEL_LEVELS = (1, 20, 40, 60, 80, 90)
 TRUST_BREAK_STAGES = (1, 2, 3, 4)
 DEFAULT_TRUST_ATTRIBUTE_BONUS = {

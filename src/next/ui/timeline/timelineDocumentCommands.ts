@@ -5,14 +5,15 @@
  */
 import type {
   BattleDocument,
-  EditableActionValues,
-  GearInstanceDocument,
   OperatorInstanceDocument,
   ScenarioDocument,
   TrackDocument,
   TrackIndex,
   WeaponInstanceDocument,
+  GearInstanceDocument,
 } from '../../core/project/schema';
+import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
+import { validateSkillDefinition } from '../../core/game-data/validateSkillDefinition';
 
 export type EditableBattleResourceRule = keyof Pick<
   BattleDocument['resourceRules'],
@@ -98,15 +99,6 @@ export function updateTrackInitialUltimateEnergy(
   return { ...scenario, tracks };
 }
 
-export type BasicEditableSkillCastField =
-  | 'durationFrames'
-  | 'cooldownFrames'
-  | 'comboFollowupDelayFrames'
-  | 'triggerWindowFrames'
-  | 'spCost'
-  | 'ultimateEnergyCost';
-
-export type BooleanEditableSkillCastField = 'locked' | 'disabled';
 export type TrackGearSlot = keyof TrackDocument['gears'];
 
 /**
@@ -214,7 +206,7 @@ export function moveSkillCast(
     throw new RangeError('startFrame must be a non-negative integer');
   }
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  if (cast.editable.locked) return scenario;
+  if (cast.presentation?.locked) return scenario;
   if (cast.placement.startFrame === startFrame) return scenario;
 
   const skillCasts = [...track.skillCasts];
@@ -268,7 +260,7 @@ export function moveSkillCasts(
   if (located.length !== skillCastIds.size) {
     throw new Error('selection contains a missing or duplicate skill cast identity');
   }
-  if (located.some(value => value.cast.editable.locked)) return scenario;
+  if (located.some(value => value.cast.presentation?.locked)) return scenario;
 
   const requestedDelta = requestedAnchorStartFrame - anchor.placement.startFrame;
   const minimumStartFrame = Math.min(...located.map(value => value.cast.placement.startFrame));
@@ -304,61 +296,40 @@ export function moveSkillCasts(
   return { ...scenario, tracks };
 }
 
-function requireNonNegativeNumber(value: unknown, field: string, integer: boolean): void {
-  if (
-    typeof value !== 'number' ||
-    !Number.isFinite(value) ||
-    value < 0 ||
-    (integer && !Number.isInteger(value))
-  ) {
-    throw new RangeError(`${field} must be a non-negative ${integer ? 'integer' : 'number'}`);
-  }
-}
-
-/** 更新旧版属性面板“基础属性”区对应的用户接管值。 */
-export function updateSkillCastBasicField<K extends BasicEditableSkillCastField>(
+/** 设置技能块的锁定状态（纯展示，不包含技能逻辑）。 */
+export function setSkillCastLocked(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
   skillCastId: string,
-  field: K,
-  value: EditableActionValues[K],
+  locked: boolean,
 ): ScenarioDocument {
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  requireNonNegativeNumber(value, field, field.endsWith('Frames'));
-
-  const editable = { ...cast.editable, [field]: value };
-  const edited = cast.edited.includes(field) ? cast.edited : [...cast.edited, field];
+  if ((cast.presentation?.locked ?? false) === locked) return scenario;
   const skillCasts = [...track.skillCasts];
-  skillCasts[castIndex] = { ...cast, editable, edited };
+  skillCasts[castIndex] = { ...cast, presentation: { ...cast.presentation, locked } };
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };
 }
 
-/** 更新动作块的编辑状态，并记录该字段已经由用户接管。 */
-export function updateSkillCastBooleanField(
+/** 设置技能块的禁用状态（纯展示，编译时跳过）。 */
+export function setSkillCastDisabled(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
   skillCastId: string,
-  field: BooleanEditableSkillCastField,
-  value: boolean,
+  disabled: boolean,
 ): ScenarioDocument {
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  if (cast.editable[field] === value) return scenario;
-
+  if ((cast.presentation?.disabled ?? false) === disabled) return scenario;
   const skillCasts = [...track.skillCasts];
-  skillCasts[castIndex] = {
-    ...cast,
-    editable: { ...cast.editable, [field]: value },
-    edited: cast.edited.includes(field) ? cast.edited : [...cast.edited, field],
-  };
+  skillCasts[castIndex] = { ...cast, presentation: { ...cast.presentation, disabled } };
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };
 }
 
-/** 设置动作块的用户配色；`null` 表示重新使用技能类型默认色。 */
-export function updateSkillCastColor(
+/** 设置技能块的用户配色；null 表示使用技能类型默认色。 */
+export function setSkillCastColor(
   scenario: ScenarioDocument,
   trackIndex: TrackIndex,
   skillCastId: string,
@@ -366,14 +337,66 @@ export function updateSkillCastColor(
 ): ScenarioDocument {
   if (color !== null && color.length === 0) throw new TypeError('color must not be empty');
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  if ((cast.editable.color ?? null) === color) return scenario;
+  if ((cast.presentation?.color ?? null) === color) return scenario;
+  const skillCasts = [...track.skillCasts];
+  skillCasts[castIndex] = { ...cast, presentation: { ...cast.presentation, color } };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
+/**
+ * 用完整定义替换一次干员技能释放的模板逻辑。
+ * 命令负责最后一道结构校验并复制定义，避免面板绕过项目约束或继续修改已提交状态。
+ */
+export function setSkillCastCustomDefinition(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  definition: SkillDefinition,
+): ScenarioDocument {
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  if (cast.source.kind !== 'operatorSkill') {
+    throw new Error(`skill cast '${skillCastId}' is not based on an operator skill template`);
+  }
+  if (definition.key !== cast.source.skillKey) {
+    throw new Error(
+      `custom definition key '${definition.key}' does not match source skill key '${cast.source.skillKey}'`,
+    );
+  }
+  const issues = validateSkillDefinition(definition, 'customDefinition');
+  if (issues.length > 0) {
+    const first = issues[0]!;
+    throw new TypeError(`invalid custom definition at '${first.path}': ${first.message}`);
+  }
 
   const skillCasts = [...track.skillCasts];
-  skillCasts[castIndex] = {
-    ...cast,
-    editable: { ...cast.editable, color },
-    edited: cast.edited.includes('color') ? cast.edited : [...cast.edited, 'color'],
-  };
+  skillCasts[castIndex] = { ...cast, customDefinition: structuredClone(definition) };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
+/**
+ * 为技能编辑器创建独立草稿。草稿来源可以是当前模板或已有完整覆盖；调用方编辑草稿不会改写
+ * 游戏数据和场景，只有交给 `setSkillCastCustomDefinition` 后才会形成一次项目变更。
+ */
+export function createSkillDefinitionDraft(definition: SkillDefinition): SkillDefinition {
+  return structuredClone(definition);
+}
+
+/** 删除完整自定义定义，使技能块重新使用当前游戏数据中的技能模板。 */
+export function resetSkillCastToTemplate(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+): ScenarioDocument {
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  if (cast.customDefinition === undefined) return scenario;
+
+  const { customDefinition: _removed, ...templateCast } = cast;
+  const skillCasts = [...track.skillCasts];
+  skillCasts[castIndex] = templateCast;
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };

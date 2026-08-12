@@ -35,6 +35,8 @@ from generate_next_operators import (
     compile_conditional_action,
     compile_immediate_projectile_children,
     compile_damage_units_step,
+    encode_damage_step_key,
+    encode_step_key_parts,
     collect_compilable_conditional_action_types,
     AuxiliaryActionSource,
     BlackboardCalculationPayload,
@@ -286,6 +288,30 @@ def aura_action_fixture() -> dict:
             "onlyExecuteWhenSourceIsGuard": False,
         },
     }
+
+
+def extract_step_key(source: str) -> str | None:
+    """从编译产物中提取首个 dealDamage 步骤的 key 参数，供稳定性断言使用。"""
+    marker = "step('dealDamage',"
+    start = source.find(marker)
+    if start < 0:
+        return None
+    opening = source.index("{", start)
+    depth = 0
+    for position in range(opening, len(source)):
+        if source[position] == "{":
+            depth += 1
+        elif source[position] == "}":
+            depth -= 1
+            if depth == 0:
+                closing = position
+                break
+    tail = source[closing + 1 :]
+    key_start = tail.find("'")
+    if key_start < 0:
+        return None
+    key_end = tail.find("'", key_start + 1)
+    return tail[key_start + 1 : key_end]
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
@@ -5775,6 +5801,116 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
         self.assertLess(source.index("branch("), source.index("step('dealDamage'"))
+
+    def test_encode_step_key_parts_uses_length_prefixed_segments(self) -> None:
+        self.assertEqual(encode_step_key_parts(("abc", 12)), "3:abc2:12")
+        self.assertEqual(encode_step_key_parts(()), "")
+        self.assertEqual(encode_step_key_parts((1, 2, 30)), "1:11:22:30")
+
+    def test_encode_step_key_is_stable(self) -> None:
+        first = encode_damage_step_key(
+            "battleSkill", "direct", ("chr_0004_attack",), (7,)
+        )
+        second = encode_damage_step_key(
+            "battleSkill", "direct", ("chr_0004_attack",), (7,)
+        )
+        self.assertEqual(first, second)
+        self.assertTrue(first.startswith("11:battleSkill6:direct"))
+        self.assertNotIn("[", first)
+
+    def test_encode_step_key_never_collides_across_source_identities(self) -> None:
+        keys = {
+            encode_damage_step_key("s", "direct", ("root",), (1,)),
+            encode_damage_step_key("s", "projectile", ("root", "child"), (1, 2)),
+            encode_damage_step_key("s", "abilityEntity", ("root", "entity"), (3, 0)),
+            encode_damage_step_key("s", "abilityEntityInterval", ("root", "entity"), (3, 0)),
+            encode_damage_step_key("s2", "direct", ("root",), (1,)),
+            encode_damage_step_key("s", "direct", ("root",), (2,)),
+        }
+        self.assertEqual(len(keys), 6)
+
+    def test_encode_step_key_distinguishes_path_segment_boundaries(self) -> None:
+        # 路径片段边界不同，生成的 key 也必须不同。
+        a = encode_damage_step_key("s", "conditional", ("hit", "hit"), (1, 2))
+        b = encode_damage_step_key("s", "conditional", ("hith", "it"), (1, 2))
+        self.assertNotEqual(a, b)
+
+    def test_resolved_damage_compiler_uses_native_identity_for_step_keys(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        skill = SimpleNamespace(
+            key="attack",
+            timelineBlockFrames=20,
+            auxiliaryActions=(),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            unresolvedCombatActions=("DamageAction",),
+            skillId="root",
+            directDamageHits=(
+                TimedDamageSource(
+                    startFrame=10,
+                    endFrame=10,
+                    actionIndex=7,
+                    damageUnits=(unit,),
+                ),
+            ),
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(),
+            eventListeners=(),
+        )
+        first = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+        self.assertIn("step('dealDamage'", first)
+        # 插入无关调度项不得改变基于原生 actionOrder 的 key。
+        skill2 = SimpleNamespace(
+            key=skill.key,
+            timelineBlockFrames=skill.timelineBlockFrames,
+            auxiliaryActions=(
+                AuxiliaryActionSource(
+                    startFrame=10,
+                    endFrame=10,
+                    actionIndex=4,
+                    actionType="CreateBuffAction",
+                    sourceId="buff_fixture",
+                    classification=None,
+                    targetSource="Source",
+                    targetGroupKey="",
+                    count=ScalarSource(1, None, None),
+                    buffSource="ActionSource",
+                    inheritSourceSkillCastInfo=True,
+                    blackboardAssignments={},
+                    nestedCombatActions=(),
+                ),
+            ),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            unresolvedCombatActions=("DamageAction", "CreateBuffAction"),
+            skillId=skill.skillId,
+            directDamageHits=skill.directDamageHits,
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(),
+            eventListeners=(),
+        )
+        second = compile_resolved_damage_sequence(skill2, {"tags": ["normalAttack"]})
+        self.assertIn("step('dealDamage'", second)
+        self.assertEqual(extract_step_key(first), extract_step_key(second))
 
     def test_resolved_damage_compiler_interleaves_supported_root_actions(self) -> None:
         unit = DamageUnitSource(

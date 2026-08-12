@@ -3,34 +3,12 @@
  * 加载、导入和迁移结果都必须先通过这里，业务代码不能直接断言外部对象是存档。
  */
 import {
-  EDITABLE_SKILL_CAST_FIELDS,
   PROJECT_FPS,
   PROJECT_KIND,
   PROJECT_SCHEMA_VERSION,
   type EndaxisProjectDocument,
-  type JsonObject,
 } from './schema';
-import {
-  ACTION_VALUE_OPERATIONS,
-  ACTION_VALUE_CALCULATION_OPERATIONS,
-  BUFF_APPLICATION_TARGETS,
-  COMBAT_RESOURCES,
-  COMBAT_CONDITION_KINDS,
-  COMBAT_STEP_KINDS,
-  COMBAT_TARGETS,
-  COMPARISON_OPERATORS,
-  DAMAGE_CALCULATIONS,
-  DAMAGE_TAGS,
-  DAMAGE_ELEMENTS,
-  DAMAGE_TYPES,
-  ELEMENTAL_REACTIONS,
-  INFLICTION_ELEMENTS,
-  OPERATOR_ATTRIBUTES,
-  RESOURCE_RECIPIENTS,
-  SP_GAIN_KINDS,
-  SP_GAIN_SOURCES,
-  STATUS_MODIFIER_KINDS,
-} from '../game-data/operatorDefinition';
+import { DAMAGE_ELEMENTS } from '../game-data/operatorDefinition';
 import {
   validateBattle,
   validateEditor,
@@ -41,776 +19,31 @@ import {
   validateOperatorInstance,
   validateWeaponInstance,
 } from './scenarioValidation';
+import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
+import { collectDamageStepKeys } from '../game-data/collectDamageStepKeys';
 import {
   isObject,
   requireBoolean,
   requireEnum,
   requireFiniteNumber,
-  requireInteger,
   requireNonNegativeInteger,
   requireString,
-  validateEditedFields,
   type ValidationIssue,
 } from './validationHelpers';
 
 export type { ValidationIssue } from './validationHelpers';
 
-const combatStepKinds = new Set<string>(COMBAT_STEP_KINDS);
-const combatResources = new Set<string>(COMBAT_RESOURCES);
-const combatConditionKinds = new Set<string>(COMBAT_CONDITION_KINDS);
-const combatTargets = new Set<string>(COMBAT_TARGETS);
-const buffApplicationTargets = new Set<string>(BUFF_APPLICATION_TARGETS);
-const comparisonOperators = new Set<string>(COMPARISON_OPERATORS);
-const damageCalculations = new Set<string>(DAMAGE_CALCULATIONS);
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
-const inflictionElements = new Set<string>(INFLICTION_ELEMENTS);
-const damageTypes = new Set<string>(DAMAGE_TYPES);
-const damageTags = new Set<string>(DAMAGE_TAGS);
-const elementalReactions = new Set<string>(ELEMENTAL_REACTIONS);
-const operatorAttributes = new Set<string>(OPERATOR_ATTRIBUTES);
-const resourceRecipients = new Set<string>(RESOURCE_RECIPIENTS);
-const spGainKinds = new Set<string>(SP_GAIN_KINDS);
-const spGainSources = new Set<string>(SP_GAIN_SOURCES);
-const statusModifierKinds = new Set<string>(STATUS_MODIFIER_KINDS);
-const gameplayTagQueryTypes = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
-const actionBuffFinishReasons = new Set<string>(['early', 'absorbed', 'other']);
-const actionValueOperations = new Set<string>(ACTION_VALUE_OPERATIONS);
-const actionValueCalculationOperations = new Set<string>(ACTION_VALUE_CALCULATION_OPERATIONS);
-const editableSkillCastFields = new Set<string>(EDITABLE_SKILL_CAST_FIELDS);
-const healthValueTypes = new Set<string>(['current', 'ratio']);
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
 export type ValidationResult =
   { ok: true; value: EndaxisProjectDocument } | { ok: false; issues: ValidationIssue[] };
 
-function validateLevelValues(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (typeof value === 'number') {
-    requireFiniteNumber(value, path, issues);
-    return;
-  }
-  if (!Array.isArray(value) || value.length === 0) {
-    issues.push({ path, message: 'expected a finite number or non-empty level-value array' });
-    return;
-  }
-  value.forEach((entry, index) => requireFiniteNumber(entry, `${path}[${index}]`, issues));
-}
-
-function validateNonEmptyStringArray(
-  value: unknown,
-  path: string,
-  issues: ValidationIssue[],
-): void {
-  if (!Array.isArray(value) || value.length === 0) {
-    issues.push({ path, message: 'expected a non-empty array' });
-    return;
-  }
-  value.forEach((entry, index) => {
-    if (typeof entry !== 'string' || entry.length === 0) {
-      issues.push({ path: `${path}[${index}]`, message: 'expected a non-empty string' });
-    }
-  });
-}
-
-function validateNonEmptyString(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (typeof value !== 'string' || value.length === 0) {
-    issues.push({ path, message: 'expected a non-empty string' });
-  }
-}
-
-function validateCombatCondition(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (!isObject(value)) {
-    issues.push({ path, message: 'expected an object' });
-    return;
-  }
-
-  const kind = requireString(value, 'kind', path, issues);
-  if (kind === null || !combatConditionKinds.has(kind)) {
-    if (kind !== null) issues.push({ path: `${path}.kind`, message: 'unknown condition kind' });
-    return;
-  }
-
-  switch (kind) {
-    case 'combatActive':
-    case 'singleEnemyPresent':
-    case 'casterControlled':
-      break;
-    case 'skillBranchEnabled':
-      requireString(value, 'branchKey', path, issues);
-      break;
-    case 'targetStaggered':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      break;
-    case 'healthCompare':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      requireEnum(value.valueType, healthValueTypes, `${path}.valueType`, issues);
-      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      validateActionValueOperand(value.value, `${path}.value`, issues);
-      break;
-    case 'contextFlagEquals':
-      requireString(value, 'flag', path, issues);
-      if (
-        typeof value.value !== 'boolean' &&
-        typeof value.value !== 'number' &&
-        typeof value.value !== 'string'
-      ) {
-        issues.push({ path: `${path}.value`, message: 'expected a boolean, number, or string' });
-      }
-      break;
-    case 'actionValueCompare':
-      validateActionValueOperand(value.left, `${path}.left`, issues);
-      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      validateActionValueOperand(value.right, `${path}.right`, issues);
-      break;
-    case 'statusActive':
-      requireString(value, 'statusKey', path, issues);
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      if (value.minimumStacks !== undefined) {
-        requireNonNegativeInteger(value.minimumStacks, `${path}.minimumStacks`, issues);
-      }
-      break;
-    case 'buffStackCompare':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      requireEnum(value.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
-      if (!Array.isArray(value.buffTagIds) || value.buffTagIds.length === 0) {
-        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
-      } else {
-        value.buffTagIds.forEach((tagId, index) =>
-          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
-        );
-      }
-      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      validateActionValueOperand(value.value, `${path}.value`, issues);
-      break;
-    case 'entityTagMatch':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      requireEnum(value.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
-      if (!Array.isArray(value.tagIds) || value.tagIds.length === 0) {
-        issues.push({ path: `${path}.tagIds`, message: 'expected a non-empty array' });
-      } else {
-        value.tagIds.forEach((tagId, index) =>
-          requireInteger(tagId, `${path}.tagIds[${index}]`, issues),
-        );
-      }
-      break;
-    case 'buffIdStackCompare':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      validateNonEmptyStringArray(value.buffIds, `${path}.buffIds`, issues);
-      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      if (isObject(value.value)) {
-        validateActionValueOperand(value.value, `${path}.value`, issues);
-      } else {
-        requireFiniteNumber(value.value, `${path}.value`, issues);
-      }
-      break;
-    case 'timedMarkerPresent':
-      requireEnum(value.target, combatTargets, `${path}.target`, issues);
-      validateNonEmptyString(value.markerId, `${path}.markerId`, issues);
-      break;
-    case 'elementalInflictionPresent': {
-      const elements = Array.isArray(value.elements) ? value.elements : [value.elements];
-      elements.forEach((element, index) =>
-        requireEnum(element, damageElements, `${path}.elements[${index}]`, issues),
-      );
-      if (value.minimumStacks !== undefined) {
-        requireNonNegativeInteger(value.minimumStacks, `${path}.minimumStacks`, issues);
-      }
-      break;
-    }
-    case 'elementalReactionActive':
-      requireEnum(value.reaction, elementalReactions, `${path}.reaction`, issues);
-      if (value.minimumLevel !== undefined) {
-        requireNonNegativeInteger(value.minimumLevel, `${path}.minimumLevel`, issues);
-      }
-      break;
-    case 'not':
-      validateCombatCondition(value.condition, `${path}.condition`, issues);
-      break;
-    case 'all':
-    case 'any':
-      if (!Array.isArray(value.conditions) || value.conditions.length === 0) {
-        issues.push({ path: `${path}.conditions`, message: 'expected a non-empty array' });
-      } else {
-        value.conditions.forEach((condition, index) =>
-          validateCombatCondition(condition, `${path}.conditions[${index}]`, issues),
-        );
-      }
-      break;
-    case 'deckAttributeCompare':
-      requireEnum(value.left, operatorAttributes, `${path}.left`, issues);
-      requireEnum(value.operator, comparisonOperators, `${path}.operator`, issues);
-      requireEnum(value.right, operatorAttributes, `${path}.right`, issues);
-      break;
-  }
-}
-
-function validateActionValueOperand(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (!isObject(value)) {
-    issues.push({ path, message: 'expected an object' });
-    return;
-  }
-  const kind = requireString(value, 'kind', path, issues);
-  if (kind === 'blackboard') {
-    requireString(value, 'key', path, issues);
-  } else if (kind === 'constant') {
-    requireFiniteNumber(value.value, `${path}.value`, issues);
-  } else if (kind !== null) {
-    issues.push({ path: `${path}.kind`, message: 'unknown action value operand kind' });
-  }
-}
-
-function validateStatusModifier(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (!isObject(value)) {
-    issues.push({ path, message: 'expected an object' });
-    return;
-  }
-  const kind = requireString(value, 'kind', path, issues);
-  if (kind === null || !statusModifierKinds.has(kind)) {
-    if (kind !== null)
-      issues.push({ path: `${path}.kind`, message: 'unknown status modifier kind' });
-    return;
-  }
-
-  switch (kind) {
-    case 'attackPercent':
-      validateLevelValues(value.value, `${path}.value`, issues);
-      break;
-    case 'susceptibility':
-      if (!Array.isArray(value.damageTypes) || value.damageTypes.length === 0) {
-        issues.push({ path: `${path}.damageTypes`, message: 'expected a non-empty array' });
-      } else {
-        value.damageTypes.forEach((damageType, index) =>
-          requireEnum(damageType, damageTypes, `${path}.damageTypes[${index}]`, issues),
-        );
-      }
-      validateLevelValues(value.value, `${path}.value`, issues);
-      if (value.attributeScaling !== undefined) {
-        if (!isObject(value.attributeScaling)) {
-          issues.push({ path: `${path}.attributeScaling`, message: 'expected an object' });
-        } else {
-          requireEnum(
-            value.attributeScaling.attribute,
-            operatorAttributes,
-            `${path}.attributeScaling.attribute`,
-            issues,
-          );
-          validateLevelValues(
-            value.attributeScaling.coefficient,
-            `${path}.attributeScaling.coefficient`,
-            issues,
-          );
-        }
-      }
-      if (value.cap !== undefined) validateLevelValues(value.cap, `${path}.cap`, issues);
-      break;
-    case 'blockResourceGain':
-    case 'resourceCostMultiplier':
-      requireEnum(value.resource, combatResources, `${path}.resource`, issues);
-      if (kind === 'resourceCostMultiplier') {
-        requireFiniteNumber(value.value, `${path}.value`, issues);
-      }
-      break;
-    case 'skillCooldownMultiplier':
-      requireString(value, 'skillGroupKey', path, issues);
-      requireFiniteNumber(value.value, `${path}.value`, issues);
-      break;
-  }
-}
-
-function validateResourceChangeMetadata(
-  parameters: JsonObject,
-  path: string,
-  issues: ValidationIssue[],
-): void {
-  requireEnum(parameters.resource, combatResources, `${path}.resource`, issues);
-  requireEnum(parameters.recipient, resourceRecipients, `${path}.recipient`, issues);
-  if (parameters.spGainKind !== undefined) {
-    requireEnum(parameters.spGainKind, spGainKinds, `${path}.spGainKind`, issues);
-    if (parameters.resource !== 'sp') {
-      issues.push({
-        path: `${path}.spGainKind`,
-        message: "is only valid when resource is 'sp'",
-      });
-    }
-  }
-  if (parameters.spGainSource !== undefined) {
-    requireEnum(parameters.spGainSource, spGainSources, `${path}.spGainSource`, issues);
-    if (parameters.resource !== 'sp') {
-      issues.push({
-        path: `${path}.spGainSource`,
-        message: "is only valid when resource is 'sp'",
-      });
-    }
-  }
-  for (const field of ['isPercentValue', 'ignoreUltimateEnergyGainMultiplier'] as const) {
-    if (parameters[field] !== undefined) {
-      requireBoolean(parameters[field], `${path}.${field}`, issues);
-      if (parameters.resource !== 'ultimateEnergy') {
-        issues.push({
-          path: `${path}.${field}`,
-          message: "is only valid when resource is 'ultimateEnergy'",
-        });
-      }
-    }
-  }
-  if (parameters.ultimateRecoveryTagId !== undefined) {
-    requireInteger(parameters.ultimateRecoveryTagId, `${path}.ultimateRecoveryTagId`, issues);
-    if (
-      typeof parameters.ultimateRecoveryTagId === 'number' &&
-      (parameters.ultimateRecoveryTagId < -2147483648 ||
-        parameters.ultimateRecoveryTagId > 2147483647)
-    ) {
-      issues.push({
-        path: `${path}.ultimateRecoveryTagId`,
-        message: 'expected signed 32-bit integer',
-      });
-    }
-    if (parameters.resource !== 'ultimateEnergy') {
-      issues.push({
-        path: `${path}.ultimateRecoveryTagId`,
-        message: "is only valid when resource is 'ultimateEnergy'",
-      });
-    }
-  }
-}
-
-function validateCombatStepParameters(
-  kind: string,
-  parameters: JsonObject,
-  path: string,
-  issues: ValidationIssue[],
-): void {
-  const requireTarget = () =>
-    requireEnum(parameters.target, combatTargets, `${path}.target`, issues);
-
-  switch (kind) {
-    case 'applyElementalInfliction':
-      requireEnum(parameters.element, inflictionElements, `${path}.element`, issues);
-      requireBoolean(parameters.isExtra, `${path}.isExtra`, issues);
-      break;
-    case 'applyElementalReaction':
-      requireEnum(parameters.reaction, elementalReactions, `${path}.reaction`, issues);
-      requireTarget();
-      requireFiniteNumber(parameters.durationSeconds, `${path}.durationSeconds`, issues);
-      requireFiniteNumber(parameters.effectiveness, `${path}.effectiveness`, issues);
-      break;
-    case 'consumeElementalReaction':
-      requireEnum(parameters.reaction, elementalReactions, `${path}.reaction`, issues);
-      if (parameters.target !== 'enemy') {
-        issues.push({ path: `${path}.target`, message: "expected 'enemy'" });
-      }
-      break;
-    case 'dealDamage':
-      requireEnum(parameters.damageType, damageTypes, `${path}.damageType`, issues);
-      if (parameters.calculation !== undefined) {
-        requireEnum(parameters.calculation, damageCalculations, `${path}.calculation`, issues);
-      }
-      if (isObject(parameters.attackScale) && !Array.isArray(parameters.attackScale)) {
-        validateActionValueOperand(parameters.attackScale, `${path}.attackScale`, issues);
-      } else {
-        validateLevelValues(parameters.attackScale, `${path}.attackScale`, issues);
-      }
-      if (parameters.calculationMultiplier !== undefined) {
-        validateLevelValues(
-          parameters.calculationMultiplier,
-          `${path}.calculationMultiplier`,
-          issues,
-        );
-        if (parameters.calculation !== 'breakingAttack') {
-          issues.push({
-            path: `${path}.calculationMultiplier`,
-            message: "requires calculation 'breakingAttack'",
-          });
-        }
-      }
-      if (!Array.isArray(parameters.tags)) {
-        issues.push({ path: `${path}.tags`, message: 'expected an array' });
-      } else {
-        parameters.tags.forEach((tag, index) =>
-          requireEnum(tag, damageTags, `${path}.tags[${index}]`, issues),
-        );
-      }
-      if (parameters.stagger !== undefined) {
-        if (isObject(parameters.stagger) && !Array.isArray(parameters.stagger)) {
-          validateActionValueOperand(parameters.stagger, `${path}.stagger`, issues);
-        } else {
-          validateLevelValues(parameters.stagger, `${path}.stagger`, issues);
-        }
-      }
-      if (parameters.attackScalePerStatusStack !== undefined) {
-        if (!isObject(parameters.attackScalePerStatusStack)) {
-          issues.push({
-            path: `${path}.attackScalePerStatusStack`,
-            message: 'expected an object',
-          });
-        } else {
-          requireString(
-            parameters.attackScalePerStatusStack,
-            'statusKey',
-            `${path}.attackScalePerStatusStack`,
-            issues,
-          );
-          requireEnum(
-            parameters.attackScalePerStatusStack.target,
-            combatTargets,
-            `${path}.attackScalePerStatusStack.target`,
-            issues,
-          );
-          validateLevelValues(
-            parameters.attackScalePerStatusStack.coefficient,
-            `${path}.attackScalePerStatusStack.coefficient`,
-            issues,
-          );
-        }
-      }
-      break;
-    case 'dealFixedDamage':
-      requireEnum(parameters.damageType, damageTypes, `${path}.damageType`, issues);
-      if (isObject(parameters.value) && !Array.isArray(parameters.value)) {
-        validateActionValueOperand(parameters.value, `${path}.value`, issues);
-      } else {
-        validateLevelValues(parameters.value, `${path}.value`, issues);
-      }
-      if (!Array.isArray(parameters.tags)) {
-        issues.push({ path: `${path}.tags`, message: 'expected an array' });
-      } else {
-        parameters.tags.forEach((tag, index) =>
-          requireEnum(tag, damageTags, `${path}.tags[${index}]`, issues),
-        );
-      }
-      if (parameters.stagger !== undefined) {
-        if (isObject(parameters.stagger) && !Array.isArray(parameters.stagger)) {
-          validateActionValueOperand(parameters.stagger, `${path}.stagger`, issues);
-        } else {
-          validateLevelValues(parameters.stagger, `${path}.stagger`, issues);
-        }
-      }
-      break;
-    case 'dealStagger':
-      if (isObject(parameters.value) && !Array.isArray(parameters.value)) {
-        validateActionValueOperand(parameters.value, `${path}.value`, issues);
-      } else {
-        validateLevelValues(parameters.value, `${path}.value`, issues);
-      }
-      break;
-    case 'applyBuff':
-      requireString(parameters, 'buffId', path, issues);
-      requireEnum(parameters.target, buffApplicationTargets, `${path}.target`, issues);
-      if (parameters.count !== undefined) {
-        validateActionValueOperand(parameters.count, `${path}.count`, issues);
-      }
-      if (parameters.source !== undefined && !combatTargets.has(String(parameters.source))) {
-        issues.push({
-          path: `${path}.source`,
-          message: `expected one of ${COMBAT_TARGETS.join(', ')}`,
-        });
-      }
-      if (parameters.blackboardAssignments !== undefined) {
-        if (!isObject(parameters.blackboardAssignments)) {
-          issues.push({
-            path: `${path}.blackboardAssignments`,
-            message: 'expected object',
-          });
-        } else {
-          for (const [key, value] of Object.entries(parameters.blackboardAssignments)) {
-            validateActionValueOperand(value, `${path}.blackboardAssignments.${key}`, issues);
-          }
-        }
-      }
-      if (
-        parameters.inheritSourceSkillCastInfo !== undefined &&
-        typeof parameters.inheritSourceSkillCastInfo !== 'boolean'
-      ) {
-        issues.push({
-          path: `${path}.inheritSourceSkillCastInfo`,
-          message: 'expected boolean',
-        });
-      }
-      if (parameters.durationSeconds !== undefined)
-        requireFiniteNumber(parameters.durationSeconds, `${path}.durationSeconds`, issues);
-      if (parameters.effectiveness !== undefined)
-        requireFiniteNumber(parameters.effectiveness, `${path}.effectiveness`, issues);
-      break;
-    case 'readBuffBlackboard':
-      requireTarget();
-      if (!isObject(parameters.query)) {
-        issues.push({ path: `${path}.query`, message: 'expected object' });
-      } else if (parameters.query.kind === 'id') {
-        validateNonEmptyStringArray(parameters.query.buffIds, `${path}.query.buffIds`, issues);
-      } else if (parameters.query.kind === 'tag') {
-        requireEnum(
-          parameters.query.tagQueryType,
-          gameplayTagQueryTypes,
-          `${path}.query.tagQueryType`,
-          issues,
-        );
-        if (
-          !Array.isArray(parameters.query.buffTagIds) ||
-          parameters.query.buffTagIds.length === 0
-        ) {
-          issues.push({ path: `${path}.query.buffTagIds`, message: 'expected a non-empty array' });
-        } else {
-          parameters.query.buffTagIds.forEach((tagId, index) =>
-            requireInteger(tagId, `${path}.query.buffTagIds[${index}]`, issues),
-          );
-        }
-      } else {
-        issues.push({ path: `${path}.query.kind`, message: 'expected id or tag' });
-      }
-      requireString(parameters, 'desiredKey', path, issues);
-      requireString(parameters, 'outputKey', path, issues);
-      break;
-    case 'readBuffStackCount':
-      requireTarget();
-      requireString(parameters, 'outputKey', path, issues);
-      if (!isObject(parameters.query)) {
-        issues.push({ path: `${path}.query`, message: 'expected object' });
-        break;
-      }
-      if (parameters.query.kind === 'id') {
-        validateNonEmptyStringArray(parameters.query.buffIds, `${path}.query.buffIds`, issues);
-      } else if (parameters.query.kind === 'tag') {
-        requireEnum(
-          parameters.query.tagQueryType,
-          gameplayTagQueryTypes,
-          `${path}.query.tagQueryType`,
-          issues,
-        );
-        if (
-          !Array.isArray(parameters.query.buffTagIds) ||
-          parameters.query.buffTagIds.length === 0
-        ) {
-          issues.push({
-            path: `${path}.query.buffTagIds`,
-            message: 'expected a non-empty array',
-          });
-        } else {
-          parameters.query.buffTagIds.forEach((tagId, index) =>
-            requireInteger(tagId, `${path}.query.buffTagIds[${index}]`, issues),
-          );
-        }
-      } else {
-        issues.push({ path: `${path}.query.kind`, message: "expected 'id' or 'tag'" });
-      }
-      break;
-    case 'finishBuffsByTag':
-      requireTarget();
-      requireEnum(parameters.tagQueryType, gameplayTagQueryTypes, `${path}.tagQueryType`, issues);
-      if (!Array.isArray(parameters.buffTagIds) || parameters.buffTagIds.length === 0) {
-        issues.push({ path: `${path}.buffTagIds`, message: 'expected a non-empty array' });
-      } else {
-        parameters.buffTagIds.forEach((tagId, index) =>
-          requireInteger(tagId, `${path}.buffTagIds[${index}]`, issues),
-        );
-      }
-      requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
-      break;
-    case 'finishBuffsById':
-      requireTarget();
-      validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
-      requireEnum(parameters.reason, actionBuffFinishReasons, `${path}.reason`, issues);
-      break;
-    case 'holdBuffsById':
-      if (parameters.target !== 'caster') {
-        issues.push({ path: `${path}.target`, message: "expected 'caster'" });
-      }
-      validateNonEmptyStringArray(parameters.buffIds, `${path}.buffIds`, issues);
-      break;
-    case 'createTimedMarker':
-      requireEnum(parameters.target, combatTargets, `${path}.target`, issues);
-      validateNonEmptyString(parameters.markerId, `${path}.markerId`, issues);
-      validateActionValueOperand(parameters.durationSeconds, `${path}.durationSeconds`, issues);
-      requireBoolean(parameters.autoFinishByAction, `${path}.autoFinishByAction`, issues);
-      break;
-    case 'modifyActionValue':
-      requireString(parameters, 'key', path, issues);
-      requireEnum(parameters.operation, actionValueOperations, `${path}.operation`, issues);
-      validateActionValueOperand(parameters.value, `${path}.value`, issues);
-      break;
-    case 'calculateActionValue':
-      requireString(parameters, 'key', path, issues);
-      requireEnum(
-        parameters.operation,
-        actionValueCalculationOperations,
-        `${path}.operation`,
-        issues,
-      );
-      validateActionValueOperand(parameters.left, `${path}.left`, issues);
-      validateActionValueOperand(parameters.right, `${path}.right`, issues);
-      break;
-    case 'changeResource':
-      validateLevelValues(parameters.amount, `${path}.amount`, issues);
-      if (parameters.coefficient !== undefined) {
-        validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
-      }
-      validateResourceChangeMetadata(parameters, path, issues);
-      break;
-    case 'changeResourceByActionValue':
-      validateActionValueOperand(parameters.amount, `${path}.amount`, issues);
-      if (parameters.coefficient !== undefined) {
-        validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
-      }
-      validateResourceChangeMetadata(parameters, path, issues);
-      break;
-    case 'gainSquadUltimateEnergyFromSkillCost':
-      validateLevelValues(parameters.coefficient, `${path}.coefficient`, issues);
-      break;
-    case 'gainFinisherSp':
-      requireFiniteNumber(parameters.factor, `${path}.factor`, issues);
-      if (parameters.recipient !== 'team') {
-        issues.push({ path: `${path}.recipient`, message: "expected 'team'" });
-      }
-      break;
-    case 'applyStatus':
-      requireString(parameters, 'statusKey', path, issues);
-      requireTarget();
-      if (parameters.durationFrames !== undefined) {
-        validateLevelValues(parameters.durationFrames, `${path}.durationFrames`, issues);
-      }
-      if (parameters.stacks !== undefined) {
-        requireNonNegativeInteger(parameters.stacks, `${path}.stacks`, issues);
-      }
-      if (parameters.maxStacks !== undefined) {
-        requireNonNegativeInteger(parameters.maxStacks, `${path}.maxStacks`, issues);
-      }
-      if (parameters.modifiers !== undefined) {
-        if (!Array.isArray(parameters.modifiers)) {
-          issues.push({ path: `${path}.modifiers`, message: 'expected an array' });
-        } else {
-          parameters.modifiers.forEach((modifier, index) =>
-            validateStatusModifier(modifier, `${path}.modifiers[${index}]`, issues),
-          );
-        }
-      }
-      break;
-    case 'consumeStatus':
-      requireString(parameters, 'statusKey', path, issues);
-      requireTarget();
-      if (parameters.stacks !== undefined) {
-        requireNonNegativeInteger(parameters.stacks, `${path}.stacks`, issues);
-      }
-      break;
-    case 'conditional':
-      validateCombatCondition(parameters.condition, `${path}.condition`, issues);
-      break;
-    case 'once':
-      requireString(parameters, 'scopeKey', path, issues);
-      break;
-    case 'setContextFlag':
-      requireString(parameters, 'flag', path, issues);
-      if (
-        typeof parameters.value !== 'boolean' &&
-        typeof parameters.value !== 'number' &&
-        typeof parameters.value !== 'string'
-      ) {
-        issues.push({ path: `${path}.value`, message: 'expected a boolean, number, or string' });
-      }
-      if (parameters.target !== 'caster') {
-        issues.push({ path: `${path}.target`, message: "expected 'caster'" });
-      }
-      break;
-  }
-}
-
-function collectDamageHitIds(
-  sequence: JsonObject,
-  path: string,
-  damageHitIds: Set<string>,
-  issues: ValidationIssue[],
-): void {
-  if (!Array.isArray(sequence.steps)) {
-    issues.push({ path: `${path}.steps`, message: 'expected an array' });
-    return;
-  }
-
-  sequence.steps.forEach((step, stepIndex) => {
-    const stepPath = `${path}.steps[${stepIndex}]`;
-    if (!isObject(step)) {
-      issues.push({ path: stepPath, message: 'expected an object' });
-      return;
-    }
-    const stepKind = requireString(step, 'kind', stepPath, issues);
-    if (stepKind !== null && !combatStepKinds.has(stepKind)) {
-      issues.push({ path: `${stepPath}.kind`, message: 'unknown combat step kind' });
-    }
-    if (step.sourceStepKey !== undefined) {
-      requireString(step, 'sourceStepKey', stepPath, issues);
-    }
-    if (stepKind === 'dealDamage' || stepKind === 'dealFixedDamage') {
-      const hitId = requireString(step, 'hitId', stepPath, issues);
-      if (hitId !== null && damageHitIds.has(hitId)) {
-        issues.push({
-          path: `${stepPath}.hitId`,
-          message: 'duplicate damage hit id in skill cast',
-        });
-      }
-      if (hitId !== null) damageHitIds.add(hitId);
-    } else if (step.hitId !== undefined) {
-      issues.push({
-        path: `${stepPath}.hitId`,
-        message: 'only damage steps may define a hit id',
-      });
-    }
-    if (!isObject(step.parameters)) {
-      issues.push({ path: `${stepPath}.parameters`, message: 'expected an object' });
-    } else if (stepKind !== null && combatStepKinds.has(stepKind)) {
-      validateCombatStepParameters(stepKind, step.parameters, `${stepPath}.parameters`, issues);
-    }
-    if (!Array.isArray(step.edited)) {
-      issues.push({ path: `${stepPath}.edited`, message: 'expected an array' });
-    }
-    if (stepKind === 'conditional') {
-      if (!isObject(step.whenTrue)) {
-        issues.push({ path: `${stepPath}.whenTrue`, message: 'expected an object' });
-      } else {
-        collectDamageHitIds(step.whenTrue, `${stepPath}.whenTrue`, damageHitIds, issues);
-      }
-      if (step.whenFalse !== undefined) {
-        if (!isObject(step.whenFalse)) {
-          issues.push({ path: `${stepPath}.whenFalse`, message: 'expected an object' });
-        } else {
-          collectDamageHitIds(step.whenFalse, `${stepPath}.whenFalse`, damageHitIds, issues);
-        }
-      }
-      if (step.body !== undefined) {
-        issues.push({ path: `${stepPath}.body`, message: 'only once steps may define a body' });
-      }
-    } else if (stepKind === 'once') {
-      if (!isObject(step.body)) {
-        issues.push({ path: `${stepPath}.body`, message: 'expected an object' });
-      } else {
-        collectDamageHitIds(step.body, `${stepPath}.body`, damageHitIds, issues);
-      }
-      if (step.whenTrue !== undefined || step.whenFalse !== undefined) {
-        issues.push({
-          path: step.whenTrue !== undefined ? `${stepPath}.whenTrue` : `${stepPath}.whenFalse`,
-          message: 'only conditional steps may use branches',
-        });
-      }
-    } else {
-      if (step.onImpact !== undefined) {
-        issues.push({
-          path: `${stepPath}.onImpact`,
-          message: 'combat steps may not use onImpact',
-        });
-      }
-      if (step.whenTrue !== undefined || step.whenFalse !== undefined) {
-        issues.push({
-          path: step.whenTrue !== undefined ? `${stepPath}.whenTrue` : `${stepPath}.whenFalse`,
-          message: 'only conditional steps may use branches',
-        });
-      }
-      if (step.body !== undefined) {
-        issues.push({ path: `${stepPath}.body`, message: 'only once steps may define a body' });
-      }
-    }
-  });
-}
-
 function validateSkillCast(
   value: unknown,
   path: string,
   skillCastIds: Set<string>,
-  damageHitIdsByCast: Map<string, Set<string>>,
+  customDamageStepKeys: Map<string, ReadonlySet<string>>,
   issues: ValidationIssue[],
 ): void {
   if (!isObject(value)) {
@@ -854,114 +87,93 @@ function validateSkillCast(
     requireNonNegativeInteger(value.placement.startFrame, `${path}.placement.startFrame`, issues);
   }
 
-  if (!isObject(value.editable)) {
-    issues.push({ path: `${path}.editable`, message: 'expected an object' });
-    return;
-  }
-
-  requireNonNegativeInteger(
-    value.editable.durationFrames,
-    `${path}.editable.durationFrames`,
-    issues,
-  );
-  for (const field of [
-    'cooldownFrames',
-    'comboFollowupDelayFrames',
-    'triggerWindowFrames',
-    'spCost',
-    'ultimateEnergyCost',
-  ]) {
-    if (value.editable[field] !== undefined) {
-      requireNonNegativeInteger(value.editable[field], `${path}.editable.${field}`, issues);
+  if (value.presentation !== undefined) {
+    if (!isObject(value.presentation)) {
+      issues.push({ path: `${path}.presentation`, message: 'expected an object' });
+    } else {
+      if (value.presentation.locked !== undefined) {
+        requireBoolean(value.presentation.locked, `${path}.presentation.locked`, issues);
+      }
+      if (value.presentation.disabled !== undefined) {
+        requireBoolean(value.presentation.disabled, `${path}.presentation.disabled`, issues);
+      }
+      if (value.presentation.linked !== undefined) {
+        requireBoolean(value.presentation.linked, `${path}.presentation.linked`, issues);
+      }
+      if (
+        value.presentation.color !== undefined &&
+        value.presentation.color !== null &&
+        typeof value.presentation.color !== 'string'
+      ) {
+        issues.push({ path: `${path}.presentation.color`, message: 'expected a string or null' });
+      }
+      if (value.presentation.customBars !== undefined) {
+        const barsPath = `${path}.presentation.customBars`;
+        if (!Array.isArray(value.presentation.customBars)) {
+          issues.push({ path: barsPath, message: 'expected an array' });
+        } else {
+          const barIds = new Set<string>();
+          value.presentation.customBars.forEach((bar, index) => {
+            const barPath = `${barsPath}[${index}]`;
+            if (!isObject(bar)) {
+              issues.push({ path: barPath, message: 'expected an object' });
+              return;
+            }
+            const barId = requireString(bar, 'id', barPath, issues);
+            if (barId !== null) {
+              if (barIds.has(barId)) {
+                issues.push({ path: `${barPath}.id`, message: 'duplicate custom bar id' });
+              }
+              barIds.add(barId);
+            }
+            requireString(bar, 'text', barPath, issues);
+            requireNonNegativeInteger(bar.offsetFrames, `${barPath}.offsetFrames`, issues);
+            requireNonNegativeInteger(bar.durationFrames, `${barPath}.durationFrames`, issues);
+            if (bar.color !== undefined && typeof bar.color !== 'string') {
+              issues.push({ path: `${barPath}.color`, message: 'expected a string' });
+            }
+          });
+        }
+      }
     }
   }
-  requireBoolean(value.editable.locked, `${path}.editable.locked`, issues);
-  requireBoolean(value.editable.disabled, `${path}.editable.disabled`, issues);
-  if (value.editable.linked !== undefined) {
-    requireBoolean(value.editable.linked, `${path}.editable.linked`, issues);
-  }
-  if (
-    value.editable.color !== undefined &&
-    value.editable.color !== null &&
-    typeof value.editable.color !== 'string'
-  ) {
-    issues.push({ path: `${path}.editable.color`, message: 'expected a string or null' });
-  }
-  if (!Array.isArray(value.editable.scheduledSequences)) {
-    issues.push({ path: `${path}.editable.scheduledSequences`, message: 'expected an array' });
-    return;
-  }
 
-  const damageHitIds = new Set<string>();
-  if (id !== null) damageHitIdsByCast.set(id, damageHitIds);
-  const scheduledSequenceIds = new Set<string>();
-  value.editable.scheduledSequences.forEach((scheduledSequence, sequenceIndex) => {
-    const sequencePath = `${path}.editable.scheduledSequences[${sequenceIndex}]`;
-    if (!isObject(scheduledSequence)) {
-      issues.push({ path: sequencePath, message: 'expected an object' });
-      return;
+  if (value.customDefinition !== undefined) {
+    const defPath = `${path}.customDefinition`;
+    if (!isObject(value.customDefinition)) {
+      issues.push({ path: defPath, message: 'expected an object' });
+    } else {
+      const def = value.customDefinition as Record<string, unknown>;
+      if (isObject(value.source) && value.source.kind === 'operatorSkill') {
+        const sourceSkillKey = (value.source as Record<string, unknown>).skillKey;
+        if (typeof sourceSkillKey === 'string' && def.key !== sourceSkillKey) {
+          issues.push({
+            path: `${defPath}.key`,
+            message: `custom definition key must match source skill key '${sourceSkillKey}'`,
+          });
+        }
+      }
+      const sdIssues = validateSkillDefinition(value.customDefinition, defPath);
+      for (const sd of sdIssues) issues.push(sd);
+      if (id !== null) {
+        customDamageStepKeys.set(
+          id,
+          new Set(
+            collectDamageStepKeys(value.customDefinition)
+              .map(entry => entry.key)
+              .filter(key => key.length > 0),
+          ),
+        );
+      }
     }
-    const sequenceId = requireString(scheduledSequence, 'id', sequencePath, issues);
-    if (sequenceId !== null) {
-      if (scheduledSequenceIds.has(sequenceId)) {
-        issues.push({ path: `${sequencePath}.id`, message: 'duplicate scheduled sequence id' });
-      }
-      scheduledSequenceIds.add(sequenceId);
-    }
-    requireNonNegativeInteger(scheduledSequence.startFrame, `${sequencePath}.startFrame`, issues);
-    if (!isObject(scheduledSequence.sequence)) {
-      issues.push({ path: `${sequencePath}.sequence`, message: 'expected an object' });
-      return;
-    }
-    collectDamageHitIds(
-      scheduledSequence.sequence,
-      `${sequencePath}.sequence`,
-      damageHitIds,
-      issues,
-    );
-    const allowedSequenceEdits = new Set(['startFrame', 'sequence']);
-    validateEditedFields(
-      scheduledSequence.edited,
-      allowedSequenceEdits,
-      `${sequencePath}.edited`,
-      issues,
-    );
-  });
-
-  if (!Array.isArray(value.editable.customBars)) {
-    issues.push({ path: `${path}.editable.customBars`, message: 'expected an array' });
-  } else {
-    const customBarIds = new Set<string>();
-    value.editable.customBars.forEach((bar, index) => {
-      const barPath = `${path}.editable.customBars[${index}]`;
-      if (!isObject(bar)) {
-        issues.push({ path: barPath, message: 'expected an object' });
-        return;
-      }
-      const barId = requireString(bar, 'id', barPath, issues);
-      if (barId !== null && customBarIds.has(barId)) {
-        issues.push({ path: `${barPath}.id`, message: 'duplicate custom bar id' });
-      }
-      if (barId !== null) customBarIds.add(barId);
-      if (typeof bar.text !== 'string') {
-        issues.push({ path: `${barPath}.text`, message: 'expected a string' });
-      }
-      requireInteger(bar.offsetFrames, `${barPath}.offsetFrames`, issues);
-      requireNonNegativeInteger(bar.durationFrames, `${barPath}.durationFrames`, issues);
-      if (bar.color !== undefined && typeof bar.color !== 'string') {
-        issues.push({ path: `${barPath}.color`, message: 'expected a string' });
-      }
-    });
   }
-
-  validateEditedFields(value.edited, editableSkillCastFields, `${path}.edited`, issues);
 }
 
 function validateEndpoint(
   value: unknown,
   path: string,
   skillCastIds: Set<string>,
-  damageHitIdsByCast: Map<string, Set<string>>,
+  customDamageStepKeys: ReadonlyMap<string, ReadonlySet<string>>,
   issues: ValidationIssue[],
 ): void {
   if (!isObject(value)) {
@@ -973,16 +185,10 @@ function validateEndpoint(
     issues.push({ path: `${path}.skillCastId`, message: 'unknown skill cast reference' });
   }
   if (value.kind === 'damageHit') {
-    const hitId = requireString(value, 'hitId', path, issues);
-    if (
-      skillCastId !== null &&
-      hitId !== null &&
-      !damageHitIdsByCast.get(skillCastId)?.has(hitId)
-    ) {
-      issues.push({
-        path: `${path}.hitId`,
-        message: 'unknown damage hit reference',
-      });
+    const stepKey = requireString(value, 'stepKey', path, issues);
+    const knownKeys = skillCastId === null ? undefined : customDamageStepKeys.get(skillCastId);
+    if (stepKey !== null && knownKeys !== undefined && !knownKeys.has(stepKey)) {
+      issues.push({ path: `${path}.stepKey`, message: 'unknown damage step key reference' });
     }
   } else if (value.kind !== 'skillCast') {
     issues.push({ path: `${path}.kind`, message: "expected 'skillCast' or 'damageHit'" });
@@ -1064,7 +270,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
       }
 
       const skillCastIds = new Set<string>();
-      const damageHitIdsByCast = new Map<string, Set<string>>();
+      const customDamageStepKeys = new Map<string, ReadonlySet<string>>();
       const trackIds = new Set<string>();
       scenario.tracks.forEach((track, trackIndex) => {
         if (track === null) return;
@@ -1145,7 +351,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
             skillCast,
             `${trackPath}.skillCasts[${skillCastIndex}]`,
             skillCastIds,
-            damageHitIdsByCast,
+            customDamageStepKeys,
             issues,
           ),
         );
@@ -1171,14 +377,14 @@ export function validateProjectDocument(value: unknown): ValidationResult {
             connection.from,
             `${connectionPath}.from`,
             skillCastIds,
-            damageHitIdsByCast,
+            customDamageStepKeys,
             issues,
           );
           validateEndpoint(
             connection.to,
             `${connectionPath}.to`,
             skillCastIds,
-            damageHitIdsByCast,
+            customDamageStepKeys,
             issues,
           );
         });

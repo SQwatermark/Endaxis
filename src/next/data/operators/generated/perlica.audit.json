@@ -239,6 +239,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 5,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -536,6 +546,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -691,6 +711,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1093,6 +1123,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1265,6 +1305,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1437,6 +1487,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1942,6 +2002,16 @@
                 {
                   "actionType": "ObtainCostAction",
                   "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[2]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 6,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3451,6 +3521,16 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 4,
                   "blackboardMutation": {
                     "key": "EntityBB_bounced",
                     "operation": "Assign",
@@ -3464,6 +3544,16 @@
                 {
                   "actionType": "LaunchProjectile",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 6,
                   "projectileLaunch": {
                     "projectileId": "projectile_chr_0004_pelica_combo_skill",
                     "skillTriggers": [
@@ -3700,6 +3790,16 @@
                             {
                               "actionType": "ModifyDynamicBlackboard",
                               "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 4,
                               "blackboardMutation": {
                                 "key": "EntityBB_bounced",
                                 "operation": "Assign",
@@ -3713,6 +3813,16 @@
                             {
                               "actionType": "LaunchProjectile",
                               "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 6,
                               "projectileLaunch": {
                                 "projectileId": "projectile_chr_0004_pelica_combo_skill",
                                 "skillTriggers": [

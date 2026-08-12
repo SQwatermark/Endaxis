@@ -45,16 +45,17 @@ describe('placeSkillGroup', () => {
 
     expect(original.tracks[0]!.skillCasts).toEqual([]);
     expect(casts).toHaveLength(4);
+    const basicAttack = perlica.skillGroups.find(group => group.key === 'basicAttack')!;
+    const skills = Array.isArray(basicAttack.skills) ? basicAttack.skills : [basicAttack.skills];
     expect(casts.map(cast => cast.placement.startFrame)).toEqual([
       30,
-      30 + casts[0]!.editable.durationFrames,
-      30 + casts[0]!.editable.durationFrames + casts[1]!.editable.durationFrames,
+      30 + skills[0]!.timelineBlockFrames,
+      30 + skills[0]!.timelineBlockFrames + skills[1]!.timelineBlockFrames,
       30 +
-        casts[0]!.editable.durationFrames +
-        casts[1]!.editable.durationFrames +
-        casts[2]!.editable.durationFrames,
+        skills[0]!.timelineBlockFrames +
+        skills[1]!.timelineBlockFrames +
+        skills[2]!.timelineBlockFrames,
     ]);
-    expect(casts.every(cast => cast.edited.length === 0)).toBe(true);
     expect(casts[0]?.source).toEqual({
       kind: 'operatorSkill',
       skillGroupKey: 'basicAttack',
@@ -73,9 +74,15 @@ describe('placeSkillGroup', () => {
     });
     const cast = result.scenario.tracks[0]!.skillCasts[0]!;
 
-    expect(cast.editable.spCost).toBeGreaterThan(0);
-    expect(cast.editable.scheduledSequences.length).toBeGreaterThan(0);
-    expect(cast.edited).toEqual([]);
+    const battleSkill = perlica.skillGroups.find(group => group.key === 'battleSkill')!;
+    const skill = Array.isArray(battleSkill.skills) ? battleSkill.skills[0] : battleSkill.skills;
+    expect(skill?.costs?.length ?? 0).toBeGreaterThan(0);
+    expect(skill?.scheduledSequences.length ?? 0).toBeGreaterThan(0);
+    expect(cast.source).toEqual({
+      kind: 'operatorSkill',
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill',
+    });
   });
 
   it('places one selected segment of a skill chain', () => {

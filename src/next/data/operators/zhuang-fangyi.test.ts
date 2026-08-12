@@ -9,6 +9,12 @@ import { zhuangFangyi } from './zhuang-fangyi';
 
 const getSkill = (key: string) => findSkill(zhuangFangyi, key);
 
+function withoutStepKey<T extends { readonly key?: string }>(step: T | undefined) {
+  if (step === undefined) return undefined;
+  const { key: _key, ...semanticStep } = step;
+  return semanticStep;
+}
+
 describe('next Zhuang Fangyi definition', () => {
   it('uses per-hit second-attack scales instead of the separate display total', () => {
     const damageSteps = generatedBasicAttack2.scheduledSequences.flatMap(item =>
@@ -58,10 +64,16 @@ describe('next Zhuang Fangyi definition', () => {
     const generatedDamage = generatedBasicAttack4.scheduledSequences.map(item =>
       collectSteps(item.sequence).find(step => step.kind === 'dealDamage'),
     );
-    expect(generatedDamage).toEqual(generatedDamage.map(() => generatedDamage[0]));
-    expect(generatedDamage[0]).toEqual(
-      collectSteps(current.scheduledSequences[0]!.sequence).find(
-        step => step.kind === 'dealDamage',
+    expect(generatedDamage.map(withoutStepKey)).toEqual(
+      generatedDamage.map(() => withoutStepKey(generatedDamage[0])),
+    );
+    expect(generatedDamage.map(step => step?.key).filter(Boolean)).toHaveLength(4);
+    expect(new Set(generatedDamage.map(step => step?.key))).toHaveProperty('size', 4);
+    expect(withoutStepKey(generatedDamage[0])).toEqual(
+      withoutStepKey(
+        collectSteps(current.scheduledSequences[0]!.sequence).find(
+          step => step.kind === 'dealDamage',
+        ),
       ),
     );
   });
@@ -73,7 +85,7 @@ describe('next Zhuang Fangyi definition', () => {
       collectSteps(item.sequence),
     );
     const currentSteps = current.scheduledSequences.flatMap(item => collectSteps(item.sequence));
-    expect(generatedSteps[0]).toEqual(currentSteps[0]);
+    expect(withoutStepKey(generatedSteps[0])).toEqual(withoutStepKey(currentSteps[0]));
     expect(generatedSteps[1]).toMatchObject({
       kind: 'changeResourceByActionValue',
       parameters: {

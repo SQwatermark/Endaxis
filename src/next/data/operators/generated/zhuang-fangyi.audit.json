@@ -701,6 +701,13 @@
             {
               "actionType": "CreateTimedMarker",
               "actionIndex": 9,
+              "actionPath": [
+                "timelineActions[1]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 9,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -751,6 +758,16 @@
             {
               "actionType": "DamageAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 20,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -772,6 +789,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 22,
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
@@ -811,6 +838,19 @@
                   {
                     "actionType": "ObtainCostAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[5]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 24,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -843,6 +883,16 @@
             {
               "actionType": "DamageAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 25,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -864,6 +914,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 27,
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
@@ -903,6 +963,19 @@
                   {
                     "actionType": "ObtainCostAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[5]",
+                      "failActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 29,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -968,6 +1041,16 @@
             {
               "actionType": "ObtainCostAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[8]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 41,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -2351,6 +2434,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 6,
               "blackboardMutation": {
                 "key": "sword_dist",
                 "operation": "Add",
@@ -2366,6 +2459,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 8,
               "blackboardMutation": {
                 "key": "sword_dist",
                 "operation": "Assign",
@@ -2440,6 +2543,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 17,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -2452,6 +2565,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 20,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -2814,6 +2937,19 @@
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 14,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -2846,6 +2982,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 20,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -2861,6 +3010,19 @@
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 23,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -2893,6 +3055,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 29,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -3536,6 +3711,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 6,
               "blackboardMutation": {
                 "key": "sword_dist",
                 "operation": "Add",
@@ -3551,6 +3736,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 8,
               "blackboardMutation": {
                 "key": "sword_dist",
                 "operation": "Assign",
@@ -4399,6 +4594,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 10,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -4411,6 +4616,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 13,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -4555,6 +4770,19 @@
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 14,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4587,6 +4815,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 20,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -4602,6 +4843,19 @@
                 {
                   "actionType": "DamageAction",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 23,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -4634,6 +4888,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 29,
                   "blackboardMutation": {
                     "key": "thunderPosIndex",
                     "operation": "Add",
@@ -5092,6 +5359,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 8,
               "nestedCondition": {
                 "startFrame": 20,
                 "endFrame": 23,
@@ -5157,6 +5434,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 10,
                     "nestedCondition": {
                       "startFrame": 20,
                       "endFrame": 23,
@@ -5225,6 +5515,22 @@
                         {
                           "actionType": "SpawnAbilityEntity",
                           "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 14,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -5237,6 +5543,22 @@
                         {
                           "actionType": "SpawnAbilityEntity",
                           "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 17,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -5260,6 +5582,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 20,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -5283,6 +5618,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 23,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -6041,6 +6386,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 13,
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
@@ -6106,6 +6461,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 15,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -6125,6 +6493,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 16,
                     "blackboardMutation": {
                       "key": "target_in_range",
                       "operation": "Assign",
@@ -6140,6 +6521,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 17,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -6181,6 +6575,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 18,
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
@@ -6212,6 +6616,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 20,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -6233,6 +6650,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 21,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -6252,6 +6682,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 22,
                     "blackboardMutation": {
                       "key": "target_in_range",
                       "operation": "Assign",
@@ -6334,6 +6777,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 25,
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
@@ -6369,6 +6822,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 27,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -6390,6 +6856,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 28,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -6431,6 +6910,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 29,
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
@@ -6462,6 +6951,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 31,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -6483,6 +6985,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 32,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -6571,6 +7086,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 35,
               "nestedCondition": {
                 "startFrame": 14,
                 "endFrame": 15,
@@ -6606,6 +7131,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 37,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -6627,6 +7165,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 38,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -6668,6 +7219,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 39,
               "nestedCondition": {
                 "startFrame": 14,
                 "endFrame": 15,
@@ -6699,6 +7260,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 41,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -6720,6 +7294,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 42,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -6808,6 +7395,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 45,
               "nestedCondition": {
                 "startFrame": 15,
                 "endFrame": 16,
@@ -6843,6 +7440,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 47,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -6864,6 +7474,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 48,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -6905,6 +7528,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 49,
               "nestedCondition": {
                 "startFrame": 15,
                 "endFrame": 16,
@@ -6936,6 +7569,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 51,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -6957,6 +7603,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 52,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -7684,6 +8343,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 12,
               "nestedCondition": {
                 "startFrame": 10,
                 "endFrame": 11,
@@ -7749,6 +8418,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 14,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -7768,6 +8450,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 15,
                     "blackboardMutation": {
                       "key": "target_in_range",
                       "operation": "Assign",
@@ -7783,6 +8478,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 16,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -7824,6 +8532,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 17,
               "nestedCondition": {
                 "startFrame": 10,
                 "endFrame": 11,
@@ -7855,6 +8573,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 19,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -7876,6 +8607,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 20,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -7895,6 +8639,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 21,
                     "blackboardMutation": {
                       "key": "target_in_range",
                       "operation": "Assign",
@@ -7977,6 +8734,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 24,
               "nestedCondition": {
                 "startFrame": 11,
                 "endFrame": 12,
@@ -8012,6 +8779,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 26,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -8033,6 +8813,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 27,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -8074,6 +8867,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
               "nestedCondition": {
                 "startFrame": 11,
                 "endFrame": 12,
@@ -8105,6 +8908,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 30,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -8126,6 +8942,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 31,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -8214,6 +9043,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 34,
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
@@ -8249,6 +9088,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 36,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -8270,6 +9122,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 37,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -8311,6 +9176,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 38,
               "nestedCondition": {
                 "startFrame": 12,
                 "endFrame": 13,
@@ -8342,6 +9217,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 40,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -8363,6 +9251,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[7]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 41,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -8451,6 +9352,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 44,
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
@@ -8486,6 +9397,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 46,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -8507,6 +9431,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 47,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -8548,6 +9485,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 48,
               "nestedCondition": {
                 "startFrame": 13,
                 "endFrame": 14,
@@ -8579,6 +9526,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 50,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -8600,6 +9560,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 51,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -9310,6 +10283,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 13,
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
@@ -9375,6 +10358,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 15,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -9387,6 +10383,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 16,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -9410,6 +10419,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 17,
               "nestedCondition": {
                 "startFrame": 3,
                 "endFrame": 6,
@@ -9441,6 +10460,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 19,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -9453,6 +10485,19 @@
                   {
                     "actionType": "SpawnAbilityEntity",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 20,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -10430,6 +11475,16 @@
             {
               "actionType": "FinishBuffAdvanced",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 41,
               "buffFinish": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -10481,6 +11536,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 44,
               "buffApplication": {
                 "buffs": [
                   {
@@ -10504,6 +11569,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 45,
               "nestedCondition": {
                 "startFrame": 6,
                 "endFrame": 7,
@@ -10549,6 +11624,19 @@
                   {
                     "actionType": "GetTargetBuffBBAdvanced",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 47,
                     "buffBlackboardRead": {
                       "outputKey": "conductCnt",
                       "desiredKey": "count",
@@ -10565,6 +11653,19 @@
                   {
                     "actionType": "FinishBuffAdvanced",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 48,
                     "buffFinish": {
                       "targetSource": "Context",
                       "targetGroupKey": "smart_target",
@@ -10583,6 +11684,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 49,
                     "blackboardMutation": {
                       "key": "sword_gene_num",
                       "operation": "Add",
@@ -10596,6 +11710,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 3,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]"
+                    ],
+                    "serverActionIndex": 50,
                     "blackboardMutation": {
                       "key": "sword_gene_num",
                       "operation": "Add",
@@ -10609,6 +11736,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 4,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[4]"
+                    ],
+                    "serverActionIndex": 51,
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
@@ -10661,6 +11801,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[13]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[4]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 53,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Assign",
@@ -10690,6 +11846,19 @@
                   {
                     "actionType": "ObtainCostAction",
                     "actionIndex": 5,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[5]"
+                    ],
+                    "serverActionIndex": 54,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -10727,6 +11896,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 6,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[6]"
+                    ],
+                    "serverActionIndex": 55,
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
@@ -10775,6 +11957,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[13]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 57,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Add",
@@ -10792,6 +11990,19 @@
                   {
                     "actionType": "LaunchProjectile",
                     "actionIndex": 8,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[8]"
+                    ],
+                    "serverActionIndex": 59,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -10839,9 +12050,7 @@
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": [
-                                    0.0
-                                  ]
+                                  "levelValues": null
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -10868,6 +12077,16 @@
                               {
                                 "actionType": "IfElseAction",
                                 "actionIndex": 2,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "serverActionIndex": 6,
                                 "nestedCondition": {
                                   "startFrame": 0,
                                   "endFrame": 1,
@@ -10913,6 +12132,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 8,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -10942,6 +12174,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 9,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -10999,6 +12244,16 @@
                               {
                                 "actionType": "IfElseAction",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 10,
                                 "nestedCondition": {
                                   "startFrame": 0,
                                   "endFrame": 1,
@@ -11044,6 +12299,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 12,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11073,6 +12341,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 13,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11241,6 +12522,19 @@
                   {
                     "actionType": "CreateBuffAction",
                     "actionIndex": 10,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[10]"
+                    ],
+                    "serverActionIndex": 61,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -11266,6 +12560,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 62,
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
@@ -11317,6 +12624,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[13]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 64,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Add",
@@ -11334,6 +12657,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 65,
                     "nestedCondition": {
                       "startFrame": 6,
                       "endFrame": 7,
@@ -11382,6 +12718,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[13]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 67,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Add",
@@ -11399,6 +12751,19 @@
                   {
                     "actionType": "LaunchProjectile",
                     "actionIndex": 3,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "failActions",
+                      "actionData",
+                      "[3]"
+                    ],
+                    "serverActionIndex": 69,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -11446,9 +12811,7 @@
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": [
-                                    0.0
-                                  ]
+                                  "levelValues": null
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -11475,6 +12838,16 @@
                               {
                                 "actionType": "IfElseAction",
                                 "actionIndex": 2,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "serverActionIndex": 6,
                                 "nestedCondition": {
                                   "startFrame": 0,
                                   "endFrame": 1,
@@ -11520,6 +12893,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 8,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11549,6 +12935,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 9,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11606,6 +13005,16 @@
                               {
                                 "actionType": "IfElseAction",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 10,
                                 "nestedCondition": {
                                   "startFrame": 0,
                                   "endFrame": 1,
@@ -11651,6 +13060,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 12,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11680,6 +13102,19 @@
                                     {
                                       "actionType": "SpawnAbilityEntity",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 13,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -11848,6 +13283,19 @@
                   {
                     "actionType": "CreateBuffAction",
                     "actionIndex": 5,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "failActions",
+                      "actionData",
+                      "[5]"
+                    ],
+                    "serverActionIndex": 71,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -11876,6 +13324,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 72,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -11917,6 +13375,16 @@
             {
               "actionType": "SimpleCalcBBAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 75,
               "blackboardCalculation": {
                 "key": "swordTriggerInterval",
                 "operation": "Divide",
@@ -11935,6 +13403,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 76,
               "blackboardMutation": {
                 "key": "swordTriggerInterval",
                 "operation": "Multiply",
@@ -11948,6 +13426,16 @@
             {
               "actionType": "SimpleCalcBBAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 77,
               "blackboardCalculation": {
                 "key": "swordTriggerInterval",
                 "operation": "Add",
@@ -11966,6 +13454,16 @@
             {
               "actionType": "SimpleCalcBBAction",
               "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 78,
               "blackboardCalculation": {
                 "key": "atk_up_final",
                 "operation": "Multiply",
@@ -11997,6 +13495,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 79,
               "buffApplication": {
                 "buffs": [
                   {
@@ -12163,6 +13671,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 85,
               "buffApplication": {
                 "buffs": [
                   {
@@ -12188,6 +13706,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 86,
               "nestedCondition": {
                 "startFrame": 6,
                 "endFrame": 7,
@@ -12224,6 +13752,19 @@
                   {
                     "actionType": "CreateBuffAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[16]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 88,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -12664,6 +14205,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 32,
               "buffApplication": {
                 "buffs": [
                   {
@@ -12687,6 +14238,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 33,
               "nestedCondition": {
                 "startFrame": 5,
                 "endFrame": 6,
@@ -12732,6 +14293,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 35,
                     "nestedCondition": {
                       "startFrame": 5,
                       "endFrame": 6,
@@ -12780,6 +14354,22 @@
                         {
                           "actionType": "LaunchProjectile",
                           "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "serverActionIndex": 38,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -12829,9 +14419,7 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": [
-                                          0.0
-                                        ]
+                                        "levelValues": null
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -12858,6 +14446,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 2,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]"
+                                      ],
+                                      "serverActionIndex": 6,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -12903,6 +14501,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 8,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -12932,6 +14543,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 9,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -12989,6 +14613,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 10,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -13034,6 +14668,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 12,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13063,6 +14710,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 13,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13233,6 +14893,22 @@
                         {
                           "actionType": "FinishBuffAdvanced",
                           "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 40,
                           "buffFinish": {
                             "targetSource": "Source",
                             "targetGroupKey": "",
@@ -13253,6 +14929,22 @@
                         {
                           "actionType": "LaunchProjectile",
                           "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "serverActionIndex": 42,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -13302,9 +14994,7 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": [
-                                          0.0
-                                        ]
+                                        "levelValues": null
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -13331,6 +15021,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 2,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]"
+                                      ],
+                                      "serverActionIndex": 6,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -13376,6 +15076,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 8,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13405,6 +15118,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 9,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13462,6 +15188,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 10,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -13507,6 +15243,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 12,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13536,6 +15285,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 13,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -13706,6 +15468,22 @@
                         {
                           "actionType": "FinishBuffAdvanced",
                           "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 44,
                           "buffFinish": {
                             "targetSource": "Source",
                             "targetGroupKey": "",
@@ -13729,6 +15507,19 @@
                   {
                     "actionType": "IfElseAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[9]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 45,
                     "nestedCondition": {
                       "startFrame": 5,
                       "endFrame": 6,
@@ -13777,6 +15568,22 @@
                         {
                           "actionType": "GetTargetBuffBBAdvanced",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 47,
                           "buffBlackboardRead": {
                             "outputKey": "conductCnt",
                             "desiredKey": "count",
@@ -13793,6 +15600,22 @@
                         {
                           "actionType": "FinishBuffAdvanced",
                           "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "serverActionIndex": 48,
                           "buffFinish": {
                             "targetSource": "Context",
                             "targetGroupKey": "smart_target",
@@ -13811,6 +15634,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 49,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Add",
@@ -13824,6 +15663,22 @@
                         {
                           "actionType": "ModifyDynamicBlackboard",
                           "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 50,
                           "blackboardMutation": {
                             "key": "sword_gene_num",
                             "operation": "Add",
@@ -13837,6 +15692,22 @@
                         {
                           "actionType": "IfElseAction",
                           "actionIndex": 4,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[4]"
+                          ],
+                          "serverActionIndex": 51,
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
@@ -13892,6 +15763,25 @@
                               {
                                 "actionType": "ModifyDynamicBlackboard",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[9]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[1]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[4]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 53,
                                 "blackboardMutation": {
                                   "key": "sword_gene_num",
                                   "operation": "Assign",
@@ -13921,6 +15811,22 @@
                         {
                           "actionType": "ObtainCostAction",
                           "actionIndex": 5,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[5]"
+                          ],
+                          "serverActionIndex": 54,
                           "resourceGain": {
                             "resource": "sp",
                             "amount": {
@@ -13958,6 +15864,22 @@
                         {
                           "actionType": "IfElseAction",
                           "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 55,
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
@@ -14009,6 +15931,25 @@
                               {
                                 "actionType": "ModifyDynamicBlackboard",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[9]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[1]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[6]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 57,
                                 "blackboardMutation": {
                                   "key": "sword_gene_num",
                                   "operation": "Add",
@@ -14026,6 +15967,22 @@
                         {
                           "actionType": "LaunchProjectile",
                           "actionIndex": 8,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[8]"
+                          ],
+                          "serverActionIndex": 59,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -14075,9 +16032,7 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": [
-                                          0.0
-                                        ]
+                                        "levelValues": null
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -14104,6 +16059,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 2,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]"
+                                      ],
+                                      "serverActionIndex": 6,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -14149,6 +16114,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 8,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14178,6 +16156,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 9,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14235,6 +16226,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 10,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -14280,6 +16281,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 12,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14309,6 +16323,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 13,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14479,6 +16506,22 @@
                         {
                           "actionType": "CreateBuffAction",
                           "actionIndex": 10,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[10]"
+                          ],
+                          "serverActionIndex": 61,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -14504,6 +16547,22 @@
                         {
                           "actionType": "IfElseAction",
                           "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 62,
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
@@ -14558,6 +16617,25 @@
                               {
                                 "actionType": "ModifyDynamicBlackboard",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[9]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[1]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 64,
                                 "blackboardMutation": {
                                   "key": "sword_gene_num",
                                   "operation": "Add",
@@ -14575,6 +16653,22 @@
                         {
                           "actionType": "IfElseAction",
                           "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "serverActionIndex": 65,
                           "nestedCondition": {
                             "startFrame": 5,
                             "endFrame": 6,
@@ -14626,6 +16720,25 @@
                               {
                                 "actionType": "ModifyDynamicBlackboard",
                                 "actionIndex": 0,
+                                "actionPath": [
+                                  "timelineActions[9]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[1]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "failActions",
+                                  "actionData",
+                                  "[1]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "serverActionIndex": 67,
                                 "blackboardMutation": {
                                   "key": "sword_gene_num",
                                   "operation": "Add",
@@ -14643,6 +16756,22 @@
                         {
                           "actionType": "LaunchProjectile",
                           "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 69,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -14692,9 +16821,7 @@
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": [
-                                          0.0
-                                        ]
+                                        "levelValues": null
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -14721,6 +16848,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 2,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[2]"
+                                      ],
+                                      "serverActionIndex": 6,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -14766,6 +16903,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 8,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14795,6 +16945,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 9,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14852,6 +17015,16 @@
                                     {
                                       "actionType": "IfElseAction",
                                       "actionIndex": 0,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "serverActionIndex": 10,
                                       "nestedCondition": {
                                         "startFrame": 0,
                                         "endFrame": 1,
@@ -14897,6 +17070,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 12,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -14926,6 +17112,19 @@
                                           {
                                             "actionType": "SpawnAbilityEntity",
                                             "actionIndex": 0,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]"
+                                            ],
+                                            "serverActionIndex": 13,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -15096,6 +17295,22 @@
                         {
                           "actionType": "CreateBuffAction",
                           "actionIndex": 5,
+                          "actionPath": [
+                            "timelineActions[9]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[5]"
+                          ],
+                          "serverActionIndex": 71,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -15127,6 +17342,16 @@
             {
               "actionType": "SpawnAbilityEntity",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 72,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -15160,6 +17385,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 75,
               "buffApplication": {
                 "buffs": [
                   {
@@ -15185,6 +17420,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 76,
               "nestedCondition": {
                 "startFrame": 5,
                 "endFrame": 6,
@@ -15221,6 +17466,19 @@
                   {
                     "actionType": "CreateBuffAction",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[10]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 78,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -15376,9 +17634,7 @@
                   "attackScale": {
                     "value": 0.0,
                     "blackboardKey": "atk_scale_final",
-                    "levelValues": [
-                      0.0
-                    ]
+                    "levelValues": null
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
@@ -15441,9 +17697,7 @@
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "tick_index",
-                    "levelValues": [
-                      1.0
-                    ]
+                    "levelValues": null
                   },
                   "right": {
                     "value": 0.0,
@@ -15457,6 +17711,19 @@
                 {
                   "actionType": "CreateBuffAction",
                   "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 13,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -15480,6 +17747,19 @@
                 {
                   "actionType": "IfElseAction",
                   "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 15,
                   "nestedCondition": {
                     "startFrame": 12,
                     "endFrame": 64,
@@ -15504,9 +17784,7 @@
                         "left": {
                           "value": 0.0,
                           "blackboardKey": "tick_index",
-                          "levelValues": [
-                            1.0
-                          ]
+                          "levelValues": null
                         },
                         "right": {
                           "value": 1.0,
@@ -15520,6 +17798,22 @@
                       {
                         "actionType": "DamageAction",
                         "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[5]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "actionOnTick",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 17,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -15528,9 +17822,7 @@
                             "attackScale": {
                               "value": 0.0,
                               "blackboardKey": "atk_scale_final",
-                              "levelValues": [
-                                0.0
-                              ]
+                              "levelValues": null
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
@@ -15543,6 +17835,22 @@
                       {
                         "actionType": "DamageAction",
                         "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[5]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "actionOnTick",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 19,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -15551,9 +17859,7 @@
                             "attackScale": {
                               "value": 0.0,
                               "blackboardKey": "atk_scale_final",
-                              "levelValues": [
-                                0.0
-                              ]
+                              "levelValues": null
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
@@ -15578,6 +17884,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 21,
                   "blackboardMutation": {
                     "key": "tick_index",
                     "operation": "Add",
@@ -15623,9 +17942,7 @@
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "sword_index",
-                    "levelValues": [
-                      0.0
-                    ]
+                    "levelValues": null
                   },
                   "right": {
                     "value": 0.0,
@@ -15639,6 +17956,19 @@
                 {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 45,
                   "blackboardMutation": {
                     "key": "sword_index",
                     "operation": "Add",
@@ -15678,6 +18008,13 @@
                 {
                   "actionType": "CreateTimedMarker",
                   "actionIndex": 60,
+                  "actionPath": [
+                    "timelineActions[13]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 60,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -15829,9 +18166,7 @@
               "left": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale_final",
-                "levelValues": [
-                  0.0
-                ]
+                "levelValues": null
               },
               "right": {
                 "value": 18.0,
@@ -15884,9 +18219,7 @@
               "attackScale": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale_final",
-                "levelValues": [
-                  0.0
-                ]
+                "levelValues": null
               },
               "calculationMultiplier": null,
               "poiseValue": null,
@@ -16836,6 +19169,16 @@
             {
               "actionType": "SaveBuffStackNumAdvanced",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 39,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -16853,6 +19196,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 40,
               "blackboardMutation": {
                 "key": "conductCnt",
                 "operation": "Assign",
@@ -16866,6 +19219,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 41,
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
@@ -16911,6 +19274,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[11]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 43,
                     "blackboardMutation": {
                       "key": "conductCnt",
                       "operation": "Add",
@@ -16928,6 +19304,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 44,
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
@@ -16963,6 +19349,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[11]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 46,
                     "blackboardMutation": {
                       "key": "conductCnt",
                       "operation": "Assign",
@@ -16980,6 +19379,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 47,
               "buffApplication": {
                 "buffs": [
                   {
@@ -17042,6 +19451,16 @@
             {
               "actionType": "ObtainCostAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[6]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 56,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -17079,6 +19498,16 @@
             {
               "actionType": "SimpleCalcBBAction",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[6]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 57,
               "blackboardCalculation": {
                 "key": "usp_extra",
                 "operation": "Multiply",
@@ -17110,6 +19539,16 @@
             {
               "actionType": "ObtainCostAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[6]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 58,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -17561,6 +20000,16 @@
             {
               "actionType": "SaveBuffStackNumAdvanced",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 41,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -17578,6 +20027,16 @@
             {
               "actionType": "ModifyDynamicBlackboard",
               "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 42,
               "blackboardMutation": {
                 "key": "conductCnt",
                 "operation": "Assign",
@@ -17591,6 +20050,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 43,
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
@@ -17636,6 +20105,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 45,
                     "blackboardMutation": {
                       "key": "conductCnt",
                       "operation": "Add",
@@ -17653,6 +20135,16 @@
             {
               "actionType": "IfElseAction",
               "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 46,
               "nestedCondition": {
                 "startFrame": 24,
                 "endFrame": 27,
@@ -17688,6 +20180,19 @@
                   {
                     "actionType": "ModifyDynamicBlackboard",
                     "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[13]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 48,
                     "blackboardMutation": {
                       "key": "conductCnt",
                       "operation": "Assign",
@@ -17705,6 +20210,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[13]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 49,
               "buffApplication": {
                 "buffs": [
                   {
@@ -18113,6 +20628,16 @@
             {
               "actionType": "CreateBuffAction",
               "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 8,
               "buffApplication": {
                 "buffs": [
                   {

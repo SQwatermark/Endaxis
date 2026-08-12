@@ -3,8 +3,6 @@
  * 剪贴板属于编辑器临时状态；粘贴会为动作、调度、命中、展示条和内部连线重新分配 ID。
  */
 import type {
-  ActionSequenceDocument,
-  CombatStepDocument,
   ConnectionDocument,
   ConnectionEndpoint,
   ScenarioDocument,
@@ -65,56 +63,13 @@ export function copyTimelineActions(
   };
 }
 
-function cloneSequence(
-  sequence: ActionSequenceDocument,
-  sourceCastId: string,
-  ids: TimelineDocumentIdAllocator,
-  hitIds: Map<string, string>,
-): ActionSequenceDocument {
-  return {
-    steps: sequence.steps.map(step => cloneStep(step, sourceCastId, ids, hitIds)),
-  };
-}
-
-function cloneStep(
-  step: CombatStepDocument,
-  sourceCastId: string,
-  ids: TimelineDocumentIdAllocator,
-  hitIds: Map<string, string>,
-): CombatStepDocument {
-  if (step.kind === 'conditional') {
-    return {
-      ...cloneValue(step),
-      whenTrue: cloneSequence(step.whenTrue, sourceCastId, ids, hitIds),
-      ...(step.whenFalse === undefined
-        ? {}
-        : { whenFalse: cloneSequence(step.whenFalse, sourceCastId, ids, hitIds) }),
-    };
-  }
-  if (step.kind === 'once') {
-    return {
-      ...cloneValue(step),
-      body: cloneSequence(step.body, sourceCastId, ids, hitIds),
-    };
-  }
-  if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
-    const hitId = ids.allocate('hit');
-    hitIds.set(`${sourceCastId}\0${step.hitId}`, hitId);
-    return { ...cloneValue(step), hitId };
-  }
-  return cloneValue(step);
-}
-
 function remapEndpoint(
   endpoint: ConnectionEndpoint,
   castIds: ReadonlyMap<string, string>,
-  hitIds: ReadonlyMap<string, string>,
 ): ConnectionEndpoint | null {
   const skillCastId = castIds.get(endpoint.skillCastId);
   if (skillCastId === undefined) return null;
-  if (endpoint.kind === 'skillCast') return { ...endpoint, skillCastId };
-  const hitId = hitIds.get(`${endpoint.skillCastId}\0${endpoint.hitId}`);
-  return hitId === undefined ? null : { ...endpoint, skillCastId, hitId };
+  return { ...endpoint, skillCastId };
 }
 
 export function pasteTimelineActions(
@@ -129,7 +84,6 @@ export function pasteTimelineActions(
   if (clipboard.casts.length === 0) return { scenario, skillCastIds: [] };
 
   const castIds = new Map<string, string>();
-  const hitIds = new Map<string, string>();
   for (const entry of clipboard.casts) {
     castIds.set(entry.cast.id, ids.allocate('skillCast'));
   }
@@ -140,22 +94,12 @@ export function pasteTimelineActions(
     const track = tracks[entry.trackIndex];
     if (track === null) throw new Error(`track ${entry.trackIndex} is empty`);
     const skillCastId = castIds.get(entry.cast.id)!;
-    const scheduledSequences = entry.cast.editable.scheduledSequences.map(sequence => ({
-      ...cloneValue(sequence),
-      id: ids.allocate('scheduledSequence'),
-      sequence: cloneSequence(sequence.sequence, entry.cast.id, ids, hitIds),
-    }));
-    const customBars = entry.cast.editable.customBars.map(bar => ({
-      ...cloneValue(bar),
-      id: ids.allocate('customBar'),
-    }));
     const cast: SkillCastDocument = {
       ...cloneValue(entry.cast),
       id: skillCastId,
       placement: {
         startFrame: startFrame + entry.cast.placement.startFrame - clipboard.originFrame,
       },
-      editable: { ...cloneValue(entry.cast.editable), scheduledSequences, customBars },
     };
     tracks[entry.trackIndex] = { ...track, skillCasts: [...track.skillCasts, cast] };
     createdIds.push(skillCastId);
@@ -163,8 +107,8 @@ export function pasteTimelineActions(
 
   const connections = [...scenario.connections];
   for (const connection of clipboard.connections) {
-    const from = remapEndpoint(connection.from, castIds, hitIds);
-    const to = remapEndpoint(connection.to, castIds, hitIds);
+    const from = remapEndpoint(connection.from, castIds);
+    const to = remapEndpoint(connection.to, castIds);
     if (from === null || to === null) continue;
     connections.push({ ...connection, id: ids.allocate('connection'), from, to });
   }

@@ -277,15 +277,17 @@ describe('V2 project document', () => {
         skillKey: 'battleSkill',
       },
       placement: { startFrame: 30 },
-      editable: {
-        durationFrames: 30,
+      presentation: {
         locked: false,
         disabled: false,
+        customBars: [],
+      },
+      customDefinition: {
+        key: 'battleSkill',
+        timelineBlockFrames: 30,
         scheduledSequences: [
           {
-            id: 'timeline:1',
             startFrame: 8,
-            edited: [],
             sequence: {
               steps: [
                 {
@@ -294,7 +296,6 @@ describe('V2 project document', () => {
                     buffId: 'electric-infliction',
                     target: 'party',
                   },
-                  edited: [],
                 },
                 {
                   kind: 'calculateActionValue',
@@ -304,18 +305,16 @@ describe('V2 project document', () => {
                     left: { kind: 'blackboard', key: 'base' },
                     right: { kind: 'constant', value: 1.5 },
                   },
-                  edited: [],
                 },
                 {
                   kind: 'dealDamage',
-                  hitId: 'hit:1',
+                  key: 'hit:1',
                   parameters: {
                     damageType: 'electric',
                     attackScale: 1.78,
                     tags: ['normalSkill'],
                     stagger: 10,
                   },
-                  edited: [],
                 },
                 {
                   kind: 'conditional',
@@ -327,13 +326,11 @@ describe('V2 project document', () => {
                       right: 'will',
                     },
                   },
-                  edited: [],
                   whenTrue: {
                     steps: [
                       {
                         kind: 'setContextFlag',
                         parameters: { flag: 'operatorForm', value: 'intellect', target: 'caster' },
-                        edited: [],
                       },
                     ],
                   },
@@ -342,15 +339,13 @@ describe('V2 project document', () => {
             },
           },
         ],
-        customBars: [],
       },
-      edited: [],
     });
     scenario.tracks[0] = track;
     scenario.connections.push({
       id: 'connection:hit',
       consumption: false,
-      from: { kind: 'damageHit', skillCastId: 'cast:1', hitId: 'hit:1' },
+      from: { kind: 'damageHit', skillCastId: 'cast:1', stepKey: 'hit:1' },
       to: { kind: 'skillCast', skillCastId: 'cast:1' },
     });
 
@@ -359,8 +354,8 @@ describe('V2 project document', () => {
     expect(parsed.ok).toBe(true);
     if (parsed.ok) {
       const sequence =
-        parsed.value.scenarios[0]!.tracks[0]!.skillCasts[0]!.editable.scheduledSequences[0]!
-          .sequence.steps;
+        parsed.value.scenarios[0]!.tracks[0]!.skillCasts[0]!.customDefinition!
+          .scheduledSequences[0]!.sequence.steps;
       expect(sequence.map(step => step.kind)).toEqual([
         'applyBuff',
         'calculateActionValue',
@@ -375,7 +370,7 @@ describe('V2 project document', () => {
       expect(parsed.value.scenarios[0]?.connections[0]?.from).toEqual({
         kind: 'damageHit',
         skillCastId: 'cast:1',
-        hitId: 'hit:1',
+        stepKey: 'hit:1',
       });
       expect(JSON.stringify(sequence)).not.toContain('beforeDamage');
       expect(JSON.stringify(sequence)).not.toContain('afterDamage');
@@ -383,8 +378,8 @@ describe('V2 project document', () => {
 
     const fixedDamage = JSON.parse(serializeProjectDocument(project));
     const fixedDamageStep =
-      fixedDamage.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence
-        .steps[2];
+      fixedDamage.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0]
+        .sequence.steps[2];
     fixedDamageStep.kind = 'dealFixedDamage';
     fixedDamageStep.parameters = {
       damageType: 'physical',
@@ -394,7 +389,7 @@ describe('V2 project document', () => {
     expect(validateProjectDocument(fixedDamage).ok).toBe(true);
 
     const invalidKind = JSON.parse(serializeProjectDocument(project));
-    invalidKind.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[0].kind =
+    invalidKind.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[0].kind =
       'unknownStep';
     const invalidKindResult = parseProjectDocument(invalidKind);
     expect(invalidKindResult.ok).toBe(false);
@@ -405,7 +400,7 @@ describe('V2 project document', () => {
     }
 
     const mismatchedParameters = JSON.parse(serializeProjectDocument(project));
-    mismatchedParameters.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters =
+    mismatchedParameters.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[2].parameters =
       { buffId: 'not-damage-parameters', target: 'enemy' };
     const mismatchedResult = parseProjectDocument(mismatchedParameters);
     expect(mismatchedResult.ok).toBe(false);
@@ -416,19 +411,19 @@ describe('V2 project document', () => {
     }
 
     const invalidStagger = JSON.parse(serializeProjectDocument(project));
-    invalidStagger.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
-      { kind: 'dealStagger', parameters: { value: 'invalid' }, edited: [] },
+    invalidStagger.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps.push(
+      { kind: 'dealStagger', parameters: { value: 'invalid' } },
     );
-    const invalidStaggerResult = parseProjectDocument(invalidStagger);
+    const invalidStaggerResult = validateProjectDocument(invalidStagger);
     expect(invalidStaggerResult.ok).toBe(false);
-    if (!invalidStaggerResult.ok && invalidStaggerResult.kind === 'invalid-document') {
+    if (!invalidStaggerResult.ok) {
       expect(invalidStaggerResult.issues).toContainEqual(
         expect.objectContaining({ path: expect.stringContaining('.parameters.value') }),
       );
     }
 
     const invalidDamageTag = JSON.parse(serializeProjectDocument(project));
-    invalidDamageTag.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[2].parameters.tags =
+    invalidDamageTag.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[2].parameters.tags =
       ['unknownDamageTag'];
     const invalidDamageTagResult = validateProjectDocument(invalidDamageTag);
     expect(invalidDamageTagResult.ok).toBe(false);
@@ -439,7 +434,7 @@ describe('V2 project document', () => {
     }
 
     const invalidCondition = JSON.parse(serializeProjectDocument(project));
-    invalidCondition.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[3].parameters.condition.operator =
+    invalidCondition.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[3].parameters.condition.operator =
       'approximately';
     const invalidConditionResult = validateProjectDocument(invalidCondition);
     expect(invalidConditionResult.ok).toBe(false);
@@ -450,7 +445,7 @@ describe('V2 project document', () => {
     }
 
     const invalidHealthCondition = JSON.parse(serializeProjectDocument(project));
-    invalidHealthCondition.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[3].parameters.condition =
+    invalidHealthCondition.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[3].parameters.condition =
       {
         kind: 'healthCompare',
         target: 'enemy',
@@ -467,7 +462,7 @@ describe('V2 project document', () => {
     }
 
     const invalidCalculation = JSON.parse(serializeProjectDocument(project));
-    invalidCalculation.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps[1].parameters.operation =
+    invalidCalculation.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps[1].parameters.operation =
       'floor';
     const invalidCalculationResult = validateProjectDocument(invalidCalculation);
     expect(invalidCalculationResult.ok).toBe(false);
@@ -478,7 +473,7 @@ describe('V2 project document', () => {
     }
 
     const invalidResourceSource = JSON.parse(serializeProjectDocument(project));
-    invalidResourceSource.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
+    invalidResourceSource.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps.push(
       {
         kind: 'changeResource',
         parameters: {
@@ -487,7 +482,6 @@ describe('V2 project document', () => {
           recipient: 'caster',
           spGainSource: 'normalAttack',
         },
-        edited: [],
       },
     );
     const invalidResourceSourceResult = validateProjectDocument(invalidResourceSource);
@@ -499,7 +493,7 @@ describe('V2 project document', () => {
     }
 
     const invalidUltimateOption = JSON.parse(serializeProjectDocument(project));
-    invalidUltimateOption.scenarios[0].tracks[0].skillCasts[0].editable.scheduledSequences[0].sequence.steps.push(
+    invalidUltimateOption.scenarios[0].tracks[0].skillCasts[0].customDefinition.scheduledSequences[0].sequence.steps.push(
       {
         kind: 'changeResource',
         parameters: {
@@ -508,7 +502,6 @@ describe('V2 project document', () => {
           recipient: 'team',
           ultimateRecoveryTagId: 264623624,
         },
-        edited: [],
       },
     );
     const invalidUltimateOptionResult = validateProjectDocument(invalidUltimateOption);
@@ -522,14 +515,74 @@ describe('V2 project document', () => {
     }
 
     const invalidHitReference = JSON.parse(serializeProjectDocument(project));
-    invalidHitReference.scenarios[0].connections[0].from.hitId = 'missing:hit';
+    invalidHitReference.scenarios[0].connections[0].from.stepKey = 'missing:hit';
     const invalidHitReferenceResult = validateProjectDocument(invalidHitReference);
     expect(invalidHitReferenceResult.ok).toBe(false);
     if (!invalidHitReferenceResult.ok) {
       expect(invalidHitReferenceResult.issues).toContainEqual({
-        path: '$.scenarios[0].connections[0].from.hitId',
-        message: 'unknown damage hit reference',
+        path: '$.scenarios[0].connections[0].from.stepKey',
+        message: 'unknown damage step key reference',
       });
+    }
+  });
+
+  it('accepts partial presentation fields and validates custom display bars', () => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'fixture',
+    });
+    const scenario = project.scenarios[0]!;
+    const track = createTrack();
+    track.skillCasts.push({
+      id: 'cast:presentation',
+      source: {
+        kind: 'operatorSkill',
+        skillGroupKey: 'battleSkill',
+        skillKey: 'battleSkill',
+      },
+      placement: { startFrame: 0 },
+      presentation: {
+        locked: true,
+        customBars: [
+          {
+            id: 'bar:1',
+            text: '测试条',
+            offsetFrames: 0,
+            durationFrames: 30,
+          },
+        ],
+      },
+    });
+    scenario.tracks[0] = track;
+
+    expect(validateProjectDocument(project).ok).toBe(true);
+
+    const malformed = structuredClone(project) as unknown as {
+      scenarios: {
+        tracks: ({ skillCasts: { presentation: { customBars: unknown[] } }[] } | null)[];
+      }[];
+    };
+    malformed.scenarios[0]!.tracks[0]!.skillCasts[0]!.presentation.customBars.push({
+      id: 'bar:1',
+      text: '',
+      offsetFrames: -1,
+      durationFrames: 1.5,
+    });
+    const result = validateProjectDocument(malformed);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({ message: 'duplicate custom bar id' }),
+      );
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.text') }),
+      );
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.offsetFrames') }),
+      );
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({ path: expect.stringContaining('.durationFrames') }),
+      );
     }
   });
 

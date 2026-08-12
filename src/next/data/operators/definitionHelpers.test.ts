@@ -27,6 +27,7 @@ describe('operator definition helpers', () => {
     expect(segment.scheduledSequences.map(item => item.sequence.steps[0])).toEqual([
       {
         kind: 'dealDamage',
+        key: 'basicAttack1.hit.1',
         parameters: {
           damageType: 'nature',
           attackScale: [0.1, 0.2],
@@ -35,6 +36,7 @@ describe('operator definition helpers', () => {
       },
       {
         kind: 'dealDamage',
+        key: 'basicAttack1.hit.2',
         parameters: {
           damageType: 'nature',
           attackScale: [0.1, 0.2],
@@ -56,6 +58,7 @@ describe('operator definition helpers', () => {
     expect(segment.scheduledSequences[1]?.sequence.steps).toEqual([
       {
         kind: 'dealDamage',
+        key: 'basicAttack4.hit.2',
         parameters: {
           damageType: 'electric',
           attackScale: 0.5,

@@ -3,12 +3,7 @@
  * 存档包含用户编辑内容以及编辑器版本元数据；
  * 通过计算得到的面板数据、模拟状态、投影结果一概不保存
  */
-import type {
-  CombatStepKind,
-  CombatStepParameters,
-  DamageElement,
-  SkillType,
-} from '../game-data/operatorDefinition';
+import type { DamageElement, SkillDefinition, SkillType } from '../game-data/operatorDefinition';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
 export const PROJECT_SCHEMA_VERSION = 1 as const;
@@ -70,59 +65,6 @@ export interface CustomActionDefinition {
 /** 时间轴技能释放所引用的定义或自定义行为来源。 */
 export type SkillCastSource = DefinitionActionSource | CustomActionDefinition;
 
-export const EDITABLE_SKILL_CAST_FIELDS = [
-  'durationFrames',
-  'cooldownFrames',
-  'comboFollowupDelayFrames',
-  'triggerWindowFrames',
-  'spCost',
-  'ultimateEnergyCost',
-  'linked',
-  'locked',
-  'disabled',
-  'color',
-  'scheduledSequences',
-  'customBars',
-] as const;
-/** 技能释放中允许用户覆盖默认值的字段。 */
-export type EditableSkillCastField = (typeof EDITABLE_SKILL_CAST_FIELDS)[number];
-
-type CombatStepDocumentForKind<K extends CombatStepKind> = {
-  kind: K;
-  parameters: CombatStepParameters[K];
-  /** 仅对支持定点覆盖的定义步骤保留定义键。 */
-  sourceStepKey?: string;
-  /** 用户显式修改过的参数键。 */
-  edited: Extract<keyof CombatStepParameters[K], string>[];
-} & (K extends 'dealDamage' | 'dealFixedDamage' ? { hitId: string } : {}) &
-  (K extends 'conditional'
-    ? { whenTrue: ActionSequenceDocument; whenFalse?: ActionSequenceDocument }
-    : K extends 'once'
-      ? { body: ActionSequenceDocument }
-      : {});
-
-/** 规范化战斗操作，其 `kind` 决定负载结构。 */
-export type CombatStepDocument = {
-  [K in CombatStepKind]: CombatStepDocumentForKind<K>;
-}[CombatStepKind];
-
-/** 子操作严格按照此顺序同步执行。 */
-export interface ActionSequenceDocument {
-  steps: CombatStepDocument[];
-}
-
-/**
- * 相对于所属技能释放时刻的一段调度序列。点事件的起止帧相同；
- * 每个调度项只在 `startFrame` 到达时执行一次。
- */
-export interface ScheduledSequenceDocument {
-  id: string;
-  sourceSequenceKey?: string;
-  startFrame: number;
-  sequence: ActionSequenceDocument;
-  edited: ('startFrame' | 'sequence')[];
-}
-
 /** 用户添加在技能块上的辅助展示条。 */
 export interface EditableBarDocument {
   id: string;
@@ -132,35 +74,25 @@ export interface EditableBarDocument {
   color?: string;
 }
 
-/**
- * 编辑器暴露的完整取值。即使数值仍等于定义默认值也会持久化，
- * `edited` 只标记哪些值被用户手动改过。
- */
-export interface EditableActionValues {
-  durationFrames: number;
-  cooldownFrames?: number;
-  comboFollowupDelayFrames?: number;
-  triggerWindowFrames?: number;
-  spCost?: number;
-  ultimateEnergyCost?: number;
-  linked?: boolean;
-  locked: boolean;
-  disabled: boolean;
-  color?: string | null;
-  scheduledSequences: ScheduledSequenceDocument[];
-  customBars: EditableBarDocument[];
-}
-
 /** 用户放置在干员轨道上的一次技能释放。 */
 export interface SkillCastDocument {
   id: string;
+  /** 用于找到游戏数据中的技能模板。 */
   source: SkillCastSource;
   placement: {
     /** 用户编辑的逻辑位置；运行时位移属于派生结果。 */
     startFrame: number;
   };
-  editable: EditableActionValues;
-  edited: EditableSkillCastField[];
+  /** 纯展示覆盖（颜色、锁定、自定义展示条等），不包含技能逻辑。 */
+  presentation?: {
+    locked?: boolean;
+    disabled?: boolean;
+    linked?: boolean;
+    color?: string | null;
+    customBars?: EditableBarDocument[];
+  };
+  /** 完整的自定义技能定义。存在时显示铅笔角标，模拟时使用它替代技能模板。 */
+  customDefinition?: SkillDefinition;
 }
 
 /**
@@ -204,7 +136,8 @@ export type ConnectionEndpoint =
   | {
       kind: 'damageHit';
       skillCastId: string;
-      hitId: string;
+      /** 技能定义中 damage step 的稳定 key；运行时 hitId 由 deriveHitId(castId, stepKey) 派生 */
+      stepKey: string;
       port?: string;
     };
 

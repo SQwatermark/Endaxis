@@ -2,16 +2,8 @@
  * 把新版干员定义中的技能库条目转换为存档中的稳定放置数据。
  * 本层只生成定义默认值和身份，不执行模拟；调用方必须提供可进入撤销历史的稳定 ID 分配器。
  */
-import { compileSkill } from '../../core/compiler/compileSkill';
-import type { ResolvedCombatStep } from '../../core/compiler/combatProgram';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
-import type {
-  ActionSequenceDocument,
-  CombatStepDocument,
-  ScenarioDocument,
-  SkillCastDocument,
-  TrackIndex,
-} from '../../core/project/schema';
+import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
@@ -38,64 +30,10 @@ export interface PlaceSkillGroupResult {
   readonly skillCastIds: readonly string[];
 }
 
-function clonePlainValue<T>(value: T): T {
-  if (Array.isArray(value)) return value.map(clonePlainValue) as T;
-  if (value !== null && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [key, clonePlainValue(entry)]),
-    ) as T;
-  }
-  return value;
-}
-
-function projectStep(
-  step: ResolvedCombatStep,
-  ids: TimelineDocumentIdAllocator,
-): CombatStepDocument {
-  const base = {
-    kind: step.kind,
-    parameters: clonePlainValue(step.parameters),
-    ...(step.key === undefined ? {} : { sourceStepKey: step.key }),
-    edited: [],
-  };
-  if (step.kind === 'conditional') {
-    return {
-      ...base,
-      kind: step.kind,
-      parameters: clonePlainValue(step.parameters),
-      whenTrue: projectSequence(step.whenTrue, ids),
-      ...(step.whenFalse === undefined ? {} : { whenFalse: projectSequence(step.whenFalse, ids) }),
-    };
-  }
-  if (step.kind === 'once') {
-    return {
-      ...base,
-      kind: step.kind,
-      parameters: clonePlainValue(step.parameters),
-      body: projectSequence(step.body, ids),
-    };
-  }
-  if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
-    return {
-      ...base,
-      kind: step.kind,
-      parameters: clonePlainValue(step.parameters),
-      hitId: step.key ?? ids.allocate('hit'),
-    } as CombatStepDocument;
-  }
-  return base as CombatStepDocument;
-}
-
-function projectSequence(
-  sequence: { readonly steps: readonly ResolvedCombatStep[] },
-  ids: TimelineDocumentIdAllocator,
-): ActionSequenceDocument {
-  return { steps: sequence.steps.map(step => projectStep(step, ids)) };
-}
-
 /**
  * 按技能组声明顺序放置一个技能或技能链。
  * 多段普攻等序列以前一段块宽为下一段起点，不擅自加入动画空隙。
+ * 不展开 `LevelValues`，不预编译；技能定义在编译时按当前等级重新解析。
  */
 export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupResult {
   if (!Number.isInteger(input.startFrame) || input.startFrame < 0) {
@@ -117,10 +55,6 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
       `operator '${input.operator.slug}' has no skill group '${input.skillGroupKey}'`,
     );
   }
-  const level = operatorInstance.skillLevels[group.levelSource];
-  if (level === undefined) {
-    throw new Error(`track '${track.id}' has no '${group.levelSource}' skill level`);
-  }
 
   const groupSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
   const skills =
@@ -134,40 +68,13 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   let nextStartFrame = input.startFrame;
 
   skills.forEach(skill => {
-    const program = compileSkill({
-      operatorId: track.id,
-      skillGroupKey: group.key,
-      skillType: group.skillType,
-      skill,
-      skillLevel: level,
-    });
     const skillCastId = input.ids.allocate('skillCast');
-    const spCost = program.costs.find(cost => cost.resource === 'sp')?.value;
-    const ultimateEnergyCost = program.costs.find(
-      cost => cost.resource === 'ultimateEnergy',
-    )?.value;
     created.push({
       id: skillCastId,
       source: { kind: 'operatorSkill', skillGroupKey: group.key, skillKey: skill.key },
       placement: { startFrame: nextStartFrame },
-      editable: {
-        durationFrames: program.timelineBlockFrames,
-        ...(program.cooldownFrames === undefined ? {} : { cooldownFrames: program.cooldownFrames }),
-        ...(spCost === undefined ? {} : { spCost }),
-        ...(ultimateEnergyCost === undefined ? {} : { ultimateEnergyCost }),
-        locked: false,
-        disabled: false,
-        scheduledSequences: program.timelineActions.map(action => ({
-          id: input.ids.allocate('scheduledSequence'),
-          startFrame: action.startFrame,
-          sequence: projectSequence(action.sequence, input.ids),
-          edited: [],
-        })),
-        customBars: [],
-      },
-      edited: [],
     });
-    nextStartFrame += program.timelineBlockFrames;
+    nextStartFrame += skill.timelineBlockFrames;
   });
 
   const tracks = [...input.scenario.tracks] as ScenarioDocument['tracks'];

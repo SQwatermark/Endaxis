@@ -1,19 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { SkillCastDocument } from '../../core/project/schema';
+import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import {
+  createSkillDefinitionDraft,
   moveSkillCast,
   moveSkillCasts,
   removeSkillCast,
   removeSkillCasts,
+  resetSkillCastToTemplate,
+  setSkillCastColor,
+  setSkillCastDisabled,
+  setSkillCastLocked,
+  setSkillCastCustomDefinition,
   setTrackGear,
   setTrackOperator,
   setTrackWeapon,
   swapTimelineTracks,
   updateBattleResourceRule,
-  updateSkillCastBasicField,
-  updateSkillCastBooleanField,
-  updateSkillCastColor,
   updateTrackInitialUltimateEnergy,
 } from './timelineDocumentCommands';
 
@@ -113,14 +117,7 @@ function cast(locked = false): SkillCastDocument {
     id: 'cast:1',
     source: { kind: 'operatorSkill', skillGroupKey: 'skill', skillKey: 'skill' },
     placement: { startFrame: 30 },
-    editable: {
-      durationFrames: 20,
-      locked,
-      disabled: false,
-      scheduledSequences: [],
-      customBars: [],
-    },
-    edited: [],
+    ...(locked ? { presentation: { locked: true } } : {}),
   };
 }
 
@@ -292,46 +289,89 @@ describe('moveSkillCast', () => {
     expect(() => moveSkillCast(scenario(), 0, 'missing', 30)).toThrow("no skill cast 'missing'");
   });
 
-  it('updates a basic editable value and records user ownership', () => {
-    const original = scenario();
-    const updated = updateSkillCastBasicField(original, 0, 'cast:1', 'durationFrames', 45);
-
-    expect(updated.tracks[0]!.skillCasts[0]!.editable.durationFrames).toBe(45);
-    expect(updated.tracks[0]!.skillCasts[0]!.edited).toEqual(['durationFrames']);
-    expect(original.tracks[0]!.skillCasts[0]!.edited).toEqual([]);
-  });
-
-  it('validates frame fields at the command boundary', () => {
-    expect(() => updateSkillCastBasicField(scenario(), 0, 'cast:1', 'cooldownFrames', 1.5)).toThrow(
-      'non-negative integer',
-    );
-  });
-
   it('updates lock and disabled states without mutating the source', () => {
     const original = scenario();
-    const locked = updateSkillCastBooleanField(original, 0, 'cast:1', 'locked', true);
-    const disabled = updateSkillCastBooleanField(locked, 0, 'cast:1', 'disabled', true);
+    const locked = setSkillCastLocked(original, 0, 'cast:1', true);
+    const disabled = setSkillCastDisabled(locked, 0, 'cast:1', true);
 
-    expect(original.tracks[0]!.skillCasts[0]!.editable).toMatchObject({
-      locked: false,
-      disabled: false,
-    });
-    expect(disabled.tracks[0]!.skillCasts[0]!.editable).toMatchObject({
+    expect(original.tracks[0]!.skillCasts[0]!.presentation).toBeUndefined();
+    expect(disabled.tracks[0]!.skillCasts[0]!.presentation).toMatchObject({
       locked: true,
       disabled: true,
     });
-    expect(disabled.tracks[0]!.skillCasts[0]!.edited).toEqual(['locked', 'disabled']);
   });
 
-  it('sets and clears an action color as a user-owned field', () => {
+  it('sets and clears an action color as a presentation field', () => {
     const original = scenario();
-    const colored = updateSkillCastColor(original, 0, 'cast:1', '#ff4d4f');
-    const reset = updateSkillCastColor(colored, 0, 'cast:1', null);
+    const colored = setSkillCastColor(original, 0, 'cast:1', '#ff4d4f');
+    const reset = setSkillCastColor(colored, 0, 'cast:1', null);
 
-    expect(colored.tracks[0]!.skillCasts[0]!.editable.color).toBe('#ff4d4f');
-    expect(reset.tracks[0]!.skillCasts[0]!.editable.color).toBeNull();
-    expect(reset.tracks[0]!.skillCasts[0]!.edited).toEqual(['color']);
-    expect(original.tracks[0]!.skillCasts[0]!.editable.color).toBeUndefined();
+    expect(colored.tracks[0]!.skillCasts[0]!.presentation?.color).toBe('#ff4d4f');
+    expect(reset.tracks[0]!.skillCasts[0]!.presentation?.color).toBeNull();
+    expect(original.tracks[0]!.skillCasts[0]!.presentation).toBeUndefined();
+  });
+
+  it('stores an independent complete custom definition and can return to the template', () => {
+    const original = scenario();
+    const definition: SkillDefinition = {
+      key: 'skill',
+      timelineBlockFrames: 45,
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+    };
+
+    const customized = setSkillCastCustomDefinition(original, 0, 'cast:1', definition);
+    const stored = customized.tracks[0]!.skillCasts[0]!.customDefinition!;
+    expect(stored).toEqual(definition);
+    expect(stored).not.toBe(definition);
+
+    const mutableSequence = definition.scheduledSequences[0] as { startFrame: number };
+    mutableSequence.startFrame = 9;
+    expect(stored.scheduledSequences[0]!.startFrame).toBe(0);
+
+    const reset = resetSkillCastToTemplate(customized, 0, 'cast:1');
+    expect(reset.tracks[0]!.skillCasts[0]!.customDefinition).toBeUndefined();
+    expect(resetSkillCastToTemplate(reset, 0, 'cast:1')).toBe(reset);
+  });
+
+  it('creates an isolated editor draft before the definition is committed', () => {
+    const definition: SkillDefinition = {
+      key: 'skill',
+      timelineBlockFrames: 30,
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+    };
+
+    const draft = createSkillDefinitionDraft(definition);
+    (draft.scheduledSequences[0] as { startFrame: number }).startFrame = 12;
+
+    expect(definition.scheduledSequences[0]!.startFrame).toBe(0);
+    expect(draft.scheduledSequences[0]!.startFrame).toBe(12);
+  });
+
+  it('rejects a custom definition that cannot replace the referenced template', () => {
+    const original = scenario();
+    const wrongDefinition: SkillDefinition = {
+      key: 'other',
+      timelineBlockFrames: 30,
+      scheduledSequences: [],
+    };
+
+    expect(() => setSkillCastCustomDefinition(original, 0, 'cast:1', wrongDefinition)).toThrow(
+      'does not match source skill key',
+    );
+  });
+
+  it('rejects an invalid custom definition before changing the scenario', () => {
+    const original = scenario();
+    const invalidDefinition = {
+      key: 'skill',
+      timelineBlockFrames: -1,
+      scheduledSequences: [],
+    } as unknown as SkillDefinition;
+
+    expect(() => setSkillCastCustomDefinition(original, 0, 'cast:1', invalidDefinition)).toThrow(
+      "invalid custom definition at 'customDefinition.timelineBlockFrames'",
+    );
+    expect(original.tracks[0]!.skillCasts[0]!.customDefinition).toBeUndefined();
   });
 
   it('removes the cast and every connection that points to it', () => {
@@ -341,7 +381,7 @@ describe('moveSkillCast', () => {
         id: 'connection:1',
         consumption: false,
         from: { kind: 'skillCast', skillCastId: 'cast:1' },
-        to: { kind: 'damageHit', skillCastId: 'cast:2', hitId: 'hit:1' },
+        to: { kind: 'damageHit', skillCastId: 'cast:2', stepKey: 'hit:1' },
       },
       {
         id: 'connection:2',
@@ -450,7 +490,7 @@ describe('moveSkillCasts', () => {
 
   it('keeps the whole selection unchanged when any selected cast is locked', () => {
     const original = multiTrackScenario();
-    original.tracks[1]!.skillCasts[0]!.editable.locked = true;
+    original.tracks[1]!.skillCasts[0]!.presentation = { locked: true };
 
     expect(moveSkillCasts(original, new Set(['cast:1', 'cast:3']), 0, 'cast:1', 45)).toBe(original);
   });

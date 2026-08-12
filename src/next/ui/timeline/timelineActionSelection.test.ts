@@ -14,14 +14,6 @@ function cast(id: string): SkillCastDocument {
     id,
     source: { kind: 'custom', name: id, actionType: 'custom' },
     placement: { startFrame: 0 },
-    editable: {
-      durationFrames: 1,
-      locked: false,
-      disabled: false,
-      scheduledSequences: [],
-      customBars: [],
-    },
-    edited: [],
   };
 }
 

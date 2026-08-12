@@ -1,17 +1,16 @@
 /**
  * 把项目中的干员轨道和技能释放位置编译为战斗运行时可直接装配的程序与输入。
  *
- * 每个技能释放编译成独立程序（携带 castId 与步骤 hitId），因此同干员同帧多次释放、
- * 同技能多次放置都能在运行时区分；伤害回执会携带 castId + hitId，投影不再按帧反推。
- * 还没做通的逐次释放编辑仍然直接报错。
+ * 每个技能块先选定技能模板或自定义技能定义，再通过 `compileSkill` 编译；
+ * 不再从存档快照读取时间轴。`disabled` 从 `presentation` 读取。
+ * 尚未闭环的逐次释放编辑仍显式失败。
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
-import type { CompiledSkillProgram, ResolvedCombatStep } from './combatProgram';
+import type { CompiledSkillProgram } from './combatProgram';
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import type {
-  CombatStepDocument,
   OperatorInstanceDocument,
   ScenarioDocument,
   SkillCastDocument,
@@ -22,6 +21,10 @@ import {
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
+import {
+  resolveEffectiveSkillDefinition,
+  type ResolvedSkillDefinition,
+} from './resolveSkillDefinition';
 
 /** 场景时间轴进入运行时装配前的纯编译结果，不包含任何可变战斗状态。 */
 export interface CompiledScenarioTimeline {
@@ -50,74 +53,31 @@ function requireSkillLevel(build: OperatorInstanceDocument, levelSource: string)
   return level;
 }
 
-function assertSkillCanCompile(operator: OperatorDefinition, skill: SkillDefinition): void {
-  if (skill.eventHandlers?.length) {
-    throw new Error(
-      `skill '${operator.slug}/${skill.key}' has event handlers, but skill event compilation is not connected`,
-    );
+function assertSkillCanCompile(definition: SkillDefinition): void {
+  if (definition.eventHandlers?.length) {
+    throw new Error(`skill has event handlers, but skill event compilation is not connected`);
   }
 }
 
-/** 文档步骤转运行时步骤；`hitId` 与定义步骤键一起随回执传递。 */
-function projectDocumentStep(step: CombatStepDocument): ResolvedCombatStep {
-  const base = {
-    kind: step.kind,
-    parameters: step.parameters,
-    ...(step.sourceStepKey === undefined ? {} : { key: step.sourceStepKey }),
-    ...(step.kind === 'dealDamage' || step.kind === 'dealFixedDamage' ? { hitId: step.hitId } : {}),
-  };
-  if (step.kind === 'conditional') {
-    return {
-      ...base,
-      kind: step.kind,
-      parameters: step.parameters,
-      whenTrue: { steps: step.whenTrue.steps.map(projectDocumentStep) },
-      ...(step.whenFalse === undefined
-        ? {}
-        : { whenFalse: { steps: step.whenFalse.steps.map(projectDocumentStep) } }),
-    } as ResolvedCombatStep;
-  }
-  if (step.kind === 'once') {
-    return {
-      ...base,
-      kind: step.kind,
-      parameters: step.parameters,
-      body: { steps: step.body.steps.map(projectDocumentStep) },
-    } as ResolvedCombatStep;
-  }
-  return base as ResolvedCombatStep;
-}
-
-/** 从技能释放文档编译一个独立程序；定义默认值、等级与养成补丁仍以定义为准。 */
+/** 编译一次技能释放。等级和养成效果在这里按当前项目配置计算。 */
 function compileCastSkillProgram(
   trackId: string,
-  operator: OperatorDefinition,
-  skill: SkillDefinition,
-  skillLevel: number,
   cast: SkillCastDocument,
+  resolved: ResolvedSkillDefinition,
+  level: number,
 ): CompiledSkillProgram {
-  const source = cast.source;
-  if (source.kind !== 'operatorSkill') {
-    throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
-  }
-  const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
-  if (group === undefined) {
-    throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
-  }
+  const definition = resolved.definition;
+  assertSkillCanCompile(definition);
   const base = compileSkill({
     operatorId: trackId,
-    skillGroupKey: group.key,
-    skillType: group.skillType,
-    skillLevel,
-    skill,
+    skillGroupKey: resolved.group.key,
+    skillType: resolved.group.skillType,
+    skillLevel: level,
+    skill: definition,
   });
   return {
     ...base,
     castId: cast.id,
-    timelineActions: cast.editable.scheduledSequences.map(scheduled => ({
-      startFrame: scheduled.startFrame,
-      sequence: { steps: scheduled.sequence.steps.map(projectDocumentStep) },
-    })),
   };
 }
 
@@ -134,7 +94,7 @@ export function compileOperatorDefinitionSkills(
     const skillLevel = requireSkillLevel(build, group.levelSource);
     const definitions = Array.isArray(group.skills) ? group.skills : [group.skills];
     return definitions.map(skill => {
-      assertSkillCanCompile(operator, skill);
+      assertSkillCanCompile(skill);
       return compileSkill({
         operatorId: trackId,
         skillGroupKey: group.key,
@@ -145,37 +105,6 @@ export function compileOperatorDefinitionSkills(
     });
   });
   return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator));
-}
-
-function assertCastUsesDefinitionDefaults(cast: SkillCastDocument): void {
-  const hasNestedEdits = cast.editable.scheduledSequences.some(
-    scheduled =>
-      scheduled.edited.length > 0 || scheduled.sequence.steps.some(step => step.edited.length > 0),
-  );
-  if (cast.edited.length > 0 || hasNestedEdits) {
-    throw new Error(
-      `skill cast '${cast.id}' contains user overrides, but per-cast overrides are not supported yet`,
-    );
-  }
-}
-
-function requireCastSkill(cast: SkillCastDocument, operator: OperatorDefinition): SkillDefinition {
-  if (cast.source.kind !== 'operatorSkill') {
-    throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${cast.source.kind}'`);
-  }
-  const source = cast.source;
-  const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
-  if (group === undefined) {
-    throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
-  }
-  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-  const skill = skills.find(candidate => candidate.key === source.skillKey);
-  if (skill === undefined) {
-    throw new Error(
-      `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
-    );
-  }
-  return skill;
 }
 
 interface ResolvedTimelineTrack {
@@ -194,24 +123,17 @@ function compileResolvedTimelineTracks(
   for (const { track, operatorInstance, operator } of tracks) {
     const skills: CompiledSkillProgram[] = [];
     for (const cast of track.skillCasts) {
-      if (cast.editable.disabled) continue;
-      assertCastUsesDefinitionDefaults(cast);
-      const skill = requireCastSkill(cast, operator);
-      assertSkillCanCompile(operator, skill);
-      const source = cast.source;
-      if (source.kind !== 'operatorSkill') {
-        throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
+      if (cast.presentation?.disabled) continue;
+      if (cast.source.kind === 'custom') {
+        throw new Error(`skill cast '${cast.id}' uses unsupported source kind 'custom'`);
       }
-      const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
-      if (group === undefined) {
-        throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
-      }
-      const level = requireSkillLevel(operatorInstance, group.levelSource);
-      skills.push(compileCastSkillProgram(track.id, operator, skill, level, cast));
+      const resolved = resolveEffectiveSkillDefinition(cast, operator);
+      const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
+      skills.push(compileCastSkillProgram(track.id, cast, resolved, level));
       pendingInputs.push({
         frame: cast.placement.startFrame,
         operatorId: track.id,
-        skillId: skill.key,
+        skillId: resolved.definition.key,
         castId: cast.id,
         order,
       });

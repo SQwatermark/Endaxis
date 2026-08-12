@@ -20,30 +20,29 @@ function cast(id: string, startFrame: number): SkillCastDocument {
     id,
     source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: id },
     placement: { startFrame },
-    editable: {
-      durationFrames: 10,
+    presentation: {
       locked: false,
       disabled: false,
+      customBars: [{ id: `bar:${id}`, text: id, offsetFrames: 0, durationFrames: 10 }],
+    },
+    customDefinition: {
+      key: id,
+      timelineBlockFrames: 10,
       scheduledSequences: [
         {
-          id: `scheduledSequence:${id}`,
           startFrame: 2,
           sequence: {
             steps: [
               {
                 kind: 'dealDamage',
-                hitId: `hit:${id}`,
+                key: `hit:${id}`,
                 parameters: { damageType: 'electric', attackScale: 1, tags: [] },
-                edited: [],
               },
             ],
           },
-          edited: [],
         },
       ],
-      customBars: [{ id: `bar:${id}`, text: id, offsetFrames: 0, durationFrames: 10 }],
     },
-    edited: [],
   };
 }
 
@@ -61,7 +60,7 @@ function scenario(): ScenarioDocument {
     {
       id: 'connection:internal',
       consumption: false,
-      from: { kind: 'damageHit', skillCastId: 'cast:1', hitId: 'hit:cast:1' },
+      from: { kind: 'damageHit', skillCastId: 'cast:1', stepKey: 'hit:cast:1' },
       to: { kind: 'skillCast', skillCastId: 'cast:2' },
     },
     {
@@ -84,13 +83,9 @@ describe('timelineClipboard', () => {
 
     expect(created.map(value => value.id)).toEqual(['skillCast:new:1', 'skillCast:new:2']);
     expect(created.map(value => value.placement.startFrame)).toEqual([100, 115]);
-    expect(created.map(value => value.editable.scheduledSequences[0]!.id)).toEqual([
-      'scheduledSequence:new:1',
-      'scheduledSequence:new:2',
-    ]);
-    expect(created.map(value => value.editable.customBars[0]!.id)).toEqual([
-      'customBar:new:1',
-      'customBar:new:2',
+    expect(created.map(value => value.presentation?.customBars?.[0]!.id)).toEqual([
+      'bar:cast:1',
+      'bar:cast:2',
     ]);
     expect(pasted.scenario.connections).toHaveLength(3);
     expect(pasted.scenario.connections.at(-1)).toEqual({
@@ -99,7 +94,7 @@ describe('timelineClipboard', () => {
       from: {
         kind: 'damageHit',
         skillCastId: 'skillCast:new:1',
-        hitId: 'hit:new:1',
+        stepKey: 'hit:cast:1',
       },
       to: { kind: 'skillCast', skillCastId: 'skillCast:new:2' },
     });

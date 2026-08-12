@@ -1,44 +1,20 @@
 <script setup lang="ts">
-/**
- * Next 动作属性面板的基础字段区，照录旧版 PropertiesPanel 的头部与双列输入布局。
- *
- * 组件只显示持久化字段并发出编辑意图；定义默认值恢复、命中编辑和连接管理由后续独立模块负责。
- */
 import { useI18n } from 'vue-i18n';
+import { RefreshLeft } from '@element-plus/icons-vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
-import type { EditableActionValues, SkillCastDocument } from '../../../core/project/schema';
-import type { BasicEditableSkillCastField } from '../timelineDocumentCommands';
+import type { SkillCastDocument } from '../../../core/project/schema';
 
 const props = defineProps<{
   cast: SkillCastDocument | null;
   label: string;
   skillType: SkillType | null;
+  edited: boolean;
+  diffCount: number;
 }>();
 
-const emit = defineEmits<{
-  update: [
-    field: BasicEditableSkillCastField,
-    value: EditableActionValues[BasicEditableSkillCastField],
-  ];
-}>();
+defineEmits<{ resetDefinition: [] }>();
 
 const { t } = useI18n({ useScope: 'global' });
-
-function readNumber(event: Event): number | null {
-  const value = Number((event.target as HTMLInputElement).value);
-  return Number.isFinite(value) && value >= 0 ? value : null;
-}
-
-function updateInteger(field: BasicEditableSkillCastField, event: Event): void {
-  const value = readNumber(event);
-  if (value === null) return;
-  emit('update', field, Math.round(value));
-}
-
-function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
-  const value = readNumber(event);
-  if (value !== null) emit('update', field, value);
-}
 </script>
 
 <template>
@@ -52,66 +28,59 @@ function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
       <section class="section-container">
         <div class="panel-tag-mini">{{ t('propertiesPanel.sections.basic') }}</div>
         <div class="attribute-grid">
-          <label class="form-group">
-            <span>{{ t('propertiesPanel.labels.durationS') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              :value="cast.editable.durationFrames"
-              @change="updateInteger('durationFrames', $event)"
-            />
-          </label>
-          <label v-if="skillType === 'comboSkill'" class="form-group">
-            <span>{{ t('propertiesPanel.labels.cooldownS') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              :value="cast.editable.cooldownFrames ?? 0"
-              @change="updateInteger('cooldownFrames', $event)"
-            />
-          </label>
-          <label v-if="skillType === 'comboSkill'" class="form-group">
-            <span>{{ t('propertiesPanel.labels.followupDelayS') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              :value="cast.editable.comboFollowupDelayFrames ?? 0"
-              @change="updateInteger('comboFollowupDelayFrames', $event)"
-            />
-          </label>
-          <label v-if="skillType === 'comboSkill'" class="form-group">
-            <span>{{ t('propertiesPanel.labels.triggerWindowS') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              :value="cast.editable.triggerWindowFrames ?? 0"
-              @change="updateInteger('triggerWindowFrames', $event)"
-            />
-          </label>
-          <label v-if="skillType === 'battleSkill'" class="form-group">
-            <span>{{ t('propertiesPanel.labels.spCost') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              :value="cast.editable.spCost ?? 0"
-              @change="updateNumber('spCost', $event)"
-            />
-          </label>
-          <label v-if="skillType === 'ultimate'" class="form-group">
-            <span>{{ t('propertiesPanel.labels.gaugeCost') }}</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              :value="cast.editable.ultimateEnergyCost ?? 0"
-              @change="updateNumber('ultimateEnergyCost', $event)"
-            />
-          </label>
+          <div class="form-group">
+            <span>{{ t('propertiesPanel.labels.actionId') }}</span>
+            <div class="readonly-field">{{ cast.id }}</div>
+          </div>
+          <div class="form-group">
+            <span>{{ t('propertiesPanel.labels.sourceKind') }}</span>
+            <div class="readonly-field">{{ cast.source.kind }}</div>
+          </div>
+          <div class="form-group">
+            <span>{{ t('propertiesPanel.labels.startFrame') }}</span>
+            <div class="readonly-field">{{ cast.placement.startFrame }}</div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="edited" class="section-container">
+        <div class="panel-tag-mini">{{ t('nextTimeline.skillEditing.section') }}</div>
+        <div class="definition-status">
+          <span>{{ t('nextTimeline.skillEditing.diffCount', { count: diffCount }) }}</span>
+          <button
+            type="button"
+            class="definition-reset"
+            :title="t('nextTimeline.skillEditing.reset')"
+            @click="$emit('resetDefinition')"
+          >
+            <RefreshLeft />
+            <span>{{ t('nextTimeline.skillEditing.reset') }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="section-container">
+        <div class="panel-tag-mini">{{ t('propertiesPanel.sections.presentation') }}</div>
+        <div class="attribute-grid">
+          <div class="form-group">
+            <span>{{ t('propertiesPanel.labels.locked') }}</span>
+            <div class="readonly-field">{{ cast.presentation?.locked ?? false }}</div>
+          </div>
+          <div class="form-group">
+            <span>{{ t('propertiesPanel.labels.disabled') }}</span>
+            <div class="readonly-field">{{ cast.presentation?.disabled ?? false }}</div>
+          </div>
+          <div class="form-group" :class="{ 'attribute-grid__wide': true }">
+            <span>{{ t('propertiesPanel.labels.color') }}</span>
+            <div class="readonly-field">
+              <span
+                v-if="cast.presentation?.color"
+                class="color-swatch"
+                :style="{ background: cast.presentation.color }"
+              ></span>
+              {{ cast.presentation?.color ?? '—' }}
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -160,6 +129,9 @@ function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
 
 .scrollable-content {
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .section-container {
@@ -200,7 +172,6 @@ function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
   font-size: 10px;
 }
 
-.form-group input,
 .readonly-field {
   width: 100%;
   height: 28px;
@@ -208,23 +179,57 @@ function updateNumber(field: BasicEditableSkillCastField, event: Event): void {
   border: 1px solid var(--ea-border);
   border-radius: 2px;
   background: var(--ea-fill-input, #16161a);
-  color: var(--ea-fg-secondary);
+  color: var(--ea-fg-muted);
   padding: 0 7px;
   font:
     12px/28px Consolas,
     monospace;
   text-align: center;
-}
-
-.form-group input:focus {
-  border-color: var(--ea-gold);
-  outline: 0;
-}
-
-.readonly-field {
   overflow: hidden;
-  color: var(--ea-fg-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.color-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--ea-border);
+  flex-shrink: 0;
+}
+
+.definition-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+}
+
+.definition-reset {
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid var(--ea-border);
+  border-radius: 2px;
+  background: var(--ea-fill-input, #16161a);
+  color: var(--ea-fg);
+  cursor: pointer;
+}
+
+.definition-reset:hover {
+  border-color: var(--ea-gold);
+}
+
+.definition-reset svg {
+  width: 13px;
+  height: 13px;
 }
 </style>

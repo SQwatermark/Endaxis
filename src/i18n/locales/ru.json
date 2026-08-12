@@ -1130,6 +1130,11 @@
     }
   },
   "nextTimeline": {
+    "skillEditing": {
+      "section": "Логика навыка",
+      "diffCount": "Отличий от текущего шаблона: {count}",
+      "reset": "Восстановить шаблон"
+    },
     "emptyTrack": "Оператор не выбран",
     "cursorFrame": "Курсор: кадр {frame}",
     "simulationPending": "Компилятор сценария еще не подключен",

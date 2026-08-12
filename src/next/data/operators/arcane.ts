@@ -125,13 +125,17 @@ const finisher = {
     scheduled(
       36,
       sequence(
-        step('dealDamage', {
-          ...natureDamage(
-            [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-            ['normalAttack', 'powerAttack'],
-            { calculation: 'breakingAttack' },
-          ),
-        }),
+        step(
+          'dealDamage',
+          {
+            ...natureDamage(
+              [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+              ['normalAttack', 'powerAttack'],
+              { calculation: 'breakingAttack' },
+            ),
+          },
+          'finisher.break',
+        ),
         step('gainFinisherSp', { factor: 1, recipient: 'team' }),
       ),
     ),
@@ -151,6 +155,7 @@ const plungingAttack = {
             [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
             ['normalAttack', 'plungingAttack'],
           ),
+          'plungingAttack.impact',
         ),
       ),
     ),
@@ -176,6 +181,7 @@ const battleSkill = {
                 ['normalSkill'],
                 { stagger: 10 },
               ),
+              'battleSkill.intellectForm',
             ),
           ),
           sequence(
@@ -186,6 +192,7 @@ const battleSkill = {
                 ['normalSkill'],
                 { stagger: 10 },
               ),
+              'battleSkill.willForm',
             ),
           ),
         ),
@@ -284,7 +291,11 @@ const comboSkill = {
             }),
           ),
         ),
-        step('dealDamage', natureDamage(comboTouchScale, ['comboSkill'], { stagger: 5 })),
+        step(
+          'dealDamage',
+          natureDamage(comboTouchScale, ['comboSkill'], { stagger: 5 }),
+          'comboSkill.touch',
+        ),
         step('changeResource', { resource: 'ultimateEnergy', amount: 10, recipient: 'caster' }),
       ),
     ),
@@ -331,6 +342,7 @@ const comboSkill = {
                   ['comboSkill'],
                   index === 4 ? { stagger: 5 } : undefined,
                 ),
+                `comboSkill.detonate.${index + 1}`,
               ),
             ),
           ),
@@ -344,7 +356,11 @@ const comboSkill = {
         scheduled(
           0,
           sequence(
-            step('dealDamage', natureDamage(comboExplosionScale, ['comboSkill'], { stagger: 5 })),
+            step(
+              'dealDamage',
+              natureDamage(comboExplosionScale, ['comboSkill'], { stagger: 5 }),
+              'comboSkill.expireExplosion',
+            ),
           ),
         ),
       ],
@@ -356,7 +372,11 @@ const comboSkill = {
         scheduled(
           0,
           sequence(
-            step('dealDamage', natureDamage(comboExplosionScale, ['comboSkill'], { stagger: 5 })),
+            step(
+              'dealDamage',
+              natureDamage(comboExplosionScale, ['comboSkill'], { stagger: 5 }),
+              'comboSkill.consumeExplosion',
+            ),
           ),
         ),
       ],
@@ -371,10 +391,16 @@ const arcanaIntellectScale = [
 const arcanaWillScale = [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6];
 const clusterLaserScale = arcanaWillScale.map(value => value / 8);
 const clusterStrikeSequences = [
-  ...[12, 16, 20, 24].map(frame =>
+  ...[12, 16, 20, 24].map((frame, index) =>
     scheduled(
       frame,
-      sequence(step('dealDamage', natureDamage(clusterLaserScale, ['ultimateSkill']))),
+      sequence(
+        step(
+          'dealDamage',
+          natureDamage(clusterLaserScale, ['ultimateSkill']),
+          `ultimate.clusterLaser.${index + 1}`,
+        ),
+      ),
     ),
   ),
   scheduled(
@@ -451,6 +477,7 @@ const ultimate = {
             step(
               'dealDamage',
               natureDamage(initialUltimateScale, ['ultimateSkill'], { stagger: 10 }),
+              'ultimate.arrayStrike',
             ),
           ),
         ),

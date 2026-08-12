@@ -1253,6 +1253,11 @@
     }
   },
   "nextTimeline": {
+    "skillEditing": {
+      "section": "技能逻辑",
+      "diffCount": "与当前模板有 {count} 项差异",
+      "reset": "恢复模板"
+    },
     "emptyTrack": "未设置干员",
     "cursorFrame": "光标：第 {frame} 帧",
     "simulationPending": "场景编译器尚未接入",

@@ -1,0 +1,312 @@
+import { describe, expect, it } from 'vitest';
+import { validateSkillDefinition } from './validateSkillDefinition';
+
+function baseSkill(): Record<string, unknown> {
+  return {
+    key: 'testSkill',
+    timelineBlockFrames: 30,
+    scheduledSequences: [
+      {
+        startFrame: 0,
+        sequence: { steps: [] },
+      },
+    ],
+  };
+}
+
+function damageStep(key?: string): Record<string, unknown> {
+  return {
+    kind: 'dealDamage',
+    ...(key === undefined ? {} : { key }),
+    parameters: { damageType: 'physical', attackScale: 1, tags: ['normalAttack'] },
+  };
+}
+
+describe('validateSkillDefinition', () => {
+  it('accepts a structurally valid skill', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            damageStep('hit:1'),
+            {
+              kind: 'modifyActionValue',
+              parameters: { key: 'x', operation: 'add', value: { kind: 'constant', value: 1 } },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+
+  it('rejects missing top-level key and timelineBlockFrames', () => {
+    const skill = { scheduledSequences: [] };
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path === '$.key')).toBe(true);
+    expect(issues.some(issue => issue.path === '$.timelineBlockFrames')).toBe(true);
+    expect(issues.some(issue => issue.path === '$.scheduledSequences')).toBe(false);
+  });
+
+  it('rejects empty scheduledSequences requirement when omitted', () => {
+    const issues = validateSkillDefinition({ key: 'k', timelineBlockFrames: 30 });
+    expect(issues.some(issue => issue.path === '$.scheduledSequences')).toBe(true);
+  });
+
+  it('rejects a missing damage step key', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [{ startFrame: 0, sequence: { steps: [damageStep()] } }];
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(
+        issue =>
+          issue.path === '$.scheduledSequences[0].sequence.steps[0]' &&
+          issue.message.includes('non-empty key'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects a missing key nested inside conditional branches', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'combatActive' } },
+              whenTrue: { steps: [damageStep()] },
+            },
+          ],
+        },
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(
+        issue =>
+          issue.path === '$.scheduledSequences[0].sequence.steps[0].whenTrue.steps[0]' &&
+          issue.message.includes('non-empty key'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects a missing key nested inside once body', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [{ kind: 'once', parameters: { scopeKey: 's' }, body: { steps: [damageStep()] } }],
+        },
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(
+        issue =>
+          issue.path === '$.scheduledSequences[0].sequence.steps[0].once.steps[0]' &&
+          issue.message.includes('non-empty key'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects duplicate damage step keys anywhere in the definition', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            damageStep('dup'),
+            {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'combatActive' } },
+              whenTrue: { steps: [damageStep('dup')] },
+            },
+          ],
+        },
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.message.includes("duplicate damage step key 'dup'"))).toBe(
+      true,
+    );
+  });
+
+  it('rejects an invalid event trigger kind', () => {
+    const skill = baseSkill();
+    skill.eventHandlers = [
+      {
+        key: 'handler:1',
+        event: { kind: 'unknownTrigger' },
+        scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(
+        issue =>
+          issue.path === '$.eventHandlers[0].event.kind' &&
+          issue.message.includes('unknown event trigger'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects an event trigger with an invalid scope', () => {
+    const skill = baseSkill();
+    skill.eventHandlers = [
+      {
+        key: 'handler:1',
+        event: { kind: 'skillHit', skillGroupKey: 'battleSkill', scope: 'all' },
+        scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path === '$.eventHandlers[0].event.scope')).toBe(true);
+  });
+
+  it('rejects an invalid activation window', () => {
+    const skill = baseSkill();
+    skill.activationWindow = {
+      durationFrames: -1,
+      rules: { trigger: { kind: 'skillHit', skillGroupKey: 'x', scope: 'operator' } },
+    };
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path === '$.activationWindow.durationFrames')).toBe(true);
+    expect(
+      issues.some(
+        issue =>
+          issue.path === '$.activationWindow.rules.trigger.kind' &&
+          issue.message.includes('damageTagHit'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects invalid LevelValues: NaN and empty array', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [damageStep('hit:1')],
+        },
+      },
+    ];
+    // 攻击倍率传 NaN
+    const skillA = structuredClone(skill) as Record<string, unknown>;
+    const stepsA = skillA.scheduledSequences as Array<{
+      sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+    }>;
+    stepsA[0]!.sequence.steps[0]!.parameters.attackScale = Number.NaN;
+    expect(
+      validateSkillDefinition(skillA).some(
+        issue => issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.attackScale',
+      ),
+    ).toBe(true);
+
+    // 黑板值传空数组
+    const skillB = baseSkill();
+    skillB.blackboard = { scale: [] };
+    expect(validateSkillDefinition(skillB).some(issue => issue.path === '$.blackboard.scale')).toBe(
+      true,
+    );
+  });
+
+  it('rejects invalid damage tag', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: { steps: [damageStep('hit:1')] },
+      },
+    ];
+    const tagsStep = skill.scheduledSequences as Array<{
+      sequence: { steps: Array<{ parameters: { tags: string[] } }> };
+    }>;
+    tagsStep[0]!.sequence.steps[0]!.parameters.tags = ['unknownTag'];
+    expect(
+      validateSkillDefinition(skill).some(
+        issue => issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.tags[0]',
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects unknown combat step kind', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: { steps: [{ kind: 'unknownStep', parameters: {} }] },
+      },
+    ];
+    expect(
+      validateSkillDefinition(skill).some(
+        issue =>
+          issue.path === '$.scheduledSequences[0].sequence.steps[0].kind' &&
+          issue.message.includes('unknown combat step'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects conditional without whenTrue', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [{ kind: 'conditional', parameters: { condition: { kind: 'combatActive' } } }],
+        },
+      },
+    ];
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(issue => issue.path === '$.scheduledSequences[0].sequence.steps[0].whenTrue'),
+    ).toBe(true);
+  });
+
+  it('rejects invalid cost resource and negative level value', () => {
+    const skill = baseSkill();
+    skill.costs = [{ resource: 'mana', value: 10 }];
+    expect(validateSkillDefinition(skill).some(issue => issue.path === '$.costs[0].resource')).toBe(
+      true,
+    );
+
+    const skillB = baseSkill();
+    skillB.costs = [{ resource: 'sp', value: -1 }];
+    // LevelValues 只要求有限数，负数费用在编译期才做非负约束；这里不应报错。
+    expect(validateSkillDefinition(skillB).some(issue => issue.path === '$.costs[0].value')).toBe(
+      false,
+    );
+  });
+
+  it('rejects changeResource with sp-only fields on ultimateEnergy', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'changeResource',
+              parameters: {
+                resource: 'ultimateEnergy',
+                amount: 10,
+                recipient: 'caster',
+                spGainSource: 'normalAttack',
+              },
+            },
+          ],
+        },
+      },
+    ];
+    expect(
+      validateSkillDefinition(skill).some(
+        issue => issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.spGainSource',
+      ),
+    ).toBe(true);
+  });
+});
