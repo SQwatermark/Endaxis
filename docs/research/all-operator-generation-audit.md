@@ -10,10 +10,10 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：304 个。
-- 无角色专用声明即可进入通用 DSL：269 个。
-- 当前整名干员完整直转：6 名。
-- 当前技能入口调用图中已结构化的区域持续动作引用：19 个。
+- 进入严格中间层：308 个。
+- 无角色专用声明即可进入通用 DSL：274 个。
+- 当前整名干员完整直转：10 名。
+- 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：10 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
@@ -23,7 +23,7 @@
 
 | 干员           | 角色 ID             | 入口 | 已解析 | 已编译 | 完整直转 |
 | -------------- | ------------------- | ---: | -----: | -----: | -------- |
-| Tangtang       | `chr_0027_tangtang` |   11 |     10 |      8 | 否       |
+| Tangtang       | `chr_0027_tangtang` |   11 |     11 |      9 | 否       |
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
@@ -35,22 +35,22 @@
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     14 |     14 | 否       |
-| Estella        | `chr_0021_whiten`   |    9 |      9 |      8 | 否       |
-| Alesh          | `chr_0024_deepfin`  |   10 |     10 |      8 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
+| Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
+| Alesh          | `chr_0024_deepfin`  |   10 |     10 |      9 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
-| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      8 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     10 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
-| Fluorite       | `chr_0022_bounda`   |   10 |     10 |      9 | 否       |
+| Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      7 |      5 | 否       |
-| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      8 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      5 | 否       |
+| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     12 |      9 | 否       |
 
 ## 共通阻塞簇
@@ -61,17 +61,14 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `buff-source-or-target`    |      9 |
-| `event-listener`           |      8 |
 | `condition-other`          |      5 |
+| `root-action-coverage`     |      5 |
 | `other`                    |      4 |
 | `conditional-leaf`         |      3 |
-| `parser-tick-interval`     |      2 |
+| `condition-distance`       |      2 |
+| `condition-entity-count`   |      2 |
 | `projectile-child-actions` |      2 |
-| `root-action-coverage`     |      2 |
-| `condition-distance`       |      1 |
-| `condition-entity-count`   |      1 |
-| `dynamic-scalar`           |      1 |
-| `projectile-data`          |      1 |
+| `projectile-data`          |      2 |
 
 ## 技能事件监听器
 
@@ -103,7 +100,7 @@
 
 - SkillData 原始 Aura 动作：22 个。
 - 从当前干员技能入口静态可达：19 个。
-- 当前入口调用图中的结构化引用：19 个。
+- 当前入口调用图中的结构化引用：20 个。
 
 可达性只沿 SkillData 中指向另一份 SkillData 的字符串引用计算。
 静态不可达文件可能是旧变体或孤立数据，不计为 parser 缺口，也不能据此注入回退。
@@ -190,20 +187,20 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                          | 涉及技能数 |
 | ----------------------------- | ---------: |
-| `DamageAction`                |        227 |
+| `DamageAction`                |        229 |
 | `IfElseAction`                |        171 |
 | `ObtainCostAction`            |        164 |
-| `CreateBuffAction`            |        126 |
-| `LaunchProjectile`            |         71 |
+| `CreateBuffAction`            |        128 |
+| `LaunchProjectile`            |         74 |
 | `SpawnAbilityEntity`          |         28 |
 | `SpellInfliction`             |         12 |
 | `CreateTimedMarker`           |          7 |
-| `SwitchAction`                |          4 |
+| `SwitchAction`                |          5 |
 | `AuraAction`                  |          3 |
-| `CheckDistanceCondition`      |          2 |
+| `CheckDistanceCondition`      |          3 |
+| `CheckMainCharacterCondition` |          2 |
 | `FractureAction`              |          2 |
 | `AddGlobalCDTimer`            |          1 |
-| `CheckMainCharacterCondition` |          1 |
 
 ## 使用方式
 

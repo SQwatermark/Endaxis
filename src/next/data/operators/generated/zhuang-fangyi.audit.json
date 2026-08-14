@@ -660,7 +660,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -679,7 +680,8 @@
                   0.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -751,7 +753,9 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -782,7 +786,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 4352
                 }
               ]
             },
@@ -831,7 +836,9 @@
                         0.0
                       ]
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -907,7 +914,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 256
                 }
               ]
             },
@@ -956,7 +964,9 @@
                         0.0
                       ]
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -1034,7 +1044,9 @@
                   0.0
                 ]
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -2092,7 +2104,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2125,7 +2138,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2179,7 +2193,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2212,7 +2227,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2270,7 +2286,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -2310,7 +2327,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -2427,7 +2445,9 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -2536,7 +2556,9 @@
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -2681,7 +2703,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2714,7 +2737,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2768,7 +2792,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2801,7 +2826,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2861,7 +2887,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2872,11 +2899,11 @@
               "startFrame": 9,
               "endFrame": 16,
               "actionIndex": 8,
-              "intervalFrames": 3,
+              "intervalSeconds": 0.1,
               "tickFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ],
               "damageActionIndex": 14,
               "damageUnits": [
@@ -2904,7 +2931,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ]
             }
@@ -2930,7 +2958,9 @@
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -2975,7 +3005,8 @@
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -3048,7 +3079,8 @@
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -3081,8 +3113,8 @@
               ],
               "executionFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ]
             }
           ],
@@ -3154,7 +3186,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -3194,7 +3227,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -3235,7 +3269,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -3278,12 +3313,13 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
         {
-          "frame": 27,
+          "frame": 26,
           "actionOrder": [
             13,
             0,
@@ -3321,12 +3357,13 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
         {
-          "frame": 30,
+          "frame": 29,
           "actionOrder": [
             13,
             0,
@@ -3364,7 +3401,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -3449,7 +3487,7 @@
           ]
         },
         {
-          "frame": 27,
+          "frame": 26,
           "actionOrder": [
             13,
             0,
@@ -3464,7 +3502,7 @@
           ]
         },
         {
-          "frame": 30,
+          "frame": 29,
           "actionOrder": [
             13,
             0,
@@ -3704,7 +3742,9 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -3889,7 +3929,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -3922,7 +3963,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -3976,7 +4018,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4009,7 +4052,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4063,7 +4107,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4096,7 +4141,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4150,7 +4196,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4183,7 +4230,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4241,7 +4289,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -4281,7 +4330,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -4321,7 +4371,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -4361,7 +4412,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -4587,7 +4639,9 @@
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -4694,7 +4748,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4705,11 +4760,11 @@
               "startFrame": 9,
               "endFrame": 16,
               "actionIndex": 8,
-              "intervalFrames": 3,
+              "intervalSeconds": 0.1,
               "tickFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ],
               "damageActionIndex": 14,
               "damageUnits": [
@@ -4737,7 +4792,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ]
             }
@@ -4763,7 +4819,9 @@
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -4808,7 +4866,8 @@
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -4881,7 +4940,8 @@
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -4914,8 +4974,8 @@
               ],
               "executionFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ]
             }
           ],
@@ -4988,7 +5048,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -5031,12 +5092,13 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
         {
-          "frame": 23,
+          "frame": 22,
           "actionOrder": [
             6,
             0,
@@ -5074,12 +5136,13 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
         {
-          "frame": 26,
+          "frame": 25,
           "actionOrder": [
             6,
             0,
@@ -5117,7 +5180,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -5165,7 +5229,7 @@
           ]
         },
         {
-          "frame": 23,
+          "frame": 22,
           "actionOrder": [
             6,
             0,
@@ -5180,7 +5244,7 @@
           ]
         },
         {
-          "frame": 26,
+          "frame": 25,
           "actionOrder": [
             6,
             0,
@@ -5352,7 +5416,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -5427,7 +5493,9 @@
                       "lessThan": false,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -5508,7 +5576,9 @@
                             "lessThan": false,
                             "includeTargetRadius": true,
                             "containsHittableObject": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -5696,7 +5766,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Pulse",
@@ -5726,7 +5797,8 @@
                       18.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -5968,7 +6040,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
             },
             {
               "damageType": "Pulse",
@@ -5998,7 +6071,8 @@
                   18.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -6379,7 +6453,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -6454,7 +6530,9 @@
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -6609,7 +6687,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -6770,7 +6850,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -6815,7 +6897,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -6944,7 +7028,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7079,7 +7165,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -7124,7 +7212,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7253,7 +7343,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7388,7 +7480,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -7433,7 +7527,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7562,7 +7658,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7745,7 +7843,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -7841,7 +7940,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -7937,7 +8037,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -8033,7 +8134,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -8120,7 +8222,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -8336,7 +8439,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -8411,7 +8516,9 @@
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8566,7 +8673,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8727,7 +8836,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -8772,7 +8883,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8901,7 +9014,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9036,7 +9151,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -9081,7 +9198,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9210,7 +9329,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9345,7 +9466,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -9390,7 +9513,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9519,7 +9644,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9702,7 +9829,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9798,7 +9926,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9894,7 +10023,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9990,7 +10120,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -10077,7 +10208,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -10276,7 +10408,9 @@
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -10351,7 +10485,9 @@
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10453,7 +10589,9 @@
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10612,7 +10750,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Pulse",
@@ -10642,7 +10781,8 @@
                       18.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -10775,7 +10915,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
             },
             {
               "damageType": "Pulse",
@@ -10805,7 +10946,8 @@
                   18.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -10955,7 +11097,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -10993,7 +11136,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -11094,7 +11238,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ]
         },
@@ -11136,7 +11281,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ]
         }
@@ -11239,7 +11385,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ],
           "timedMarkerGate": null
@@ -11330,7 +11477,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ]
         }
@@ -11468,7 +11616,9 @@
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -11529,7 +11679,9 @@
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -11617,7 +11769,9 @@
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11793,7 +11947,9 @@
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [],
@@ -11950,7 +12106,9 @@
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -12070,7 +12228,9 @@
                                     9.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -12125,7 +12285,9 @@
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -12292,7 +12454,9 @@
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -12617,7 +12781,9 @@
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -12711,7 +12877,9 @@
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -12831,7 +12999,9 @@
                                     9.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -12886,7 +13056,9 @@
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -13053,7 +13225,9 @@
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -13368,7 +13542,9 @@
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13664,7 +13840,9 @@
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13745,7 +13923,9 @@
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14198,7 +14378,9 @@
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -14286,7 +14468,9 @@
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14347,7 +14531,9 @@
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -14439,7 +14625,9 @@
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -14494,7 +14682,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -14661,7 +14851,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -15014,7 +15206,9 @@
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -15069,7 +15263,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -15236,7 +15432,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -15561,7 +15759,9 @@
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -15755,7 +15955,9 @@
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [],
@@ -15924,7 +16126,9 @@
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -16052,7 +16256,9 @@
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -16107,7 +16313,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -16274,7 +16482,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -16610,7 +16820,9 @@
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -16713,7 +16925,9 @@
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -16841,7 +17055,9 @@
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -16896,7 +17112,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -17063,7 +17281,9 @@
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -17378,7 +17598,9 @@
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -17459,7 +17681,9 @@
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -17638,7 +17862,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 4352
                 },
                 {
                   "damageType": "Pulse",
@@ -17668,7 +17893,8 @@
                       15.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -17704,7 +17930,9 @@
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -17791,7 +18019,9 @@
                           "blackboardKey": null,
                           "levelValues": null
                         },
-                        "skillTypes": []
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
                       }
                     ],
                     "succeedActions": [
@@ -17826,7 +18056,8 @@
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
-                            "definiteValue": null
+                            "definiteValue": null,
+                            "damageDecorateMask": 4352
                           }
                         ]
                       }
@@ -17863,20 +18094,21 @@
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
-                            "definiteValue": null
+                            "definiteValue": null,
+                            "damageDecorateMask": 256
                           }
                         ]
                       }
                     ],
                     "executionFrames": [
                       12,
-                      18,
-                      24,
-                      30,
-                      36,
-                      42,
-                      48,
-                      54,
+                      17,
+                      23,
+                      29,
+                      35,
+                      41,
+                      47,
+                      53,
                       60
                     ]
                   }
@@ -17911,13 +18143,13 @@
               "failActions": [],
               "executionFrames": [
                 12,
-                18,
-                24,
-                30,
-                36,
-                42,
-                48,
-                54,
+                17,
+                23,
+                29,
+                35,
+                41,
+                47,
+                53,
                 60
               ]
             },
@@ -17949,7 +18181,9 @@
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -17983,13 +18217,13 @@
               "failActions": [],
               "executionFrames": [
                 12,
-                18,
-                24,
-                30,
-                36,
-                42,
-                48,
-                54,
+                17,
+                23,
+                29,
+                35,
+                41,
+                47,
+                53,
                 60
               ]
             },
@@ -18223,7 +18457,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -18253,7 +18488,8 @@
                   15.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -18353,7 +18589,7 @@
           ]
         },
         {
-          "frame": 33,
+          "frame": 32,
           "actionOrder": [
             81,
             11
@@ -18371,7 +18607,7 @@
           ]
         },
         {
-          "frame": 33,
+          "frame": 32,
           "actionOrder": [
             81,
             37
@@ -18389,7 +18625,7 @@
           ]
         },
         {
-          "frame": 39,
+          "frame": 38,
           "actionOrder": [
             81,
             11
@@ -18407,7 +18643,7 @@
           ]
         },
         {
-          "frame": 39,
+          "frame": 38,
           "actionOrder": [
             81,
             37
@@ -18425,7 +18661,7 @@
           ]
         },
         {
-          "frame": 45,
+          "frame": 44,
           "actionOrder": [
             81,
             11
@@ -18443,7 +18679,7 @@
           ]
         },
         {
-          "frame": 45,
+          "frame": 44,
           "actionOrder": [
             81,
             37
@@ -18461,7 +18697,7 @@
           ]
         },
         {
-          "frame": 51,
+          "frame": 50,
           "actionOrder": [
             81,
             11
@@ -18479,7 +18715,7 @@
           ]
         },
         {
-          "frame": 51,
+          "frame": 50,
           "actionOrder": [
             81,
             37
@@ -18497,7 +18733,7 @@
           ]
         },
         {
-          "frame": 57,
+          "frame": 56,
           "actionOrder": [
             81,
             11
@@ -18515,7 +18751,7 @@
           ]
         },
         {
-          "frame": 57,
+          "frame": 56,
           "actionOrder": [
             81,
             37
@@ -18533,7 +18769,7 @@
           ]
         },
         {
-          "frame": 63,
+          "frame": 62,
           "actionOrder": [
             81,
             11
@@ -18551,7 +18787,7 @@
           ]
         },
         {
-          "frame": 63,
+          "frame": 62,
           "actionOrder": [
             81,
             37
@@ -18569,7 +18805,7 @@
           ]
         },
         {
-          "frame": 69,
+          "frame": 68,
           "actionOrder": [
             81,
             11
@@ -18587,7 +18823,7 @@
           ]
         },
         {
-          "frame": 69,
+          "frame": 68,
           "actionOrder": [
             81,
             37
@@ -19090,7 +19326,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -19120,7 +19357,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -19162,7 +19400,9 @@
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -19267,7 +19507,9 @@
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -19342,7 +19584,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -19444,7 +19688,9 @@
                 "containsHittableTarget": false,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -19653,7 +19899,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -19683,7 +19930,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -19921,7 +20169,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -19951,7 +20200,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -19993,7 +20243,9 @@
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -20098,7 +20350,9 @@
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -20173,7 +20427,9 @@
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -20369,7 +20625,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -20399,7 +20656,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -20621,7 +20879,9 @@
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [

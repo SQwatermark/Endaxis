@@ -14,6 +14,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly skillType: SkillType;
   readonly state: RuntimeSkillState;
   canStart(): boolean;
+  /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
+  prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
 }
@@ -65,6 +67,25 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   get currentSkillId(): string | null {
     return this.#currentSkill?.skillId ?? null;
+  }
+
+  canStartSkill(skillId: string, castId?: string): boolean {
+    return this.#requireSkill(skillId, castId).canStart();
+  }
+
+  prepareSkillStartBlackboard(
+    skillId: string,
+    castId: string | undefined,
+    values: Readonly<Record<string, number>>,
+  ): void {
+    const skill = this.#requireSkill(skillId, castId);
+    if (skill.prepareStartBlackboard === undefined) {
+      if (Object.keys(values).length > 0) {
+        throw new Error(`skill '${skillId}' cannot receive start blackboard values`);
+      }
+      return;
+    }
+    skill.prepareStartBlackboard(values);
   }
 
   tryStartSkill(skillId: string, castId?: string): boolean {

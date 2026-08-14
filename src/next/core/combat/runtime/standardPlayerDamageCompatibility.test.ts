@@ -233,7 +233,7 @@ describe('standardPlayerDamageCompatibility', () => {
     ).toEqual([]);
   });
 
-  it('reports every unsupported damage field, resource combination and equipment listener', () => {
+  it('reports every unsupported damage field and resource combination', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
         operator(
@@ -271,8 +271,45 @@ describe('standardPlayerDamageCompatibility', () => {
       'unsupported-damage-field',
       'unsupported-damage-field',
       'unsupported-resource-change',
-      'uninstalled-equipment-event-handler',
     ]);
+  });
+
+  it('checks equipment handler conditions and steps instead of rejecting all listeners', () => {
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator({ steps: [] }, 1))),
+    ).toEqual([]);
+
+    const entry = operator({ steps: [] }, 1);
+    const contribution = entry.equipmentContributions![0]!;
+    const handler = contribution.eventHandlers[0]!;
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput({
+        ...entry,
+        equipmentContributions: [
+          {
+            ...contribution,
+            eventHandlers: [
+              {
+                ...handler,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'dealDamage',
+                      parameters: {
+                        damageType: 'electric',
+                        attackScale: 1,
+                        tags: ['normalSkill'],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(issues).toContainEqual(expect.objectContaining({ code: 'unsupported-step' }));
   });
 
   it('rejects elemental infliction without an installed infliction document', () => {

@@ -307,7 +307,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -340,7 +341,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -368,7 +370,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -385,7 +389,9 @@ export const perlicaGeneratedSource = {
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -853,7 +859,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -886,7 +893,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -914,7 +922,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1018,7 +1028,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1051,7 +1062,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1079,7 +1091,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1612,7 +1626,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1645,7 +1660,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1673,7 +1689,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1690,7 +1708,9 @@ export const perlicaGeneratedSource = {
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1794,7 +1814,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1827,7 +1848,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1855,7 +1877,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1872,7 +1896,9 @@ export const perlicaGeneratedSource = {
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1976,7 +2002,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2009,7 +2036,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2037,7 +2065,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2054,7 +2084,9 @@ export const perlicaGeneratedSource = {
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -2553,7 +2585,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
             },
             {
               "damageType": "Physical",
@@ -2583,7 +2616,8 @@ export const perlicaGeneratedSource = {
                   15.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "directDamageHits": [
@@ -2616,7 +2650,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Physical",
@@ -2646,7 +2681,8 @@ export const perlicaGeneratedSource = {
                       15.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -2674,7 +2710,9 @@ export const perlicaGeneratedSource = {
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2691,7 +2729,9 @@ export const perlicaGeneratedSource = {
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -3226,7 +3266,8 @@ export const perlicaGeneratedSource = {
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -3776,7 +3817,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ],
           "timedMarkerGate": null
@@ -4499,7 +4541,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -4542,7 +4585,8 @@ export const perlicaGeneratedSource = {
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -5174,7 +5218,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Physical",
@@ -5204,7 +5249,8 @@ export const perlicaGeneratedSource = {
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "directDamageHits": [
@@ -5237,7 +5283,8 @@ export const perlicaGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 12288
                 },
                 {
                   "damageType": "Physical",
@@ -5267,7 +5314,8 @@ export const perlicaGeneratedSource = {
                       10.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -5312,7 +5360,9 @@ export const perlicaGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckTagMatch",
@@ -5328,7 +5378,9 @@ export const perlicaGeneratedSource = {
                     "tagIds": [
                       1075718177
                     ]
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -5344,7 +5396,9 @@ export const perlicaGeneratedSource = {
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -5443,7 +5497,8 @@ export const perlicaGeneratedSource = {
                           },
                           "calculationMultiplier": null,
                           "poiseValue": null,
-                          "definiteValue": null
+                          "definiteValue": null,
+                          "damageDecorateMask": 12288
                         },
                         {
                           "damageType": "Physical",
@@ -5473,7 +5528,8 @@ export const perlicaGeneratedSource = {
                               10.0
                             ]
                           },
-                          "definiteValue": null
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
                         }
                       ],
                       "directDamageHits": [
@@ -5506,7 +5562,8 @@ export const perlicaGeneratedSource = {
                               },
                               "calculationMultiplier": null,
                               "poiseValue": null,
-                              "definiteValue": null
+                              "definiteValue": null,
+                              "damageDecorateMask": 12288
                             },
                             {
                               "damageType": "Physical",
@@ -5536,7 +5593,8 @@ export const perlicaGeneratedSource = {
                                   10.0
                                 ]
                               },
-                              "definiteValue": null
+                              "definiteValue": null,
+                              "damageDecorateMask": 0
                             }
                           ],
                           "timedMarkerGate": null
@@ -5581,7 +5639,9 @@ export const perlicaGeneratedSource = {
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": []
+                              "skillTypes": [],
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             },
                             {
                               "sourceType": "CheckTagMatch",
@@ -5597,7 +5657,9 @@ export const perlicaGeneratedSource = {
                                 "tagIds": [
                                   1075718177
                                 ]
-                              }
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             },
                             {
                               "sourceType": "CompareFloat",
@@ -5613,7 +5675,9 @@ export const perlicaGeneratedSource = {
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": []
+                              "skillTypes": [],
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             }
                           ],
                           "succeedActions": [
@@ -6355,7 +6419,9 @@ export const perlicaGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -6397,7 +6463,9 @@ export const perlicaGeneratedSource = {
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -6745,7 +6813,8 @@ export const perlicaGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4608
             },
             {
               "damageType": "Pulse",
@@ -6788,7 +6857,8 @@ export const perlicaGeneratedSource = {
                   20.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null

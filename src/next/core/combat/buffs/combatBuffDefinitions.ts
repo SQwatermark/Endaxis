@@ -327,11 +327,17 @@ export function parseCombatBuffDefinitionsDocument(input: unknown): CombatBuffDe
   return {
     schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
     revision,
-    buffs: root.buffs.map((entry, index) => parseDefinitionEntry(entry, `$.buffs[${index}]`)),
+    buffs: root.buffs.map((entry, index) =>
+      parseCombatBuffDefinitionEntry(entry, `$.buffs[${index}]`),
+    ),
   };
 }
 
-function parseDefinitionEntry(input: unknown, path: string): CombatBuffDefinitionEntry {
+/** 严格解析一项可序列化 Buff 定义，供外部文档和技能内联定义共用。 */
+export function parseCombatBuffDefinitionEntry(
+  input: unknown,
+  path = '$',
+): CombatBuffDefinitionEntry {
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',

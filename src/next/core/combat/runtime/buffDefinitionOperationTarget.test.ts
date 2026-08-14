@@ -1,11 +1,53 @@
 import { describe, expect, it } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
+import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 
 type Attribute = 'cost';
 
 describe('BuffDefinitionOperationTarget', () => {
+  it('uses each apply step definition only when creating its own runtime instance', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const compiledEntries: CombatBuffDefinitionEntry[] = [];
+    const target = new BuffDefinitionOperationTarget(container, {
+      get: () => undefined,
+      compile: entry => {
+        compiledEntries.push(entry);
+        return {
+          id: entry.id,
+          stackingType: entry.stackingType,
+          durationSeconds: entry.durationSeconds,
+        };
+      },
+    });
+
+    const firstDefinition = {
+      stackingType: 'refresh',
+      durationSeconds: 5,
+      presentation: { iconPath: '/icons/buffs/shared.webp' },
+    } as const;
+    const secondDefinition = { stackingType: 'refresh', durationSeconds: 9 } as const;
+    target.apply({
+      buffId: 'shared-key',
+      definition: firstDefinition,
+      sourceId: 'first',
+      blackboardValues: {},
+    });
+    const instance = container.buffs[0]!;
+    target.apply({
+      buffId: 'shared-key',
+      definition: secondDefinition,
+      sourceId: 'second',
+      blackboardValues: {},
+    });
+
+    expect(container.buffs).toHaveLength(1);
+    expect(instance.definition.durationSeconds).toBe(5);
+    expect(instance.remainingDuration).toBe(9);
+    expect(compiledEntries[0]).not.toHaveProperty('presentation');
+  });
+
   it('resolves a stable identity and keeps application values on the created instance', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('cost', 100, { minimum: 0, maximum: 100 });
@@ -88,5 +130,80 @@ describe('BuffDefinitionOperationTarget', () => {
     });
 
     expect(container.buffs[0]?.skillCastInfo).toEqual(skillCastInfo);
+  });
+
+  it('rejects lifecycle sequences until a Buff-owned sequence runtime is configured', () => {
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+    );
+
+    expect(() =>
+      target.apply({
+        buffId: 'active-buff',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          lifecycleSequences: { start: { steps: [] } },
+        },
+      }),
+    ).toThrow('no Buff sequence runtime is configured');
+  });
+
+  it('binds lifecycle definitions to the configured per-instance operation factory', () => {
+    let executed = false;
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+    );
+    target.configureLifecycleOperations(() => ({
+      execute: () => {
+        executed = true;
+        return true;
+      },
+      evaluate: () => true,
+    }));
+
+    expect(
+      target.apply({
+        buffId: 'active-buff',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          lifecycleSequences: {
+            start: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'started', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+    expect(executed).toBe(true);
+  });
+
+  it('rejects configuring lifecycle operations more than once', () => {
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      { get: () => undefined },
+    );
+    const operations = { execute: () => true, evaluate: () => true };
+
+    target.configureLifecycleOperations(() => operations);
+    expect(() => target.configureLifecycleOperations(() => operations)).toThrow(
+      'lifecycle operations are configured',
+    );
   });
 });

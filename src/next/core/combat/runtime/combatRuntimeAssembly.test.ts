@@ -6,6 +6,7 @@ import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -131,6 +132,297 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('installs equipment event handlers and executes their resource sequence', () => {
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [],
+          equipmentContributions: [
+            {
+              source: { kind: 'weaponTrait', slug: 'fixture-weapon', traitKey: 'skill' },
+              selectedLevel: 1,
+              modifiers: [],
+              eventHandlers: [
+                {
+                  key: 'gain-sp',
+                  event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+                  condition: { kind: 'combatActive' },
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'changeResource',
+                        parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+      createEquipmentEventOperationExecutor: () => rejectingExecutor,
+    });
+
+    assembly.semanticEvents.emit({
+      kind: 'damageTagHit',
+      sourceOperatorId: 'operator',
+      tags: ['normalSkill'],
+    });
+
+    expect(assembly.resources.sp).toBe(10);
+    expect(assembly.receipt.entries.at(-1)).toMatchObject({
+      event: 'SpChanged',
+      sourceId: 'operator',
+      data: {
+        skillId: 'equipment:weaponTrait:fixture-weapon:gain-sp',
+        actualValue: 10,
+      },
+    });
+  });
+
+  it('requires an explicit terminal executor when equipment events are present', () => {
+    expect(
+      () =>
+        new CombatRuntimeAssembly({
+          enemy: testEnemy,
+          resources: {
+            sp: 0,
+            maxSp: 300,
+            returnedSp: 0,
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+            ultimateEnergySystemUnlocked: false,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+            squad: [],
+          },
+          enemyBuffRuntime: emptyEnemyBuffRuntime,
+          operators: [
+            {
+              operatorId: 'operator',
+              skills: [],
+              equipmentContributions: [
+                {
+                  source: { kind: 'gearSet', slug: 'fixture-set' },
+                  selectedLevel: 1,
+                  modifiers: [],
+                  eventHandlers: [
+                    {
+                      key: 'handler',
+                      event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'team' },
+                      sequence: { steps: [] },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          createOperationExecutor: () => rejectingExecutor,
+        }),
+    ).toThrow("operator 'operator' has equipment event handlers but no equipment event executor");
+  });
+
+  it('executes inline Buff lifecycle steps through the originating cast operation chain', () => {
+    const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+      get: () => undefined,
+      compile: entry => ({
+        id: entry.id,
+        stackingType: entry.stackingType,
+        durationSeconds: entry.durationSeconds,
+      }),
+    });
+    const program = skill({
+      castId: 'cast-1',
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'resource-buff',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  definition: {
+                    stackingType: 'unique',
+                    lifecycleSequences: {
+                      start: {
+                        steps: [
+                          {
+                            kind: 'changeResource',
+                            parameters: {
+                              resource: 'sp',
+                              amount: 20,
+                              recipient: 'team',
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => buffRuntime,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast-1')).toBe(true);
+    expect(assembly.resources.sp).toBe(120);
+    expect(buffs.buffs[0]?.skillCastInfo).toMatchObject({
+      originSkillId: 'skill',
+      originCastId: 'cast-1',
+    });
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
+    );
+  });
+
+  it('opens and consumes the matching combo window without blocking other skills', () => {
+    const opener = skill({
+      skillId: 'combo-stage-1',
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'openComboWindow',
+                parameters: { nextSkillKey: 'combo-stage-2' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const stage2 = skill({ skillId: 'combo-stage-2', skillType: 'comboSkill' });
+    const unrelated = skill({ skillId: 'unrelated' });
+    const assembly = createAssembly([opener, stage2, unrelated]);
+
+    expect(assembly.tryStartSkill('operator', 'combo-stage-1')).toBe(true);
+    expect(assembly.comboWindows.first?.nextSkillKey).toBe('combo-stage-2');
+
+    expect(assembly.tryStartSkill('operator', 'unrelated')).toBe(true);
+    expect(assembly.comboWindows.first?.nextSkillKey).toBe('combo-stage-2');
+
+    expect(assembly.tryStartSkill('operator', 'combo-stage-2')).toBe(true);
+    expect(assembly.comboWindows.first).toBeUndefined();
+    expect(
+      assembly.receipt.entries.some(entry => entry.event === 'ComboWindowUnavailableAtStart'),
+    ).toBe(false);
+  });
+
+  it('installs operator combo registrations once and opens a window from a semantic event', () => {
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 100,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [],
+          comboSkillRegistrations: [
+            {
+              skillKey: 'comboSkill',
+              priority: 'default',
+              blackboard: { coefficient: 1.5 },
+              rules: [
+                {
+                  trigger: {
+                    kind: 'damageTagHit',
+                    tag: 'normalAttackLastCombo',
+                    scope: 'team',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    assembly.semanticEvents.emit({
+      kind: 'damageTagHit',
+      sourceOperatorId: 'another-operator',
+      tags: ['normalAttackLastCombo'],
+    });
+
+    expect(assembly.comboWindows.first).toMatchObject({
+      operatorId: 'operator',
+      nextSkillKey: 'comboSkill',
+      blackboard: { coefficient: 1.5 },
+    });
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'ComboWindowOpened'),
+    ).toHaveLength(1);
+  });
+
+  it('records a diagnostic fact but still starts a combo skill without a window', () => {
+    const combo = skill({ skillId: 'comboSkill', skillType: 'comboSkill' });
+    const assembly = createAssembly([combo]);
+
+    expect(assembly.tryStartSkill('operator', 'comboSkill')).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        sourceId: 'operator',
+        data: expect.objectContaining({ skillId: 'comboSkill', reason: 'windowMissing' }),
+      }),
+    );
+  });
+
   it('advances an environment-created operator Buff runtime as the ability-system owner', () => {
     const advanceFrame = vi.fn();
     const operatorBuffRuntime = {

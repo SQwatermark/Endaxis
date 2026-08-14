@@ -3,13 +3,13 @@
  *
  * 每个技能块先选定技能模板或自定义技能定义，再通过 `compileSkill` 编译；
  * 不再从存档快照读取时间轴。`disabled` 从 `presentation` 读取。
- * 尚未闭环的逐次释放编辑仍显式失败。
+ * 基于干员模板的完整 `customDefinition` 会直接参与编译；只有不携带战斗定义的自由展示块失败。
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
-import type { CompiledSkillProgram } from './combatProgram';
+import type { CompiledComboSkillRegistration, CompiledSkillProgram } from './combatProgram';
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
-import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
+import type { LevelValues, OperatorDefinition } from '../game-data/operatorDefinition';
 import type {
   OperatorInstanceDocument,
   ScenarioDocument,
@@ -53,10 +53,49 @@ function requireSkillLevel(build: OperatorInstanceDocument, levelSource: string)
   return level;
 }
 
-function assertSkillCanCompile(definition: SkillDefinition): void {
-  if (definition.eventHandlers?.length) {
-    throw new Error(`skill has event handlers, but skill event compilation is not connected`);
-  }
+function resolveLevelValue(value: LevelValues, level: number, path: string): number {
+  const resolved = typeof value === 'number' ? value : value[level - 1];
+  if (resolved === undefined) throw new RangeError(`${path} has no value for skill level ${level}`);
+  if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
+  return resolved;
+}
+
+function compileComboSkillRegistrations(
+  build: OperatorInstanceDocument,
+  operator: OperatorDefinition,
+): readonly CompiledComboSkillRegistration[] {
+  return (operator.comboSkillRegistrations ?? []).map((registration, index) => {
+    const group = operator.skillGroups.find(candidate => {
+      const skills = Array.isArray(candidate.skills) ? candidate.skills : [candidate.skills];
+      return skills.some(skill => skill.key === registration.skillKey);
+    });
+    if (group === undefined) {
+      throw new Error(
+        `operator '${operator.slug}' combo registration ${index} references missing skill '${registration.skillKey}'`,
+      );
+    }
+    if (group.skillType !== 'comboSkill') {
+      throw new Error(
+        `operator '${operator.slug}' combo registration '${registration.skillKey}' is not a combo skill`,
+      );
+    }
+    const level = requireSkillLevel(build, group.levelSource);
+    return {
+      skillKey: registration.skillKey,
+      priority: registration.priority,
+      blackboard: Object.fromEntries(
+        Object.entries(registration.blackboard ?? {}).map(([key, value]) => [
+          key,
+          resolveLevelValue(
+            value,
+            level,
+            `operator '${operator.slug}'.comboSkillRegistrations[${index}].blackboard.${key}`,
+          ),
+        ]),
+      ),
+      rules: registration.rules,
+    };
+  });
 }
 
 /** 编译一次技能释放。等级和养成效果在这里按当前项目配置计算。 */
@@ -67,7 +106,6 @@ function compileCastSkillProgram(
   level: number,
 ): CompiledSkillProgram {
   const definition = resolved.definition;
-  assertSkillCanCompile(definition);
   const base = compileSkill({
     operatorId: trackId,
     skillGroupKey: resolved.group.key,
@@ -94,7 +132,6 @@ export function compileOperatorDefinitionSkills(
     const skillLevel = requireSkillLevel(build, group.levelSource);
     const definitions = Array.isArray(group.skills) ? group.skills : [group.skills];
     return definitions.map(skill => {
-      assertSkillCanCompile(skill);
       return compileSkill({
         operatorId: trackId,
         skillGroupKey: group.key,
@@ -125,7 +162,9 @@ function compileResolvedTimelineTracks(
     for (const cast of track.skillCasts) {
       if (cast.presentation?.disabled) continue;
       if (cast.source.kind === 'custom') {
-        throw new Error(`skill cast '${cast.id}' uses unsupported source kind 'custom'`);
+        throw new Error(
+          `skill cast '${cast.id}' is a presentation-only custom action without a SkillDefinition`,
+        );
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
@@ -142,6 +181,7 @@ function compileResolvedTimelineTracks(
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
     operators.push({
       operatorId: track.id,
+      comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       skills: applyOperatorUpgradeSkillPatches(
         skills,
         resolveActiveOperatorUpgrades(operatorInstance, operator),

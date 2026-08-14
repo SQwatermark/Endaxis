@@ -40,6 +40,7 @@ describe('executeHealthDamage', () => {
       sourceId: 'operator',
       targetId: 'enemy',
       damageType: 'electric',
+      tags: ['comboSkill'],
       result: createDamageResult(120),
       target,
       clock: new CombatClock(),
@@ -57,9 +58,47 @@ describe('executeHealthDamage', () => {
     expect(order).toEqual([
       'target:beforeTakeDamage',
       'source:beforeOutputDamage',
+      'source:beforeKillEntity',
+      'source:afterKillEntity',
       'receipt:DamageApplied',
       'target:takeDamage',
       'source:outputDamage',
+    ]);
+  });
+
+  it('does not emit kill events for non-lethal damage or an already defeated target', () => {
+    const sourceEvents: string[] = [];
+    const target = new CombatVitals({
+      health: 100,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const execute = (value: number) =>
+      executeHealthDamage({
+        sourceId: 'operator',
+        targetId: 'enemy',
+        damageType: 'electric',
+        tags: ['normalSkill'],
+        result: createDamageResult(value),
+        target,
+        clock: new CombatClock(),
+        receipt: { record: () => undefined },
+        emitSourceEvent: event => sourceEvents.push(event),
+        emitTargetEvent: () => undefined,
+      });
+
+    execute(40);
+    execute(60);
+    execute(10);
+
+    expect(sourceEvents.filter(event => event.includes('KillEntity'))).toEqual([
+      'beforeKillEntity',
+      'afterKillEntity',
     ]);
   });
 });

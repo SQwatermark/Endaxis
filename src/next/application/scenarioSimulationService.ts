@@ -30,6 +30,10 @@ import {
   projectSkillExecutionDiagnostics,
   type SkillExecutionDiagnostic,
 } from '../core/projection/skillExecutionDiagnostics';
+import {
+  projectComboWindowDiagnostics,
+  type ComboWindowDiagnostic,
+} from '../core/projection/comboWindowDiagnostics';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -70,6 +74,7 @@ export interface ScenarioSimulationRun extends StandardPlayerDamageScenarioResul
   readonly poiseCurve: PoiseCurve;
   readonly availabilityDiagnostics: readonly SkillAvailabilityDiagnostic[];
   readonly executionDiagnostics: readonly SkillExecutionDiagnostic[];
+  readonly comboWindowDiagnostics: readonly ComboWindowDiagnostic[];
 }
 
 interface MutableCacheEntry {
@@ -184,6 +189,9 @@ export class ScenarioSimulationService {
       ),
       executionDiagnostics: freezeDiagnostics(
         projectSkillExecutionDiagnostics(result.receiptEntries),
+      ),
+      comboWindowDiagnostics: freezeDiagnostics(
+        projectComboWindowDiagnostics(result.receiptEntries),
       ),
     }) as ScenarioSimulationRun;
 

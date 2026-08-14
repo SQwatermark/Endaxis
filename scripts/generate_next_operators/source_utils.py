@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import struct
 from typing import Any
 
 from source_models import Vector3Source
@@ -13,6 +14,7 @@ from source_models import Vector3Source
 __all__ = [
     "action_name",
     "parse_vector3",
+    "project_tick_interval_frames",
     "require_bool",
     "require_dict",
     "require_list",
@@ -23,6 +25,33 @@ __all__ = [
     "ts_inline_literal",
     "ts_literal",
 ]
+
+
+def to_float32(value: float) -> float:
+    """按原生单精度计时器截断一次运算结果。"""
+
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def project_tick_interval_frames(
+    start_frame: int,
+    end_frame: int,
+    interval_seconds: float,
+) -> tuple[int, ...]:
+    """按 TickIntervalAction 的单精度累计规则投影宿主逐帧更新。"""
+
+    timer = to_float32(0)
+    delta_time = to_float32(1 / 30)
+    interval = to_float32(interval_seconds)
+    ticked_count = 0
+    result: list[int] = []
+    for frame in range(start_frame, end_frame + 1):
+        timer = to_float32(timer + delta_time)
+        next_tick_time = to_float32(to_float32(float(ticked_count)) * interval)
+        if timer >= next_tick_time:
+            result.append(frame)
+            ticked_count += 1
+    return tuple(result)
 
 def require_dict(value: Any, path: str) -> dict[str, Any]:
     if not isinstance(value, dict):

@@ -154,6 +154,7 @@ describe('useScenarioSimulation', () => {
         },
       ],
       executionDiagnostics: [],
+      comboWindowDiagnostics: [],
     };
     const fakeService = {
       simulate: async () => fakeRun,

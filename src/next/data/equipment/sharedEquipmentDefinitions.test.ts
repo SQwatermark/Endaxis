@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  validateGearDefinition,
+  validateGearSetDefinition,
+  validateWeaponDefinition,
+} from '../../core/game-data/equipmentDefinitionValidation';
+import {
   getSharedEquipmentSupport,
   sharedEquipmentAdaptationIssues,
   sharedGearDefinitions,
@@ -23,6 +28,22 @@ describe('sharedEquipmentDefinitions', () => {
     ]) {
       expect(new Set(definitions.map(definition => definition.slug)).size).toBe(definitions.length);
     }
+  });
+
+  it('registers only structurally valid Next definitions', () => {
+    const issues = [
+      ...sharedWeaponDefinitions.flatMap((definition, index) =>
+        validateWeaponDefinition(definition, `$.weapons[${index}]`),
+      ),
+      ...sharedGearDefinitions.flatMap((definition, index) =>
+        validateGearDefinition(definition, `$.gears[${index}]`),
+      ),
+      ...sharedGearSetDefinitions.flatMap((definition, index) =>
+        validateGearSetDefinition(definition, `$.gearSets[${index}]`),
+      ),
+    ];
+
+    expect(issues).toEqual([]);
   });
 
   it('registers reliable base definitions and exposes unsupported source semantics as partial', () => {

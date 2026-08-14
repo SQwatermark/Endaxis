@@ -7,6 +7,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -43,6 +44,7 @@ function createBattleSkillRuntime(
     ],
   });
   const receipt = new CombatReceiptCollector();
+  const semanticEvents = new CombatSemanticEventRuntime();
   const operations: CombatOperationExecutor = {
     execute: vi.fn(() => true),
     evaluate: vi.fn(() => true),
@@ -68,13 +70,87 @@ function createBattleSkillRuntime(
     receipt,
     operations,
     allocateSkillCastId: () => nextSkillCastId++,
+    semanticEvents,
   });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
-  return { clock, resources, receipt, operations, runtime, simulation };
+  return { clock, resources, receipt, operations, runtime, semanticEvents, simulation };
 }
 
 describe('SkillRuntime', () => {
+  it('只在调度区间内响应技能临时监听事件，并在中断时立即注销', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'listener-fixture',
+      timelineBlockFrames: 4,
+      scheduledSequences: [
+        {
+          startFrame: 1,
+          endFrame: 4,
+          sequence: {
+            steps: [
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    {
+                      key: 'normal-skill-hit',
+                      event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+                      condition: { kind: 'combatActive' },
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'setContextFlag',
+                            parameters: { flag: 'first', value: true, target: 'caster' },
+                          },
+                          {
+                            kind: 'setContextFlag',
+                            parameters: { flag: 'second', value: true, target: 'caster' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const emit = () =>
+      fixture.semanticEvents.emit({
+        kind: 'damageTagHit',
+        sourceOperatorId: 'perlica',
+        tags: ['normalSkill'],
+      });
+
+    fixture.runtime.tryStart();
+    emit();
+    expect(fixture.operations.execute).not.toHaveBeenCalled();
+
+    fixture.simulation.advanceFrames(1);
+    emit();
+    expect(fixture.operations.evaluate).toHaveBeenCalledWith(
+      { kind: 'combatActive' },
+      expect.objectContaining({
+        blackboard: fixture.runtime.operationContext.blackboard,
+        event: {
+          kind: 'damageTagHit',
+          sourceOperatorId: 'perlica',
+          tags: ['normalSkill'],
+        },
+      }),
+    );
+    expect(vi.mocked(fixture.operations.execute).mock.calls.map(call => call[0])).toMatchObject([
+      { kind: 'setContextFlag', parameters: { flag: 'first' } },
+      { kind: 'setContextFlag', parameters: { flag: 'second' } },
+    ]);
+
+    fixture.runtime.interrupt('castNextSkill');
+    emit();
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(2);
+  });
+
   it('同一次释放只执行一次共享作用域，并在下一次释放时重置', () => {
     const onceStep = {
       kind: 'once',

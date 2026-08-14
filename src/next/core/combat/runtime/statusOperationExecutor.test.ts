@@ -24,7 +24,7 @@ describe('StatusOperationExecutor', () => {
     };
     const executor = new StatusOperationExecutor({
       sourceId: 'operator',
-      skillId: 'battleSkill',
+      sourceActionId: 'battleSkill',
       clock: new CombatClock(),
       receipt,
       resolveTarget: () => target,
@@ -92,7 +92,7 @@ describe('StatusOperationExecutor', () => {
     };
     const executor = new StatusOperationExecutor({
       sourceId: 'operator',
-      skillId: 'enhancedSkill',
+      sourceActionId: 'enhancedSkill',
       clock: new CombatClock(),
       receipt,
       resolveTarget: () => target,

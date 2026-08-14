@@ -77,13 +77,21 @@ describe('next Perlica definition', () => {
   });
 
   it('opens the combo window from the final normal-attack damage tag', () => {
-    expect(getSkill('comboSkill').activationWindow?.rules).toEqual({
-      trigger: {
-        kind: 'damageTagHit',
-        tag: 'normalAttackLastCombo',
-        scope: 'team',
+    expect(perlica.comboSkillRegistrations).toEqual([
+      {
+        skillKey: 'comboSkill',
+        priority: 'default',
+        rules: [
+          {
+            trigger: {
+              kind: 'damageTagHit',
+              tag: 'normalAttackLastCombo',
+              scope: 'team',
+            },
+          },
+        ],
       },
-    });
+    ]);
   });
 
   it('defines finisher and plunging attack as independent basic-attack-level groups', () => {

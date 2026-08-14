@@ -18,6 +18,7 @@ import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
+import SkillDefinitionEditorDialog from './components/SkillDefinitionEditorDialog.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
 import TimelineConnectionLayer from './components/TimelineConnectionLayer.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
@@ -41,6 +42,7 @@ import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { perlica } from '../../data/operators';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
+import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
   projectTimelineEditor,
@@ -72,6 +74,7 @@ import {
   setSkillCastLocked,
   setSkillCastDisabled,
   setSkillCastColor,
+  setSkillCastCustomDefinition,
   resetSkillCastToTemplate,
   updateBattleResourceRule,
   type EditableBattleResourceRule,
@@ -108,6 +111,7 @@ const showCursorGuide = ref(true);
 const connectionToolEnabled = ref(false);
 const selectedTrack = ref<TrackIndex>(0);
 const selectedCastId = ref<string | null>(null);
+const showSkillDefinitionEditor = ref(false);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
@@ -281,13 +285,18 @@ const selectedCastModel = computed(() => {
     );
     if (castModel !== undefined && cast !== undefined) {
       const operator = nextGameDataRepository.getOperator(trackModel.operatorSlug ?? '');
+      const template =
+        operator === null ? null : resolveSkillTemplateDefinition(cast, operator).definition;
       const diffCount =
-        cast.customDefinition === undefined || operator === null
+        cast.customDefinition === undefined || template === null
           ? 0
-          : diffSkillDefinition(
-              resolveSkillTemplateDefinition(cast, operator).definition,
-              cast.customDefinition,
-            ).length;
+          : diffSkillDefinition(template, cast.customDefinition).length;
+      const source = cast.source;
+      const skillLevel =
+        source.kind === 'operatorSkill'
+          ? (trackModel.skillLibrary.find(entry => entry.skillGroupKey === source.skillGroupKey)
+              ?.level ?? 1)
+          : 1;
       return {
         trackIndex: trackModel.trackIndex,
         cast,
@@ -295,6 +304,9 @@ const selectedCastModel = computed(() => {
         label: timelineCastLabel(castModel, trackModel),
         edited: cast.customDefinition !== undefined,
         diffCount,
+        templateDefinition: template,
+        currentDefinition: cast.customDefinition ?? template,
+        skillLevel,
       };
     }
   }
@@ -1151,6 +1163,20 @@ function resetSelectedCastDefinition(): void {
   commitScenario('resetSkillCastToTemplate', current =>
     resetSkillCastToTemplate(current, selected.trackIndex, selected.cast.id),
   );
+  showSkillDefinitionEditor.value = false;
+}
+
+/**
+ * 保存技能逻辑编辑：把完整草稿交给统一命令入口做最后校验后写入场景。
+ * 校验失败时命令抛错，场景保持不变。
+ */
+function saveSelectedCastDefinition(draft: SkillDefinition): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastCustomDefinition', current =>
+    setSkillCastCustomDefinition(current, selected.trackIndex, selected.cast.id, draft),
+  );
+  showSkillDefinitionEditor.value = false;
 }
 
 function setPanelDialogVisible(visible: boolean): void {
@@ -1549,6 +1575,9 @@ function setPanelDialogVisible(visible: boolean): void {
         :skill-type="selectedCastModel?.skillType ?? null"
         :edited="selectedCastModel?.edited ?? false"
         :diff-count="selectedCastModel?.diffCount ?? 0"
+        :template-definition="selectedCastModel?.templateDefinition ?? null"
+        :current-definition="selectedCastModel?.currentDefinition ?? null"
+        @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
       />
       <div v-else class="empty-panel">{{ tool }}</div>
@@ -1642,6 +1671,16 @@ function setPanelDialogVisible(visible: boolean): void {
     :operator="panelDialogOperator"
     :operator-name="panelDialogOperatorName"
     @update:visible="setPanelDialogVisible"
+  />
+  <SkillDefinitionEditorDialog
+    :visible="showSkillDefinitionEditor"
+    :title="selectedCastModel?.label ?? ''"
+    :template-definition="selectedCastModel?.templateDefinition ?? null"
+    :custom-definition="selectedCastModel?.cast.customDefinition"
+    :skill-level="selectedCastModel?.skillLevel ?? 1"
+    @update:visible="showSkillDefinitionEditor = $event"
+    @save="saveSelectedCastDefinition"
+    @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
     :visible="hitDetailTarget !== null"

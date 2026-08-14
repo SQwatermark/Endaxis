@@ -24,6 +24,7 @@ from generate_next_operators import (
     collect_timed_marker_damage_gates,
     collect_consumed_root_timed_marker_action_ids,
     collect_once_resource_gain_gates,
+    collect_runtime_blackboard_output_keys,
     build_blackboard_provenance,
     compile_skill_entries,
     compile_buff_application_values,
@@ -31,6 +32,9 @@ from generate_next_operators import (
     compile_buff_stack_read,
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
+    compile_skill_event_listener,
+    compile_resource_gain,
+    compile_combat_condition,
     compile_combat_condition_group,
     compile_conditional_action,
     compile_immediate_projectile_children,
@@ -77,6 +81,7 @@ from generate_next_operators import (
     parse_direct_damage_hits,
     parse_entity_blackboard_assignments,
     parse_interval_damage_hits,
+    project_tick_interval_frames,
     parse_damage_units,
     parse_inflictions,
     parse_panel_attributes,
@@ -125,6 +130,7 @@ from generate_next_operators import (
     ts_inline_literal,
     typescript_identifier,
     validate_skill_groups,
+    parse_combo_skill_registrations,
     walk_actions,
     walk_single_enemy_actions,
     walk_unconditional_actions,
@@ -943,6 +949,64 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
                 self.assertIn(f"  damageType: '{damage_type}',", source)
 
+    def test_damage_compiler_uses_native_tags_and_features(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=4352,
+        )
+
+        source = compile_damage_units_step(
+            (unit,),
+            ("normalSkill",),
+            "fixture.damage",
+        )
+
+        self.assertIn("  tags: ['normalSkill'],", source)
+        self.assertIn("  features: ['canBreakWeakness'],", source)
+
+    def test_damage_compiler_preserves_an_empty_native_classification(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=0,
+        )
+
+        source = compile_damage_units_step(
+            (unit,),
+            ("normalSkill",),
+            "fixture.damage",
+        )
+
+        self.assertIn("  tags: [],", source)
+
+    def test_damage_compiler_allows_native_final_hit_as_a_basic_attack_specialization(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=2097280,
+        )
+
+        source = compile_damage_units_step(
+            (unit,),
+            ("normalAttack",),
+            "fixture.final-hit",
+        )
+
+        self.assertIn("  tags: ['normalAttack', 'normalAttackLastCombo'],", source)
+
     def test_damage_compiler_preserves_a_pure_poise_unit_without_health_damage(self) -> None:
         unit = DamageUnitSource(
             damageType="Cryst",
@@ -1728,7 +1792,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIs(timelines[1]["_sequenceActionData"]["actionData"][0], damage)
         self.assertIs(timelines[2]["_sequenceActionData"]["actionData"][0], damage)
 
-    def test_channel_timeline_projection_rejects_owner_until_target_is_explicit(self) -> None:
+    def test_channel_timeline_projection_accepts_owner_without_target_dependency(self) -> None:
         target = target_settings_fixture("Owner")
         channel = {
             "$type": "Example.ChannelingAction, Example",
@@ -1742,6 +1806,47 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "maxCountPerTarget": -1,
             "targetTriggerInterval": 0,
             "actionOnTick": {"actionData": []},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {"actionData": [channel]},
+                    }
+                ]
+            }
+        }
+
+        projected = project_single_enemy_channeling_timeline(root, "fixture")
+
+        self.assertEqual(
+            [item["_startFrame"] for item in projected["actionGroupData"]["timelineActions"]],
+            [0],
+        )
+
+    def test_channel_timeline_projection_rejects_owner_with_target_dependency(self) -> None:
+        target = target_settings_fixture("Owner")
+        channel = {
+            "$type": "Example.ChannelingAction, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 2,
+            "targetSettings": target,
+            "executeEachFrame": False,
+            "triggerInterval": 0.1,
+            "maxCountPerTarget": -1,
+            "targetTriggerInterval": 0,
+            "actionOnTick": {
+                "actionData": [
+                    {
+                        "$type": "Example.CreateBuffAction, Example",
+                        "targetSettings": target_settings_fixture("Target"),
+                    }
+                ]
+            },
         }
         root = {
             "actionGroupData": {
@@ -5523,6 +5628,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("ultimateRecoveryTagId: 264623624", result)
         self.assertIn("ignoreUltimateEnergyGainMultiplier: true", result)
 
+    def test_conditional_action_compiler_preserves_dynamic_resource_coefficient(self) -> None:
+        gain = ResourceGainPayload(
+            resource="ultimateEnergy",
+            amount=ScalarSource(None, "usp", None),
+            coefficient=ScalarSource(None, "infliction_num", None),
+            spGainKind=None,
+            spGainSource=None,
+            onlyMainOperator=False,
+            isPercentValue=False,
+            useUltimateRecoveryTag=False,
+            ultimateRecoveryTagId=0,
+            ignoreUltimateGainScalar=False,
+        )
+
+        result = compile_resource_gain(gain, "fixture.resourceGain")
+
+        self.assertIn("changeResourceByActionValue", result)
+        self.assertIn("amount: { kind: 'blackboard', key: 'usp' }", result)
+        self.assertIn("coefficient: { kind: 'blackboard', key: 'infliction_num' }", result)
+
     def test_conditional_action_compiler_preserves_runtime_damage_scale(self) -> None:
         condition = SimpleNamespace(
             sourceType="CompareFloat",
@@ -5538,6 +5663,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             attackScale=ScalarSource(None, "atk_scale_final", (1.0,)),
             calculationMultiplier=None,
             poiseValue=None,
+            damageDecorateMask=256,
         )
         action = SimpleNamespace(
             conditions=(condition,),
@@ -5554,13 +5680,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         result = compile_conditional_action(
             action,
             "fixture.condition",
-            damage_tags=("battleSkill",),
+            damage_tags=("normalSkill",),
             runtime_blackboard_keys=frozenset({"atk_scale_final"}),
         )
 
         self.assertIn("step('dealDamage'", result)
         self.assertIn("attackScale: { kind: 'blackboard', key: 'atk_scale_final' }", result)
-        self.assertIn("tags: ['battleSkill']", result)
+        self.assertIn("tags: ['normalSkill']", result)
+
+    def test_runtime_blackboard_keys_include_projectile_child_writes(self) -> None:
+        mutation = SimpleNamespace(
+            blackboardCalculation=None,
+            blackboardMutation=SimpleNamespace(key="projectile_scale"),
+            buffBlackboardRead=None,
+            buffStackRead=None,
+            nestedCondition=None,
+            onceActions=None,
+        )
+        condition = SimpleNamespace(succeedActions=(mutation,), failActions=())
+        projectile = SimpleNamespace(
+            conditionalActions=(condition,),
+            abilityEntityHits=(),
+            nestedProjectileTriggeredSkills=(),
+        )
+        skill = SimpleNamespace(
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            conditionalActions=(),
+            projectileTriggeredSkills=(projectile,),
+            abilityEntityHits=(),
+        )
+
+        self.assertEqual(
+            collect_runtime_blackboard_output_keys(skill),
+            frozenset({"projectile_scale"}),
+        )
 
     def test_conditional_action_compiler_rejects_unresolved_leaf_with_path(self) -> None:
         condition = SimpleNamespace(
@@ -6896,6 +7051,53 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         validate_skill_groups(operator, skills, growth, "growth")
 
+    def test_combo_skill_registration_accepts_a_known_skill_and_trigger(self) -> None:
+        operator = {
+            "slug": "operator",
+            "comboSkillRegistrations": [
+                {
+                    "skillKey": "comboSkill",
+                    "priority": "default",
+                    "rules": [
+                        {
+                            "trigger": {
+                                "kind": "damageTagHit",
+                                "tag": "normalAttackLastCombo",
+                                "scope": "team",
+                            }
+                        }
+                    ],
+                }
+            ],
+        }
+
+        self.assertEqual(
+            parse_combo_skill_registrations(
+                operator,
+                [SimpleNamespace(key="comboSkill")],
+            ),
+            operator["comboSkillRegistrations"],
+        )
+
+    def test_combo_skill_registration_rejects_unknown_fields(self) -> None:
+        operator = {
+            "slug": "operator",
+            "comboSkillRegistrations": [
+                {
+                    "skillKey": "comboSkill",
+                    "priority": "default",
+                    "durationFrames": 150,
+                    "rules": [],
+                }
+            ],
+        }
+
+        with self.assertRaisesRegex(ValueError, "unexpected fields"):
+            parse_combo_skill_registrations(
+                operator,
+                [SimpleNamespace(key="comboSkill")],
+            )
+
     def test_if_else_with_identical_combat_branches_is_folded_once(self) -> None:
         spawn = lambda server_index: {
             "$type": "Example.SpawnAbilityEntity+Data, Example",
@@ -7237,6 +7439,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         {
                                             "damageType": "Pulse",
                                             "damageAttributeType": "Hp",
+                                            "damageDecorateMask": 0,
                                             "simpleCalculation": True,
                                             "atkScale": {
                                                 "useBlackboardKey": True,
@@ -7267,6 +7470,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     {
                         "damageType": "Pulse",
                         "damageAttributeType": "Hp",
+                        "damageDecorateMask": 0,
                         "simpleCalculation": True,
                         "atkScale": {
                             "useBlackboardKey": True,
@@ -7313,9 +7517,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         hits = parse_interval_damage_hits(root, "skill.json", {"atk": (0.11, 0.25)})
 
         self.assertEqual(len(hits), 1)
-        self.assertEqual(hits[0].tickFrames, (9, 12, 15))
-        self.assertEqual(hits[0].intervalFrames, 3)
+        self.assertEqual(hits[0].tickFrames, (9, 11, 14))
+        self.assertEqual(hits[0].intervalSeconds, 0.1)
         self.assertEqual(hits[0].damageUnits[0].attackScale.levelValues, (0.11, 0.25))
+
+    def test_interval_damage_keeps_non_integral_frame_periods(self) -> None:
+        self.assertEqual(
+            project_tick_interval_frames(4, 12, 0.07),
+            (4, 6, 8, 10, 12),
+        )
 
     def test_conditional_inside_fixed_interval_preserves_every_execution_frame(self) -> None:
         root = {
@@ -7378,7 +7588,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         conditions = parse_conditional_actions(root, "skill.json", {})
 
         self.assertEqual(len(conditions), 1)
-        self.assertEqual(conditions[0].executionFrames, (12, 18, 24, 30))
+        self.assertEqual(conditions[0].executionFrames, (12, 17, 23, 29))
 
     def test_direct_damage_does_not_project_conditional_branch_hits(self) -> None:
         damage = {
@@ -7423,6 +7633,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         {
                             "damageType": "Pulse",
                             "damageAttributeType": "Hp",
+                            "damageDecorateMask": 0,
                             "simpleCalculation": False,
                             "atkScale": {
                                 "useBlackboardKey": False,
@@ -7463,6 +7674,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         {
                             "damageType": "Natural",
                             "damageAttributeType": "Poise",
+                            "damageDecorateMask": 0,
                             "simpleCalculation": False,
                             "atkScale": {
                                 "useBlackboardKey": False,
@@ -7538,6 +7750,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                         {
                             "damageType": "Physical",
                             "damageAttributeType": "Hp",
+                            "damageDecorateMask": 512,
                             "simpleCalculation": False,
                             "atkScale": {
                                 "useBlackboardKey": False,
@@ -7579,6 +7792,30 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         ] = True
         with self.assertRaisesRegex(ValueError, "scaled definite values"):
             parse_damage_units(root, "ultimate.json", {})
+
+    def test_damage_unit_requires_native_decorate_mask(self) -> None:
+        root = {
+            "actionGroupData": {
+                "action": {
+                    "$type": "Example.DamageAction, Example",
+                    "damageUnits": [
+                        {
+                            "damageType": "Physical",
+                            "damageAttributeType": "Hp",
+                            "simpleCalculation": True,
+                            "atkScale": {
+                                "useBlackboardKey": False,
+                                "blackboardKey": "",
+                                "value": 1,
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "damageDecorateMask"):
+            parse_damage_units(root, "skill.json", {})
 
     def test_skill_event_listener_preserves_registration_interval_and_action_order(self) -> None:
         root = {
@@ -7630,12 +7867,282 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual((listener.startFrame, listener.endFrame), (3, 20))
         self.assertEqual(listener.actionIndex, 7)
+        self.assertEqual((listener.priorityLevel, listener.priorityOffset), ("Default", 0))
         self.assertEqual(listener.event, "OnAfterKillEntity")
         self.assertEqual(
             listener.sequences[0].orderedActionTypes,
             ("CheckDamageDecorateMask", "CompareFloat"),
         )
         self.assertEqual(listener.sequences[0].combatActions, ())
+        self.assertEqual(listener.sequences[0].actions, ())
+
+    def test_skill_event_listener_actions_do_not_count_as_root_timeline_actions(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 20,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.EventListenerAction+Data, Example",
+                                    "isEnable": True,
+                                    "abilityActionMap": [
+                                        {
+                                            "abilityEvent": "OnAfterKillEntity",
+                                            "actions": [
+                                                {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.CreateBuffAction+Data, Example",
+                                                            "isEnable": True,
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    },
+                    {
+                        "_startFrame": 21,
+                        "_endFrame": 21,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CreateBuffAction+Data, Example",
+                                    "isEnable": True,
+                                }
+                            ]
+                        },
+                    },
+                ]
+            }
+        }
+
+        timeline = parse_timeline(root, "fixture.json")
+
+        self.assertEqual(timeline[0].actionTypes, ("EventListenerAction",))
+        self.assertEqual(timeline[1].actionTypes, ("CreateBuffAction",))
+        self.assertEqual(
+            collect_unresolved_combat_actions(timeline),
+            ("CreateBuffAction",),
+        )
+
+    def test_skill_event_listener_preserves_guarded_blackboard_mutation(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 20,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.EventListenerAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 7,
+                                    "abilityActionMap": [
+                                        {
+                                            "abilityEvent": "OnAfterKillEntity",
+                                            "actions": [
+                                                {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.CompareFloat+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 8,
+                                                            "valueA": {
+                                                                "useBlackboardKey": True,
+                                                                "blackboardKey": "enabled",
+                                                                "value": 0,
+                                                            },
+                                                            "compare": "GT",
+                                                            "valueB": {
+                                                                "useBlackboardKey": False,
+                                                                "blackboardKey": "",
+                                                                "value": 0,
+                                                            },
+                                                        },
+                                                        {
+                                                            "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 9,
+                                                            "key": "kill_num",
+                                                            "operation": "Add",
+                                                            "directValue": True,
+                                                            "value": {
+                                                                "useBlackboardKey": False,
+                                                                "blackboardKey": "",
+                                                                "value": 1,
+                                                            },
+                                                            "calculationTarget": {
+                                                                "targetSource": "Owner",
+                                                                "targetGroupKey": "",
+                                                            },
+                                                            "calculateType": "HpRatio",
+                                                        },
+                                                    ],
+                                                    "onlyExecuteWhenSourceIsMainChar": False,
+                                                    "onlyExecuteWhenSourceIsGuard": False,
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        sequence = parse_skill_event_listeners(root, "fixture.json", {"enabled": (1,)})[
+            0
+        ].sequences[0]
+
+        self.assertEqual(len(sequence.actions), 1)
+        guard = sequence.actions[0].nestedCondition
+        self.assertIsNotNone(guard)
+        assert guard is not None
+        self.assertEqual(guard.conditions[0].sourceType, "CompareFloat")
+        mutation = guard.succeedActions[0].blackboardMutation
+        self.assertIsNotNone(mutation)
+        assert mutation is not None
+        self.assertEqual(mutation.key, "kill_num")
+        compiled = compile_skill_event_listener(
+            parse_skill_event_listeners(root, "fixture.json", {"enabled": (1,)})[0],
+            "fixture.eventListener",
+            runtime_blackboard_keys=frozenset({"enabled", "kill_num"}),
+            step_key_prefix="fixture",
+        )
+        self.assertIn("step('listenForCombatEvents'", compiled)
+        self.assertIn("kind: 'enemyDefeated'", compiled)
+        self.assertIn("key: 'kill_num'", compiled)
+        self.assertIn("operation: 'add'", compiled)
+
+    def test_skill_event_listener_preserves_event_context_condition_payloads(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 10,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.EventListenerAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "abilityActionMap": [
+                                        {
+                                            "abilityEvent": "OnAddedBuff",
+                                            "actions": [
+                                                {
+                                                    "actionData": [
+                                                        {
+                                                            "$type": "Example.CheckBuffIdInContext+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 2,
+                                                            "checkType": "Id",
+                                                            "buffIdList": [{"buffId": "buff_a"}],
+                                                            "query": {"queryType": "HasAny"},
+                                                        },
+                                                        {
+                                                            "$type": "Example.CheckDamageDecorateMask+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 3,
+                                                            "checkType": "HasAll",
+                                                            "mask": 8192,
+                                                        },
+                                                        {
+                                                            "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                                            "isEnable": True,
+                                                            "serverActionIndex": 4,
+                                                            "key": "count",
+                                                            "operation": "Add",
+                                                            "directValue": True,
+                                                            "value": {
+                                                                "useBlackboardKey": False,
+                                                                "blackboardKey": "",
+                                                                "value": 1,
+                                                            },
+                                                            "calculationTarget": {
+                                                                "targetSource": "Owner",
+                                                                "targetGroupKey": "",
+                                                            },
+                                                            "calculateType": "HpRatio",
+                                                        },
+                                                    ],
+                                                    "onlyExecuteWhenSourceIsMainChar": False,
+                                                    "onlyExecuteWhenSourceIsGuard": False,
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_skill_event_listeners(root, "fixture.json", {})[0].sequences[0].actions
+        buff_guard = actions[0].nestedCondition
+        self.assertIsNotNone(buff_guard)
+        assert buff_guard is not None
+        context_buff = buff_guard.conditions[0].contextBuffId
+        self.assertIsNotNone(context_buff)
+        assert context_buff is not None
+        self.assertEqual(context_buff.buffIds, ("buff_a",))
+        damage_guard = buff_guard.succeedActions[0].nestedCondition
+        self.assertIsNotNone(damage_guard)
+        assert damage_guard is not None
+        damage_mask = damage_guard.conditions[0].damageDecorateMask
+        self.assertIsNotNone(damage_mask)
+        assert damage_mask is not None
+        self.assertEqual(damage_mask.mask, 8192)
+        compiled = compile_combat_condition(
+            damage_guard.conditions[0],
+            "fixture.damageMask",
+        )
+        self.assertIn("kind: 'eventDamageTagsMatch'", compiled)
+        self.assertIn("match: 'hasAll'", compiled)
+        self.assertIn("tags: ['comboSkill']", compiled)
+
+    def test_damage_mask_condition_splits_mixed_native_properties(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckDamageDecorateMask",
+            damageDecorateMask=SimpleNamespace(checkType="HasAny", mask=33280),
+        )
+
+        compiled = compile_combat_condition(condition, "fixture.damageMask")
+
+        self.assertIn("kind: 'any'", compiled)
+        self.assertIn("kind: 'eventDamageTagsMatch'", compiled)
+        self.assertIn("tags: ['ultimateSkill']", compiled)
+        self.assertIn("kind: 'eventDamageFeaturesMatch'", compiled)
+        self.assertIn("features: ['airborne']", compiled)
+
+    def test_damage_mask_condition_preserves_dot_area_exclusion(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckDamageDecorateMask",
+            damageDecorateMask=SimpleNamespace(checkType="ExceptAny", mask=805306368),
+        )
+
+        compiled = compile_combat_condition(condition, "fixture.damageMask")
+
+        self.assertIn("kind: 'eventDamageFeaturesMatch'", compiled)
+        self.assertIn("match: 'exceptAny'", compiled)
+        self.assertIn("features: ['dot', 'remainArea']", compiled)
 
 
 if __name__ == "__main__":

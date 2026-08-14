@@ -34,10 +34,12 @@ from action_payload_parser import (
     walk_single_enemy_actions,
 )
 from source_models import (
+    BuffIdInContextConditionSource,
     BuffStackConditionSource,
     ConditionSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    DamageDecorateMaskConditionSource,
     DistanceConditionSource,
     DoOnceActionSource,
     EntityCountConditionSource,
@@ -54,6 +56,7 @@ from source_models import (
 )
 from source_utils import (
     action_name,
+    project_tick_interval_frames,
     require_bool,
     require_dict,
     require_list,
@@ -62,7 +65,11 @@ from source_utils import (
 )
 from target_parser import parse_target_reference
 
-__all__ = ["contains_combat_effect", "parse_conditional_actions"]
+__all__ = [
+    "contains_combat_effect",
+    "parse_conditional_actions",
+    "parse_ordered_action_sequence",
+]
 
 # 这些动作本身不会进入 Next 执行序列，但它们决定后续 Context 目标组的身份。
 # 条件树必须保留它们，编译阶段才能证明分支外读取来自哪个目标。
@@ -70,6 +77,19 @@ TARGET_GROUP_PROVENANCE_ACTION_NAMES = {
     "ContinuousFindTargetAction",
     "FindTargetAction",
     "MergeTargetAction",
+}
+
+# 这些检查直接位于事件回调序列中，失败时会截断后续动作；它们不是战斗效果本身。
+EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
+    "CheckBuffIdInContext",
+    "CheckDamageDecorateMask",
+    "CompareFloat",
+}
+
+# 这些叶子只改变运行时状态，仍应让前置顺序守卫把它们纳入控制流。
+ORDERED_STATE_EFFECT_ACTION_NAMES = {
+    "FinishBuffAdvanced",
+    "ModifyDynamicBlackboard",
 }
 
 
@@ -88,7 +108,8 @@ def contains_combat_effect(value: Any) -> bool:
         type_name = value.get("$type")
         if (
             isinstance(type_name, str)
-            and action_name(type_name) in AUDITED_COMBAT_EFFECT_ACTION_NAMES
+            and action_name(type_name)
+            in AUDITED_COMBAT_EFFECT_ACTION_NAMES | ORDERED_STATE_EFFECT_ACTION_NAMES
         ):
             return True
         return any(contains_combat_effect(child) for child in value.values())
@@ -113,6 +134,55 @@ def parse_conditional_actions(
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
         condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "CheckDamageDecorateMask":
+            mask = condition.get("mask")
+            if not isinstance(mask, int) or isinstance(mask, bool) or mask < 0:
+                raise ValueError(f"{path}.mask: expected non-negative integer")
+            check_type = condition.get("checkType")
+            if not isinstance(check_type, str) or not check_type:
+                raise ValueError(f"{path}.checkType: expected non-empty string")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                damageDecorateMask=DamageDecorateMaskConditionSource(
+                    checkType=check_type,
+                    mask=mask,
+                ),
+            )
+        if condition_type == "CheckBuffIdInContext":
+            check_type = condition.get("checkType")
+            if not isinstance(check_type, str) or not check_type:
+                raise ValueError(f"{path}.checkType: expected non-empty string")
+            query = require_dict(condition.get("query"), f"{path}.query")
+            query_type = query.get("queryType")
+            if not isinstance(query_type, str) or not query_type:
+                raise ValueError(f"{path}.query.queryType: expected non-empty string")
+            buff_ids: list[str] = []
+            for index, raw_buff in enumerate(
+                require_list(condition.get("buffIdList"), f"{path}.buffIdList")
+            ):
+                buff = require_dict(raw_buff, f"{path}.buffIdList[{index}]")
+                buff_id = buff.get("buffId")
+                if not isinstance(buff_id, str) or not buff_id:
+                    raise ValueError(f"{path}.buffIdList[{index}].buffId: expected string")
+                buff_ids.append(buff_id)
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                contextBuffId=BuffIdInContextConditionSource(
+                    checkType=check_type,
+                    buffIds=tuple(buff_ids),
+                    queryType=query_type,
+                ),
+            )
         if condition_type == "CompareFloat":
             return ConditionSource(
                 sourceType=condition_type,
@@ -610,7 +680,7 @@ def parse_conditional_actions(
                 continue
             action_type = action_name(str(action.get("$type", "")))
             action_path = (*path, "actionData", f"[{index}]")
-            if action_type in SEQUENCE_GUARD_ACTION_NAMES:
+            if action_type in SEQUENCE_GUARD_ACTION_NAMES | EVENT_SEQUENCE_GUARD_ACTION_NAMES:
                 if not any(
                     contains_combat_effect(item)
                     for item in raw_actions[index + 1 :]
@@ -855,11 +925,9 @@ def parse_conditional_actions(
                 or interval_seconds <= 0
             ):
                 raise ValueError(f"{action_path}.tickInterval: expected positive number")
-            interval_frames_float = float(interval_seconds) * 30
-            interval_frames = round(interval_frames_float)
-            if interval_frames <= 0 or abs(interval_frames_float - interval_frames) > 1e-6:
-                raise ValueError(f"{action_path}.tickInterval: does not align to combat frames")
-            tick_frames = tuple(range(start_frame, end_frame, interval_frames))
+            tick_frames = project_tick_interval_frames(
+                start_frame, end_frame, float(interval_seconds)
+            )
             if not tick_frames:
                 raise ValueError(f"{action_path}: interval produces no ticks")
             visit(
@@ -980,3 +1048,43 @@ def parse_conditional_actions(
             (),
         )
     return tuple(result)
+
+
+def parse_ordered_action_sequence(
+    action_data: Any,
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[ConditionalBranchActionSource, ...]:
+    """解析事件回调等没有时间轴外壳的同步动作序列。
+
+    通用解析器以时间轴中的条件节点为入口。这里仅补一个临时入口外壳，返回时剥掉外壳；
+    动作顺序、守卫短路和服务端序号仍由同一套规则解析。
+    """
+    wrapper = {
+        "actionGroupData": {
+            "timelineActions": [
+                {
+                    "_startFrame": 0,
+                    "_endFrame": 0,
+                    "_sequenceActionData": {
+                        "actionData": [
+                            {
+                                "$type": "Endaxis.Parser.IfElseAction",
+                                "isEnable": True,
+                                "serverActionIndex": 0,
+                                "conditionAction": {"actionData": []},
+                                "succeedActions": {"actionData": action_data},
+                                "failActions": {"actionData": []},
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+    }
+    parsed = parse_conditional_actions(wrapper, source_name, inherited_blackboard)
+    if not parsed:
+        return ()
+    if len(parsed) != 1 or parsed[0].conditions:
+        raise ValueError(f"{source_name}: failed to parse ordered action sequence")
+    return parsed[0].succeedActions

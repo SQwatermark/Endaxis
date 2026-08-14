@@ -1,5 +1,7 @@
 # Endaxis Next 专题文档索引
 
+- [武器与装备定义结构蓝图](./14-equipment-definition-blueprint.md)：配装定义、项目实例、静态贡献和事件能力的统一结构。
+
 主干文档解释稳定架构；本页索引更深入、变化更频繁的专题设计和研究材料。
 
 ## 1. 项目、仓库与路线图
@@ -16,6 +18,7 @@
 
 - [技能全生命周期与编辑语义](./11-skill-lifecycle.md)
 - [SkillDefinition 数据结构蓝图](./12-skill-definition-blueprint.md)
+- [时间冻结与时间投影](./13-time-freeze-and-projection.md)
 - [玩家主动伤害流水线](../architecture/endaxis-next-damage-pipeline.md)
 - [通用语义状态运行时](../architecture/endaxis-next-semantic-status-runtime.md)
 - [处决和下落攻击](../research/finisher-and-plunging-attacks.md)

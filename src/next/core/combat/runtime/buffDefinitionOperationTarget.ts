@@ -7,22 +7,34 @@ import {
   type BuffFinishReason,
   type CombatBuffDefinition,
 } from '../buffs/combatBuffs';
+import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
+import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type {
   BuffApplicationRequest,
+  BuffLifecycleOperationSource,
   BuffOperationTarget,
   BuffQueryResult,
 } from './buffOperationExecutor';
 import type { GameplayTagId, GameplayTagQueryType } from '../tags/gameplayTags';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
+import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
+import type { CombatOperationExecutor } from './skillRuntime';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
+  compile?(entry: CombatBuffDefinitionEntry): CombatBuffDefinition<Key>;
 }
 
 export class BuffDefinitionOperationTarget<Key extends string>
   implements BuffOperationTarget, FrameRuntime
 {
+  readonly #inlineDefinitions = new WeakMap<
+    ResolvedSkillBuffDefinition,
+    CombatBuffDefinition<Key>
+  >();
+  #resolveLifecycleOperations:
+    ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
   constructor(
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
@@ -37,7 +49,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   apply(request: BuffApplicationRequest): boolean {
-    const definition = this.definitions.get(request.buffId);
+    const definition =
+      request.definition === undefined
+        ? this.definitions.get(request.buffId)
+        : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
     return (
       this.container.add(definition, request.sourceId, {
@@ -45,6 +60,54 @@ export class BuffDefinitionOperationTarget<Key extends string>
         ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
       }) !== null
     );
+  }
+
+  /**
+   * 场景装配完成后绑定生命周期步骤使用的完整操作链。
+   * 同一运行时只能配置一次，避免定义缓存跨装配规则混用。
+   */
+  configureLifecycleOperations(
+    resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,
+  ): void {
+    if (this.#resolveLifecycleOperations !== null) {
+      throw new Error(`combat Buff runtime '${this.ownerId}' lifecycle operations are configured`);
+    }
+    this.#resolveLifecycleOperations = resolveOperations;
+  }
+
+  #compileInlineDefinition(
+    id: string,
+    source: ResolvedSkillBuffDefinition,
+  ): CombatBuffDefinition<Key> {
+    const cached = this.#inlineDefinitions.get(source);
+    if (cached !== undefined) return cached;
+    // 显示信息随技能定义保存，但不进入战斗运行时。
+    const { presentation: _presentation, lifecycleSequences, ...runtimeDefinition } = source;
+    if (lifecycleSequences !== undefined && this.#resolveLifecycleOperations === null) {
+      throw new Error(
+        `combat buff '${id}' has lifecycle sequences, but no Buff sequence runtime is configured`,
+      );
+    }
+    if (lifecycleSequences === undefined && this.definitions.compile === undefined) {
+      throw new Error(
+        `combat buff '${id}' uses an inline definition, but no compiler is configured`,
+      );
+    }
+    if (this.definitions.compile === undefined) {
+      throw new Error(
+        `combat buff '${id}' uses an inline definition, but no compiler is configured`,
+      );
+    }
+    const entry: CombatBuffDefinitionEntry = { id, ...runtimeDefinition };
+    const baseDefinition = this.definitions.compile(entry);
+    const definition =
+      lifecycleSequences === undefined
+        ? baseDefinition
+        : attachBuffLifecycleSequences(baseDefinition, lifecycleSequences, buff =>
+            this.#resolveLifecycleOperations!(buff),
+          );
+    this.#inlineDefinitions.set(source, definition);
+    return definition;
   }
 
   advanceFrame(): void {

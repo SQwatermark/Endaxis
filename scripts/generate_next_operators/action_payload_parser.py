@@ -578,6 +578,16 @@ def parse_damage_units(
         units = require_list(action.get("damageUnits"), f"{source_name}.DamageAction.damageUnits")
         for index, raw_unit in enumerate(units):
             unit = require_dict(raw_unit, f"{source_name}.DamageAction.damageUnits[{index}]")
+            damage_decorate_mask = unit.get("damageDecorateMask")
+            if (
+                not isinstance(damage_decorate_mask, int)
+                or isinstance(damage_decorate_mask, bool)
+                or damage_decorate_mask < 0
+            ):
+                raise ValueError(
+                    f"{source_name}.DamageAction.damageUnits[{index}].damageDecorateMask: "
+                    "expected non-negative integer"
+                )
             simple_calculation = unit.get("simpleCalculation")
             if not isinstance(simple_calculation, bool):
                 raise ValueError(f"{source_name}.DamageAction.damageUnits[{index}].simpleCalculation: expected boolean")
@@ -682,6 +692,7 @@ def parse_damage_units(
                     calculationMultiplier=calculation_multiplier,
                     poiseValue=poise_value,
                     definiteValue=definite_value,
+                    damageDecorateMask=damage_decorate_mask,
                 )
             )
     return tuple(result)

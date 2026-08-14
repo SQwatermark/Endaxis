@@ -13,6 +13,89 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('rejects legacy top-level handlers because they do not preserve listener lifetime', () => {
+    const skill = {
+      key: 'legacy-listener',
+      timelineBlockFrames: 1,
+      scheduledSequences: [],
+      eventHandlers: [
+        {
+          key: 'legacy',
+          event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+          scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    expect(() =>
+      compileSkill({
+        operatorId: 'fixture',
+        skillGroupKey: 'battleSkill',
+        skillType: 'battleSkill',
+        skillLevel: 1,
+        skill,
+      }),
+    ).toThrow('uses legacy eventHandlers without a listener interval');
+  });
+
+  it('编译内联 Buff 生命周期中的等级数值', () => {
+    const skill = {
+      key: 'buff-lifecycle',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'scaling-buff',
+                  target: 'caster',
+                  definition: {
+                    stackingType: 'unique',
+                    lifecycleSequences: {
+                      start: {
+                        steps: [
+                          {
+                            kind: 'dealDamage',
+                            parameters: {
+                              damageType: 'electric',
+                              attackScale: [1, 2],
+                              tags: ['normalSkill'],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
+      parameters: {
+        definition: {
+          lifecycleSequences: {
+            start: { steps: [{ parameters: { attackScale: 2 } }] },
+          },
+        },
+      },
+    });
+  });
+
   it('按技能等级解析初始动作黑板', () => {
     const skill = {
       key: 'blackboard',
@@ -341,6 +424,51 @@ describe('compileSkill', () => {
         resource: 'sp',
         amount: 20,
         coefficient: 0.25,
+        recipient: 'team',
+        spGainKind: 'refund',
+      },
+    });
+  });
+
+  it('preserves a dynamic resource coefficient for runtime evaluation', () => {
+    const skill = {
+      key: 'dynamic-refund',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResourceByActionValue',
+                parameters: {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'refundAmount' },
+                  coefficient: { kind: 'blackboard', key: 'targetCount' },
+                  recipient: 'team',
+                  spGainKind: 'refund',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'comboSkill',
+      skillType: 'comboSkill',
+      skillLevel: 1,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'changeResourceByActionValue',
+      parameters: {
+        resource: 'sp',
+        amount: { kind: 'blackboard', key: 'refundAmount' },
+        coefficient: { kind: 'blackboard', key: 'targetCount' },
         recipient: 'team',
         spGainKind: 'refund',
       },

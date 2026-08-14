@@ -213,41 +213,6 @@ const comboSkill = {
   key: 'comboSkill',
   timelineBlockFrames: 23,
   cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
-  activationWindow: {
-    durationFrames: 150,
-    rules: [
-      {
-        trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' },
-        condition: formIsIntellect,
-      },
-      {
-        trigger: {
-          kind: 'elementalInflictionApplied',
-          elements: ['heat', 'cryo', 'electric'],
-          scope: 'team',
-        },
-        condition: {
-          kind: 'all',
-          conditions: [
-            formIsIntellect,
-            {
-              kind: 'elementalInflictionPresent',
-              elements: ['heat', 'cryo', 'electric'],
-              minimumStacks: 2,
-            },
-          ],
-        },
-      },
-      {
-        trigger: {
-          kind: 'elementalInflictionApplied',
-          elements: ['heat', 'cryo', 'electric', 'nature'],
-          scope: 'team',
-        },
-        condition: formIsWill,
-      },
-    ],
-  },
   scheduledSequences: [
     scheduled(
       15,
@@ -597,6 +562,44 @@ export const arcane: OperatorDefinition = {
       levelSource: 'ultimate',
       skills: ultimate,
       presentationVariants: arcanePresentationVariants,
+    },
+  ],
+  comboSkillRegistrations: [
+    {
+      skillKey: 'comboSkill',
+      priority: 'default',
+      rules: [
+        {
+          trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' },
+          condition: formIsIntellect,
+        },
+        {
+          trigger: {
+            kind: 'elementalInflictionApplied',
+            elements: ['heat', 'cryo', 'electric'],
+            scope: 'team',
+          },
+          condition: {
+            kind: 'all',
+            conditions: [
+              formIsIntellect,
+              {
+                kind: 'elementalInflictionPresent',
+                elements: ['heat', 'cryo', 'electric'],
+                minimumStacks: 2,
+              },
+            ],
+          },
+        },
+        {
+          trigger: {
+            kind: 'elementalInflictionApplied',
+            elements: ['heat', 'cryo', 'electric', 'nature'],
+            scope: 'team',
+          },
+          condition: formIsWill,
+        },
+      ],
     },
   ],
   eventHandlers: [arcaneFormEventHandler],

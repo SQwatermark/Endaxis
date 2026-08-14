@@ -9,6 +9,7 @@ import { CombatVitals } from './combatVitals';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 const enemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
@@ -84,6 +85,7 @@ function createContext(overrides: Partial<CombatOperationExecutorContext> = {}) 
       squad: [],
     }),
     receipt: new CombatReceiptCollector(),
+    semanticEvents: new CombatSemanticEventRuntime(),
     ...overrides,
   } satisfies CombatOperationExecutorContext;
 }

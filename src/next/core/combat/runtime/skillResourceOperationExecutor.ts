@@ -14,7 +14,8 @@ type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'onc
 /** 资源执行节点所需的来源身份、账本、回执和后继执行器。 */
 export interface SkillResourceOperationDependencies {
   readonly sourceOperatorId: string;
-  readonly skillId: string;
+  /** 技能 key 或配装事件来源 key；仅用于当前兼容回执中的 `skillId` 字段。 */
+  readonly sourceActionId: string;
   readonly clock: CombatClock;
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptSink;
@@ -34,14 +35,21 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('changeResourceByActionValue requires a combat operation context');
       }
+      const { amount, coefficient, ...parameters } = step.parameters;
       return this.execute(
         {
           kind: 'changeResource',
           parameters: {
-            ...step.parameters,
-            amount: Math.fround(
-              resolveActionValueOperand(step.parameters.amount, context.blackboard),
-            ),
+            ...parameters,
+            amount: Math.fround(resolveActionValueOperand(amount, context.blackboard)),
+            ...(coefficient === undefined
+              ? {}
+              : {
+                  coefficient:
+                    typeof coefficient === 'object'
+                      ? Math.fround(resolveActionValueOperand(coefficient, context.blackboard))
+                      : coefficient,
+                }),
           },
         },
         context,
@@ -64,7 +72,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         event: 'SpChanged',
         sourceId: this.dependencies.sourceOperatorId,
         data: {
-          skillId: this.dependencies.skillId,
+          skillId: this.dependencies.sourceActionId,
           recipient: 'team',
           baseValue: change.baseValue,
           requestedValue: change.requestedValue,
@@ -136,7 +144,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       sourceId: this.dependencies.sourceOperatorId,
       targetId: change.operatorId,
       data: {
-        skillId: this.dependencies.skillId,
+        skillId: this.dependencies.sourceActionId,
         recipient: 'operator',
         baseValue: change.baseValue,
         requestedValue: change.requestedValue,

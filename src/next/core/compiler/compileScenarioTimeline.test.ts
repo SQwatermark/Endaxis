@@ -4,6 +4,7 @@ import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
 import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import { compileScenarioTimeline } from './compileScenarioTimeline';
+import type { SkillDefinition } from '../game-data/operatorDefinition';
 
 function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡编译样本');
@@ -43,6 +44,14 @@ function place(scenario: ScenarioDocument, skillGroupKey: string, startFrame: nu
   }).scenario;
 }
 
+function requireSingleSkill(skillGroupKey: string): SkillDefinition {
+  const group = perlica.skillGroups.find(candidate => candidate.key === skillGroupKey);
+  if (group === undefined || Array.isArray(group.skills)) {
+    throw new Error(`expected single-skill group '${skillGroupKey}'`);
+  }
+  return group.skills as SkillDefinition;
+}
+
 describe('compileScenarioTimeline', () => {
   it('compiles the complete operator skill index and placed input', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
@@ -52,6 +61,22 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('track:0');
     expect(compiled.operators[0]!.skills.map(skill => skill.skillId)).toContain('battleSkill');
+    expect(compiled.operators[0]!.comboSkillRegistrations).toEqual([
+      {
+        skillKey: 'comboSkill',
+        priority: 'default',
+        blackboard: {},
+        rules: [
+          {
+            trigger: {
+              kind: 'damageTagHit',
+              tag: 'normalAttackLastCombo',
+              scope: 'team',
+            },
+          },
+        ],
+      },
+    ]);
     expect(compiled.inputs).toEqual([
       { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
     ]);
@@ -115,6 +140,66 @@ describe('compileScenarioTimeline', () => {
     const ultimate = compiled.operators[0]!.skills.find(skill => skill.skillId === 'ultimate');
 
     expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 68 }]);
+  });
+
+  it('compiles a complete custom definition with the current skill level', () => {
+    const scenario = place(createScenario(), 'battleSkill', 60);
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    const template = requireSingleSkill('battleSkill');
+    cast.customDefinition = {
+      ...structuredClone(template),
+      timelineBlockFrames: 99,
+      costs: [
+        {
+          resource: 'sp',
+          value: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 123],
+        },
+      ],
+    };
+
+    const compiled = compileScenarioTimeline(scenario, index());
+    const program = compiled.operators[0]!.skills[0]!;
+
+    expect(program.castId).toBe(cast.id);
+    expect(program.skillId).toBe('battleSkill');
+    expect(program.timelineBlockFrames).toBe(99);
+    expect(program.costs).toEqual([{ resource: 'sp', value: 123 }]);
+  });
+
+  it('applies active operator upgrades after compiling a custom definition', () => {
+    const scenario = place(createScenario(), 'ultimate', 60);
+    scenario.tracks[0]!.operator!.potential = 1;
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    const template = requireSingleSkill('ultimate');
+    cast.customDefinition = {
+      ...structuredClone(template),
+      costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    };
+    const operator = {
+      ...perlica,
+      potentials: [
+        {
+          key: 'reducedUltimateCost',
+          levels: 1,
+          modifiers: [
+            {
+              kind: 'multiplySkillCost' as const,
+              skillGroupKey: 'ultimate',
+              resource: 'ultimateEnergy' as const,
+              multiplier: 0.85,
+            },
+          ],
+        },
+      ],
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+
+    expect(compiled.operators[0]!.skills[0]!.costs).toEqual([
+      { resource: 'ultimateEnergy', value: 85 },
+    ]);
   });
 
   it('rejects a dangling skill identity', () => {

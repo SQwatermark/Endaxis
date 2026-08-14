@@ -31,6 +31,36 @@ function createPerlicaScenario(): ScenarioDocument {
   return scenario;
 }
 
+function createTwoOperatorComboScenario(): {
+  readonly scenario: ScenarioDocument;
+  readonly attacker: typeof perlica;
+} {
+  const scenario = createPerlicaScenario();
+  const attacker = {
+    ...perlica,
+    slug: 'perlica-combo-test-attacker',
+    comboSkillRegistrations: [],
+  } satisfies typeof perlica;
+  scenario.tracks[0]!.operator!.operatorSlug = attacker.slug;
+  scenario.tracks[1] = {
+    id: 'track:1',
+    operator: {
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return { scenario, attacker };
+}
+
 function createService(cacheLimit?: number): ScenarioSimulationService {
   return new ScenarioSimulationService(
     {
@@ -118,6 +148,59 @@ describe('ScenarioSimulationService', () => {
     expect(reaction?.data?.level).toBe(1);
     expect(run.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
     expect(run.receiptEntries.some(entry => entry.event === 'PoiseApplied')).toBe(true);
+    expect(run.comboWindowDiagnostics[0]?.reasons).toEqual(['windowMissing']);
+  });
+
+  it('由队友末段普攻开启佩丽卡窗口并在后续输入中消费', async () => {
+    const { scenario, attacker } = createTwoOperatorComboScenario();
+    let nextId = 0;
+    const ids = { allocate: (kind: string) => `${kind}:${++nextId}` };
+    const withTrigger = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: attacker,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack4',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    const withCombo = placeSkillGroup({
+      scenario: withTrigger,
+      trackIndex: 1,
+      operator: perlica,
+      skillGroupKey: 'comboSkill',
+      startFrame: 30,
+      ids,
+    }).scenario;
+    const service = new ScenarioSimulationService({
+      index: {
+        getOperator: slug =>
+          slug === attacker.slug ? attacker : slug === perlica.slug ? perlica : null,
+        getWeapon: () => null,
+        getGear: () => null,
+        getGearSet: () => null,
+      },
+      resources: {
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecoveryPauseDuration: 1.5,
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+      },
+    });
+
+    const run = await service.simulate(withCombo, 90);
+    const opened = run.receiptEntries.find(entry => entry.event === 'ComboWindowOpened');
+    const consumed = run.receiptEntries.find(entry => entry.event === 'ComboWindowConsumed');
+
+    expect(opened).toMatchObject({ frame: 27, sourceId: 'track:1' });
+    expect(consumed).toMatchObject({ frame: 30, sourceId: 'track:1' });
+    expect(opened!.sequence).toBeLessThan(consumed!.sequence);
+    expect(run.comboWindowDiagnostics).toEqual([]);
+    expect(
+      run.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:1',
+      ),
+    ).toBe(true);
   });
 
   it('重复施加附着时按 SkillSetting 真实打出爆发伤害', async () => {

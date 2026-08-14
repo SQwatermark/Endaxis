@@ -10,6 +10,10 @@ import type { ScenarioSimulationService } from '../../application/scenarioSimula
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { SkillAvailabilityDiagnosticReason } from '../../core/projection/skillAvailabilityDiagnostics';
 import type { SkillExecutionDiagnosticReason } from '../../core/projection/skillExecutionDiagnostics';
+import type { ComboWindowDiagnosticReason } from '../../core/projection/comboWindowDiagnostics';
+
+export type TimelineSkillDiagnosticReason =
+  SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason | ComboWindowDiagnosticReason;
 
 export interface UseScenarioSimulationOptions {
   readonly scenario: Ref<ScenarioDocument>;
@@ -27,10 +31,7 @@ export interface UseScenarioSimulationResult {
   readonly error: Ref<string | null>;
   /** 每个技能块的警告原因列表，键是技能块的 id。 */
   readonly diagnosticsByCastId: ComputedRef<
-    ReadonlyMap<
-      string,
-      readonly (SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason)[]
-    >
+    ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >;
   /** 立即取消等待并执行一次模拟。 */
   readonly simulateNow: () => void;
@@ -104,10 +105,7 @@ export function useScenarioSimulation(
   });
 
   const diagnosticsByCastId = computed<
-    ReadonlyMap<
-      string,
-      readonly (SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason)[]
-    >
+    ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >(() => {
     const current = run.value;
     const scenario = options.scenario.value;
@@ -126,11 +124,14 @@ export function useScenarioSimulation(
         skillId: diagnostic.skillId,
         reason: diagnostic.reasons,
       })),
+      ...current.comboWindowDiagnostics.map(diagnostic => ({
+        frame: diagnostic.frame,
+        sourceId: diagnostic.sourceId,
+        skillId: diagnostic.skillId,
+        reason: diagnostic.reasons,
+      })),
     ];
-    const byCastId = new Map<
-      string,
-      (SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason)[]
-    >();
+    const byCastId = new Map<string, TimelineSkillDiagnosticReason[]>();
     for (const diagnostic of diagnostics) {
       for (const track of scenario.tracks) {
         if (track === null || track.id !== diagnostic.sourceId) continue;

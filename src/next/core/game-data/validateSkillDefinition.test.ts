@@ -42,6 +42,139 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(skill)).toEqual([]);
   });
 
+  it('keeps Buff presentation metadata strict and separate from runtime fields', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.example',
+                target: 'caster',
+                definition: {
+                  stackingType: 'refresh',
+                  presentation: { iconPath: '/icons/buffs/example.webp' },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+    const definition = (
+      skill.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: { definition: Record<string, unknown> } }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters.definition;
+    definition.presentation = { iconPath: '', color: '#fff' };
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path.endsWith('.presentation.iconPath'))).toBe(true);
+    expect(issues.some(issue => issue.path.endsWith('.presentation.color'))).toBe(true);
+  });
+
+  it('accepts ordered inline Buff lifecycle sequences', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.lifecycle',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                definition: {
+                  stackingType: 'unique',
+                  lifecycleSequences: {
+                    start: {
+                      steps: [
+                        {
+                          kind: 'setContextFlag',
+                          parameters: { flag: 'started', value: true, target: 'caster' },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+
+  it('requires source skill-cast identity for inline Buff lifecycle sequences', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.lifecycle-without-origin',
+                target: 'caster',
+                definition: {
+                  stackingType: 'unique',
+                  lifecycleSequences: { start: { steps: [] } },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    const issues = validateSkillDefinition(skill);
+    expect(
+      issues.some(
+        issue =>
+          issue.path.endsWith('.parameters.inheritSourceSkillCastInfo') &&
+          issue.message.includes('require inherited skill-cast info'),
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects old low-level actions and unknown inline Buff lifecycle names', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.invalid-lifecycle',
+                target: 'caster',
+                definition: {
+                  stackingType: 'unique',
+                  actions: { start: [] },
+                  lifecycleSequences: { update: { steps: [] } },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path.endsWith('.definition.actions'))).toBe(true);
+    expect(issues.some(issue => issue.path.endsWith('.lifecycleSequences.update'))).toBe(true);
+  });
+
   it('rejects missing top-level key and timelineBlockFrames', () => {
     const skill = { scheduledSequences: [] };
     const issues = validateSkillDefinition(skill);
@@ -156,6 +289,44 @@ describe('validateSkillDefinition', () => {
     ).toBe(true);
   });
 
+  it('requires an explicit end frame for nested combat event listeners', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'combatActive' } },
+              whenTrue: {
+                steps: [
+                  {
+                    kind: 'listenForCombatEvents',
+                    parameters: {
+                      responses: [
+                        {
+                          key: 'response',
+                          event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+                          sequence: { steps: [] },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].endFrame',
+      message: 'combat event listeners require an end frame',
+    });
+  });
+
   it('rejects an event trigger with an invalid scope', () => {
     const skill = baseSkill();
     skill.eventHandlers = [
@@ -167,23 +338,6 @@ describe('validateSkillDefinition', () => {
     ];
     const issues = validateSkillDefinition(skill);
     expect(issues.some(issue => issue.path === '$.eventHandlers[0].event.scope')).toBe(true);
-  });
-
-  it('rejects an invalid activation window', () => {
-    const skill = baseSkill();
-    skill.activationWindow = {
-      durationFrames: -1,
-      rules: { trigger: { kind: 'skillHit', skillGroupKey: 'x', scope: 'operator' } },
-    };
-    const issues = validateSkillDefinition(skill);
-    expect(issues.some(issue => issue.path === '$.activationWindow.durationFrames')).toBe(true);
-    expect(
-      issues.some(
-        issue =>
-          issue.path === '$.activationWindow.rules.trigger.kind' &&
-          issue.message.includes('damageTagHit'),
-      ),
-    ).toBe(true);
   });
 
   it('rejects invalid LevelValues: NaN and empty array', () => {
@@ -306,6 +460,44 @@ describe('validateSkillDefinition', () => {
     expect(
       validateSkillDefinition(skill).some(
         issue => issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.spGainSource',
+      ),
+    ).toBe(true);
+  });
+
+  it('validates a dynamic resource coefficient as an action value operand', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'changeResourceByActionValue',
+              parameters: {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'refundAmount' },
+                coefficient: { kind: 'blackboard', key: 'targetCount' },
+                recipient: 'team',
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    const coefficient = (
+      skill.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters.coefficient as Record<string, unknown>;
+    coefficient.key = '';
+
+    expect(
+      validateSkillDefinition(skill).some(
+        issue =>
+          issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.coefficient.key',
       ),
     ).toBe(true);
   });

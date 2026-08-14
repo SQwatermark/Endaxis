@@ -294,6 +294,11 @@ describe('V2 project document', () => {
                   kind: 'applyBuff',
                   parameters: {
                     buffId: 'electric-infliction',
+                    definition: {
+                      stackingType: 'enhanceAndRefresh',
+                      durationSeconds: 10,
+                      maxStackCount: 3,
+                    },
                     target: 'party',
                   },
                 },
@@ -362,6 +367,15 @@ describe('V2 project document', () => {
         'dealDamage',
         'conditional',
       ]);
+      const applyBuff = sequence[0];
+      expect(applyBuff?.kind).toBe('applyBuff');
+      if (applyBuff?.kind === 'applyBuff') {
+        expect(applyBuff.parameters.definition).toEqual({
+          stackingType: 'enhanceAndRefresh',
+          durationSeconds: 10,
+          maxStackCount: 3,
+        });
+      }
       const branch = sequence[3];
       expect(branch?.kind).toBe('conditional');
       if (branch?.kind === 'conditional') {

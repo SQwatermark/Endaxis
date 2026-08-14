@@ -3,6 +3,7 @@
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
@@ -18,10 +19,20 @@ export interface BuffQueryResult {
   readonly blackboard: Pick<ActionBlackboard, 'getNumber'>;
 }
 
+/** Buff 生命周期解析操作链时可使用的稳定实例来源。 */
+export interface BuffLifecycleOperationSource {
+  readonly sourceId: string;
+  readonly skillCastInfo: CombatSkillCastInfo | null;
+}
+
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
   /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
   readonly ownerId: string;
+  /** 支持内联生命周期行为的目标由场景装配根配置；普通查询目标可以不实现。 */
+  configureLifecycleOperations?(
+    resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,
+  ): void;
   apply?(request: BuffApplicationRequest): boolean;
   getCountByIds(ids: readonly string[]): number;
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
@@ -53,6 +64,8 @@ export interface BuffOperationTarget {
 /** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
   readonly buffId: string;
+  /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
+  readonly definition?: ResolvedSkillBuffDefinition;
   readonly sourceId: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
@@ -109,6 +122,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
       const request: BuffApplicationRequest = {
         buffId: step.parameters.buffId,
+        ...(step.parameters.definition === undefined
+          ? {}
+          : { definition: step.parameters.definition }),
         sourceId:
           step.parameters.source === undefined
             ? this.dependencies.sourceId

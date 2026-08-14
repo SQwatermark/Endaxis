@@ -18,6 +18,7 @@ import {
   COMPARISON_OPERATORS,
   DAMAGE_CALCULATIONS,
   DAMAGE_ELEMENTS,
+  DAMAGE_FEATURES,
   DAMAGE_TAGS,
   DAMAGE_TYPES,
   ELEMENTAL_REACTIONS,
@@ -29,6 +30,7 @@ import {
   STATUS_MODIFIER_KINDS,
 } from './operatorDefinition';
 import { collectDamageStepKeys } from './collectDamageStepKeys';
+import { parseCombatBuffDefinitionEntry } from '../combat/buffs/combatBuffDefinitions';
 
 export interface SkillDefinitionValidationIssue {
   path: string;
@@ -39,6 +41,7 @@ const STEP_KINDS = new Set<string>(COMBAT_STEP_KINDS);
 const CONDITION_KINDS = new Set<string>(COMBAT_CONDITION_KINDS);
 const DAMAGE_TYPES_SET = new Set<string>(DAMAGE_TYPES);
 const DAMAGE_TAGS_SET = new Set<string>(DAMAGE_TAGS);
+const DAMAGE_FEATURES_SET = new Set<string>(DAMAGE_FEATURES);
 const DAMAGE_ELEMENTS_SET = new Set<string>(DAMAGE_ELEMENTS);
 const INFLICTION_ELEMENTS_SET = new Set<string>(INFLICTION_ELEMENTS);
 const ELEMENTAL_REACTIONS_SET = new Set<string>(ELEMENTAL_REACTIONS);
@@ -58,6 +61,7 @@ const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
 );
 const HEALTH_VALUE_TYPES_SET = new Set<string>(['current', 'ratio']);
 const TAG_QUERY_TYPES_SET = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
+const TAG_QUERY_TYPES_WITH_EXACT_SET = new Set<string>(['exact', ...TAG_QUERY_TYPES_SET]);
 const BUFF_FINISH_REASONS_SET = new Set<string>(['early', 'absorbed', 'other']);
 const TRIGGER_SCOPES_SET = new Set<string>(['operator', 'team']);
 
@@ -242,6 +246,40 @@ function validateNonEmptyStringArray(
   });
 }
 
+/** 非空且只包含已定义伤害标签的数组。 */
+function validateDamageTags(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+  requireNonEmpty = true,
+): void {
+  if (!Array.isArray(value) || (requireNonEmpty && value.length === 0)) {
+    push(out, path, requireNonEmpty ? 'expected a non-empty array' : 'expected an array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || !DAMAGE_TAGS_SET.has(entry)) {
+      push(out, `${path}[${index}]`, 'unknown damage tag');
+    }
+  });
+}
+
+function validateDamageFeatures(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (!Array.isArray(value) || value.length === 0) {
+    push(out, path, 'expected a non-empty array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || !DAMAGE_FEATURES_SET.has(entry)) {
+      push(out, `${path}[${index}]`, 'unknown damage feature');
+    }
+  });
+}
+
 /** 布尔/数字/字符串三选一。 */
 function validateScalar(value: unknown, path: string, out: SkillDefinitionValidationIssue[]): void {
   if (typeof value !== 'boolean' && typeof value !== 'number' && typeof value !== 'string') {
@@ -338,6 +376,14 @@ function validateCombatCondition(
     case 'timedMarkerPresent':
       requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
       requireString(record, 'markerId', path, out);
+      break;
+    case 'eventDamageTagsMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
+      validateDamageTags(record.tags, `${path}.tags`, out);
+      break;
+    case 'eventDamageFeaturesMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
+      validateDamageFeatures(record.features, `${path}.features`, out);
       break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
@@ -542,14 +588,9 @@ function validateCombatStep(
           );
         }
       }
-      if (!Array.isArray(parameters.tags) || parameters.tags.length === 0) {
-        push(out, `${path}.parameters.tags`, 'expected a non-empty array');
-      } else {
-        parameters.tags.forEach((tag, index) => {
-          if (typeof tag !== 'string' || !DAMAGE_TAGS_SET.has(tag)) {
-            push(out, `${path}.parameters.tags[${index}]`, 'unknown damage tag');
-          }
-        });
+      validateDamageTags(parameters.tags, `${path}.parameters.tags`, out, false);
+      if (parameters.features !== undefined) {
+        validateDamageFeatures(parameters.features, `${path}.parameters.features`, out);
       }
       if (parameters.stagger !== undefined) {
         validateLevelValuesOrActionValueOperand(
@@ -585,14 +626,9 @@ function validateCombatStep(
     case 'dealFixedDamage': {
       requireEnum(parameters, 'damageType', DAMAGE_TYPES_SET, `${path}.parameters`, out);
       validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
-      if (!Array.isArray(parameters.tags) || parameters.tags.length === 0) {
-        push(out, `${path}.parameters.tags`, 'expected a non-empty array');
-      } else {
-        parameters.tags.forEach((tag, index) => {
-          if (typeof tag !== 'string' || !DAMAGE_TAGS_SET.has(tag)) {
-            push(out, `${path}.parameters.tags[${index}]`, 'unknown damage tag');
-          }
-        });
+      validateDamageTags(parameters.tags, `${path}.parameters.tags`, out, false);
+      if (parameters.features !== undefined) {
+        validateDamageFeatures(parameters.features, `${path}.parameters.features`, out);
       }
       if (parameters.stagger !== undefined) {
         validateLevelValuesOrActionValueOperand(
@@ -607,7 +643,91 @@ function validateCombatStep(
       validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;
     case 'applyBuff': {
-      requireString(parameters, 'buffId', `${path}.parameters`, out);
+      const buffId = requireString(parameters, 'buffId', `${path}.parameters`, out);
+      if (parameters.definition !== undefined && buffId !== null) {
+        const definition = asRecord(parameters.definition, `${path}.parameters.definition`, out);
+        if (definition !== null) {
+          try {
+            const { presentation, lifecycleSequences, actions, ...runtimeDefinition } = definition;
+            parseCombatBuffDefinitionEntry(
+              { id: buffId, ...runtimeDefinition },
+              `${path}.parameters.definition`,
+            );
+            if (actions !== undefined) {
+              push(
+                out,
+                `${path}.parameters.definition.actions`,
+                'inline Buff definitions must use lifecycleSequences',
+              );
+            }
+            if (lifecycleSequences !== undefined) {
+              const lifecyclePath = `${path}.parameters.definition.lifecycleSequences`;
+              const lifecycle = asRecord(lifecycleSequences, lifecyclePath, out);
+              if (lifecycle !== null) {
+                const supported = new Set([
+                  'start',
+                  'enable',
+                  'disable',
+                  'beforeEnhance',
+                  'trigger',
+                  'enhanceChanged',
+                  'afterEnhance',
+                  'finish',
+                ]);
+                for (const [key, sequence] of Object.entries(lifecycle)) {
+                  if (!supported.has(key)) {
+                    push(out, `${lifecyclePath}.${key}`, 'unknown Buff lifecycle sequence');
+                    continue;
+                  }
+                  validateActionSequence(sequence, `${lifecyclePath}.${key}`, out);
+                }
+                if (
+                  Object.keys(lifecycle).length > 0 &&
+                  parameters.inheritSourceSkillCastInfo !== true
+                ) {
+                  push(
+                    out,
+                    `${path}.parameters.inheritSourceSkillCastInfo`,
+                    'Buff lifecycle sequences require inherited skill-cast info',
+                  );
+                }
+              }
+            }
+            if (presentation !== undefined) {
+              const presentationRecord = asRecord(
+                presentation,
+                `${path}.parameters.definition.presentation`,
+                out,
+              );
+              if (presentationRecord !== null) {
+                for (const key of Object.keys(presentationRecord)) {
+                  if (key !== 'iconPath') {
+                    push(
+                      out,
+                      `${path}.parameters.definition.presentation.${key}`,
+                      'unknown Buff presentation field',
+                    );
+                  }
+                }
+                if (presentationRecord.iconPath !== undefined) {
+                  requireString(
+                    presentationRecord,
+                    'iconPath',
+                    `${path}.parameters.definition.presentation`,
+                    out,
+                  );
+                }
+              }
+            }
+          } catch (error) {
+            push(
+              out,
+              `${path}.parameters.definition`,
+              error instanceof Error ? error.message : 'invalid Buff definition',
+            );
+          }
+        }
+      }
       requireEnum(parameters, 'target', BUFF_APPLICATION_TARGETS_SET, `${path}.parameters`, out);
       if (parameters.count !== undefined) {
         validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
@@ -716,7 +836,11 @@ function validateCombatStep(
     case 'changeResourceByActionValue':
       validateActionValueOperand(parameters.amount, `${path}.parameters.amount`, out);
       if (parameters.coefficient !== undefined) {
-        validateLevelValues(parameters.coefficient, `${path}.parameters.coefficient`, out);
+        validateLevelValuesOrActionValueOperand(
+          parameters.coefficient,
+          `${path}.parameters.coefficient`,
+          out,
+        );
       }
       validateResourceChangeMetadata(parameters, `${path}.parameters`, out);
       break;
@@ -771,6 +895,31 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'caster'");
       }
       break;
+    case 'openComboWindow':
+      requireString(parameters, 'nextSkillKey', `${path}.parameters`, out);
+      break;
+    case 'listenForCombatEvents':
+      if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {
+        push(out, `${path}.parameters.responses`, 'expected a non-empty array');
+      } else {
+        const keys = new Set<string>();
+        parameters.responses.forEach((response, index) => {
+          const responsePath = `${path}.parameters.responses[${index}]`;
+          const record = asRecord(response, responsePath, out);
+          if (record === null) return;
+          const key = requireString(record, 'key', responsePath, out);
+          if (key !== null) {
+            if (keys.has(key)) push(out, `${responsePath}.key`, `duplicate response key '${key}'`);
+            keys.add(key);
+          }
+          validateEventTrigger(record.event, `${responsePath}.event`, out);
+          if (record.condition !== undefined) {
+            validateCombatCondition(record.condition, `${responsePath}.condition`, out);
+          }
+          validateActionSequence(record.sequence, `${responsePath}.sequence`, out);
+        });
+      }
+      break;
   }
 }
 
@@ -805,6 +954,20 @@ function validateActionSequence(
   });
 }
 
+function containsCombatEventListener(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  if (record.kind === 'listenForCombatEvents') return true;
+  if (record.kind === 'conditional') {
+    return (
+      containsCombatEventListener(record.whenTrue) || containsCombatEventListener(record.whenFalse)
+    );
+  }
+  if (record.kind === 'once') return containsCombatEventListener(record.body);
+  if (Array.isArray(record.steps)) return record.steps.some(containsCombatEventListener);
+  return false;
+}
+
 /** ScheduledSequenceDefinition：相对释放帧的调度项。 */
 function validateScheduledSequence(
   value: unknown,
@@ -819,6 +982,9 @@ function validateScheduledSequence(
     if (endFrame !== null && startFrame !== null && endFrame < startFrame) {
       push(out, `${path}.endFrame`, 'must not be less than startFrame');
     }
+  }
+  if (containsCombatEventListener(record.sequence) && record.endFrame === undefined) {
+    push(out, `${path}.endFrame`, 'combat event listeners require an end frame');
   }
   validateActionSequence(record.sequence, `${path}.sequence`, out);
 }
@@ -848,6 +1014,9 @@ function validateEventTrigger(
       requireString(record, 'skillGroupKey', path, out);
       requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
       break;
+    case 'enemyDefeated':
+      requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
+      break;
     case 'statusExpired':
     case 'statusConsumed':
       requireString(record, 'statusKey', path, out);
@@ -859,30 +1028,46 @@ function validateEventTrigger(
   }
 }
 
-/** SkillActivationRule：连携窗口的开启规则。 */
-function validateActivationRule(
+/**
+ * 校验独立的等级值。装备、机制等定义可复用此入口，避免复制 SkillDefinition 的基础规则。
+ */
+export function validateLevelValuesDefinition(
   value: unknown,
-  path: string,
-  out: SkillDefinitionValidationIssue[],
-): void {
-  const record = asRecord(value, path, out);
-  if (record === null) return;
-  const trigger = asRecord(record.trigger, `${path}.trigger`, out);
-  if (trigger !== null) {
-    const kind = requireString(trigger, 'kind', `${path}.trigger`, out);
-    if (kind === 'damageTagHit') {
-      requireEnum(trigger, 'tag', DAMAGE_TAGS_SET, `${path}.trigger`, out);
-      requireEnum(trigger, 'scope', TRIGGER_SCOPES_SET, `${path}.trigger`, out);
-    } else if (kind === 'elementalInflictionApplied') {
-      validateElements(trigger.elements, `${path}.trigger.elements`, out);
-      requireEnum(trigger, 'scope', TRIGGER_SCOPES_SET, `${path}.trigger`, out);
-    } else if (kind !== null) {
-      push(out, `${path}.trigger.kind`, "expected 'damageTagHit' or 'elementalInflictionApplied'");
-    }
-  }
-  if (record.condition !== undefined) {
-    validateCombatCondition(record.condition, `${path}.condition`, out);
-  }
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  validateLevelValues(value, path, out);
+  return out;
+}
+
+/** 校验独立条件树；调用方负责决定该条件出现在哪种定义中。 */
+export function validateCombatConditionDefinition(
+  value: unknown,
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  validateCombatCondition(value, path, out);
+  return out;
+}
+
+/** 校验独立动作序列；技能、Buff 与配装事件共用同一种顺序语义。 */
+export function validateActionSequenceDefinition(
+  value: unknown,
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  validateActionSequence(value, path, out);
+  return out;
+}
+
+/** 校验独立战斗事件触发器。 */
+export function validateCombatEventTriggerDefinition(
+  value: unknown,
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  validateEventTrigger(value, path, out);
+  return out;
 }
 
 /** CombatEventHandlerDefinition：事件处理器的完整结构。 */
@@ -963,26 +1148,6 @@ export function validateSkillDefinition(
     }
   } else {
     push(out, `${path}.scheduledSequences`, 'expected an array');
-  }
-
-  if (record.activationWindow !== undefined) {
-    const window = asRecord(record.activationWindow, `${path}.activationWindow`, out);
-    if (window !== null) {
-      requireNonNegativeInteger(window, 'durationFrames', `${path}.activationWindow`, out);
-      if (window.rules !== undefined) {
-        if (Array.isArray(window.rules)) {
-          if (window.rules.length === 0) {
-            push(out, `${path}.activationWindow.rules`, 'expected a non-empty array');
-          } else {
-            window.rules.forEach((rule, index) => {
-              validateActivationRule(rule, `${path}.activationWindow.rules[${index}]`, out);
-            });
-          }
-        } else {
-          validateActivationRule(window.rules, `${path}.activationWindow.rules`, out);
-        }
-      }
-    }
   }
 
   if (record.eventHandlers !== undefined) {

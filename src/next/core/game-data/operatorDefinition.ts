@@ -70,6 +70,16 @@ export const DAMAGE_TAGS = [
 /** 单次伤害携带的可叠加语义分类，供公式、事件和机制筛选。 */
 export type DamageTag = (typeof DAMAGE_TAGS)[number];
 
+/** 不参与技能类型归类，但会影响命中处理或事件筛选的伤害特征。 */
+export const DAMAGE_FEATURES = [
+  'canBreakWeakness',
+  'crush',
+  'airborne',
+  'dot',
+  'remainArea',
+] as const;
+export type DamageFeature = (typeof DAMAGE_FEATURES)[number];
+
 export const SKILL_TYPES = [
   'basicAttack',
   'battleSkill',
@@ -153,6 +163,8 @@ export interface DealDamageParameters {
   /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
   calculationMultiplier?: LevelValues;
   tags: readonly DamageTag[];
+  /** 原生伤害位中与技能分类无关的行为特征。 */
+  features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害；原生同样允许从动作黑板读取。 */
   stagger?: LevelValues | ActionValueOperand;
   /** 每层语义化战斗状态提供的额外攻击倍率。 */
@@ -171,6 +183,8 @@ export interface DealFixedDamageParameters {
   damageType: DamageType;
   value: LevelValues | ActionValueOperand;
   tags: readonly DamageTag[];
+  /** 原生伤害位中与技能分类无关的行为特征。 */
+  features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害。 */
   stagger?: LevelValues | ActionValueOperand;
 }
@@ -236,6 +250,18 @@ export type CombatCondition =
       markerId: string;
     }
   | {
+      /** 匹配触发当前响应的伤害事件标签；普通技能步骤没有事件上下文。 */
+      kind: 'eventDamageTagsMatch';
+      match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      tags: readonly DamageTag[];
+    }
+  | {
+      /** 匹配触发当前响应的伤害行为特征；普通技能步骤没有事件上下文。 */
+      kind: 'eventDamageFeaturesMatch';
+      match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      features: readonly DamageFeature[];
+    }
+  | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
       minimumStacks?: number;
@@ -268,6 +294,8 @@ export const COMBAT_CONDITION_KINDS = [
   'entityTagMatch',
   'buffIdStackCompare',
   'timedMarkerPresent',
+  'eventDamageTagsMatch',
+  'eventDamageFeaturesMatch',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',
@@ -361,6 +389,8 @@ export interface CombatStepParameters {
   dealStagger: { value: LevelValues | ActionValueOperand };
   applyBuff: {
     buffId: string;
+    /** 本步骤施加的完整 Buff 蓝图；运行时实例创建后不再被后续同 key 步骤改写。 */
+    definition?: SkillBuffDefinition;
     target: BuffApplicationTarget;
     /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
     count?: ActionValueOperand;
@@ -460,7 +490,7 @@ export interface CombatStepParameters {
     resource: CombatResource;
     amount: ActionValueOperand;
     /** 原生 ObtainCostAction 在资源效率链之前乘到动态 amount 上；省略时为 1。 */
-    coefficient?: LevelValues;
+    coefficient?: LevelValues | ActionValueOperand;
     recipient: ResourceRecipient;
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
@@ -491,6 +521,17 @@ export interface CombatStepParameters {
     value: boolean | number | string;
     target: 'caster';
   };
+  /** 为当前干员开启固定五秒的连携候选；下一段技能身份随候选进入场景级队列。 */
+  openComboWindow: {
+    nextSkillKey: string;
+  };
+  /**
+   * 在所在调度项的有效区间内监听战斗事件。
+   * 调度项开始时注册，结束或技能中断时注销；响应序列在事件派发过程中同步执行。
+   */
+  listenForCombatEvents: {
+    responses: readonly CombatEventResponseDefinition[];
+  };
 }
 
 export const COMBAT_STEP_KINDS = [
@@ -518,6 +559,8 @@ export const COMBAT_STEP_KINDS = [
   'conditional',
   'once',
   'setContextFlag',
+  'openComboWindow',
+  'listenForCombatEvents',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 /** 步骤按 kind 区分类型，编译和执行靠它精确分支。 */
 export type CombatStepKind = (typeof COMBAT_STEP_KINDS)[number];
@@ -551,6 +594,14 @@ export interface ScheduledSequenceDefinition {
   sequence: ActionSequenceDefinition;
 }
 
+/** 技能临时监听器对一类战斗事件的同步响应。 */
+export interface CombatEventResponseDefinition {
+  key: string;
+  event: CombatEventTrigger;
+  condition?: CombatCondition;
+  sequence: ActionSequenceDefinition;
+}
+
 /** 技能的一项等级化资源费用；实际扣除时机由技能 `costFrame` 决定。 */
 export interface SkillCostDefinition {
   resource: CombatResource;
@@ -571,13 +622,33 @@ export type CombatEventTrigger =
       scope: SkillTriggerScope;
     }
   | { kind: 'skillHit'; skillGroupKey: string; scope: SkillTriggerScope }
+  | { kind: 'enemyDefeated'; scope: SkillTriggerScope }
   | { kind: 'statusExpired'; statusKey: string; target: CombatTarget }
   | { kind: 'statusConsumed'; statusKey: string; target: CombatTarget };
 
-/** 连携等窗口技能的一条开启规则及其附加战斗条件。 */
-export interface SkillActivationRule {
+/** 角色级连携入口的一条事件规则；条件成立后进入 pending 或立即尝试释放。 */
+export interface ComboSkillTriggerRule {
   trigger: Extract<CombatEventTrigger, { kind: 'damageTagHit' | 'elementalInflictionApplied' }>;
   condition?: CombatCondition;
+  /** 对应原生 `comboSkillConditionImmediately`；省略时进入连携窗口。 */
+  castImmediately?: boolean;
+}
+
+export const COMBO_SKILL_PRIORITIES = ['default', 'firstBlackboard', 'enemyRank'] as const;
+/** 同一干员存在多个目标候选时，原生运行时选择实际施法目标的策略。 */
+export type ComboSkillPriority = (typeof COMBO_SKILL_PRIORITIES)[number];
+
+/**
+ * 角色进入战斗时向场景连携管理器注册的一组入口。
+ * 它对应角色级 SkillDataBundle 数据，不属于某次技能释放，也不能在技能块编辑器中修改。
+ */
+export interface ComboSkillRegistrationDefinition {
+  /** 条件成立后准备释放的稳定技能定义键。 */
+  skillKey: string;
+  priority: ComboSkillPriority;
+  /** 创建候选时复制到本次连携施法参数中的默认黑板。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
+  rules: readonly ComboSkillTriggerRule[];
 }
 
 /** 一个技能在战斗事件发生后调度的条件化行为。 */
@@ -587,6 +658,48 @@ export interface CombatEventHandlerDefinition {
   condition?: CombatCondition;
   scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
+
+/**
+ * `applyBuff` 步骤内联的 Buff 蓝图，不重复保存步骤已经携带的 `buffId`。
+ * 施加次数、目标和本次传入的黑板值属于施加行为，不属于这份定义。
+ */
+export interface SkillBuffPresentation {
+  /** Endaxis 内部可直接加载的图标路径，只影响编辑器和时间轴显示。 */
+  iconPath?: string;
+}
+
+/**
+ * Buff 实例生命周期边界上的有序步骤。
+ * 每个 Buff 实例独占步骤执行状态和动作黑板；同一时点仍严格按步骤数组顺序执行。
+ */
+export interface SkillBuffLifecycleSequences {
+  /** Buff 第一次启用时执行一次，早于修正注册。 */
+  start?: ActionSequenceDefinition;
+  /** Buff 每次由停用转为启用后执行，晚于修正注册。 */
+  enable?: ActionSequenceDefinition;
+  /** Buff 暂停生效、准备注销修正前执行。 */
+  disable?: ActionSequenceDefinition;
+  /** 同组 Buff 即将增加强化层数前执行。 */
+  beforeEnhance?: ActionSequenceDefinition;
+  /** Buff 启用期间按触发间隔到点时执行。 */
+  trigger?: ActionSequenceDefinition;
+  /** Buff 叠层数发生变化时执行。 */
+  enhanceChanged?: ActionSequenceDefinition;
+  /** 一次叠层流程完成后执行。 */
+  afterEnhance?: ActionSequenceDefinition;
+  /** Buff 正式结束前执行，结束步骤仍能读取当前实例状态。 */
+  finish?: ActionSequenceDefinition;
+}
+
+export type SkillBuffDefinition = Omit<
+  import('../combat/buffs/combatBuffDefinitions').CombatBuffDefinitionEntry,
+  'id' | 'actions'
+> & {
+  /** 使用与技能相同的步骤协议描述 Buff 行为；旧外部定义的低层 actions 不进入技能内联定义。 */
+  lifecycleSequences?: SkillBuffLifecycleSequences;
+  /** 不参与战斗计算的显示信息。 */
+  presentation?: SkillBuffPresentation;
+};
 
 /**
  * 一个可独立释放或触发的技能定义。
@@ -608,10 +721,6 @@ export interface SkillDefinition {
   /** 原生 `CastData.startCdFrame`；配置消耗时编译器要求此字段存在。 */
   costFrame?: number;
   scheduledSequences: readonly ScheduledSequenceDefinition[];
-  activationWindow?: {
-    durationFrames: number;
-    rules: SkillActivationRule | readonly SkillActivationRule[];
-  };
   eventHandlers?: readonly CombatEventHandlerDefinition[];
 }
 
@@ -817,6 +926,8 @@ export interface OperatorDefinition {
   /** 仅记录偏离全局 `[10, 15, 15, 20]` 主属性规则的干员。 */
   trustAttributeBonus?: TrustAttributeBonusDefinition;
   skillGroups: readonly SkillGroupDefinition[];
+  /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
+  comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   talents: readonly OperatorUpgradeDefinition[];
   potentials: readonly OperatorUpgradeDefinition[];

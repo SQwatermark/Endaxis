@@ -45,6 +45,8 @@ export interface ElementalInflictionOperationDependencies {
   readonly receipt: CombatReceiptSink;
   readonly getExistingAttachment: () => ExistingElementalAttachment | null;
   readonly applyOperation: (operation: ElementalInflictionOperation) => void;
+  /** 附着状态已经写入目标后，向统一语义事件层报告实际施加的元素。 */
+  readonly emitSemanticInfliction?: (element: InflictionStep['parameters']['element']) => void;
   readonly emitSourceEvent: (
     event: ElementalInflictionEvent,
     payload: ElementalInflictionEventPayload,
@@ -118,6 +120,7 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
         operationKinds: operations.map(operation => operation.kind).join(','),
       },
     });
+    this.dependencies.emitSemanticInfliction?.(step.parameters.element);
     return true;
   }
 

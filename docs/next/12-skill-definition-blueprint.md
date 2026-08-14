@@ -16,9 +16,10 @@ SkillGroupDefinition
                       -> 普通步骤
                       -> conditional 分支
                       -> once 包装
-       -> activationWindow
-       -> eventHandlers[]
+       -> scheduledSequences[] 中的 listenForCombatEvents 步骤
 ```
+
+首段连携入口不属于单次技能释放，配置在 `OperatorDefinition.comboSkillRegistrations`；多段连携的后续窗口由技能序列中的 `openComboWindow` 步骤开启。
 
 游戏数据中的技能模板和项目中的完整自定义技能使用同一个结构。项目版本可以使用可变数组和 JSON 友好的接口，数据 TS 可以使用 `readonly`；字段语义必须完全一致。
 
@@ -34,11 +35,7 @@ interface SkillDefinition {
   costs?: readonly SkillCostDefinition[];
   costFrame?: number;
   scheduledSequences: readonly ScheduledSequenceDefinition[];
-  activationWindow?: {
-    durationFrames: number;
-    rules: SkillActivationRule | readonly SkillActivationRule[];
-  };
-  eventHandlers?: readonly CombatEventHandlerDefinition[];
+  eventHandlers?: readonly CombatEventHandlerDefinition[]; // 旧近似数据，待迁移后删除
 }
 ```
 
@@ -52,8 +49,7 @@ interface SkillDefinition {
 | `costs`               | 技能固有费用；当前原生证据只允许一项费用。                                           |
 | `costFrame`           | 相对释放帧的实际扣费点；存在费用时必须提供。                                         |
 | `scheduledSequences`  | 技能主体逻辑，按相对帧调度。                                                         |
-| `activationWindow`    | 连携等窗口的持续时间和开启规则，只负责窗口投影与合法性。                             |
-| `eventHandlers`       | 技能存续或注册期间对语义事件的响应；必须编译为独立调度行为。                         |
+| `eventHandlers`       | 旧手写近似数据。缺少原生监听区间，编译器继续拒绝；迁移完成后删除。                   |
 
 名称、描述、图标和形态文本不属于此结构；它们通过技能身份进入 i18n 和展示目录。
 
@@ -88,7 +84,6 @@ type ActionValueOperand = { kind: 'blackboard'; key: string } | { kind: 'constan
 
 ```ts
 interface ScheduledSequenceDefinition {
-  key?: string;
   startFrame: number;
   endFrame?: number;
   sequence: ActionSequenceDefinition;
@@ -99,7 +94,7 @@ interface ActionSequenceDefinition {
 }
 ```
 
-目标实现应给所有编辑器可独立移动、构筑修正可寻址的调度项稳定 `key`。当前类型尚未包含该字段，应在技能编辑系统落地前补齐。
+调度项不保存显式 `key`。它只负责“某个相对帧执行一组有序步骤”，编译器可以按技能身份和定义内路径机械派生调试身份。需要被连线或构筑修正直接引用的是具体步骤，应在对应步骤上配置稳定 `key`；不能为了内部实现方便要求数据维护者给每个调度项填写无意义 ID。
 
 执行规则：
 
@@ -158,9 +153,30 @@ type CombatStepForKind<K extends CombatStepKind> = {
 
 ### `applyBuff`
 
-字段：`buffId`、`target`、可选 `count`、`source`、`blackboardAssignments`、`inheritSourceSkillCastInfo`、`durationSeconds`、`effectiveness`。
+字段：`buffId`、`definition`、`target`、可选 `count`、`source`、`blackboardAssignments`、`inheritSourceSkillCastInfo`、`durationSeconds`、`effectiveness`。
 
-按目标解析接收者，并按 `count` 重复创建；正小数沿用原生 `int < float` 循环语义。黑板赋值在创建时求值并覆盖 Buff 定义默认值。`source` 与接收目标独立。继承释放信息时，新 Buff 能追溯本次技能身份和未返还技力消耗。
+`definition` 是当前步骤内联携带的完整 Buff 蓝图，`buffId` 用于叠层、查询和结束，不作为全局定义引用。按目标解析接收者，并按 `count` 重复创建；正小数沿用原生 `int < float` 循环语义。黑板赋值在创建时求值并覆盖定义默认值。`source` 与接收目标独立。继承释放信息时，新 Buff 能追溯本次技能身份和未返还技力消耗。
+
+`definition.presentation.iconPath` 保存 Endaxis 内部图标路径。`presentation` 只服务编辑器和时间轴投影，编译时会从战斗定义中剥离，不能参与 Buff 身份、叠层或数值逻辑。
+
+Buff 生命周期行为通过 `definition.lifecycleSequences` 表达，序列内容与技能主体共用 `ActionSequenceDefinition` 和 `CombatStepDefinition`：
+
+| 边界             | 执行时机                                     |
+| ---------------- | -------------------------------------------- |
+| `start`          | 实例第一次启用时，注册属性和伤害修正之前。   |
+| `enable`         | 每次启用时，注册修正之后。                   |
+| `disable`        | 暂停生效、注销修正之前。                     |
+| `beforeEnhance`  | 同组实例准备增加强化层数之前。               |
+| `enhanceChanged` | 强化层数已经增加之后。                       |
+| `afterEnhance`   | 本次强化流程完成之后。                       |
+| `trigger`        | 启用期间按 `triggerIntervalSeconds` 到点时。 |
+| `finish`         | 正式标记结束并注销修正之前。                 |
+
+这些边界只接受同步有序序列，不接受带帧偏移的 `ScheduledSequenceDefinition`。只要定义了任一生命周期序列，`inheritSourceSkillCastInfo` 就必须为 `true`。每个 Buff 实例独占动作黑板、继承的施法信息和 `once` 作用域；不同实例不能共享执行状态。`CombatActionSequenceRuntime` 提供技能与 Buff 共用的顺序、条件和 `once` 语义，`attachBuffLifecycleSequences` 负责实例绑定。操作执行器必须根据具体实例的 `sourceId` 和继承施法信息解析，不能在共享 Buff 定义编译时固化来源，也不能借用某个技能实例的黑板或归因信息。
+
+旧外部 Buff 目录暂时保留低层 `actions` 供元素系统迁移使用，但技能内联定义禁止配置该字段，也禁止与 `lifecycleSequences` 混用。生成器只内联能够完整表达的定义；发现尚未支持的生命周期行为时，正式生成必须失败，宽松审计产物保留身份并记录完整事实。
+
+首次创建运行时实例时固定该步骤的蓝图。后续同 ID 或同 `stackingKey` 的增强、刷新、延长等操作只修改已有实例状态，不替换实例保存的定义；需要新建实例的叠层策略则让每个实例保留各自创建时的定义。不同技能块可以为同一 `buffId` 内联不同蓝图，不做全局一致性校验。
 
 ### `readBuffBlackboard`
 
@@ -201,6 +217,10 @@ type CombatStepForKind<K extends CombatStepKind> = {
 ### `setContextFlag`
 
 字段：`flag`、`value`，目标为施法者。它设置战斗上下文中的语义标志，供后续条件、模式和技能分支读取；不能用动作黑板冒充跨技能持久状态。
+
+### `openComboWindow`
+
+字段：`nextSkillKey`。执行到该步骤时，把指定下一段技能加入全场连携窗口队列。窗口固定持续 5 秒，不能由技能定义覆盖。多段连携通过每一段技能在自身序列中开启下一段窗口表达，因此同帧伤害、Buff 与开窗的先后关系直接由步骤数组顺序决定。
 
 ## 11. 资源组件
 
@@ -284,9 +304,17 @@ type CombatStepForKind<K extends CombatStepKind> = {
 ## 15. 连携窗口与事件组件
 
 ```ts
-interface SkillActivationRule {
+interface ComboSkillTriggerRule {
   trigger: DamageTagHitTrigger | ElementalInflictionAppliedTrigger;
   condition?: CombatCondition;
+  castImmediately?: boolean;
+}
+
+interface ComboSkillRegistrationDefinition {
+  skillKey: string;
+  priority: 'default' | 'firstBlackboard' | 'enemyRank';
+  blackboard?: Readonly<Record<string, LevelValues>>;
+  rules: readonly ComboSkillTriggerRule[];
 }
 
 interface CombatEventHandlerDefinition {
@@ -305,9 +333,13 @@ interface CombatEventHandlerDefinition {
 - `statusExpired`：指定目标状态到期。
 - `statusConsumed`：指定目标状态被消费。
 
-`activationWindow` 在触发规则和附加条件满足时创建持续窗口；多个窗口的排队和释放顺序属于场景级窗口运行时，不由单个技能自行决定。
+`comboSkillRegistrations` 是干员级常驻注册：外部事件与附加条件满足后，创建首段连携候选或立即释放。它不能进入 `SkillDefinition`，否则每个放到轴上的技能块都会看起来拥有一份常驻监听器。
 
-`eventHandlers` 在事件发生后检查可选条件，再相对事件帧调度序列。同事件处理器按已确认的优先级和声明顺序注册；原生顺序未知时不得依赖对象或 Map 的偶然遍历顺序。
+`openComboWindow` 是一次技能释放中的步骤，用于创建多段连携的下一段候选。两种入口最终都交给同一个场景级运行时，但原生运行时先按干员保存候选，再按触发时间、轨道顺序和配置优先级选择当前可操作项。候选保存可暂停的剩余时间，不使用不可暂停的绝对过期帧。
+
+技能临时监听器使用调度序列中的 `listenForCombatEvents` 状态步骤。外层 `ScheduledSequenceDefinition.startFrame/endFrame` 对应原生 `EventListenerAction` 的注册区间；步骤参数中的每个响应包含事件、可选条件和一条同步有序序列。调度项开始时注册，结束或技能中断时注销。没有 `endFrame` 的监听调度项不能通过严格校验。
+
+旧顶层 `eventHandlers` 把监听生命周期和事件后的延迟行为混在一起，无法无损对应原生数据。它暂时只用于标记尚未迁移的手写配置，场景编译仍会明确失败，编辑器也不再提供入口。
 
 ## 16. 技能费用、冷却与生命周期顺序
 
@@ -358,17 +390,19 @@ Diff 以稳定键匹配当前技能模板与自定义技能定义。逐字段“
 
 ## 20. 当前实现与目标差异
 
-| 能力                      | 当前状态                                         | 目标                               |
-| ------------------------- | ------------------------------------------------ | ---------------------------------- |
-| 25 种步骤和 20 种条件类型 | 已定义，多数已有执行器                           | 全部通过统一严格注册表闭环         |
-| 等级值编译                | 已接入                                           | 保持纯派生，不持久化               |
-| 主体调度序列              | 已接入                                           | 增加稳定调度键和编辑投影           |
-| `availability`            | 已用于部分诊断链                                 | 统一场景合法性投影                 |
-| `activationWindow`        | 数据已有，完整窗口运行时未统一                   | 接入排队、过期和释放顺序           |
-| 技能 `eventHandlers`      | 定义已有，场景编译当前拒绝                       | 编译、注册、注销和顺序闭环         |
-| 天赋潜能修改              | 部分以编译后 patch 实现                          | 作为基础定义之后的独立构筑层       |
-| 技能块存档                | 已改为模板引用或完整自定义定义二选一             | 接入组件编辑器                     |
-| 模板 Diff                 | 已实现纯函数差异模型，稳定键与位置匹配会明确区分 | 接入编辑器星号、差异列表和逐项恢复 |
-| 技能组件编辑器            | 未实现                                           | 共用本文结构，草稿校验后整体提交   |
+| 能力                      | 当前状态                                                 | 目标                               |
+| ------------------------- | -------------------------------------------------------- | ---------------------------------- |
+| 25 种步骤和 20 种条件类型 | 已定义，多数已有执行器                                   | 全部通过统一严格注册表闭环         |
+| 等级值编译                | 已接入                                                   | 保持纯派生，不持久化               |
+| 主体调度序列              | 已接入                                                   | 保持路径派生身份并完善编辑投影     |
+| `availability`            | 已用于部分诊断链                                         | 统一场景合法性投影                 |
+| 干员级首段连携注册        | 数据结构与样本已迁移，运行时尚未接入                     | 接入条件注册、候选优先级和立即释放 |
+| `openComboWindow`         | 已有占位运行时                                           | 接入按干员候选、暂停计时和激活顺序 |
+| 技能临时事件监听          | 状态步骤、编译、注册、注销和编辑器已闭环                 | 转换 8 个原生样本并扩展事件负载    |
+| 旧顶层 `eventHandlers`    | 保留尚未迁移的手写近似配置，场景编译明确拒绝             | 逐项归类迁移后删除字段             |
+| 天赋潜能修改              | 部分以编译后 patch 实现                                  | 作为基础定义之后的独立构筑层       |
+| 技能块存档                | 已改为模板引用或完整自定义定义二选一                     | 接入组件编辑器                     |
+| 模板 Diff                 | 已实现纯函数差异模型，稳定键与位置匹配会明确区分         | 接入编辑器星号、差异列表和逐项恢复 |
+| 技能组件编辑器            | 基础设置、调度序列、条件分支和 Buff 生命周期已可视化编辑 | 补齐剩余步骤的专用控件与可用性打磨 |
 
 实现过程中若需要新增组件，必须同时更新本文件、核心判别联合、规范化器、校验器、编译器、运行时执行器、编辑器 schema 和针对性测试。

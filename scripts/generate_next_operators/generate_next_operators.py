@@ -89,6 +89,7 @@ from source_models import (
 from source_utils import (
     action_name,
     parse_vector3,
+    project_tick_interval_frames,
     require_bool,
     require_dict,
     require_list,
@@ -140,7 +141,11 @@ from action_payload_parser import (
     to_float32,
     walk_single_enemy_actions,
 )
-from conditional_parser import contains_combat_effect, parse_conditional_actions
+from conditional_parser import (
+    contains_combat_effect,
+    parse_conditional_actions,
+    parse_ordered_action_sequence,
+)
 from source_schema import (
     AURA_ACTION_FIELDS,
     AURA_SEQUENCE_FIELDS,
@@ -158,6 +163,7 @@ from target_parser import (
     parse_target_reference,
     selector_component_name,
 )
+from buff_definition_compiler import compile_inline_buff_definition
 
 
 
@@ -423,14 +429,28 @@ def combat_action_signature(action: dict[str, Any]) -> tuple[Any, ...] | None:
     return (name, json.dumps(payload, ensure_ascii=False, sort_keys=True))
 
 
-def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
+def walk_actions(
+    value: Any,
+    *,
+    opaque_action_names: frozenset[str] = frozenset(),
+) -> Iterable[dict[str, Any]]:
     if isinstance(value, dict):
         if value.get("isEnable") is False:
             return
         type_name = value.get("$type")
         if isinstance(type_name, str) and action_name(type_name) == "IfElseAction":
-            succeed = list(walk_actions(value.get("succeedActions")))
-            fail = list(walk_actions(value.get("failActions")))
+            succeed = list(
+                walk_actions(
+                    value.get("succeedActions"),
+                    opaque_action_names=opaque_action_names,
+                )
+            )
+            fail = list(
+                walk_actions(
+                    value.get("failActions"),
+                    opaque_action_names=opaque_action_names,
+                )
+            )
             succeed_signature = tuple(
                 signature
                 for action in succeed
@@ -450,8 +470,10 @@ def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
             return
         if isinstance(type_name, str):
             yield value
+            if action_name(type_name) in opaque_action_names:
+                return
         for child in value.values():
-            yield from walk_actions(child)
+            yield from walk_actions(child, opaque_action_names=opaque_action_names)
     elif isinstance(value, list):
         for index, child in enumerate(value):
             if isinstance(child, dict):
@@ -465,7 +487,7 @@ def walk_actions(value: Any) -> Iterable[dict[str, Any]]:
                     if contains_combat_effect(value[index + 1 :]):
                         yield child
                     continue
-            yield from walk_actions(child)
+            yield from walk_actions(child, opaque_action_names=opaque_action_names)
 
 
 def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
@@ -479,6 +501,17 @@ def walk_unconditional_actions(value: Any) -> Iterable[dict[str, Any]]:
     elif isinstance(value, list):
         for child in value:
             yield from walk_unconditional_actions(child)
+
+
+def contains_serialized_value(value: Any, expected: Any) -> bool:
+    """递归检查序列化动作树是否携带指定字面量。"""
+    if value == expected:
+        return True
+    if isinstance(value, dict):
+        return any(contains_serialized_value(child, expected) for child in value.values())
+    if isinstance(value, list):
+        return any(contains_serialized_value(child, expected) for child in value)
+    return False
 
 
 def project_channel_trigger_frames(
@@ -563,8 +596,8 @@ def project_single_enemy_channeling_timeline(
 ) -> dict[str, Any]:
     """把根时间轴中的直接 ChannelingAction 展开为共享的一次性动作节点。
 
-    该投影只接受可确定为敌人的 Context/Target 输入。Owner 需要把后续动作的 Target
-    重新绑定为自身，不能用根技能目标代替，因此在引入显式输入目标身份前继续拒绝。
+    Context/Target 在固定单敌人模型中投影为敌人。Owner 只有在子序列不读取当前
+    Target 时才可展开，否则必须先保留原生输入目标身份。
     """
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timelines = require_list(
@@ -626,7 +659,7 @@ def project_single_enemy_channeling_timeline(
                 f"{action_path}.ChannelingAction.targetSettings",
             )
             target_source = target.get("targetSource")
-            if target_source not in {"Context", "Target"}:
+            if target_source not in {"Context", "Target", "Owner"}:
                 raise ValueError(
                     f"{action_path}.ChannelingAction: target source {target_source!r} "
                     "requires explicit input target projection"
@@ -660,6 +693,13 @@ def project_single_enemy_channeling_timeline(
                 action.get("actionOnTick"),
                 f"{action_path}.ChannelingAction.actionOnTick",
             )
+            if target_source == "Owner" and contains_serialized_value(
+                action_on_tick, "Target"
+            ):
+                raise ValueError(
+                    f"{action_path}.ChannelingAction: Owner target with Target-dependent "
+                    "tick actions requires explicit input target projection"
+                )
             for frame in trigger_frames:
                 emitted_timelines.append(
                     {
@@ -1326,11 +1366,6 @@ def parse_interval_damage_hits(
                 or interval_seconds <= 0
             ):
                 raise ValueError(f"{action_path}.tickInterval: expected positive number")
-            interval_frames_float = float(interval_seconds) * 30
-            interval_frames = round(interval_frames_float)
-            if interval_frames <= 0 or abs(interval_frames_float - interval_frames) > 1e-6:
-                raise ValueError(f"{action_path}.tickInterval: does not align to combat frames")
-
             tick_actions = enabled_actions(
                 action.get("actionOnTick"), f"{action_path}.actionOnTick"
             )
@@ -1369,8 +1404,10 @@ def parse_interval_damage_hits(
                 )
             if branch_damage[0][1] != branch_damage[1][1]:
                 raise ValueError(f"{action_path}: tick branches do not deal equivalent damage")
-            # 周期动作在激活帧先执行一次，之后每隔 intervalFrames 重复；结束帧不执行。
-            tick_frames = tuple(range(start_frame, end_frame, interval_frames))
+            # 原生按秒累计单精度计时器；激活帧立即触发，结束帧仍会更新一次。
+            tick_frames = project_tick_interval_frames(
+                start_frame, end_frame, float(interval_seconds)
+            )
             if not tick_frames:
                 raise ValueError(f"{action_path}: interval produces no ticks")
             result.append(
@@ -1378,7 +1415,7 @@ def parse_interval_damage_hits(
                     startFrame=start_frame,
                     endFrame=end_frame,
                     actionIndex=require_server_action_index(action, action_path),
-                    intervalFrames=interval_frames,
+                    intervalSeconds=float(interval_seconds),
                     tickFrames=tick_frames,
                     damageActionIndex=min(item[0] for item in branch_damage),
                     damageUnits=branch_damage[0][1],
@@ -1669,6 +1706,12 @@ def parse_skill_event_listeners(
                     f"{action_path}: unsupported fields {unknown_listener_fields}"
                 )
             action_index = require_server_action_index(action, action_path)
+            priority_level = action.get("priorityLevel")
+            priority_offset = action.get("priorityOffset")
+            if not isinstance(priority_level, str) or not priority_level:
+                raise ValueError(f"{action_path}.priorityLevel: expected non-empty string")
+            if not isinstance(priority_offset, int) or isinstance(priority_offset, bool):
+                raise ValueError(f"{action_path}.priorityOffset: expected integer")
             for event_index, raw_event in enumerate(
                 require_list(action.get("abilityActionMap"), f"{action_path}.abilityActionMap")
             ):
@@ -1726,6 +1769,11 @@ def parse_skill_event_listeners(
                                 if name in AUDITED_COMBAT_ACTION_NAMES
                             ),
                             buffApplications=buff_applications,
+                            actions=parse_ordered_action_sequence(
+                                sequence.get("actionData"),
+                                sequence_path,
+                                blackboard,
+                            ),
                         )
                     )
                 result.append(
@@ -1733,6 +1781,8 @@ def parse_skill_event_listeners(
                         startFrame=start_frame,
                         endFrame=end_frame,
                         actionIndex=action_index,
+                        priorityLevel=priority_level,
+                        priorityOffset=priority_offset,
                         event=event_name,
                         sequences=tuple(sequences),
                     )
@@ -3608,6 +3658,16 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for infliction in skill.inflictions
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=listener.startFrame,
+            actionOrder=(listener.actionIndex,),
+            itemType="eventListener",
+            sourcePath=(skill.skillId,),
+            payload=listener,
+        )
+        for listener in getattr(skill, "eventListeners", ())
+    )
     for projectile in skill.projectileTriggeredSkills:
         collect_projectile_schedule(projectile, result)
     for entity in skill.abilityEntityHits:
@@ -3818,7 +3878,11 @@ def parse_timeline(
         item = require_dict(raw, f"{source_name}.timelineActions[{index}]")
         sequence = require_dict(item.get("_sequenceActionData"), f"{source_name}.timelineActions[{index}]._sequenceActionData")
         types: list[str] = []
-        for action in walk_actions(sequence):
+        # 监听器响应体不属于根时间轴；它由专用解析器按事件触发时机消费。
+        for action in walk_actions(
+            sequence,
+            opaque_action_names=frozenset({"EventListenerAction"}),
+        ):
             if id(action) in consumed_action_ids:
                 continue
             name = action_name(action["$type"])
@@ -4328,6 +4392,84 @@ def resolve_fixed_combat_target(
     return None
 
 
+NATIVE_DAMAGE_TAG_BITS = {
+    4: "powerAttack",
+    128: "normalAttack",
+    256: "normalSkill",
+    512: "ultimateSkill",
+    1024: "plungingAttack",
+    8192: "comboSkill",
+    131072: "dashAttack",
+    2097152: "normalAttackLastCombo",
+}
+
+NATIVE_DAMAGE_FEATURE_BITS = {
+    4096: "canBreakWeakness",
+    16384: "crush",
+    32768: "airborne",
+    268435456: "dot",
+    536870912: "remainArea",
+}
+
+IMPLIED_DAMAGE_TAG_PARENTS = {
+    "normalAttackLastCombo": "normalAttack",
+}
+
+
+def decode_damage_decorate_mask(mask: int, path: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """把已确认的原生伤害位拆成技能分类与行为特征，未知位必须阻止生成。"""
+    remaining = mask
+    tags: list[str] = []
+    features: list[str] = []
+    for bit, tag in NATIVE_DAMAGE_TAG_BITS.items():
+        if remaining & bit:
+            tags.append(tag)
+            remaining &= ~bit
+    for bit, feature in NATIVE_DAMAGE_FEATURE_BITS.items():
+        if remaining & bit:
+            features.append(feature)
+            remaining &= ~bit
+    if remaining != 0:
+        raise ValueError(f"{path}: damage decorate mask {mask} contains unmapped bits")
+    return tuple(tags), tuple(features)
+
+
+def compile_event_damage_property_condition(
+    property_name: Literal["tags", "features"],
+    match: str,
+    values: tuple[str, ...],
+) -> str:
+    kind = "eventDamageTagsMatch" if property_name == "tags" else "eventDamageFeaturesMatch"
+    return "\n".join(
+        [
+            "{",
+            f"  kind: {ts_inline_literal(kind)},",
+            f"  match: {ts_inline_literal(match)},",
+            f"  {property_name}: {ts_inline_literal(values)},",
+            "}",
+        ]
+    )
+
+
+def compile_condition_collection(kind: Literal["all", "any", "not"], value: list[str] | str) -> str:
+    if kind == "not":
+        assert isinstance(value, str)
+        lines = ["{", "  kind: 'not',", "  condition:"]
+        nested = indent_source(value, 4)
+        nested[-1] += ","
+        lines.extend(nested)
+        lines.append("}")
+        return "\n".join(lines)
+    assert isinstance(value, list) and value
+    lines = ["{", f"  kind: {ts_inline_literal(kind)},", "  conditions: ["]
+    for condition in value:
+        nested = indent_source(condition, 4)
+        nested[-1] += ","
+        lines.extend(nested)
+    lines.extend(["  ],", "}"])
+    return "\n".join(lines)
+
+
 def compile_combat_condition(
     source: ConditionSource,
     path: str,
@@ -4344,6 +4486,39 @@ def compile_combat_condition(
         return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
+    if source.sourceType == "CheckDamageDecorateMask":
+        damage_mask = source.damageDecorateMask
+        if damage_mask is None:
+            raise ValueError(f"{path}: missing damage decorate mask payload")
+        match = {
+            "HasAny": "hasAny",
+            "HasAll": "hasAll",
+            "ExceptAny": "exceptAny",
+            "ExceptAll": "exceptAll",
+        }.get(damage_mask.checkType)
+        if match is None:
+            raise ValueError(
+                f"{path}: unsupported damage decorate check type {damage_mask.checkType!r}"
+            )
+        tags, features = decode_damage_decorate_mask(damage_mask.mask, path)
+        conditions: list[str] = []
+        if match == "exceptAll" and tags and features:
+            positive = [
+                compile_event_damage_property_condition("tags", "hasAll", tags),
+                compile_event_damage_property_condition("features", "hasAll", features),
+            ]
+            return compile_condition_collection("not", compile_condition_collection("all", positive))
+        child_match = "hasAll" if match == "hasAll" else match
+        if tags:
+            conditions.append(compile_event_damage_property_condition("tags", child_match, tags))
+        if features:
+            conditions.append(
+                compile_event_damage_property_condition("features", child_match, features)
+            )
+        if len(conditions) == 1:
+            return conditions[0]
+        collection = "any" if match == "hasAny" else "all"
+        return compile_condition_collection(collection, conditions)
     if source.sourceType == "CheckDistanceCondition":
         distance = source.distance
         if distance is None:
@@ -4774,19 +4949,24 @@ def compile_resource_gain(
     path: str,
 ) -> str:
     """编译原生资源获得；数值可读动作黑板，动态系数仍严格拒绝。"""
-    if gain.coefficient.blackboardKey is not None:
-        raise ValueError(f"{path}: dynamic resource gain coefficient is not supported")
-    coefficient = compact_level_values(
-        gain.coefficient.levelValues
-        if gain.coefficient.levelValues is not None
-        else (gain.coefficient.value,)
+    dynamic_coefficient = gain.coefficient.blackboardKey is not None
+    coefficient = (
+        compile_condition_operand(gain.coefficient, f"{path}.coefficient")
+        if dynamic_coefficient
+        else compact_level_values(
+            gain.coefficient.levelValues
+            if gain.coefficient.levelValues is not None
+            else (gain.coefficient.value,)
+        )
     )
     recipient = resource_recipient(gain.resource)
     fields = [
         f"resource: {ts_inline_literal(gain.resource)}",
         f"recipient: {ts_inline_literal(recipient)}",
     ]
-    if coefficient != 1:
+    if dynamic_coefficient:
+        fields.insert(1, f"coefficient: {coefficient}")
+    elif coefficient != 1:
         fields.insert(1, f"coefficient: {ts_inline_literal(coefficient)}")
     if gain.resource == "sp":
         if gain.spGainKind is None or gain.spGainSource is None:
@@ -4846,6 +5026,7 @@ def compile_buff_application_values(
     target_finder_type: str | None = None,
     target_validator_types: tuple[str, ...] = (),
     target_post_processor_types: tuple[str, ...] = (),
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
@@ -4882,10 +5063,20 @@ def compile_buff_application_values(
     lines = [
         "step('applyBuff', {",
         f"  buffId: {ts_inline_literal(buff_id)},",
+    ]
+    if buff_definitions is not None:
+        definition = buff_definitions.get(buff_id)
+        if definition is None:
+            raise ValueError(f"{path}: Buff definition {buff_id!r} was not resolved")
+        definition_lines = compile_inline_buff_definition(definition, path).splitlines()
+        lines.append("  definition: {")
+        lines.extend(f"    {line}" for line in definition_lines)
+        lines.append("  },")
+    lines.extend([
         f"  target: {ts_inline_literal(target)},",
         "  inheritSourceSkillCastInfo: "
         f"{ts_inline_literal(inherit_source_skill_cast_info)},",
-    ]
+    ])
     if source is not None:
         lines.append(f"  source: {ts_inline_literal(source)},")
     if count.blackboardKey is not None or count.value != 1:
@@ -4909,6 +5100,7 @@ def compile_buff_application(
     root_skill_context: bool = True,
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
@@ -4929,6 +5121,7 @@ def compile_buff_application(
         target_finder_type=action.targetFinderType,
         target_validator_types=action.targetValidatorTypes,
         target_post_processor_types=action.targetPostProcessorTypes,
+        buff_definitions=buff_definitions,
         path=path,
     )
 
@@ -5050,6 +5243,7 @@ def compile_conditional_buff_application(
     root_skill_context: bool = False,
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     has_dynamic_count = payload.count.blackboardKey is not None or payload.count.value != 1
@@ -5074,6 +5268,7 @@ def compile_conditional_buff_application(
             target_finder_type=payload.targetFinderType,
             target_validator_types=payload.targetValidatorTypes,
             target_post_processor_types=payload.targetPostProcessorTypes,
+            buff_definitions=buff_definitions,
         )
         for index, buff in enumerate(payload.buffs)
         if buff.buffId not in ignored_buff_ids
@@ -5193,6 +5388,7 @@ def compile_conditional_branch_action(
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
     context_action: ConditionalActionSource | None = None,
     step_key_prefix: str | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if action.actionType in {
@@ -5213,6 +5409,7 @@ def compile_conditional_branch_action(
             root_skill_context=root_skill_context,
             input_target=input_target,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -5232,6 +5429,7 @@ def compile_conditional_branch_action(
             projected_projectile_launches=projected_projectile_launches,
             context_action=context_action,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -5408,6 +5606,7 @@ def compile_conditional_branch(
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = (),
     context_action: ConditionalActionSource | None = None,
     step_key_prefix: str | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -5428,6 +5627,7 @@ def compile_conditional_branch(
             projected_projectile_launches=projected_projectile_launches,
             context_action=context_action,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
         if compiled == "sequence()":
             continue
@@ -5478,6 +5678,7 @@ def compile_conditional_action(
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
     step_key_prefix: str | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     if isinstance(action, DoOnceActionSource):
@@ -5494,6 +5695,7 @@ def compile_conditional_action(
             projected_projectile_launches=action.projectedProjectileLaunches,
             context_action=action,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
         if body == "sequence()":
             return body
@@ -5521,6 +5723,7 @@ def compile_conditional_action(
             projected_projectile_launches=action.projectedProjectileLaunches,
             context_action=action,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
@@ -5550,6 +5753,7 @@ def compile_conditional_action(
         projected_projectile_launches=projected_projectile_launches,
         context_action=action,
         step_key_prefix=step_key_prefix,
+        buff_definitions=buff_definitions,
     )
     fail = (
         compile_conditional_branch(
@@ -5565,6 +5769,7 @@ def compile_conditional_action(
             projected_projectile_launches=projected_projectile_launches,
             context_action=action,
             step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
         )
         if action.failActions
         else None
@@ -6054,9 +6259,19 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
             result.update(item.key for item in getattr(entity, "blackboardMutations", ()))
             result.update(item.outputKey for item in getattr(entity, "buffBlackboardReads", ()))
             visit_conditions(getattr(entity, "conditionalActions", ()))
+            visit_projectiles(getattr(entity, "projectileTriggeredSkills", ()))
             visit_entities(getattr(entity, "nestedAbilityEntityHits", ()))
 
+    def visit_projectiles(
+        projectiles: tuple[ProjectileTriggeredSkillSource, ...],
+    ) -> None:
+        for projectile in projectiles:
+            visit_conditions(projectile.conditionalActions)
+            visit_entities(projectile.abilityEntityHits)
+            visit_projectiles(projectile.nestedProjectileTriggeredSkills)
+
     visit_conditions(skill.conditionalActions)
+    visit_projectiles(skill.projectileTriggeredSkills)
     visit_entities(skill.abilityEntityHits)
     return frozenset(result)
 
@@ -6421,28 +6636,12 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         for index, line in enumerate(lines)
     ]
     cooldown_frames = tuple(round(value * 30, 8) for value in skill.patch.cooldownSeconds)
-    activation = require_dict(config.get("activationWindow"), f"{skill.key}.compile.activationWindow")
-    trigger_tag = activation.get("damageTag")
-    duration_frames = activation.get("durationFrames")
-    if not isinstance(trigger_tag, str) or not trigger_tag:
-        raise ValueError(f"{skill.key}.compile.activationWindow.damageTag: expected non-empty string")
-    duration_frames = require_non_negative_int(duration_frames, f"{skill.key}.compile.activationWindow.durationFrames")
     return "\n".join(
         [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
             f"    cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},",
-            "    activationWindow: {",
-            f"      durationFrames: {duration_frames},",
-            "      rules: {",
-            "        trigger: {",
-            "          kind: 'damageTagHit',",
-            f"          tag: {ts_inline_literal(trigger_tag)},",
-            "          scope: 'team',",
-            "        },",
-            "      },",
-            "    },",
             "    scheduledSequences: [",
             "      scheduled(",
             f"        {hit.launchFrame + hit.assumedTravelFrames + damage.startFrame},",
@@ -6504,7 +6703,7 @@ def encode_damage_step_key(
 
 def compile_damage_units_step(
     damage_units: tuple[DamageUnitSource, ...],
-    tags: tuple[str, ...],
+    declared_tags: tuple[str, ...],
     path: str,
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     step_key: str | None = None,
@@ -6540,6 +6739,17 @@ def compile_damage_units_step(
     if tuple(unit.attributeType for unit in damage_units) not in {("Hp",), ("Hp", "Poise")}:
         raise ValueError(f"{path}: unsupported DamageUnit execution order")
     hp = hp_units[0]
+    tags, features = decode_damage_decorate_mask(hp.damageDecorateMask, path)
+    undeclared_tags = {
+        tag
+        for tag in tags
+        if tag not in declared_tags
+        and IMPLIED_DAMAGE_TAG_PARENTS.get(tag) not in declared_tags
+    }
+    if undeclared_tags:
+        raise ValueError(
+            f"{path}: native damage tags {sorted(undeclared_tags)} are absent from the skill declaration"
+        )
     damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
     if damage_type is None:
         raise ValueError(f"{path}: unsupported damage type {hp.damageType}")
@@ -6585,6 +6795,8 @@ def compile_damage_units_step(
                 "calculationMultiplier: "
                 f"{ts_inline_literal(compact_level_values(resolved_scalar_values(hp.calculationMultiplier)))}"
             )
+    if features:
+        fields.append(f"features: {ts_inline_literal(features)}")
     if poise_units:
         poise = poise_units[0].poiseValue
         if poise is None:
@@ -6639,11 +6851,72 @@ def compile_resolved_damage_steps(
     return result
 
 
+def compile_skill_event_listener(
+    listener: SkillEventListenerSource,
+    path: str,
+    *,
+    runtime_blackboard_keys: frozenset[str],
+    step_key_prefix: str,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+) -> str:
+    """把已闭环的原生技能临时监听器编译为通用事件监听步骤。"""
+    event = {
+        "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
+    }.get(listener.event)
+    if event is None:
+        raise ValueError(f"{path}: unsupported native skill event {listener.event!r}")
+    if not listener.sequences:
+        raise ValueError(f"{path}: event listener has no response sequence")
+
+    responses: list[str] = []
+    for index, response in enumerate(listener.sequences):
+        response_path = f"{path}.sequences[{index}]"
+        if response.onlyMainOperator or response.onlyGuard:
+            raise ValueError(
+                f"{response_path}: main-operator and guard filters are not mapped"
+            )
+        if not response.actions:
+            raise ValueError(f"{response_path}: event response action tree is empty")
+        sequence_source = compile_conditional_branch(
+            response.actions,
+            f"{response_path}.actions",
+            runtime_blackboard_keys=runtime_blackboard_keys,
+            root_skill_context=True,
+            step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
+        )
+        if sequence_source == "sequence()":
+            raise ValueError(f"{response_path}: event response compiles to an empty sequence")
+        sequence_lines = indent_source(sequence_source, 8)
+        sequence_lines[-1] += ","
+        responses.extend(
+            [
+                "      {",
+                "        key: "
+                f"{ts_inline_literal(f'native-event-{listener.actionIndex}-{index}')},",
+                f"        event: {ts_inline_literal(event)},",
+                *sequence_lines,
+                "      },",
+            ]
+        )
+
+    return "\n".join(
+        [
+            "step('listenForCombatEvents', {",
+            "  responses: [",
+            *responses,
+            "  ],",
+            "})",
+        ]
+    )
+
+
 def compile_resolved_sequence(
     skill: SkillSource,
     config: dict[str, Any],
     *,
     require_damage: bool,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """将已闭环根动作统一编译为按原生顺序调度的序列。"""
     ignored_auxiliary_classifications = set(
@@ -6671,12 +6944,6 @@ def compile_resolved_sequence(
     )
     if collapse_single_enemy_entity_branches and not projected_condition_paths:
         raise ValueError(f"{skill.key}: no single-enemy ability entity branch can be projected")
-    event_listeners = getattr(skill, "eventListeners", ())
-    if event_listeners:
-        events = sorted({listener.event for listener in event_listeners})
-        raise ValueError(
-            f"{skill.key}: skill event listeners are not compiled: {events}"
-        )
     combat_auxiliary_actions = [
         action
         for action in getattr(skill, "auxiliaryActions", [])
@@ -6795,6 +7062,7 @@ def compile_resolved_sequence(
                     schedule, schedule_index, skill.skillId
                 ),
                 step_key_prefix=skill.key,
+                buff_definitions=buff_definitions,
             )
             if compiled_condition == "sequence()":
                 continue
@@ -6886,6 +7154,16 @@ def compile_resolved_sequence(
                 root_skill_context=item.sourcePath == (skill.skillId,),
                 context_application_target=context_application_target,
                 input_target=item.inputTarget,
+                buff_definitions=buff_definitions,
+            ).splitlines()
+        elif item.itemType == "eventListener":
+            payload = cast(SkillEventListenerSource, item.payload)
+            step_lines = compile_skill_event_listener(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].eventListener",
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                step_key_prefix=skill.key,
+                buff_definitions=buff_definitions,
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
@@ -6898,6 +7176,10 @@ def compile_resolved_sequence(
             ]
         if item.itemType == "buffHold":
             entry_lines.append(f"        {cast(BuffHoldSource, item.payload).endFrame},")
+        elif item.itemType == "eventListener":
+            entry_lines.append(
+                f"        {cast(SkillEventListenerSource, item.payload).endFrame},"
+            )
         entry_lines.append("      ),")
         scheduled_entries.extend(entry_lines)
     fields = [
@@ -6941,13 +7223,24 @@ def compile_resolved_sequence(
     return "\n".join(fields)
 
 
-def compile_resolved_damage_sequence(skill: SkillSource, config: dict[str, Any]) -> str:
+def compile_resolved_damage_sequence(
+    skill: SkillSource,
+    config: dict[str, Any],
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+) -> str:
     """兼容要求至少一个伤害命中的严格入口。"""
-    return compile_resolved_sequence(skill, config, require_damage=True)
+    return compile_resolved_sequence(
+        skill,
+        config,
+        require_damage=True,
+        buff_definitions=buff_definitions,
+    )
 
 
 def compile_skill_entries(
-    operator: dict[str, Any], skills: list[SkillSource]
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> tuple[list[tuple[SkillSource, str]], set[str]]:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     compiled: list[tuple[SkillSource, str]] = []
@@ -6983,10 +7276,20 @@ def compile_skill_entries(
         elif kind == "projectileDamage":
             compiled.append((skill, compile_projectile_damage(skill, config)))
         elif kind == "resolvedDamageSequence":
-            compiled.append((skill, compile_resolved_damage_sequence(skill, config)))
+            compiled.append(
+                (skill, compile_resolved_damage_sequence(skill, config, buff_definitions))
+            )
         elif kind == "resolvedSequence":
             compiled.append(
-                (skill, compile_resolved_sequence(skill, config, require_damage=False))
+                (
+                    skill,
+                    compile_resolved_sequence(
+                        skill,
+                        config,
+                        require_damage=False,
+                        buff_definitions=buff_definitions,
+                    ),
+                )
             )
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
@@ -7119,8 +7422,21 @@ def collect_definition_helpers(
     return ", ".join(sorted(helpers))
 
 
-def render_compiled_skills(operator: dict[str, Any], skills: list[SkillSource]) -> str:
-    compiled, damage_type_factories = compile_skill_entries(operator, skills)
+def render_compiled_skills(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    buff_definitions: tuple[BuffDefinitionSource, ...] | None = None,
+) -> str:
+    definitions_by_id = (
+        None
+        if buff_definitions is None
+        else {definition.buffId: definition for definition in buff_definitions}
+    )
+    compiled, damage_type_factories = compile_skill_entries(
+        operator,
+        skills,
+        definitions_by_id,
+    )
     helper_imports = collect_definition_helpers(compiled, damage_type_factories)
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
@@ -7322,6 +7638,77 @@ def validate_skill_groups(
         )
 
 
+def parse_combo_skill_registrations(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+) -> list[dict[str, Any]] | None:
+    """严格读取人工声明的首段连携入口，不在 Python 中复制条件树类型系统。"""
+    raw_registrations = operator.get("comboSkillRegistrations")
+    if raw_registrations is None:
+        return None
+
+    registrations = require_list(
+        raw_registrations,
+        f"{operator['slug']}.comboSkillRegistrations",
+    )
+    if not registrations:
+        raise ValueError(f"{operator['slug']}.comboSkillRegistrations: expected non-empty array")
+
+    skill_keys = {skill.key for skill in skills}
+    parsed: list[dict[str, Any]] = []
+    seen_skill_keys: set[str] = set()
+    for index, value in enumerate(registrations):
+        path = f"{operator['slug']}.comboSkillRegistrations[{index}]"
+        registration = require_dict(value, path)
+        unknown = set(registration).difference({"skillKey", "priority", "blackboard", "rules"})
+        if unknown:
+            raise ValueError(f"{path}: unexpected fields {sorted(unknown)}")
+
+        skill_key = registration.get("skillKey")
+        if not isinstance(skill_key, str) or skill_key not in skill_keys:
+            raise ValueError(f"{path}.skillKey: expected a generated skill key")
+        if skill_key in seen_skill_keys:
+            raise ValueError(f"{path}.skillKey: duplicate registration for {skill_key!r}")
+        seen_skill_keys.add(skill_key)
+
+        priority = registration.get("priority")
+        if priority not in {"default", "firstBlackboard", "enemyRank"}:
+            raise ValueError(f"{path}.priority: unsupported combo priority")
+        if registration.get("blackboard") is not None:
+            require_dict(registration["blackboard"], f"{path}.blackboard")
+
+        rules = require_list(registration.get("rules"), f"{path}.rules")
+        if not rules:
+            raise ValueError(f"{path}.rules: expected non-empty array")
+        for rule_index, rule_value in enumerate(rules):
+            rule_path = f"{path}.rules[{rule_index}]"
+            rule = require_dict(rule_value, rule_path)
+            unknown_rule = set(rule).difference({"trigger", "condition", "castImmediately"})
+            if unknown_rule:
+                raise ValueError(f"{rule_path}: unexpected fields {sorted(unknown_rule)}")
+            if "castImmediately" in rule:
+                require_bool(rule["castImmediately"], f"{rule_path}.castImmediately")
+
+            trigger = require_dict(rule.get("trigger"), f"{rule_path}.trigger")
+            trigger_kind = trigger.get("kind")
+            expected_trigger_fields = {
+                "damageTagHit": {"kind", "tag", "scope"},
+                "elementalInflictionApplied": {"kind", "elements", "scope"},
+            }.get(trigger_kind)
+            if expected_trigger_fields is None:
+                raise ValueError(f"{rule_path}.trigger.kind: unsupported combo trigger")
+            if set(trigger) != expected_trigger_fields:
+                raise ValueError(
+                    f"{rule_path}.trigger: expected fields {sorted(expected_trigger_fields)}, "
+                    f"got {sorted(trigger)}"
+                )
+            if trigger.get("scope") not in {"operator", "team"}:
+                raise ValueError(f"{rule_path}.trigger.scope: unsupported trigger scope")
+
+        parsed.append(registration)
+    return parsed
+
+
 def render_operator_definition(
     operator: dict[str, Any],
     skills: list[SkillSource],
@@ -7329,6 +7716,7 @@ def render_operator_definition(
     growth_table: dict[str, Any],
     potential_table: dict[str, Any],
     effects: dict[str, Any],
+    buff_definitions: tuple[BuffDefinitionSource, ...] = (),
 ) -> str:
     char_id = str(operator["charId"])
     character = table_row(character_table, char_id, "CharacterTable")
@@ -7343,9 +7731,15 @@ def render_operator_definition(
         raise ValueError(f"{char_id}: unsupported operator metadata enum")
     identifier = typescript_identifier(str(operator["slug"]))
     operator_export_name = f"{identifier}GeneratedOperator"
-    skill_entries, damage_type_factories = compile_skill_entries(operator, skills)
+    definitions_by_id = {definition.buffId: definition for definition in buff_definitions}
+    skill_entries, damage_type_factories = compile_skill_entries(
+        operator,
+        skills,
+        definitions_by_id,
+    )
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(operator, skills)
+    combo_skill_registrations = parse_combo_skill_registrations(operator, skills)
     talents = render_talents(operator, skills, growth, effects)
     potentials = render_potentials(operator, skills, potential_table, effects)
     trust_attribute_bonus = parse_trust_attribute_bonus(
@@ -7384,6 +7778,14 @@ def render_operator_definition(
             "  skillGroups: [",
             *(f"    {group}," for group in groups),
             "  ],",
+            *(
+                [
+                    "  comboSkillRegistrations: "
+                    f"{ts_inline_literal(combo_skill_registrations)},"
+                ]
+                if combo_skill_registrations is not None
+                else []
+            ),
             "  talents: [",
             *(textwrap.indent(talent, "    ") + "," for talent in talents),
             "  ],",
@@ -7534,6 +7936,7 @@ def main() -> None:
         if output_stage == "audit":
             write_or_check(
                 args.output / f"{slug}.skills.audit.generated.ts",
+                # 审计产物允许保留尚未闭环的 Buff 身份；完整事实仍在同名 audit.json 中。
                 render_compiled_skills(operator, skills),
                 args.check,
             )
@@ -7552,6 +7955,7 @@ def main() -> None:
                 loaded_tables["CharGrowthTable.json"],
                 loaded_tables["CharacterPotentialTable.json"],
                 loaded_tables["PotentialTalentEffectTable.json"],
+                buff_definitions,
             ),
             args.check,
         )

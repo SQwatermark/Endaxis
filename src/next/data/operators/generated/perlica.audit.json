@@ -154,7 +154,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -187,7 +188,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -215,7 +217,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -232,7 +236,9 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -340,7 +346,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -478,7 +485,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -511,7 +519,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -539,7 +548,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -643,7 +654,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -676,7 +688,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -704,7 +717,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -812,7 +827,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -852,7 +868,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -1038,7 +1055,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1071,7 +1089,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1099,7 +1118,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1116,7 +1137,9 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1220,7 +1243,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1253,7 +1277,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1281,7 +1306,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1298,7 +1325,9 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1402,7 +1431,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -1435,7 +1465,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -1463,7 +1494,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1480,7 +1513,9 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -1588,7 +1623,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -1628,7 +1664,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         },
@@ -1668,7 +1705,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ]
         }
@@ -1857,7 +1895,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
             },
             {
               "damageType": "Physical",
@@ -1887,7 +1926,8 @@
                   15.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "directDamageHits": [
@@ -1920,7 +1960,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Physical",
@@ -1950,7 +1991,8 @@
                       15.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -1978,7 +2020,9 @@
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1995,7 +2039,9 @@
                     "containsHittableTarget": false,
                     "excludeDeadEntity": false,
                     "storeKey": ""
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -2103,7 +2149,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
             },
             {
               "damageType": "Physical",
@@ -2133,7 +2180,8 @@
                   15.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -2242,7 +2290,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -2343,7 +2392,8 @@
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ]
         }
@@ -2494,7 +2544,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ],
           "timedMarkerGate": null
@@ -2727,7 +2778,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ]
         }
@@ -2917,7 +2969,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -2960,7 +3013,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -3036,7 +3090,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -3079,7 +3134,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -3344,7 +3400,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Physical",
@@ -3374,7 +3431,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "directDamageHits": [
@@ -3407,7 +3465,8 @@
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 12288
                 },
                 {
                   "damageType": "Physical",
@@ -3437,7 +3496,8 @@
                       10.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -3482,7 +3542,9 @@
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CheckTagMatch",
@@ -3498,7 +3560,9 @@
                     "tagIds": [
                       1075718177
                     ]
-                  }
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -3514,7 +3578,9 @@
                     "blackboardKey": null,
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -3613,7 +3679,8 @@
                           },
                           "calculationMultiplier": null,
                           "poiseValue": null,
-                          "definiteValue": null
+                          "definiteValue": null,
+                          "damageDecorateMask": 12288
                         },
                         {
                           "damageType": "Physical",
@@ -3643,7 +3710,8 @@
                               10.0
                             ]
                           },
-                          "definiteValue": null
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
                         }
                       ],
                       "directDamageHits": [
@@ -3676,7 +3744,8 @@
                               },
                               "calculationMultiplier": null,
                               "poiseValue": null,
-                              "definiteValue": null
+                              "definiteValue": null,
+                              "damageDecorateMask": 12288
                             },
                             {
                               "damageType": "Physical",
@@ -3706,7 +3775,8 @@
                                   10.0
                                 ]
                               },
-                              "definiteValue": null
+                              "definiteValue": null,
+                              "damageDecorateMask": 0
                             }
                           ],
                           "timedMarkerGate": null
@@ -3751,7 +3821,9 @@
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": []
+                              "skillTypes": [],
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             },
                             {
                               "sourceType": "CheckTagMatch",
@@ -3767,7 +3839,9 @@
                                 "tagIds": [
                                   1075718177
                                 ]
-                              }
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             },
                             {
                               "sourceType": "CompareFloat",
@@ -3783,7 +3857,9 @@
                                 "blackboardKey": null,
                                 "levelValues": null
                               },
-                              "skillTypes": []
+                              "skillTypes": [],
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
                             }
                           ],
                           "succeedActions": [
@@ -4156,7 +4232,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Physical",
@@ -4186,7 +4263,8 @@
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }
@@ -4480,7 +4558,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4608
             },
             {
               "damageType": "Pulse",
@@ -4523,7 +4602,8 @@
                   20.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -4644,7 +4724,8 @@
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4608
             },
             {
               "damageType": "Pulse",
@@ -4687,7 +4768,8 @@
                   20.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ]
         }

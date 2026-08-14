@@ -7,6 +7,8 @@ export interface CombatSkillCastInfo {
   readonly skillCastId: number;
   /** 最初发起本次施法链的技能；当前直接释放时就是正在执行的技能。 */
   readonly originSkillId: string;
+  /** 时间轴上的技能块身份；单元测试或非时间轴技能可以缺失。 */
+  readonly originCastId?: string;
   /** 本次施法在当前时刻已经实际扣除且未返还的技力。 */
   readonly nonReturnedSpCost: number;
 }

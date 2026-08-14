@@ -49,6 +49,7 @@ type EnvironmentOptions = Pick<
   | 'enemyVitalsRuntime'
   | 'createOperatorBuffRuntime'
   | 'createOperationExecutor'
+  | 'createEquipmentEventOperationExecutor'
   | 'resolveVitals'
 >;
 
@@ -57,6 +58,8 @@ export type StandardPlayerDamageEvent =
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
   | 'beforeOutputDamage'
+  | 'beforeKillEntity'
+  | 'afterKillEntity'
   | 'takeDamage'
   | 'outputDamage'
   | 'beforeOutputPoiseDamage'
@@ -107,6 +110,7 @@ export class StandardPlayerDamageEnvironment {
   );
   readonly #enemyBuffRuntime = new BuffDefinitionOperationTarget(this.#enemyBuffs, {
     get: () => undefined,
+    compile: entry => this.#compileInlineBuffDefinition(entry),
   });
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
@@ -131,6 +135,8 @@ export class StandardPlayerDamageEnvironment {
       },
       createOperatorBuffRuntime: operatorId => this.#operatorBuffRuntime(operatorId),
       createOperationExecutor: context => this.#createOperationExecutor(context),
+      // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
+      createEquipmentEventOperationExecutor: () => strictTerminal,
       resolveVitals: target => {
         if (target !== 'enemy') {
           throw new Error('standard player damage environment has no operator vitals');
@@ -199,12 +205,35 @@ export class StandardPlayerDamageEnvironment {
         this.#emit(context.program.operatorId, event, payload),
       // 失衡倍率目前只有证据不足的来源；装备/处决失衡增益接入后在此聚合。
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
-      emitHealthSourceEvent: (event, payload) =>
-        this.#emit(context.program.operatorId, event, payload),
+      emitHealthSourceEvent: (event, payload) => {
+        if (event === 'afterKillEntity') {
+          context.semanticEvents.emit({
+            kind: 'enemyDefeated',
+            sourceOperatorId: context.program.operatorId,
+            tags: payload.tags,
+            features: payload.features,
+          });
+          return;
+        }
+        this.#emit(context.program.operatorId, event, payload);
+      },
       emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
       emitPoiseSourceEvent: (event, modifier) =>
         this.#emit(context.program.operatorId, event, modifier),
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
+      emitSemanticHit: step => {
+        context.semanticEvents.emit({
+          kind: 'damageTagHit',
+          sourceOperatorId: context.program.operatorId,
+          tags: step.parameters.tags,
+          features: step.parameters.features ?? [],
+        });
+        context.semanticEvents.emit({
+          kind: 'skillHit',
+          sourceOperatorId: context.program.operatorId,
+          skillGroupKey: context.program.skillGroupKey,
+        });
+      },
       delegate: this.#createReactionExecutor(context),
     });
   }
@@ -233,6 +262,12 @@ export class StandardPlayerDamageEnvironment {
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
       applyOperation: (operation: ElementalInflictionOperation) => adapter.apply(operation),
+      emitSemanticInfliction: element =>
+        context.semanticEvents.emit({
+          kind: 'elementalInflictionApplied',
+          sourceOperatorId: context.program.operatorId,
+          elements: [element],
+        }),
       emitSourceEvent: (event, payload) => this.#emit(context.program.operatorId, event, payload),
       emitTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
       delegate: strictTerminal,
@@ -273,13 +308,26 @@ export class StandardPlayerDamageEnvironment {
     if (runtime === undefined) {
       runtime = new BuffDefinitionOperationTarget(
         new CombatBuffContainer(operatorId, new CombatAttributeSet<string>()),
-        { get: () => undefined },
+        {
+          get: () => undefined,
+          compile: entry => this.#compileInlineBuffDefinition(entry),
+        },
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
     return runtime;
   }
 
+  #compileInlineBuffDefinition(
+    entry: import('../buffs/combatBuffDefinitions').CombatBuffDefinitionEntry,
+  ): import('../buffs/combatBuffs').CombatBuffDefinition<string> {
+    const definitions = new CompiledCombatBuffDefinitions(`inline:${entry.id}`, [entry], {
+      emitElementalInflictionStarted: payload =>
+        this.#emit('enemy', 'elementalInflictionStarted', payload),
+      onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
+    });
+    return definitions.get(entry.id)!;
+  }
   #inflictionAdapter(operatorId: string): ElementalInflictionBuffAdapter<string> {
     let adapter = this.#inflictionAdapters.get(operatorId);
     if (adapter === undefined) {

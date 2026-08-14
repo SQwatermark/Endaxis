@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { RefreshLeft } from '@element-plus/icons-vue';
-import type { SkillType } from '../../../core/game-data/operatorDefinition';
+import type { SkillType, SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import type { SkillCastDocument } from '../../../core/project/schema';
 
 const props = defineProps<{
@@ -10,9 +10,14 @@ const props = defineProps<{
   skillType: SkillType | null;
   edited: boolean;
   diffCount: number;
+  templateDefinition: SkillDefinition | null;
+  currentDefinition: SkillDefinition | null;
 }>();
 
-defineEmits<{ resetDefinition: [] }>();
+defineEmits<{
+  editDefinition: [];
+  resetDefinition: [];
+}>();
 
 const { t } = useI18n({ useScope: 'global' });
 </script>
@@ -26,24 +31,57 @@ const { t } = useI18n({ useScope: 'global' });
 
     <div v-if="cast !== null" class="scrollable-content">
       <section class="section-container">
-        <div class="panel-tag-mini">{{ t('propertiesPanel.sections.basic') }}</div>
+        <div class="panel-tag-mini">{{ t('nextTimeline.inspector.sections.basic') }}</div>
         <div class="attribute-grid">
           <div class="form-group">
-            <span>{{ t('propertiesPanel.labels.actionId') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.actionId') }}</span>
             <div class="readonly-field">{{ cast.id }}</div>
           </div>
           <div class="form-group">
-            <span>{{ t('propertiesPanel.labels.sourceKind') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.sourceKind') }}</span>
             <div class="readonly-field">{{ cast.source.kind }}</div>
           </div>
           <div class="form-group">
-            <span>{{ t('propertiesPanel.labels.startFrame') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.startFrame') }}</span>
             <div class="readonly-field">{{ cast.placement.startFrame }}</div>
           </div>
         </div>
       </section>
 
-      <section v-if="edited" class="section-container">
+      <section
+        v-if="templateDefinition !== null && currentDefinition !== null"
+        class="section-container"
+      >
+        <div class="panel-tag-mini">{{ t('nextTimeline.skillEditing.section') }}</div>
+        <div class="definition-status definition-status--stacked">
+          <strong>
+            {{
+              edited
+                ? t('nextTimeline.skillEditing.customized')
+                : t('nextTimeline.skillEditing.usesTemplate')
+            }}
+          </strong>
+          <span v-if="edited">{{
+            t('nextTimeline.skillEditing.diffCount', { count: diffCount })
+          }}</span>
+          <div class="definition-actions">
+            <button type="button" class="definition-edit" @click="$emit('editDefinition')">
+              {{ t('nextTimeline.skillEditing.edit') }}
+            </button>
+            <button
+              v-if="edited"
+              type="button"
+              class="definition-reset"
+              @click="$emit('resetDefinition')"
+            >
+              <RefreshLeft />
+              <span>{{ t('nextTimeline.skillEditing.reset') }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="edited && templateDefinition === null" class="section-container">
         <div class="panel-tag-mini">{{ t('nextTimeline.skillEditing.section') }}</div>
         <div class="definition-status">
           <span>{{ t('nextTimeline.skillEditing.diffCount', { count: diffCount }) }}</span>
@@ -60,18 +98,18 @@ const { t } = useI18n({ useScope: 'global' });
       </section>
 
       <section class="section-container">
-        <div class="panel-tag-mini">{{ t('propertiesPanel.sections.presentation') }}</div>
+        <div class="panel-tag-mini">{{ t('nextTimeline.inspector.sections.presentation') }}</div>
         <div class="attribute-grid">
           <div class="form-group">
-            <span>{{ t('propertiesPanel.labels.locked') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.locked') }}</span>
             <div class="readonly-field">{{ cast.presentation?.locked ?? false }}</div>
           </div>
           <div class="form-group">
-            <span>{{ t('propertiesPanel.labels.disabled') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.disabled') }}</span>
             <div class="readonly-field">{{ cast.presentation?.disabled ?? false }}</div>
           </div>
           <div class="form-group" :class="{ 'attribute-grid__wide': true }">
-            <span>{{ t('propertiesPanel.labels.color') }}</span>
+            <span>{{ t('nextTimeline.inspector.labels.color') }}</span>
             <div class="readonly-field">
               <span
                 v-if="cast.presentation?.color"
@@ -209,6 +247,31 @@ const { t } = useI18n({ useScope: 'global' });
   gap: 8px;
   color: var(--ea-fg-muted);
   font-size: 11px;
+}
+
+.definition-status--stacked {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.definition-status--stacked strong {
+  color: var(--ea-fg);
+  font-size: 12px;
+}
+
+.definition-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.definition-edit {
+  height: 28px;
+  border: 1px solid var(--ea-gold);
+  border-radius: 2px;
+  background: var(--ea-active-fill);
+  color: var(--ea-fg);
+  cursor: pointer;
 }
 
 .definition-reset {

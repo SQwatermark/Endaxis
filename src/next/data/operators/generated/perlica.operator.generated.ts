@@ -141,16 +141,6 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     timelineBlockFrames: 25,
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
-    activationWindow: {
-      durationFrames: 150,
-      rules: {
-        trigger: {
-          kind: 'damageTagHit',
-          tag: 'normalAttackLastCombo',
-          scope: 'team',
-        },
-      },
-    },
     scheduledSequences: [
       scheduled(
         24,
@@ -236,6 +226,7 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: perlicaComboSkill },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: perlicaUltimate },
   ],
+  comboSkillRegistrations: [{ skillKey: 'comboSkill', priority: 'default', rules: [{ trigger: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' } }] }],
   talents: [
     {
       key: 'staggerDamageBonus',

@@ -132,6 +132,8 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     sourceId: input.sourceId,
     targetId: 'enemy',
     damageType: input.definition.damageType,
+    tags: [],
+    features: [],
     result: damage,
     target: input.target,
     clock: input.clock,

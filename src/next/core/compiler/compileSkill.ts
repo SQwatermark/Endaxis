@@ -8,6 +8,7 @@ import type {
   CombatStepDefinition,
   LevelValues,
   SkillDefinition,
+  SkillBuffDefinition,
   SkillType,
   StatusModifierDefinition,
 } from '../game-data/operatorDefinition';
@@ -15,6 +16,7 @@ import type {
   CompiledSkillProgram,
   ResolvedActionSequence,
   ResolvedCombatStep,
+  ResolvedSkillBuffDefinition,
   ResolvedStatusModifier,
 } from './combatProgram';
 import { gameplayTagId } from '../combat/tags/gameplayTags';
@@ -330,7 +332,7 @@ function resolveStep(
           ...(coefficient === undefined
             ? {}
             : {
-                coefficient: resolveLevelValue(
+                coefficient: resolveLevelValueOrActionOperand(
                   coefficient,
                   skillLevel,
                   `${path}.parameters.coefficient`,
@@ -351,15 +353,69 @@ function resolveStep(
           ),
         },
       };
+    case 'applyBuff': {
+      const { definition, ...parameters } = step.parameters;
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...parameters,
+          ...(definition === undefined
+            ? {}
+            : {
+                definition: resolveSkillBuffDefinition(
+                  definition,
+                  skillLevel,
+                  `${path}.parameters.definition`,
+                ),
+              }),
+        },
+      };
+    }
     case 'applyElementalInfliction':
     case 'applyElementalReaction':
     case 'consumeElementalReaction':
-    case 'applyBuff':
     case 'gainFinisherSp':
     case 'consumeStatus':
     case 'setContextFlag':
+    case 'openComboWindow':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
+    case 'listenForCombatEvents':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          responses: step.parameters.responses.map((response, index) => ({
+            key: response.key,
+            event: response.event,
+            ...(response.condition === undefined ? {} : { condition: response.condition }),
+            sequence: compileActionSequence(
+              response.sequence,
+              skillLevel,
+              `${path}.parameters.responses[${index}].sequence`,
+            ),
+          })),
+        },
+      };
   }
+}
+
+function resolveSkillBuffDefinition(
+  definition: SkillBuffDefinition,
+  skillLevel: number,
+  path: string,
+): ResolvedSkillBuffDefinition {
+  const { lifecycleSequences, ...fields } = definition;
+  if (lifecycleSequences === undefined) return fields;
+  return {
+    ...fields,
+    lifecycleSequences: Object.fromEntries(
+      Object.entries(lifecycleSequences).map(([key, sequence]) => [
+        key,
+        compileActionSequence(sequence, skillLevel, `${path}.lifecycleSequences.${key}`),
+      ]),
+    ),
+  };
 }
 
 /** 将任意定义来源的等级化动作序列解析为运行时序列。 */
@@ -382,6 +438,11 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
   if (!Number.isInteger(input.skill.timelineBlockFrames) || input.skill.timelineBlockFrames < 0) {
     throw new RangeError(
       `skill '${input.skill.key}' must use non-negative integer timelineBlockFrames`,
+    );
+  }
+  if (input.skill.eventHandlers?.length) {
+    throw new Error(
+      `skill '${input.skill.key}' uses legacy eventHandlers without a listener interval`,
     );
   }
   const costs = (input.skill.costs ?? []).map((cost, index) => ({

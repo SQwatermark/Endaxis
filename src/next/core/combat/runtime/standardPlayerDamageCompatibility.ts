@@ -13,7 +13,6 @@ export const STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES = [
   'unsupported-damage-calculation',
   'unsupported-damage-field',
   'unsupported-resource-change',
-  'uninstalled-equipment-event-handler',
 ] as const;
 
 /** 标准伤害预检问题的稳定分类；UI 可以凭它自行翻译。 */
@@ -101,11 +100,21 @@ function inspectSequence(
   path: string,
   collect: IssueCollector,
   flags: CompatibilityFlags,
+  source: 'skill' | 'equipment' = 'skill',
 ): void {
   sequence.steps.forEach((step, index) => {
     const stepPath = `${path}.steps[${index}]`;
     switch (step.kind) {
       case 'dealDamage': {
+        if (source === 'equipment') {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'equipment-triggered damage requires a recovered source-classification path',
+          );
+          return;
+        }
         const parameters = step.parameters;
         if (parameters.damageType === 'lifeDrain') {
           report(
@@ -142,6 +151,15 @@ function inspectSequence(
         return;
       }
       case 'dealFixedDamage':
+        if (source === 'equipment') {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'equipment-triggered damage requires a recovered source-classification path',
+          );
+          return;
+        }
         if (step.parameters.damageType === 'lifeDrain') {
           report(
             collect,
@@ -152,6 +170,15 @@ function inspectSequence(
         }
         return;
       case 'applyElementalInfliction':
+        if (source === 'equipment') {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'equipment-triggered infliction requires a recovered source-classification path',
+          );
+          return;
+        }
         if (!flags.elementalInfliction) {
           report(
             collect,
@@ -169,6 +196,7 @@ function inspectSequence(
       case 'calculateActionValue':
       case 'createTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
+      case 'openComboWindow':
         return;
       case 'changeResource':
       case 'changeResourceByActionValue': {
@@ -188,13 +216,13 @@ function inspectSequence(
       }
       case 'conditional':
         inspectCondition(step.parameters.condition, `${stepPath}.parameters.condition`, collect);
-        inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect, flags);
+        inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect, flags, source);
         if (step.whenFalse !== undefined) {
-          inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect, flags);
+          inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect, flags, source);
         }
         return;
       case 'once':
-        inspectSequence(step.body, `${stepPath}.body`, collect, flags);
+        inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
         return;
       default:
         report(collect, 'unsupported-step', stepPath, `step '${step.kind}'`);
@@ -267,14 +295,13 @@ export function inspectStandardPlayerDamageCompatibility(
       inspectProgram(program, skillScheduledFrames, input.endFrame, operatorPath, collect, flags);
     });
     operator.equipmentContributions?.forEach((contribution, contributionIndex) => {
-      contribution.eventHandlers.forEach((_handler, handlerIndex) =>
-        report(
-          collect,
-          'uninstalled-equipment-event-handler',
-          `${operatorPath}.equipmentContributions[${contributionIndex}].eventHandlers[${handlerIndex}]`,
-          'equipment event handlers are compiled but not installed by this profile',
-        ),
-      );
+      contribution.eventHandlers.forEach((handler, handlerIndex) => {
+        const handlerPath = `${operatorPath}.equipmentContributions[${contributionIndex}].eventHandlers[${handlerIndex}]`;
+        if (handler.condition !== undefined) {
+          inspectCondition(handler.condition, `${handlerPath}.condition`, collect);
+        }
+        inspectSequence(handler.sequence, `${handlerPath}.sequence`, collect, flags, 'equipment');
+      });
     });
   });
 

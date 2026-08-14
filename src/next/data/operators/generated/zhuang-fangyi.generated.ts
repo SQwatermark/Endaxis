@@ -663,7 +663,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 4352
             },
             {
               "damageType": "Pulse",
@@ -682,7 +683,8 @@ export const zhuangFangyiGeneratedSource = {
                   0.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -754,7 +756,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -785,7 +789,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 4352
                 }
               ]
             },
@@ -834,7 +839,9 @@ export const zhuangFangyiGeneratedSource = {
                         0.0
                       ]
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -910,7 +917,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 256
                 }
               ]
             },
@@ -959,7 +967,9 @@ export const zhuangFangyiGeneratedSource = {
                         0.0
                       ]
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -1037,7 +1047,9 @@ export const zhuangFangyiGeneratedSource = {
                   0.0
                 ]
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -2233,7 +2245,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2266,7 +2279,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2320,7 +2334,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -2353,7 +2368,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -2749,7 +2765,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -2858,7 +2876,9 @@ export const zhuangFangyiGeneratedSource = {
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -3003,7 +3023,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -3036,7 +3057,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -3090,7 +3112,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -3123,7 +3146,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -3183,7 +3207,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -3194,11 +3219,11 @@ export const zhuangFangyiGeneratedSource = {
               "startFrame": 9,
               "endFrame": 16,
               "actionIndex": 8,
-              "intervalFrames": 3,
+              "intervalSeconds": 0.1,
               "tickFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ],
               "damageActionIndex": 14,
               "damageUnits": [
@@ -3226,7 +3251,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ]
             }
@@ -3252,7 +3278,9 @@ export const zhuangFangyiGeneratedSource = {
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -3297,7 +3325,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -3370,7 +3399,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -3403,8 +3433,8 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "executionFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ]
             }
           ],
@@ -3776,7 +3806,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -3913,7 +3945,9 @@ export const zhuangFangyiGeneratedSource = {
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -4250,7 +4284,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -4435,7 +4471,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4468,7 +4505,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4522,7 +4560,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4555,7 +4594,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4609,7 +4649,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4642,7 +4683,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4696,7 +4738,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 128
             }
           ],
           "directDamageHits": [
@@ -4729,7 +4772,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -4976,7 +5020,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -5277,7 +5323,9 @@ export const zhuangFangyiGeneratedSource = {
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -5384,7 +5432,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": null
@@ -5395,11 +5444,11 @@ export const zhuangFangyiGeneratedSource = {
               "startFrame": 9,
               "endFrame": 16,
               "actionIndex": 8,
-              "intervalFrames": 3,
+              "intervalSeconds": 0.1,
               "tickFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ],
               "damageActionIndex": 14,
               "damageUnits": [
@@ -5427,7 +5476,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ]
             }
@@ -5453,7 +5503,9 @@ export const zhuangFangyiGeneratedSource = {
                   "comparison": null,
                   "left": null,
                   "right": null,
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -5498,7 +5550,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -5571,7 +5624,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
-                      "definiteValue": null
+                      "definiteValue": null,
+                      "damageDecorateMask": 128
                     }
                   ]
                 },
@@ -5604,8 +5658,8 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "executionFrames": [
                 9,
-                12,
-                15
+                11,
+                14
               ]
             }
           ],
@@ -5914,7 +5968,9 @@ export const zhuangFangyiGeneratedSource = {
                 "lessThan": true,
                 "includeTargetRadius": true,
                 "containsHittableObject": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -6247,7 +6303,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -6322,7 +6380,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": false,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -6403,7 +6463,9 @@ export const zhuangFangyiGeneratedSource = {
                             "lessThan": false,
                             "includeTargetRadius": true,
                             "containsHittableObject": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -6591,7 +6653,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Pulse",
@@ -6621,7 +6684,8 @@ export const zhuangFangyiGeneratedSource = {
                       18.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -7229,7 +7293,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -7304,7 +7370,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": false,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -7385,7 +7453,9 @@ export const zhuangFangyiGeneratedSource = {
                             "lessThan": false,
                             "includeTargetRadius": true,
                             "containsHittableObject": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -7890,7 +7960,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -7965,7 +8037,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8120,7 +8194,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8281,7 +8357,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -8326,7 +8404,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8455,7 +8535,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8590,7 +8672,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -8635,7 +8719,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8764,7 +8850,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -8899,7 +8987,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -8944,7 +9034,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9073,7 +9165,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -9242,7 +9336,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9338,7 +9433,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9434,7 +9530,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9530,7 +9627,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -9808,7 +9906,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -9883,7 +9983,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10021,7 +10123,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10148,7 +10252,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -10193,7 +10299,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10305,7 +10413,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10406,7 +10516,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -10451,7 +10563,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10563,7 +10677,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10664,7 +10780,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -10709,7 +10827,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -10821,7 +10941,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11146,7 +11268,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -11221,7 +11345,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11376,7 +11502,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11537,7 +11665,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -11582,7 +11712,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11711,7 +11843,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -11846,7 +11980,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -11891,7 +12027,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -12020,7 +12158,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -12155,7 +12295,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -12200,7 +12342,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -12329,7 +12473,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -12498,7 +12644,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -12594,7 +12741,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -12690,7 +12838,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -12786,7 +12935,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
                 }
               ],
               "timedMarkerGate": {
@@ -13050,7 +13200,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13125,7 +13277,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13263,7 +13417,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13390,7 +13546,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13435,7 +13593,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13547,7 +13707,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13648,7 +13810,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13693,7 +13857,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13805,7 +13971,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -13906,7 +14074,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -13951,7 +14121,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14063,7 +14235,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14345,7 +14519,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -14420,7 +14596,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14522,7 +14700,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -14667,7 +14847,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 2097280
                 },
                 {
                   "damageType": "Pulse",
@@ -14697,7 +14878,8 @@ export const zhuangFangyiGeneratedSource = {
                       18.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -15002,7 +15184,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": true,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -15077,7 +15261,9 @@ export const zhuangFangyiGeneratedSource = {
                       "lessThan": true,
                       "includeTargetRadius": true,
                       "containsHittableObject": true
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -15171,7 +15357,9 @@ export const zhuangFangyiGeneratedSource = {
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -15488,7 +15676,8 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -15526,7 +15715,8 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 132
             }
           ],
           "timedMarkerGate": null
@@ -15840,7 +16030,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 1152
             }
           ],
           "timedMarkerGate": null
@@ -16110,7 +16301,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -16528,7 +16721,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -16589,7 +16784,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -16677,7 +16874,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -16853,7 +17052,9 @@ export const zhuangFangyiGeneratedSource = {
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [],
@@ -17010,7 +17211,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -17130,7 +17333,9 @@ export const zhuangFangyiGeneratedSource = {
                                     9.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -17185,7 +17390,9 @@ export const zhuangFangyiGeneratedSource = {
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -17352,7 +17559,9 @@ export const zhuangFangyiGeneratedSource = {
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -17677,7 +17886,9 @@ export const zhuangFangyiGeneratedSource = {
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -17771,7 +17982,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -17891,7 +18104,9 @@ export const zhuangFangyiGeneratedSource = {
                                     9.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -17946,7 +18161,9 @@ export const zhuangFangyiGeneratedSource = {
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -18113,7 +18330,9 @@ export const zhuangFangyiGeneratedSource = {
                                           "levelValues": null
                                         },
                                         "limitSkillCastId": false
-                                      }
+                                      },
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -18428,7 +18647,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -18724,7 +18945,9 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -18805,7 +19028,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -19492,7 +19717,9 @@ export const zhuangFangyiGeneratedSource = {
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -19539,7 +19766,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [],
@@ -19601,7 +19830,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -19662,7 +19893,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -19750,7 +19983,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -19926,7 +20161,9 @@ export const zhuangFangyiGeneratedSource = {
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [],
@@ -20083,7 +20320,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -20263,7 +20502,9 @@ export const zhuangFangyiGeneratedSource = {
                               3.0
                             ]
                           },
-                          "skillTypes": []
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -20357,7 +20598,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -20527,7 +20770,9 @@ export const zhuangFangyiGeneratedSource = {
                 "blackboardKey": null,
                 "levelValues": null
               },
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -20823,7 +21068,9 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -20904,7 +21151,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -21253,7 +21502,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -21341,7 +21592,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -21402,7 +21655,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -21494,7 +21749,9 @@ export const zhuangFangyiGeneratedSource = {
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -21549,7 +21806,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -21716,7 +21975,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -22069,7 +22330,9 @@ export const zhuangFangyiGeneratedSource = {
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -22124,7 +22387,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -22291,7 +22556,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -22616,7 +22883,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -22810,7 +23079,9 @@ export const zhuangFangyiGeneratedSource = {
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [],
@@ -22979,7 +23250,9 @@ export const zhuangFangyiGeneratedSource = {
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -23107,7 +23380,9 @@ export const zhuangFangyiGeneratedSource = {
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -23162,7 +23437,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -23329,7 +23606,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -23665,7 +23944,9 @@ export const zhuangFangyiGeneratedSource = {
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -23768,7 +24049,9 @@ export const zhuangFangyiGeneratedSource = {
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -23896,7 +24179,9 @@ export const zhuangFangyiGeneratedSource = {
                                           9.0
                                         ]
                                       },
-                                      "skillTypes": []
+                                      "skillTypes": [],
+                                      "damageDecorateMask": null,
+                                      "contextBuffId": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -23951,7 +24236,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -24118,7 +24405,9 @@ export const zhuangFangyiGeneratedSource = {
                                                 "levelValues": null
                                               },
                                               "limitSkillCastId": false
-                                            }
+                                            },
+                                            "damageDecorateMask": null,
+                                            "contextBuffId": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -24433,7 +24722,9 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -24514,7 +24805,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -24679,7 +24972,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 4352
                 },
                 {
                   "damageType": "Pulse",
@@ -24709,7 +25003,8 @@ export const zhuangFangyiGeneratedSource = {
                       15.0
                     ]
                   },
-                  "definiteValue": null
+                  "definiteValue": null,
+                  "damageDecorateMask": 0
                 }
               ],
               "timedMarkerGate": null
@@ -24745,7 +25040,9 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -24832,7 +25129,9 @@ export const zhuangFangyiGeneratedSource = {
                           "blackboardKey": null,
                           "levelValues": null
                         },
-                        "skillTypes": []
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
                       }
                     ],
                     "succeedActions": [
@@ -24867,7 +25166,8 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
-                            "definiteValue": null
+                            "definiteValue": null,
+                            "damageDecorateMask": 4352
                           }
                         ]
                       }
@@ -24904,20 +25204,21 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
-                            "definiteValue": null
+                            "definiteValue": null,
+                            "damageDecorateMask": 256
                           }
                         ]
                       }
                     ],
                     "executionFrames": [
                       12,
-                      18,
-                      24,
-                      30,
-                      36,
-                      42,
-                      48,
-                      54,
+                      17,
+                      23,
+                      29,
+                      35,
+                      41,
+                      47,
+                      53,
                       60
                     ]
                   }
@@ -24952,13 +25253,13 @@ export const zhuangFangyiGeneratedSource = {
               "failActions": [],
               "executionFrames": [
                 12,
-                18,
-                24,
-                30,
-                36,
-                42,
-                48,
-                54,
+                17,
+                23,
+                29,
+                35,
+                41,
+                47,
+                53,
                 60
               ]
             },
@@ -24990,7 +25291,9 @@ export const zhuangFangyiGeneratedSource = {
                     "blackboardKey": "EntityBB_SwordNum",
                     "levelValues": null
                   },
-                  "skillTypes": []
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null
                 }
               ],
               "succeedActions": [
@@ -25024,13 +25327,13 @@ export const zhuangFangyiGeneratedSource = {
               "failActions": [],
               "executionFrames": [
                 12,
-                18,
-                24,
-                30,
-                36,
-                42,
-                48,
-                54,
+                17,
+                23,
+                29,
+                35,
+                41,
+                47,
+                53,
                 60
               ]
             },
@@ -25927,7 +26230,9 @@ export const zhuangFangyiGeneratedSource = {
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -25974,7 +26279,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [],
@@ -26027,7 +26334,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": true,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -26115,7 +26424,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -26176,7 +26487,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -26414,7 +26727,9 @@ export const zhuangFangyiGeneratedSource = {
                               "levelValues": null
                             },
                             "limitSkillCastId": false
-                          }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null
                         }
                       ],
                       "succeedActions": [
@@ -26608,7 +26923,9 @@ export const zhuangFangyiGeneratedSource = {
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [],
@@ -26777,7 +27094,9 @@ export const zhuangFangyiGeneratedSource = {
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -26975,7 +27294,9 @@ export const zhuangFangyiGeneratedSource = {
                                     3.0
                                   ]
                                 },
-                                "skillTypes": []
+                                "skillTypes": [],
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -27078,7 +27399,9 @@ export const zhuangFangyiGeneratedSource = {
                                     "levelValues": null
                                   },
                                   "limitSkillCastId": false
-                                }
+                                },
+                                "damageDecorateMask": null,
+                                "contextBuffId": null
                               }
                             ],
                             "succeedActions": [
@@ -27255,7 +27578,9 @@ export const zhuangFangyiGeneratedSource = {
               "comparison": null,
               "left": null,
               "right": null,
-              "skillTypes": []
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -27336,7 +27661,9 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableTarget": false,
                       "excludeDeadEntity": false,
                       "storeKey": ""
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -27676,7 +28003,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -27706,7 +28034,8 @@ export const zhuangFangyiGeneratedSource = {
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -27748,7 +28077,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -27853,7 +28184,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -27928,7 +28261,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -28030,7 +28365,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -28538,7 +28875,9 @@ export const zhuangFangyiGeneratedSource = {
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -28594,7 +28933,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -28699,7 +29040,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -28774,7 +29117,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -28876,7 +29221,9 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableTarget": false,
                 "excludeDeadEntity": false,
                 "storeKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -29336,7 +29683,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "calculationMultiplier": null,
               "poiseValue": null,
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 12288
             },
             {
               "damageType": "Pulse",
@@ -29366,7 +29714,8 @@ export const zhuangFangyiGeneratedSource = {
                   10.0
                 ]
               },
-              "definiteValue": null
+              "definiteValue": null,
+              "damageDecorateMask": 0
             }
           ],
           "timedMarkerGate": null
@@ -29408,7 +29757,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -29513,7 +29864,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -29588,7 +29941,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -30025,7 +30380,9 @@ export const zhuangFangyiGeneratedSource = {
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [],
@@ -30081,7 +30438,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -30186,7 +30545,9 @@ export const zhuangFangyiGeneratedSource = {
                         "levelValues": null
                       },
                       "limitSkillCastId": false
-                    }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -30261,7 +30622,9 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     },
-                    "skillTypes": []
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
                   }
                 ],
                 "succeedActions": [
@@ -30711,7 +31074,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [
@@ -31118,7 +31483,9 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "limitSkillCastId": false
-              }
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
             }
           ],
           "succeedActions": [

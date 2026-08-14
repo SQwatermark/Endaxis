@@ -41,13 +41,13 @@ const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bot
 
 const blockStyle = computed(() => ({
   left: `${props.left}px`,
-  width: `${Math.max(48, props.width)}px`,
+  width: `${Math.max(1, props.width)}px`,
   ...(props.color ? { '--action-accent': props.color } : {}),
 }));
 
 function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
-  const width = Math.max(48, props.width);
-  const leftPx = Math.min(Math.max(marker.leftPx, 4), Math.max(4, width - 4));
+  const width = Math.max(1, props.width);
+  const leftPx = Math.min(Math.max(marker.leftPx, 0), width);
   return { left: `${leftPx}px` };
 }
 </script>
@@ -113,7 +113,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   position: absolute;
   top: 55px;
   height: 50px;
-  min-width: 48px;
+  min-width: 0;
   box-sizing: border-box;
   display: flex;
   align-items: center;

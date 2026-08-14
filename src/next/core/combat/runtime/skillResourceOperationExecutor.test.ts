@@ -48,7 +48,7 @@ describe('SkillResourceOperationExecutor', () => {
     };
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
-      skillId: 'comboSkill',
+      sourceActionId: 'comboSkill',
       clock,
       resources,
       receipt,
@@ -111,7 +111,7 @@ describe('SkillResourceOperationExecutor', () => {
     });
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'arcane',
-      skillId: 'comboSkill',
+      sourceActionId: 'comboSkill',
       clock,
       resources,
       receipt,
@@ -183,7 +183,7 @@ describe('SkillResourceOperationExecutor', () => {
     const delegatedKinds: string[] = [];
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'arcane',
-      skillId: 'comboSkill',
+      sourceActionId: 'comboSkill',
       clock,
       resources,
       receipt,
@@ -249,7 +249,7 @@ describe('SkillResourceOperationExecutor', () => {
     });
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'zhuang-fangyi',
-      skillId: 'battleSkill',
+      sourceActionId: 'battleSkill',
       clock,
       resources,
       receipt,
@@ -264,13 +264,13 @@ describe('SkillResourceOperationExecutor', () => {
           parameters: {
             resource: 'sp',
             amount: { kind: 'blackboard', key: 'atbReturn' },
-            coefficient: 0.5,
+            coefficient: { kind: 'blackboard', key: 'coefficient' },
             recipient: 'team',
             spGainKind: 'refund',
             spGainSource: 'default',
           },
         },
-        { blackboard: new ActionBlackboard({ atbReturn: 30 }) },
+        { blackboard: new ActionBlackboard({ atbReturn: 30, coefficient: 0.5 }) },
       ),
     ).toBe(true);
 
@@ -321,7 +321,7 @@ describe('SkillResourceOperationExecutor', () => {
     let runtime: SkillRuntime;
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
-      skillId: 'battleSkill',
+      sourceActionId: 'battleSkill',
       clock,
       resources,
       receipt,

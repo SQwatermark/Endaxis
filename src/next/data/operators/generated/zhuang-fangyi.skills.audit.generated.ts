@@ -109,7 +109,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
-        27,
+        26,
         sequence(
           step('dealDamage', {
             damageType: 'electric',
@@ -119,7 +119,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
-        30,
+        29,
         sequence(
           step('dealDamage', {
             damageType: 'electric',
@@ -245,7 +245,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
-        23,
+        22,
         sequence(
           step('dealDamage', {
             damageType: 'electric',
@@ -255,7 +255,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
-        26,
+        25,
         sequence(
           step('dealDamage', {
             damageType: 'electric',
@@ -464,7 +464,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
           step('dealDamage', {
             damageType: 'electric',
             attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
-            tags: ['normalAttack', 'powerAttack'],
+            tags: ['powerAttack', 'normalAttack'],
             calculation: 'breakingAttack',
             calculationMultiplier: 0.1,
           }, '8:finisher6:direct30:chr_0030_zhuangfy_power_attack11:actionOrder2:10'),
@@ -476,7 +476,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
           step('dealDamage', {
             damageType: 'electric',
             attackScale: percentages([400, 440, 480, 520, 560, 600, 640, 680, 720, 770, 830, 900]),
-            tags: ['normalAttack', 'powerAttack'],
+            tags: ['powerAttack', 'normalAttack'],
             calculation: 'breakingAttack',
             calculationMultiplier: 0.9,
           }, '8:finisher6:direct30:chr_0030_zhuangfy_power_attack11:actionOrder2:13'),
@@ -593,6 +593,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
             damageType: 'electric',
             attackScale: percentages([160, 176, 192, 208, 224, 240, 256, 272, 288, 308, 332, 360]),
             tags: ['comboSkill'],
+            features: ['canBreakWeakness'],
             stagger: 10,
           }, '10:comboSkill6:direct29:chr_0030_zhuangfy_combo_skill11:actionOrder2:49'),
         ),
@@ -736,6 +737,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
             damageType: 'electric',
             attackScale: percentages([240, 264, 288, 312, 336, 360, 384, 408, 432, 462, 498, 540]),
             tags: ['comboSkill'],
+            features: ['canBreakWeakness'],
             stagger: 10,
           }, '18:enhancedComboSkill6:direct33:chr_0030_zhuangfy_combo_skill_ult11:actionOrder2:51'),
         ),

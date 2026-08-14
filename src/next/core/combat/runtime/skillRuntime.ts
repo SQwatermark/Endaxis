@@ -2,8 +2,8 @@
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个技能实例独立持有调度游标和黑板；调用方不能跨实例复用或直接修改其内部状态。
  */
-import { ActionSequence } from '../actions/actionSequence';
-import { CombatStep, type CombatExecutionContext } from '../actions/combatStep';
+import type { ActionSequence } from '../actions/actionSequence';
+import type { CombatExecutionContext } from '../actions/combatStep';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import type {
@@ -16,6 +16,8 @@ import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
+import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
+import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
@@ -28,6 +30,8 @@ export interface CombatOperationContext {
   readonly blackboard: ActionBlackboard;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
+  /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
+  readonly event?: CombatSemanticEvent;
 }
 
 export interface CombatOperationExecutor {
@@ -51,74 +55,9 @@ interface SkillRuntimeDependencies {
   readonly receipt: CombatReceiptSink;
   readonly operations: CombatOperationExecutor;
   readonly allocateSkillCastId: () => number;
+  readonly semanticEvents?: CombatSemanticEventRuntime;
   /** 干员实体级黑板由同一能力系统下的所有技能共享，技能 direct blackboard 仅回退读取它。 */
   readonly entityBlackboard?: ActionBlackboard;
-}
-
-class RuntimeOperationStep extends CombatStep {
-  constructor(
-    readonly step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
-    readonly runtime: SkillRuntime,
-  ) {
-    super();
-  }
-
-  execute(): void {
-    this.tryExecute();
-  }
-
-  override tryExecute(): boolean {
-    this.runtime.record('CombatStepReached', { kind: this.step.kind });
-    return this.runtime.operations.execute(this.step, this.runtime.operationContext);
-  }
-
-  override end(): void {
-    this.runtime.operations.end?.(this.step, this.runtime.operationContext);
-  }
-}
-
-class RuntimeOnceStep extends CombatStep {
-  constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'once' }>,
-    readonly runtime: SkillRuntime,
-  ) {
-    super();
-  }
-
-  execute(context: CombatExecutionContext): void {
-    this.tryExecute(context);
-  }
-
-  override tryExecute(context: CombatExecutionContext): boolean {
-    return this.runtime.tryExecuteOnce(this.step.parameters.scopeKey, this.step.body, context);
-  }
-}
-
-class RuntimeConditionalStep extends CombatStep {
-  constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'conditional' }>,
-    readonly runtime: SkillRuntime,
-  ) {
-    super();
-  }
-
-  execute(context: CombatExecutionContext): void {
-    this.tryExecute(context);
-  }
-
-  override tryExecute(context: CombatExecutionContext): boolean {
-    const passed = this.runtime.operations.evaluate(
-      this.step.parameters.condition,
-      this.runtime.operationContext,
-    );
-    this.runtime.record('CombatConditionEvaluated', {
-      kind: this.step.parameters.condition.kind,
-      passed,
-    });
-    const branch = passed ? this.step.whenTrue : this.step.whenFalse;
-    if (branch === undefined) return passed;
-    return this.runtime.createSequence(branch).executeInstant(context);
-  }
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
@@ -128,6 +67,7 @@ export class SkillRuntime {
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
   readonly #operationContext: CombatOperationContext;
+  readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #cooldown: SkillCooldown;
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
@@ -136,7 +76,7 @@ export class SkillRuntime {
   #attemptedCost = false;
   #nonReturnedSpCost = 0;
   #skillCastId = 0;
-  readonly #executedOnceScopes = new Set<string>();
+  #preparedStartBlackboard: Readonly<Record<string, number>> = {};
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
@@ -150,6 +90,17 @@ export class SkillRuntime {
         return runtime.skillCastInfo;
       },
     };
+    this.#sequenceRuntime = new CombatActionSequenceRuntime(
+      dependencies.operations,
+      this.#operationContext,
+      {
+        stepReached: step => this.record('CombatStepReached', { kind: step.kind }),
+        conditionEvaluated: (condition, passed) =>
+          this.record('CombatConditionEvaluated', { kind: condition.kind, passed }),
+      },
+      dependencies.semanticEvents,
+      program.operatorId,
+    );
   }
 
   get state(): RuntimeSkillState {
@@ -191,6 +142,7 @@ export class SkillRuntime {
     return {
       skillCastId: this.#skillCastId,
       originSkillId: this.#program.skillId,
+      ...(this.#program.castId === undefined ? {} : { originCastId: this.#program.castId }),
       nonReturnedSpCost: this.#nonReturnedSpCost,
     };
   }
@@ -205,6 +157,13 @@ export class SkillRuntime {
 
   canStart(): boolean {
     return this.#state !== 'casting';
+  }
+
+  prepareStartBlackboard(values: Readonly<Record<string, number>>): void {
+    if (this.#state === 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' is already casting`);
+    }
+    this.#preparedStartBlackboard = Object.freeze({ ...values });
   }
 
   tryStart(): boolean {
@@ -238,7 +197,9 @@ export class SkillRuntime {
     );
     this.#timeline.reset(this.#context);
     this.#blackboard.restore(this.#program.initialBlackboard);
-    this.#executedOnceScopes.clear();
+    this.#blackboard.assign(this.#preparedStartBlackboard);
+    this.#preparedStartBlackboard = {};
+    this.#sequenceRuntime.reset();
     this.#passedFrames = 0;
     this.#appliedCost = false;
     this.#attemptedCost = false;
@@ -280,13 +241,7 @@ export class SkillRuntime {
   }
 
   createSequence(sequence: ResolvedActionSequence): ActionSequence {
-    return new ActionSequence(
-      sequence.steps.map(step => {
-        if (step.kind === 'conditional') return new RuntimeConditionalStep(step, this);
-        if (step.kind === 'once') return new RuntimeOnceStep(step, this);
-        return new RuntimeOperationStep(step, this);
-      }),
-    );
+    return this.#sequenceRuntime.createSequence(sequence);
   }
 
   /**
@@ -298,10 +253,7 @@ export class SkillRuntime {
     body: ResolvedActionSequence,
     context: CombatExecutionContext,
   ): boolean {
-    if (this.#executedOnceScopes.has(scopeKey)) return true;
-    this.createSequence(body).executeInstant(context);
-    this.#executedOnceScopes.add(scopeKey);
-    return true;
+    return this.#sequenceRuntime.tryExecuteOnce(scopeKey, body, context);
   }
 
   record(

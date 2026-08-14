@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields, is_dataclass
 import json
 from pathlib import Path
 from typing import Any
@@ -142,6 +142,53 @@ def classify_skill(group_type: int, skill_id: str) -> tuple[str, list[str]]:
     if "plunging_attack_end" in skill_id:
         return "plungingAttack", ["normalAttack", "plungingAttack"]
     return SKILL_TYPE_BY_GROUP[group_type], TAGS_BY_GROUP[group_type]
+
+
+def collect_native_damage_tags(skill: generator.SkillSource) -> list[str]:
+    """从完整解析结果收集原生伤害标签，包含条件分支和子技能中的伤害。"""
+
+    result: list[str] = []
+
+    def visit(value: Any, path: str) -> None:
+        if isinstance(value, generator.DamageUnitSource):
+            tags, _ = generator.decode_damage_decorate_mask(value.damageDecorateMask, path)
+            for tag in tags:
+                if tag not in result:
+                    result.append(tag)
+            return
+        if isinstance(value, (tuple, list)):
+            for index, item in enumerate(value):
+                visit(item, f"{path}[{index}]")
+            return
+        if is_dataclass(value):
+            for field in fields(value):
+                visit(getattr(value, field.name), f"{path}.{field.name}")
+
+    visit(skill, skill.key)
+    return result
+
+
+def classify_parsed_skill(
+    fallback_skill_type: str,
+    fallback_tags: list[str],
+    skill: generator.SkillSource,
+) -> tuple[str, list[str]]:
+    """以技能组为兜底，并用原生伤害标签纠正强化普攻等跨组变体。"""
+
+    native_tags = collect_native_damage_tags(skill)
+    tags = list(dict.fromkeys([*fallback_tags, *native_tags]))
+    if fallback_skill_type in {"finisher", "plungingAttack"}:
+        return fallback_skill_type, tags
+    skill_type_by_tag = (
+        ("normalAttack", "basicAttack"),
+        ("normalSkill", "battleSkill"),
+        ("ultimateSkill", "ultimate"),
+        ("comboSkill", "comboSkill"),
+    )
+    for tag, skill_type in skill_type_by_tag:
+        if tag in native_tags:
+            return skill_type, tags
+    return fallback_skill_type, tags
 
 
 def classify_blocker(message: str) -> str:
@@ -289,6 +336,7 @@ def audit_skill(
             entityCountConditions=raw_entity_count_conditions,
         )
 
+    skill_type, tags = classify_parsed_skill(skill_type, tags, skill)
     config = {"kind": "resolvedSequence", "tags": tags}
     operator = {
         "slug": "all-operator-audit",

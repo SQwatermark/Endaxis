@@ -65,9 +65,13 @@ describe('next Arcane definition', () => {
   });
 
   it('uses three form-aware combo-window rules', () => {
-    const rules = getSkill('comboSkill').activationWindow?.rules;
-    if (!Array.isArray(rules)) throw new Error('expected combo activation rules');
+    const registration = arcane.comboSkillRegistrations?.find(
+      item => item.skillKey === 'comboSkill',
+    );
+    if (registration === undefined) throw new Error('expected combo activation rules');
+    const rules = registration.rules;
 
+    expect(registration.priority).toBe('default');
     expect(rules).toHaveLength(3);
     expect(rules.map(rule => rule.trigger)).toEqual([
       { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' },

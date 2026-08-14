@@ -12,14 +12,73 @@ from audit_all_operators import (
     audit_aura_source_reachability,
     build_document,
     classify_blocker,
+    classify_parsed_skill,
     classify_skill,
+    collect_native_damage_tags,
     collect_entity_count_conditions,
     enumerate_skill_entries,
 )
 from generate_next_operators import EntityCountConditionSource
+from source_models import (
+    DamageUnitSource,
+    ScalarSource,
+    SkillPatchSource,
+    SkillSource,
+    TimedDamageSource,
+)
 
 
 class AuditAllOperatorsTests(unittest.TestCase):
+    def test_native_damage_tags_correct_enhanced_attack_group_classification(self) -> None:
+        damage = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=128,
+        )
+        skill = SkillSource(
+            key="ult_attack1",
+            skillId="chr_test_ult_attack1",
+            skillType="ultimate",
+            sourceFile="chr_test_ult_attack1.json",
+            timelineBlockFrames=1,
+            blockBoundarySource="test",
+            cooldownSeconds=0,
+            costFrame=0,
+            costType="None",
+            costValue=0,
+            offsetRecordFrame=0,
+            allowNextWindows=(),
+            inputCacheWindows=(),
+            timelineActions=(),
+            directDamageHits=(TimedDamageSource(0, 0, 0, (damage,)),),
+            conditionalActions=(),
+            inflictions=(),
+            auxiliaryActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            resourceGains=(),
+            projectileLaunches=(),
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(),
+            referencedBuffIds=(),
+            patch=SkillPatchSource((), {}, (), (), ()),
+            declaredBlackboard=(),
+            blackboardKeys=(),
+            blackboardProvenance=(),
+            unresolvedCombatActions=(),
+        )
+        self.assertEqual(collect_native_damage_tags(skill), ["normalAttack"])
+        self.assertEqual(
+            classify_parsed_skill("ultimate", ["ultimateSkill"], skill),
+            ("basicAttack", ["ultimateSkill", "normalAttack"]),
+        )
+
     def test_distinguishes_reachable_and_orphan_aura_sources(self) -> None:
         aura_action = {
             "$type": "Example.AuraAction+Data, Example",

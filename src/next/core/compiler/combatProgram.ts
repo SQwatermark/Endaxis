@@ -5,14 +5,20 @@
 import type {
   ActionValueOperand,
   CombatCondition,
+  CombatEventTrigger,
+  ComboSkillPriority,
+  ComboSkillTriggerRule,
   CombatResource,
   CombatStepKind,
   CombatStepParameters,
+  DamageFeature,
   DamageTag,
   DamageType,
   ElementalReaction,
   OperatorAttribute,
   ResourceRecipient,
+  SkillBuffDefinition,
+  SkillBuffLifecycleSequences,
   SpGainKind,
   SpGainSource,
   SkillType,
@@ -36,6 +42,15 @@ export type ResolvedStatusModifier =
   | { kind: 'skillCooldownMultiplier'; skillGroupKey: string; value: number };
 
 /** 每种步骤经编译后允许进入运行时的参数映射。 */
+export type ResolvedSkillBuffLifecycleSequences = {
+  readonly [K in keyof SkillBuffLifecycleSequences]?: ResolvedActionSequence;
+};
+
+/** 技能等级已经展开、可用于创建 Buff 实例的内联定义。 */
+export type ResolvedSkillBuffDefinition = Omit<SkillBuffDefinition, 'lifecycleSequences'> & {
+  readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
+};
+
 export interface ResolvedCombatStepParameters {
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
@@ -46,6 +61,7 @@ export interface ResolvedCombatStepParameters {
     attackScale: number | ActionValueOperand;
     calculationMultiplier?: number;
     tags: readonly DamageTag[];
+    features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
     attackScalePerStatusStack?: {
       statusKey: string;
@@ -57,10 +73,13 @@ export interface ResolvedCombatStepParameters {
     damageType: DamageType;
     value: number | ActionValueOperand;
     tags: readonly DamageTag[];
+    features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
   };
   dealStagger: { value: number | ActionValueOperand };
-  applyBuff: CombatStepParameters['applyBuff'];
+  applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition'> & {
+    readonly definition?: ResolvedSkillBuffDefinition;
+  };
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
@@ -84,7 +103,7 @@ export interface ResolvedCombatStepParameters {
     CombatStepParameters['changeResourceByActionValue'],
     'coefficient' | 'ultimateRecoveryTagId'
   > & {
-    coefficient?: number;
+    coefficient?: number | ActionValueOperand;
     ultimateRecoveryTagId?: GameplayTagId;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
@@ -101,6 +120,15 @@ export interface ResolvedCombatStepParameters {
   conditional: { condition: CombatCondition };
   once: CombatStepParameters['once'];
   setContextFlag: CombatStepParameters['setContextFlag'];
+  openComboWindow: CombatStepParameters['openComboWindow'];
+  listenForCombatEvents: {
+    responses: readonly {
+      readonly key: string;
+      readonly event: CombatEventTrigger;
+      readonly condition?: CombatCondition;
+      readonly sequence: ResolvedActionSequence;
+    }[];
+  };
 }
 
 type ResolvedCombatStepForKind<K extends CombatStepKind> = {
@@ -158,6 +186,14 @@ export interface CompiledSkillProgram {
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];
   readonly timelineActions: readonly CompiledTimelineAction[];
+}
+
+/** 角色级首段连携入口的单等级编译结果；运行时不得再读取养成配置。 */
+export interface CompiledComboSkillRegistration {
+  readonly skillKey: string;
+  readonly priority: ComboSkillPriority;
+  readonly blackboard: Readonly<Record<string, number>>;
+  readonly rules: readonly ComboSkillTriggerRule[];
 }
 
 export type { ElementalReaction, StatusModifierDefinition };

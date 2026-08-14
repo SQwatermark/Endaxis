@@ -2,7 +2,7 @@
  * 已计算生命伤害与目标生命状态之间的写入边界。
  * 只能在承伤事件完成后的正确阶段调用，避免提前改变后续监听器看到的生命值。
  */
-import type { DamageType } from '../../game-data/operatorDefinition';
+import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from '../runtime/combatClock';
 import type { CombatVitals, HealthDamageResult } from '../runtime/combatVitals';
@@ -11,6 +11,8 @@ import type { PlayerActiveDamageResult } from './playerActiveDamage';
 export const HEALTH_DAMAGE_EVENTS = [
   'beforeTakeDamage',
   'beforeOutputDamage',
+  'beforeKillEntity',
+  'afterKillEntity',
   'takeDamage',
   'outputDamage',
 ] as const;
@@ -19,7 +21,7 @@ export type HealthDamageEvent = (typeof HEALTH_DAMAGE_EVENTS)[number];
 /** 生命伤害结算中由攻击来源接收的事件。 */
 export type HealthDamageSourceEvent = Extract<
   HealthDamageEvent,
-  'beforeOutputDamage' | 'outputDamage'
+  'beforeOutputDamage' | 'beforeKillEntity' | 'afterKillEntity' | 'outputDamage'
 >;
 /** 生命伤害结算中由承伤目标接收的事件。 */
 export type HealthDamageTargetEvent = Extract<HealthDamageEvent, 'beforeTakeDamage' | 'takeDamage'>;
@@ -29,6 +31,8 @@ export interface HealthDamageEventPayload {
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType: DamageType;
+  readonly tags: readonly DamageTag[];
+  readonly features: readonly DamageFeature[];
   readonly result: PlayerActiveDamageResult;
 }
 
@@ -37,6 +41,8 @@ export interface ExecuteHealthDamageInput {
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType: DamageType;
+  readonly tags: readonly DamageTag[];
+  readonly features?: readonly DamageFeature[];
   readonly result: PlayerActiveDamageResult;
   readonly target: CombatVitals;
   readonly clock: CombatClock;
@@ -63,12 +69,19 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     sourceId: input.sourceId,
     targetId: input.targetId,
     damageType: input.damageType,
+    tags: input.tags,
+    features: input.features ?? [],
     result: input.result,
   };
 
   input.emitTargetEvent('beforeTakeDamage', payload);
   input.emitSourceEvent('beforeOutputDamage', payload);
+  const mayKillTarget = input.target.health > 0 && input.result.value >= input.target.health;
+  if (mayKillTarget) input.emitSourceEvent('beforeKillEntity', payload);
   const stateChange = input.target.takeDamage(input.result.value);
+  if (mayKillTarget && stateChange.currentHealth === 0) {
+    input.emitSourceEvent('afterKillEntity', payload);
+  }
   input.receipt.record({
     frame: input.clock.frame,
     time: input.clock.time,

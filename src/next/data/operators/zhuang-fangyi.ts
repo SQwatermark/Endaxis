@@ -283,27 +283,6 @@ function comboSkill(key: string, enhanced: boolean): SkillDefinition {
     timelineBlockFrames: enhanced ? 36 : 42,
     availability: enhanced ? enhancementActive : enhancementInactive,
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
-    activationWindow: {
-      durationFrames: 150,
-      rules: [
-        {
-          trigger: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' },
-          condition: {
-            kind: 'elementalInflictionPresent',
-            elements: 'electric',
-            minimumStacks: 1,
-          },
-        },
-        {
-          trigger: { kind: 'damageTagHit', tag: 'powerAttack', scope: 'team' },
-          condition: {
-            kind: 'elementalInflictionPresent',
-            elements: 'electric',
-            minimumStacks: 1,
-          },
-        },
-      ],
-    },
     scheduledSequences: [
       scheduled(
         hitFrame,
@@ -456,6 +435,38 @@ export const zhuangFangyi: OperatorDefinition = {
       skills: comboSkill('enhancedComboSkill', true),
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: ultimate },
+  ],
+  comboSkillRegistrations: [
+    ...['comboSkill', 'enhancedComboSkill'].map(skillKey => ({
+      skillKey,
+      priority: 'default' as const,
+      rules: [
+        {
+          trigger: {
+            kind: 'damageTagHit' as const,
+            tag: 'normalAttackLastCombo' as const,
+            scope: 'team' as const,
+          },
+          condition: {
+            kind: 'elementalInflictionPresent' as const,
+            elements: 'electric' as const,
+            minimumStacks: 1,
+          },
+        },
+        {
+          trigger: {
+            kind: 'damageTagHit' as const,
+            tag: 'powerAttack' as const,
+            scope: 'team' as const,
+          },
+          condition: {
+            kind: 'elementalInflictionPresent' as const,
+            elements: 'electric' as const,
+            minimumStacks: 1,
+          },
+        },
+      ],
+    })),
   ],
   talents: [
     { key: 'progressiveElectricAmplification', levels: 2, modifiers: [] },

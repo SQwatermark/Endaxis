@@ -7,6 +7,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import type { CombatOperationExecutorContext } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -81,6 +82,7 @@ function createContext(): CombatOperationExecutorContext {
       squad: [],
     }),
     receipt: new CombatReceiptCollector(),
+    semanticEvents: new CombatSemanticEventRuntime(),
   };
 }
 
@@ -184,6 +186,18 @@ describe('StandardPlayerDamageEnvironment', () => {
     const context = createContext();
     const environment = createEnvironment();
     const events: string[] = [];
+    context.semanticEvents.register({
+      ownerOperatorId: 'operator',
+      trigger: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+      phase: 'dataAction',
+      handle: () => events.push(`semantic:${environment.enemyVitals.health}`),
+    });
+    context.semanticEvents.register({
+      ownerOperatorId: 'operator',
+      trigger: { kind: 'skillHit', skillGroupKey: 'battleSkill', scope: 'operator' },
+      phase: 'dataAction',
+      handle: () => events.push('semantic:skill'),
+    });
     for (const event of [
       'beforeDamageAction',
       'beforeCalculateDamage',
@@ -211,7 +225,44 @@ describe('StandardPlayerDamageEnvironment', () => {
       'beforeOutputDamage',
       'takeDamage',
       'outputDamage',
+      'semantic:9776',
+      'semantic:skill',
     ]);
+  });
+
+  it('bridges a lethal health write to the unified enemy-defeated event', () => {
+    const baseContext = createContext();
+    const context: CombatOperationExecutorContext = {
+      ...baseContext,
+      enemy: { ...baseContext.enemy, health: 100 },
+    };
+    const environment = createEnvironment();
+    const events: string[] = [];
+    environment
+      .eventsFor('operator')
+      .registerAction('afterKillEntity', 10, () => events.push('internal:afterKillEntity'));
+    context.semanticEvents.register({
+      ownerOperatorId: 'operator',
+      trigger: { kind: 'enemyDefeated', scope: 'operator' },
+      phase: 'dataAction',
+      handle: ({ event }) => {
+        expect(event.kind).toBe('enemyDefeated');
+        if (event.kind === 'enemyDefeated') {
+          expect(event.features).toEqual(['canBreakWeakness']);
+        }
+        events.push(`defeated:${environment.enemyVitals.health}`);
+      },
+    });
+
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    expect(
+      executor.execute({
+        ...damageStep,
+        parameters: { ...damageStep.parameters, features: ['canBreakWeakness'] },
+      }),
+    ).toBe(true);
+
+    expect(events).toEqual(['defeated:0']);
   });
 
   it('applies poise damage and recovers after the break duration', () => {

@@ -59,6 +59,21 @@
           "skillKeys": ["ultimate"]
         }
       ],
+      "comboSkillRegistrations": [
+        {
+          "skillKey": "comboSkill",
+          "priority": "default",
+          "rules": [
+            {
+              "trigger": {
+                "kind": "damageTagHit",
+                "tag": "normalAttackLastCombo",
+                "scope": "team"
+              }
+            }
+          ]
+        }
+      ],
       "skills": [
         {
           "key": "basicAttack1",
@@ -121,11 +136,7 @@
           "compile": {
             "kind": "projectileDamage",
             "tags": ["comboSkill"],
-            "ignoreRecursiveProjectileForSingleTarget": true,
-            "activationWindow": {
-              "durationFrames": 150,
-              "damageTag": "normalAttackLastCombo"
-            }
+            "ignoreRecursiveProjectileForSingleTarget": true
           }
         },
         {

@@ -6,42 +6,39 @@
     "skillCount": 308
   },
   "summary": {
-    "parsedCount": 304,
-    "compiledCount": 269,
-    "completeOperatorCount": 6,
+    "parsedCount": 308,
+    "compiledCount": 274,
+    "completeOperatorCount": 10,
     "blockerKinds": {
       "other": 4,
-      "parser-tick-interval": 2,
-      "condition-entity-count": 1,
+      "condition-entity-count": 2,
       "projectile-child-actions": 2,
-      "event-listener": 8,
-      "projectile-data": 1,
-      "condition-distance": 1,
+      "root-action-coverage": 5,
+      "projectile-data": 2,
+      "condition-distance": 2,
       "conditional-leaf": 3,
-      "root-action-coverage": 2,
-      "dynamic-scalar": 1,
       "condition-other": 5,
       "buff-source-or-target": 9
     },
     "unresolvedActionPresence": {
-      "DamageAction": 227,
+      "DamageAction": 229,
       "IfElseAction": 171,
-      "LaunchProjectile": 71,
+      "LaunchProjectile": 74,
       "ObtainCostAction": 164,
-      "CreateBuffAction": 126,
-      "CheckDistanceCondition": 2,
+      "CreateBuffAction": 128,
+      "CheckDistanceCondition": 3,
       "SpawnAbilityEntity": 28,
       "SpellInfliction": 12,
       "AuraAction": 3,
       "FractureAction": 2,
-      "SwitchAction": 4,
-      "CheckMainCharacterCondition": 1,
+      "SwitchAction": 5,
+      "CheckMainCharacterCondition": 2,
       "CreateTimedMarker": 7,
       "AddGlobalCDTimer": 1
     },
     "entityCountConditionOccurrenceCount": 638,
     "entityCountConditionShapeCount": 41,
-    "auraActionReferenceCount": 19,
+    "auraActionReferenceCount": 20,
     "physicalInflictionActionCount": 2,
     "skillEventListenerCount": 10,
     "skillEventNames": {
@@ -890,12 +887,11 @@
       "characterId": "chr_0027_tangtang",
       "operatorName": "Tangtang",
       "skillCount": 11,
-      "parsedCount": 10,
-      "compiledCount": 8,
+      "parsedCount": 11,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
         "other": 1,
-        "parser-tick-interval": 1,
         "condition-entity-count": 1
       }
     },
@@ -918,7 +914,7 @@
       "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "event-listener": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -949,7 +945,7 @@
       "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "event-listener": 1
+        "other": 1
       }
     },
     {
@@ -991,7 +987,7 @@
       "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "event-listener": 1,
+        "root-action-coverage": 1,
         "conditional-leaf": 1
       }
     },
@@ -1019,11 +1015,11 @@
       "characterId": "chr_0016_laevat",
       "operatorName": "Laevatain",
       "skillCount": 15,
-      "parsedCount": 14,
+      "parsedCount": 15,
       "compiledCount": 14,
       "complete": false,
       "blockerKinds": {
-        "other": 1
+        "condition-entity-count": 1
       }
     },
     {
@@ -1031,22 +1027,19 @@
       "operatorName": "Estella",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "dynamic-scalar": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0024_deepfin",
       "operatorName": "Alesh",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "condition-other": 1,
-        "event-listener": 1
+        "condition-other": 1
       }
     },
     {
@@ -1075,11 +1068,9 @@
       "operatorName": "Da Pan",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "event-listener": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -1089,7 +1080,7 @@
       "compiledCount": 10,
       "complete": false,
       "blockerKinds": {
-        "event-listener": 1
+        "other": 1
       }
     },
     {
@@ -1110,7 +1101,7 @@
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "event-listener": 1
+        "root-action-coverage": 1
       }
     },
     {
@@ -1118,11 +1109,9 @@
       "operatorName": "Fluorite",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "event-listener": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_9000_endmin",
@@ -1137,12 +1126,12 @@
       "characterId": "chr_0025_ardelia",
       "operatorName": "Ardelia",
       "skillCount": 9,
-      "parsedCount": 7,
+      "parsedCount": 9,
       "compiledCount": 5,
       "complete": false,
       "blockerKinds": {
         "condition-other": 1,
-        "parser-tick-interval": 1,
+        "projectile-data": 1,
         "buff-source-or-target": 1,
         "other": 1
       }
@@ -1152,11 +1141,9 @@
       "operatorName": "Last Rite",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "other": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0029_pograni",
@@ -1186,9 +1173,10 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 9,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
+        "condition-distance": 1,
         "condition-other": 2
       }
     },
@@ -1343,10 +1331,10 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_plunging_attack_end",
       "skillType": "plungingAttack",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-tick-interval",
-      "blocker": "ValueError: chr_0027_tangtang_plunging_attack_end.json.timelineActions[3]._sequenceActionData.actionData.[0].tickInterval: does not align to combat frames",
-      "unresolvedActions": [],
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
+      "unresolvedActions": ["DamageAction"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1598,8 +1586,8 @@
       "skillId": "chr_0005_chen_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "combo_skill: skill event listeners are not compiled: ['OnBeforeOutputAirborne']",
+      "blockerKind": "root-action-coverage",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
       "unresolvedActions": ["AuraAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -2282,8 +2270,8 @@
       "skillId": "chr_0009_azrila_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "normal_skill: skill event listeners are not compiled: ['OnBeforeTakeDamage']",
+      "blockerKind": "other",
+      "blocker": "normal_skill.schedule[0].eventListener: unsupported native skill event 'OnBeforeTakeDamage'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 4,
       "referencedBuffCount": 3,
@@ -3006,8 +2994,8 @@
       "skillId": "chr_0014_aurora_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "normal_skill: skill event listeners are not compiled: ['OnAddedBuff', 'OnBeforeTakeDamage']",
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
       "unresolvedActions": [
         "AuraAction",
         "CreateBuffAction",
@@ -3411,13 +3399,13 @@
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_combo_skill",
       "skillType": "comboSkill",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "other",
-      "blocker": "ValueError: chr_0016_laevat_combo_skill.json.timelineActions[9].actionData[0].ChannelingAction: target source 'Owner' requires explicit input target projection",
-      "unresolvedActions": [],
-      "conditionCount": 0,
-      "referencedBuffCount": 0,
-      "projectileChildCount": 0,
+      "stage": "dsl-blocked",
+      "blockerKind": "condition-entity-count",
+      "blocker": "combo_skill.schedule[5].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
+      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "SwitchAction"],
+      "conditionCount": 3,
+      "referencedBuffCount": 6,
+      "projectileChildCount": 1,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
@@ -3625,7 +3613,7 @@
       "characterId": "chr_0016_laevat",
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack1",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -3644,7 +3632,7 @@
       "characterId": "chr_0016_laevat",
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack2",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -3663,7 +3651,7 @@
       "characterId": "chr_0016_laevat",
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack3",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -3682,7 +3670,7 @@
       "characterId": "chr_0016_laevat",
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_ult_attack4",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -3840,9 +3828,9 @@
       "operatorName": "Estella",
       "skillId": "chr_0021_whiten_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "dynamic-scalar",
-      "blocker": "normal_skill.schedule[2].conditionalAction.succeedActions[2].attackScale: scalar has no resolved level values",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 0,
@@ -3995,7 +3983,13 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "power_attack.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CheckMainCharacterCondition",
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -4055,9 +4049,9 @@
       "operatorName": "Alesh",
       "skillId": "chr_0024_deepfin_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "ultimate_skill: skill event listeners are not compiled: ['OnAfterKillEntity']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4489,7 +4483,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack1_1",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -4508,7 +4502,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack2_1",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -4527,7 +4521,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack2_2",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -4546,7 +4540,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack3_1",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -4570,7 +4564,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack3_2",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -4594,7 +4588,7 @@
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack_end",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "ult_attack_end.schedule[7].buffApplication: unsupported Buff target 'Context'/'robots'",
@@ -4771,9 +4765,9 @@
       "operatorName": "Da Pan",
       "skillId": "chr_0018_dapan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "ultimate_skill: skill event listeners are not compiled: ['OnAfterKillEntity']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 1,
       "referencedBuffCount": 3,
@@ -4981,8 +4975,8 @@
       "skillId": "chr_0028_wulfa_ultimate_skill",
       "skillType": "ultimate",
       "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "ultimate_skill: skill event listeners are not compiled: ['OnSkillEnd']",
+      "blockerKind": "other",
+      "blocker": "ultimate_skill.schedule[1].eventListener: unsupported native skill event 'OnSkillEnd'",
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "SpellInfliction"],
       "conditionCount": 30,
       "referencedBuffCount": 5,
@@ -5304,8 +5298,8 @@
       "skillId": "chr_0020_meurs_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "normal_skill: skill event listeners are not compiled: ['OnAddedBuff', 'OnBeforeTakeDamage']",
+      "blockerKind": "root-action-coverage",
+      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
       "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 3,
@@ -5354,11 +5348,10 @@
       "operatorName": "Fluorite",
       "skillId": "chr_0022_bounda_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "event-listener",
-      "blocker": "combo_skill: skill event listeners are not compiled: ['OnAfterKillEntity']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
-        "CreateBuffAction",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction",
@@ -6026,12 +6019,12 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_power_attack",
       "skillType": "finisher",
-      "stage": "source-or-parser-blocked",
-      "blockerKind": "parser-tick-interval",
-      "blocker": "ValueError: chr_0025_ardelia_power_attack.json.timelineActions[8]._sequenceActionData.actionData.[0].tickInterval: does not align to combat frames",
-      "unresolvedActions": [],
+      "stage": "dsl-blocked",
+      "blockerKind": "projectile-data",
+      "blocker": "power_attack: projectile without triggered SkillData remains unresolved",
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
       "conditionCount": 0,
-      "referencedBuffCount": 0,
+      "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
@@ -6090,15 +6083,15 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "source-or-parser-blocked",
+      "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "ValueError: chr_0025_ardelia_ultimate_skill.json.timelineActions[7].actionData[0].ChannelingAction: target source 'Owner' requires explicit input target projection",
-      "unresolvedActions": [],
+      "blocker": "ultimate_skill.schedule[2].conditionalAction.succeedActions[0]: unsupported timed marker target 'Target'/''",
+      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
       "conditionCount": 0,
-      "referencedBuffCount": 0,
-      "projectileChildCount": 0,
+      "referencedBuffCount": 1,
+      "projectileChildCount": 82,
       "abilityEntityCount": 0,
-      "auraActionCount": 0,
+      "auraActionCount": 1,
       "physicalInflictionCount": 0,
       "eventListenerCount": 0,
       "eventListenerEvents": [],
@@ -6109,9 +6102,9 @@
       "operatorName": "Last Rite",
       "skillId": "chr_0026_lastrite_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "combo_skill.schedule[4].conditionalAction.succeedActions[0]: dynamic resource gain coefficient is not supported",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 3,
       "referencedBuffCount": 2,
@@ -6716,7 +6709,7 @@
       "characterId": "chr_0030_zhuangfy",
       "operatorName": "Zhuang Fangyi",
       "skillId": "chr_0030_zhuangfy_attack1_ult",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -6735,7 +6728,7 @@
       "characterId": "chr_0030_zhuangfy",
       "operatorName": "Zhuang Fangyi",
       "skillId": "chr_0030_zhuangfy_attack2_ult",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
@@ -6754,7 +6747,7 @@
       "characterId": "chr_0030_zhuangfy",
       "operatorName": "Zhuang Fangyi",
       "skillId": "chr_0030_zhuangfy_attack3_ult",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "attack3_ult.schedule[2].buffApplication: unsupported Buff target 'Context'/'thunder'",
@@ -6774,11 +6767,12 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
+      "stage": "dsl-blocked",
+      "blockerKind": "condition-distance",
+      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
       "unresolvedActions": [
         "AddGlobalCDTimer",
+        "CheckDistanceCondition",
         "CreateBuffAction",
         "DamageAction",
         "IfElseAction",

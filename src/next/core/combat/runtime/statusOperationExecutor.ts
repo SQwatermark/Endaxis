@@ -29,7 +29,8 @@ export interface CombatStatusOperationTarget {
 
 export interface StatusOperationDependencies {
   readonly sourceId: string;
-  readonly skillId: string;
+  /** 技能 key 或配装事件来源 key；状态协议后续应改为中性的 sourceActionId。 */
+  readonly sourceActionId: string;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly resolveTarget: (target: CombatTarget) => CombatStatusOperationTarget;
@@ -48,7 +49,7 @@ export class StatusOperationExecutor implements CombatOperationExecutor {
       const target = this.dependencies.resolveTarget(step.parameters.target);
       const transition = target.applyStatus({
         sourceId: this.dependencies.sourceId,
-        skillId: this.dependencies.skillId,
+        skillId: this.dependencies.sourceActionId,
         parameters: step.parameters,
       });
       recordStatusTransition(
@@ -69,7 +70,7 @@ export class StatusOperationExecutor implements CombatOperationExecutor {
       const target = this.dependencies.resolveTarget(step.parameters.target);
       const transition = target.consumeStatus({
         sourceId: this.dependencies.sourceId,
-        skillId: this.dependencies.skillId,
+        skillId: this.dependencies.sourceActionId,
         parameters: step.parameters,
       });
       recordStatusTransition(

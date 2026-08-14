@@ -41,13 +41,13 @@ function readLocation(entry: CombatReceiptEntry): {
  */
 export function reduceSkillDiagnostics<Reason extends string>(
   entries: readonly CombatReceiptEntry[],
-  readReason: (event: string) => Reason | undefined,
+  readReason: (event: string, entry: CombatReceiptEntry) => Reason | undefined,
 ): readonly ReducedSkillDiagnostic<Reason>[] {
   const diagnostics: MutableSkillDiagnostic<Reason>[] = [];
   const diagnosticsByLocation = new Map<string, MutableSkillDiagnostic<Reason>>();
 
   for (const entry of entries) {
-    const reason = readReason(entry.event);
+    const reason = readReason(entry.event, entry);
     if (reason === undefined) continue;
 
     const { sourceId, skillId } = readLocation(entry);

@@ -116,6 +116,8 @@ class DamageUnitSource:
     calculationMultiplier: ScalarSource | None
     poiseValue: ScalarSource | None
     definiteValue: ScalarSource | None = None
+    # 原生 DamageDecorateMask 完整位值；正式 DSL 尚未消费的位也必须保留。
+    damageDecorateMask: int = 0
 
 
 @dataclass(frozen=True)
@@ -278,7 +280,7 @@ class TimedIntervalDamageSource:
     startFrame: int
     endFrame: int
     actionIndex: int
-    intervalFrames: int
+    intervalSeconds: float
     tickFrames: tuple[int, ...]
     damageActionIndex: int
     damageUnits: tuple[DamageUnitSource, ...]
@@ -332,6 +334,7 @@ ResolvedScheduleItemType = Literal[
     "resourceGain",
     "infliction",
     "buffApplication",
+    "eventListener",
 ]
 
 
@@ -353,6 +356,7 @@ class ResolvedScheduleItemSource:
         " | BuffHoldSource"
         " | TimedResourceGainSource"
         " | TimedInflictionSource"
+        " | SkillEventListenerSource"
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None
@@ -437,6 +441,8 @@ class SkillEventActionSequenceSource:
     orderedActionTypes: tuple[str, ...]
     combatActions: tuple[str, ...]
     buffApplications: tuple[EventBuffApplicationSource, ...]
+    # 事件回调中的同步动作树。顺序守卫会包住其后的动作，不能只靠动作类型摘要还原。
+    actions: tuple["ConditionalBranchActionSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -446,6 +452,8 @@ class SkillEventListenerSource:
     startFrame: int
     endFrame: int
     actionIndex: int
+    priorityLevel: str
+    priorityOffset: int
     event: str
     sequences: tuple[SkillEventActionSequenceSource, ...]
 
@@ -551,6 +559,23 @@ class SkillHasHitConditionSource:
 
 
 @dataclass(frozen=True)
+class DamageDecorateMaskConditionSource:
+    """事件伤害上下文中的原生标签位掩码；确认位定义前不转换成项目标签。"""
+
+    checkType: str
+    mask: int
+
+
+@dataclass(frozen=True)
+class BuffIdInContextConditionSource:
+    """事件上下文携带的 Buff 身份检查，不等同于查询目标身上的 Buff 实例。"""
+
+    checkType: str
+    buffIds: tuple[str, ...]
+    queryType: str
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -568,6 +593,8 @@ class ConditionSource:
     timedMarker: "TimedMarkerConditionSource | None" = None
     globalCooldown: "GlobalCooldownConditionSource | None" = None
     skillHasHit: "SkillHasHitConditionSource | None" = None
+    damageDecorateMask: "DamageDecorateMaskConditionSource | None" = None
+    contextBuffId: "BuffIdInContextConditionSource | None" = None
 
 
 @dataclass(frozen=True)

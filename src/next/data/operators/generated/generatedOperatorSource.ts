@@ -34,6 +34,8 @@ export interface GeneratedDamageUnitSource {
   readonly poiseValue: GeneratedScalarSource | null;
   /** 固定生命伤害使用的原生计算值；其他计算路径为 null。 */
   readonly definiteValue: GeneratedScalarSource | null;
+  /** 原生 DamageDecorateMask 完整位值；用于审计尚未映射的伤害特征。 */
+  readonly damageDecorateMask: number;
 }
 
 export interface GeneratedTimedDamageSource {
@@ -182,7 +184,7 @@ export interface GeneratedTimedIntervalDamageSource {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
-  readonly intervalFrames: number;
+  readonly intervalSeconds: number;
   readonly tickFrames: readonly number[];
   readonly damageActionIndex: number;
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
@@ -459,6 +461,34 @@ export interface GeneratedDistanceConditionSource {
 /** 当前技能实例是否已经对战斗目标输出过伤害；该原生条件没有额外配置字段。 */
 export type GeneratedSkillHasHitConditionSource = Readonly<Record<string, never>>;
 
+export interface GeneratedTimedMarkerConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly markerId: string;
+  readonly blackboardKey: string;
+  readonly useBlackboardKey: boolean;
+  readonly returnTrueIfNotExists: boolean;
+}
+
+export interface GeneratedGlobalCooldownConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly buffId: string;
+}
+
+/** 事件伤害上下文中的原生位掩码，尚未等同于正式 DSL 的伤害标签。 */
+export interface GeneratedDamageDecorateMaskConditionSource {
+  readonly checkType: string;
+  readonly mask: number;
+}
+
+/** 事件上下文携带的 Buff 身份条件，不等同于查询目标身上的 Buff。 */
+export interface GeneratedBuffIdInContextConditionSource {
+  readonly checkType: string;
+  readonly buffIds: readonly string[];
+  readonly queryType: string;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -473,7 +503,11 @@ export interface GeneratedConditionSource {
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
   readonly entityTag?: GeneratedEntityTagConditionSource;
+  readonly timedMarker?: GeneratedTimedMarkerConditionSource;
+  readonly globalCooldown?: GeneratedGlobalCooldownConditionSource;
   readonly skillHasHit?: GeneratedSkillHasHitConditionSource;
+  readonly damageDecorateMask?: GeneratedDamageDecorateMaskConditionSource | null;
+  readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
 }
 
 export interface GeneratedConditionalActionSource {
@@ -763,6 +797,8 @@ export interface GeneratedSkillEventActionSequenceSource {
   readonly orderedActionTypes: readonly string[];
   readonly combatActions: readonly string[];
   readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
+  /** 事件回调中的同步动作树；条件守卫与动作顺序以这里为准。 */
+  readonly actions: readonly GeneratedConditionalActionSource[];
 }
 
 export interface GeneratedSkillEventListenerSource {

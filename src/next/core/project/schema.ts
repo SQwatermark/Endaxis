@@ -52,7 +52,11 @@ export type DefinitionActionSource = {
   skillKey: string;
 };
 
-/** 完全由用户定义、无法从游戏数据恢复的时间轴行为。 */
+/**
+ * 仅保留身份和展示信息的自由时间轴块。
+ * 它目前没有 `SkillDefinition`，不能进入战斗编译；可执行自定义技能应使用
+ * `operatorSkill` 来源并在 `SkillCastDocument.customDefinition` 保存完整覆盖。
+ */
 export interface CustomActionDefinition {
   kind: 'custom';
   /** 用户定义的身份标识，刻意保持开放而不限制为枚举。 */
@@ -62,7 +66,7 @@ export interface CustomActionDefinition {
   iconKey?: string;
 }
 
-/** 时间轴技能释放所引用的定义或自定义行为来源。 */
+/** 时间轴技能释放所引用的游戏定义，或尚未接入模拟的自由展示块来源。 */
 export type SkillCastSource = DefinitionActionSource | CustomActionDefinition;
 
 /** 用户添加在技能块上的辅助展示条。 */

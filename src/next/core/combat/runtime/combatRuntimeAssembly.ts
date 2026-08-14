@@ -2,15 +2,23 @@
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
-import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import type {
+  CompiledComboSkillRegistration,
+  CompiledSkillProgram,
+} from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
+import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
-import { BuffOperationExecutor, type BuffOperationTarget } from './buffOperationExecutor';
+import {
+  BuffOperationExecutor,
+  type BuffLifecycleOperationSource,
+  type BuffOperationTarget,
+} from './buffOperationExecutor';
 import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatResourceRuntime } from './combatResourceRuntime';
@@ -28,6 +36,14 @@ import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageI
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
+import { ComboWindowRuntime } from './comboWindowRuntime';
+import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import {
+  EquipmentEventRuntime,
+  type EquipmentEventExecutionContext,
+} from './equipmentEventRuntime';
+import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -37,6 +53,8 @@ export type OperatorBuffRuntime = FrameRuntime &
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
+  readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
   /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
   readonly equipmentContributions?: readonly CompiledEquipmentContribution[];
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
@@ -78,6 +96,18 @@ export interface CombatOperationExecutorContext {
   readonly clock: CombatClock;
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptSink;
+  /** 全场唯一的语义事件中心；执行器只报告已完成的战斗事实。 */
+  readonly semanticEvents: CombatSemanticEventRuntime;
+}
+
+/** 配装事件中未被通用执行器消费的操作，由环境按明确来源决定是否支持。 */
+export interface EquipmentEventOperationExecutorContext extends EquipmentEventExecutionContext {
+  readonly enemy: CombatEnemyProgram;
+  readonly panel?: ResolvedOperatorPanel;
+  readonly clock: CombatClock;
+  readonly resources: CombatResources;
+  readonly receipt: CombatReceiptSink;
+  readonly semanticEvents: CombatSemanticEventRuntime;
 }
 
 export interface CombatRuntimeAssemblyOptions {
@@ -116,16 +146,36 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createOperationExecutor: (
     context: CombatOperationExecutorContext,
   ) => CombatOperationExecutor;
+  /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
+  readonly createEquipmentEventOperationExecutor?: (
+    context: EquipmentEventOperationExecutorContext,
+  ) => CombatOperationExecutor;
+  /** 原生立即连携入口；普通窗口连携不依赖此端口。 */
+  readonly castComboSkillImmediately?: (operatorId: string, skillKey: string) => void;
   readonly receipt?: CombatReceiptCollector;
 }
+
+const unsupportedReactiveTerminal: CombatOperationExecutor = {
+  execute(step): boolean {
+    throw new Error(`reactive event handler does not support '${step.kind}'`);
+  },
+  evaluate(condition): boolean {
+    throw new Error(`reactive event handler cannot evaluate '${condition.kind}'`);
+  },
+};
 
 /** 一次战斗的时钟、账本、实体能力系统与回执的唯一装配根。 */
 export class CombatRuntimeAssembly {
   readonly clock = new CombatClock();
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptCollector;
+  /** 全场唯一的连携窗口队列；诊断和投影应读取它，不得自行重算窗口顺序。 */
+  readonly comboWindows: ComboWindowRuntime;
+  /** 配装、连携和养成监听器共用的语义事件中心。 */
+  readonly semanticEvents = new CombatSemanticEventRuntime();
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
+  readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #enemyBuffRuntime: EnemyBuffRuntime;
   readonly #operatorBuffs = new Map<string, BuffOperationTarget>();
   readonly #operatorOrder: string[] = [];
@@ -134,10 +184,25 @@ export class CombatRuntimeAssembly {
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #skillCastIds = new SkillCastIdAllocator();
+  readonly #equipmentEventRuntimes: EquipmentEventRuntime[] = [];
+  readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
+  readonly #castOperationBindings = new Map<
+    string,
+    {
+      readonly operator: CombatOperatorProgram;
+      readonly program: CompiledSkillProgram;
+      readonly statusRuntime?: CombatStatusRuntime;
+    }
+  >();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.comboWindows = new ComboWindowRuntime(
+      this.clock,
+      this.receipt,
+      options.operators.map(operator => operator.operatorId),
+    );
     if (options.enemyBuffRuntime.ownerId !== 'enemy') {
       throw new Error(`enemy Buff runtime owner must be 'enemy'`);
     }
@@ -179,6 +244,22 @@ export class CombatRuntimeAssembly {
       if (statusRuntime !== undefined) {
         this.#operatorStatuses.set(operator.operatorId, statusRuntime);
       }
+      for (const program of runtimeOperator.skills) {
+        const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId ?? ''}`;
+        if (this.#skillPrograms.has(programKey)) {
+          throw new Error(`duplicate combat skill program '${programKey}'`);
+        }
+        this.#skillPrograms.set(programKey, program);
+        if (program.castId === undefined) continue;
+        if (this.#castOperationBindings.has(program.castId)) {
+          throw new Error(`duplicate combat skill cast '${program.castId}'`);
+        }
+        this.#castOperationBindings.set(program.castId, {
+          operator: runtimeOperator,
+          program,
+          ...(statusRuntime === undefined ? {} : { statusRuntime }),
+        });
+      }
       const skills = runtimeOperator.skills.map(program =>
         this.#createSkillRuntime(
           runtimeOperator,
@@ -201,6 +282,55 @@ export class CombatRuntimeAssembly {
       );
     }
 
+    for (const operator of options.operators) {
+      const contributions = operator.equipmentContributions ?? [];
+      if (!contributions.some(contribution => contribution.eventHandlers.length > 0)) continue;
+      if (options.createEquipmentEventOperationExecutor === undefined) {
+        throw new Error(
+          `operator '${operator.operatorId}' has equipment event handlers but no equipment event executor`,
+        );
+      }
+      this.#equipmentEventRuntimes.push(
+        new EquipmentEventRuntime(
+          this.semanticEvents,
+          operator.operatorId,
+          contributions,
+          context => this.#createEquipmentEventOperationChain(operator, context, options),
+        ),
+      );
+    }
+
+    for (const operator of options.operators) {
+      const registrations = operator.comboSkillRegistrations ?? [];
+      if (registrations.length === 0) continue;
+      this.#comboSkillRegistrationRuntimes.push(
+        new ComboSkillRegistrationRuntime({
+          operatorId: operator.operatorId,
+          registrations,
+          semanticEvents: this.semanticEvents,
+          comboWindows: this.comboWindows,
+          createOperations: () =>
+            this.#createReactiveOperationChain(
+              operator,
+              `combo-registration:${operator.operatorId}`,
+              unsupportedReactiveTerminal,
+              options,
+            ),
+          ...(options.castComboSkillImmediately === undefined
+            ? {}
+            : { castImmediately: options.castComboSkillImmediately }),
+        }),
+      );
+    }
+
+    const configureBuffLifecycle = (target: BuffOperationTarget): void => {
+      target.configureLifecycleOperations?.(source =>
+        this.#createBuffLifecycleOperationChain(source, options),
+      );
+    };
+    configureBuffLifecycle(this.#enemyBuffRuntime);
+    for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
+
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
     this.simulation.add(this.#enemyBuffRuntime);
@@ -214,6 +344,8 @@ export class CombatRuntimeAssembly {
       const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
       if (statusRuntime !== undefined) this.simulation.add(statusRuntime);
     }
+    // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
+    this.simulation.add(this.comboWindows);
     const inputRuntime = new CombatInputRuntime({
       clock: this.clock,
       inputs: options.inputs ?? [],
@@ -229,7 +361,30 @@ export class CombatRuntimeAssembly {
   }
 
   tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {
-    return this.#requireAbilitySystem(operatorId).tryStartSkill(skillId, castId);
+    const ability = this.#requireAbilitySystem(operatorId);
+    if (!ability.canStartSkill(skillId, castId)) return false;
+    const program = this.#skillPrograms.get(`${operatorId}\u0000${skillId}\u0000${castId ?? ''}`);
+    if (program?.skillType === 'comboSkill') {
+      const result = this.comboWindows.consume(operatorId, skillId);
+      if (result.consumed) {
+        ability.prepareSkillStartBlackboard(skillId, castId, result.window.blackboard);
+      } else {
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'ComboWindowUnavailableAtStart',
+          sourceId: operatorId,
+          data: {
+            skillId,
+            ...(castId === undefined ? {} : { castId }),
+            reason: result.reason,
+            expectedOperatorId: result.expected?.operatorId ?? null,
+            expectedSkillId: result.expected?.nextSkillKey ?? null,
+          },
+        });
+      }
+    }
+    return ability.tryStartSkill(skillId, castId);
   }
 
   requestPostSkillCast(operatorId: string, request: PostSkillCastRequest): void {
@@ -261,6 +416,84 @@ export class CombatRuntimeAssembly {
       );
     }
 
+    let runtime: SkillRuntime;
+    const operations = this.#createOperationChain({
+      operator,
+      program,
+      enemy,
+      statusRuntime,
+      createDelegate,
+      isOperatorControlled,
+      resolveVitals,
+      getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+    });
+    runtime = new SkillRuntime(program, {
+      clock: this.clock,
+      resources: this.resources,
+      receipt: this.receipt,
+      operations,
+      allocateSkillCastId: () => this.#skillCastIds.allocate(),
+      semanticEvents: this.semanticEvents,
+      entityBlackboard,
+    });
+    return runtime;
+  }
+
+  #createBuffLifecycleOperationChain(
+    source: BuffLifecycleOperationSource,
+    options: CombatRuntimeAssemblyOptions,
+  ): CombatOperationExecutor {
+    const cast = source.skillCastInfo;
+    if (cast?.originCastId === undefined) {
+      throw new Error(
+        `Buff lifecycle from '${source.sourceId}' requires inherited timeline skill-cast info`,
+      );
+    }
+    const binding = this.#castOperationBindings.get(cast.originCastId);
+    if (binding === undefined) {
+      throw new Error(`Buff lifecycle references unknown skill cast '${cast.originCastId}'`);
+    }
+    if (
+      binding.operator.operatorId !== source.sourceId ||
+      binding.program.skillId !== cast.originSkillId
+    ) {
+      throw new Error(
+        `Buff lifecycle source '${source.sourceId}' does not match skill cast '${cast.originCastId}'`,
+      );
+    }
+    return this.#createOperationChain({
+      operator: binding.operator,
+      program: binding.program,
+      enemy: options.enemy,
+      statusRuntime: binding.statusRuntime,
+      createDelegate: options.createOperationExecutor,
+      isOperatorControlled: options.isOperatorControlled,
+      resolveVitals: options.resolveVitals,
+      getNonReturnedSpCost: () => cast.nonReturnedSpCost,
+    });
+  }
+
+  #createOperationChain(options: {
+    readonly operator: CombatOperatorProgram;
+    readonly program: CompiledSkillProgram;
+    readonly enemy: CombatEnemyProgram;
+    readonly statusRuntime?: CombatStatusRuntime;
+    readonly createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'];
+    readonly isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'];
+    readonly resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'];
+    readonly getNonReturnedSpCost: () => number;
+  }): CombatOperationExecutor {
+    const {
+      operator,
+      program,
+      enemy,
+      statusRuntime,
+      createDelegate,
+      isOperatorControlled,
+      resolveVitals,
+      getNonReturnedSpCost,
+    } = options;
+    const operatorId = operator.operatorId;
     const baseDelegate = createDelegate({
       program,
       enemy,
@@ -269,6 +502,7 @@ export class CombatRuntimeAssembly {
       clock: this.clock,
       resources: this.resources,
       receipt: this.receipt,
+      semanticEvents: this.semanticEvents,
     });
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
@@ -281,7 +515,7 @@ export class CombatRuntimeAssembly {
     });
     const statusOperations = new StatusOperationExecutor({
       sourceId: operatorId,
-      skillId: program.skillId,
+      sourceActionId: program.skillId,
       clock: this.clock,
       receipt: this.receipt,
       resolveTarget: target => {
@@ -320,26 +554,114 @@ export class CombatRuntimeAssembly {
       },
       delegate: vitalsConditions,
     });
-    const delegate = new ActionBlackboardOperationExecutor(controlConditions);
-    let runtime: SkillRuntime;
-    const operations = new SkillResourceOperationExecutor({
+    const comboWindowOperations = new ComboWindowOperationExecutor(
+      operatorId,
+      this.comboWindows,
+      controlConditions,
+    );
+    const eventConditions = new EventContextConditionExecutor(comboWindowOperations);
+    const delegate = new ActionBlackboardOperationExecutor(eventConditions);
+    return new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
-      skillId: program.skillId,
+      sourceActionId: program.skillId,
       clock: this.clock,
       resources: this.resources,
       receipt: this.receipt,
-      getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+      getNonReturnedSpCost,
       delegate,
     });
-    runtime = new SkillRuntime(program, {
+  }
+
+  #createEquipmentEventOperationChain(
+    operator: CombatOperatorProgram,
+    source: EquipmentEventExecutionContext,
+    options: CombatRuntimeAssemblyOptions,
+  ): CombatOperationExecutor {
+    const createTerminal = options.createEquipmentEventOperationExecutor;
+    if (createTerminal === undefined) {
+      throw new Error('equipment event executor is not configured');
+    }
+    const sourceActionId = `equipment:${source.source.kind}:${source.source.slug}:${source.handlerKey}`;
+    const terminal = createTerminal({
+      ...source,
+      enemy: options.enemy,
+      ...(operator.panel === undefined ? {} : { panel: operator.panel }),
       clock: this.clock,
       resources: this.resources,
       receipt: this.receipt,
-      operations,
-      allocateSkillCastId: () => this.#skillCastIds.allocate(),
-      entityBlackboard,
+      semanticEvents: this.semanticEvents,
     });
-    return runtime;
+    return this.#createReactiveOperationChain(operator, sourceActionId, terminal, options);
+  }
+
+  /** 常驻事件监听器共用的条件与动作解释链；来源模块只提供末端能力和归因身份。 */
+  #createReactiveOperationChain(
+    operator: CombatOperatorProgram,
+    sourceActionId: string,
+    terminal: CombatOperationExecutor,
+    options: CombatRuntimeAssemblyOptions,
+  ): CombatOperationExecutor {
+    const operatorId = operator.operatorId;
+    const buffOperations = new BuffOperationExecutor({
+      sourceId: operatorId,
+      resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
+      resolveApplicationTargets: target =>
+        target === 'party'
+          ? this.#requirePartyBuffTargets()
+          : [this.#resolveBuffTarget(target, operatorId)],
+      delegate: terminal,
+    });
+    const statusRuntime = this.#operatorStatuses.get(operatorId);
+    const statusOperations = new StatusOperationExecutor({
+      sourceId: operatorId,
+      sourceActionId,
+      clock: this.clock,
+      receipt: this.receipt,
+      resolveTarget: target => {
+        const runtime = target === 'enemy' ? this.#enemyStatuses : statusRuntime;
+        if (runtime === undefined) {
+          throw new Error(`reactive event target '${target}' has no status runtime`);
+        }
+        return runtime;
+      },
+      delegate: buffOperations,
+    });
+    const markerOperations = new TimedMarkerOperationExecutor({
+      resolveTarget: target =>
+        target === 'enemy'
+          ? this.#enemyTimedMarkers
+          : this.#requireTimedMarkerContainer(operatorId),
+      delegate: statusOperations,
+    });
+    const vitalsConditions = new CombatVitalsConditionExecutor({
+      resolveTarget: target => {
+        if (options.resolveVitals === undefined) {
+          throw new Error(`reactive event '${sourceActionId}' requires a vitals resolver`);
+        }
+        return options.resolveVitals(target, operatorId);
+      },
+      delegate: markerOperations,
+    });
+    const controlConditions = new OperatorControlConditionExecutor({
+      isCasterControlled: () => {
+        if (options.isOperatorControlled === undefined) {
+          throw new Error(`reactive event '${sourceActionId}' requires control state`);
+        }
+        return options.isOperatorControlled(operatorId, this.clock.frame);
+      },
+      delegate: vitalsConditions,
+    });
+    const eventConditions = new EventContextConditionExecutor(controlConditions);
+    const blackboardOperations = new ActionBlackboardOperationExecutor(eventConditions);
+    return new SkillResourceOperationExecutor({
+      sourceOperatorId: operatorId,
+      sourceActionId,
+      clock: this.clock,
+      resources: this.resources,
+      receipt: this.receipt,
+      getNonReturnedSpCost: () => 0,
+      delegate: blackboardOperations,
+    });
   }
 
   #requireAbilitySystem(operatorId: string): AbilitySystemRuntime {

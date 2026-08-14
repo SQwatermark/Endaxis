@@ -17,6 +17,7 @@ import type { CombatEnemyProgram } from './combatRuntimeAssembly';
 import { createPlayerActiveOperationExecutorForElementalTarget } from './playerActiveOperationExecutor';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 function findPerlicaBattleSkill(): SkillDefinition {
   const group = perlica.skillGroups.find(candidate => candidate.key === 'battleSkill');
@@ -109,6 +110,7 @@ describe('Perlica standard damage slice', () => {
         clock,
         resources,
         receipt,
+        semanticEvents: new CombatSemanticEventRuntime(),
       },
       targetId: 'enemy',
       targetVitals,
@@ -168,7 +170,7 @@ describe('Perlica standard damage slice', () => {
     let runtime: SkillRuntime;
     const resourceOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
-      skillId: 'battleSkill',
+      sourceActionId: 'battleSkill',
       clock,
       resources,
       receipt,

@@ -24,7 +24,7 @@ describe('next Zhuang Fangyi definition', () => {
       generatedBasicAttack2.scheduledSequences
         .filter(item => collectSteps(item.sequence).some(step => step.kind === 'dealDamage'))
         .map(item => item.startFrame),
-    ).toEqual([2, 2, 15, 24, 27, 30]);
+    ).toEqual([2, 2, 15, 24, 26, 29]);
 
     const currentDamage = collectSteps(
       getSkill('basicAttack2').scheduledSequences[0]!.sequence,
@@ -58,7 +58,7 @@ describe('next Zhuang Fangyi definition', () => {
     const current = getSkill(generatedBasicAttack4.key);
     expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);
     expect(generatedBasicAttack4.scheduledSequences.map(item => item.startFrame)).toEqual([
-      11, 20, 23, 26,
+      11, 20, 22, 25,
     ]);
     expect(current.scheduledSequences.map(item => item.startFrame)).toEqual([11, 11, 11, 11]);
     const generatedDamage = generatedBasicAttack4.scheduledSequences.map(item =>
@@ -265,9 +265,13 @@ describe('next Zhuang Fangyi definition', () => {
 
   it('requires electric infliction for both combo variants', () => {
     for (const key of ['comboSkill', 'enhancedComboSkill']) {
-      const rules = getSkill(key).activationWindow?.rules;
-      if (!Array.isArray(rules)) throw new Error('expected combo activation rules');
+      const registration = zhuangFangyi.comboSkillRegistrations?.find(
+        item => item.skillKey === key,
+      );
+      if (registration === undefined) throw new Error('expected combo activation rules');
+      const rules = registration.rules;
 
+      expect(registration.priority).toBe('default');
       expect(rules).toHaveLength(2);
       expect(rules.map(rule => rule.condition)).toEqual([
         {

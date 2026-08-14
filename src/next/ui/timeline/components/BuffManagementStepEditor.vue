@@ -1,0 +1,379 @@
+<script setup lang="ts">
+/**
+ * Buff 查询、读取、结束与保留步骤的参数编辑器。
+ *
+ * Buff 身份列表和原生标签查询共用相同的文本投影规则。表单只把数组临时显示为
+ * 逗号分隔文本，更新时立即恢复为类型化数组，不改变 SkillDefinition 的持久结构。
+ */
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import {
+  COMBAT_TARGETS,
+  type CombatStepDefinition,
+  type CombatTarget,
+} from '../../../core/game-data/operatorDefinition';
+import EditorFieldLabel from './EditorFieldLabel.vue';
+
+type BuffManagementStep = Extract<
+  CombatStepDefinition,
+  {
+    kind:
+      | 'readBuffBlackboard'
+      | 'readBuffStackCount'
+      | 'finishBuffsByTag'
+      | 'finishBuffsById'
+      | 'holdBuffsById';
+  }
+>;
+type QueryType = 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+type FinishReason = 'early' | 'absorbed' | 'other';
+type ReadStep = Extract<BuffManagementStep, { kind: 'readBuffBlackboard' | 'readBuffStackCount' }>;
+
+const TAG_QUERY_TYPES = [
+  'hasAny',
+  'hasAll',
+  'exceptAny',
+  'exceptAll',
+] as const satisfies readonly QueryType[];
+const FINISH_REASONS = ['early', 'absorbed', 'other'] as const satisfies readonly FinishReason[];
+
+const props = defineProps<{ step: BuffManagementStep }>();
+const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
+const { t } = useI18n({ useScope: 'global' });
+
+const usesQuery = computed(
+  () => props.step.kind === 'readBuffBlackboard' || props.step.kind === 'readBuffStackCount',
+);
+const queryKind = computed<'id' | 'tag'>(() => {
+  if (!usesQuery.value) return props.step.kind === 'finishBuffsByTag' ? 'tag' : 'id';
+  return (props.step as ReadStep).parameters.query.kind;
+});
+const readQuery = computed(() => {
+  if (props.step.kind === 'readBuffBlackboard' || props.step.kind === 'readBuffStackCount') {
+    return props.step.parameters.query;
+  }
+  return undefined;
+});
+const readBuffIdsText = computed(() =>
+  readQuery.value?.kind === 'id' ? readQuery.value.buffIds.join(', ') : '',
+);
+const readTagIdsText = computed(() =>
+  readQuery.value?.kind === 'tag' ? readQuery.value.buffTagIds.join(', ') : '',
+);
+const readTagQueryType = computed(() =>
+  readQuery.value?.kind === 'tag' ? readQuery.value.tagQueryType : 'hasAny',
+);
+const readOutputKey = computed(() => {
+  if (props.step.kind === 'readBuffBlackboard' || props.step.kind === 'readBuffStackCount') {
+    return props.step.parameters.outputKey;
+  }
+  return '';
+});
+const directBuffIdsText = computed(() => {
+  if (props.step.kind === 'finishBuffsById' || props.step.kind === 'holdBuffsById') {
+    return props.step.parameters.buffIds.join(', ');
+  }
+  return '';
+});
+
+function update(step: BuffManagementStep): void {
+  emit('update', step);
+}
+
+function parseStringList(value: string): readonly string[] {
+  return value
+    .split(/[\n,]/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function parseIntegerList(value: string): readonly number[] | undefined {
+  const raw = value
+    .split(/[\n,]/)
+    .map(item => item.trim())
+    .filter(Boolean);
+  const parsed = raw.map(Number);
+  if (parsed.length === 0 || parsed.some(item => !Number.isInteger(item))) return undefined;
+  return parsed;
+}
+
+function setTarget(event: Event): void {
+  if (props.step.kind === 'holdBuffsById') return;
+  const target = (event.target as HTMLSelectElement).value as CombatTarget;
+  if (!COMBAT_TARGETS.includes(target)) return;
+  update({ ...props.step, parameters: { ...props.step.parameters, target } } as BuffManagementStep);
+}
+
+function setQueryKind(event: Event): void {
+  if (!usesQuery.value) return;
+  const kind = (event.target as HTMLSelectElement).value as 'id' | 'tag';
+  if (kind !== 'id' && kind !== 'tag') return;
+  const query =
+    kind === 'id'
+      ? { kind: 'id' as const, buffIds: ['custom-buff'] }
+      : { kind: 'tag' as const, tagQueryType: 'hasAny' as const, buffTagIds: [0] };
+  if (props.step.kind === 'readBuffBlackboard') {
+    update({ ...props.step, parameters: { ...props.step.parameters, query } });
+  } else if (props.step.kind === 'readBuffStackCount') {
+    update({ ...props.step, parameters: { ...props.step.parameters, query } });
+  }
+}
+
+function setReadBuffIds(event: Event): void {
+  if (!usesQuery.value) return;
+  const buffIds = parseStringList((event.target as HTMLTextAreaElement).value);
+  if (buffIds.length === 0) return;
+  if (props.step.kind === 'readBuffBlackboard') {
+    if (props.step.parameters.query.kind !== 'id') return;
+    update({
+      ...props.step,
+      parameters: { ...props.step.parameters, query: { kind: 'id', buffIds } },
+    });
+  } else if (props.step.kind === 'readBuffStackCount') {
+    if (props.step.parameters.query.kind !== 'id') return;
+    update({
+      ...props.step,
+      parameters: { ...props.step.parameters, query: { kind: 'id', buffIds } },
+    });
+  }
+}
+
+function setReadTagIds(event: Event): void {
+  if (!usesQuery.value) return;
+  const buffTagIds = parseIntegerList((event.target as HTMLTextAreaElement).value);
+  if (!buffTagIds) return;
+  if (props.step.kind === 'readBuffBlackboard') {
+    if (props.step.parameters.query.kind !== 'tag') return;
+    update({
+      ...props.step,
+      parameters: {
+        ...props.step.parameters,
+        query: { ...props.step.parameters.query, buffTagIds },
+      },
+    });
+  } else if (props.step.kind === 'readBuffStackCount') {
+    if (props.step.parameters.query.kind !== 'tag') return;
+    update({
+      ...props.step,
+      parameters: {
+        ...props.step.parameters,
+        query: { ...props.step.parameters.query, buffTagIds },
+      },
+    });
+  }
+}
+
+function setReadQueryType(event: Event): void {
+  if (!usesQuery.value) return;
+  const tagQueryType = (event.target as HTMLSelectElement).value as QueryType;
+  if (!TAG_QUERY_TYPES.includes(tagQueryType)) return;
+  if (props.step.kind === 'readBuffBlackboard') {
+    if (props.step.parameters.query.kind !== 'tag') return;
+    update({
+      ...props.step,
+      parameters: {
+        ...props.step.parameters,
+        query: { ...props.step.parameters.query, tagQueryType },
+      },
+    });
+  } else if (props.step.kind === 'readBuffStackCount') {
+    if (props.step.parameters.query.kind !== 'tag') return;
+    update({
+      ...props.step,
+      parameters: {
+        ...props.step.parameters,
+        query: { ...props.step.parameters.query, tagQueryType },
+      },
+    });
+  }
+}
+
+function setReadKey(field: 'desiredKey' | 'outputKey', event: Event): void {
+  if (!usesQuery.value) return;
+  const value = (event.target as HTMLInputElement).value;
+  if (field === 'desiredKey') {
+    if (props.step.kind !== 'readBuffBlackboard') return;
+    update({ ...props.step, parameters: { ...props.step.parameters, desiredKey: value } });
+    return;
+  }
+  if (props.step.kind === 'readBuffBlackboard') {
+    update({ ...props.step, parameters: { ...props.step.parameters, outputKey: value } });
+  } else if (props.step.kind === 'readBuffStackCount') {
+    update({ ...props.step, parameters: { ...props.step.parameters, outputKey: value } });
+  }
+}
+
+function setDirectBuffIds(event: Event): void {
+  if (props.step.kind !== 'finishBuffsById' && props.step.kind !== 'holdBuffsById') return;
+  const buffIds = parseStringList((event.target as HTMLTextAreaElement).value);
+  if (buffIds.length === 0) return;
+  if (props.step.kind === 'finishBuffsById') {
+    update({ ...props.step, parameters: { ...props.step.parameters, buffIds } });
+  } else if (props.step.kind === 'holdBuffsById') {
+    update({ ...props.step, parameters: { ...props.step.parameters, buffIds } });
+  }
+}
+
+function setDirectTagIds(event: Event): void {
+  if (props.step.kind !== 'finishBuffsByTag') return;
+  const buffTagIds = parseIntegerList((event.target as HTMLTextAreaElement).value);
+  if (!buffTagIds) return;
+  update({ ...props.step, parameters: { ...props.step.parameters, buffTagIds } });
+}
+
+function setDirectQueryType(event: Event): void {
+  if (props.step.kind !== 'finishBuffsByTag') return;
+  const tagQueryType = (event.target as HTMLSelectElement).value as QueryType;
+  if (!TAG_QUERY_TYPES.includes(tagQueryType)) return;
+  update({ ...props.step, parameters: { ...props.step.parameters, tagQueryType } });
+}
+
+function setReason(event: Event): void {
+  if (props.step.kind !== 'finishBuffsById' && props.step.kind !== 'finishBuffsByTag') return;
+  const reason = (event.target as HTMLSelectElement).value as FinishReason;
+  if (!FINISH_REASONS.includes(reason)) return;
+  if (props.step.kind === 'finishBuffsById') {
+    update({ ...props.step, parameters: { ...props.step.parameters, reason } });
+  } else if (props.step.kind === 'finishBuffsByTag') {
+    update({ ...props.step, parameters: { ...props.step.parameters, reason } });
+  }
+}
+</script>
+
+<template>
+  <div class="step-editor__grid">
+    <label>
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.target')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.buffManagementTarget')"
+      />
+      <select
+        v-if="step.kind !== 'holdBuffsById'"
+        :value="step.parameters.target"
+        @change="setTarget"
+      >
+        <option v-for="target in COMBAT_TARGETS" :key="target" :value="target">
+          {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
+        </option>
+      </select>
+      <em v-else>{{ t('nextTimeline.skillEditing.targets.caster') }}</em>
+    </label>
+
+    <label v-if="usesQuery">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.buffQueryKind')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.buffQueryKind')"
+      />
+      <select :value="queryKind" @change="setQueryKind">
+        <option value="id">{{ t('nextTimeline.skillEditing.buffQueryKinds.id') }}</option>
+        <option value="tag">{{ t('nextTimeline.skillEditing.buffQueryKinds.tag') }}</option>
+      </select>
+    </label>
+
+    <template v-if="usesQuery">
+      <label v-if="queryKind === 'id'" class="step-editor__wide">
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.buffIds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffIds')"
+        />
+        <textarea :value="readBuffIdsText" @change="setReadBuffIds" />
+      </label>
+      <template v-else>
+        <label>
+          <EditorFieldLabel
+            :label="t('nextTimeline.skillEditing.tagQueryType')"
+            :help="t('nextTimeline.skillEditing.fieldHelp.tagQueryType')"
+          />
+          <select :value="readTagQueryType" @change="setReadQueryType">
+            <option v-for="type in TAG_QUERY_TYPES" :key="type" :value="type">
+              {{ t(`nextTimeline.skillEditing.tagQueryTypes.${type}`) }}
+            </option>
+          </select>
+        </label>
+        <label>
+          <EditorFieldLabel
+            :label="t('nextTimeline.skillEditing.buffTagIds')"
+            :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+          />
+          <textarea :value="readTagIdsText" @change="setReadTagIds" />
+        </label>
+      </template>
+      <label v-if="step.kind === 'readBuffBlackboard'">
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.desiredKey')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.desiredKey')"
+        />
+        <input
+          type="text"
+          :value="step.parameters.desiredKey"
+          @input="setReadKey('desiredKey', $event)"
+        />
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.outputKey')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffOutputKey')"
+        />
+        <input type="text" :value="readOutputKey" @input="setReadKey('outputKey', $event)" />
+      </label>
+    </template>
+
+    <template v-else-if="step.kind === 'finishBuffsByTag'">
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.tagQueryType')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.tagQueryType')"
+        />
+        <select :value="step.parameters.tagQueryType" @change="setDirectQueryType">
+          <option v-for="type in TAG_QUERY_TYPES" :key="type" :value="type">
+            {{ t(`nextTimeline.skillEditing.tagQueryTypes.${type}`) }}
+          </option>
+        </select>
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.buffTagIds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+        />
+        <textarea :value="step.parameters.buffTagIds.join(', ')" @change="setDirectTagIds" />
+      </label>
+    </template>
+
+    <label v-else class="step-editor__wide">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.buffIds')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.buffIds')"
+      />
+      <textarea :value="directBuffIdsText" @change="setDirectBuffIds" />
+    </label>
+
+    <label v-if="step.kind === 'finishBuffsById' || step.kind === 'finishBuffsByTag'">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.finishReason')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.finishReason')"
+      />
+      <select :value="step.parameters.reason" @change="setReason">
+        <option v-for="reason in FINISH_REASONS" :key="reason" :value="reason">
+          {{ t(`nextTimeline.skillEditing.finishReasons.${reason}`) }}
+        </option>
+      </select>
+    </label>
+  </div>
+</template>
+
+<style scoped>
+.step-editor__wide {
+  grid-column: 1 / -1;
+}
+textarea {
+  min-width: 0;
+  width: 100%;
+  min-height: 54px;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input, #16161a);
+  color: var(--ea-fg);
+  padding: 6px;
+}
+</style>
