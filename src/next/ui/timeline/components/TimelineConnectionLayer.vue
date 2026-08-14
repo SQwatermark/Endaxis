@@ -14,6 +14,7 @@ import type {
 import type { TimelineConnectionPort } from '../timelineConnections';
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import { frameToTimelinePx } from '../timelineGeometry';
+import type { TimelineDisplayTime } from '../timelineDisplayTime';
 
 interface Point {
   readonly x: number;
@@ -38,6 +39,8 @@ const props = withDefaults(
     tracks: readonly TimelineTrackViewModel[];
     pxPerFrame: number;
     trackHeaderWidth: number;
+    displayTime: TimelineDisplayTime;
+    castActualStartFrames: ReadonlyMap<string, number>;
     rulerHeight?: number;
     trackHeight?: number;
     actionTop?: number;
@@ -89,7 +92,8 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
         x:
           props.trackHeaderWidth +
           frameToTimelinePx(
-            found.skillCast.startFrame + hit.frameOffset,
+            resolveCastActualStartFrame(found.skillCast.id, found.skillCast.startFrame) +
+              hit.frameOffset,
             props.scenario.battle.prepFrames,
             props.pxPerFrame,
           ),
@@ -107,7 +111,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   const left =
     props.trackHeaderWidth +
     frameToTimelinePx(
-      found.skillCast.startFrame,
+      resolveCastActualStartFrame(found.skillCast.id, found.skillCast.startFrame),
       props.scenario.battle.prepFrames,
       props.pxPerFrame,
     );
@@ -118,6 +122,12 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
     point: { x: left + width * ratio.x, y: top + props.actionHeight * ratio.y },
     port,
   };
+}
+
+function resolveCastActualStartFrame(castId: string, logicalStartFrame: number): number {
+  return (
+    props.castActualStartFrames.get(castId) ?? props.displayTime.toActualFrame(logicalStartFrame)
+  );
 }
 
 function pathData(

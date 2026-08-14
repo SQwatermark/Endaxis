@@ -1,51 +1,80 @@
 <script setup lang="ts">
 /**
  * Next 时间轴的双层标尺与准备区边界。
- * 所有位置由父层传入的整数帧范围决定；本组件只发出用户选中的战斗帧。
+ * GAME 行显示项目逻辑帧，REAL 行显示实际战斗帧；点击位置会换算回逻辑帧。
  */
 import { computed } from 'vue';
-import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from '../timelineGeometry';
+import { frameToTimelinePx, timelineTotalWidth } from '../timelineGeometry';
+import type { TimelineDisplayTime } from '../timelineDisplayTime';
 
 const props = defineProps<{
   prepFrames: number;
   durationFrames: number;
   cursorFrame: number;
   pxPerFrame: number;
+  displayTime: TimelineDisplayTime;
 }>();
 
 const emit = defineEmits<{ seek: [frame: number] }>();
 const totalWidth = computed(() =>
-  timelineTotalWidth(props.prepFrames, props.durationFrames, props.pxPerFrame),
+  timelineTotalWidth(props.prepFrames, props.displayTime.actualDurationFrames, props.pxPerFrame),
 );
 const prepWidth = computed(() => props.prepFrames * props.pxPerFrame);
 const cursorLeft = computed(() =>
-  frameToTimelinePx(props.cursorFrame, props.prepFrames, props.pxPerFrame),
+  frameToTimelinePx(
+    props.displayTime.toActualFrame(props.cursorFrame),
+    props.prepFrames,
+    props.pxPerFrame,
+  ),
 );
-const ticks = computed(() => {
+interface RulerTick {
+  readonly key: string;
+  readonly left: number;
+  readonly major: boolean;
+  readonly label: string;
+  readonly row: 'game' | 'real';
+}
+
+function createTicks(
+  row: RulerTick['row'],
+  durationFrames: number,
+  projectFrame: (frame: number) => number,
+): RulerTick[] {
   const interval = 30;
   const first = -Math.ceil(props.prepFrames / interval) * interval;
-  const result: { frame: number; left: number; major: boolean; label: string }[] = [];
-  for (let frame = first; frame <= props.durationFrames; frame += interval) {
+  const result: RulerTick[] = [];
+  for (let frame = first; frame <= durationFrames; frame += interval) {
     if (frame < -props.prepFrames) continue;
     const major = frame % 150 === 0;
+    const displayFrame = frame < 0 ? frame : projectFrame(frame);
     result.push({
-      frame,
-      left: frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame),
+      key: `${row}:${frame}`,
+      left: frameToTimelinePx(displayFrame, props.prepFrames, props.pxPerFrame),
       major,
       label: major ? `${frame / 30}s` : '',
+      row,
     });
   }
   return result;
+}
+
+const ticks = computed(() => {
+  const gameTicks = createTicks('game', props.durationFrames, frame =>
+    props.displayTime.toActualFrame(frame),
+  );
+  const realTicks = createTicks('real', props.displayTime.actualDurationFrames, frame => frame);
+  return [...gameTicks, ...realTicks];
 });
 
 function seek(event: MouseEvent): void {
   const element = event.currentTarget as HTMLElement;
   const px = event.clientX - element.getBoundingClientRect().left;
+  const actualFrame = Math.max(0, px / props.pxPerFrame - props.prepFrames);
   emit(
     'seek',
     Math.max(
       0,
-      Math.min(props.durationFrames, timelinePxToFrame(px, props.prepFrames, props.pxPerFrame)),
+      Math.min(props.durationFrames, Math.round(props.displayTime.toLogicalFrame(actualFrame))),
     ),
   );
 }
@@ -64,9 +93,9 @@ function seek(event: MouseEvent): void {
       </div>
       <span
         v-for="tick in ticks"
-        :key="tick.frame"
+        :key="tick.key"
         class="tick"
-        :class="{ 'tick--major': tick.major }"
+        :class="[`tick--${tick.row}`, { 'tick--major': tick.major }]"
         :style="{ left: `${tick.left}px` }"
       >
         <span v-if="tick.label" class="tick-label">{{ tick.label }}</span>
@@ -133,22 +162,37 @@ function seek(event: MouseEvent): void {
 
 .tick {
   position: absolute;
-  top: 39px;
-  bottom: 0;
+  height: 10px;
   width: 1px;
   background: var(--ea-mark);
   pointer-events: none;
 }
 
+.tick--game {
+  top: 39px;
+}
+
+.tick--real {
+  top: 64px;
+}
+
 .tick--major {
-  top: 24px;
+  height: 25px;
   background: var(--ea-mark-major);
+}
+
+.tick--game.tick--major {
+  top: 24px;
+}
+
+.tick--real.tick--major {
+  top: 49px;
 }
 
 .tick-label {
   position: absolute;
   left: 4px;
-  top: 27px;
+  top: 0;
   color: var(--ea-fg-secondary);
   font:
     11px/18px Consolas,

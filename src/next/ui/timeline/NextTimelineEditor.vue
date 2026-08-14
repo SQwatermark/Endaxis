@@ -51,9 +51,12 @@ import {
 import {
   frameToTimelinePx,
   resolveTimelineCursorGuidePosition,
-  timelinePxToFrame,
   timelineTotalWidth,
 } from './timelineGeometry';
+import {
+  createTimelineDisplayTime,
+  projectSkillCastActualStartFrames,
+} from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
@@ -115,7 +118,7 @@ const showSkillDefinitionEditor = ref(false);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
-const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
+const cursorGuide = ref<{ leftPx: number; sampleFrame: number; logicalFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
@@ -312,13 +315,38 @@ const selectedCastModel = computed(() => {
   }
   return null;
 });
+const displayTime = computed(() =>
+  createTimelineDisplayTime(
+    scenario.value.battle.durationFrames,
+    simulationRun.value === null || simulationStale.value
+      ? null
+      : simulationRun.value.timelineTimeMapping,
+  ),
+);
+const skillCastActualStartFrames = computed(() =>
+  simulationRun.value === null || simulationStale.value
+    ? new Map<string, number>()
+    : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
+);
 const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
-    scenario.value.battle.durationFrames,
+    displayTime.value.actualDurationFrames,
     pxPerFrame.value,
   ),
 );
+
+function castActualStartFrame(castId: string, logicalStartFrame: number): number {
+  return (
+    skillCastActualStartFrames.value.get(castId) ??
+    displayTime.value.toActualFrame(logicalStartFrame)
+  );
+}
+
+function timelinePointerLogicalFrame(pointerPx: number): number {
+  const actualFrame = pointerPx / pxPerFrame.value - scenario.value.battle.prepFrames;
+  return Math.round(displayTime.value.toLogicalFrame(Math.max(0, actualFrame)));
+}
 function formatGuideNumber(value: number | null): string {
   if (value === null) return '--';
   return String(Math.round(value * 100) / 100);
@@ -361,7 +389,7 @@ const enemyEffectViz = computed(() => {
   if (current === null || simulationStale.value) {
     return { segments: [], markers: [] };
   }
-  return projectEnemyEffectViz(current.receiptEntries, scenario.value.battle.durationFrames);
+  return projectEnemyEffectViz(current.receiptEntries, current.frame);
 });
 
 function damageElementLabel(element: string): string {
@@ -461,12 +489,11 @@ const hitDetail = computed(() => {
   const marker =
     castModel?.hitMarkers.find(candidate => candidate.stepKey === target.stepKey) ?? null;
   if (marker === null) return null;
-  const absoluteFrame = cast.placement.startFrame + marker.frameOffset;
   const operatorId = track.id;
   const entries = current.receiptEntries.filter(
     entry =>
-      entry.frame === absoluteFrame &&
       entry.sourceId === operatorId &&
+      entry.data?.castId === cast.id &&
       entry.data?.stepKey === marker.stepKey,
   );
   return { cast, marker, entries };
@@ -485,7 +512,10 @@ const hitDetailTitle = computed(() => {
 
 const cursorGuideLines = computed(() => {
   const frame = cursorGuide.value?.sampleFrame ?? 0;
-  const lines = [`${Number((frame / PROJECT_FPS).toFixed(2))}s`];
+  const logicalFrame = cursorGuide.value?.logicalFrame ?? frame;
+  const lines = [
+    `GAME ${Number((logicalFrame / PROJECT_FPS).toFixed(2))}s · REAL ${Number((frame / PROJECT_FPS).toFixed(2))}s`,
+  ];
   const current = simulationRun.value;
   if (current !== null) {
     const sp = sampleStepCurve(current.resourceCurves.sp.points, frame);
@@ -715,11 +745,7 @@ function selectTimelinePosition(event: MouseEvent): void {
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      timelinePxToFrame(
-        event.clientX - lane.getBoundingClientRect().left,
-        scenario.value.battle.prepFrames,
-        pxPerFrame.value,
-      ),
+      timelinePointerLogicalFrame(event.clientX - lane.getBoundingClientRect().left),
     ),
   );
   clearTimelineSelection();
@@ -754,12 +780,16 @@ function updateCursorGuide(event: MouseEvent): void {
     return;
   }
   const pointerPx = event.clientX - surfaceRect.left - TIMELINE_TRACK_HEADER_WIDTH;
-  cursorGuide.value = resolveTimelineCursorGuidePosition(
+  const guide = resolveTimelineCursorGuidePosition(
     pointerPx,
     scenario.value.battle.prepFrames,
-    scenario.value.battle.durationFrames,
+    displayTime.value.actualDurationFrames,
     pxPerFrame.value,
   );
+  cursorGuide.value = {
+    ...guide,
+    logicalFrame: displayTime.value.toLogicalFrame(guide.sampleFrame),
+  };
 }
 
 function hideCursorGuide(): void {
@@ -878,11 +908,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      timelinePxToFrame(
-        event.clientX - lane.getBoundingClientRect().left,
-        scenario.value.battle.prepFrames,
-        pxPerFrame.value,
-      ),
+      timelinePointerLogicalFrame(event.clientX - lane.getBoundingClientRect().left),
     ),
   );
   const unsnappedFrame =
@@ -1371,6 +1397,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :duration-frames="scenario.battle.durationFrames"
             :cursor-frame="cursorFrame"
             :px-per-frame="pxPerFrame"
+            :display-time="displayTime"
             @seek="cursorFrame = $event"
           />
           <TimelineConnectionLayer
@@ -1378,6 +1405,8 @@ function setPanelDialogVisible(visible: boolean): void {
             :tracks="viewModel.tracks"
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
+            :display-time="displayTime"
+            :cast-actual-start-frames="skillCastActualStartFrames"
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />
@@ -1445,7 +1474,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :curve="gaugeCurveFor(track.trackIndex)"
                 :color="gaugeColorFor(track.trackIndex)"
                 :prep-frames="scenario.battle.prepFrames"
-                :duration-frames="scenario.battle.durationFrames"
+                :duration-frames="displayTime.actualDurationFrames"
                 :px-per-frame="pxPerFrame"
                 :height="160"
               />
@@ -1463,7 +1492,13 @@ function setPanelDialogVisible(visible: boolean): void {
                 :action-id="cast.id"
                 :label="timelineCastLabel(cast, track)"
                 :skill-type="cast.skillType"
-                :left="frameToTimelinePx(cast.startFrame, scenario.battle.prepFrames, pxPerFrame)"
+                :left="
+                  frameToTimelinePx(
+                    castActualStartFrame(cast.id, cast.startFrame),
+                    scenario.battle.prepFrames,
+                    pxPerFrame,
+                  )
+                "
                 :width="cast.durationFrames * pxPerFrame"
                 :selected="actionSelection.selectedIds.has(cast.id)"
                 :disabled="cast.disabled"
@@ -1556,7 +1591,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :enemy-health-label="t('nextTimeline.simGuide.enemyHp')"
             :poise-label="t('nextTimeline.simGuide.poise')"
             :timeline-width="timelineWidth"
-            :duration-frames="scenario.battle.durationFrames"
+            :duration-frames="displayTime.actualDurationFrames"
             :prep-frames="scenario.battle.prepFrames"
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
