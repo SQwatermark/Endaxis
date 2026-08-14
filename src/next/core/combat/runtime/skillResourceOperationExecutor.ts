@@ -20,6 +20,8 @@ export interface SkillResourceOperationDependencies {
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptSink;
   readonly getNonReturnedSpCost: () => number;
+  /** 当前敌人的处决技力回复基础值；技能步骤只保存自身倍率。 */
+  readonly finisherSpRecovery: number;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -66,22 +68,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         step.parameters.spGainKind,
         step.parameters.spGainSource ?? 'default',
       );
-      this.dependencies.receipt.record({
-        frame: this.dependencies.clock.frame,
-        time: this.dependencies.clock.time,
-        event: 'SpChanged',
-        sourceId: this.dependencies.sourceOperatorId,
-        data: {
-          skillId: this.dependencies.sourceActionId,
-          recipient: 'team',
-          baseValue: change.baseValue,
-          requestedValue: change.requestedValue,
-          actualValue: change.actualValue,
-          previousValue: change.previousValue,
-          currentValue: change.currentValue,
-          gainKind: change.gainKind,
-        },
-      });
+      this.#recordSpChange(change);
       return true;
     }
 
@@ -102,6 +89,13 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         },
       );
       this.#recordUltimateEnergyChange(change);
+      return true;
+    }
+
+    if (step.kind === 'gainFinisherSp') {
+      const baseValue = Math.fround(this.dependencies.finisherSpRecovery * step.parameters.factor);
+      const change = this.dependencies.resources.gainSp(baseValue, 'gain', 'powerAttack');
+      this.#recordSpChange(change);
       return true;
     }
 
@@ -134,6 +128,25 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
+  }
+
+  #recordSpChange(change: ReturnType<CombatResources['gainSp']>): void {
+    this.dependencies.receipt.record({
+      frame: this.dependencies.clock.frame,
+      time: this.dependencies.clock.time,
+      event: 'SpChanged',
+      sourceId: this.dependencies.sourceOperatorId,
+      data: {
+        skillId: this.dependencies.sourceActionId,
+        recipient: 'team',
+        baseValue: change.baseValue,
+        requestedValue: change.requestedValue,
+        actualValue: change.actualValue,
+        previousValue: change.previousValue,
+        currentValue: change.currentValue,
+        gainKind: change.gainKind,
+      },
+    });
   }
 
   #recordUltimateEnergyChange(change: ReturnType<CombatResources['changeUltimateEnergy']>): void {

@@ -124,22 +124,6 @@ function inspectSequence(
             "damage type 'lifeDrain' uses a separate native calculation",
           );
         }
-        if (parameters.calculation === 'breakingAttack') {
-          report(
-            collect,
-            'unsupported-damage-calculation',
-            `${stepPath}.parameters.calculation`,
-            "calculation 'breakingAttack' is outside standard life damage",
-          );
-        }
-        if (parameters.calculationMultiplier !== undefined) {
-          report(
-            collect,
-            'unsupported-damage-field',
-            `${stepPath}.parameters.calculationMultiplier`,
-            'calculationMultiplier is not consumed by standard life damage',
-          );
-        }
         if (parameters.attackScalePerStatusStack !== undefined) {
           report(
             collect,
@@ -196,6 +180,7 @@ function inspectSequence(
       case 'calculateActionValue':
       case 'createTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
+      case 'gainFinisherSp':
       case 'openComboWindow':
         return;
       case 'changeResource':

@@ -568,6 +568,7 @@ export class CombatRuntimeAssembly {
       resources: this.resources,
       receipt: this.receipt,
       getNonReturnedSpCost,
+      finisherSpRecovery: enemy.stagger.finisherSpRecovery,
       delegate,
     });
   }
@@ -660,6 +661,7 @@ export class CombatRuntimeAssembly {
       resources: this.resources,
       receipt: this.receipt,
       getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: options.enemy.stagger.finisherSpRecovery,
       delegate: blackboardOperations,
     });
   }

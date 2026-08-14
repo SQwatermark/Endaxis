@@ -175,6 +175,7 @@ describe('Perlica standard damage slice', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+      finisherSpRecovery: 100,
       delegate: operations,
     });
     runtime = new SkillRuntime(program, {

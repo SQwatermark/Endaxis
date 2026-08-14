@@ -132,6 +132,17 @@ describe('standardPlayerDamageCompatibility', () => {
               kind: 'changeResource',
               parameters: { resource: 'ultimateEnergy', recipient: 'caster', amount: 10 },
             },
+            {
+              kind: 'dealDamage',
+              parameters: {
+                damageType: 'electric',
+                calculation: 'breakingAttack',
+                calculationMultiplier: 1,
+                attackScale: 9,
+                tags: ['powerAttack'],
+              },
+            },
+            { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
           ],
         }),
         100,
@@ -267,8 +278,6 @@ describe('standardPlayerDamageCompatibility', () => {
 
     expect(issues.map(issue => issue.code)).toEqual([
       'unsupported-damage-calculation',
-      'unsupported-damage-calculation',
-      'unsupported-damage-field',
       'unsupported-damage-field',
       'unsupported-resource-change',
     ]);

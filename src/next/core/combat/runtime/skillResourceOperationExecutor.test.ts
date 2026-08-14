@@ -10,6 +10,7 @@ import { CombatSimulation } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 import { gameplayTagId } from '../tags/gameplayTags';
+import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
 
 function findSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -21,6 +22,65 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('SkillResourceOperationExecutor', () => {
+  it('uses the enemy finisher recovery and power-attack gain efficiency', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const resources = new CombatResources({
+      sp: 20,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'perlica',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTagIds: null,
+        },
+      ],
+    });
+    resources.sharedSpGainModifiers.add(
+      new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
+    );
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'perlica',
+      sourceActionId: 'finisher',
+      clock,
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 80,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    expect(
+      operations.execute({
+        kind: 'gainFinisherSp',
+        parameters: { factor: 0.5, recipient: 'team' },
+      }),
+    ).toBe(true);
+
+    expect(resources.sp).toBe(80);
+    expect(receipt.entries[0]).toMatchObject({
+      event: 'SpChanged',
+      sourceId: 'perlica',
+      data: {
+        skillId: 'finisher',
+        recipient: 'team',
+        baseValue: 40,
+        requestedValue: 60,
+        actualValue: 60,
+        previousValue: 20,
+        currentValue: 80,
+        gainKind: 'gain',
+      },
+    });
+  });
+
   it('applies caster ultimate-energy gain through the native gain multiplier and cap', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
@@ -53,6 +113,7 @@ describe('SkillResourceOperationExecutor', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 100,
       delegate,
     });
 
@@ -116,6 +177,7 @@ describe('SkillResourceOperationExecutor', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 100,
       delegate: { execute: () => false, evaluate: () => false },
     });
 
@@ -188,6 +250,7 @@ describe('SkillResourceOperationExecutor', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 100,
       delegate: {
         execute: step => {
           delegatedKinds.push(step.kind);
@@ -254,6 +317,7 @@ describe('SkillResourceOperationExecutor', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 100,
       delegate: { execute: () => false, evaluate: () => false },
     });
 
@@ -326,6 +390,7 @@ describe('SkillResourceOperationExecutor', () => {
       resources,
       receipt,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+      finisherSpRecovery: 100,
       delegate,
     });
     runtime = new SkillRuntime(
