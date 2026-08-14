@@ -47,10 +47,10 @@ const testEnemy: CombatEnemyProgram = {
   },
   stagger: {
     maximum: 100,
-    nodeCount: 1,
-    nodeDurationFrames: 30,
+    knotThresholds: [0.5],
+    knotBreakDurationFrames: 30,
     brokenDurationFrames: 300,
-    finisherRecovery: 100,
+    finisherSpRecovery: 100,
   },
 };
 

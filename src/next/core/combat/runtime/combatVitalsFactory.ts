@@ -9,14 +9,12 @@ import { CombatVitals } from './combatVitals';
 
 /** 从场景编译出的敌人静态程序创建敌人生命与失衡账本。 */
 export function createEnemyCombatVitals(enemy: CombatEnemyProgram): CombatVitals {
-  const singleNodeStagger = enemy.stagger.nodeCount === 1;
   return new CombatVitals({
     health: enemy.health,
     maxHealth: enemy.health,
-    // 单节点失衡映射到 CombatVitals 账本，起始满值并随失衡伤害消耗；
-    // 多节点失衡尚未接入单节点账本，保持无账本状态而不做近似塞入。
-    maxPoise: singleNodeStagger ? enemy.stagger.maximum : 0,
-    poise: singleNodeStagger ? enemy.stagger.maximum : 0,
+    // 原生 hasPoise 只取决于失衡上限；中间节点不会把失衡拆成多条独立账本。
+    maxPoise: enemy.stagger.maximum,
+    poise: enemy.stagger.maximum,
     poiseRecoveryTime: enemy.stagger.brokenDurationFrames * COMBAT_FRAME_INTERVAL,
     poiseRecoveryTimeMultiplier: 1,
     poiseBrokenEndTime: 0,

@@ -101,12 +101,29 @@ export function validateEnemy(value: unknown, path: string, issues: ValidationIs
         `${path}.editable.stagger.maximum`,
         issues,
       );
-      requireNonNegativeInteger(
-        value.editable.stagger.nodeCount,
-        `${path}.editable.stagger.nodeCount`,
-        issues,
-      );
-      for (const field of ['nodeDurationFrames', 'brokenDurationFrames']) {
+      if (!Array.isArray(value.editable.stagger.knotThresholds)) {
+        issues.push({
+          path: `${path}.editable.stagger.knotThresholds`,
+          message: 'expected an array',
+        });
+      } else {
+        let previous = 0;
+        value.editable.stagger.knotThresholds.forEach((threshold, index) => {
+          requireFiniteNumber(
+            threshold,
+            `${path}.editable.stagger.knotThresholds[${index}]`,
+            issues,
+          );
+          if (typeof threshold === 'number' && (threshold <= previous || threshold >= 1)) {
+            issues.push({
+              path: `${path}.editable.stagger.knotThresholds[${index}]`,
+              message: 'thresholds must increase and stay between 0 and 1',
+            });
+          }
+          if (typeof threshold === 'number') previous = threshold;
+        });
+      }
+      for (const field of ['knotBreakDurationFrames', 'brokenDurationFrames']) {
         requireNonNegativeInteger(
           value.editable.stagger[field],
           `${path}.editable.stagger.${field}`,
@@ -114,8 +131,8 @@ export function validateEnemy(value: unknown, path: string, issues: ValidationIs
         );
       }
       requireFiniteNumber(
-        value.editable.stagger.finisherRecovery,
-        `${path}.editable.stagger.finisherRecovery`,
+        value.editable.stagger.finisherSpRecovery,
+        `${path}.editable.stagger.finisherSpRecovery`,
         issues,
       );
     }

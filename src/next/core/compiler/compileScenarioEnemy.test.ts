@@ -14,10 +14,10 @@ describe('compileScenarioEnemy', () => {
       resistances: { physical: 10, heat: -5 },
       stagger: {
         maximum: 420,
-        nodeCount: 2,
-        nodeDurationFrames: 45,
+        knotThresholds: [0.33, 0.66],
+        knotBreakDurationFrames: 45,
         brokenDurationFrames: 270,
-        finisherRecovery: 88,
+        finisherSpRecovery: 88,
       },
     };
 
@@ -39,10 +39,10 @@ describe('compileScenarioEnemy', () => {
       },
       stagger: {
         maximum: 420,
-        nodeCount: 2,
-        nodeDurationFrames: 45,
+        knotThresholds: [0.33, 0.66],
+        knotBreakDurationFrames: 45,
         brokenDurationFrames: 270,
-        finisherRecovery: 88,
+        finisherSpRecovery: 88,
       },
     });
   });
@@ -53,6 +53,15 @@ describe('compileScenarioEnemy', () => {
 
     expect(() => compileScenarioEnemy(scenario.enemy)).toThrow(
       "enemy resistance 'unknown' is not supported",
+    );
+  });
+
+  it('拒绝无序或越界的失衡节点阈值', () => {
+    const scenario = createEmptyScenario('scenario:enemy', '敌人编译样本');
+    scenario.enemy.editable.stagger.knotThresholds = [0.5, 0.5];
+
+    expect(() => compileScenarioEnemy(scenario.enemy)).toThrow(
+      'enemy stagger knot thresholds must increase and stay between 0 and 1',
     );
   });
 });

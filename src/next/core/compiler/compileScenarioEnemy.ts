@@ -1,8 +1,8 @@
 /**
  * 将项目持久化的敌人实例编译为战斗运行时使用的稳定输入。
  *
- * 这里只规整已有字段，不重新查询定义默认值，也不把多节点失衡规则近似成现有单节点生命账本。
- * 操作执行器应从该结果读取防御、抗性和处决倍率，后续失衡运行时也必须消费同一份原始规则。
+ * 这里只规整已有字段，不重新查询定义默认值。操作执行器从该结果读取防御、抗性和处决倍率；
+ * 失衡节点阈值也原样进入运行时程序，由失衡系统按原生语义消费。
  */
 import type { PlayerDamageDefenderSnapshot } from '../combat/damage/playerActiveDamageInput';
 import type { CombatEnemyProgram } from '../combat/runtime/combatRuntimeAssembly';
@@ -84,22 +84,35 @@ export function compileScenarioEnemy(enemy: EnemyDocument): CombatEnemyProgram {
     defenderAttributes: compileDefenderAttributes(enemy),
     stagger: {
       maximum: requireNonNegative(enemy.editable.stagger.maximum, 'enemy.editable.stagger.maximum'),
-      nodeCount: requireNonNegativeInteger(
-        enemy.editable.stagger.nodeCount,
-        'enemy.editable.stagger.nodeCount',
-      ),
-      nodeDurationFrames: requireNonNegativeInteger(
-        enemy.editable.stagger.nodeDurationFrames,
-        'enemy.editable.stagger.nodeDurationFrames',
+      knotThresholds: compileKnotThresholds(enemy.editable.stagger.knotThresholds),
+      knotBreakDurationFrames: requireNonNegativeInteger(
+        enemy.editable.stagger.knotBreakDurationFrames,
+        'enemy.editable.stagger.knotBreakDurationFrames',
       ),
       brokenDurationFrames: requireNonNegativeInteger(
         enemy.editable.stagger.brokenDurationFrames,
         'enemy.editable.stagger.brokenDurationFrames',
       ),
-      finisherRecovery: requireNonNegative(
-        enemy.editable.stagger.finisherRecovery,
-        'enemy.editable.stagger.finisherRecovery',
+      finisherSpRecovery: requireNonNegative(
+        enemy.editable.stagger.finisherSpRecovery,
+        'enemy.editable.stagger.finisherSpRecovery',
       ),
     },
   };
+}
+
+function compileKnotThresholds(values: readonly number[]): readonly number[] {
+  let previous = 0;
+  return Object.freeze(
+    values.map((value, index) => {
+      const threshold = requireNonNegative(value, `enemy.editable.stagger.knotThresholds.${index}`);
+      if (threshold <= previous || threshold >= 1) {
+        throw new RangeError(
+          'enemy stagger knot thresholds must increase and stay between 0 and 1',
+        );
+      }
+      previous = threshold;
+      return threshold;
+    }),
+  );
 }

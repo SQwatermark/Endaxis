@@ -25,8 +25,8 @@ describe('enemyEditorCommands', () => {
       finisherMultiplier: 1.75,
       stagger: {
         maximum: definition.stagger.maximum,
-        nodeCount: definition.stagger.nodeCount,
-        nodeDurationFrames: Math.round(definition.stagger.nodeDurationSeconds * 30),
+        knotThresholds: definition.stagger.knotThresholds,
+        knotBreakDurationFrames: Math.round(definition.stagger.knotBreakDurationSeconds * 30),
         brokenDurationFrames: Math.round(definition.stagger.brokenDurationSeconds * 30),
       },
     });

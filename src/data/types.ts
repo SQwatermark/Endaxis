@@ -1077,6 +1077,8 @@ export interface EnemySheet {
   resistance: Record<DamageElement, number>;
   superArmor: number;
   maxStagger: number;
+  /** 原生失衡节点阈值，数值表示已损失失衡值占上限的比例。 */
+  staggerNodeThresholds: number[];
   staggerNodeCount: number;
   staggerNodeDuration: number;
   staggerBreakDuration: number;

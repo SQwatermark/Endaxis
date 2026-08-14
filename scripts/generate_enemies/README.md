@@ -17,21 +17,22 @@ AKEDB 缺失记录或输出目录中的额外 TS 时会直接报错。
 
 ## 数据来源
 
-| Endaxis 字段 | AKEDB 来源 |
-| --- | --- |
-| `name` | `EnemyTemplateDisplayInfoTable.name` + `I18nTextTable_EN` |
-| `gameId` | 清单选择的 `EnemyTemplateDisplayInfoTable` 键 |
-| `avatar` | 根据 `gameId` 生成 `/Icon_Enemy/{gameId}.webp` |
-| `tier` | `EnemyTemplateDisplayInfoTable.displayType` |
-| `levelHp` | `EnemyAttributeTemplateTable` 等级属性 `attrType = 1` |
-| `def` | 等级属性 `attrType = 3`；若随等级变化则报错 |
-| 五类抗性 | `physicalResistance`、`fireResistance`、`crystResistance`、`pulseResistance`、`naturalResistance` |
-| `superArmor` | `initialSuperArmor` |
-| `maxStagger` | 固定属性 `attrType = 20` |
-| `staggerNodeCount` | `poiseKnotPctList` 的长度 |
-| `staggerBreakDuration` | 固定属性 `attrType = 21` |
-| `finisherRecovery` | `breakingAttackedAtbObtain` |
-| `finisherMultiplier` | 固定属性 `attrType = 27`（`BreakingAttackDamageTakenScalar`） |
+| Endaxis 字段            | AKEDB 来源                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `name`                  | `EnemyTemplateDisplayInfoTable.name` + `I18nTextTable_EN`                                         |
+| `gameId`                | 清单选择的 `EnemyTemplateDisplayInfoTable` 键                                                     |
+| `avatar`                | 根据 `gameId` 生成 `/Icon_Enemy/{gameId}.webp`                                                    |
+| `tier`                  | `EnemyTemplateDisplayInfoTable.displayType`                                                       |
+| `levelHp`               | `EnemyAttributeTemplateTable` 等级属性 `attrType = 1`                                             |
+| `def`                   | 等级属性 `attrType = 3`；若随等级变化则报错                                                       |
+| 五类抗性                | `physicalResistance`、`fireResistance`、`crystResistance`、`pulseResistance`、`naturalResistance` |
+| `superArmor`            | `initialSuperArmor`                                                                               |
+| `maxStagger`            | 固定属性 `attrType = 20`                                                                          |
+| `staggerNodeThresholds` | `poiseKnotPctList`，表示已损失失衡值占上限的比例                                                  |
+| `staggerNodeCount`      | `poiseKnotPctList` 的长度，供旧版模拟器使用                                                       |
+| `staggerBreakDuration`  | 固定属性 `attrType = 21`                                                                          |
+| `finisherRecovery`      | `breakingAttackedAtbObtain`                                                                       |
+| `finisherMultiplier`    | 固定属性 `attrType = 27`（`BreakingAttackDamageTakenScalar`）                                     |
 
 `displayType` 的原生映射为：`0 normal`、`1 elite`、`2 leader`、`3 advanced`、
 `4 boss`。未知值不会猜测，而是终止生成。

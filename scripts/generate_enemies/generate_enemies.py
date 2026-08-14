@@ -159,9 +159,12 @@ def level_attributes(row: dict[str, Any], enemy_id: str) -> dict[int, dict[int, 
         attrs = level_row.get("attrs")
         if not isinstance(attrs, list):
             raise GenerationError(f"{enemy_id}: level row {index} has no attrs list")
-        level = unique_attr(attrs, 0, f"{enemy_id} level row {index}")
-        if not isinstance(level, int) or level in result:
-            raise GenerationError(f"{enemy_id}: invalid or duplicate level {level!r}")
+        raw_level = unique_attr(attrs, 0, f"{enemy_id} level row {index}")
+        if not isinstance(raw_level, (int, float)) or not float(raw_level).is_integer():
+            raise GenerationError(f"{enemy_id}: invalid level {raw_level!r}")
+        level = int(raw_level)
+        if level in result:
+            raise GenerationError(f"{enemy_id}: duplicate level {level}")
         values: dict[int, float | int] = {}
         for attr in attrs:
             attr_type = attr.get("attrType")
@@ -256,6 +259,7 @@ const sheet: EnemySheet = {{
   }},
   superArmor: {format_number(require_number(attributes, 'initialSuperArmor', enemy_id))},
   maxStagger: {format_number(unique_attr(independent, 20, enemy_id))},
+  staggerNodeThresholds: [{', '.join(format_number(value) for value in poise_nodes)}],
   staggerNodeCount: {len(poise_nodes)},
   staggerNodeDuration: {format_number(stagger_node_duration)},
   staggerBreakDuration: {format_number(unique_attr(independent, 21, enemy_id))},

@@ -34,10 +34,10 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
         resistances: {},
         stagger: {
           maximum: 300,
-          nodeCount: 1,
-          nodeDurationFrames: 60,
+          knotThresholds: [0.5],
+          knotBreakDurationFrames: 60,
           brokenDurationFrames: 300,
-          finisherRecovery: 100,
+          finisherSpRecovery: 100,
         },
       },
       edited: [],

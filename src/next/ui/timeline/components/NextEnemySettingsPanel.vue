@@ -4,7 +4,7 @@
  * 组件复用旧版布局语言，但只处理草稿和展示；定义解析、默认值捕获与事务提交由外层协调器负责。
  */
 import { computed, reactive, ref, watch } from 'vue';
-import { Search } from '@element-plus/icons-vue';
+import { Delete, Plus, Search } from '@element-plus/icons-vue';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
 import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/schema';
 
@@ -80,6 +80,7 @@ const filteredEnemies = computed(() => {
     return query.length === 0 || props.nameOf(enemy.id).toLocaleLowerCase().includes(query);
   });
 });
+const canAddKnotThreshold = computed(() => (draft.stagger.knotThresholds.at(-1) ?? 0) < 0.99);
 
 watch(
   () => props.enemy.source,
@@ -117,9 +118,22 @@ function setDraftNumber(target: Record<string, number>, key: string, event: Even
   if (Number.isFinite(value)) target[key] = value;
 }
 
-function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event: Event): void {
+function setDuration(
+  field: 'knotBreakDurationFrames' | 'brokenDurationFrames',
+  event: Event,
+): void {
   const seconds = Number((event.target as HTMLInputElement).value);
   if (Number.isFinite(seconds)) draft.stagger[field] = Math.max(0, Math.round(seconds * props.fps));
+}
+
+function addKnotThreshold(): void {
+  const previous = draft.stagger.knotThresholds.at(-1) ?? 0;
+  if (previous >= 0.99) return;
+  draft.stagger.knotThresholds.push(Math.min(0.99, Math.round((previous + 0.25) * 100) / 100));
+}
+
+function removeKnotThreshold(index: number): void {
+  draft.stagger.knotThresholds.splice(index, 1);
 }
 </script>
 
@@ -151,7 +165,7 @@ function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event
       </div>
       <div class="summary-row">
         <span>{{ labels.staggerNodes }}</span
-        ><strong>{{ enemy.editable.stagger.nodeCount }}</strong>
+        ><strong>{{ enemy.editable.stagger.knotThresholds.length }}</strong>
       </div>
       <div class="summary-row summary-row--resistance">
         <span>{{ labels.resistances }}</span>
@@ -266,18 +280,44 @@ function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event
           ><span>{{ labels.maximumStagger }}</span
           ><input v-model.number="draft.stagger.maximum" type="number" min="0"
         /></label>
-        <label
-          ><span>{{ labels.staggerNodes }}</span
-          ><input v-model.number="draft.stagger.nodeCount" type="number" min="0" step="1"
-        /></label>
+        <div class="knot-threshold-field">
+          <span>{{ labels.staggerNodes }}</span>
+          <div class="knot-threshold-list">
+            <div
+              v-for="(_, index) in draft.stagger.knotThresholds"
+              :key="index"
+              class="knot-threshold-row"
+            >
+              <input
+                v-model.number="draft.stagger.knotThresholds[index]"
+                type="number"
+                min="0.01"
+                max="0.99"
+                step="0.01"
+              />
+              <button type="button" :title="labels.close" @click="removeKnotThreshold(index)">
+                <el-icon><Delete /></el-icon>
+              </button>
+            </div>
+            <button
+              type="button"
+              class="add-knot-button"
+              :disabled="!canAddKnotThreshold"
+              @click="addKnotThreshold"
+            >
+              <el-icon><Plus /></el-icon>
+              {{ labels.staggerNodes }}
+            </button>
+          </div>
+        </div>
         <label
           ><span>{{ labels.nodeDuration }}</span
           ><input
-            :value="draft.stagger.nodeDurationFrames / fps"
+            :value="draft.stagger.knotBreakDurationFrames / fps"
             type="number"
             min="0"
             step="0.1"
-            @input="setDuration('nodeDurationFrames', $event)"
+            @input="setDuration('knotBreakDurationFrames', $event)"
         /></label>
         <label
           ><span>{{ labels.brokenDuration }}</span
@@ -290,7 +330,7 @@ function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event
         /></label>
         <label
           ><span>{{ labels.finisherRecovery }}</span
-          ><input v-model.number="draft.stagger.finisherRecovery" type="number" min="0"
+          ><input v-model.number="draft.stagger.finisherSpRecovery" type="number" min="0"
         /></label>
         <label
           ><span>{{ labels.superArmor }}</span
@@ -534,6 +574,41 @@ function setDuration(field: 'nodeDurationFrames' | 'brokenDurationFrames', event
   background: var(--ea-fill-input);
   color: var(--ea-fg);
   text-align: right;
+}
+.knot-threshold-field {
+  padding: 7px 9px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 12px;
+  border: 1px solid var(--ea-border-soft);
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg-secondary);
+  font-size: 12px;
+}
+.knot-threshold-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.knot-threshold-row {
+  display: flex;
+  gap: 4px;
+}
+.knot-threshold-row button,
+.add-knot-button {
+  min-width: 26px;
+  height: 26px;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input);
+  color: var(--ea-fg-secondary);
+}
+.add-knot-button {
+  padding: 0 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .form-section-title {
   margin-top: 8px;

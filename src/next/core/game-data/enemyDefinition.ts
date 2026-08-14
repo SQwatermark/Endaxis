@@ -17,10 +17,12 @@ export interface EnemyLevelHpDefinition {
 /** 敌人失衡规则的定义默认值；时长沿用数据源的秒单位，进入场景时再换算为项目帧。 */
 export interface EnemyStaggerDefinition {
   readonly maximum: number;
-  readonly nodeCount: number;
-  readonly nodeDurationSeconds: number;
+  /** 已损失失衡值占上限的递增阈值；跨越阈值会触发对应节点事件。 */
+  readonly knotThresholds: readonly number[];
+  readonly knotBreakDurationSeconds: number;
   readonly brokenDurationSeconds: number;
-  readonly finisherRecovery: number;
+  /** 对该敌人施放处决后，玩家获得的技力。 */
+  readonly finisherSpRecovery: number;
 }
 
 /**

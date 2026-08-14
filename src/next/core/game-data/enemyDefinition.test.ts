@@ -16,10 +16,10 @@ const enemy: EnemyDefinition = {
   superArmor: 0,
   stagger: {
     maximum: 100,
-    nodeCount: 1,
-    nodeDurationSeconds: 2,
+    knotThresholds: [0.5],
+    knotBreakDurationSeconds: 2,
     brokenDurationSeconds: 10,
-    finisherRecovery: 100,
+    finisherSpRecovery: 100,
   },
   finisherMultiplier: 1,
 };

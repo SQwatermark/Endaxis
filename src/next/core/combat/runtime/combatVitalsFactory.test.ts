@@ -23,17 +23,17 @@ function enemy(overrides: Partial<CombatEnemyProgram> = {}): CombatEnemyProgram 
     },
     stagger: {
       maximum: 300,
-      nodeCount: 1,
-      nodeDurationFrames: 60,
+      knotThresholds: [0.5],
+      knotBreakDurationFrames: 60,
       brokenDurationFrames: 300,
-      finisherRecovery: 100,
+      finisherSpRecovery: 100,
     },
     ...overrides,
   };
 }
 
 describe('createEnemyCombatVitals', () => {
-  it('maps single-node stagger into a full-poise ledger seeded from enemy health', () => {
+  it('creates a full-poise ledger whenever the enemy has a positive poise maximum', () => {
     const vitals = createEnemyCombatVitals(enemy());
 
     expect(vitals.health).toBe(10000);
@@ -43,13 +43,32 @@ describe('createEnemyCombatVitals', () => {
     expect(vitals.hasPoise).toBe(true);
   });
 
-  it('leaves multi-node stagger without a poise ledger rather than approximating it', () => {
+  it('keeps intermediate knots on the same poise ledger', () => {
     const vitals = createEnemyCombatVitals(
-      enemy({ stagger: { ...enemy().stagger, nodeCount: 2 } }),
+      enemy({ stagger: { ...enemy().stagger, knotThresholds: [0.33, 0.66] } }),
+    );
+
+    expect(vitals.maxPoise).toBe(300);
+    expect(vitals.poise).toBe(300);
+    expect(vitals.hasPoise).toBe(true);
+  });
+
+  it('creates the poise ledger even when there are no intermediate knots', () => {
+    const vitals = createEnemyCombatVitals(
+      enemy({ stagger: { ...enemy().stagger, knotThresholds: [] } }),
+    );
+
+    expect(vitals.maxPoise).toBe(300);
+    expect(vitals.poise).toBe(300);
+    expect(vitals.hasPoise).toBe(true);
+  });
+
+  it('does not create a poise ledger when the maximum is zero', () => {
+    const vitals = createEnemyCombatVitals(
+      enemy({ stagger: { ...enemy().stagger, maximum: 0, knotThresholds: [] } }),
     );
 
     expect(vitals.maxPoise).toBe(0);
-    expect(vitals.poise).toBe(0);
     expect(vitals.hasPoise).toBe(false);
   });
 

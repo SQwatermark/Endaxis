@@ -24,6 +24,7 @@ const sheet: EnemySheet = {
   },
   superArmor: 20,
   maxStagger: 170,
+  staggerNodeThresholds: [],
   staggerNodeCount: 0,
   staggerNodeDuration: 2,
   staggerBreakDuration: 7,

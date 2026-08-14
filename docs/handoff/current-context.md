@@ -39,7 +39,7 @@
   - 光标辅助线直接采样这些曲线（时间 + SP + 敌人生命 + 各干员终结技能量）；
   - 合法性警告从同一 receipt/diagnostic reducer 归约到具体技能块（红标 + tooltip）；
 - **标准环境接入失衡与元素附着**：
-  - 单节点失衡账本接入 `StandardPlayerDamageEnvironment`：敌人 `CombatVitals` 以帧制失衡规则初始化（满值起始），`CombatVitalsRuntime` 由装配根逐帧推进，`PoiseApplied`/`PoiseRecovered` 进入回执与失衡曲线；
+  - 连续失衡账本接入 `StandardPlayerDamageEnvironment`：敌人 `CombatVitals` 以帧制失衡规则初始化（满值起始），`CombatVitalsRuntime` 由装配根逐帧推进，`PoiseApplied`/`PoiseRecovered` 进入回执与失衡曲线；节点阈值已保留，节点效果尚未执行；
   - 注入版本化元素附着目录后 `applyElementalInfliction` 按目录状态机执行（附着/爆发/复合状态），未注入时仍被预检拒绝；
   - 预检相应放行 stagger 字段、`dealStagger` 与（有目录时的）`applyElementalInfliction`；
 - **元素反应状态接入**（`ElementalReactionContainer` + 执行器）：

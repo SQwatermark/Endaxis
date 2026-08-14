@@ -77,13 +77,13 @@ export interface CombatEnemyProgram {
   readonly health: number;
   readonly superArmor: number;
   readonly defenderAttributes: PlayerDamageDefenderSnapshot;
-  /** 多节点失衡尚未接入 `CombatVitals`，因此保留项目帧制原值供后续运行时消费。 */
+  /** 节点阈值已进入运行时程序；节点 Buff 的执行仍待接入统一事件系统。 */
   readonly stagger: {
     readonly maximum: number;
-    readonly nodeCount: number;
-    readonly nodeDurationFrames: number;
+    readonly knotThresholds: readonly number[];
+    readonly knotBreakDurationFrames: number;
     readonly brokenDurationFrames: number;
-    readonly finisherRecovery: number;
+    readonly finisherSpRecovery: number;
   };
 }
 

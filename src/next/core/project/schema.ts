@@ -156,10 +156,10 @@ export interface ConnectionDocument {
 /** 敌人失衡规则的项目值；定义中的秒数在创建实例时已经转换为项目帧。 */
 export interface EnemyStaggerEditableValues {
   maximum: number;
-  nodeCount: number;
-  nodeDurationFrames: number;
+  knotThresholds: number[];
+  knotBreakDurationFrames: number;
   brokenDurationFrames: number;
-  finisherRecovery: number;
+  finisherSpRecovery: number;
 }
 
 /** 编辑器完整暴露、并允许用户覆盖的敌人数值。 */
@@ -179,10 +179,10 @@ export const ENEMY_EDITABLE_FIELDS = [
   'finisherMultiplier',
   'resistances',
   'stagger.maximum',
-  'stagger.nodeCount',
-  'stagger.nodeDurationFrames',
+  'stagger.knotThresholds',
+  'stagger.knotBreakDurationFrames',
   'stagger.brokenDurationFrames',
-  'stagger.finisherRecovery',
+  'stagger.finisherSpRecovery',
 ] as const;
 /** 用户可以覆盖的敌人默认值路径。 */
 export type EnemyEditableField = (typeof ENEMY_EDITABLE_FIELDS)[number];

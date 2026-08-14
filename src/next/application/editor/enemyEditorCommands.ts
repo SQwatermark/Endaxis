@@ -46,10 +46,10 @@ export function createDefinitionEnemyDocument(
       resistances: { ...definition.resistances },
       stagger: {
         maximum: definition.stagger.maximum,
-        nodeCount: definition.stagger.nodeCount,
-        nodeDurationFrames: secondsToFrames(definition.stagger.nodeDurationSeconds, fps),
+        knotThresholds: [...definition.stagger.knotThresholds],
+        knotBreakDurationFrames: secondsToFrames(definition.stagger.knotBreakDurationSeconds, fps),
         brokenDurationFrames: secondsToFrames(definition.stagger.brokenDurationSeconds, fps),
-        finisherRecovery: definition.stagger.finisherRecovery,
+        finisherSpRecovery: definition.stagger.finisherSpRecovery,
       },
     },
     edited: [],
@@ -77,10 +77,10 @@ export function createCustomEnemyDocument(level = 90): EnemyDocument {
       resistances: {},
       stagger: {
         maximum: 300,
-        nodeCount: 1,
-        nodeDurationFrames: 60,
+        knotThresholds: [0.5],
+        knotBreakDurationFrames: 60,
         brokenDurationFrames: 300,
-        finisherRecovery: 100,
+        finisherSpRecovery: 100,
       },
     },
     edited: [],
@@ -106,12 +106,19 @@ export function replaceEnemyEditableValues(
   }
   for (const field of [
     'maximum',
-    'nodeCount',
-    'nodeDurationFrames',
+    'knotThresholds',
+    'knotBreakDurationFrames',
     'brokenDurationFrames',
-    'finisherRecovery',
+    'finisherSpRecovery',
   ] as const) {
-    if (current.stagger[field] !== values.stagger[field]) {
+    const unchanged =
+      field === 'knotThresholds'
+        ? current.stagger.knotThresholds.length === values.stagger.knotThresholds.length &&
+          current.stagger.knotThresholds.every(
+            (value, index) => value === values.stagger.knotThresholds[index],
+          )
+        : current.stagger[field] === values.stagger[field];
+    if (!unchanged) {
       changedFields.push(`stagger.${field}`);
     }
   }
@@ -124,7 +131,10 @@ export function replaceEnemyEditableValues(
       editable: {
         ...values,
         resistances: { ...values.resistances },
-        stagger: { ...values.stagger },
+        stagger: {
+          ...values.stagger,
+          knotThresholds: [...values.stagger.knotThresholds],
+        },
       },
       edited: changedFields.reduce<EnemyEditableField[]>(addEditedField, [
         ...scenario.enemy.edited,
@@ -173,7 +183,12 @@ export function updateEnemyStaggerField<K extends EnemyStaggerEditableField>(
   field: K,
   value: EnemyStaggerEditableValues[K],
 ): ScenarioDocument {
-  if (scenario.enemy.editable.stagger[field] === value) return scenario;
+  const current = scenario.enemy.editable.stagger[field];
+  const unchanged =
+    field === 'knotThresholds' && Array.isArray(current) && Array.isArray(value)
+      ? current.length === value.length && current.every((item, index) => item === value[index])
+      : current === value;
+  if (unchanged) return scenario;
   const editedField = `stagger.${field}` as const;
   return {
     ...scenario,
@@ -181,7 +196,10 @@ export function updateEnemyStaggerField<K extends EnemyStaggerEditableField>(
       ...scenario.enemy,
       editable: {
         ...scenario.enemy.editable,
-        stagger: { ...scenario.enemy.editable.stagger, [field]: value },
+        stagger: {
+          ...scenario.enemy.editable.stagger,
+          [field]: Array.isArray(value) ? [...value] : value,
+        },
       },
       edited: addEditedField(scenario.enemy.edited, editedField),
     },

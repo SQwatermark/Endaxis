@@ -35,6 +35,20 @@ function adaptLevelHp(sheet: EnemySheet, enemyId: string): readonly EnemyLevelHp
   return Object.freeze(result);
 }
 
+function adaptKnotThresholds(sheet: EnemySheet, enemyId: string): readonly number[] {
+  let previous = 0;
+  return Object.freeze(
+    sheet.staggerNodeThresholds.map((value, index) => {
+      const threshold = requireFiniteNumber(value, `staggerNodeThresholds.${index}`, enemyId);
+      if (threshold <= previous || threshold >= 1) {
+        throw new Error(`legacy enemy '${enemyId}' has invalid stagger node thresholds`);
+      }
+      previous = threshold;
+      return threshold;
+    }),
+  );
+}
+
 function adaptEnemy(enemyId: string, sheet: EnemySheet): EnemyDefinition {
   const resistances = Object.fromEntries(
     DAMAGE_ELEMENTS.map(element => [
@@ -54,8 +68,8 @@ function adaptEnemy(enemyId: string, sheet: EnemySheet): EnemyDefinition {
     superArmor: requireFiniteNumber(sheet.superArmor, 'superArmor', enemyId),
     stagger: Object.freeze({
       maximum: requireFiniteNumber(sheet.maxStagger, 'maxStagger', enemyId),
-      nodeCount: requireFiniteNumber(sheet.staggerNodeCount, 'staggerNodeCount', enemyId),
-      nodeDurationSeconds: requireFiniteNumber(
+      knotThresholds: adaptKnotThresholds(sheet, enemyId),
+      knotBreakDurationSeconds: requireFiniteNumber(
         sheet.staggerNodeDuration,
         'staggerNodeDuration',
         enemyId,
@@ -65,7 +79,7 @@ function adaptEnemy(enemyId: string, sheet: EnemySheet): EnemyDefinition {
         'staggerBreakDuration',
         enemyId,
       ),
-      finisherRecovery: requireFiniteNumber(sheet.finisherRecovery, 'finisherRecovery', enemyId),
+      finisherSpRecovery: requireFiniteNumber(sheet.finisherRecovery, 'finisherRecovery', enemyId),
     }),
     finisherMultiplier: requireFiniteNumber(
       sheet.finisherMultiplier,
