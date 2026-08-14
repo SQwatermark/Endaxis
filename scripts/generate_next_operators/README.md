@@ -123,6 +123,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - `CheckSkillHasHit` 读取当前技能实例的 `hasOutputDamageBattle`，不是静态检查 SkillData 是否包含伤害。生成器只会在统一调度中证明同一根技能已有严格早于条件的必然命中伤害时，将它按固定单敌人模型折叠；同帧使用 `serverActionIndex` 区分先后，晚于条件或来自子技能的伤害都不能作为证明。
 - `CheckSkillCameraMotionFree` 不会被编译成战斗条件。只有条件分支在过滤镜头、特效等表现动作后为空，或仅把字面量 `1` 写入已逐消费者审计的 `isWall` / `camera_blocked` 时，生成器才会省略整棵纯表现条件树；出现新的黑板键、运算、动态值或战斗叶子时仍会 fail-closed。
 - 命名目标组不会按 `tar`、`smart_target` 等字符串猜测语义。生成中间层会严格记录 `FindTargetAction`、`ContinuousFindTargetAction` 和 `MergeTargetAction` 的帧区间、原生动作顺序、分支路径、选择器类型及合并输入；新增查找器、校验器、后处理器或字段形状会立即报错。只有能够证明写入动作在读取前发生、控制流支配读取点且选择器在固定单敌人模型下必然得到敌人时，才允许把 `Context` 实体数量条件或根级 Buff 目标归约为唯一敌人；分支内写入不会泄漏给根动作。
+- 带 `TagValidator` 的敌方 `HitBoxFinder` 查找即使在零距离模型下空间上覆盖唯一敌人，其标签查询仍可能过滤掉当前敌人，不能归约为唯一敌人；技能自身在搜索为空时的回退合并分支证明空结果是设计内可达状态，相关实体数量条件继续严格阻塞。分析与后续方案见 [标签过滤目标搜索审计](../../docs/research/tag-filtered-target-search-audit.md)。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。
 - 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。重复动作不会排序或去重。
