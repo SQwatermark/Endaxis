@@ -27,6 +27,7 @@ import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
+import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
@@ -56,6 +57,7 @@ import {
 import {
   createTimelineDisplayTime,
   projectSkillCastActualStartFrames,
+  projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
@@ -327,6 +329,14 @@ const skillCastActualStartFrames = computed(() =>
   simulationRun.value === null || simulationStale.value
     ? new Map<string, number>()
     : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
+);
+const timeDilationBands = computed(() =>
+  simulationRun.value === null || simulationStale.value
+    ? []
+    : projectTimelineTimeDilationBands(
+        simulationRun.value.receiptEntries,
+        simulationRun.value.frame,
+      ),
 );
 const timelineWidth = computed(() =>
   timelineTotalWidth(
@@ -1470,6 +1480,12 @@ function setPanelDialogVisible(visible: boolean): void {
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
+              <TimelineTimeDilationBands
+                :bands="timeDilationBands"
+                :operator-id="track.operatorInstanceId"
+                :prep-frames="scenario.battle.prepFrames"
+                :px-per-frame="pxPerFrame"
+              />
               <TimelineTrackGauge
                 :curve="gaugeCurveFor(track.trackIndex)"
                 :color="gaugeColorFor(track.trackIndex)"

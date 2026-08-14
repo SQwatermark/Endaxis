@@ -14,6 +14,15 @@ export interface TimelineDisplayTime {
   readonly toLogicalFrame: (actualFrame: number) => number;
 }
 
+export interface TimelineTimeDilationBand {
+  readonly instanceId: number;
+  readonly kind: 'global' | 'entity';
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly targetId?: string;
+  readonly sourceCastId?: string;
+}
+
 /** 没有可用模拟结果时使用恒等映射，编辑器仍可独立工作。 */
 export function createTimelineDisplayTime(
   logicalDurationFrames: number,
@@ -56,6 +65,79 @@ export function projectSkillCastActualStartFrames(
     result.set(castId, entry.frame);
   }
   return result;
+}
+
+/** 把时间实例生命周期回执配对为实际帧区间，不解释倍率和槽位竞争。 */
+export function projectTimelineTimeDilationBands(
+  entries: readonly CombatReceiptEntry[],
+  simulationEndFrame: number,
+): readonly TimelineTimeDilationBand[] {
+  if (!Number.isFinite(simulationEndFrame) || simulationEndFrame < 0) {
+    throw new RangeError('simulation end frame must be a non-negative finite number');
+  }
+  const active = new Map<number, Omit<TimelineTimeDilationBand, 'endFrame'>>();
+  const bands: TimelineTimeDilationBand[] = [];
+  for (const entry of entries) {
+    if (entry.event === 'TimeDilationStarted') {
+      const instance = readTimeDilationInstance(entry);
+      if (active.has(instance.instanceId)) {
+        throw new Error(`time dilation instance ${instance.instanceId} started more than once`);
+      }
+      active.set(instance.instanceId, {
+        ...instance,
+        startFrame: entry.frame,
+        ...(entry.targetId === undefined ? {} : { targetId: entry.targetId }),
+      });
+      continue;
+    }
+    if (entry.event !== 'TimeDilationEnded') continue;
+    const instanceId = requireInstanceId(entry);
+    const started = active.get(instanceId);
+    if (started === undefined) {
+      throw new Error(`time dilation instance ${instanceId} ended without a start receipt`);
+    }
+    active.delete(instanceId);
+    if (entry.frame > started.startFrame) bands.push({ ...started, endFrame: entry.frame });
+  }
+  for (const started of active.values()) {
+    if (simulationEndFrame > started.startFrame) {
+      bands.push({ ...started, endFrame: simulationEndFrame });
+    }
+  }
+  return Object.freeze(
+    bands
+      .sort(
+        (left, right) => left.startFrame - right.startFrame || left.instanceId - right.instanceId,
+      )
+      .map(band => Object.freeze(band)),
+  );
+}
+
+function readTimeDilationInstance(
+  entry: CombatReceiptEntry,
+): Pick<TimelineTimeDilationBand, 'instanceId' | 'kind' | 'sourceCastId'> {
+  const instanceId = requireInstanceId(entry);
+  const kind = entry.data?.kind;
+  if (kind !== 'global' && kind !== 'entity') {
+    throw new Error(`time dilation receipt ${entry.sequence} has invalid kind`);
+  }
+  const sourceCastId = entry.data?.sourceCastId;
+  if (sourceCastId !== undefined && typeof sourceCastId !== 'string') {
+    throw new Error(`time dilation receipt ${entry.sequence} has invalid sourceCastId`);
+  }
+  return {
+    instanceId,
+    kind,
+    ...(sourceCastId === undefined ? {} : { sourceCastId }),
+  };
+}
+
+function requireInstanceId(entry: CombatReceiptEntry): number {
+  const instanceId = entry.data?.instanceId;
+  if (!Number.isSafeInteger(instanceId) || (instanceId as number) <= 0) {
+    throw new Error(`time dilation receipt ${entry.sequence} has invalid instanceId`);
+  }
+  return instanceId as number;
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {
