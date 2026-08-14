@@ -23,6 +23,29 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('允许终结技仅自动忽略施法者而不配置额外对象', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'startUltimateTimeDilation',
+              parameters: {
+                priority: -1742631616,
+                targetScale: { kind: 'constant', value: 0 },
+                ignoredTargets: [],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+  });
+
   it('accepts a structurally valid skill', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

@@ -934,7 +934,7 @@ function validateCombatStep(
         parameters.ignoredTargets,
         `${parameterPath}.ignoredTargets`,
         out,
-        false,
+        true,
       );
       break;
     }

@@ -373,6 +373,8 @@ describe('skillDefinitionEditorViewModel', () => {
   it('新增的每种专用步骤都能通过严格结构校验', () => {
     let draft = createSkillEditorDraft(templateDefinition(), undefined);
     for (const kind of [
+      'startTimeDilation',
+      'startUltimateTimeDilation',
       'dealDamage',
       'dealFixedDamage',
       'dealStagger',
@@ -403,7 +405,9 @@ describe('skillDefinitionEditorViewModel', () => {
     }
 
     expect(validateSkillDefinition(draft)).toEqual([]);
-    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-25).map(step => step.kind)).toEqual([
+    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-27).map(step => step.kind)).toEqual([
+      'startTimeDilation',
+      'startUltimateTimeDilation',
       'dealDamage',
       'dealFixedDamage',
       'dealStagger',
@@ -430,6 +434,36 @@ describe('skillDefinitionEditorViewModel', () => {
       'setContextFlag',
       'openComboWindow',
     ]);
+  });
+
+  it('时间膨胀步骤保留可编译的判别联合参数', () => {
+    let draft = createSkillEditorDraft(templateDefinition(), undefined);
+    draft = appendSkillEditorStep(draft, 0, 'startTimeDilation');
+    draft = appendSkillEditorStep(draft, 0, 'startUltimateTimeDilation');
+
+    const ordinary = draft.scheduledSequences[0]!.sequence.steps.at(-2);
+    const ultimate = draft.scheduledSequences[0]!.sequence.steps.at(-1);
+    expect(ordinary).toEqual({
+      kind: 'startTimeDilation',
+      parameters: {
+        scope: 'global',
+        durationSeconds: { kind: 'constant', value: 1 },
+        slot: 0,
+        priority: 0,
+        curve: { kind: 'named', key: 'RESETto1' },
+        finishByAction: false,
+        ignoredTargets: ['caster'],
+      },
+    });
+    expect(ultimate).toEqual({
+      kind: 'startUltimateTimeDilation',
+      parameters: {
+        priority: 0,
+        targetScale: { kind: 'constant', value: 0 },
+        ignoredTargets: [],
+      },
+    });
+    expect(validateSkillDefinition(draft)).toEqual([]);
   });
 
   it('移动步骤会改变同帧执行顺序且不改其他序列', () => {

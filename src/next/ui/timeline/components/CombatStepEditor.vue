@@ -19,6 +19,7 @@ import StatusStepEditor from './StatusStepEditor.vue';
 import BranchStepEditor from './BranchStepEditor.vue';
 import EditorHelpHint from './EditorHelpHint.vue';
 import EventListenerStepEditor from './EventListenerStepEditor.vue';
+import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import {
   EDITABLE_COMBAT_STEP_KINDS,
   type EditableCombatStepKind,
@@ -52,8 +53,11 @@ function forward(step: CombatStepDefinition): void {
       </div>
     </header>
 
+    <template v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'">
+      <TimeDilationStepEditor :step="step" @update="forward" />
+    </template>
     <template
-      v-if="
+      v-else-if="
         step.kind === 'dealDamage' ||
         step.kind === 'dealFixedDamage' ||
         step.kind === 'dealStagger' ||

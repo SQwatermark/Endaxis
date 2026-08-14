@@ -339,6 +339,8 @@ export function removeSkillEditorSequence(
 
 /** 提供专用表单的高频步骤；其余步骤仍可查看和调整顺序。 */
 export const EDITABLE_COMBAT_STEP_KINDS = [
+  'startTimeDilation',
+  'startUltimateTimeDilation',
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
@@ -457,6 +459,28 @@ export function createSkillEditorStep(
   kind: EditableCombatStepKind,
 ): CombatStepDefinition {
   switch (kind) {
+    case 'startTimeDilation':
+      return {
+        kind,
+        parameters: {
+          scope: 'global',
+          durationSeconds: { kind: 'constant', value: 1 },
+          slot: 0,
+          priority: 0,
+          curve: { kind: 'named', key: 'RESETto1' },
+          finishByAction: false,
+          ignoredTargets: ['caster'],
+        },
+      };
+    case 'startUltimateTimeDilation':
+      return {
+        kind,
+        parameters: {
+          priority: 0,
+          targetScale: { kind: 'constant', value: 0 },
+          ignoredTargets: [],
+        },
+      };
     case 'dealDamage':
       return {
         key: createUniqueStepKey(draft, 'custom-damage'),

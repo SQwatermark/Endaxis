@@ -1,0 +1,572 @@
+<script setup lang="ts">
+/**
+ * 编辑普通时间膨胀与终结技专用时间膨胀。
+ *
+ * 曲线保持与技能定义相同的判别联合结构。内联关键帧完整暴露 Unity 曲线参数，
+ * 避免编辑后丢失转换数据；普通使用者可以只调整时间和值。
+ */
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { Delete, Plus } from '@element-plus/icons-vue';
+import {
+  COMBAT_TARGETS,
+  type ActionValueOperand,
+  type CombatStepDefinition,
+  type CombatTarget,
+  type TimeScaleCurveDefinition,
+  type TimeScaleCurveKeyDefinition,
+} from '../../../core/game-data/operatorDefinition';
+import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
+import EditorFieldLabel from './EditorFieldLabel.vue';
+
+type TimeDilationStep = Extract<
+  CombatStepDefinition,
+  { kind: 'startTimeDilation' | 'startUltimateTimeDilation' }
+>;
+type OrdinaryStep = Extract<TimeDilationStep, { kind: 'startTimeDilation' }>;
+
+const props = defineProps<{ step: TimeDilationStep }>();
+const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
+const { t } = useI18n({ useScope: 'global' });
+
+const ordinary = computed(() => (props.step.kind === 'startTimeDilation' ? props.step : undefined));
+const operandLabels = () => ({
+  constant: t('nextTimeline.skillEditing.operandConstant'),
+  blackboard: t('nextTimeline.skillEditing.operandBlackboard'),
+  blackboardKey: t('nextTimeline.skillEditing.operandBlackboardKey'),
+  constantValue: t('nextTimeline.skillEditing.operandConstantValue'),
+});
+
+function numberFrom(event: Event): number | undefined {
+  const value = Number((event.target as HTMLInputElement).value);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function updateOrdinary(parameters: OrdinaryStep['parameters']): void {
+  if (props.step.kind !== 'startTimeDilation') return;
+  emit('update', { ...props.step, parameters });
+}
+
+function setScope(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  const scope = (event.target as HTMLSelectElement).value as 'global' | 'entity';
+  const common = {
+    durationSeconds: step.parameters.durationSeconds,
+    slot: step.parameters.slot,
+    priority: step.parameters.priority,
+    curve: step.parameters.curve,
+    finishByAction: step.parameters.finishByAction,
+  };
+  updateOrdinary(
+    scope === 'global'
+      ? { ...common, scope, ignoredTargets: ['caster'] }
+      : { ...common, scope, targets: ['caster'] },
+  );
+}
+
+function setOrdinaryNumber(field: 'slot' | 'priority', event: Event): void {
+  const step = ordinary.value;
+  const value = numberFrom(event);
+  if (step === undefined || value === undefined || !Number.isInteger(value)) return;
+  updateOrdinary({ ...step.parameters, [field]: value });
+}
+
+function setDuration(durationSeconds: ActionValueOperand): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  updateOrdinary({ ...step.parameters, durationSeconds });
+}
+
+function setFinishByAction(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  updateOrdinary({
+    ...step.parameters,
+    finishByAction: (event.target as HTMLInputElement).checked,
+  });
+}
+
+function setTarget(target: CombatTarget, checked: boolean): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  if (step.parameters.scope === 'global') {
+    const ignoredTargets = checked
+      ? [...new Set([...step.parameters.ignoredTargets, target])]
+      : step.parameters.ignoredTargets.filter(item => item !== target);
+    updateOrdinary({ ...step.parameters, ignoredTargets });
+    return;
+  }
+  const targets = checked
+    ? [...new Set([...step.parameters.targets, target])]
+    : step.parameters.targets.filter(item => item !== target);
+  if (targets.length > 0) updateOrdinary({ ...step.parameters, targets });
+}
+
+function setIgnoreSlotCheck(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.scope !== 'entity') return;
+  const ignoreSlotCheck = (event.target as HTMLInputElement).checked;
+  updateOrdinary({
+    ...step.parameters,
+    ...(ignoreSlotCheck ? { ignoreSlotCheck } : { ignoreSlotCheck: undefined }),
+  });
+}
+
+function toggleCooldownInfluence(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.scope !== 'global') return;
+  const enabled = (event.target as HTMLInputElement).checked;
+  updateOrdinary({
+    ...step.parameters,
+    ...(enabled
+      ? { influenceSkillCooldownSeconds: { kind: 'constant' as const, value: 0 } }
+      : { influenceSkillCooldownSeconds: undefined }),
+  });
+}
+
+function setCooldownInfluence(influenceSkillCooldownSeconds: ActionValueOperand): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.scope !== 'global') return;
+  updateOrdinary({ ...step.parameters, influenceSkillCooldownSeconds });
+}
+
+function setCurveKind(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  const kind = (event.target as HTMLSelectElement).value as TimeScaleCurveDefinition['kind'];
+  const curve: TimeScaleCurveDefinition =
+    kind === 'named'
+      ? { kind, key: 'RESETto1' }
+      : {
+          kind,
+          keys: [
+            {
+              time: 0,
+              value: 1,
+              inTangent: 0,
+              outTangent: 0,
+              weightedMode: 0,
+              inWeight: 0,
+              outWeight: 0,
+            },
+          ],
+        };
+  updateOrdinary({ ...step.parameters, curve });
+}
+
+function setNamedCurveKey(event: Event): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.curve.kind !== 'named') return;
+  updateOrdinary({
+    ...step.parameters,
+    curve: { kind: 'named', key: (event.target as HTMLInputElement).value },
+  });
+}
+
+function replaceCurveKey(index: number, key: TimeScaleCurveKeyDefinition): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.curve.kind !== 'inline') return;
+  const keys = [...step.parameters.curve.keys];
+  if (keys[index] === undefined) return;
+  keys[index] = key;
+  updateOrdinary({ ...step.parameters, curve: { kind: 'inline', keys } });
+}
+
+function setCurveKeyNumber(
+  index: number,
+  field: Exclude<keyof TimeScaleCurveKeyDefinition, 'weightedMode'>,
+  event: Event,
+): void {
+  const step = ordinary.value;
+  const value = numberFrom(event);
+  if (step === undefined || step.parameters.curve.kind !== 'inline' || value === undefined) return;
+  const key = step.parameters.curve.keys[index];
+  if (key !== undefined) replaceCurveKey(index, { ...key, [field]: value });
+}
+
+function setWeightedMode(index: number, event: Event): void {
+  const step = ordinary.value;
+  const weightedMode = Number((event.target as HTMLSelectElement).value) as 0 | 1 | 2 | 3;
+  if (step === undefined || step.parameters.curve.kind !== 'inline') return;
+  const key = step.parameters.curve.keys[index];
+  if (key !== undefined) replaceCurveKey(index, { ...key, weightedMode });
+}
+
+function appendCurveKey(): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.curve.kind !== 'inline') return;
+  const previous = step.parameters.curve.keys.at(-1);
+  const key: TimeScaleCurveKeyDefinition = {
+    time: (previous?.time ?? -1) + 1,
+    value: previous?.value ?? 1,
+    inTangent: 0,
+    outTangent: 0,
+    weightedMode: 0,
+    inWeight: 0,
+    outWeight: 0,
+  };
+  updateOrdinary({
+    ...step.parameters,
+    curve: { kind: 'inline', keys: [...step.parameters.curve.keys, key] },
+  });
+}
+
+function removeCurveKey(index: number): void {
+  const step = ordinary.value;
+  if (
+    step === undefined ||
+    step.parameters.curve.kind !== 'inline' ||
+    step.parameters.curve.keys.length <= 1
+  ) {
+    return;
+  }
+  updateOrdinary({
+    ...step.parameters,
+    curve: {
+      kind: 'inline',
+      keys: step.parameters.curve.keys.filter((_, keyIndex) => keyIndex !== index),
+    },
+  });
+}
+
+function setUltimatePriority(event: Event): void {
+  if (props.step.kind !== 'startUltimateTimeDilation') return;
+  const priority = numberFrom(event);
+  if (priority === undefined || !Number.isInteger(priority)) return;
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, priority } });
+}
+
+function setUltimateScale(targetScale: ActionValueOperand): void {
+  if (props.step.kind !== 'startUltimateTimeDilation') return;
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, targetScale } });
+}
+
+function setUltimateIgnoredTarget(target: CombatTarget, checked: boolean): void {
+  if (props.step.kind !== 'startUltimateTimeDilation') return;
+  const ignoredTargets = checked
+    ? [...new Set([...props.step.parameters.ignoredTargets, target])]
+    : props.step.parameters.ignoredTargets.filter(item => item !== target);
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, ignoredTargets } });
+}
+</script>
+
+<template>
+  <div v-if="step.kind === 'startUltimateTimeDilation'" class="step-editor__grid">
+    <label>
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.timeDilationPriority')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationPriority')"
+      />
+      <input
+        type="number"
+        step="1"
+        :value="step.parameters.priority"
+        @input="setUltimatePriority"
+      />
+    </label>
+    <label class="step-editor__operand">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.timeDilationTargetScale')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.ultimateTargetScale')"
+      />
+      <ActionValueOperandEditor
+        :value="step.parameters.targetScale"
+        :labels="operandLabels()"
+        @update="setUltimateScale"
+      />
+    </label>
+    <fieldset class="step-editor__operand">
+      <legend>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationIgnoredTargets')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.ultimateIgnoredTargets')"
+        />
+      </legend>
+      <label v-for="target in COMBAT_TARGETS" :key="target" class="step-editor__check">
+        <input
+          type="checkbox"
+          :checked="step.parameters.ignoredTargets.includes(target)"
+          @change="setUltimateIgnoredTarget(target, ($event.target as HTMLInputElement).checked)"
+        />
+        {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
+      </label>
+    </fieldset>
+  </div>
+
+  <template v-else>
+    <div class="step-editor__grid">
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationScope')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationScope')"
+        />
+        <select :value="step.parameters.scope" @change="setScope">
+          <option value="global">
+            {{ t('nextTimeline.skillEditing.timeDilationScopes.global') }}
+          </option>
+          <option value="entity">
+            {{ t('nextTimeline.skillEditing.timeDilationScopes.entity') }}
+          </option>
+        </select>
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationSlot')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationSlot')"
+        />
+        <input
+          type="number"
+          step="1"
+          :value="step.parameters.slot"
+          @input="setOrdinaryNumber('slot', $event)"
+        />
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationPriority')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationPriority')"
+        />
+        <input
+          type="number"
+          step="1"
+          :value="step.parameters.priority"
+          @input="setOrdinaryNumber('priority', $event)"
+        />
+      </label>
+      <label class="step-editor__operand">
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.durationSeconds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationDuration')"
+        />
+        <ActionValueOperandEditor
+          :value="step.parameters.durationSeconds"
+          :labels="operandLabels()"
+          @update="setDuration"
+        />
+      </label>
+      <label class="step-editor__check step-editor__check--field">
+        <input
+          type="checkbox"
+          :checked="step.parameters.finishByAction"
+          @change="setFinishByAction"
+        />
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationFinishByAction')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationFinishByAction')"
+        />
+      </label>
+      <label
+        v-if="step.parameters.scope === 'entity'"
+        class="step-editor__check step-editor__check--field"
+      >
+        <input
+          type="checkbox"
+          :checked="step.parameters.ignoreSlotCheck ?? false"
+          @change="setIgnoreSlotCheck"
+        />
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationIgnoreSlotCheck')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationIgnoreSlotCheck')"
+        />
+      </label>
+      <label
+        v-if="step.parameters.scope === 'global'"
+        class="step-editor__check step-editor__check--field"
+      >
+        <input
+          type="checkbox"
+          :checked="step.parameters.influenceSkillCooldownSeconds !== undefined"
+          @change="toggleCooldownInfluence"
+        />
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationInfluenceCooldown')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationInfluenceCooldown')"
+        />
+      </label>
+      <label
+        v-if="
+          step.parameters.scope === 'global' &&
+          step.parameters.influenceSkillCooldownSeconds !== undefined
+        "
+        class="step-editor__operand"
+      >
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationCooldownSeconds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationCooldownSeconds')"
+        />
+        <ActionValueOperandEditor
+          :value="step.parameters.influenceSkillCooldownSeconds"
+          :labels="operandLabels()"
+          @update="setCooldownInfluence"
+        />
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>
+        <EditorFieldLabel
+          :label="
+            step.parameters.scope === 'global'
+              ? t('nextTimeline.skillEditing.timeDilationIgnoredTargets')
+              : t('nextTimeline.skillEditing.timeDilationTargets')
+          "
+          :help="
+            step.parameters.scope === 'global'
+              ? t('nextTimeline.skillEditing.fieldHelp.timeDilationIgnoredTargets')
+              : t('nextTimeline.skillEditing.fieldHelp.timeDilationTargets')
+          "
+        />
+      </legend>
+      <label v-for="target in COMBAT_TARGETS" :key="target" class="step-editor__check">
+        <input
+          type="checkbox"
+          :checked="
+            step.parameters.scope === 'global'
+              ? step.parameters.ignoredTargets.includes(target)
+              : step.parameters.targets.includes(target)
+          "
+          @change="setTarget(target, ($event.target as HTMLInputElement).checked)"
+        />
+        {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
+      </label>
+    </fieldset>
+
+    <fieldset class="curve-editor">
+      <legend>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.timeDilationCurve')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationCurve')"
+        />
+      </legend>
+      <div class="curve-editor__kind">
+        <select :value="step.parameters.curve.kind" @change="setCurveKind">
+          <option value="named">
+            {{ t('nextTimeline.skillEditing.timeDilationCurveKinds.named') }}
+          </option>
+          <option value="inline">
+            {{ t('nextTimeline.skillEditing.timeDilationCurveKinds.inline') }}
+          </option>
+        </select>
+        <input
+          v-if="step.parameters.curve.kind === 'named'"
+          type="text"
+          :value="step.parameters.curve.key"
+          :placeholder="t('nextTimeline.skillEditing.timeDilationCurveKey')"
+          @input="setNamedCurveKey"
+        />
+      </div>
+      <template v-if="step.parameters.curve.kind === 'inline'">
+        <div
+          v-for="(key, index) in step.parameters.curve.keys"
+          :key="index"
+          class="curve-editor__key"
+        >
+          <strong>{{
+            t('nextTimeline.skillEditing.timeDilationCurvePoint', { index: index + 1 })
+          }}</strong>
+          <label
+            v-for="field in [
+              'time',
+              'value',
+              'inTangent',
+              'outTangent',
+              'inWeight',
+              'outWeight',
+            ] as const"
+            :key="field"
+          >
+            <EditorFieldLabel
+              :label="t(`nextTimeline.skillEditing.timeDilationCurveFields.${field}`)"
+              :help="t(`nextTimeline.skillEditing.fieldHelp.timeDilationCurveFields.${field}`)"
+            />
+            <input
+              type="number"
+              step="0.01"
+              :value="key[field]"
+              @input="setCurveKeyNumber(index, field, $event)"
+            />
+          </label>
+          <label>
+            <EditorFieldLabel
+              :label="t('nextTimeline.skillEditing.timeDilationCurveFields.weightedMode')"
+              :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationCurveFields.weightedMode')"
+            />
+            <select :value="key.weightedMode" @change="setWeightedMode(index, $event)">
+              <option v-for="mode in [0, 1, 2, 3]" :key="mode" :value="mode">
+                {{ t(`nextTimeline.skillEditing.timeDilationWeightedModes.${mode}`) }}
+              </option>
+            </select>
+          </label>
+          <button
+            type="button"
+            :disabled="step.parameters.curve.keys.length <= 1"
+            :title="t('nextTimeline.skillEditing.deleteCurvePoint')"
+            @click="removeCurveKey(index)"
+          >
+            <el-icon><Delete /></el-icon>
+          </button>
+        </div>
+        <button type="button" class="curve-editor__add" @click="appendCurveKey">
+          <el-icon><Plus /></el-icon>
+          {{ t('nextTimeline.skillEditing.addCurvePoint') }}
+        </button>
+      </template>
+    </fieldset>
+  </template>
+</template>
+
+<style scoped>
+.curve-editor__kind {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.curve-editor__key {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 8px 14px;
+  margin-top: 12px;
+  padding: 12px 48px 12px 12px;
+  border: 1px solid var(--ea-border-soft);
+  background: var(--ea-fill-soft);
+}
+
+.curve-editor__key > strong {
+  grid-column: 1 / -1;
+}
+
+.curve-editor__key > label {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(74px, 100px) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.curve-editor__key > button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+}
+
+.curve-editor__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  margin-top: 10px;
+  padding: 0 12px;
+}
+
+@container (max-width: 560px) {
+  .curve-editor__kind,
+  .curve-editor__key {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
