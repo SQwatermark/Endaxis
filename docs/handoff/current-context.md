@@ -9,6 +9,8 @@
 
 固定优先级：精准与完备 > 清晰与可维护 > 性能。不得用无证据的猜测填充游戏规则。
 
+长期扩展方向已加入[自定义干员设计](../architecture/endaxis-next-custom-operators.md)：项目顶层保存完整自定义 `OperatorDefinition`，轨道只保存定义引用与养成实例；官方与自定义干员通过统一解析边界进入同一套面板、技能库、编译和模拟流程。首个稳定存档版本前不为 Next 中间 schema 编写迁移。
+
 ## Git 状态
 
 - 仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
