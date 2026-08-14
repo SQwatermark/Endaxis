@@ -173,14 +173,17 @@ export class ScenarioSimulationService {
     const run = Object.freeze({
       ...result,
       enemyHealthCurve: projectEnemyHealthCurveFromReceipt(
-        { health: result.enemy.health, maxHealth: result.enemy.health },
+        {
+          health: result.enemyVitals.initialHealth,
+          maxHealth: result.enemyVitals.maxHealth,
+        },
         result.receiptEntries,
       ),
-      // 单节点失衡账本以敌人帧制失衡规则为初始值；多节点失衡尚无账本。
+      // 失衡曲线初始值同样来自本次模拟唯一的敌人账本，而不是重新从静态敌人推导。
       poiseCurve: projectPoiseCurveFromReceipt(
         {
-          poise: result.enemy.stagger.nodeCount === 1 ? result.enemy.stagger.maximum : 0,
-          maxPoise: result.enemy.stagger.nodeCount === 1 ? result.enemy.stagger.maximum : 0,
+          poise: result.enemyVitals.initialPoise,
+          maxPoise: result.enemyVitals.maxPoise,
         },
         result.receiptEntries,
       ),

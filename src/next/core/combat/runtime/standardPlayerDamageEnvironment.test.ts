@@ -5,13 +5,42 @@ import type { SkillSettingsDocument } from '../infliction/skillSettings';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
-import type { CombatOperationExecutorContext } from './combatRuntimeAssembly';
+import type { CombatEnemyProgram, CombatOperationExecutorContext } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createEnemyCombatVitals } from './combatVitalsFactory';
+import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
+import { ActionBlackboard } from './actionBlackboard';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
   parameters: { damageType: 'electric', attackScale: 1, tags: ['normalSkill'] },
+};
+
+const testEnemy: CombatEnemyProgram = {
+  source: { kind: 'custom', level: 90 },
+  health: 10000,
+  superArmor: 0,
+  defenderAttributes: {
+    defense: 200,
+    shelterDamageMultiplier: 0,
+    breakingAttackDamageTakenMultiplier: 1,
+    resistances: {
+      physical: { percent: 0, damageTakenMultiplier: 1 },
+      heat: { percent: 0, damageTakenMultiplier: 1 },
+      electric: { percent: 20, damageTakenMultiplier: 1 },
+      cryo: { percent: 0, damageTakenMultiplier: 1 },
+      nature: { percent: 0, damageTakenMultiplier: 1 },
+      ether: { percent: 0, damageTakenMultiplier: 1 },
+    },
+  },
+  stagger: {
+    maximum: 300,
+    nodeCount: 1,
+    nodeDurationFrames: 60,
+    brokenDurationFrames: 300,
+    finisherRecovery: 100,
+  },
 };
 
 function createContext(): CombatOperationExecutorContext {
@@ -27,31 +56,7 @@ function createContext(): CombatOperationExecutorContext {
       costs: [],
       timelineActions: [],
     },
-    enemy: {
-      source: { kind: 'custom', level: 90 },
-      health: 10000,
-      superArmor: 0,
-      defenderAttributes: {
-        defense: 200,
-        shelterDamageMultiplier: 0,
-        breakingAttackDamageTakenMultiplier: 1,
-        resistances: {
-          physical: { percent: 0, damageTakenMultiplier: 1 },
-          heat: { percent: 0, damageTakenMultiplier: 1 },
-          electric: { percent: 20, damageTakenMultiplier: 1 },
-          cryo: { percent: 0, damageTakenMultiplier: 1 },
-          nature: { percent: 0, damageTakenMultiplier: 1 },
-          ether: { percent: 0, damageTakenMultiplier: 1 },
-        },
-      },
-      stagger: {
-        maximum: 300,
-        nodeCount: 1,
-        nodeDurationFrames: 60,
-        brokenDurationFrames: 300,
-        finisherRecovery: 100,
-      },
-    },
+    enemy: testEnemy,
     panel: {
       operatorId: 'operator',
       attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
@@ -86,7 +91,7 @@ function createContext(): CombatOperationExecutorContext {
   };
 }
 
-function createEnvironment(): StandardPlayerDamageEnvironment {
+function createEnvironment(enemy: CombatEnemyProgram = testEnemy): StandardPlayerDamageEnvironment {
   return new StandardPlayerDamageEnvironment({
     criticalSamples: { nextCriticalSample: () => 1 },
     resolveNonRandomRuntimeSnapshot: () => ({
@@ -94,6 +99,7 @@ function createEnvironment(): StandardPlayerDamageEnvironment {
       appliesIgniteDamageMultiplier: false,
       appliesPhysicalInflictionDamageMultiplier: false,
     }),
+    enemyVitals: createEnemyCombatVitals(enemy),
   });
 }
 
@@ -126,6 +132,7 @@ function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
       appliesPhysicalInflictionDamageMultiplier: false,
     }),
     elementalInflictionDocument: document,
+    enemyVitals: createEnemyCombatVitals(testEnemy),
   });
 }
 
@@ -153,6 +160,7 @@ function createAttachmentOnlyEnvironment(): StandardPlayerDamageEnvironment {
       appliesPhysicalInflictionDamageMultiplier: false,
     }),
     elementalInflictionDocument: document,
+    enemyVitals: createEnemyCombatVitals(testEnemy),
   });
 }
 
@@ -180,6 +188,54 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(createRuntime).toBeDefined();
     expect(createRuntime?.('operator')).toBe(createRuntime?.('operator'));
     expect(createRuntime?.('operator')?.ownerId).toBe('operator');
+  });
+
+  it('shares the scene-injected vitals instance across damage writes and poise', () => {
+    const vitals = createEnemyCombatVitals(testEnemy);
+    const environment = new StandardPlayerDamageEnvironment({
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      enemyVitals: vitals,
+    });
+
+    expect(environment.enemyVitals).toBe(vitals);
+    expect(environment.runtimeOptions.resolveVitals!('enemy', 'operator')).toBe(vitals);
+
+    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
+    expect(executor.execute(damageStep)).toBe(true);
+    // 生命写入与失衡读取落在同一实例上：生命下降而失衡仍为满值，不存在两份镜像状态。
+    expect(vitals.health).toBeLessThan(vitals.maxHealth);
+    expect(vitals.poise).toBe(testEnemy.stagger.maximum);
+    expect(environment.enemyVitals.health).toBe(vitals.health);
+  });
+
+  it('evaluates health conditions against the shared post-damage vitals', () => {
+    const environment = createEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
+    expect(executor.execute(damageStep)).toBe(true);
+    expect(environment.enemyVitals.health).toBeLessThan(testEnemy.health);
+
+    const conditions = new CombatVitalsConditionExecutor({
+      resolveTarget: target => environment.runtimeOptions.resolveVitals!(target, 'operator'),
+      delegate: { execute: () => true, evaluate: () => true },
+    });
+    // 生命比例已低于 1，证明条件读取的是伤害写入后的同一账本。
+    expect(
+      conditions.evaluate(
+        {
+          kind: 'healthCompare',
+          target: 'enemy',
+          valueType: 'ratio',
+          operator: 'less',
+          value: { kind: 'constant', value: 1 },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toBe(true);
   });
 
   it('executes the strict standard life-damage subset with compiled panel and enemy inputs', () => {
@@ -232,11 +288,9 @@ describe('StandardPlayerDamageEnvironment', () => {
 
   it('bridges a lethal health write to the unified enemy-defeated event', () => {
     const baseContext = createContext();
-    const context: CombatOperationExecutorContext = {
-      ...baseContext,
-      enemy: { ...baseContext.enemy, health: 100 },
-    };
-    const environment = createEnvironment();
+    const lowHealthEnemy = { ...testEnemy, health: 100 };
+    const context: CombatOperationExecutorContext = { ...baseContext, enemy: lowHealthEnemy };
+    const environment = createEnvironment(lowHealthEnemy);
     const events: string[] = [];
     environment
       .eventsFor('operator')
@@ -347,6 +401,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
+      enemyVitals: createEnemyCombatVitals(testEnemy),
       elementalInflictionDocument: {
         schemaVersion: 1,
         revision: 'test',
@@ -412,6 +467,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
+      enemyVitals: createEnemyCombatVitals(testEnemy),
       elementalInflictionDocument: {
         schemaVersion: 1,
         revision: 'test',
@@ -475,6 +531,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         appliesIgniteDamageMultiplier: false,
         appliesPhysicalInflictionDamageMultiplier: false,
       }),
+      enemyVitals: createEnemyCombatVitals(testEnemy),
       elementalInflictionDocument: {
         schemaVersion: 1,
         revision: 'test',

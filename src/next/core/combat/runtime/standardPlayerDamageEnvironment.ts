@@ -1,5 +1,6 @@
 /**
- * 标准战斗环境：一场模拟里敌人的血量、失衡、元素附着和反应都由它管。
+ * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
+ * 敌人生命与失衡账本由场景装配层创建并以明确依赖注入，本环境只持有同一实例。
  *
  * 能做的就做，做不了的（Buff、瞬时属性、没确认的随机等）直接报错，
  * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
@@ -12,7 +13,7 @@ import {
   CompiledCombatBuffDefinitions,
   type CombatBuffDefinitionsDocument,
 } from '../buffs/combatBuffDefinitions';
-import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
+import type { CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { DamageModifierSide } from '../damage/playerDamageContext';
@@ -84,6 +85,11 @@ export interface StandardPlayerDamageEnvironmentOptions {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率来源；缺失时爆发触发会明确失败。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  /**
+   * 本次模拟唯一的敌人生命账本，由场景装配层创建并注入。
+   * 伤害写入、生命条件求值和失衡恢复推进都引用这一实例，环境不再自行构造或回退到静态生命值。
+   */
+  readonly enemyVitals: CombatVitals;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -97,7 +103,7 @@ const strictTerminal: CombatOperationExecutor = {
   },
 };
 
-/** 一场模拟独占的标准生命/失衡伤害状态所有者。 */
+/** 一场模拟独占的标准生命/失衡伤害环境；敌人生命账本由场景装配层注入并共享。 */
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #enemyBuffs = new CombatBuffContainer(
@@ -121,11 +127,13 @@ export class StandardPlayerDamageEnvironment {
   #receipt: CombatReceiptSink | null = null;
   #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
   #skillSettings: CompoundStatusSkillSettingSource | null = null;
-  #enemyVitals: CombatVitals | null = null;
+  readonly #enemyVitals: CombatVitals;
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
+    // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
+    this.#enemyVitals = options.enemyVitals;
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
     const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
@@ -147,20 +155,12 @@ export class StandardPlayerDamageEnvironment {
   }
 
   get enemyVitals(): CombatVitals {
-    if (this.#enemyVitals === null) {
-      throw new Error('standard player damage environment has not been bound to an enemy');
-    }
     return this.#enemyVitals;
   }
 
   /** 已绑定敌人时返回账本推进器；空场景（从未绑定敌人）返回 null。 */
   get enemyVitalsRuntime(): FrameRuntime | null {
     return this.#enemyVitalsRuntime;
-  }
-
-  /** 尚未创建任何技能运行时的空场景返回 null，不会为读取结果而凭空创建生命账本。 */
-  get currentEnemyHealth(): number | null {
-    return this.#enemyVitals?.health ?? null;
   }
 
   /** 返回本场战斗内指定实体独占的事件中心，供后续 Buff、天赋和活动机制注册监听。 */
@@ -278,26 +278,13 @@ export class StandardPlayerDamageEnvironment {
     if (this.#enemyIdentity !== null && this.#enemyIdentity !== context.enemy) {
       throw new Error('standard player damage environment cannot be shared across enemies');
     }
-    if (this.#enemyVitals !== null) return;
     this.#enemyIdentity = context.enemy;
-    const singleNodeStagger = context.enemy.stagger.nodeCount === 1;
-    const vitals = new CombatVitals({
-      health: context.enemy.health,
-      maxHealth: context.enemy.health,
-      // 单节点失衡映射到 CombatVitals 账本，起始为满值并随失衡伤害消耗；
-      // 多节点失衡尚未接入单节点账本，保持无账本状态而不做近似塞入。
-      maxPoise: singleNodeStagger ? context.enemy.stagger.maximum : 0,
-      poise: singleNodeStagger ? context.enemy.stagger.maximum : 0,
-      poiseRecoveryTime: context.enemy.stagger.brokenDurationFrames * COMBAT_FRAME_INTERVAL,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
-    this.#enemyVitals = vitals;
+    if (this.#enemyVitalsRuntime !== null) return;
+    // 生命账本在场景装配层创建；这里只按本场时钟与回执把它的逐帧推进器接入运行时。
     this.#enemyVitalsRuntime = new CombatVitalsRuntime({
       ownerId: 'enemy',
       clock: context.clock,
-      vitals,
+      vitals: this.#enemyVitals,
       receipt: context.receipt,
       emitOwnerEvent: event => this.#emit('enemy', event, {}),
     });

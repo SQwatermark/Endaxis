@@ -74,6 +74,9 @@ export class CombatVitals {
   get poise(): number {
     return this.#poise;
   }
+  get maxPoise(): number {
+    return this.#maxPoise;
+  }
   get hasPoise(): boolean {
     return this.#maxPoise > POISE_EPSILON;
   }

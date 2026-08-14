@@ -19,6 +19,8 @@ import {
 } from './runScenarioSimulation';
 import type { ScenarioDocument } from '../core/project/schema';
 import { compileScenarioRuntimeAssembly } from '../core/compiler/compileScenarioRuntimeAssembly';
+import { compileScenarioEnemy } from '../core/compiler/compileScenarioEnemy';
+import { createEnemyCombatVitals } from '../core/combat/runtime/combatVitalsFactory';
 import { assertStandardPlayerDamageCompatibility } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
@@ -38,17 +40,46 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly spellInflictionSettings?: SkillSettingsDocument;
 }
 
+/** 本次模拟唯一敌人生命账本的初始与最终快照；投影和结果收集读取同一实例。 */
+export interface EnemyVitalsSimulationResult {
+  readonly initialHealth: number;
+  readonly maxHealth: number;
+  readonly initialPoise: number;
+  readonly maxPoise: number;
+  readonly finalPoise: number;
+}
+
 export interface StandardPlayerDamageScenarioResult extends ScenarioSimulationResult {
   readonly finalEnemyHealth: number;
+  readonly enemyVitals: EnemyVitalsSimulationResult;
 }
 
 /** 执行一次不会跨场景复用状态的标准玩家生命伤害模拟。 */
 export function runStandardPlayerDamageScenarioSimulation(
   input: RunStandardPlayerDamageScenarioInput,
 ): StandardPlayerDamageScenarioResult {
+  if (!Number.isInteger(input.endFrame) || input.endFrame < 0) {
+    throw new RangeError('endFrame must be a non-negative integer');
+  }
+  if (input.endFrame > input.scenario.battle.durationFrames) {
+    throw new RangeError('endFrame must not exceed scenario battle duration');
+  }
+
+  // 场景装配层先编译敌人静态程序并创建本次模拟唯一的敌人生命账本，再注入标准伤害环境；
+  // 后续伤害写入、生命条件求值、失衡推进与最终结果都引用这一实例，不再由环境延迟构造。
+  const enemy = compileScenarioEnemy(input.scenario.enemy);
+  const enemyVitals = createEnemyCombatVitals(enemy);
+  const initialVitals = {
+    health: enemyVitals.health,
+    maxHealth: enemyVitals.maxHealth,
+    poise: enemyVitals.poise,
+    maxPoise: enemyVitals.maxPoise,
+  };
+
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
+    enemyVitals,
     ...(input.elementalInflictionDocument === undefined
       ? {}
       : { elementalInflictionDocument: input.elementalInflictionDocument }),
@@ -57,12 +88,6 @@ export function runStandardPlayerDamageScenarioSimulation(
       : { spellInflictionSettings: input.spellInflictionSettings }),
   };
   const environment = new StandardPlayerDamageEnvironment(environmentOptions);
-  if (!Number.isInteger(input.endFrame) || input.endFrame < 0) {
-    throw new RangeError('endFrame must be a non-negative integer');
-  }
-  if (input.endFrame > input.scenario.battle.durationFrames) {
-    throw new RangeError('endFrame must not exceed scenario battle duration');
-  }
   const compiled = compileScenarioRuntimeAssembly(input.scenario, {
     ...input.options,
     environment: environment.runtimeOptions,
@@ -76,6 +101,13 @@ export function runStandardPlayerDamageScenarioSimulation(
   const result = executeCompiledScenarioSimulation({ compiled, endFrame: input.endFrame });
   return Object.freeze({
     ...result,
-    finalEnemyHealth: environment.currentEnemyHealth ?? result.enemy.health,
+    finalEnemyHealth: enemyVitals.health,
+    enemyVitals: Object.freeze({
+      initialHealth: initialVitals.health,
+      maxHealth: initialVitals.maxHealth,
+      initialPoise: initialVitals.poise,
+      maxPoise: initialVitals.maxPoise,
+      finalPoise: enemyVitals.poise,
+    }),
   });
 }

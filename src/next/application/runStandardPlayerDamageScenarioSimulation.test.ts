@@ -75,6 +75,12 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(damage?.data?.value).toBeCloseTo(635.4);
     expect(result.finalEnemyHealth).toBeCloseTo(result.enemy.health - 635.4);
     expect(damage?.data?.remainingHealth).toBe(result.finalEnemyHealth);
+    // 最终结果与投影共用本次模拟唯一的敌人账本快照，不再回退到静态敌人数值。
+    expect(result.enemyVitals.initialHealth).toBe(result.enemy.health);
+    expect(result.enemyVitals.maxHealth).toBe(result.enemy.health);
+    expect(result.enemyVitals.initialPoise).toBe(result.enemyVitals.maxPoise);
+    // 普攻只写生命不写失衡，失衡快照保持满值。
+    expect(result.enemyVitals.finalPoise).toBe(result.enemyVitals.initialPoise);
   });
 
   it('rejects an unsupported scheduled skill before consuming runtime dependencies', () => {
