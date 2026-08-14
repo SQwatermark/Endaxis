@@ -77,6 +77,7 @@ from generate_next_operators import (
     derive_timeline_block,
     parse_scalar,
     parse_timeline,
+    parse_time_dilations,
     parse_target_group_writes,
     parse_direct_damage_hits,
     parse_entity_blackboard_assignments,
@@ -321,6 +322,36 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_nested_time_dilation_is_rejected_instead_of_silently_omitted(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 30,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "isEnable": True,
+                                    "succeedActions": [
+                                        {
+                                            "$type": "Example.TimeDilationAction+Data, Example",
+                                            "isEnable": True,
+                                        }
+                                    ],
+                                    "failActions": [],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        with self.assertRaisesRegex(ValueError, "must not be silently omitted"):
+            parse_time_dilations(root, "fixture.json", {})
+
     def test_conversion_support_uses_stable_capability_summary(self) -> None:
         self.assertEqual(
             parse_conversion_support({"slug": "complete"}),

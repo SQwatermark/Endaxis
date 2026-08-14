@@ -24,6 +24,8 @@ from source_models import (
     TimedInflictionSource,
     TimedPhysicalInflictionSource,
     TimedResourceGainSource,
+    TimedTimeDilationSource,
+    TimeScaleCurveKeySource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
     ProjectileLaunchSource,
@@ -3668,6 +3670,16 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for listener in getattr(skill, "eventListeners", ())
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="timeDilation",
+            sourcePath=(skill.skillId,),
+            payload=action,
+        )
+        for action in getattr(skill, "timeDilations", ())
+    )
     for projectile in skill.projectileTriggeredSkills:
         collect_projectile_schedule(projectile, result)
     for entity in skill.abilityEntityHits:
@@ -3897,6 +3909,159 @@ def parse_timeline(
                 actionTypes=tuple(types),
             )
         )
+    return tuple(result)
+
+
+def parse_time_dilation_target(
+    value: Any,
+    path: str,
+) -> Literal["caster", "enemy", "abilityEntity"]:
+    """把时间膨胀目标收窄到 Endaxis 当前实际模拟的实体身份。"""
+    target = require_dict(value, path)
+    source = target.get("targetSource")
+    if source == "Owner":
+        return "caster"
+    if source == "Target":
+        return "enemy"
+    if source == "InstantSearch":
+        selector = require_dict(target.get("selectorData"), f"{path}.selectorData")
+        finder = require_dict(selector.get("finderData"), f"{path}.selectorData.finderData")
+        finder_type = str(finder.get("$type", ""))
+        if "+OwnerSpawnedEntityFinder+" in finder_type and finder.get("spawnedObjectType") == "AbilityEntity":
+            return "abilityEntity"
+    # 上下文目标在技能内通常是生成实体；没有目标组数据时不能冒充敌人或施法者。
+    if source == "Context":
+        return "abilityEntity"
+    raise ValueError(f"{path}: unsupported time-dilation target source {source!r}")
+
+
+def parse_time_scale_curve(value: Any, path: str) -> tuple[TimeScaleCurveKeySource, ...]:
+    curve = require_dict(value, path)
+    if curve.get("preWrapMode") != "ClampForever" or curve.get("postWrapMode") != "ClampForever":
+        raise ValueError(f"{path}: only ClampForever curves are supported")
+    result: list[TimeScaleCurveKeySource] = []
+    for index, raw in enumerate(require_list(curve.get("keys"), f"{path}.keys")):
+        key_path = f"{path}.keys[{index}]"
+        key = require_dict(raw, key_path)
+        if set(key) != {
+            "time", "value", "inTangent", "outTangent", "tangentMode",
+            "weightedMode", "inWeight", "outWeight",
+        }:
+            raise ValueError(f"{key_path}: unexpected curve-key fields {sorted(key)}")
+        weighted_mode = key.get("weightedMode")
+        if not isinstance(weighted_mode, int) or isinstance(weighted_mode, bool):
+            raise ValueError(f"{key_path}.weightedMode: expected integer")
+        result.append(
+            TimeScaleCurveKeySource(
+                time=require_number(key.get("time"), f"{key_path}.time"),
+                value=require_number(key.get("value"), f"{key_path}.value"),
+                inTangent=require_number(key.get("inTangent"), f"{key_path}.inTangent"),
+                outTangent=require_number(key.get("outTangent"), f"{key_path}.outTangent"),
+                weightedMode=weighted_mode,
+                inWeight=require_number(key.get("inWeight"), f"{key_path}.inWeight"),
+                outWeight=require_number(key.get("outWeight"), f"{key_path}.outWeight"),
+            )
+        )
+    return tuple(result)
+
+
+def parse_time_dilations(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, ScalarSource],
+) -> tuple[TimedTimeDilationSource, ...]:
+    """严格读取根时间轴上的普通和终结技时间膨胀动作。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    result: list[TimedTimeDilationSource] = []
+    parsed_action_ids: set[int] = set()
+    for timeline_index, raw_timeline in enumerate(timeline):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        item = require_dict(raw_timeline, timeline_path)
+        sequence = require_dict(item.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData")
+        direct_actions = require_list(sequence.get("actionData"), f"{timeline_path}._sequenceActionData.actionData")
+        for action_index, raw_action in enumerate(direct_actions):
+            path = f"{timeline_path}._sequenceActionData.actionData[{action_index}]"
+            action = require_dict(raw_action, path)
+            if action.get("isEnable") is False:
+                continue
+            name = action_name(str(action.get("$type", "")))
+            if name not in {"TimeDilationAction", "UltimateTimeAction"}:
+                continue
+            parsed_action_ids.add(id(action))
+            common = {"$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex"}
+            start_frame = require_non_negative_int(item.get("_startFrame"), f"{timeline_path}._startFrame")
+            end_frame = require_non_negative_int(item.get("_endFrame"), f"{timeline_path}._endFrame")
+            server_index = require_server_action_index(action, path)
+            priority = require_dict(action.get("timeDilationPriority"), f"{path}.timeDilationPriority").get("tagId")
+            if not isinstance(priority, int) or isinstance(priority, bool):
+                raise ValueError(f"{path}.timeDilationPriority.tagId: expected integer")
+            ignored = tuple(
+                parse_time_dilation_target(target, f"{path}.ignoreTargets[{index}]")
+                for index, target in enumerate(require_list(action.get("ignoreTargets"), f"{path}.ignoreTargets"))
+            )
+            omitted = sum(target == "abilityEntity" for target in ignored)
+            fixed_ignored = tuple(cast(Literal["caster", "enemy"], target) for target in ignored if target != "abilityEntity")
+            if name == "UltimateTimeAction":
+                expected = common | {"timeScale", "timeDilationPriority", "ignoreTargets"}
+                if set(action) != expected:
+                    raise ValueError(f"{path}: unexpected UltimateTimeAction fields {sorted(set(action) - expected)}")
+                result.append(TimedTimeDilationSource(
+                    startFrame=start_frame, endFrame=end_frame, actionIndex=server_index,
+                    kind="ultimate", priority=priority, scope=None, slot=None, duration=None,
+                    namedCurve=None, inlineCurve=(), finishByAction=True,
+                    ignoredTargets=fixed_ignored, targets=(), omittedAbilityEntityTargets=omitted,
+                    influenceSkillCooldown=None,
+                    targetScale=require_number(action.get("timeScale"), f"{path}.timeScale"),
+                ))
+                continue
+            expected = common | {
+                "layer", "slot", "timeDilationPriority", "duration", "useCurveKey", "curveKey",
+                "timeScaleCurve", "finishByAction", "ignoreTargets", "effectTargets",
+                "useTimeScaleForSkillCdTick", "influenceSkillCdTime",
+            }
+            if set(action) != expected:
+                raise ValueError(f"{path}: unexpected TimeDilationAction fields {sorted(set(action) - expected)}")
+            layer = action.get("layer")
+            if layer not in {"Global", "Entity"}:
+                raise ValueError(f"{path}.layer: unsupported value {layer!r}")
+            slot = require_dict(action.get("slot"), f"{path}.slot").get("tagId")
+            if not isinstance(slot, int) or isinstance(slot, bool):
+                raise ValueError(f"{path}.slot.tagId: expected integer")
+            effect_targets = tuple(
+                parse_time_dilation_target(target, f"{path}.effectTargets[{index}]")
+                for index, target in enumerate(require_list(action.get("effectTargets"), f"{path}.effectTargets"))
+            )
+            if "abilityEntity" in effect_targets:
+                raise ValueError(f"{path}.effectTargets: ability entities need an explicit runtime model")
+            use_curve_key = require_bool(action.get("useCurveKey"), f"{path}.useCurveKey")
+            curve_key = action.get("curveKey")
+            if not isinstance(curve_key, str):
+                raise ValueError(f"{path}.curveKey: expected string")
+            inline_curve = parse_time_scale_curve(action.get("timeScaleCurve"), f"{path}.timeScaleCurve")
+            if use_curve_key == bool(inline_curve):
+                raise ValueError(f"{path}: expected exactly one named or inline curve")
+            influence = None
+            if require_bool(action.get("useTimeScaleForSkillCdTick"), f"{path}.useTimeScaleForSkillCdTick"):
+                influence = parse_scalar(action.get("influenceSkillCdTime"), f"{path}.influenceSkillCdTime", inherited_blackboard)
+            result.append(TimedTimeDilationSource(
+                startFrame=start_frame, endFrame=end_frame, actionIndex=server_index,
+                kind="normal", priority=priority,
+                scope="global" if layer == "Global" else "entity", slot=slot,
+                duration=parse_scalar(action.get("duration"), f"{path}.duration", inherited_blackboard),
+                namedCurve=curve_key if use_curve_key else None, inlineCurve=inline_curve,
+                finishByAction=require_bool(action.get("finishByAction"), f"{path}.finishByAction"),
+                ignoredTargets=fixed_ignored,
+                targets=tuple(cast(Literal["caster", "enemy"], target) for target in effect_targets),
+                omittedAbilityEntityTargets=omitted, influenceSkillCooldown=influence, targetScale=None,
+            ))
+    for action in walk_actions(group):
+        name = action_name(str(action.get("$type", "")))
+        if name in {"TimeDilationAction", "UltimateTimeAction"} and id(action) not in parsed_action_ids:
+            raise ValueError(
+                f"{source_name}: nested {name} is not supported; "
+                "the action must not be silently omitted"
+            )
     return tuple(result)
 
 
@@ -4290,6 +4455,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         eventListeners=parse_skill_event_listeners(
             root, source_name, resolved_blackboard
         ),
+        timeDilations=parse_time_dilations(root, source_name, resolved_blackboard),
     )
 
 
@@ -4355,6 +4521,60 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     else:
         value = source.value
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
+
+
+def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
+    """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
+    if action.kind == "ultimate":
+        if action.targetScale is None:
+            raise ValueError(f"{path}: ultimate time dilation has no target scale")
+        return "\n".join(
+            [
+                "step('startUltimateTimeDilation', {",
+                f"  priority: {action.priority},",
+                "  targetScale: { kind: 'constant', value: "
+                f"{ts_inline_literal(action.targetScale)} }},",
+                f"  ignoredTargets: {ts_inline_literal(action.ignoredTargets)},",
+                "})",
+            ]
+        )
+    if action.duration is None or action.scope is None or action.slot is None:
+        raise ValueError(f"{path}: normal time dilation is incomplete")
+    if action.namedCurve is not None:
+        curve = f"{{ kind: 'named', key: {ts_inline_literal(action.namedCurve)} }}"
+    else:
+        if not action.inlineCurve:
+            raise ValueError(f"{path}: normal time dilation has no curve")
+        curve = ts_inline_literal(
+            {
+                "kind": "inline",
+                "keys": [asdict(key) for key in action.inlineCurve],
+            }
+        )
+    fields = [
+        f"scope: {ts_inline_literal(action.scope)}",
+        f"durationSeconds: {compile_condition_operand(action.duration, f'{path}.duration')}",
+        f"slot: {action.slot}",
+        f"priority: {action.priority}",
+        f"curve: {curve}",
+        f"finishByAction: {ts_inline_literal(action.finishByAction)}",
+    ]
+    if action.scope == "global":
+        fields.append(f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}")
+        if action.influenceSkillCooldown is not None:
+            fields.append(
+                "influenceSkillCooldownSeconds: "
+                f"{compile_condition_operand(action.influenceSkillCooldown, f'{path}.influenceSkillCooldown')}"
+            )
+    else:
+        fields.append(f"targets: {ts_inline_literal(action.targets)}")
+    return "\n".join(
+        [
+            "step('startTimeDilation', {",
+            *(f"  {field}," for field in fields),
+            "})",
+        ]
+    )
 
 
 def resolve_fixed_combat_target(
@@ -6277,6 +6497,8 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
 
 
 def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_name: str) -> str:
+    if skill.timeDilations:
+        raise ValueError(f"{skill.key}: basic-attack factory cannot carry time dilation")
     if skill.unresolvedCombatActions != ("LaunchProjectile",):
         raise ValueError(
             f"{skill.key}: basic attack compiler expected only LaunchProjectile, got {skill.unresolvedCombatActions}"
@@ -6339,6 +6561,24 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
     return "\n".join(
         [f"  {factory_name}(", *(f"    {argument}," for argument in arguments), "  ),"]
     )
+
+
+def render_time_dilation_scheduled_entries(skill: SkillSource) -> list[str]:
+    result: list[str] = []
+    for index, action in enumerate(skill.timeDilations):
+        step_lines = compile_time_dilation(action, f"{skill.key}.timeDilations[{index}]").splitlines()
+        result.extend(
+            [
+                "      scheduled(",
+                f"        {action.startFrame},",
+                "        sequence(",
+                *(f"          {line}," if line.endswith(")") else f"          {line}" for line in step_lines),
+                "        ),",
+                f"        {action.endFrame},",
+                "      ),",
+            ]
+        )
+    return result
 
 
 def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
@@ -6500,6 +6740,7 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
             "  {",
             *(f"    {field}" for field in fields),
             "    scheduledSequences: [",
+            *render_time_dilation_scheduled_entries(skill),
             "      scheduled(",
             f"        {hit.startFrame},",
             "        sequence(",
@@ -6643,6 +6884,7 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
             f"    cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},",
             "    scheduledSequences: [",
+            *render_time_dilation_scheduled_entries(skill),
             "      scheduled(",
             f"        {hit.launchFrame + hit.assumedTravelFrames + damage.startFrame},",
             "        sequence(",
@@ -7165,6 +7407,12 @@ def compile_resolved_sequence(
                 step_key_prefix=skill.key,
                 buff_definitions=buff_definitions,
             ).splitlines()
+        elif item.itemType == "timeDilation":
+            payload = cast(TimedTimeDilationSource, item.payload)
+            step_lines = compile_time_dilation(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].timeDilation",
+            ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
         entry_lines = [
@@ -7179,6 +7427,10 @@ def compile_resolved_sequence(
         elif item.itemType == "eventListener":
             entry_lines.append(
                 f"        {cast(SkillEventListenerSource, item.payload).endFrame},"
+            )
+        elif item.itemType == "timeDilation":
+            entry_lines.append(
+                f"        {cast(TimedTimeDilationSource, item.payload).endFrame},"
             )
         entry_lines.append("      ),")
         scheduled_entries.extend(entry_lines)
@@ -7862,6 +8114,7 @@ def render_report(
                 "targetGroupWrites": [
                     asdict(write) for write in skill.targetGroupWrites
                 ],
+                "timeDilations": [asdict(action) for action in skill.timeDilations],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
             for skill in skills

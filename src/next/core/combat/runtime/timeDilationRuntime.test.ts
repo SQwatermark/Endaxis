@@ -10,7 +10,6 @@ function createRuntime() {
       [LOW, 10],
       [HIGH, 50],
     ]),
-    ultimateSlot: 99,
   });
 }
 
@@ -60,6 +59,52 @@ describe('TimeDilationRuntime', () => {
     });
     expect(runtime.globalInstances.map(instance => instance.id)).toEqual([replacement]);
     expect(runtime.currentGlobalScale).toBe(0.4);
+  });
+
+  it('reports accepted, replaced and rejected instances with their source', () => {
+    const events: string[] = [];
+    const runtime = new TimeDilationRuntime(
+      {
+        priorities: new Map([
+          [LOW, 10],
+          [HIGH, 50],
+        ]),
+      },
+      {
+        started: (_kind, instance) => events.push(`started:${instance.source?.sourceActionId}`),
+        rejected: (_kind, instance) => events.push(`rejected:${instance.source?.sourceActionId}`),
+        ended: (_kind, instance, reason) =>
+          events.push(`ended:${instance.source?.sourceActionId}:${reason}`),
+      },
+    );
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: LOW,
+      constantScale: 0.5,
+      source: { sourceId: 'operator', sourceActionId: 'first' },
+    });
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: HIGH,
+      constantScale: 0.4,
+      source: { sourceId: 'operator', sourceActionId: 'second' },
+    });
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: LOW,
+      constantScale: 0.3,
+      source: { sourceId: 'operator', sourceActionId: 'third' },
+    });
+
+    expect(events).toEqual([
+      'started:first',
+      'ended:first:replaced',
+      'started:second',
+      'rejected:third',
+    ]);
   });
 
   it('uses the lowest scale across different global slots and keeps registration order on ties', () => {
@@ -135,5 +180,68 @@ describe('TimeDilationRuntime', () => {
 
     runtime.stop(id);
     expect(runtime.currentGlobalScale).toBe(1);
+  });
+
+  it('resolves default, global, self and cooldown clocks independently', () => {
+    const runtime = createRuntime();
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: LOW,
+      constantScale: 0.5,
+      influenceSkillCooldownSeconds: 0.25,
+      ignoredOperatorIds: ['ignored'],
+    });
+    runtime.startEntity({
+      operatorId: 'ignored',
+      durationSeconds: 1,
+      slot: 2,
+      priority: LOW,
+      curve: () => 0.4,
+    });
+
+    expect(runtime.getAbilityTickDeltas('ignored', 1 / 30, 2)).toEqual({
+      defaultDeltaSeconds: 1 / 30,
+      globalScaledDeltaSeconds: 1 / 60,
+      selfScaledDeltaSeconds: (1 / 30) * 0.4,
+      skillCooldownDeltaSeconds: 1 / 60,
+    });
+    expect(runtime.getAbilityTickDeltas('other', 1 / 30, 0).defaultDeltaSeconds).toBe(1 / 60);
+  });
+
+  it('uses global-scaled lifetime only for configured entity slots', () => {
+    const runtime = new TimeDilationRuntime({
+      priorities: new Map([[LOW, 10]]),
+      entityLifetimeUsesGlobalScaleBySlot: new Map([[2, true]]),
+    });
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: LOW,
+      constantScale: 0.5,
+    });
+    runtime.startEntity({
+      operatorId: 'scaled',
+      durationSeconds: 1,
+      slot: 2,
+      priority: LOW,
+      curve: () => 1,
+    });
+    runtime.startEntity({
+      operatorId: 'raw',
+      durationSeconds: 1,
+      slot: 3,
+      priority: LOW,
+      curve: () => 1,
+    });
+
+    runtime.advanceFrame();
+
+    expect(
+      runtime.entityInstances.find(instance => instance.operatorId === 'scaled')?.elapsedSeconds,
+    ).toBeCloseTo(1 / 60);
+    expect(
+      runtime.entityInstances.find(instance => instance.operatorId === 'raw')?.elapsedSeconds,
+    ).toBeCloseTo(1 / 30);
   });
 });

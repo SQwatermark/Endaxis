@@ -520,6 +520,21 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
     scheduledSequences: [
       scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.6 },
+            slot: 0,
+            priority: -593023102,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+          }),
+        ),
+        15,
+      ),
+      scheduled(
         24,
         sequence(
           branch(
@@ -656,6 +671,21 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
       scheduled(
         0,
         sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.6 },
+            slot: 0,
+            priority: -593023102,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+          }),
+        ),
+        15,
+      ),
+      scheduled(
+        0,
+        sequence(
           step('holdBuffsById', {
             target: 'caster',
             buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
@@ -771,6 +801,32 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     costs: [{ resource: 'ultimateEnergy', value: 240 }],
     costFrame: 0,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 1 },
+            slot: 1464849466,
+            priority: -2059842104,
+            curve: { kind: 'named', key: 'RESETto1' },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startUltimateTimeDilation', {
+            priority: -1742631616,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+          }),
+        ),
+        78,
+      ),
       scheduled(
         78,
         sequence(

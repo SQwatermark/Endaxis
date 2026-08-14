@@ -310,6 +310,22 @@ export type CombatConditionKind = (typeof COMBAT_CONDITION_KINDS)[number];
 export type ActionValueOperand =
   { kind: 'blackboard'; key: string } | { kind: 'constant'; value: number };
 
+/** Unity AnimationCurve 的关键帧；权重位与原生 WeightedMode 保持一致。 */
+export interface TimeScaleCurveKeyDefinition {
+  readonly time: number;
+  readonly value: number;
+  readonly inTangent: number;
+  readonly outTangent: number;
+  readonly weightedMode: 0 | 1 | 2 | 3;
+  readonly inWeight: number;
+  readonly outWeight: number;
+}
+
+/** 时间膨胀可以引用版本配置中的公共曲线，也可以携带技能自己的内联曲线。 */
+export type TimeScaleCurveDefinition =
+  | { readonly kind: 'named'; readonly key: string }
+  | { readonly kind: 'inline'; readonly keys: readonly TimeScaleCurveKeyDefinition[] };
+
 export const ACTION_VALUE_OPERATIONS = [
   'assign',
   'add',
@@ -456,6 +472,34 @@ export interface CombatStepParameters {
     durationSeconds: ActionValueOperand;
     autoFinishByAction: boolean;
   };
+  /** 创建普通全局或实体时间膨胀实例；终结技专用时间动作另行建模。 */
+  startTimeDilation:
+    | {
+        scope: 'global';
+        durationSeconds: ActionValueOperand;
+        slot: number;
+        priority: number;
+        curve: TimeScaleCurveDefinition;
+        finishByAction: boolean;
+        ignoredTargets: readonly CombatTarget[];
+        influenceSkillCooldownSeconds?: ActionValueOperand;
+      }
+    | {
+        scope: 'entity';
+        durationSeconds: ActionValueOperand;
+        slot: number;
+        priority: number;
+        curve: TimeScaleCurveDefinition;
+        finishByAction: boolean;
+        targets: readonly CombatTarget[];
+        ignoreSlotCheck?: boolean;
+      };
+  /** 终结技专用恒定全局时间倍率；实例随承载动作结束，施法者自动忽略。 */
+  startUltimateTimeDilation: {
+    priority: number;
+    targetScale: ActionValueOperand;
+    ignoredTargets: readonly CombatTarget[];
+  };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   modifyActionValue: {
     key: string;
@@ -548,6 +592,8 @@ export const COMBAT_STEP_KINDS = [
   'finishBuffsById',
   'holdBuffsById',
   'createTimedMarker',
+  'startTimeDilation',
+  'startUltimateTimeDilation',
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',

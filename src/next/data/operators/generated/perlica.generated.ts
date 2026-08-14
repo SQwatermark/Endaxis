@@ -591,7 +591,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack2",
@@ -1316,7 +1317,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack3",
@@ -2309,7 +2311,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack4",
@@ -2959,7 +2962,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "finisher",
@@ -3521,7 +3525,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "plungingAttack",
@@ -4256,7 +4261,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "battleSkill",
@@ -4935,7 +4941,8 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "comboSkill",
@@ -6489,7 +6496,33 @@ export const perlicaGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 22,
+          "actionIndex": 15,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.833,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
+        }
+      ]
     },
     {
       "key": "ultimate",
@@ -7203,7 +7236,27 @@ export const perlicaGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 50,
+          "actionIndex": 8,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0
+        }
+      ]
     }
   ]
 } as const satisfies GeneratedOperatorSource;

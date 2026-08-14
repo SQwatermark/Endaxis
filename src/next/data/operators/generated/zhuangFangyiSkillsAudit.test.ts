@@ -10,13 +10,19 @@ import {
 describe('zhuangFangyi generated skill audit', () => {
   it('preserves combo-skill Buff counting and same-frame native order', () => {
     expect(zhuangFangyiComboSkill.scheduledSequences.map(item => item.startFrame)).toEqual([
-      24, 24, 24, 24,
+      0, 24, 24, 24, 24,
     ]);
     expect(
       zhuangFangyiComboSkill.scheduledSequences.map(item => item.sequence.steps[0]?.kind),
-    ).toEqual(['conditional', 'dealDamage', 'finishBuffsByTag', 'conditional']);
+    ).toEqual([
+      'startTimeDilation',
+      'conditional',
+      'dealDamage',
+      'finishBuffsByTag',
+      'conditional',
+    ]);
 
-    const setup = zhuangFangyiComboSkill.scheduledSequences[0]!.sequence.steps[0]!;
+    const setup = zhuangFangyiComboSkill.scheduledSequences[1]!.sequence.steps[0]!;
     if (setup.kind !== 'conditional') throw new Error('expected combo setup condition');
     expect(setup.whenTrue.steps.map(step => step.kind)).toEqual([
       'readBuffStackCount',
@@ -38,14 +44,20 @@ describe('zhuangFangyi generated skill audit', () => {
   it('keeps enhanced combo primary-target actions without the extra-target ring hit', () => {
     expect(
       zhuangFangyiEnhancedComboSkill.scheduledSequences.map(item => item.startFrame),
-    ).toEqual([0, 24, 24, 24]);
+    ).toEqual([0, 0, 24, 24, 24]);
     expect(
       zhuangFangyiEnhancedComboSkill.scheduledSequences.map(
         item => item.sequence.steps[0]?.kind,
       ),
-    ).toEqual(['holdBuffsById', 'conditional', 'dealDamage', 'finishBuffsByTag']);
+    ).toEqual([
+      'startTimeDilation',
+      'holdBuffsById',
+      'conditional',
+      'dealDamage',
+      'finishBuffsByTag',
+    ]);
 
-    const damage = zhuangFangyiEnhancedComboSkill.scheduledSequences[2]!.sequence.steps[0]!;
+    const damage = zhuangFangyiEnhancedComboSkill.scheduledSequences[3]!.sequence.steps[0]!;
     expect(damage).toMatchObject({
       kind: 'dealDamage',
       parameters: {

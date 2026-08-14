@@ -44,10 +44,24 @@ import {
   type EquipmentEventExecutionContext,
 } from './equipmentEventRuntime';
 import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
+import {
+  TimeDilationRuntime,
+  type AbilityTickDeltas,
+  type TimeDilationEndReason,
+  type TimeDilationInstanceKind,
+  type TimeDilationInstanceSnapshot,
+  type TimeDilationRuntimeConfig,
+} from './timeDilationRuntime';
+import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
+import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import { CombatTimelineClock } from './combatTimelineClock';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
-  BuffOperationTarget & { readonly entityBlackboard?: ActionBlackboard };
+  BuffOperationTarget & {
+    readonly entityBlackboard?: ActionBlackboard;
+    advanceWithDeltas?(deltas: AbilityTickDeltas): void;
+  };
 
 /** 一个干员按原生技能定义顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
@@ -67,7 +81,9 @@ export interface CombatOperatorProgram {
 }
 
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
-export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {}
+export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {
+  advanceWithDeltas?(deltas: AbilityTickDeltas): void;
+}
 
 /** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非定义回查。 */
 export interface CombatEnemyProgram {
@@ -116,11 +132,17 @@ export interface CombatRuntimeAssemblyOptions {
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
+  /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
+  readonly timeDilation?: {
+    readonly config: TimeDilationRuntimeConfig;
+    readonly timeManagerDeltaMode: number;
+  };
   /**
    * 敌人生命与失衡账本的逐帧推进器；由环境创建并交给装配根，装配层不猜测推进顺序。
    * `null` 表示环境没有绑定敌人（例如空场景），装配根会跳过注册。
    */
-  readonly enemyVitalsRuntime?: FrameRuntime | null; /**
+  readonly enemyVitalsRuntime?:
+    (FrameRuntime & { advance?(deltaSeconds: number): void }) | null; /**
    * 为没有显式 `buffRuntime` 绑定的干员创建本场战斗唯一的 Buff runtime。
    * 伤害环境与技能操作必须共享该实例，不能各自维护同一干员的 Buff 状态。
    */
@@ -173,6 +195,9 @@ export class CombatRuntimeAssembly {
   readonly comboWindows: ComboWindowRuntime;
   /** 配装、连携和养成监听器共用的语义事件中心。 */
   readonly semanticEvents = new CombatSemanticEventRuntime();
+  readonly timeDilation: TimeDilationRuntime | null;
+  /** 项目逻辑时间；没有全局变速时与实际战斗帧保持一致。 */
+  readonly timelineClock: CombatTimelineClock;
   readonly simulation = new CombatSimulation(this.clock);
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
@@ -198,6 +223,22 @@ export class CombatRuntimeAssembly {
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.timeDilation =
+      options.timeDilation === undefined
+        ? null
+        : new TimeDilationRuntime(options.timeDilation.config, {
+            started: (kind, instance, operatorId) =>
+              this.#recordTimeDilation('TimeDilationStarted', kind, instance, operatorId),
+            rejected: (kind, instance, operatorId) =>
+              this.#recordTimeDilation('TimeDilationRejected', kind, instance, operatorId),
+            ended: (kind, instance, reason, operatorId) =>
+              this.#recordTimeDilation('TimeDilationEnded', kind, instance, operatorId, reason),
+          });
+    this.timelineClock = new CombatTimelineClock({
+      clock: this.clock,
+      receipt: this.receipt,
+      resolveGlobalScale: () => this.timeDilation?.currentGlobalScale ?? 1,
+    });
     this.comboWindows = new ComboWindowRuntime(
       this.clock,
       this.receipt,
@@ -278,6 +319,16 @@ export class CombatRuntimeAssembly {
           buffRuntime,
           skills,
           actionRuntime: operator.actionRuntime,
+          ...(this.timeDilation === null
+            ? {}
+            : {
+                resolveTickDeltas: () =>
+                  this.timeDilation!.getAbilityTickDeltas(
+                    operator.operatorId,
+                    COMBAT_FRAME_INTERVAL,
+                    options.timeDilation!.timeManagerDeltaMode,
+                  ),
+              }),
         }),
       );
     }
@@ -331,12 +382,38 @@ export class CombatRuntimeAssembly {
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
 
+    if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
+    // 先由时间膨胀更新本帧倍率，再推进项目逻辑时间；后续输入读取同一结果。
+    this.simulation.add(this.timelineClock);
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
-    this.simulation.add(this.#enemyBuffRuntime);
+    this.simulation.add({
+      advanceFrame: () => {
+        if (this.timeDilation === null || this.#enemyBuffRuntime.advanceWithDeltas === undefined) {
+          this.#enemyBuffRuntime.advanceFrame();
+          return;
+        }
+        this.#enemyBuffRuntime.advanceWithDeltas(
+          this.timeDilation.getAbilityTickDeltas(
+            'enemy',
+            COMBAT_FRAME_INTERVAL,
+            options.timeDilation!.timeManagerDeltaMode,
+          ),
+        );
+      },
+    });
     // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
     if (options.enemyVitalsRuntime !== undefined && options.enemyVitalsRuntime !== null) {
-      this.simulation.add(options.enemyVitalsRuntime);
+      const enemyVitalsRuntime = options.enemyVitalsRuntime;
+      this.simulation.add({
+        advanceFrame: () => {
+          if (this.timeDilation === null || enemyVitalsRuntime.advance === undefined) {
+            enemyVitalsRuntime.advanceFrame();
+            return;
+          }
+          enemyVitalsRuntime.advance(COMBAT_FRAME_INTERVAL * this.timeDilation.currentGlobalScale);
+        },
+      });
     }
     // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
     if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
@@ -350,6 +427,7 @@ export class CombatRuntimeAssembly {
       clock: this.clock,
       inputs: options.inputs ?? [],
       receipt: this.receipt,
+      resolveTimelineFrame: () => this.timelineClock.frame,
       tryStartSkill: (operatorId, skillId, castId) =>
         this.tryStartSkill(operatorId, skillId, castId),
     });
@@ -504,6 +582,11 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
+    const timeDilationOperations = this.#wrapTimeDilationOperations(
+      baseDelegate,
+      operatorId,
+      program.skillId,
+    );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
@@ -511,7 +594,7 @@ export class CombatRuntimeAssembly {
         target === 'party'
           ? this.#requirePartyBuffTargets()
           : [this.#resolveBuffTarget(target, operatorId)],
-      delegate: baseDelegate,
+      delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
       sourceId: operatorId,
@@ -603,6 +686,11 @@ export class CombatRuntimeAssembly {
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
     const operatorId = operator.operatorId;
+    const timeDilationOperations = this.#wrapTimeDilationOperations(
+      terminal,
+      operatorId,
+      sourceActionId,
+    );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
@@ -610,7 +698,7 @@ export class CombatRuntimeAssembly {
         target === 'party'
           ? this.#requirePartyBuffTargets()
           : [this.#resolveBuffTarget(target, operatorId)],
-      delegate: terminal,
+      delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);
     const statusOperations = new StatusOperationExecutor({
@@ -672,6 +760,52 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' is not configured`);
     }
     return abilitySystem;
+  }
+
+  #wrapTimeDilationOperations(
+    delegate: CombatOperationExecutor,
+    operatorId: string,
+    sourceActionId: string,
+  ): CombatOperationExecutor {
+    if (this.timeDilation === null) return delegate;
+    return new TimeDilationOperationExecutor({
+      runtime: this.timeDilation,
+      resolveTargetId: target => (target === 'caster' ? operatorId : 'enemy'),
+      sourceId: operatorId,
+      sourceActionId,
+      delegate,
+    });
+  }
+
+  #recordTimeDilation(
+    event: 'TimeDilationStarted' | 'TimeDilationRejected' | 'TimeDilationEnded',
+    kind: TimeDilationInstanceKind,
+    instance: TimeDilationInstanceSnapshot,
+    operatorId?: string,
+    reason?: TimeDilationEndReason,
+  ): void {
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event,
+      ...(instance.source?.sourceId === undefined ? {} : { sourceId: instance.source.sourceId }),
+      ...(operatorId === undefined ? {} : { targetId: operatorId }),
+      data: {
+        instanceId: instance.id,
+        kind,
+        durationSeconds: instance.durationSeconds,
+        slot: instance.slot,
+        priority: instance.priority,
+        currentScale: instance.currentScale,
+        ...(instance.source?.sourceActionId === undefined
+          ? {}
+          : { sourceActionId: instance.source.sourceActionId }),
+        ...(instance.source?.sourceCastId === undefined
+          ? {}
+          : { sourceCastId: instance.source.sourceCastId }),
+        ...(reason === undefined ? {} : { reason }),
+      },
+    });
   }
 
   #requireTimedMarkerContainer(operatorId: string): TimedMarkerContainer {

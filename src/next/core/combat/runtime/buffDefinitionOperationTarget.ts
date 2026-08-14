@@ -20,6 +20,7 @@ import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import type { AbilityTickDeltas } from './timeDilationRuntime';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
@@ -112,6 +113,11 @@ export class BuffDefinitionOperationTarget<Key extends string>
 
   advanceFrame(): void {
     this.container.tick(COMBAT_FRAME_INTERVAL);
+  }
+
+  /** AbilitySystem 提供四路时钟后，由各 Buff 定义自行选择其生命周期时间域。 */
+  advanceWithDeltas(deltas: AbilityTickDeltas): void {
+    this.container.tick(deltas);
   }
 
   getCountByIds(ids: readonly string[]): number {

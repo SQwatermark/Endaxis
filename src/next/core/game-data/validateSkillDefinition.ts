@@ -128,6 +128,20 @@ function requireNonNegativeInteger(
   return v;
 }
 
+function requireInteger(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): number | null {
+  const v = value[key];
+  if (typeof v !== 'number' || !Number.isInteger(v)) {
+    push(out, `${path}.${key}`, 'expected an integer');
+    return null;
+  }
+  return v;
+}
+
 function requireBoolean(
   value: Record<string, unknown>,
   key: string,
@@ -197,6 +211,69 @@ function validateActionValueOperand(
   } else if (kind !== null) {
     push(out, `${path}.kind`, "expected 'blackboard' or 'constant'");
   }
+}
+
+function validateTimeScaleCurve(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const record = asRecord(value, path, out);
+  if (record === null) return;
+  const kind = requireString(record, 'kind', path, out);
+  if (kind === 'named') {
+    const key = requireString(record, 'key', path, out);
+    if (key !== null && key.length === 0) push(out, `${path}.key`, 'expected a non-empty string');
+    return;
+  }
+  if (kind !== 'inline') {
+    if (kind !== null) push(out, `${path}.kind`, "expected 'named' or 'inline'");
+    return;
+  }
+  if (!Array.isArray(record.keys) || record.keys.length === 0) {
+    push(out, `${path}.keys`, 'expected a non-empty array');
+    return;
+  }
+  let previousTime = Number.NEGATIVE_INFINITY;
+  record.keys.forEach((value, index) => {
+    const keyPath = `${path}.keys[${index}]`;
+    const key = asRecord(value, keyPath, out);
+    if (key === null) return;
+    for (const field of ['time', 'value', 'inTangent', 'outTangent', 'inWeight', 'outWeight']) {
+      requireFiniteNumber(key, field, keyPath, out);
+    }
+    const time = key.time;
+    if (typeof time === 'number' && Number.isFinite(time)) {
+      if (time <= previousTime) push(out, `${keyPath}.time`, 'expected strictly increasing times');
+      previousTime = time;
+    }
+    const weightedMode = key.weightedMode;
+    if (
+      typeof weightedMode !== 'number' ||
+      !Number.isInteger(weightedMode) ||
+      weightedMode < 0 ||
+      weightedMode > 3
+    ) {
+      push(out, `${keyPath}.weightedMode`, 'expected an integer from 0 to 3');
+    }
+  });
+}
+
+function validateCombatTargetArray(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+  allowEmpty: boolean,
+): void {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
+    push(out, path, allowEmpty ? 'expected an array' : 'expected a non-empty array');
+    return;
+  }
+  value.forEach((target, index) => {
+    if (typeof target !== 'string' || !COMBAT_TARGETS_SET.has(target)) {
+      push(out, `${path}[${index}]`, 'unknown combat target');
+    }
+  });
 }
 
 /** 值可以是 LevelValues 或 ActionValueOperand 的字段。 */
@@ -809,6 +886,58 @@ function validateCombatStep(
       );
       requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
       break;
+    case 'startTimeDilation': {
+      const parameterPath = `${path}.parameters`;
+      const scope = requireEnum(
+        parameters,
+        'scope',
+        new Set(['global', 'entity']),
+        parameterPath,
+        out,
+      );
+      validateActionValueOperand(
+        parameters.durationSeconds,
+        `${parameterPath}.durationSeconds`,
+        out,
+      );
+      requireInteger(parameters, 'slot', parameterPath, out);
+      requireInteger(parameters, 'priority', parameterPath, out);
+      validateTimeScaleCurve(parameters.curve, `${parameterPath}.curve`, out);
+      requireBoolean(parameters, 'finishByAction', parameterPath, out);
+      if (scope === 'global') {
+        validateCombatTargetArray(
+          parameters.ignoredTargets,
+          `${parameterPath}.ignoredTargets`,
+          out,
+          true,
+        );
+        if (parameters.influenceSkillCooldownSeconds !== undefined) {
+          validateActionValueOperand(
+            parameters.influenceSkillCooldownSeconds,
+            `${parameterPath}.influenceSkillCooldownSeconds`,
+            out,
+          );
+        }
+      } else if (scope === 'entity') {
+        validateCombatTargetArray(parameters.targets, `${parameterPath}.targets`, out, false);
+        if (parameters.ignoreSlotCheck !== undefined) {
+          requireBoolean(parameters, 'ignoreSlotCheck', parameterPath, out);
+        }
+      }
+      break;
+    }
+    case 'startUltimateTimeDilation': {
+      const parameterPath = `${path}.parameters`;
+      requireInteger(parameters, 'priority', parameterPath, out);
+      validateActionValueOperand(parameters.targetScale, `${parameterPath}.targetScale`, out);
+      validateCombatTargetArray(
+        parameters.ignoredTargets,
+        `${parameterPath}.ignoredTargets`,
+        out,
+        false,
+      );
+      break;
+    }
     case 'modifyActionValue':
       requireString(parameters, 'key', `${path}.parameters`, out);
       requireEnum(parameters, 'operation', ACTION_VALUE_OPERATIONS_SET, `${path}.parameters`, out);

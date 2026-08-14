@@ -22,6 +22,10 @@ import { compileScenarioRuntimeAssembly } from '../core/compiler/compileScenario
 import { compileScenarioEnemy } from '../core/compiler/compileScenarioEnemy';
 import { createEnemyCombatVitals } from '../core/combat/runtime/combatVitalsFactory';
 import { assertStandardPlayerDamageCompatibility } from '../core/combat/runtime/standardPlayerDamageCompatibility';
+import {
+  STANDARD_TIME_MANAGER_DELTA_MODE,
+  timeDilationRuntimeConfig,
+} from '../data/combat/timeDilationConfig';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -38,6 +42,8 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  /** 原生 TimeManager 模式原值；值 2 使用未缩放默认时钟，其他值使用全局缩放时钟。 */
+  readonly timeManagerDeltaMode?: number;
 }
 
 /** 本次模拟唯一敌人生命账本的初始与最终快照；投影和结果收集读取同一实例。 */
@@ -90,7 +96,13 @@ export function runStandardPlayerDamageScenarioSimulation(
   const environment = new StandardPlayerDamageEnvironment(environmentOptions);
   const compiled = compileScenarioRuntimeAssembly(input.scenario, {
     ...input.options,
-    environment: environment.runtimeOptions,
+    environment: {
+      ...environment.runtimeOptions,
+      timeDilation: {
+        config: timeDilationRuntimeConfig,
+        timeManagerDeltaMode: input.timeManagerDeltaMode ?? STANDARD_TIME_MANAGER_DELTA_MODE,
+      },
+    },
   });
   assertStandardPlayerDamageCompatibility({
     operators: compiled.operators,

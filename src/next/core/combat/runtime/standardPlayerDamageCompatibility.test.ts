@@ -143,6 +143,26 @@ describe('standardPlayerDamageCompatibility', () => {
               },
             },
             { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
+            {
+              kind: 'startTimeDilation',
+              parameters: {
+                scope: 'global',
+                durationSeconds: { kind: 'constant', value: 1 },
+                slot: 1,
+                priority: 1,
+                curve: { kind: 'named', key: 'ComboSkill' },
+                finishByAction: false,
+                ignoredTargets: ['caster'],
+              },
+            },
+            {
+              kind: 'startUltimateTimeDilation',
+              parameters: {
+                priority: 1,
+                targetScale: { kind: 'constant', value: 0 },
+                ignoredTargets: [],
+              },
+            },
           ],
         }),
         100,

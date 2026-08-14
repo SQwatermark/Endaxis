@@ -11,7 +11,7 @@ import type {
   ResolvedActionSequence,
   ResolvedCombatStep,
 } from '../../compiler/combatProgram';
-import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
+import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -216,10 +216,25 @@ export class SkillRuntime {
   }
 
   advanceFrame(): void {
-    if (this.#cooldown.advanceFrame()) this.record('SkillCooldownReady');
+    this.advance(COMBAT_FRAME_INTERVAL, COMBAT_FRAME_INTERVAL);
+  }
+
+  /** 技能时间线和冷却使用不同原生时钟；输入单位均为秒。 */
+  advance(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void {
+    if (
+      !Number.isFinite(timelineDeltaSeconds) ||
+      timelineDeltaSeconds < 0 ||
+      !Number.isFinite(cooldownDeltaSeconds) ||
+      cooldownDeltaSeconds < 0
+    ) {
+      throw new RangeError('skill deltas must be non-negative finite numbers');
+    }
+    if (this.#cooldown.advance(cooldownDeltaSeconds * COMBAT_FRAMES_PER_SECOND)) {
+      this.record('SkillCooldownReady');
+    }
     if (this.#state !== 'casting') return;
-    this.#passedFrames += 1;
-    this.#tick(COMBAT_FRAME_INTERVAL);
+    this.#passedFrames += timelineDeltaSeconds * COMBAT_FRAMES_PER_SECOND;
+    this.#tick(timelineDeltaSeconds);
     // 时间轴动作全部执行完毕后技能自然结束，允许同技能再次释放。
     if (this.#timeline?.isComplete === true) this.end();
   }

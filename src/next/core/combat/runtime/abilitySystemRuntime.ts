@@ -5,6 +5,8 @@
 import type { FrameRuntime } from './combatSimulation';
 import type { SkillType } from '../../game-data/operatorDefinition';
 import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
+import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
+import { COMBAT_FRAME_INTERVAL } from './combatClock';
 
 /** AbilitySystem 编排技能所需的最小生命周期端口。 */
 export interface AbilitySkillRuntime extends FrameRuntime {
@@ -18,6 +20,13 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
+  /** 时间膨胀启用后分别推进技能时间线和冷却。 */
+  advance?(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void;
+}
+
+/** Buff 运行时按定义为每个实例选择默认、全局或实体时钟。 */
+export interface AbilityBuffRuntime extends FrameRuntime {
+  advanceWithDeltas?(deltas: AbilityTickDeltas): void;
 }
 
 /** 同一技能多次放置时用 (skillId, castId) 唯一寻址；单元测试程序缺省为空。 */
@@ -37,18 +46,20 @@ export interface PostSkillCastRequest {
 }
 
 export interface AbilitySystemRuntimeOptions {
-  readonly buffRuntime?: FrameRuntime;
+  readonly buffRuntime?: AbilityBuffRuntime;
   /** 保持普通攻击、主动、被动、通用技能的原生构造顺序。 */
   readonly skills: readonly AbilitySkillRuntime[];
   readonly actionRuntime?: FrameRuntime;
+  readonly resolveTickDeltas?: () => AbilityTickDeltas;
 }
 
 /** 按原生 PreLateTick 主干顺序推进一个实体的战斗能力。 */
 export class AbilitySystemRuntime implements FrameRuntime {
-  readonly #buffRuntime?: FrameRuntime;
+  readonly #buffRuntime?: AbilityBuffRuntime;
   readonly #skills: readonly AbilitySkillRuntime[];
   readonly #skillsById = new Map<string, AbilitySkillRuntime>();
   readonly #actionRuntime?: FrameRuntime;
+  readonly #resolveTickDeltas: () => AbilityTickDeltas;
   #currentSkill: AbilitySkillRuntime | null = null;
   #postSkillCastRequest: PostSkillCastRequest | null = null;
 
@@ -56,6 +67,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#buffRuntime = options.buffRuntime;
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
+    this.#resolveTickDeltas =
+      options.resolveTickDeltas ?? (() => uniformAbilityTickDeltas(COMBAT_FRAME_INTERVAL));
     for (const skill of this.#skills) {
       const key = abilitySkillKey(skill);
       if (this.#skillsById.has(key)) {
@@ -108,8 +121,19 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   advanceFrame(): void {
-    this.#buffRuntime?.advanceFrame();
-    for (const skill of this.#skills) skill.advanceFrame();
+    const deltas = this.#resolveTickDeltas();
+    if (this.#buffRuntime?.advanceWithDeltas !== undefined) {
+      this.#buffRuntime.advanceWithDeltas(deltas);
+    } else {
+      this.#buffRuntime?.advanceFrame();
+    }
+    for (const skill of this.#skills) {
+      if (skill.advance !== undefined) {
+        skill.advance(deltas.selfScaledDeltaSeconds, deltas.skillCooldownDeltaSeconds);
+      } else {
+        skill.advanceFrame();
+      }
+    }
     if (this.#currentSkill?.state !== 'casting') this.#currentSkill = null;
     this.#flushPostSkillCastRequest();
     this.#actionRuntime?.advanceFrame();

@@ -13,6 +13,7 @@ import type {
   BuffLifecycleActions,
   BuffPriority,
   BuffStackingType,
+  BuffTimeClock,
   BuffTriggerCount,
   CombatBuff,
   CombatBuffDefinition,
@@ -128,6 +129,8 @@ export interface CombatBuffDefinitionAttributeModifier {
 /** 外部定义中的一项稳定 Buff 定义。 */
 export interface CombatBuffDefinitionEntry {
   readonly id: string;
+  /** 缺省为 default；仅在解包配置明确使用全局或实体时间时填写。 */
+  readonly timeClock?: BuffTimeClock;
   /** 解包数据中的原始有符号 int32 applyTags。 */
   readonly applyTagIds?: readonly number[];
   /** Buff 被延长动作阻止结束后，临时注册到所属实体的原始标签。 */
@@ -234,6 +237,7 @@ export class CompiledCombatBuffDefinitions<
     }
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
+      timeClock: entry.timeClock,
       applyTags: entry.applyTagIds?.map(gameplayTagId),
       extendTags: entry.extendTagIds?.map(gameplayTagId),
       stackingType: entry.stackingType,
@@ -341,6 +345,7 @@ export function parseCombatBuffDefinitionEntry(
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',
+    'timeClock',
     'applyTagIds',
     'extendTagIds',
     'stackingType',
@@ -360,6 +365,15 @@ export function parseCombatBuffDefinitionEntry(
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
+    ...(entry.timeClock === undefined
+      ? {}
+      : {
+          timeClock: requireEnum(
+            entry.timeClock,
+            ['default', 'global', 'self'] as const,
+            `${path}.timeClock`,
+          ),
+        }),
     ...parseOptionalGameplayTagIds(entry, 'applyTagIds', path),
     ...parseOptionalGameplayTagIds(entry, 'extendTagIds', path),
     stackingType,

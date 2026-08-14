@@ -26,6 +26,13 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.execute(step, context);
   }
 
+  end(
+    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
+    context?: CombatOperationContext,
+  ): void {
+    this.dependencies.delegate.end?.(step, context);
+  }
+
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind !== 'healthCompare') {
       return context === undefined

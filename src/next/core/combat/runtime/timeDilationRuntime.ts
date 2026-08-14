@@ -10,27 +10,48 @@ const GLOBAL_SCALE_SELECTION_EPSILON = 0.00001;
 
 export type TimeScaleCurve = (progress: number) => number;
 
-export interface TimeDilationSlotRule {
-  readonly globalSlot: number;
-  readonly entitySlot: number;
-  readonly entityLifetimeUsesGlobalScale: boolean;
+/** 普通动作使用原生数值槽位；终结技使用独立语义槽位，避免伪造尚未恢复的原生标签。 */
+export type TimeDilationSlot = number | 'ultimate';
+
+export interface TimeDilationSource {
+  readonly sourceId: string;
+  readonly sourceActionId: string;
+  readonly sourceCastId?: string;
+}
+
+/** AbilitySystem 一帧内按不同原生用途消费的四路时间增量。 */
+export interface AbilityTickDeltas {
+  readonly defaultDeltaSeconds: number;
+  readonly globalScaledDeltaSeconds: number;
+  readonly selfScaledDeltaSeconds: number;
+  readonly skillCooldownDeltaSeconds: number;
+}
+
+export function uniformAbilityTickDeltas(deltaSeconds: number): AbilityTickDeltas {
+  return {
+    defaultDeltaSeconds: deltaSeconds,
+    globalScaledDeltaSeconds: deltaSeconds,
+    selfScaledDeltaSeconds: deltaSeconds,
+    skillCooldownDeltaSeconds: deltaSeconds,
+  };
 }
 
 export interface TimeDilationRuntimeConfig {
   readonly priorities: ReadonlyMap<number, number>;
-  readonly slotRules?: readonly TimeDilationSlotRule[];
+  /** 仅列出寿命使用全局时间的实体槽位；未列出的槽位使用原始帧时间。 */
+  readonly entityLifetimeUsesGlobalScaleBySlot?: ReadonlyMap<number, boolean>;
   readonly curves?: ReadonlyMap<string, TimeScaleCurve>;
-  readonly ultimateSlot?: number;
 }
 
 export interface StartGlobalTimeDilationOptions {
   readonly durationSeconds: number;
-  readonly slot: number;
+  readonly slot: TimeDilationSlot;
   readonly priority: number;
   readonly curve?: TimeScaleCurve;
   readonly constantScale?: number;
   readonly influenceSkillCooldownSeconds?: number;
   readonly ignoredOperatorIds?: readonly string[];
+  readonly source?: TimeDilationSource;
 }
 
 export interface StartEntityTimeDilationOptions {
@@ -40,15 +61,39 @@ export interface StartEntityTimeDilationOptions {
   readonly priority: number;
   readonly curve: TimeScaleCurve;
   readonly ignoreSlotCheck?: boolean;
+  readonly source?: TimeDilationSource;
 }
 
 export interface TimeDilationInstanceSnapshot {
   readonly id: number;
   readonly durationSeconds: number;
   readonly elapsedSeconds: number;
-  readonly slot: number;
+  readonly slot: TimeDilationSlot;
   readonly priority: number;
   readonly currentScale: number;
+  readonly source?: TimeDilationSource;
+}
+
+export type TimeDilationInstanceKind = 'global' | 'entity';
+export type TimeDilationEndReason = 'natural' | 'replaced' | 'stopped';
+
+export interface TimeDilationRuntimeObserver {
+  readonly started?: (
+    kind: TimeDilationInstanceKind,
+    instance: TimeDilationInstanceSnapshot,
+    operatorId?: string,
+  ) => void;
+  readonly rejected?: (
+    kind: TimeDilationInstanceKind,
+    instance: TimeDilationInstanceSnapshot,
+    operatorId?: string,
+  ) => void;
+  readonly ended?: (
+    kind: TimeDilationInstanceKind,
+    instance: TimeDilationInstanceSnapshot,
+    reason: TimeDilationEndReason,
+    operatorId?: string,
+  ) => void;
 }
 
 interface MutableTimeDilationInstance extends TimeDilationInstanceSnapshot {
@@ -73,18 +118,19 @@ interface EntityTimeDilationInstance extends MutableTimeDilationInstance {
 /** 原生时间膨胀管理器的行为等价边界；版本相关标签和曲线必须由装配层传入。 */
 export class TimeDilationRuntime implements FrameRuntime {
   readonly #priorities: ReadonlyMap<number, number>;
-  readonly #slotRules: readonly TimeDilationSlotRule[];
+  readonly #entityLifetimeUsesGlobalScaleBySlot: ReadonlyMap<number, boolean>;
   readonly #curves: ReadonlyMap<string, TimeScaleCurve>;
-  readonly #ultimateSlot?: number;
   readonly #globalInstances: GlobalTimeDilationInstance[] = [];
   readonly #entityInstances: EntityTimeDilationInstance[] = [];
+  readonly #observer: TimeDilationRuntimeObserver;
   #nextInstanceId = 0;
 
-  constructor(config: TimeDilationRuntimeConfig) {
+  constructor(config: TimeDilationRuntimeConfig, observer: TimeDilationRuntimeObserver = {}) {
     this.#priorities = config.priorities;
-    this.#slotRules = config.slotRules ?? [];
+    this.#entityLifetimeUsesGlobalScaleBySlot =
+      config.entityLifetimeUsesGlobalScaleBySlot ?? new Map();
     this.#curves = config.curves ?? new Map();
-    this.#ultimateSlot = config.ultimateSlot;
+    this.#observer = observer;
   }
 
   get currentGlobalScale(): number {
@@ -139,9 +185,14 @@ export class TimeDilationRuntime implements FrameRuntime {
         ? {}
         : { influenceSkillCooldownSeconds: options.influenceSkillCooldownSeconds }),
       ignoredOperatorIds: new Set(options.ignoredOperatorIds ?? []),
+      ...(options.source === undefined ? {} : { source: options.source }),
     };
-    if (!this.#tryAddGlobal(instance)) return instance.id;
+    if (!this.#tryAddGlobal(instance)) {
+      this.#observer.rejected?.('global', snapshotInstance(instance));
+      return instance.id;
+    }
     this.#tickGlobal(instance, 0);
+    this.#observer.started?.('global', snapshotInstance(instance));
     return instance.id;
   }
 
@@ -149,16 +200,15 @@ export class TimeDilationRuntime implements FrameRuntime {
     priority: number,
     targetScale: number,
     ignoredOperatorIds: readonly string[],
+    source?: TimeDilationSource,
   ): number {
-    if (this.#ultimateSlot === undefined) {
-      throw new Error('ultimate time-dilation slot is not configured');
-    }
     return this.startGlobal({
       durationSeconds: Number.MAX_VALUE,
-      slot: this.#ultimateSlot,
+      slot: 'ultimate',
       priority,
       constantScale: targetScale,
       ignoredOperatorIds,
+      ...(source === undefined ? {} : { source }),
     });
   }
 
@@ -176,23 +226,35 @@ export class TimeDilationRuntime implements FrameRuntime {
       currentScale: 1,
       active: false,
       curve: options.curve,
-      lifetimeUsesGlobalScale:
-        this.#slotRules.find(rule => rule.entitySlot === options.slot)
-          ?.entityLifetimeUsesGlobalScale ?? false,
+      lifetimeUsesGlobalScale: this.#entityLifetimeUsesGlobalScaleBySlot.get(options.slot) ?? false,
+      ...(options.source === undefined ? {} : { source: options.source }),
     };
-    if (!this.#tryAddEntity(instance, options.ignoreSlotCheck === true)) return instance.id;
+    if (!this.#tryAddEntity(instance, options.ignoreSlotCheck === true)) {
+      this.#observer.rejected?.('entity', snapshotInstance(instance), instance.operatorId);
+      return instance.id;
+    }
     this.#tickEntity(instance, 0, this.currentGlobalScale);
+    this.#observer.started?.('entity', snapshotInstance(instance), instance.operatorId);
     return instance.id;
   }
 
   stop(instanceId: number): void {
     const entityIndex = this.#entityInstances.findIndex(instance => instance.id === instanceId);
     if (entityIndex >= 0) {
-      this.#entityInstances.splice(entityIndex, 1);
+      const [instance] = this.#entityInstances.splice(entityIndex, 1);
+      this.#observer.ended?.(
+        'entity',
+        snapshotInstance(instance!),
+        'stopped',
+        instance!.operatorId,
+      );
       return;
     }
     const globalIndex = this.#globalInstances.findIndex(instance => instance.id === instanceId);
-    if (globalIndex >= 0) this.#globalInstances.splice(globalIndex, 1);
+    if (globalIndex >= 0) {
+      const [instance] = this.#globalInstances.splice(globalIndex, 1);
+      this.#observer.ended?.('global', snapshotInstance(instance!), 'stopped');
+    }
   }
 
   getOperatorScale(operatorId: string): number {
@@ -205,6 +267,31 @@ export class TimeDilationRuntime implements FrameRuntime {
     return Math.max(0, localScale * (ignoresGlobal ? 1 : this.currentGlobalScale));
   }
 
+  /** 按原生 AbilitySystem.PreLateTick 分支生成本实体使用的四路时钟。 */
+  getAbilityTickDeltas(
+    operatorId: string,
+    rawDeltaSeconds: number,
+    timeManagerDeltaMode: number,
+  ): AbilityTickDeltas {
+    if (!Number.isFinite(rawDeltaSeconds) || rawDeltaSeconds < 0) {
+      throw new RangeError('raw delta seconds must be a non-negative finite number');
+    }
+    if (!Number.isInteger(timeManagerDeltaMode)) {
+      throw new TypeError('time-manager delta mode must be an integer');
+    }
+    const globalScaledDeltaSeconds = rawDeltaSeconds * this.currentGlobalScale;
+    const defaultDeltaSeconds =
+      timeManagerDeltaMode === 2 ? rawDeltaSeconds : globalScaledDeltaSeconds;
+    return {
+      defaultDeltaSeconds,
+      globalScaledDeltaSeconds,
+      selfScaledDeltaSeconds: rawDeltaSeconds * this.getOperatorScale(operatorId),
+      skillCooldownDeltaSeconds: this.activeGlobalInfluencesSkillCooldown
+        ? globalScaledDeltaSeconds
+        : defaultDeltaSeconds,
+    };
+  }
+
   advanceFrame(): void {
     const globalScale = this.currentGlobalScale;
     for (let index = this.#entityInstances.length - 1; index >= 0; index -= 1) {
@@ -212,7 +299,13 @@ export class TimeDilationRuntime implements FrameRuntime {
       if (isValid(instance)) {
         this.#tickEntity(instance, COMBAT_FRAME_INTERVAL, globalScale);
       } else {
-        this.#entityInstances.splice(index, 1);
+        const [removed] = this.#entityInstances.splice(index, 1);
+        this.#observer.ended?.(
+          'entity',
+          snapshotInstance(removed!),
+          'natural',
+          removed!.operatorId,
+        );
       }
     }
     for (let index = this.#globalInstances.length - 1; index >= 0; index -= 1) {
@@ -220,7 +313,8 @@ export class TimeDilationRuntime implements FrameRuntime {
       if (isValid(instance)) {
         this.#tickGlobal(instance, COMBAT_FRAME_INTERVAL);
       } else {
-        this.#globalInstances.splice(index, 1);
+        const [removed] = this.#globalInstances.splice(index, 1);
+        this.#observer.ended?.('global', snapshotInstance(removed!), 'natural');
       }
     }
   }
@@ -230,7 +324,8 @@ export class TimeDilationRuntime implements FrameRuntime {
       const current = this.#globalInstances[index]!;
       if (current.slot !== candidate.slot) continue;
       if (this.#priorityOf(current.priority) > this.#priorityOf(candidate.priority)) return false;
-      this.#globalInstances.splice(index, 1);
+      const [removed] = this.#globalInstances.splice(index, 1);
+      this.#observer.ended?.('global', snapshotInstance(removed!), 'replaced');
     }
     this.#globalInstances.push(candidate);
     return true;
@@ -247,7 +342,8 @@ export class TimeDilationRuntime implements FrameRuntime {
         continue;
       }
       if (this.#priorityOf(current.priority) > this.#priorityOf(candidate.priority)) return false;
-      this.#entityInstances.splice(index, 1);
+      const [removed] = this.#entityInstances.splice(index, 1);
+      this.#observer.ended?.('entity', snapshotInstance(removed!), 'replaced', removed!.operatorId);
     }
     this.#entityInstances.push(candidate);
     return true;
@@ -312,6 +408,7 @@ function snapshotInstance(instance: MutableTimeDilationInstance): TimeDilationIn
     slot: instance.slot,
     priority: instance.priority,
     currentScale: instance.currentScale,
+    ...(instance.source === undefined ? {} : { source: Object.freeze({ ...instance.source }) }),
   });
 }
 

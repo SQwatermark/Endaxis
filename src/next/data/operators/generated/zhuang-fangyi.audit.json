@@ -2408,6 +2408,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -3704,6 +3705,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile",
         "SpawnAbilityEntity"
@@ -4572,6 +4574,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -5378,6 +5381,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -6407,6 +6411,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "SpawnAbilityEntity"
       ]
@@ -8392,6 +8397,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
@@ -10369,6 +10375,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "SpawnAbilityEntity"
@@ -11052,6 +11059,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "SpawnAbilityEntity"
@@ -11344,6 +11352,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -11568,6 +11577,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "ObtainCostAction"
@@ -14336,6 +14346,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -19282,6 +19293,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -19938,6 +19950,16 @@
       ],
       "resolvedSchedule": [
         {
+          "frame": 0,
+          "actionOrder": [
+            10
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill"
+          ]
+        },
+        {
           "frame": 24,
           "actionOrder": [
             37
@@ -20124,6 +20146,32 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionIndex": 10,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.6,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
         }
       ],
       "unresolvedCombatActions": [
@@ -20666,6 +20714,16 @@
         {
           "frame": 0,
           "actionOrder": [
+            11
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0030_zhuangfy_combo_skill_ult"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
             58
           ],
           "itemType": "buffHold",
@@ -20827,6 +20885,32 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionIndex": 11,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.6,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
         }
       ],
       "unresolvedCombatActions": [
@@ -21065,6 +21149,26 @@
         {
           "frame": 0,
           "actionOrder": [
+            23
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0030_zhuangfy_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            24
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0030_zhuangfy_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
             26
           ],
           "itemType": "buffApplication",
@@ -21166,6 +21270,50 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 23,
+          "kind": "normal",
+          "priority": -2059842104,
+          "scope": "entity",
+          "slot": 1464849466,
+          "duration": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "RESETto1",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [],
+          "targets": [
+            "caster"
+          ],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 78,
+          "actionIndex": 24,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 2,
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0
         }
       ],
       "unresolvedCombatActions": [

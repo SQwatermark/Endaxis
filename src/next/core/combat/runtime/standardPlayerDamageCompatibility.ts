@@ -182,6 +182,8 @@ function inspectSequence(
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
       case 'openComboWindow':
+      case 'startTimeDilation':
+      case 'startUltimateTimeDilation':
         return;
       case 'changeResource':
       case 'changeResourceByActionValue': {

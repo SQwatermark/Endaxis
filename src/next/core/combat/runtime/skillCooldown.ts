@@ -64,10 +64,18 @@ export class SkillCooldown {
     return true;
   }
 
-  /** 每个 AbilitySystem 帧推进一次；返回本帧是否刚到达可用边界。 */
-  advanceFrame(): boolean {
+  /** 按已换算成配置帧的时间推进；返回本次是否刚到达可用边界。 */
+  advance(deltaFrames = 1): boolean {
+    if (!Number.isFinite(deltaFrames) || deltaFrames < 0) {
+      throw new RangeError('cooldown delta frames must be a non-negative finite number');
+    }
     const timer = this.#timer;
-    return timer !== undefined && !timer.isReady && timer.update(1);
+    return timer !== undefined && !timer.isReady && timer.update(deltaFrames);
+  }
+
+  /** 固定帧驱动兼容入口；精确时钟调用应使用 advance。 */
+  advanceFrame(): boolean {
+    return this.advance(1);
   }
 
   /**

@@ -403,6 +403,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -961,6 +962,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1825,6 +1827,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2246,6 +2249,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2503,6 +2507,7 @@
         }
       ],
       "targetGroupWrites": [],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -2927,6 +2932,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "LaunchProjectile",
@@ -3328,6 +3334,7 @@
           "intervalSeconds": null
         }
       ],
+      "timeDilations": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4271,6 +4278,16 @@
       ],
       "resolvedSchedule": [
         {
+          "frame": 0,
+          "actionOrder": [
+            15
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0004_pelica_combo_skill"
+          ]
+        },
+        {
           "frame": 24,
           "actionOrder": [
             7,
@@ -4516,6 +4533,32 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 22,
+          "actionIndex": 15,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.833,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
         }
       ],
       "unresolvedCombatActions": [
@@ -4778,6 +4821,16 @@
         {
           "frame": 0,
           "actionOrder": [
+            8
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0004_pelica_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
             21
           ],
           "itemType": "buffApplication",
@@ -4924,6 +4977,26 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 50,
+          "actionIndex": 8,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0
         }
       ],
       "unresolvedCombatActions": [

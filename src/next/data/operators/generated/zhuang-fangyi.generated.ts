@@ -2556,7 +2556,8 @@ export const zhuangFangyiGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack2",
@@ -4054,7 +4055,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack3",
@@ -5107,7 +5109,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack4",
@@ -6077,7 +6080,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "basicAttack5",
@@ -7713,7 +7717,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "enhancedBasicAttack1",
@@ -11021,7 +11026,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "enhancedBasicAttack2",
@@ -14315,7 +14321,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "enhancedBasicAttack3",
@@ -15419,7 +15426,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "finisher",
@@ -15882,7 +15890,8 @@ export const zhuangFangyiGeneratedSource = {
       "targetGroupControlFlowActions": [],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "plungingAttack",
@@ -16327,7 +16336,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "battleSkill",
@@ -21202,7 +21212,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "enhancedBattleSkill",
@@ -27712,7 +27723,8 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": []
     },
     {
       "key": "comboSkill",
@@ -29368,7 +29380,33 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionIndex": 10,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.6,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
+        }
+      ]
     },
     {
       "key": "enhancedComboSkill",
@@ -30703,7 +30741,33 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionIndex": 11,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.6,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null
+        }
+      ]
     },
     {
       "key": "ultimate",
@@ -31528,7 +31592,51 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "auraActions": [],
       "physicalInflictions": [],
-      "eventListeners": []
+      "eventListeners": [],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 23,
+          "kind": "normal",
+          "priority": -2059842104,
+          "scope": "entity",
+          "slot": 1464849466,
+          "duration": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "RESETto1",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [],
+          "targets": [
+            "caster"
+          ],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 78,
+          "actionIndex": 24,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 2,
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0
+        }
+      ]
     }
   ]
 } as const satisfies GeneratedOperatorSource;

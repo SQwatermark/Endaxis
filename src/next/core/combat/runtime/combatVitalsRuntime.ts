@@ -24,7 +24,15 @@ export class CombatVitalsRuntime implements FrameRuntime {
   constructor(readonly dependencies: CombatVitalsRuntimeDependencies) {}
 
   advanceFrame(): void {
-    this.dependencies.vitals.tick(COMBAT_FRAME_INTERVAL, transition => {
+    this.advance(COMBAT_FRAME_INTERVAL);
+  }
+
+  /** 失衡恢复使用全局缩放时钟；固定帧入口仅用于无时间膨胀的调用方。 */
+  advance(deltaSeconds: number): void {
+    if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
+      throw new RangeError('combat vitals delta seconds must be a non-negative finite number');
+    }
+    this.dependencies.vitals.tick(deltaSeconds, transition => {
       this.#publish(transition);
     });
   }

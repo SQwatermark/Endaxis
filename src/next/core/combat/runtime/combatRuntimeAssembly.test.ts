@@ -132,6 +132,107 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('routes time-dilation clocks through the assembled ability systems', () => {
+    const casterDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
+    const otherDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
+    const makeBuffRuntime = (ownerId: string, sink: Array<{ selfScaledDeltaSeconds: number }>) => ({
+      ...emptyEnemyBuffRuntime,
+      ownerId,
+      advanceWithDeltas: (deltas: { selfScaledDeltaSeconds: number }) => sink.push(deltas),
+    });
+    const freeze = skill({
+      operatorId: 'caster',
+      skillId: 'freeze',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'startTimeDilation',
+                parameters: {
+                  scope: 'global',
+                  durationSeconds: { kind: 'constant', value: 1 },
+                  slot: 1,
+                  priority: 10,
+                  curve: { kind: 'named', key: 'half' },
+                  finishByAction: false,
+                  ignoredTargets: ['caster'],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const followUp = skill({ operatorId: 'other', skillId: 'follow-up' });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: ['caster', 'other'].map(operatorId => ({
+          operatorId,
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTagIds: null,
+        })),
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'caster',
+          skills: [freeze],
+          buffRuntime: makeBuffRuntime('caster', casterDeltas),
+        },
+        {
+          operatorId: 'other',
+          skills: [followUp],
+          buffRuntime: makeBuffRuntime('other', otherDeltas),
+        },
+      ],
+      inputs: [{ frame: 1, operatorId: 'other', skillId: 'follow-up' }],
+      timeDilation: {
+        config: {
+          priorities: new Map([[10, 10]]),
+          curves: new Map([['half', () => 0.5]]),
+        },
+        timeManagerDeltaMode: 2,
+      },
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(assembly.tryStartSkill('caster', 'freeze')).toBe(true);
+    expect(
+      assembly.receipt.entries.find(entry => entry.event === 'TimeDilationStarted'),
+    ).toMatchObject({
+      frame: 0,
+      sourceId: 'caster',
+      data: { kind: 'global', sourceActionId: 'freeze', currentScale: 0.5 },
+    });
+    assembly.advanceFrame();
+
+    expect(casterDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 30);
+    expect(otherDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 60);
+    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillInputProcessed')).toBe(
+      false,
+    );
+
+    assembly.advanceFrame();
+
+    expect(
+      assembly.receipt.entries.find(entry => entry.event === 'SkillInputProcessed'),
+    ).toMatchObject({ frame: 2, data: { timelineFrame: 1 } });
+  });
+
   it('installs equipment event handlers and executes their resource sequence', () => {
     const assembly = new CombatRuntimeAssembly({
       enemy: testEnemy,

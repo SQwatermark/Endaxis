@@ -143,6 +143,21 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
     scheduledSequences: [
       scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.833 },
+            slot: 0,
+            priority: -593023102,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+          }),
+        ),
+        22,
+      ),
+      scheduled(
         24,
         sequence(
           step('applyElementalReaction', {
@@ -182,6 +197,17 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
     costFrame: 0,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('startUltimateTimeDilation', {
+            priority: -1742631616,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+          }),
+        ),
+        50,
+      ),
       scheduled(
         58,
         sequence(

@@ -86,6 +86,8 @@ export interface ResolvedCombatStepParameters {
   finishBuffsById: CombatStepParameters['finishBuffsById'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
   createTimedMarker: CombatStepParameters['createTimedMarker'];
+  startTimeDilation: CombatStepParameters['startTimeDilation'];
+  startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
   calculateActionValue: CombatStepParameters['calculateActionValue'];
   changeResource: {

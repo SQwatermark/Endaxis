@@ -42,6 +42,64 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(skill)).toEqual([]);
   });
 
+  it('validates named and inline time-dilation curves', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'startTimeDilation',
+              parameters: {
+                scope: 'global',
+                durationSeconds: { kind: 'constant', value: 1 },
+                slot: 1,
+                priority: 2,
+                curve: { kind: 'named', key: 'ComboSkill' },
+                finishByAction: false,
+                ignoredTargets: ['caster'],
+              },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    const parameters = (
+      skill.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters;
+    parameters.curve = {
+      kind: 'inline',
+      keys: [
+        {
+          time: 1,
+          value: 0,
+          inTangent: 0,
+          outTangent: 0,
+          weightedMode: 4,
+          inWeight: 0,
+          outWeight: 0,
+        },
+        {
+          time: 0,
+          value: 1,
+          inTangent: 0,
+          outTangent: 0,
+          weightedMode: 0,
+          inWeight: 0,
+          outWeight: 0,
+        },
+      ],
+    };
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path.endsWith('.weightedMode'))).toBe(true);
+    expect(issues.some(issue => issue.message.includes('strictly increasing'))).toBe(true);
+  });
+
   it('keeps Buff presentation metadata strict and separate from runtime fields', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

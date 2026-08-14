@@ -1716,4 +1716,33 @@ describe('CombatBuffContainer', () => {
     expect(held.finishReason).toBe('lifetime');
     expect(container.hasEntityTag(extendTag)).toBe(false);
   });
+
+  it('advances each Buff with the time domain selected by its definition', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
+    const add = (id: string, timeClock?: 'default' | 'global' | 'self') =>
+      requireAddedBuff(
+        container.add(
+          {
+            id,
+            ...(timeClock === undefined ? {} : { timeClock }),
+            stackingType: 'unlimited',
+            durationSeconds: 10,
+          },
+          'operator',
+        ),
+      );
+    const defaultBuff = add('buff.default');
+    const globalBuff = add('buff.global', 'global');
+    const selfBuff = add('buff.self', 'self');
+
+    container.tick({
+      defaultDeltaSeconds: 1,
+      globalScaledDeltaSeconds: 0.5,
+      selfScaledDeltaSeconds: 0.25,
+    });
+
+    expect(defaultBuff.passedTime).toBe(1);
+    expect(globalBuff.passedTime).toBe(0.5);
+    expect(selfBuff.passedTime).toBe(0.25);
+  });
 });

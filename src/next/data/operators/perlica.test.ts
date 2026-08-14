@@ -16,7 +16,10 @@ describe('next Perlica definition', () => {
   });
 
   it('models combo impact as supported semantic operations', () => {
-    const steps = getSkill('comboSkill').scheduledSequences[0]!.sequence.steps;
+    const skill = getSkill('comboSkill');
+    const steps = skill.scheduledSequences.find(item => item.startFrame === 24)!.sequence.steps;
+
+    expect(skill.scheduledSequences[0]!.sequence.steps[0]?.kind).toBe('startTimeDilation');
 
     expect(steps.map(step => step.kind)).toEqual([
       'applyElementalReaction',

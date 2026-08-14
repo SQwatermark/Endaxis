@@ -1625,7 +1625,9 @@
         "once": "Runs its body at most once within the same skill cast.",
         "setContextFlag": "Sets a caster context flag for other mechanics to read.",
         "openComboWindow": "Queues the next combo stage in the scene-level window runtime. The window lasts 5 seconds and follows queue order.",
-        "listenForCombatEvents": "Registers temporary event listeners for the outer scheduled sequence interval. They are disposed when the skill ends or is interrupted."
+        "listenForCombatEvents": "Registers temporary event listeners for the outer scheduled sequence interval. They are disposed when the skill ends or is interrupted.",
+        "startTimeDilation": "Starts ordinary time dilation. Scope, duration, slot, priority, and curve determine the resulting clock scale.",
+        "startUltimateTimeDilation": "Starts ultimate-specific global time dilation. The caster ignores it automatically and it stops when the action ends."
       },
       "damageType": "Damage type",
       "eventListenerWindowHint": "The current scheduled sequence start and end frames define the listening window. Responses run synchronously on the triggering frame.",
@@ -1667,6 +1669,8 @@
         "remainArea": "Persistent area"
       },
       "stepKinds": {
+        "startTimeDilation": "Start time dilation",
+        "startUltimateTimeDilation": "Start ultimate time dilation",
         "applyElementalInfliction": "Apply infliction",
         "applyElementalReaction": "Apply reaction",
         "consumeElementalReaction": "Consume reaction",

@@ -315,6 +315,10 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'startTimeDilation':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'startUltimateTimeDilation':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'modifyActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':

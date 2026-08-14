@@ -96,6 +96,16 @@ export type BuffMaxStackCount = number | { readonly blackboardKey: string };
 /** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
 export type BuffPriority = number | { readonly blackboardKey: string; readonly negate?: boolean };
 
+/** Buff 生命周期可选择的原生时间域；缺省使用 TimeManager 默认时钟。 */
+export type BuffTimeClock = 'default' | 'global' | 'self';
+
+/** 一帧内供 Buff 实例选择的三路时间增量。 */
+export interface BuffTickDeltas {
+  readonly defaultDeltaSeconds: number;
+  readonly globalScaledDeltaSeconds: number;
+  readonly selfScaledDeltaSeconds: number;
+}
+
 /**
  * Buff 启用期间持续执行的有状态动作。
  * 定义对象只充当蓝图；每个 Buff 实例必须通过 createRuntimeInstance 获得独立运行状态。
@@ -124,6 +134,7 @@ export interface BuffLifecycleActions<Key extends string> {
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
+  readonly timeClock?: BuffTimeClock;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
   readonly applyTags?: readonly GameplayTagId[];
   /** Buff 到期但被 ExtendBuffAction 阻止结束后，临时注册到所属实体的标签。 */
@@ -331,10 +342,14 @@ export class CombatBuff<Key extends string> {
     return true;
   }
 
-  tick(deltaTime: number): void {
+  tick(deltaTime: number | BuffTickDeltas): void {
     if (this.#finished) return;
-    if (!Number.isFinite(deltaTime)) throw new TypeError('buff delta time must be finite');
-    const elapsed = Math.max(0, deltaTime);
+    const resolvedDeltaTime =
+      typeof deltaTime === 'number'
+        ? deltaTime
+        : resolveBuffTickDelta(this.definition.timeClock ?? 'default', deltaTime);
+    if (!Number.isFinite(resolvedDeltaTime)) throw new TypeError('buff delta time must be finite');
+    const elapsed = Math.max(0, resolvedDeltaTime);
     this.#passedTime += elapsed;
     if (this.#enabled) {
       this.triggerInternal(elapsed);
@@ -684,7 +699,7 @@ export class CombatBuffContainer<Key extends string> {
     for (const modifier of this.#damageModifiers) modifier.apply(timing, side, context);
   }
 
-  tick(deltaTime: number): void {
+  tick(deltaTime: number | BuffTickDeltas): void {
     for (const buff of this.#buffs) buff.tick(deltaTime);
   }
 
@@ -697,6 +712,17 @@ export class CombatBuffContainer<Key extends string> {
       const index = this.#damageModifiers.indexOf(modifier);
       if (index >= 0) this.#damageModifiers.splice(index, 1);
     }
+  }
+}
+
+function resolveBuffTickDelta(clock: BuffTimeClock, deltas: BuffTickDeltas): number {
+  switch (clock) {
+    case 'default':
+      return deltas.defaultDeltaSeconds;
+    case 'global':
+      return deltas.globalScaledDeltaSeconds;
+    case 'self':
+      return deltas.selfScaledDeltaSeconds;
   }
 }
 

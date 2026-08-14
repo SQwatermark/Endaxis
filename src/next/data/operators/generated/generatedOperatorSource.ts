@@ -809,6 +809,36 @@ export interface GeneratedSkillEventListenerSource {
   readonly sequences: readonly GeneratedSkillEventActionSequenceSource[];
 }
 
+export interface GeneratedTimeScaleCurveKeySource {
+  readonly time: number;
+  readonly value: number;
+  readonly inTangent: number;
+  readonly outTangent: number;
+  readonly weightedMode: number;
+  readonly inWeight: number;
+  readonly outWeight: number;
+}
+
+/** 原生技能时间轴中的时间膨胀动作；公共曲线仍以名称引用。 */
+export interface GeneratedTimedTimeDilationSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly kind: 'normal' | 'ultimate';
+  readonly priority: number;
+  readonly scope: 'global' | 'entity' | null;
+  readonly slot: number | null;
+  readonly duration: GeneratedScalarSource | null;
+  readonly namedCurve: string | null;
+  readonly inlineCurve: readonly GeneratedTimeScaleCurveKeySource[];
+  readonly finishByAction: boolean;
+  readonly ignoredTargets: readonly ('caster' | 'enemy')[];
+  readonly targets: readonly ('caster' | 'enemy')[];
+  readonly omittedAbilityEntityTargets: number;
+  readonly influenceSkillCooldown: GeneratedScalarSource | null;
+  readonly targetScale: number | null;
+}
+
 export interface GeneratedSkillSource {
   readonly key: string;
   readonly skillId: string;
@@ -862,6 +892,7 @@ export interface GeneratedSkillSource {
   readonly auraActions: readonly GeneratedAuraActionSource[];
   readonly physicalInflictions: readonly GeneratedTimedPhysicalInflictionSource[];
   readonly eventListeners: readonly GeneratedSkillEventListenerSource[];
+  readonly timeDilations: readonly GeneratedTimedTimeDilationSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

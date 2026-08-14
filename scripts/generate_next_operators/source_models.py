@@ -236,6 +236,39 @@ class TimedResourceGainSource:
 
 
 @dataclass(frozen=True)
+class TimeScaleCurveKeySource:
+    time: float
+    value: float
+    inTangent: float
+    outTangent: float
+    weightedMode: int
+    inWeight: float
+    outWeight: float
+
+
+@dataclass(frozen=True)
+class TimedTimeDilationSource:
+    """根技能时间轴中的普通或终结技专用时间膨胀动作。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    kind: Literal["normal", "ultimate"]
+    priority: int
+    scope: Literal["global", "entity"] | None
+    slot: int | None
+    duration: ScalarSource | None
+    namedCurve: str | None
+    inlineCurve: tuple[TimeScaleCurveKeySource, ...]
+    finishByAction: bool
+    ignoredTargets: tuple[Literal["caster", "enemy"], ...]
+    targets: tuple[Literal["caster", "enemy"], ...]
+    omittedAbilityEntityTargets: int
+    influenceSkillCooldown: ScalarSource | None
+    targetScale: float | None
+
+
+@dataclass(frozen=True)
 class ProjectileSkillTriggerSource:
     event: Literal["hit", "block", "reach", "finish"]
     skillId: str
@@ -335,6 +368,7 @@ ResolvedScheduleItemType = Literal[
     "infliction",
     "buffApplication",
     "eventListener",
+    "timeDilation",
 ]
 
 
@@ -357,6 +391,7 @@ class ResolvedScheduleItemSource:
         " | TimedResourceGainSource"
         " | TimedInflictionSource"
         " | SkillEventListenerSource"
+        " | TimedTimeDilationSource"
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None
@@ -1041,3 +1076,4 @@ class SkillSource:
     auraActions: tuple[AuraActionSource, ...] = ()
     physicalInflictions: tuple[TimedPhysicalInflictionSource, ...] = ()
     eventListeners: tuple[SkillEventListenerSource, ...] = ()
+    timeDilations: tuple[TimedTimeDilationSource, ...] = ()
