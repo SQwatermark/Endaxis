@@ -59,7 +59,7 @@ function options(): CompileScenarioResourcesOptions {
     sharedSpGain: { baseGainEfficiency: 1.25 },
     spRecoveryPauseDuration: 1.5,
     ultimateEnergySystemUnlocked: true,
-    normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+    normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
     operators: new Map([
       ['track:0', operatorRules()],
       [
@@ -101,7 +101,7 @@ describe('compileScenarioResources', () => {
           allowedUltimateEnergyRecoveryTagIds: new Set([gameplayTagId(7)]),
         },
       ],
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
     });
   });
 

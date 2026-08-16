@@ -53,7 +53,7 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       sharedSpGain: { baseGainEfficiency: 1 },
       spRecoveryPauseDuration: 1.5,
       ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
     },
     environment: {
       enemyBuffRuntime: enemyBuffRuntime(),

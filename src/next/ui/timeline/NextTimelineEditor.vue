@@ -258,7 +258,8 @@ const simulationService = new ScenarioSimulationService({
     sharedSpGain: { baseGainEfficiency: 1 },
     spRecoveryPauseDuration: 1.5,
     ultimateEnergySystemUnlocked: true,
-    normalSkillUltimateEnergy: { selfGainPerSp: 0.5, otherGainPerSp: 0.25 },
+    // SkillSetting 构造函数默认值：atbConsumedDefaultUspGainSelf/Other = 0.065。
+    normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
   },
 });
 const {
@@ -1492,7 +1493,6 @@ function setPanelDialogVisible(visible: boolean): void {
                 :prep-frames="scenario.battle.prepFrames"
                 :duration-frames="displayTime.actualDurationFrames"
                 :px-per-frame="pxPerFrame"
-                :height="160"
               />
               <div
                 class="prep-zone"
