@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * 干员轨道上的终结技能量曲线（抄旧版 GaugeOverlay）。
- * 曲线沿整条轨道从底部向上画，满能量时在顶部显示高亮线。
+ * 干员轨道上的终结技能量曲线（对齐旧版 GaugeOverlay 的最终视觉）。
+ * 曲线只在 50px 技能带内绘制：普通低透明折线 + 满能量双层高亮线，不画面积填充。
  */
 import { computed } from 'vue';
 import type { OperatorUltimateEnergyCurve } from '../../../core/projection/resourceCurves';
@@ -12,10 +12,11 @@ const props = defineProps<{
   prepFrames: number;
   durationFrames: number;
   pxPerFrame: number;
-  height: number;
 }>();
 
-const ROW_BASE_Y = 0;
+/** 旧版 GaugeOverlay 的 50px 曲线带。根容器外框 54px 并垂直居中，SVG 自身保持 50px。 */
+const CHART_HEIGHT = 50;
+const BASE_Y = 50;
 
 const gaugePoints = computed(() => {
   const curve = props.curve;
@@ -23,88 +24,97 @@ const gaugePoints = computed(() => {
   return curve.points.map(point => ({
     frame: point.frame,
     ratio: Math.min(point.value / curve.maxValue, 1),
-    source: point.source,
   }));
 });
 
 const pathData = computed(() => {
   const points = gaugePoints.value;
   if (points.length === 0) return '';
-  return points
-    .map(point => {
-      const x = (point.frame + props.prepFrames) * props.pxPerFrame;
-      const y = props.height - ROW_BASE_Y - point.ratio * props.height;
-      return `${x},${y}`;
-    })
-    .join(' ');
-});
-
-const areaData = computed(() => {
-  const points = gaugePoints.value;
-  if (points.length === 0) return '';
-  const lastPoint = points[points.length - 1]!;
-  const lastX = (lastPoint.frame + props.prepFrames) * props.pxPerFrame;
-  return `0,${props.height} ${pathData.value} ${lastX},${props.height}`;
+  const xForFrame = (frame: number) => (frame + props.prepFrames) * props.pxPerFrame;
+  const yForRatio = (ratio: number) => BASE_Y - ratio * CHART_HEIGHT;
+  const first = points[0]!;
+  const endX = xForFrame(props.durationFrames);
+  // 稀疏状态点按阶梯展示：每个后续点先水平到变化帧，再垂直跳到新状态；最后延伸到显示时长终点。
+  let d = `M ${xForFrame(first.frame)} ${yForRatio(first.ratio)}`;
+  for (let index = 1; index < points.length; index += 1) {
+    const point = points[index]!;
+    d += ` H ${xForFrame(point.frame)} V ${yForRatio(point.ratio)}`;
+  }
+  d += ` H ${endX}`;
+  return d;
 });
 
 const fullSegments = computed(() => {
   const segments: { x1: number; x2: number }[] = [];
   const points = gaugePoints.value;
-  for (let index = 0; index < points.length - 1; index += 1) {
-    if (points[index]!.ratio >= 1 && points[index + 1]!.ratio >= 1) {
-      const x1 = (points[index]!.frame + props.prepFrames) * props.pxPerFrame;
-      const x2 = (points[index + 1]!.frame + props.prepFrames) * props.pxPerFrame;
-      if (x2 > x1) segments.push({ x1, x2 });
-    }
+  const endX = (props.durationFrames + props.prepFrames) * props.pxPerFrame;
+  for (let index = 0; index < points.length; index += 1) {
+    const point = points[index]!;
+    if (point.ratio < 1) continue;
+    const x1 = (point.frame + props.prepFrames) * props.pxPerFrame;
+    const nextPoint = points[index + 1];
+    const x2 =
+      nextPoint === undefined ? endX : (nextPoint.frame + props.prepFrames) * props.pxPerFrame;
+    // 稀疏点代表“从该帧持续到下一变化帧或显示终点”；失去满能时在下一变化帧结束。
+    if (x2 > x1) segments.push({ x1, x2 });
   }
   return segments;
 });
+
+/** 曲线身份为空时仍给 SVG filter 一个稳定 id；有曲线时按 operatorId 保持唯一。 */
+const glowFilterId = computed(() => `glow-${props.curve?.operatorId ?? 'none'}`);
 </script>
 
 <template>
   <div class="track-gauge">
     <svg
       class="track-gauge-svg"
-      :height="height"
+      :height="CHART_HEIGHT"
       :width="(prepFrames + durationFrames) * pxPerFrame"
     >
-      <defs>
-        <linearGradient
-          :id="`gauge-fill-${curve?.operatorId ?? 'none'}`"
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="1"
-        >
-          <stop offset="0%" :stop-color="color" stop-opacity="0.25" />
-          <stop offset="100%" :stop-color="color" stop-opacity="0" />
-        </linearGradient>
+      <defs v-if="curve !== null">
+        <filter :id="glowFilterId" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <polygon
-        v-if="areaData"
-        :points="areaData"
-        :fill="`url(#gauge-fill-${curve?.operatorId ?? 'none'})`"
-      />
-      <polyline
+
+      <path
         v-if="pathData"
-        :points="pathData"
+        :d="pathData"
         fill="none"
         :stroke="color"
         stroke-width="1"
-        stroke-opacity="0.5"
+        stroke-opacity="0.4"
         stroke-linejoin="round"
         stroke-linecap="round"
         class="no-events"
       />
+
       <line
         v-for="(seg, index) in fullSegments"
         :key="`full-${index}`"
         :x1="seg.x1"
-        :y1="2"
+        :y1="1"
         :x2="seg.x2"
-        :y2="2"
+        :y2="1"
         :stroke="color"
         class="full-gauge-line no-events"
+      />
+
+      <line
+        v-for="(seg, index) in fullSegments"
+        :key="`glow-${index}`"
+        :x1="seg.x1"
+        :y1="1"
+        :x2="seg.x2"
+        :y2="1"
+        :stroke="color"
+        class="full-gauge-glow no-events"
+        :filter="`url(#${glowFilterId})`"
       />
     </svg>
   </div>
@@ -113,10 +123,14 @@ const fullSegments = computed(() => {
 <style scoped>
 .track-gauge {
   position: absolute;
-  inset: 0;
-  overflow: visible;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 54px;
+  transform: translateY(-50%);
   pointer-events: none;
   z-index: 1;
+  overflow: visible;
 }
 
 .track-gauge-svg {
@@ -125,19 +139,39 @@ const fullSegments = computed(() => {
 }
 
 .no-events {
-  pointer-events: none;
+  pointer-events: none !important;
 }
 
 .full-gauge-line {
   stroke-width: 2;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 6px currentColor);
-  animation: gauge-glow 2s ease-in-out infinite alternate;
+  transform: translateY(1px);
+  will-change: opacity;
+  animation: stroke-opacity 2s ease-in-out infinite alternate;
 }
 
-@keyframes gauge-glow {
+.full-gauge-glow {
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px currentColor);
+  transform: translateY(1px);
+  will-change: opacity, transform;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
   0% {
-    opacity: 0.4;
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1.2);
+  }
+}
+
+@keyframes stroke-opacity {
+  0% {
+    opacity: 0.85;
   }
   100% {
     opacity: 1;
