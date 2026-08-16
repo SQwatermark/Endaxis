@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { arcane, arclight, perlica, zhuangFangyi } from './operators';
+import {
+  akekuri,
+  arcane,
+  arclight,
+  endministrator,
+  estella,
+  fluorite,
+  gilberta,
+  lastRite,
+  lifeng,
+  perlica,
+  zhuangFangyi,
+} from './operators';
 import {
   sharedGearDefinitions,
   sharedGearSetDefinitions,
@@ -18,11 +30,30 @@ describe('gameDataRepository', () => {
   });
 
   it('indexes every explicitly registered Next operator', () => {
-    expect(nextGameDataRepository.getOperators()).toEqual([perlica, arcane, zhuangFangyi, arclight]);
+    expect(nextGameDataRepository.getOperators()).toEqual([
+      perlica,
+      arcane,
+      zhuangFangyi,
+      arclight,
+      gilberta,
+      lifeng,
+      estella,
+      akekuri,
+      fluorite,
+      endministrator,
+      lastRite,
+    ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
     expect(nextGameDataRepository.getOperator(zhuangFangyi.slug)).toBe(zhuangFangyi);
     expect(nextGameDataRepository.getOperator(arclight.slug)).toBe(arclight);
+    expect(nextGameDataRepository.getOperator(gilberta.slug)).toBe(gilberta);
+    expect(nextGameDataRepository.getOperator(lifeng.slug)).toBe(lifeng);
+    expect(nextGameDataRepository.getOperator(estella.slug)).toBe(estella);
+    expect(nextGameDataRepository.getOperator(akekuri.slug)).toBe(akekuri);
+    expect(nextGameDataRepository.getOperator(fluorite.slug)).toBe(fluorite);
+    expect(nextGameDataRepository.getOperator(endministrator.slug)).toBe(endministrator);
+    expect(nextGameDataRepository.getOperator(lastRite.slug)).toBe(lastRite);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

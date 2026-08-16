@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from generate_next_operators import (
+    ELEMENT_TYPE_MAP,
     collect_blackboard_keys,
     collect_conditional_blackboard_keys,
     collect_unresolved_combat_actions,
@@ -958,6 +959,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
     def test_damage_compiler_maps_native_element_names(self) -> None:
+        self.assertEqual(
+            ELEMENT_TYPE_MAP,
+            {
+                "Physical": "physical",
+                "Fire": "heat",
+                "Pulse": "electric",
+                "Cryst": "cryo",
+                "Natural": "nature",
+            },
+        )
         cases = {
             "Fire": "heat",
             "Pulse": "electric",
@@ -8177,6 +8188,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("step('listenForCombatEvents'", compiled)
         self.assertIn("kind: 'enemyDefeated'", compiled)
+        self.assertIn("sequence: sequence(", compiled)
         self.assertIn("key: 'kill_num'", compiled)
         self.assertIn("operation: 'add'", compiled)
 

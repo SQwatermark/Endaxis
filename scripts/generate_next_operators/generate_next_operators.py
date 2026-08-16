@@ -7301,7 +7301,7 @@ def compile_skill_event_listener(
         )
         if sequence_source == "sequence()":
             raise ValueError(f"{response_path}: event response compiles to an empty sequence")
-        sequence_lines = indent_source(sequence_source, 8)
+        sequence_lines = indent_source(f"sequence: {sequence_source}", 8)
         sequence_lines[-1] += ","
         responses.extend(
             [
@@ -7921,7 +7921,13 @@ WEAPON_TYPE_MAP = {
     5: "polearm",
     6: "handcannon",
 }
-ELEMENT_TYPE_MAP = {"Pulse": "electric"}
+ELEMENT_TYPE_MAP = {
+    "Physical": "physical",
+    "Fire": "heat",
+    "Pulse": "electric",
+    "Cryst": "cryo",
+    "Natural": "nature",
+}
 PROFESSION_MAP = {
     0: "guard",
     2: "defender",

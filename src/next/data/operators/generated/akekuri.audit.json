@@ -1,0 +1,5317 @@
+{
+  "operator": "akekuri",
+  "complete": false,
+  "buffDefinitions": [
+    {
+      "buffId": "buff_chr_0019_karin_potential_3",
+      "sourceFile": "buff_chr_0019_karin_potential_3.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "atk",
+          "value": 0.1,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "Atk",
+          "slot": "BaseMultiplier",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "atk",
+            "levelValues": [
+              0.1
+            ]
+          }
+        }
+      ],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_chr_0019_karin_potential_5_combo",
+      "sourceFile": "buff_chr_0019_karin_potential_5_combo.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": "potential_5_duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "potential_5_duration",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "FinishBuffAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_chr_0019_karin_talent_2",
+      "sourceFile": "buff_chr_0019_karin_talent_2.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "potential_5_duration",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [
+            "buff_chr_0019_karin_potential_5_combo"
+          ]
+        }
+      ],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_chr_0019_karin_talent_2_combo",
+      "sourceFile": "buff_chr_0019_karin_talent_2_combo.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "imbue_scale",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CreateGlobalBuffAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_medium",
+      "sourceFile": "buff_common_damage_immune_medium.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -886962248
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_ult_skill",
+      "sourceFile": "buff_common_damage_immune_ult_skill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -886962248
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "SetSuperArmorAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_common_obtain_ultimate_sp",
+      "sourceFile": "buff_common_obtain_ultimate_sp.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "ratio",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_everyone",
+          "value": 6.5,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_self",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ObtainUspInNormalSkill"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_common_power_attack_disable_cast_skill",
+      "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [],
+      "applyTagIds": [
+        -1601691447,
+        817018340,
+        -1486085048,
+        -496376350,
+        2002680355
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    }
+  ],
+  "skills": [
+    {
+      "key": "basicAttack1",
+      "skillId": "chr_0019_karin_attack1",
+      "sourceFile": "chr_0019_karin_attack1.json",
+      "timelineBlockFrames": 14,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 9,
+          "endFrame": 10,
+          "actionIndex": 4,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.2,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.36,
+                  0.39,
+                  0.42,
+                  0.45
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 4
+        }
+      ],
+      "conditionalActions": [],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 9,
+          "actionOrder": [
+            4
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack1"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.2,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.36,
+                  0.39,
+                  0.42,
+                  0.45
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            4
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 9,
+          "actionOrder": [
+            4
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack1"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 9,
+          "endFrame": 10,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "DamageAction"
+      ]
+    },
+    {
+      "key": "basicAttack2",
+      "skillId": "chr_0019_karin_attack2",
+      "sourceFile": "chr_0019_karin_attack2.json",
+      "timelineBlockFrames": 22,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "actionIndex": 5,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.13,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 5
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "actionIndex": 12,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 6
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "actionIndex": 7,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 9,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.0,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "normalAttack",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "actionIndex": 14,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 16,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.0,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "normalAttack",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 8,
+          "actionOrder": [
+            5
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack2"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.13,
+                  0.14,
+                  0.15,
+                  0.16,
+                  0.18,
+                  0.19,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.28
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            5
+          ]
+        },
+        {
+          "frame": 16,
+          "actionOrder": [
+            12
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack2"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.15,
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.34
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            6
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 8,
+          "actionOrder": [
+            5
+          ],
+          "sequenceOrder": [
+            5
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack2"
+          ]
+        },
+        {
+          "frame": 8,
+          "actionOrder": [
+            7
+          ],
+          "sequenceOrder": [
+            5
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        },
+        {
+          "frame": 16,
+          "actionOrder": [
+            12
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack2"
+          ]
+        },
+        {
+          "frame": 16,
+          "actionOrder": [
+            14
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atk_scale",
+        "atk_scale_2"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "actionIndex": 4,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "basicAttack3",
+      "skillId": "chr_0019_karin_attack3",
+      "sourceFile": "chr_0019_karin_attack3.json",
+      "timelineBlockFrames": 21,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 4,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.33,
+                  0.36,
+                  0.39,
+                  0.42,
+                  0.46,
+                  0.49,
+                  0.52,
+                  0.55,
+                  0.59,
+                  0.63,
+                  0.67,
+                  0.73
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 4
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 8,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.0,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "normalAttack",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 10,
+          "actionOrder": [
+            4
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack3"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.33,
+                  0.36,
+                  0.39,
+                  0.42,
+                  0.46,
+                  0.49,
+                  0.52,
+                  0.55,
+                  0.59,
+                  0.63,
+                  0.67,
+                  0.73
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            4
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 10,
+          "actionOrder": [
+            4
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack3"
+          ]
+        },
+        {
+          "frame": 10,
+          "actionOrder": [
+            6
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "basicAttack4",
+      "skillId": "chr_0019_karin_attack4",
+      "sourceFile": "chr_0019_karin_attack4.json",
+      "timelineBlockFrames": 35,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [
+        {
+          "startFrame": 19,
+          "endFrame": 20,
+          "actionIndex": 14,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 7
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "actionIndex": 18,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 8
+        },
+        {
+          "startFrame": 21,
+          "endFrame": 22,
+          "actionIndex": 24,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 9
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 21,
+          "endFrame": 22,
+          "actionIndex": 26,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.0,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0,
+                    19.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "normalAttack",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 19,
+          "actionOrder": [
+            14
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            7
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            18
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "sequenceOrder": [
+            8
+          ]
+        },
+        {
+          "frame": 21,
+          "actionOrder": [
+            24
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.5,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.17,
+                  0.18,
+                  0.2,
+                  0.21,
+                  0.23,
+                  0.25,
+                  0.26,
+                  0.28,
+                  0.3,
+                  0.32,
+                  0.34,
+                  0.37
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 2097280
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0,
+                  17.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceOrder": [
+            9
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 19,
+          "actionOrder": [
+            14
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            18
+          ],
+          "sequenceOrder": [
+            8
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ]
+        },
+        {
+          "frame": 21,
+          "actionOrder": [
+            24
+          ],
+          "sequenceOrder": [
+            9
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_attack4"
+          ]
+        },
+        {
+          "frame": 21,
+          "actionOrder": [
+            26
+          ],
+          "sequenceOrder": [
+            9
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atk_scale",
+        "poise"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 19,
+          "endFrame": 20,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 21,
+          "endFrame": 22,
+          "actionIndex": 13,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "finisher",
+      "skillId": "chr_0019_karin_power_attack",
+      "sourceFile": "chr_0019_karin_power_attack.json",
+      "timelineBlockFrames": 37,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionIndex": 19,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "calculationMultiplier": {
+                "value": 0.2,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 132
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 13
+        },
+        {
+          "startFrame": 36,
+          "endFrame": 37,
+          "actionIndex": 27,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "calculationMultiplier": {
+                "value": 0.8,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 132
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 14
+        }
+      ],
+      "conditionalActions": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 60,
+          "actionIndex": 60,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_medium",
+          "classification": "incomingDamageProtection",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 24
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 36,
+          "actionIndex": 64,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_power_attack_disable_cast_skill",
+          "classification": "inputLock",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 28
+        }
+      ],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_damage_immune_medium",
+        "buff_common_power_attack_disable_cast_skill"
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 13,
+          "actionOrder": [
+            19
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "calculationMultiplier": {
+                "value": 0.2,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 132
+            }
+          ],
+          "sequenceOrder": [
+            13
+          ]
+        },
+        {
+          "frame": 36,
+          "actionOrder": [
+            27
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "breakingAttack",
+              "attackScale": {
+                "value": 4.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  4.0,
+                  4.4,
+                  4.8,
+                  5.2,
+                  5.6,
+                  6.0,
+                  6.4,
+                  6.8,
+                  7.2,
+                  7.7,
+                  8.3,
+                  9.0
+                ]
+              },
+              "calculationMultiplier": {
+                "value": 0.8,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 132
+            }
+          ],
+          "sequenceOrder": [
+            14
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            60
+          ],
+          "sequenceOrder": [
+            24
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            64
+          ],
+          "sequenceOrder": [
+            28
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ]
+        },
+        {
+          "frame": 13,
+          "actionOrder": [
+            19
+          ],
+          "sequenceOrder": [
+            13
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ]
+        },
+        {
+          "frame": 36,
+          "actionOrder": [
+            27
+          ],
+          "sequenceOrder": [
+            14
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_power_attack"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionIndex": 17,
+          "actionPath": [
+            "timelineActions[11]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 36,
+          "endFrame": 37,
+          "actionIndex": 18,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ]
+    },
+    {
+      "key": "plungingAttack",
+      "skillId": "chr_0019_karin_plunging_attack_end",
+      "sourceFile": "chr_0019_karin_plunging_attack_end.json",
+      "timelineBlockFrames": 14,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [
+        {
+          "startFrame": 1,
+          "endFrame": 6,
+          "actionIndex": 4,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 1152
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 4
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 1,
+          "endFrame": 6,
+          "actionIndex": 7,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[3]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Source",
+                "targetGroupKey": "tar"
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 9,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.0,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "normalAttack",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 1,
+          "actionOrder": [
+            4
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_plunging_attack_end"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 1152
+            }
+          ],
+          "sequenceOrder": [
+            4
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 1,
+          "actionOrder": [
+            4
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_plunging_attack_end"
+          ]
+        },
+        {
+          "frame": 1,
+          "actionOrder": [
+            7
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[3]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 1,
+          "endFrame": 5,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "battleSkill",
+      "skillId": "chr_0019_karin_normal_skill",
+      "sourceFile": "chr_0019_karin_normal_skill.json",
+      "timelineBlockFrames": 41,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "directDamageHits": [
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "actionIndex": 65,
+          "damageUnits": [
+            {
+              "damageType": "Fire",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.42,
+                  1.56,
+                  1.71,
+                  1.85,
+                  1.99,
+                  2.13,
+                  2.28,
+                  2.42,
+                  2.56,
+                  2.74,
+                  2.95,
+                  3.2
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 4352
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 2.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 9
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "actionIndex": 70,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 72,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_obtain_ultimate_sp",
+                    "classification": "skillCostUltimateEnergyGain",
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_common_obtain_ultimate_sp"
+      ],
+      "resolvedDamageHits": [
+        {
+          "frame": 20,
+          "actionOrder": [
+            65
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_normal_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Fire",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.42,
+                  1.56,
+                  1.71,
+                  1.85,
+                  1.99,
+                  2.13,
+                  2.28,
+                  2.42,
+                  2.56,
+                  2.74,
+                  2.95,
+                  3.2
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 4352
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 2.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0,
+                  10.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceOrder": [
+            9
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 20,
+          "actionOrder": [
+            64
+          ],
+          "sequenceOrder": [
+            9
+          ],
+          "itemType": "infliction",
+          "sourcePath": [
+            "chr_0019_karin_normal_skill"
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            65
+          ],
+          "sequenceOrder": [
+            9
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_normal_skill"
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            70
+          ],
+          "sequenceOrder": [
+            10
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale",
+        "cam_angle",
+        "input_angle",
+        "poise",
+        "select_radius"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 7,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 7,
+          "actionIndex": 4,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "maintar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 7,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[3]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 125,
+          "actionIndex": 23,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainTar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 21,
+          "actionIndex": 28,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainTar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "actionIndex": 63,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "SpellInfliction"
+      ]
+    },
+    {
+      "key": "comboSkill",
+      "skillId": "chr_0019_karin_combo_skill",
+      "sourceFile": "chr_0019_karin_combo_skill.json",
+      "timelineBlockFrames": 38,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [
+        {
+          "startFrame": 22,
+          "endFrame": 26,
+          "actionIndex": 27,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 6
+        },
+        {
+          "startFrame": 31,
+          "endFrame": 36,
+          "actionIndex": 40,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 7
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 22,
+          "endFrame": 26,
+          "actionIndex": 17,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 19,
+              "blackboardMutation": {
+                "key": "sub_ratio",
+                "operation": "Divide",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "rate",
+                  "levelValues": [
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0,
+                    10.0
+                  ]
+                }
+              }
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 21,
+              "blackboardMutation": {
+                "key": "max_ratio",
+                "operation": "Add",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 22,
+              "nestedCondition": {
+                "startFrame": 22,
+                "endFrame": 26,
+                "actionIndex": 22,
+                "actionPath": [
+                  "timelineActions[6]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[3]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CompareFloat",
+                    "supported": true,
+                    "comparison": "LT",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "atb_up",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": "max_ratio",
+                      "levelValues": null
+                    },
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 24,
+                    "blackboardMutation": {
+                      "key": "atb",
+                      "operation": "Multiply",
+                      "value": {
+                        "value": 0.0,
+                        "blackboardKey": "atb_up",
+                        "levelValues": null
+                      }
+                    }
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "ModifyDynamicBlackboard",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 25,
+                    "blackboardMutation": {
+                      "key": "atb",
+                      "operation": "Multiply",
+                      "value": {
+                        "value": 0.0,
+                        "blackboardKey": "max_ratio",
+                        "levelValues": null
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 26,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "skill",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 22,
+          "endFrame": 26,
+          "actionIndex": 29,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[4]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "count",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[4]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 33,
+              "blackboardMutation": {
+                "key": "count",
+                "operation": "Add",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[4]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 34,
+              "resourceGain": {
+                "resource": "ultimateEnergy",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "usp",
+                  "levelValues": [
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": null,
+                "spGainSource": null,
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 31,
+          "endFrame": 36,
+          "actionIndex": 37,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "minimumCount": 1,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 39,
+              "resourceGain": {
+                "resource": "sp",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "atb",
+                  "levelValues": [
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5,
+                    7.5
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": "gain",
+                "spGainSource": "skill",
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 31,
+          "endFrame": 36,
+          "actionIndex": 42,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[5]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "count",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 44,
+              "blackboardMutation": {
+                "key": "count",
+                "operation": "Add",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ObtainCostAction",
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "serverActionIndex": 47,
+              "resourceGain": {
+                "resource": "ultimateEnergy",
+                "amount": {
+                  "value": 0.2,
+                  "blackboardKey": "usp",
+                  "levelValues": [
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0,
+                    5.0
+                  ]
+                },
+                "coefficient": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "spGainKind": null,
+                "spGainSource": null,
+                "onlyMainOperator": false,
+                "isPercentValue": false,
+                "useUltimateRecoveryTag": false,
+                "ultimateRecoveryTagId": 0,
+                "ignoreUltimateGainScalar": false
+              }
+            }
+          ],
+          "failActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 31,
+          "endFrame": 36,
+          "actionIndex": 35,
+          "key": "count",
+          "operation": "Assign",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "sequenceIndex": 7
+        }
+      ],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "resolvedDamageHits": [
+        {
+          "frame": 22,
+          "actionOrder": [
+            27
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceOrder": [
+            6
+          ]
+        },
+        {
+          "frame": 31,
+          "actionOrder": [
+            40
+          ],
+          "sourceKind": "direct",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.8,
+                  0.88,
+                  0.96,
+                  1.04,
+                  1.12,
+                  1.2,
+                  1.28,
+                  1.36,
+                  1.44,
+                  1.54,
+                  1.66,
+                  1.8
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceOrder": [
+            7
+          ]
+        }
+      ],
+      "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            54
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ]
+        },
+        {
+          "frame": 22,
+          "actionOrder": [
+            17
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
+        },
+        {
+          "frame": 22,
+          "actionOrder": [
+            27
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ]
+        },
+        {
+          "frame": 22,
+          "actionOrder": [
+            29
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[4]"
+          ]
+        },
+        {
+          "frame": 31,
+          "actionOrder": [
+            35
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "blackboardMutation",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ]
+        },
+        {
+          "frame": 31,
+          "actionOrder": [
+            37
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        },
+        {
+          "frame": 31,
+          "actionOrder": [
+            40
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "damage",
+          "sourcePath": [
+            "chr_0019_karin_combo_skill"
+          ]
+        },
+        {
+          "frame": 31,
+          "actionOrder": [
+            42
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[5]"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb",
+        "atb_up",
+        "atk_scale",
+        "count",
+        "max_ratio",
+        "owner_mainchar_alpha",
+        "owner_mainchar_distance",
+        "poise",
+        "rate",
+        "select_radius",
+        "sub_ratio",
+        "usp"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_up",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "count",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_ratio",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_alpha",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "owner_mainchar_distance",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "sub_ratio",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 4,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 5,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 22,
+          "endFrame": 26,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 31,
+          "endFrame": 36,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 16,
+          "actionIndex": 57,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionIndex": 54,
+          "kind": "normal",
+          "priority": -593023102,
+          "scope": "global",
+          "slot": 0,
+          "duration": {
+            "value": 0.6,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "ComboSkill",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [
+            "caster"
+          ],
+          "targets": [],
+          "omittedAbilityEntityTargets": 1,
+          "influenceSkillCooldown": null,
+          "targetScale": null,
+          "sequenceIndex": 12
+        }
+      ],
+      "unresolvedCombatActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ]
+    },
+    {
+      "key": "ultimate",
+      "skillId": "chr_0019_karin_ultimate_skill",
+      "sourceFile": "chr_0019_karin_ultimate_skill.json",
+      "timelineBlockFrames": 129,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "directDamageHits": [],
+      "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 12,
+          "actionIndex": 7,
+          "actionPath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "LT",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "atb_up",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": "max_ratio",
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 9,
+              "blackboardMutation": {
+                "key": "atb_1",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "atb_up",
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 10,
+              "blackboardMutation": {
+                "key": "atb_2",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "atb_up",
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 11,
+              "blackboardMutation": {
+                "key": "atb_3",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "atb_up",
+                  "levelValues": null
+                }
+              }
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 12,
+              "blackboardMutation": {
+                "key": "atb_1",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "max_ratio",
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "failActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 13,
+              "blackboardMutation": {
+                "key": "atb_2",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "max_ratio",
+                  "levelValues": null
+                }
+              }
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 14,
+              "blackboardMutation": {
+                "key": "atb_3",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "max_ratio",
+                  "levelValues": null
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 150,
+          "actionIndex": 3,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0019_karin_potential_3",
+          "classification": null,
+          "targetSource": "InstantSearch",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "atk": {
+              "value": 0.0,
+              "blackboardKey": "atk",
+              "levelValues": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "targetFinderType": "CharacterTeamFinder",
+          "sequenceIndex": 2
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 150,
+          "actionIndex": 28,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0019_karin_talent_2",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "potential_5_duration": {
+              "value": 0.0,
+              "blackboardKey": "potential_5_duration",
+              "levelValues": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 12
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 150,
+          "actionIndex": 29,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0019_karin_talent_2_combo",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionOwner",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "imbue_scale": {
+              "value": 0.0,
+              "blackboardKey": "imbue_scale",
+              "levelValues": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "duration": {
+              "value": 0.0,
+              "blackboardKey": "duration",
+              "levelValues": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 12
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 83,
+          "actionIndex": 41,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_ult_skill",
+          "classification": "incomingDamageProtection",
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 18
+        }
+      ],
+      "blackboardCalculations": [],
+      "blackboardMutations": [
+        {
+          "startFrame": 0,
+          "endFrame": 12,
+          "actionIndex": 6,
+          "key": "max_ratio",
+          "operation": "Add",
+          "value": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "sequenceIndex": 4
+        }
+      ],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "buffHolds": [],
+      "resourceGains": [
+        {
+          "startFrame": 59,
+          "endFrame": 83,
+          "actionIndex": 15,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb_1",
+            "levelValues": [
+              19.0,
+              19.0,
+              20.0,
+              21.0,
+              21.0,
+              22.0,
+              23.0,
+              23.0,
+              24.0,
+              25.0,
+              25.0,
+              26.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "spGainKind": "gain",
+          "spGainSource": "skill",
+          "onlyMainOperator": false,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null,
+          "sequenceIndex": 5
+        },
+        {
+          "startFrame": 86,
+          "endFrame": 115,
+          "actionIndex": 16,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb_2",
+            "levelValues": [
+              19.0,
+              20.0,
+              21.0,
+              21.0,
+              22.0,
+              23.0,
+              23.0,
+              24.0,
+              25.0,
+              25.0,
+              26.0,
+              27.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "spGainKind": "gain",
+          "spGainSource": "skill",
+          "onlyMainOperator": false,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null,
+          "sequenceIndex": 6
+        },
+        {
+          "startFrame": 119,
+          "endFrame": 159,
+          "actionIndex": 17,
+          "resource": "sp",
+          "amount": {
+            "value": 0.0,
+            "blackboardKey": "atb_3",
+            "levelValues": [
+              20.0,
+              21.0,
+              21.0,
+              22.0,
+              23.0,
+              23.0,
+              24.0,
+              25.0,
+              25.0,
+              26.0,
+              27.0,
+              27.0
+            ]
+          },
+          "coefficient": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "spGainKind": "gain",
+          "spGainSource": "skill",
+          "onlyMainOperator": false,
+          "isPercentValue": false,
+          "useUltimateRecoveryTag": false,
+          "ultimateRecoveryTagId": 0,
+          "ignoreUltimateGainScalar": false,
+          "onceActionValueKey": null,
+          "sequenceIndex": 7
+        }
+      ],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0019_karin_potential_3",
+        "buff_chr_0019_karin_talent_2",
+        "buff_chr_0019_karin_talent_2_combo",
+        "buff_common_damage_immune_ult_skill"
+      ],
+      "resolvedDamageHits": [],
+      "resolvedSchedule": [
+        {
+          "frame": 0,
+          "actionOrder": [
+            3
+          ],
+          "sequenceOrder": [
+            2
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            4
+          ],
+          "sequenceOrder": [
+            3
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            6
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "blackboardMutation",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            7
+          ],
+          "sequenceOrder": [
+            4
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            41
+          ],
+          "sequenceOrder": [
+            18
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            43
+          ],
+          "sequenceOrder": [
+            20
+          ],
+          "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 1,
+          "actionOrder": [
+            28
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 1,
+          "actionOrder": [
+            29
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 59,
+          "actionOrder": [
+            15
+          ],
+          "sequenceOrder": [
+            5
+          ],
+          "itemType": "resourceGain",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 86,
+          "actionOrder": [
+            16
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "resourceGain",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 119,
+          "actionOrder": [
+            17
+          ],
+          "sequenceOrder": [
+            7
+          ],
+          "itemType": "resourceGain",
+          "sourcePath": [
+            "chr_0019_karin_ultimate_skill"
+          ]
+        }
+      ],
+      "blackboardKeys": [
+        "atb_1",
+        "atb_2",
+        "atb_3",
+        "atb_up",
+        "combo",
+        "max_ratio",
+        "potential_3",
+        "sub_ratio"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb_1",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_3",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_display",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_up",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "combo",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "imbue_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "max_ratio",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": true,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "potential_3",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "potential_5_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "sub_ratio",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 18,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "main_char",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 4,
+          "kind": "normal",
+          "priority": -2059842104,
+          "scope": "entity",
+          "slot": 1464849466,
+          "duration": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "RESETto1",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [],
+          "targets": [
+            "caster"
+          ],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": null,
+          "sequenceIndex": 3
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 55,
+          "actionIndex": 43,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 0,
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0,
+          "sequenceIndex": 20
+        }
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "ObtainCostAction"
+      ]
+    }
+  ]
+}

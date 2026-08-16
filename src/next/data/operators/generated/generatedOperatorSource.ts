@@ -99,6 +99,8 @@ export interface GeneratedAuxiliaryActionSource extends GeneratedNativeSequenceM
   readonly inheritSourceSkillCastInfo: boolean | null;
   readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
   readonly nestedCombatActions: readonly string[];
+  /** InstantSearch 目标使用的原生 finder 类型。 */
+  readonly targetFinderType?: string;
 }
 
 export interface GeneratedInflictionPayload {
@@ -759,7 +761,8 @@ export interface GeneratedBlackboardKeyProvenanceSource {
 
 export interface GeneratedDeclaredBlackboardValueSource {
   readonly key: string;
-  readonly value: number;
+  /** 数值参与计算；字符串仅保留技能身份等审计信息。 */
+  readonly value: number | string;
   readonly isDynamic: boolean;
 }
 
@@ -817,13 +820,15 @@ export interface GeneratedSkillEventActionSequenceSource {
   readonly combatActions: readonly string[];
   readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
   /** 事件回调中的同步动作树；条件守卫与动作顺序以这里为准。 */
-  readonly actions: readonly GeneratedConditionalActionSource[];
+  readonly actions: readonly GeneratedConditionalBranchActionSource[];
 }
 
 export interface GeneratedSkillEventListenerSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
+  readonly priorityLevel: string;
+  readonly priorityOffset: number;
   readonly event: string;
   readonly sequences: readonly GeneratedSkillEventActionSequenceSource[];
 }
