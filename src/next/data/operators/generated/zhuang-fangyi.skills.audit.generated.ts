@@ -298,11 +298,6 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           }),
-        ),
-      ),
-      scheduled(
-        20,
-        sequence(
           step('modifyActionValue', {
             key: 'hasGainAtb',
             operation: 'assign',
@@ -423,17 +418,6 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
       scheduled(
         33,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([134, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300]),
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: 18,
-          }, '20:enhancedBasicAttack313:abilityEntity29:chr_0030_zhuangfy_attack3_ult42:chr_0030_zhuangfy_attack3_ult_abilityrange11:actionOrder2:111:01:2'),
-        ),
-      ),
-      scheduled(
-        33,
-        sequence(
           step('changeResourceByActionValue', {
             resource: 'sp',
             amount: { kind: 'blackboard', key: 'atb' },
@@ -441,6 +425,17 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           }),
+        ),
+      ),
+      scheduled(
+        33,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([134, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300]),
+            tags: ['normalAttack', 'normalAttackLastCombo'],
+            stagger: 18,
+          }, '20:enhancedBasicAttack313:abilityEntity29:chr_0030_zhuangfy_attack3_ult42:chr_0030_zhuangfy_attack3_ult_abilityrange11:actionOrder2:111:01:2'),
         ),
       ),
     ],
@@ -611,22 +606,12 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '10:comboSkill6:direct29:chr_0030_zhuangfy_combo_skill11:actionOrder2:49'),
-        ),
-      ),
-      scheduled(
-        24,
-        sequence(
           step('finishBuffsByTag', {
             target: 'enemy',
             tagQueryType: 'hasAny',
             buffTagIds: [2123008650],
             reason: 'early',
           }),
-        ),
-      ),
-      scheduled(
-        24,
-        sequence(
           branch(
             { kind: 'singleEnemyPresent' },
             sequence(
@@ -770,11 +755,6 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '18:enhancedComboSkill6:direct33:chr_0030_zhuangfy_combo_skill_ult11:actionOrder2:51'),
-        ),
-      ),
-      scheduled(
-        24,
-        sequence(
           step('finishBuffsByTag', {
             target: 'enemy',
             tagQueryType: 'hasAny',

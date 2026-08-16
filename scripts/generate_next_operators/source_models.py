@@ -127,6 +127,7 @@ class TimedDamageSource:
     actionIndex: int
     damageUnits: tuple[DamageUnitSource, ...]
     timedMarkerGate: "TimedMarkerGateSource | None" = None
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -167,6 +168,7 @@ class AuxiliaryActionSource:
     targetFinderType: str | None = None
     targetValidatorTypes: tuple[str, ...] = ()
     targetPostProcessorTypes: tuple[str, ...] = ()
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -182,6 +184,7 @@ class TimedInflictionSource:
     actionIndex: int
     element: str
     isExtra: bool
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -233,6 +236,7 @@ class TimedResourceGainSource:
     ultimateRecoveryTagId: int
     ignoreUltimateGainScalar: bool
     onceActionValueKey: str | None = None
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -266,6 +270,7 @@ class TimedTimeDilationSource:
     omittedAbilityEntityTargets: int
     influenceSkillCooldown: ScalarSource | None
     targetScale: float | None
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -317,6 +322,7 @@ class TimedIntervalDamageSource:
     tickFrames: tuple[int, ...]
     damageActionIndex: int
     damageUnits: tuple[DamageUnitSource, ...]
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -354,6 +360,8 @@ class ResolvedDamageHitSource:
     sourceKind: str
     sourcePath: tuple[str, ...]
     damageUnits: tuple[DamageUnitSource, ...]
+    # 根技能坐标系中标识原生 Sequence 的稳定顺序。
+    sequenceOrder: tuple[int, ...] = ()
 
 
 ResolvedScheduleItemType = Literal[
@@ -395,6 +403,8 @@ class ResolvedScheduleItemSource:
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None
+    # 同帧且相同 sequenceOrder 的项目来自同一个原生 Sequence。
+    sequenceOrder: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -491,6 +501,7 @@ class SkillEventListenerSource:
     priorityOffset: int
     event: str
     sequences: tuple[SkillEventActionSequenceSource, ...]
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -692,6 +703,7 @@ class BuffHoldSource:
     buffIds: tuple[str, ...]
     tagQueryType: str
     buffTagIds: tuple[int, ...]
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -938,6 +950,7 @@ class BlackboardCalculationSource:
     operation: str
     left: ScalarSource
     right: ScalarSource
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -948,6 +961,7 @@ class BlackboardMutationSource:
     key: str
     operation: str
     value: ScalarSource
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -963,6 +977,7 @@ class BuffBlackboardReadSource:
     buffIds: tuple[str, ...]
     tagQueryType: str
     buffTagIds: tuple[int, ...]
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)
@@ -980,6 +995,7 @@ class BuffFinishSource:
     limitSource: bool
     isFinishedEarly: bool
     isAbsorbed: bool
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)

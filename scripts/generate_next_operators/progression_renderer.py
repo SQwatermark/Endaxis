@@ -470,6 +470,21 @@ def render_talents(
             raise ValueError(f"talent index {index}: no source effects")
         kind = config.get("compile")
         key = str(config["key"])
+        if isinstance(kind, str) and kind.startswith("unmodeled") and kind != "unmodeledMultiTarget":
+            # 显式未建模天赋：保留稳定身份和等级数，不生成无证据的 modifiers；
+            # conversionSupport 会依据 unmodeled 前缀自动标记 talentEffects 缺口。
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  modifiers: [],",
+                        "}",
+                    ]
+                )
+            )
+            continue
         if kind == "targetStaggeredDamage":
             values: list[float] = []
             for _, effect_id in entries:
@@ -555,6 +570,21 @@ def render_potentials(
         data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
         key = str(config["key"])
         kind = config.get("compile")
+        if isinstance(kind, str) and kind.startswith("unmodeled"):
+            # 显式未建模潜能：保留稳定身份，不生成无证据的 modifiers；
+            # conversionSupport 会依据 unmodeled 前缀自动标记 potentialEffects 缺口。
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        "  levels: 1,",
+                        "  modifiers: [],",
+                        "}",
+                    ]
+                )
+            )
+            continue
         inferred_ultimate_cost = parse_ultimate_cost_multiplier(
             data_list,
             ultimate_skill_ids,

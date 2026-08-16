@@ -16,6 +16,7 @@ import generate_next_operators as generator
 
 
 DEFAULT_BUFF_SOURCE = generator.DEFAULT_SOURCE.parent / "buff-data-cdn"
+DEFAULT_BUFF_FALLBACK = generator.DEFAULT_SOURCE.parent / "buff-data-current"
 DEFAULT_JSON_OUTPUT = (
     generator.REPOSITORY_ROOT
     / "docs/research/all-operator-recursive-mechanism-audit.json"
@@ -77,6 +78,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skill-source", type=Path, default=generator.DEFAULT_SOURCE)
     parser.add_argument("--buff-source", type=Path, default=DEFAULT_BUFF_SOURCE)
+    parser.add_argument("--buff-fallback", type=Path, default=DEFAULT_BUFF_FALLBACK)
     parser.add_argument("--tables", type=Path, default=generator.DEFAULT_TABLES)
     parser.add_argument("--json-output", type=Path, default=DEFAULT_JSON_OUTPUT)
     parser.add_argument("--markdown-output", type=Path, default=DEFAULT_MARKDOWN_OUTPUT)
@@ -100,6 +102,24 @@ def load_source_index(directory: Path, identity_field: str) -> dict[str, SourceD
             raise ValueError(f"{path}: {identity_field} must be a non-empty string")
         if identity in result:
             raise ValueError(f"duplicate {identity_field} {identity!r}: {path}")
+        result[identity] = SourceDocument(identity, path, data)
+    return result
+
+
+def load_source_index_with_fallback(
+    primary: Path,
+    fallback: Path,
+    identity_field: str,
+) -> dict[str, SourceDocument]:
+    """主索引优先，缺文件的身份回退到完整导出；重复身份在主索引中仍报错。"""
+    result = load_source_index(primary, identity_field)
+    for path in sorted(fallback.glob("*.json"), key=lambda item: item.name):
+        data = generator.require_dict(load_json(path), str(path))
+        identity = data.get(identity_field, path.stem)
+        if not isinstance(identity, str) or not identity:
+            raise ValueError(f"{path}: {identity_field} must be a non-empty string")
+        if identity in result:
+            continue
         result[identity] = SourceDocument(identity, path, data)
     return result
 
@@ -782,7 +802,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     growth_table = load_table(args.tables, "CharGrowthTable.json")
     patch_table = load_table(args.tables, "SkillPatchTable.json")
     skill_index = load_source_index(args.skill_source, "skillId")
-    buff_index = load_source_index(args.buff_source, "id")
+    buff_index = load_source_index_with_fallback(args.buff_source, args.buff_fallback, "id")
     entries = generation_audit.enumerate_skill_entries(characters, growth_table)
     entry_audits = [
         generation_audit.audit_skill(

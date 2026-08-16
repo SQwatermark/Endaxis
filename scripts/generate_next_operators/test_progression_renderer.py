@@ -15,6 +15,7 @@ from progression_renderer import (
     parse_static_attribute_progression,
     parse_ultimate_cost_multiplier,
     render_potentials,
+    render_talents,
 )
 
 
@@ -504,6 +505,70 @@ class ProgressionRendererTests(unittest.TestCase):
         )
 
         self.assertNotIn("candidate", facts[0])
+
+    def test_unmodeled_potential_renders_stable_empty_modifier_shell(self) -> None:
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [{"key": "potential1", "compile": "unmodeledPotential"}],
+            },
+            [
+                SimpleNamespace(key="comboSkill", skillId="combo"),
+                SimpleNamespace(key="ultimate", skillId="ultimate"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 1, "potentialEffectId": "effect.potential"}
+                    ]
+                }
+            },
+            {"effect.potential": {"dataList": [effect_entry(attr_type=0, value=0)]}},
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("key: 'potential1'", rendered[0])
+        self.assertIn("levels: 1", rendered[0])
+        self.assertIn("modifiers: []", rendered[0])
+
+    def test_unmodeled_talent_renders_source_level_count(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "node.a": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 1,
+                        "talentEffectId": "effect.talent1",
+                    }
+                },
+                "node.b": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 2,
+                        "talentEffectId": "effect.talent2",
+                    }
+                },
+            }
+        }
+        rendered = render_talents(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "talents": [{"index": 0, "key": "talent1", "compile": "unmodeledTalent"}],
+            },
+            [SimpleNamespace(key="ultimate", skillId="ultimate")],
+            growth,
+            {
+                "effect.talent1": {"dataList": []},
+                "effect.talent2": {"dataList": []},
+            },
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("key: 'talent1'", rendered[0])
+        self.assertIn("levels: 2", rendered[0])
+        self.assertIn("modifiers: []", rendered[0])
 
     def test_skill_group_index_rejects_conflicting_group_types(self) -> None:
         growth = {

@@ -298,6 +298,223 @@
           }
         }
       ]
+    },
+    {
+      "slug": "arclight",
+      "exportName": "arclightGeneratedSource",
+      "charId": "chr_0007_ikut",
+      "talents": [
+        {
+          "index": 0,
+          "key": "electricDamageBonus",
+          "compile": "unmodeledTalent"
+        },
+        {
+          "index": 1,
+          "key": "electricAdditionalHit",
+          "compile": "unmodeledTalent"
+        }
+      ],
+      "potentials": [
+        {
+          "key": "potential1",
+          "compile": "unmodeledPotential"
+        },
+        {
+          "key": "potential2",
+          "compile": "unmodeledPotential"
+        },
+        {
+          "key": "potential3",
+          "compile": "unmodeledPotential"
+        },
+        {
+          "key": "potential4",
+          "compile": "unmodeledPotential"
+        },
+        {
+          "key": "potential5",
+          "compile": "unmodeledPotential"
+        }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "finisher"
+          ]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "plungingAttack"
+          ]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": [
+            "battleSkill"
+          ]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": [
+            "ultimate"
+          ]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": [
+            "comboSkill"
+          ]
+        }
+      ],
+      "skills": [
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0007_ikut_attack1.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack"
+            ]
+          }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0007_ikut_attack2.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack"
+            ]
+          }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0007_ikut_attack3.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack"
+            ]
+          }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0007_ikut_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack"
+            ]
+          }
+        },
+        {
+          "key": "basicAttack5",
+          "skillType": "basicAttack",
+          "source": "chr_0007_ikut_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack",
+              "normalAttackLastCombo"
+            ]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0007_ikut_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack",
+              "powerAttack"
+            ]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0007_ikut_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalAttack",
+              "plungingAttack"
+            ]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0007_ikut_normal_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "normalSkill"
+            ]
+          }
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0007_ikut_combo_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "comboSkill"
+            ]
+          }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0007_ikut_ultimate_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": [
+              "ultimateSkill"
+            ],
+            "unmodeledBuffIds": [
+              "buff_common_damage_immune_ult_skill"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

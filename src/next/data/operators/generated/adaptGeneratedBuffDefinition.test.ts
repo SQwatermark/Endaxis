@@ -37,10 +37,10 @@ describe('adaptGeneratedBuffDefinition', () => {
     ).toThrow('eventActions');
   });
 
-  it('rejects missing shared definitions instead of manufacturing empty buffs', () => {
+  it('rejects shared buffs with unsupported event actions instead of manufacturing empty buffs', () => {
     expect(() =>
       adaptGeneratedBuffDefinition(requireBuff('buff_common_obtain_ultimate_sp')),
-    ).toThrow('no available source definition');
+    ).toThrow('eventActions');
   });
 
   it('rejects unresolved level values instead of selecting a default silently', () => {

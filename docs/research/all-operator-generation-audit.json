@@ -2,18 +2,21 @@
   "schemaVersion": 1,
   "scope": {
     "operatorCount": 29,
-    "excludedCharacterIds": ["chr_0002_endminm", "chr_0003_endminf"],
+    "excludedCharacterIds": [
+      "chr_0002_endminm",
+      "chr_0003_endminf"
+    ],
     "skillCount": 308
   },
   "summary": {
-    "parsedCount": 308,
-    "compiledCount": 274,
-    "completeOperatorCount": 10,
+    "parsedCount": 299,
+    "compiledCount": 268,
+    "completeOperatorCount": 8,
     "blockerKinds": {
-      "other": 4,
+      "other": 12,
       "condition-entity-count": 2,
       "projectile-child-actions": 2,
-      "root-action-coverage": 5,
+      "root-action-coverage": 3,
       "projectile-data": 2,
       "condition-distance": 2,
       "conditional-leaf": 3,
@@ -21,15 +24,15 @@
       "buff-source-or-target": 9
     },
     "unresolvedActionPresence": {
-      "DamageAction": 229,
-      "IfElseAction": 171,
-      "LaunchProjectile": 74,
-      "ObtainCostAction": 164,
-      "CreateBuffAction": 128,
+      "LaunchProjectile": 72,
+      "DamageAction": 222,
+      "CreateBuffAction": 121,
       "CheckDistanceCondition": 3,
-      "SpawnAbilityEntity": 28,
-      "SpellInfliction": 12,
-      "AuraAction": 3,
+      "IfElseAction": 166,
+      "ObtainCostAction": 159,
+      "SpawnAbilityEntity": 26,
+      "SpellInfliction": 10,
+      "AuraAction": 1,
       "FractureAction": 2,
       "SwitchAction": 5,
       "CheckMainCharacterCondition": 2,
@@ -38,27 +41,22 @@
     },
     "entityCountConditionOccurrenceCount": 638,
     "entityCountConditionShapeCount": 41,
-    "auraActionReferenceCount": 20,
+    "auraActionReferenceCount": 14,
     "physicalInflictionActionCount": 2,
-    "skillEventListenerCount": 10,
+    "skillEventListenerCount": 5,
     "skillEventNames": {
       "OnBeforeOutputAirborne": 1,
-      "OnBeforeTakeDamage": 3,
-      "OnAddedBuff": 2,
-      "OnAfterKillEntity": 3,
+      "OnBeforeTakeDamage": 1,
+      "OnAfterKillEntity": 2,
       "OnSkillEnd": 1
     },
     "skillEventActionTypes": {
       "SetSkillCdAtOnce": 1,
-      "CheckDamageDecorateMask": 5,
-      "CreateBuffAction": 3,
-      "ConvertToTargetContext": 4,
-      "JumpToAction": 4,
-      "CheckBuffIdInContext": 2,
-      "CheckDistanceCondition": 2,
+      "CheckDamageDecorateMask": 2,
+      "CreateBuffAction": 2,
       "ModifyDynamicBlackboard": 1,
-      "CompareFloat": 2,
-      "FinishBuffAdvanced": 1
+      "FinishBuffAdvanced": 1,
+      "CompareFloat": 1
     },
     "rawAuraActionCount": 22,
     "reachableAuraActionCount": 19
@@ -887,7 +885,7 @@
       "characterId": "chr_0027_tangtang",
       "operatorName": "Tangtang",
       "skillCount": 11,
-      "parsedCount": 11,
+      "parsedCount": 10,
       "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
@@ -983,11 +981,11 @@
       "characterId": "chr_0014_aurora",
       "operatorName": "Snowshine",
       "skillCount": 8,
-      "parsedCount": 8,
+      "parsedCount": 7,
       "compiledCount": 6,
       "complete": false,
       "blockerKinds": {
-        "root-action-coverage": 1,
+        "other": 1,
         "conditional-leaf": 1
       }
     },
@@ -1046,19 +1044,22 @@
       "characterId": "chr_0032_lizhiyan",
       "operatorName": "Arcane",
       "skillCount": 11,
-      "parsedCount": 11,
-      "compiledCount": 11,
-      "complete": true,
-      "blockerKinds": {}
+      "parsedCount": 10,
+      "compiledCount": 10,
+      "complete": false,
+      "blockerKinds": {
+        "other": 1
+      }
     },
     {
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillCount": 16,
-      "parsedCount": 16,
-      "compiledCount": 13,
+      "parsedCount": 15,
+      "compiledCount": 12,
       "complete": false,
       "blockerKinds": {
+        "other": 1,
         "condition-other": 1,
         "buff-source-or-target": 2
       }
@@ -1067,20 +1068,22 @@
       "characterId": "chr_0018_dapan",
       "operatorName": "Da Pan",
       "skillCount": 9,
-      "parsedCount": 9,
-      "compiledCount": 9,
-      "complete": true,
-      "blockerKinds": {}
+      "parsedCount": 8,
+      "compiledCount": 8,
+      "complete": false,
+      "blockerKinds": {
+        "other": 1
+      }
     },
     {
       "characterId": "chr_0028_wulfa",
       "operatorName": "Rossi",
       "skillCount": 11,
-      "parsedCount": 11,
-      "compiledCount": 10,
+      "parsedCount": 10,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "other": 1
+        "other": 2
       }
     },
     {
@@ -1096,12 +1099,12 @@
       "characterId": "chr_0020_meurs",
       "operatorName": "Catcher",
       "skillCount": 9,
-      "parsedCount": 9,
+      "parsedCount": 8,
       "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "root-action-coverage": 1
+        "other": 1
       }
     },
     {
@@ -1184,11 +1187,12 @@
       "characterId": "chr_0033_camille",
       "operatorName": "Camille",
       "skillCount": 12,
-      "parsedCount": 12,
-      "compiledCount": 9,
+      "parsedCount": 10,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 3
+        "buff-source-or-target": 3,
+        "other": 2
       }
     }
   ],
@@ -1198,15 +1202,15 @@
       "operatorName": "Tangtang",
       "skillId": "chr_0027_tangtang_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
+      "stage": "source-or-parser-blocked",
       "blockerKind": "other",
-      "blocker": "combo_skill.schedule[0].conditionalAction.succeedActions[1].nestedCondition.succeedActions[0].nestedCondition.conditions[0]: unsupported timed marker target 'Context'/'water_group'",
-      "unresolvedActions": ["DamageAction", "IfElseAction", "LaunchProjectile", "ObtainCostAction"],
-      "conditionCount": 2,
+      "blocker": "ValueError: chr_0027_tangtang_combo_skill.json.timelineActions[21]._sequenceActionData.actionData[0].effectTargets: ability entities need an explicit runtime model",
+      "unresolvedActions": [],
+      "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
-      "auraActionCount": 2,
+      "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 0,
       "eventListenerEvents": [],
@@ -1220,7 +1224,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1239,7 +1245,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -1258,7 +1266,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "DamageAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
@@ -1277,7 +1288,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1296,7 +1309,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1315,7 +1330,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -1334,7 +1352,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1398,7 +1418,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1417,7 +1440,9 @@
       "stage": "dsl-blocked",
       "blockerKind": "projectile-child-actions",
       "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1436,7 +1461,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1455,7 +1482,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -1474,7 +1503,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
@@ -1493,7 +1524,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1512,7 +1545,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -1531,7 +1567,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
@@ -1550,7 +1590,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "SpellInfliction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpellInfliction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1569,7 +1613,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1588,7 +1636,12 @@
       "stage": "dsl-blocked",
       "blockerKind": "root-action-coverage",
       "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
-      "unresolvedActions": ["AuraAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "AuraAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1596,8 +1649,12 @@
       "auraActionCount": 1,
       "physicalInflictionCount": 0,
       "eventListenerCount": 1,
-      "eventListenerEvents": ["OnBeforeOutputAirborne"],
-      "eventListenerActionTypes": ["SetSkillCdAtOnce"]
+      "eventListenerEvents": [
+        "OnBeforeOutputAirborne"
+      ],
+      "eventListenerActionTypes": [
+        "SetSkillCdAtOnce"
+      ]
     },
     {
       "characterId": "chr_0005_chen",
@@ -1607,7 +1664,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1626,7 +1687,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1645,7 +1710,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1664,7 +1733,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1683,7 +1756,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1702,7 +1779,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -1721,7 +1801,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1740,7 +1823,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1759,7 +1845,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1778,7 +1867,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1797,7 +1888,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -1816,7 +1909,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -1835,7 +1930,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
@@ -1854,7 +1951,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -1873,7 +1972,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -1892,7 +1994,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1911,7 +2015,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 3,
@@ -1930,7 +2038,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "projectile-data",
       "blocker": "ultimate_skill: projectile without triggered SkillData remains unresolved",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -1949,7 +2061,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -1968,7 +2084,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -1987,7 +2107,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2006,7 +2130,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2025,7 +2153,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2044,7 +2176,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2063,7 +2199,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2082,7 +2221,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2101,7 +2244,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2120,7 +2268,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -2139,7 +2290,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -2158,7 +2314,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2177,7 +2335,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2196,7 +2356,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2215,7 +2377,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2234,7 +2400,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2253,7 +2422,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2272,7 +2445,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "other",
       "blocker": "normal_skill.schedule[0].eventListener: unsupported native skill event 'OnBeforeTakeDamage'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -2280,8 +2457,13 @@
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 1,
-      "eventListenerEvents": ["OnBeforeTakeDamage"],
-      "eventListenerActionTypes": ["CheckDamageDecorateMask", "CreateBuffAction"]
+      "eventListenerEvents": [
+        "OnBeforeTakeDamage"
+      ],
+      "eventListenerActionTypes": [
+        "CheckDamageDecorateMask",
+        "CreateBuffAction"
+      ]
     },
     {
       "characterId": "chr_0009_azrila",
@@ -2291,7 +2473,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2310,7 +2495,10 @@
       "stage": "dsl-blocked",
       "blockerKind": "projectile-child-actions",
       "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
@@ -2329,7 +2517,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -2348,7 +2538,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -2367,7 +2559,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -2386,7 +2580,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -2405,7 +2601,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2424,7 +2624,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2443,7 +2646,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2462,7 +2668,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -2481,7 +2691,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction"],
+      "unresolvedActions": [
+        "CreateBuffAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -2500,7 +2712,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -2519,7 +2735,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2538,7 +2758,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2557,7 +2781,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2576,7 +2804,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2595,7 +2827,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2614,7 +2850,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2633,7 +2874,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2701,7 +2946,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -2720,7 +2969,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -2739,7 +2990,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -2758,7 +3011,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
@@ -2777,7 +3032,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
@@ -2796,7 +3053,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2815,7 +3075,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2882,7 +3146,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
@@ -2901,7 +3169,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2920,7 +3192,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2939,7 +3215,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2958,7 +3238,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -2977,7 +3260,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -2993,34 +3279,19 @@
       "operatorName": "Snowshine",
       "skillId": "chr_0014_aurora_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
-      "unresolvedActions": [
-        "AuraAction",
-        "CreateBuffAction",
-        "DamageAction",
-        "IfElseAction",
-        "ObtainCostAction",
-        "SpellInfliction"
-      ],
-      "conditionCount": 4,
-      "referencedBuffCount": 3,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0014_aurora_normal_skill.json.timelineActions[29]._sequenceActionData.actionData[0].effectTargets: ability entities need an explicit runtime model",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
-      "auraActionCount": 3,
+      "auraActionCount": 0,
       "physicalInflictionCount": 0,
-      "eventListenerCount": 2,
-      "eventListenerEvents": ["OnBeforeTakeDamage", "OnAddedBuff"],
-      "eventListenerActionTypes": [
-        "CheckDamageDecorateMask",
-        "ConvertToTargetContext",
-        "JumpToAction",
-        "CheckBuffIdInContext",
-        "CheckDistanceCondition",
-        "ConvertToTargetContext",
-        "JumpToAction"
-      ]
+      "eventListenerCount": 0,
+      "eventListenerEvents": [],
+      "eventListenerActionTypes": []
     },
     {
       "characterId": "chr_0014_aurora",
@@ -3029,7 +3300,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "conditional-leaf",
-      "blocker": "ultimate_skill.schedule[2].conditionalAction.succeedActions[0]: unsupported conditional leaf 'SpawnAbilityEntity'",
+      "blocker": "ultimate_skill.schedule[4].conditionalAction.succeedActions[0]: unsupported conditional leaf 'SpawnAbilityEntity'",
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3054,7 +3325,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -3073,7 +3348,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3092,7 +3371,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3111,7 +3394,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3130,7 +3417,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3149,7 +3440,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3168,7 +3462,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3187,7 +3485,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3206,7 +3508,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -3250,7 +3555,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -3269,7 +3576,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -3288,7 +3597,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -3307,7 +3618,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -3326,7 +3639,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 6,
@@ -3345,7 +3661,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3364,7 +3683,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3383,7 +3705,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction"],
+      "unresolvedActions": [
+        "CreateBuffAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3401,8 +3725,12 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "condition-entity-count",
-      "blocker": "combo_skill.schedule[5].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "SwitchAction"],
+      "blocker": "combo_skill.schedule[6].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile",
+        "SwitchAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 6,
       "projectileChildCount": 1,
@@ -3421,7 +3749,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3440,7 +3770,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3459,7 +3792,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3478,7 +3815,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
@@ -3497,7 +3839,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3516,7 +3862,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3535,7 +3886,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3579,7 +3934,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
@@ -3598,7 +3958,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction"],
+      "unresolvedActions": [
+        "CreateBuffAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -3617,7 +3979,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3636,7 +4002,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3655,7 +4025,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction", "SpellInfliction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction",
+        "SpellInfliction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3698,7 +4073,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -3717,7 +4097,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3736,7 +4120,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3755,7 +4143,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3774,7 +4166,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3793,7 +4189,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3812,7 +4211,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3831,7 +4234,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -3850,7 +4256,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -3869,7 +4278,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -3888,7 +4302,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3907,7 +4325,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3926,7 +4348,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3945,7 +4371,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -3964,7 +4394,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4008,7 +4442,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4066,22 +4504,26 @@
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 1,
-      "eventListenerEvents": ["OnAfterKillEntity"],
-      "eventListenerActionTypes": ["ModifyDynamicBlackboard"]
+      "eventListenerEvents": [
+        "OnAfterKillEntity"
+      ],
+      "eventListenerActionTypes": [
+        "ModifyDynamicBlackboard"
+      ]
     },
     {
       "characterId": "chr_0032_lizhiyan",
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
-      "conditionCount": 1,
-      "referencedBuffCount": 2,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0032_lizhiyan_combo_skill.json.timelineActions[15]._sequenceActionData.actionData[0].effectTargets[0]: unsupported time-dilation target source 'Source'",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 4,
+      "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 0,
@@ -4096,7 +4538,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4115,7 +4560,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 5,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4134,7 +4583,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4153,7 +4606,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "CreateTimedMarker",
+        "DamageAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -4196,7 +4653,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "CreateTimedMarker", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "CreateTimedMarker",
+        "DamageAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -4215,7 +4676,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4234,7 +4699,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4278,7 +4745,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
@@ -4294,14 +4765,14 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["SpawnAbilityEntity"],
-      "conditionCount": 1,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0017_yvonne_combo_skill.json.timelineActions[14]._sequenceActionData.actionData[0].effectTargets: ability entities need an explicit runtime model",
+      "unresolvedActions": [],
+      "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
-      "abilityEntityCount": 1,
+      "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 0,
@@ -4316,7 +4787,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -4335,7 +4808,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -4354,7 +4829,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 3,
@@ -4373,7 +4850,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -4392,7 +4871,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4411,7 +4894,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 1,
@@ -4430,7 +4917,12 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "plunging_attack_end.schedule[0].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'Probablity'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -4449,7 +4941,9 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "normal_skill.schedule[1].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff source 'ContextTarget'",
-      "unresolvedActions": ["CreateBuffAction"],
+      "unresolvedActions": [
+        "CreateBuffAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -4468,7 +4962,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -4487,7 +4984,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 5,
       "projectileChildCount": 3,
@@ -4506,7 +5007,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 11,
       "referencedBuffCount": 6,
       "projectileChildCount": 4,
@@ -4525,7 +5030,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 9,
       "referencedBuffCount": 6,
       "projectileChildCount": 2,
@@ -4592,7 +5101,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "ult_attack_end.schedule[7].buffApplication: unsupported Buff target 'Context'/'robots'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -4611,7 +5124,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -4630,7 +5147,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4649,7 +5170,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4668,7 +5193,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4687,7 +5216,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4706,7 +5239,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -4725,7 +5261,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4765,19 +5305,19 @@
       "operatorName": "Da Pan",
       "skillId": "chr_0018_dapan_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
-      "conditionCount": 1,
-      "referencedBuffCount": 3,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0018_dapan_ultimate_skill.json.timelineActions[17]._sequenceActionData.actionData[0].ignoreTargets[0]: unsupported time-dilation target source 'Source'",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
-      "eventListenerCount": 1,
-      "eventListenerEvents": ["OnAfterKillEntity"],
-      "eventListenerActionTypes": ["CheckDamageDecorateMask", "CompareFloat", "CreateBuffAction"]
+      "eventListenerCount": 0,
+      "eventListenerEvents": [],
+      "eventListenerActionTypes": []
     },
     {
       "characterId": "chr_0028_wulfa",
@@ -4787,7 +5327,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 6,
       "projectileChildCount": 0,
@@ -4803,12 +5348,12 @@
       "operatorName": "Rossi",
       "skillId": "chr_0028_wulfa_combo_3_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
-      "conditionCount": 9,
-      "referencedBuffCount": 10,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0028_wulfa_combo_3_skill.json: nested TimeDilationAction is not supported; the action must not be silently omitted",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
@@ -4825,7 +5370,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4844,7 +5393,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4863,7 +5414,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4882,7 +5437,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 10,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4901,7 +5460,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4920,7 +5483,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -4939,7 +5507,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -4958,7 +5530,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 5,
       "referencedBuffCount": 4,
       "projectileChildCount": 4,
@@ -4976,8 +5553,13 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "ultimate_skill.schedule[1].eventListener: unsupported native skill event 'OnSkillEnd'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "SpellInfliction"],
+      "blocker": "ultimate_skill.schedule[3].eventListener: unsupported native skill event 'OnSkillEnd'",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "SpellInfliction"
+      ],
       "conditionCount": 30,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
@@ -4985,8 +5567,12 @@
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 1,
-      "eventListenerEvents": ["OnSkillEnd"],
-      "eventListenerActionTypes": ["FinishBuffAdvanced"]
+      "eventListenerEvents": [
+        "OnSkillEnd"
+      ],
+      "eventListenerActionTypes": [
+        "FinishBuffAdvanced"
+      ]
     },
     {
       "characterId": "chr_0019_karin",
@@ -4996,7 +5582,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5015,7 +5605,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5034,7 +5626,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5053,7 +5649,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5072,7 +5672,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5091,7 +5695,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5110,7 +5717,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5129,7 +5740,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "SpellInfliction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "SpellInfliction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -5148,7 +5764,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 4,
       "projectileChildCount": 0,
@@ -5166,8 +5785,12 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[4].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'shieldTar'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "blocker": "combo_skill.schedule[5].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'shieldTar'",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -5186,7 +5809,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5205,7 +5832,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5224,7 +5855,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5243,7 +5878,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5262,7 +5901,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5281,7 +5923,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5297,27 +5942,19 @@
       "operatorName": "Catcher",
       "skillId": "chr_0020_meurs_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['AuraAction']",
-      "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
-      "conditionCount": 2,
-      "referencedBuffCount": 3,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0020_meurs_normal_skill.json.timelineActions[27]._sequenceActionData.actionData[0].effectTargets: ability entities need an explicit runtime model",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
-      "auraActionCount": 1,
+      "auraActionCount": 0,
       "physicalInflictionCount": 0,
-      "eventListenerCount": 2,
-      "eventListenerEvents": ["OnBeforeTakeDamage", "OnAddedBuff"],
-      "eventListenerActionTypes": [
-        "CheckDamageDecorateMask",
-        "ConvertToTargetContext",
-        "JumpToAction",
-        "CheckBuffIdInContext",
-        "CheckDistanceCondition",
-        "ConvertToTargetContext",
-        "JumpToAction"
-      ]
+      "eventListenerCount": 0,
+      "eventListenerEvents": [],
+      "eventListenerActionTypes": []
     },
     {
       "characterId": "chr_0020_meurs",
@@ -5365,8 +6002,14 @@
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
       "eventListenerCount": 1,
-      "eventListenerEvents": ["OnAfterKillEntity"],
-      "eventListenerActionTypes": ["CheckDamageDecorateMask", "CompareFloat", "CreateBuffAction"]
+      "eventListenerEvents": [
+        "OnAfterKillEntity"
+      ],
+      "eventListenerActionTypes": [
+        "CheckDamageDecorateMask",
+        "CompareFloat",
+        "CreateBuffAction"
+      ]
     },
     {
       "characterId": "chr_0022_bounda",
@@ -5376,7 +6019,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -5395,7 +6040,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -5414,7 +6061,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -5433,7 +6082,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -5452,7 +6103,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -5471,7 +6124,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5490,7 +6146,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5509,7 +6169,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 2,
@@ -5528,7 +6191,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 4,
@@ -5547,7 +6213,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5566,7 +6237,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5585,7 +6261,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5604,7 +6284,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5623,7 +6307,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5642,7 +6330,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -5661,7 +6354,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5680,7 +6377,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5699,7 +6401,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5718,7 +6424,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5737,7 +6447,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5756,7 +6470,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5775,7 +6493,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -5794,7 +6517,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5813,7 +6540,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5832,7 +6564,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -5851,7 +6587,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5870,7 +6611,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5889,7 +6635,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5908,7 +6658,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -5927,7 +6681,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
@@ -5946,7 +6704,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -5965,7 +6725,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -5984,7 +6746,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 15,
@@ -6003,7 +6767,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "attack4.schedule[0].conditionalAction.succeedActions[0].nestedCondition.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'Probablity'",
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6022,7 +6790,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "projectile-data",
       "blocker": "power_attack: projectile without triggered SkillData remains unresolved",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6041,7 +6813,12 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "plunging_attack_end.schedule[0].buffApplication: unsupported Buff target 'Context'/'Sheep'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6085,8 +6862,11 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "ultimate_skill.schedule[2].conditionalAction.succeedActions[0]: unsupported timed marker target 'Target'/''",
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile"],
+      "blocker": "ultimate_skill.schedule[4].conditionalAction.succeedActions[0]: unsupported timed marker target 'Target'/''",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 82,
@@ -6105,7 +6885,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6124,7 +6909,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6143,7 +6932,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6162,7 +6955,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6181,7 +6978,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6200,7 +7001,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6219,7 +7023,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6238,7 +7045,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 1,
@@ -6257,7 +7068,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6276,7 +7091,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6295,7 +7113,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6314,7 +7136,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6333,7 +7159,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6352,7 +7182,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 6,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6371,7 +7205,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6390,7 +7228,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6409,7 +7250,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6454,7 +7299,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6473,7 +7322,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6492,7 +7346,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 1,
@@ -6511,7 +7370,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -6530,7 +7391,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "LaunchProjectile",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 2,
@@ -6549,7 +7413,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 4,
@@ -6568,7 +7434,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6587,7 +7455,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6606,7 +7476,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6625,7 +7498,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6694,7 +7570,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "ultimate_skill.schedule[0].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'ult_postmodel_mirror'",
-      "unresolvedActions": ["CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -6713,7 +7593,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6732,7 +7615,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6751,7 +7637,10 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "attack3_ult.schedule[2].buffApplication: unsupported Buff target 'Context'/'thunder'",
-      "unresolvedActions": ["CreateBuffAction", "SpawnAbilityEntity"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "SpawnAbilityEntity"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6796,7 +7685,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6815,7 +7707,9 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction"],
+      "unresolvedActions": [
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6834,7 +7728,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 12,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6853,7 +7750,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6872,7 +7773,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -6891,7 +7796,11 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "powerattack.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -6910,7 +7819,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -6929,7 +7842,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -6948,7 +7865,10 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "normalskill_3.schedule[0].conditionalAction.succeedActions[1].nestedCondition.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -6967,7 +7887,10 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction"],
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
@@ -6985,8 +7908,13 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[2].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "blocker": "combo_skill.schedule[3].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 3,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -7004,8 +7932,13 @@
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill_2.schedule[5].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
+      "blocker": "combo_skill_2.schedule[7].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
+      "unresolvedActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 1,
       "projectileChildCount": 0,
@@ -7043,7 +7976,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -7062,7 +7999,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 2,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -7081,7 +8022,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 4,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -7100,7 +8045,12 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "LaunchProjectile", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -7119,7 +8069,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -7135,13 +8089,13 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_power_attack",
       "skillType": "finisher",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0033_camille_power_attack.json: nested TimeDilationAction is not supported; the action must not be silently omitted",
+      "unresolvedActions": [],
       "conditionCount": 0,
-      "referencedBuffCount": 2,
-      "projectileChildCount": 7,
+      "referencedBuffCount": 0,
+      "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
@@ -7157,7 +8111,11 @@
       "stage": "dsl-compiled",
       "blockerKind": null,
       "blocker": null,
-      "unresolvedActions": ["DamageAction", "IfElseAction", "ObtainCostAction"],
+      "unresolvedActions": [
+        "DamageAction",
+        "IfElseAction",
+        "ObtainCostAction"
+      ],
       "conditionCount": 1,
       "referencedBuffCount": 0,
       "projectileChildCount": 0,
@@ -7176,7 +8134,9 @@
       "stage": "dsl-blocked",
       "blockerKind": "buff-source-or-target",
       "blocker": "normal_skill.schedule[2].buffApplication: unsupported Buff target 'Context'/'Camille_Bat'",
-      "unresolvedActions": ["LaunchProjectile"],
+      "unresolvedActions": [
+        "LaunchProjectile"
+      ],
       "conditionCount": 0,
       "referencedBuffCount": 0,
       "projectileChildCount": 1,
@@ -7192,18 +8152,12 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-compiled",
-      "blockerKind": null,
-      "blocker": null,
-      "unresolvedActions": [
-        "CreateBuffAction",
-        "DamageAction",
-        "IfElseAction",
-        "ObtainCostAction",
-        "SpellInfliction"
-      ],
-      "conditionCount": 2,
-      "referencedBuffCount": 4,
+      "stage": "source-or-parser-blocked",
+      "blockerKind": "other",
+      "blocker": "ValueError: chr_0033_camille_ultimate_skill.json.timelineActions[2]._sequenceActionData.actionData[0].ignoreTargets[0]: unsupported time-dilation target source 'Source'",
+      "unresolvedActions": [],
+      "conditionCount": 0,
+      "referencedBuffCount": 0,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
@@ -7225,7 +8179,9 @@
       {
         "sourceFile": "chr_0016_laevat_dung_abilityentity.json",
         "auraActionCount": 1,
-        "directInboundSources": ["chr_0016_laevat_dung_spawn_abilityentity.json"]
+        "directInboundSources": [
+          "chr_0016_laevat_dung_spawn_abilityentity.json"
+        ]
       },
       {
         "sourceFile": "chr_0032_lizhiyan_normal_skill_abilityrange.json",

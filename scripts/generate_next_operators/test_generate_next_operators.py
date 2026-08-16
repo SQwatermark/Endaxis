@@ -16,6 +16,7 @@ from generate_next_operators import (
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_resolved_schedule,
+    validate_unmodeled_buff_ids,
     root_skill_has_output_damage_before,
     is_presentation_only_camera_condition,
     root_target_group_writes_for_condition,
@@ -891,7 +892,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             startFrame=2,
             executionFrames=(),
             actionIndex=7,
-            actionPath=(7,),
+            actionPath=("timelineActions[7]",),
         )
         gain = TimedResourceGainSource(
             startFrame=3,
@@ -2029,6 +2030,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     buffIds=("buff.ultimate.base",),
                     tagQueryType="hasAny",
                     buffTagIds=(),
+                    sequenceIndex=0,
                 ),
             ),
         )
@@ -2555,6 +2557,57 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.first", "buff.second"),
         )
         self.assertTrue(all(not definition.sourceAvailable for definition in definitions))
+
+    def test_buff_definitions_fall_back_to_full_export_directory(self) -> None:
+        buff = {
+            "lifeType": "Limited",
+            "duration": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "triggerInterval": {"useBlackboardKey": False, "value": -1, "blackboardKey": ""},
+            "waitFirstTriggerInterval": True,
+            "maxTriggerCnt": {"useBlackboardKey": False, "value": 0, "blackboardKey": ""},
+            "stackingSettings": {
+                "identifierType": "Id",
+                "stackingType": "Unlimited",
+                "stackingKey": "",
+                "usePriorityKey": False,
+                "priorityKey": "",
+                "priority": 0,
+                "useMaxStackCntKey": False,
+                "maxStackCntKey": "",
+                "maxStackCnt": 0,
+                "isNeedStackEffect": False,
+                "negatePriority": False,
+                "stackEffects": [],
+            },
+            "blackboard": [],
+            "applyTags": [],
+            "tagsAfterTriggerExtendBuffAction": [],
+            "timelineActions": [],
+            "buffEventAction": [],
+            "abilityEventAction": [],
+            "igniteEventAction": [],
+            "attributeModifier": {"isConvertedAttribute": False, "attributeModifiers": []},
+            "damageModifier": [],
+            "healModifier": [],
+            "poiseModifier": [],
+            "globalModifier": [],
+            "shieldConfigs": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            primary = root / "BuffData"
+            fallback = root / "buff-data-current"
+            primary.mkdir()
+            fallback.mkdir()
+            (fallback / "buff.common.json").write_text(json.dumps(buff), encoding="utf-8")
+
+            definitions = resolve_buff_definitions(
+                ("buff.common",),
+                (primary, fallback),
+            )
+
+        self.assertTrue(definitions[0].sourceAvailable)
+        self.assertIsNotNone(definitions[0].lifecycle)
 
     def test_buff_attribute_modifiers_reject_unknown_formula_slot(self) -> None:
         buff = {
@@ -5987,6 +6040,76 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
 
         self.assertLess(source.index("branch("), source.index("step('dealDamage'"))
+
+    def test_resolved_sequence_preserves_native_sequence_groups_on_the_same_frame(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Pulse",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+        )
+        skill = SimpleNamespace(
+            key="attack",
+            skillId="root",
+            timelineBlockFrames=10,
+            directDamageHits=(
+                SimpleNamespace(startFrame=5, actionIndex=20, sequenceIndex=4, damageUnits=(unit,)),
+                SimpleNamespace(startFrame=5, actionIndex=30, sequenceIndex=4, damageUnits=(unit,)),
+                SimpleNamespace(startFrame=5, actionIndex=1, sequenceIndex=7, damageUnits=(unit,)),
+            ),
+            auxiliaryActions=(),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            unresolvedCombatActions=("DamageAction",),
+        )
+
+        source = compile_resolved_damage_sequence(skill, {"tags": ["normalAttack"]})
+
+        self.assertEqual(source.count("scheduled(\n        5,"), 2)
+        first_group, second_group = source.split("      scheduled(\n        5,")[1:]
+        self.assertEqual(first_group.count("step('dealDamage'"), 2)
+        self.assertEqual(second_group.count("step('dealDamage'"), 1)
+
+    def test_unmodeled_buff_ids_must_match_a_scheduled_application(self) -> None:
+        application = AuxiliaryActionSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=2,
+            actionType="CreateBuffAction",
+            sourceId="buff.fixture",
+            classification=None,
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+        schedule = (
+            ResolvedScheduleItemSource(
+                frame=3,
+                actionOrder=(2,),
+                itemType="buffApplication",
+                sourcePath=("root",),
+                payload=application,
+                sequenceOrder=(0,),
+            ),
+        )
+
+        validate_unmodeled_buff_ids(schedule, frozenset({"buff.fixture"}), "fixture")
+        with self.assertRaisesRegex(ValueError, "buff.stale"):
+            validate_unmodeled_buff_ids(schedule, frozenset({"buff.stale"}), "fixture")
 
     def test_encode_step_key_parts_uses_length_prefixed_segments(self) -> None:
         self.assertEqual(encode_step_key_parts(("abc", 12)), "3:abc2:12")

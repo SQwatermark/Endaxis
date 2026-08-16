@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arcane, perlica, zhuangFangyi } from './operators';
+import { arcane, arclight, perlica, zhuangFangyi } from './operators';
 import {
   sharedGearDefinitions,
   sharedGearSetDefinitions,
@@ -18,10 +18,11 @@ describe('gameDataRepository', () => {
   });
 
   it('indexes every explicitly registered Next operator', () => {
-    expect(nextGameDataRepository.getOperators()).toEqual([perlica, arcane, zhuangFangyi]);
+    expect(nextGameDataRepository.getOperators()).toEqual([perlica, arcane, zhuangFangyi, arclight]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
     expect(nextGameDataRepository.getOperator(zhuangFangyi.slug)).toBe(zhuangFangyi);
+    expect(nextGameDataRepository.getOperator(arclight.slug)).toBe(arclight);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

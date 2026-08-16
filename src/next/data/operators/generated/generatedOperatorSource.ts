@@ -38,7 +38,12 @@ export interface GeneratedDamageUnitSource {
   readonly damageDecorateMask: number;
 }
 
-export interface GeneratedTimedDamageSource {
+/** 动作所属的原生 timelineActions 序号，用于恢复 Sequence 边界。 */
+export interface GeneratedNativeSequenceMember {
+  readonly sequenceIndex: number;
+}
+
+export interface GeneratedTimedDamageSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   /** 同一原生 TimelineAction 展开后的动作顺序，用于维持同帧结算次序。 */
@@ -72,7 +77,7 @@ export type GeneratedAuxiliaryClassification =
   | 'nonCombatAbilityEntity'
   | null;
 
-export interface GeneratedAuxiliaryActionSource {
+export interface GeneratedAuxiliaryActionSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -101,7 +106,9 @@ export interface GeneratedInflictionPayload {
   readonly isExtra: boolean;
 }
 
-export interface GeneratedTimedInflictionSource extends GeneratedInflictionPayload {
+export interface GeneratedTimedInflictionSource
+  extends GeneratedInflictionPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -134,7 +141,9 @@ export interface GeneratedTimedPhysicalInflictionSource {
   readonly payload: GeneratedPhysicalInflictionPayload;
 }
 
-export interface GeneratedTimedResourceGainSource extends GeneratedResourceGainPayload {
+export interface GeneratedTimedResourceGainSource
+  extends GeneratedResourceGainPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -180,7 +189,7 @@ export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaun
 }
 
 /** 固定周期动作中每次必然执行的同构伤害。 */
-export interface GeneratedTimedIntervalDamageSource {
+export interface GeneratedTimedIntervalDamageSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -285,7 +294,8 @@ export interface GeneratedUnparsedBuffPayloadSource {
     | 'healModifier'
     | 'igniteEventAction'
     | 'poiseModifier'
-    | 'shieldConfigs';
+    | 'shieldConfigs'
+    | 'attributeModifier.isConvertedAttribute';
   readonly entryCount: number;
 }
 
@@ -598,6 +608,8 @@ export interface GeneratedBuffApplicationPayload {
   readonly buffSourceContextKey: string;
   /** 是否把当前技能施法身份复制给新 Buff。 */
   readonly inheritSourceSkillCastInfo: boolean;
+  /** InstantSearch 目标使用的原生 finder 类型；其他目标来源通常缺省。 */
+  readonly targetFinderType?: string;
 }
 
 /** 技能动作创建的短生命周期标记；身份和持续时间均来自原生动作。 */
@@ -687,35 +699,42 @@ export interface GeneratedConditionalBranchActionSource {
 }
 
 export interface GeneratedBlackboardCalculationSource
-  extends GeneratedBlackboardCalculationPayload {
+  extends GeneratedBlackboardCalculationPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
 }
 
 /** 直接修改当前动作黑板的原生运行时操作。 */
-export interface GeneratedBlackboardMutationSource extends GeneratedBlackboardMutationPayload {
+export interface GeneratedBlackboardMutationSource
+  extends GeneratedBlackboardMutationPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
 }
 
 /** 从目标 Buff 实例黑板读取数值并写入当前动作黑板。 */
-export interface GeneratedBuffBlackboardReadSource extends GeneratedBuffBlackboardReadPayload {
+export interface GeneratedBuffBlackboardReadSource
+  extends GeneratedBuffBlackboardReadPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
 }
 
 /** 原生 FinishBuffAdvanced 的可审计配置；正式 DSL 只接收已闭环的查询子集。 */
-export interface GeneratedBuffFinishSource extends GeneratedBuffFinishPayload {
+export interface GeneratedBuffFinishSource
+  extends GeneratedBuffFinishPayload,
+    GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
 }
 
 /** 在原生时间区间内禁止结束开始时匹配到的 Buff 实例。 */
-export interface GeneratedBuffHoldSource {
+export interface GeneratedBuffHoldSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -801,7 +820,7 @@ export interface GeneratedSkillEventActionSequenceSource {
   readonly actions: readonly GeneratedConditionalActionSource[];
 }
 
-export interface GeneratedSkillEventListenerSource {
+export interface GeneratedSkillEventListenerSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
@@ -820,7 +839,7 @@ export interface GeneratedTimeScaleCurveKeySource {
 }
 
 /** 原生技能时间轴中的时间膨胀动作；公共曲线仍以名称引用。 */
-export interface GeneratedTimedTimeDilationSource {
+export interface GeneratedTimedTimeDilationSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;

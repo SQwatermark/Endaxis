@@ -335,9 +335,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[str]:
-    """从清单中明确标为未建模的养成编译器推导稳定能力缺口。"""
-    inferred: list[str] = []
+def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[dict[str, Any]]:
+    """从清单中明确标为未建模的编译器推导稳定能力缺口。"""
+    inferred: list[dict[str, Any]] = []
     for field, capability in (
         ("talents", "talentEffects"),
         ("potentials", "potentialEffects"),
@@ -349,7 +349,23 @@ def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[s
             )
             for item in configs
         ):
-            inferred.append(capability)
+            inferred.append({"capability": capability})
+    skill_group_keys: list[str] = []
+    raw_skills = operator.get("skills")
+    if isinstance(raw_skills, list):
+        for skill_index, raw_skill in enumerate(raw_skills):
+            skill = require_dict(raw_skill, f"{operator['slug']}.skills[{skill_index}]")
+            compile_config = skill.get("compile")
+            if not isinstance(compile_config, dict):
+                continue
+            unmodeled_buff_ids = require_list(
+                compile_config.get("unmodeledBuffIds", []),
+                f"{operator['slug']}.skills[{skill_index}].compile.unmodeledBuffIds",
+            )
+            if unmodeled_buff_ids:
+                skill_group_keys.append(str(skill["key"]))
+    if skill_group_keys:
+        inferred.append({"capability": "skillBehavior", "skillGroupKeys": skill_group_keys})
     return inferred
 
 
@@ -360,9 +376,7 @@ def parse_conversion_support(operator: dict[str, Any]) -> dict[str, Any]:
     if raw is None:
         return {
             "completeness": "partial" if inferred else "complete",
-            "missingCapabilities": [
-                {"capability": capability} for capability in inferred
-            ],
+            "missingCapabilities": inferred,
         }
     support = require_dict(raw, f"{operator['slug']}.conversionSupport")
     completeness = support.get("completeness")
@@ -391,7 +405,7 @@ def parse_conversion_support(operator: dict[str, Any]) -> dict[str, Any]:
             normalized["skillGroupKeys"] = keys
         missing.append(normalized)
     declared_capabilities = {item["capability"] for item in missing}
-    omitted = [capability for capability in inferred if capability not in declared_capabilities]
+    omitted = [item for item in inferred if item["capability"] not in declared_capabilities]
     if omitted:
         raise ValueError(
             f"{operator['slug']}.conversionSupport: missing inferred capabilities {omitted!r}"
@@ -1119,6 +1133,7 @@ def parse_blackboard_calculations(
                     operation=payload.operation,
                     left=payload.left,
                     right=payload.right,
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -1167,6 +1182,7 @@ def parse_blackboard_runtime_actions(
                         key=payload.key,
                         operation=payload.operation,
                         value=payload.value,
+                        sequenceIndex=timeline_index,
                     )
                 )
                 continue
@@ -1191,6 +1207,7 @@ def parse_blackboard_runtime_actions(
                         limitSource=payload.limitSource,
                         isFinishedEarly=payload.isFinishedEarly,
                         isAbsorbed=payload.isAbsorbed,
+                        sequenceIndex=timeline_index,
                     )
                 )
                 continue
@@ -1214,6 +1231,7 @@ def parse_blackboard_runtime_actions(
                     buffIds=payload.buffIds,
                     tagQueryType=payload.tagQueryType,
                     buffTagIds=payload.buffTagIds,
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(mutations), tuple(reads), tuple(finishes)
@@ -1269,6 +1287,7 @@ def parse_buff_hold_actions(
                     buffIds=buff_ids,
                     tagQueryType=query_type,
                     buffTagIds=tag_ids,
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -1311,6 +1330,7 @@ def parse_direct_damage_hits(
                     ),
                     damageUnits=parse_damage_units(action_root, source_name, inherited_blackboard),
                     timedMarkerGate=marker_gates.get(id(action)),
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -1421,6 +1441,7 @@ def parse_interval_damage_hits(
                     tickFrames=tick_frames,
                     damageActionIndex=min(item[0] for item in branch_damage),
                     damageUnits=branch_damage[0][1],
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -1452,6 +1473,7 @@ def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInfl
                     ),
                     element=payload.element,
                     isExtra=payload.isExtra,
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -1561,10 +1583,13 @@ def parse_buff_attribute_modifiers(
         raise ValueError(
             f"{source_name}.attributeModifier: unexpected fields {sorted(config)}"
         )
-    if config.get("isConvertedAttribute") is not False:
+    is_converted = config.get("isConvertedAttribute")
+    if not isinstance(is_converted, bool):
         raise ValueError(
-            f"{source_name}.attributeModifier.isConvertedAttribute: expected false"
+            f"{source_name}.attributeModifier.isConvertedAttribute: expected boolean"
         )
+    # true 只表示该 Buff 的修正来自“已转换属性”，ConvertToServer 仍逐个转换
+    # attributeModifiers；本层保留字段事实为 unparsedPayloads，避免把它当作普通修正放行。
 
     result: list[BuffAttributeModifierSource] = []
     for index, raw_modifier in enumerate(
@@ -1787,6 +1812,7 @@ def parse_skill_event_listeners(
                         priorityOffset=priority_offset,
                         event=event_name,
                         sequences=tuple(sequences),
+                        sequenceIndex=timeline_index,
                     )
                 )
     return tuple(result)
@@ -1814,14 +1840,31 @@ def collect_unparsed_buff_payloads(
         entries = require_list(value, f"{source_name}.{field}")
         if entries:
             result.append(UnparsedBuffPayloadSource(field=field, entryCount=len(entries)))
+    attribute_modifier = buff.get("attributeModifier")
+    if isinstance(attribute_modifier, dict) and attribute_modifier.get("isConvertedAttribute") is True:
+        result.append(
+            UnparsedBuffPayloadSource(
+                field="attributeModifier.isConvertedAttribute",
+                entryCount=1,
+            )
+        )
     return tuple(result)
 
 
 def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
-    buff_source_dir: Path,
+    buff_source_dirs: Path | Iterable[Path],
 ) -> tuple[BuffDefinitionSource, ...]:
-    """解析传递 Buff 依赖的定义事实；应用参数不得污染定义自身的黑板默认值。"""
+    """解析传递 Buff 依赖的定义事实；应用参数不得污染定义自身的黑板默认值。
+
+    多个候选目录按顺序查找：主目录仍是人工整理的 `BuffData`，缺文件时回退到
+    `buff-data-current` 之类的完整导出，避免公共 Buff 仅因不在精选目录中而被误报缺失。
+    """
+    dirs = (
+        (buff_source_dirs,)
+        if isinstance(buff_source_dirs, Path)
+        else tuple(buff_source_dirs)
+    )
     result: dict[str, BuffDefinitionSource] = {}
     pending = list(buff_ids)
     while pending:
@@ -1829,8 +1872,11 @@ def resolve_buff_definitions(
         if buff_id in result:
             continue
         source_file = f"{buff_id}.json"
-        source_path = buff_source_dir / source_file
-        if not source_path.is_file():
+        source_path = next(
+            (candidate / source_file for candidate in dirs if (candidate / source_file).is_file()),
+            None,
+        )
+        if source_path is None:
             result[buff_id] = BuffDefinitionSource(
                 buffId=buff_id,
                 sourceFile=source_file,
@@ -1914,7 +1960,11 @@ def resolve_operator_buff_definitions(
     referenced_ids = tuple(
         sorted({buff_id for skill in skills for buff_id in skill.referencedBuffIds})
     )
-    return resolve_buff_definitions(referenced_ids, buff_source_dir)
+    # 主目录保持精选 BuffData；完整导出回退用于公共 Buff 与尚未精选的干员 Buff。
+    return resolve_buff_definitions(
+        referenced_ids,
+        (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+    )
 
 
 def parse_buff_lifecycle(
@@ -2413,6 +2463,7 @@ def parse_auxiliary_actions(
                             targetFinderType=payload.targetFinderType,
                             targetValidatorTypes=payload.targetValidatorTypes,
                             targetPostProcessorTypes=payload.targetPostProcessorTypes,
+                            sequenceIndex=timeline_index,
                         )
                     )
             elif name == "SpawnAbilityEntity":
@@ -2438,6 +2489,7 @@ def parse_auxiliary_actions(
                             inheritSourceSkillCastInfo=None,
                             blackboardAssignments={},
                             nestedCombatActions=(),
+                            sequenceIndex=timeline_index,
                         )
                     )
                     continue
@@ -2474,6 +2526,7 @@ def parse_auxiliary_actions(
                         inheritSourceSkillCastInfo=None,
                         blackboardAssignments={},
                         nestedCombatActions=nested,
+                        sequenceIndex=timeline_index,
                     )
                 )
     return tuple(result)
@@ -2537,6 +2590,7 @@ def parse_resource_gains(
                     ultimateRecoveryTagId=payload.ultimateRecoveryTagId,
                     ignoreUltimateGainScalar=payload.ignoreUltimateGainScalar,
                     onceActionValueKey=once_gates.get(id(action)),
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -3447,6 +3501,37 @@ def resolve_guaranteed_conditional_ability_entity_hits(
     return tuple(result)
 
 
+def native_sequence_order(
+    action: Any,
+    parent_action_order: tuple[int, ...],
+    path: str,
+) -> tuple[int, ...]:
+    """读取解析时保留的原生 Sequence；旧测试夹具按动作序号保持原行为。"""
+    sequence_index = getattr(action, "sequenceIndex", -1)
+    if sequence_index == -1:
+        sequence_index = action.actionIndex
+    if not isinstance(sequence_index, int) or sequence_index < 0:
+        raise ValueError(f"{path}: action has invalid native sequence identity")
+    return (*parent_action_order, sequence_index)
+
+
+def native_condition_sequence_order(
+    action_path: tuple[str, ...],
+    parent_action_order: tuple[int, ...],
+    path: str,
+    fallback_action_index: int | None = None,
+) -> tuple[int, ...]:
+    """条件解析器保留了外层 timeline 路径，以它确定 Sequence，避免混用分支数组下标。"""
+    for part in action_path:
+        if part.startswith("timelineActions[") and part.endswith("]"):
+            raw_index = part[len("timelineActions[") : -1]
+            if raw_index.isdigit():
+                return (*parent_action_order, int(raw_index))
+    if fallback_action_index is not None:
+        return (*parent_action_order, fallback_action_index)
+    raise ValueError(f"{path}: condition has no native timeline sequence path")
+
+
 def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitSource, ...]:
     """将根技能及其引用子技能中的伤害动作投影到根技能的绝对帧。"""
     candidates: list[tuple[ResolvedDamageHitSource, str | None, int]] = []
@@ -3467,6 +3552,9 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                     "direct",
                     (skill.skillId,),
                     hit.damageUnits,
+                    native_sequence_order(
+                        hit, (), skill.skillId
+                    ),
                 )
             )
 
@@ -3483,6 +3571,9 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                         "projectile",
                         current_path,
                         damage.damageUnits,
+                        native_sequence_order(
+                            damage, hit.actionOrder, hit.triggerSkillId
+                        ),
                     )
                 )
         for nested in hit.nestedProjectileTriggeredSkills:
@@ -3530,6 +3621,9 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                         "abilityEntity",
                         current_path,
                         damage.damageUnits,
+                        native_sequence_order(
+                            damage, hit.actionOrder, hit.skillId
+                        ),
                     ),
                     marker_id,
                     marker_duration_frames,
@@ -3548,6 +3642,9 @@ def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitS
                         "abilityEntityInterval",
                         current_path,
                         repeated.damageUnits,
+                        native_sequence_order(
+                            repeated, hit.actionOrder, hit.skillId
+                        ),
                     )
                 )
         for projectile in hit.projectileTriggeredSkills:
@@ -3582,6 +3679,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="damage",
             sourcePath=hit.sourcePath,
             payload=hit,
+            sequenceOrder=hit.sequenceOrder,
         )
         for hit in collect_resolved_damage_hits(skill)
     ]
@@ -3593,6 +3691,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             sourcePath=(skill.skillId,),
             payload=action,
             inputTarget="enemy",
+            sequenceOrder=native_sequence_order(
+                action, (), skill.skillId
+            ),
         )
         for action in skill.auxiliaryActions
         if action.actionType == "CreateBuffAction"
@@ -3605,6 +3706,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             sourcePath=action.actionPath,
             payload=action,
             inputTarget="enemy",
+            sequenceOrder=native_condition_sequence_order(
+                action.actionPath, (), skill.skillId, action.actionIndex
+            ),
         )
         for action in skill.conditionalActions
         for frame in (getattr(action, "executionFrames", ()) or (action.startFrame,))
@@ -3616,6 +3720,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="blackboardCalculation",
             sourcePath=(skill.skillId,),
             payload=calculation,
+            sequenceOrder=native_sequence_order(
+                calculation, (), skill.skillId
+            ),
         )
         for calculation in skill.blackboardCalculations
     )
@@ -3633,6 +3740,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
                 sourcePath=(skill.skillId,),
                 payload=action,
                 inputTarget="enemy",
+                sequenceOrder=native_sequence_order(
+                    action, (), skill.skillId
+                ),
             )
             for action in actions
         )
@@ -3648,6 +3758,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
                 itemType="resourceGain",
                 sourcePath=(skill.skillId,),
                 payload=gain,
+                sequenceOrder=native_sequence_order(
+                    gain, (), skill.skillId
+                ),
             )
         )
     result.extend(
@@ -3657,6 +3770,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="infliction",
             sourcePath=(skill.skillId,),
             payload=infliction,
+            sequenceOrder=native_sequence_order(
+                infliction, (), skill.skillId
+            ),
         )
         for infliction in skill.inflictions
     )
@@ -3667,6 +3783,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="eventListener",
             sourcePath=(skill.skillId,),
             payload=listener,
+            sequenceOrder=native_sequence_order(
+                listener, (), skill.skillId
+            ),
         )
         for listener in getattr(skill, "eventListeners", ())
     )
@@ -3677,6 +3796,9 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             itemType="timeDilation",
             sourcePath=(skill.skillId,),
             payload=action,
+            sequenceOrder=native_sequence_order(
+                action, (), skill.skillId
+            ),
         )
         for action in getattr(skill, "timeDilations", ())
     )
@@ -3684,7 +3806,28 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         collect_projectile_schedule(projectile, result)
     for entity in skill.abilityEntityHits:
         collect_ability_entity_schedule(entity, result)
-    return tuple(sorted(result, key=lambda item: (item.frame, item.actionOrder)))
+    return tuple(
+        sorted(
+            result,
+            key=lambda item: (item.frame, item.sequenceOrder, item.actionOrder),
+        )
+    )
+
+
+def validate_unmodeled_buff_ids(
+    schedule: tuple[ResolvedScheduleItemSource, ...],
+    unmodeled_buff_ids: frozenset[str],
+    path: str,
+) -> None:
+    """确保清单中的未建模 Buff 确实由当前技能施加，避免过期配置静默放行。"""
+    scheduled_buff_ids = {
+        cast(AuxiliaryActionSource, item.payload).sourceId
+        for item in schedule
+        if item.itemType == "buffApplication"
+    }
+    unknown_ids = sorted(unmodeled_buff_ids - scheduled_buff_ids)
+    if unknown_ids:
+        raise ValueError(f"{path}: unmodeled Buff ids are not applied by this skill: {unknown_ids}")
 
 
 def root_target_group_writes_for_condition(
@@ -3741,6 +3884,9 @@ def collect_projectile_schedule(
             sourcePath=source_path,
             payload=action,
             inputTarget="enemy",
+            sequenceOrder=native_sequence_order(
+                action, hit.actionOrder, hit.triggerSkillId
+            ),
         )
         for action in getattr(hit, "auxiliaryActions", ())
         if action.actionType == "CreateBuffAction"
@@ -3753,6 +3899,12 @@ def collect_projectile_schedule(
             sourcePath=(*source_path, *condition.actionPath),
             payload=condition,
             inputTarget="enemy",
+            sequenceOrder=native_condition_sequence_order(
+                condition.actionPath,
+                hit.actionOrder,
+                hit.triggerSkillId,
+                condition.actionIndex,
+            ),
         )
         for condition in hit.conditionalActions
         for frame in (condition.executionFrames or (condition.startFrame,))
@@ -3769,6 +3921,9 @@ def collect_projectile_schedule(
                 itemType="resourceGain",
                 sourcePath=source_path,
                 payload=gain,
+                sequenceOrder=native_sequence_order(
+                    gain, hit.actionOrder, hit.triggerSkillId
+                ),
             )
         )
     result.extend(
@@ -3778,6 +3933,9 @@ def collect_projectile_schedule(
             itemType="infliction",
             sourcePath=source_path,
             payload=infliction,
+            sequenceOrder=native_sequence_order(
+                infliction, hit.actionOrder, hit.triggerSkillId
+            ),
         )
         for infliction in getattr(hit, "inflictions", ())
     )
@@ -3809,6 +3967,9 @@ def collect_ability_entity_schedule(
                 itemType=cast(ResolvedScheduleItemType, item_type),
                 sourcePath=source_path,
                 payload=action,
+                sequenceOrder=native_sequence_order(
+                    action, hit.actionOrder, hit.skillId
+                ),
             )
             for action in actions
         )
@@ -3820,6 +3981,9 @@ def collect_ability_entity_schedule(
             sourcePath=(*source_path, *condition.actionPath),
             payload=condition,
             inputTarget="enemy",
+            sequenceOrder=native_condition_sequence_order(
+                condition.actionPath, hit.actionOrder, hit.skillId, condition.actionIndex
+            ),
         )
         for condition in getattr(hit, "conditionalActions", ())
         for frame in (
@@ -3842,6 +4006,9 @@ def collect_ability_entity_schedule(
                 itemType="resourceGain",
                 sourcePath=source_path,
                 payload=gain,
+                sequenceOrder=native_sequence_order(
+                    gain, hit.actionOrder, hit.skillId
+                ),
             )
         )
     result.extend(
@@ -3851,6 +4018,9 @@ def collect_ability_entity_schedule(
             itemType="infliction",
             sourcePath=source_path,
             payload=infliction,
+            sequenceOrder=native_sequence_order(
+                infliction, hit.actionOrder, hit.skillId
+            ),
         )
         for infliction in getattr(hit, "inflictions", ())
     )
@@ -4013,6 +4183,7 @@ def parse_time_dilations(
                     ignoredTargets=fixed_ignored, targets=(), omittedAbilityEntityTargets=omitted,
                     influenceSkillCooldown=None,
                     targetScale=require_number(action.get("timeScale"), f"{path}.timeScale"),
+                    sequenceIndex=timeline_index,
                 ))
                 continue
             expected = common | {
@@ -4054,6 +4225,7 @@ def parse_time_dilations(
                 ignoredTargets=fixed_ignored,
                 targets=tuple(cast(Literal["caster", "enemy"], target) for target in effect_targets),
                 omittedAbilityEntityTargets=omitted, influenceSkillCooldown=influence, targetScale=None,
+                sequenceIndex=timeline_index,
             ))
     for action in walk_actions(group):
         name = action_name(str(action.get("$type", "")))
@@ -7170,6 +7342,12 @@ def compile_resolved_sequence(
     ignored_buff_ids = frozenset(
         require_list(config.get("ignoreBuffIds", []), f"{skill.key}.compile.ignoreBuffIds")
     )
+    unmodeled_buff_ids = frozenset(
+        require_list(
+            config.get("unmodeledBuffIds", []),
+            f"{skill.key}.compile.unmodeledBuffIds",
+        )
+    )
     damage_tags = tuple(require_list(config.get("tags", []), f"{skill.key}.compile.tags"))
     runtime_blackboard_keys = collect_runtime_blackboard_output_keys(skill)
     collapse_single_enemy_entity_branches = config.get(
@@ -7254,15 +7432,27 @@ def compile_resolved_sequence(
     hits = collect_resolved_damage_hits(skill)
     if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
+    resolved_schedule = collect_resolved_schedule(skill)
+    overlap = sorted(ignored_buff_ids & unmodeled_buff_ids)
+    if overlap:
+        raise ValueError(
+            f"{skill.key}.compile: Buff ids cannot be both ignored and unmodeled: {overlap}"
+        )
+    validate_unmodeled_buff_ids(
+        resolved_schedule,
+        unmodeled_buff_ids,
+        f"{skill.key}.compile.unmodeledBuffIds",
+    )
     schedule = tuple(
         item
-        for item in collect_resolved_schedule(skill)
+        for item in resolved_schedule
         if not (
             item.itemType == "buffApplication"
             and (
                 cast(AuxiliaryActionSource, item.payload).classification
                 in ignored_auxiliary_classifications
                 or cast(AuxiliaryActionSource, item.payload).sourceId in ignored_buff_ids
+                or cast(AuxiliaryActionSource, item.payload).sourceId in unmodeled_buff_ids
             )
         )
         and not (
@@ -7273,7 +7463,7 @@ def compile_resolved_sequence(
         )
     )
     damage_indexes = {hit: index for index, hit in enumerate(hits)}
-    scheduled_entries: list[str] = []
+    compiled_schedule: list[tuple[ResolvedScheduleItemSource, list[str]]] = []
     for schedule_index, item in enumerate(schedule):
         if item.itemType == "damage":
             payload = cast(ResolvedDamageHitSource, item.payload)
@@ -7390,14 +7580,21 @@ def compile_resolved_sequence(
                     root_skill_context=True,
                 )
                 context_application_target = target_group_write_buff_application_target(write)
-            step_lines = compile_buff_application(
-                payload,
-                f"{skill.key}.schedule[{schedule_index}].buffApplication",
-                root_skill_context=item.sourcePath == (skill.skillId,),
-                context_application_target=context_application_target,
-                input_target=item.inputTarget,
-                buff_definitions=buff_definitions,
-            ).splitlines()
+            if payload.classification == "skillCostUltimateEnergyGain":
+                # buff_common_obtain_ultimate_sp 的 CreateBuffAction 是原生
+                # “按非返还技力消耗为全队回能”的载体；不展开为 Buff 实例。
+                step_lines = [
+                    "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })"
+                ]
+            else:
+                step_lines = compile_buff_application(
+                    payload,
+                    f"{skill.key}.schedule[{schedule_index}].buffApplication",
+                    root_skill_context=item.sourcePath == (skill.skillId,),
+                    context_application_target=context_application_target,
+                    input_target=item.inputTarget,
+                    buff_definitions=buff_definitions,
+                ).splitlines()
         elif item.itemType == "eventListener":
             payload = cast(SkillEventListenerSource, item.payload)
             step_lines = compile_skill_event_listener(
@@ -7415,23 +7612,39 @@ def compile_resolved_sequence(
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
-        entry_lines = [
-                "      scheduled(",
-                f"        {item.frame},",
-                "        sequence(",
-                *(f"          {line}," if line.endswith(")") else f"          {line}" for line in step_lines),
-                "        ),",
-            ]
-        if item.itemType == "buffHold":
-            entry_lines.append(f"        {cast(BuffHoldSource, item.payload).endFrame},")
-        elif item.itemType == "eventListener":
-            entry_lines.append(
-                f"        {cast(SkillEventListenerSource, item.payload).endFrame},"
+        compiled_schedule.append((item, step_lines))
+
+    grouped_schedule: dict[
+        tuple[int, tuple[int, ...]],
+        list[tuple[ResolvedScheduleItemSource, list[str]]],
+    ] = {}
+    for item, step_lines in compiled_schedule:
+        grouped_schedule.setdefault((item.frame, item.sequenceOrder), []).append((item, step_lines))
+
+    scheduled_entries: list[str] = []
+    for frame, sequence_order in sorted(grouped_schedule):
+        entries = sorted(
+            grouped_schedule[(frame, sequence_order)],
+            key=lambda entry: entry[0].actionOrder,
+        )
+        entry_lines = ["      scheduled(", f"        {frame},", "        sequence("]
+        for _, step_lines in entries:
+            entry_lines.extend(
+                f"          {line}," if line.endswith(")") else f"          {line}"
+                for line in step_lines
             )
-        elif item.itemType == "timeDilation":
-            entry_lines.append(
-                f"        {cast(TimedTimeDilationSource, item.payload).endFrame},"
+        entry_lines.append("        ),")
+        end_frames = {
+            cast(BuffHoldSource | SkillEventListenerSource | TimedTimeDilationSource, item.payload).endFrame
+            for item, _ in entries
+            if item.itemType in {"buffHold", "eventListener", "timeDilation"}
+        }
+        if len(end_frames) > 1:
+            raise ValueError(
+                f"{skill.key}: one native sequence has conflicting end frames {sorted(end_frames)}"
             )
+        if end_frames:
+            entry_lines.append(f"        {next(iter(end_frames))},")
         entry_lines.append("      ),")
         scheduled_entries.extend(entry_lines)
     fields = [
@@ -7699,9 +7912,24 @@ def render_compiled_skills(
     )
 
 
-WEAPON_TYPE_MAP = {2: "arts-unit"}
+# CharacterTable 枚举到 Next OperatorDefinition 身份的映射。2/5 已由佩丽卡样本验证；
+# 其余取值由全量 CharacterTable 枚举分布与旧版干员表身份一致，生成时仍需审计确认。
+WEAPON_TYPE_MAP = {
+    1: "sword",
+    2: "arts-unit",
+    3: "greatsword",
+    5: "polearm",
+    6: "handcannon",
+}
 ELEMENT_TYPE_MAP = {"Pulse": "electric"}
-PROFESSION_MAP = {5: "caster"}
+PROFESSION_MAP = {
+    0: "guard",
+    2: "defender",
+    4: "supporter",
+    5: "caster",
+    7: "vanguard",
+    8: "striker",
+}
 PANEL_ATTRIBUTE_TYPES = {
     "strength": 39,
     "agility": 40,
@@ -8102,6 +8330,7 @@ def render_report(
                     {
                         "frame": item.frame,
                         "actionOrder": item.actionOrder,
+                        "sequenceOrder": item.sequenceOrder,
                         "itemType": item.itemType,
                         "sourcePath": item.sourcePath,
                     }

@@ -5,10 +5,55 @@
     {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
-      "sourceAvailable": false,
-      "lifecycle": null,
-      "blackboard": [],
-      "applyTagIds": [],
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -886962248
+      ],
       "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
@@ -26,10 +71,55 @@
     {
       "buffId": "buff_common_damage_immune_ult_skill",
       "sourceFile": "buff_common_damage_immune_ult_skill.json",
-      "sourceAvailable": false,
-      "lifecycle": null,
-      "blackboard": [],
-      "applyTagIds": [],
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -886962248
+      ],
       "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
@@ -38,7 +128,19 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "SetSuperArmorAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -47,9 +149,58 @@
     {
       "buffId": "buff_common_obtain_ultimate_sp",
       "sourceFile": "buff_common_obtain_ultimate_sp.json",
-      "sourceAvailable": false,
-      "lifecycle": null,
-      "blackboard": [],
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "ratio",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_everyone",
+          "value": 6.5,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_self",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
       "applyTagIds": [],
       "extendTagIds": [],
       "attributeModifiers": [],
@@ -59,7 +210,19 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ObtainUspInNormalSkill"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -68,10 +231,49 @@
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
       "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
-      "sourceAvailable": false,
-      "lifecycle": null,
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
       "blackboard": [],
-      "applyTagIds": [],
+      "applyTagIds": [
+        -1601691447,
+        817018340,
+        -1486085048,
+        -496376350,
+        2002680355
+      ],
       "extendTagIds": [],
       "attributeModifiers": [],
       "directDamageHits": [],
@@ -192,7 +394,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -349,6 +552,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            3,
+            0
           ]
         }
       ],
@@ -356,6 +563,10 @@
         {
           "frame": 8,
           "actionOrder": [
+            3,
+            0
+          ],
+          "sequenceOrder": [
             3,
             0
           ],
@@ -370,6 +581,10 @@
           "actionOrder": [
             3,
             1
+          ],
+          "sequenceOrder": [
+            3,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -524,7 +739,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -693,7 +909,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -831,6 +1048,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            1,
+            0
           ]
         },
         {
@@ -872,6 +1093,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            2,
+            0
           ]
         }
       ],
@@ -879,6 +1104,10 @@
         {
           "frame": 9,
           "actionOrder": [
+            1,
+            0
+          ],
+          "sequenceOrder": [
             1,
             0
           ],
@@ -893,6 +1122,10 @@
           "actionOrder": [
             1,
             1
+          ],
+          "sequenceOrder": [
+            1,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -909,6 +1142,10 @@
             2,
             0
           ],
+          "sequenceOrder": [
+            2,
+            0
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_attack2",
@@ -920,6 +1157,10 @@
           "actionOrder": [
             2,
             1
+          ],
+          "sequenceOrder": [
+            2,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -1095,7 +1336,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -1283,7 +1525,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -1471,7 +1714,8 @@
                   "damageDecorateMask": 128
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -1628,6 +1872,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            3,
+            0
           ]
         },
         {
@@ -1669,6 +1917,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            4,
+            0
           ]
         },
         {
@@ -1710,6 +1962,10 @@
               "definiteValue": null,
               "damageDecorateMask": 128
             }
+          ],
+          "sequenceOrder": [
+            5,
+            0
           ]
         }
       ],
@@ -1720,6 +1976,10 @@
             3,
             0
           ],
+          "sequenceOrder": [
+            3,
+            0
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -1732,6 +1992,10 @@
             3,
             3
           ],
+          "sequenceOrder": [
+            3,
+            0
+          ],
           "itemType": "condition",
           "sourcePath": [
             "chr_0004_pelica_attack3_projhit",
@@ -1747,6 +2011,10 @@
             4,
             0
           ],
+          "sequenceOrder": [
+            4,
+            0
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -1758,6 +2026,10 @@
           "actionOrder": [
             4,
             3
+          ],
+          "sequenceOrder": [
+            4,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -1774,6 +2046,10 @@
             5,
             0
           ],
+          "sequenceOrder": [
+            5,
+            0
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_attack3",
@@ -1785,6 +2061,10 @@
           "actionOrder": [
             5,
             3
+          ],
+          "sequenceOrder": [
+            5,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -1998,7 +2278,8 @@
                   "damageDecorateMask": 0
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -2186,6 +2467,10 @@
               "definiteValue": null,
               "damageDecorateMask": 0
             }
+          ],
+          "sequenceOrder": [
+            3,
+            0
           ]
         }
       ],
@@ -2193,6 +2478,10 @@
         {
           "frame": 27,
           "actionOrder": [
+            3,
+            0
+          ],
+          "sequenceOrder": [
             3,
             0
           ],
@@ -2207,6 +2496,10 @@
           "actionOrder": [
             3,
             2
+          ],
+          "sequenceOrder": [
+            3,
+            0
           ],
           "itemType": "condition",
           "sourcePath": [
@@ -2298,7 +2591,8 @@
               "damageDecorateMask": 132
             }
           ],
-          "timedMarkerGate": null
+          "timedMarkerGate": null,
+          "sequenceIndex": 2
         }
       ],
       "conditionalActions": [],
@@ -2321,7 +2615,8 @@
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": [],
-          "buffSourceContextKey": ""
+          "buffSourceContextKey": "",
+          "sequenceIndex": 15
         },
         {
           "startFrame": 0,
@@ -2341,7 +2636,8 @@
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": [],
-          "buffSourceContextKey": ""
+          "buffSourceContextKey": "",
+          "sequenceIndex": 22
         }
       ],
       "blackboardCalculations": [],
@@ -2399,6 +2695,9 @@
               "definiteValue": null,
               "damageDecorateMask": 132
             }
+          ],
+          "sequenceOrder": [
+            2
           ]
         }
       ],
@@ -2407,6 +2706,9 @@
           "frame": 0,
           "actionOrder": [
             39
+          ],
+          "sequenceOrder": [
+            15
           ],
           "itemType": "buffApplication",
           "sourcePath": [
@@ -2418,6 +2720,9 @@
           "actionOrder": [
             46
           ],
+          "sequenceOrder": [
+            22
+          ],
           "itemType": "buffApplication",
           "sourcePath": [
             "chr_0004_pelica_power_attack"
@@ -2426,6 +2731,9 @@
         {
           "frame": 35,
           "actionOrder": [
+            2
+          ],
+          "sequenceOrder": [
             2
           ],
           "itemType": "damage",
@@ -2553,7 +2861,8 @@
               "damageDecorateMask": 1152
             }
           ],
-          "timedMarkerGate": null
+          "timedMarkerGate": null,
+          "sequenceIndex": 3
         }
       ],
       "conditionalActions": [],
@@ -2599,7 +2908,8 @@
           "useUltimateRecoveryTag": false,
           "ultimateRecoveryTagId": 0,
           "ignoreUltimateGainScalar": false,
-          "onceActionValueKey": null
+          "onceActionValueKey": null,
+          "sequenceIndex": 3
         }
       ],
       "projectileLaunches": [
@@ -2786,6 +3096,9 @@
               "definiteValue": null,
               "damageDecorateMask": 1152
             }
+          ],
+          "sequenceOrder": [
+            3
           ]
         }
       ],
@@ -2793,6 +3106,9 @@
         {
           "frame": 3,
           "actionOrder": [
+            3
+          ],
+          "sequenceOrder": [
             3
           ],
           "itemType": "damage",
@@ -3023,7 +3339,8 @@
               "damageDecorateMask": 0
             }
           ],
-          "timedMarkerGate": null
+          "timedMarkerGate": null,
+          "sequenceIndex": 3
         }
       ],
       "conditionalActions": [],
@@ -3046,7 +3363,8 @@
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": [],
-          "buffSourceContextKey": ""
+          "buffSourceContextKey": "",
+          "sequenceIndex": 3
         }
       ],
       "blackboardCalculations": [],
@@ -3143,6 +3461,9 @@
               "definiteValue": null,
               "damageDecorateMask": 0
             }
+          ],
+          "sequenceOrder": [
+            3
           ]
         }
       ],
@@ -3151,6 +3472,9 @@
           "frame": 13,
           "actionOrder": [
             11
+          ],
+          "sequenceOrder": [
+            3
           ],
           "itemType": "infliction",
           "sourcePath": [
@@ -3162,6 +3486,9 @@
           "actionOrder": [
             12
           ],
+          "sequenceOrder": [
+            3
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_normal_skill"
@@ -3171,6 +3498,9 @@
           "frame": 13,
           "actionOrder": [
             15
+          ],
+          "sequenceOrder": [
+            3
           ],
           "itemType": "buffApplication",
           "sourcePath": [
@@ -3507,7 +3837,8 @@
                   "damageDecorateMask": 0
                 }
               ],
-              "timedMarkerGate": null
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
             }
           ],
           "conditionalActions": [
@@ -3786,7 +4117,8 @@
                               "damageDecorateMask": 0
                             }
                           ],
-                          "timedMarkerGate": null
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 0
                         }
                       ],
                       "conditionalActions": [
@@ -3950,7 +4282,8 @@
                           "inheritSourceSkillCastInfo": true,
                           "blackboardAssignments": {},
                           "nestedCombatActions": [],
-                          "buffSourceContextKey": ""
+                          "buffSourceContextKey": "",
+                          "sequenceIndex": 0
                         },
                         {
                           "startFrame": 0,
@@ -4007,7 +4340,8 @@
                             }
                           },
                           "nestedCombatActions": [],
-                          "buffSourceContextKey": ""
+                          "buffSourceContextKey": "",
+                          "sequenceIndex": 0
                         }
                       ],
                       "resourceGains": [
@@ -4046,7 +4380,8 @@
                           "useUltimateRecoveryTag": false,
                           "ultimateRecoveryTagId": 0,
                           "ignoreUltimateGainScalar": false,
-                          "onceActionValueKey": null
+                          "onceActionValueKey": null,
+                          "sequenceIndex": 0
                         }
                       ],
                       "inflictions": [],
@@ -4087,7 +4422,8 @@
               "inheritSourceSkillCastInfo": true,
               "blackboardAssignments": {},
               "nestedCombatActions": [],
-              "buffSourceContextKey": ""
+              "buffSourceContextKey": "",
+              "sequenceIndex": 0
             },
             {
               "startFrame": 0,
@@ -4144,7 +4480,8 @@
                 }
               },
               "nestedCombatActions": [],
-              "buffSourceContextKey": ""
+              "buffSourceContextKey": "",
+              "sequenceIndex": 0
             }
           ],
           "resourceGains": [
@@ -4183,7 +4520,8 @@
               "useUltimateRecoveryTag": false,
               "ultimateRecoveryTagId": 0,
               "ignoreUltimateGainScalar": false,
-              "onceActionValueKey": null
+              "onceActionValueKey": null,
+              "sequenceIndex": 0
             }
           ],
           "inflictions": [],
@@ -4273,6 +4611,10 @@
               "definiteValue": null,
               "damageDecorateMask": 0
             }
+          ],
+          "sequenceOrder": [
+            7,
+            0
           ]
         }
       ],
@@ -4282,6 +4624,9 @@
           "actionOrder": [
             15
           ],
+          "sequenceOrder": [
+            7
+          ],
           "itemType": "timeDilation",
           "sourcePath": [
             "chr_0004_pelica_combo_skill"
@@ -4290,6 +4635,10 @@
         {
           "frame": 24,
           "actionOrder": [
+            7,
+            0
+          ],
+          "sequenceOrder": [
             7,
             0
           ],
@@ -4308,6 +4657,10 @@
             7,
             9
           ],
+          "sequenceOrder": [
+            7,
+            0
+          ],
           "itemType": "buffApplication",
           "sourcePath": [
             "chr_0004_pelica_combo_skill_projhit"
@@ -4318,6 +4671,10 @@
           "actionOrder": [
             7,
             10
+          ],
+          "sequenceOrder": [
+            7,
+            0
           ],
           "itemType": "buffApplication",
           "sourcePath": [
@@ -4330,6 +4687,10 @@
             7,
             11
           ],
+          "sequenceOrder": [
+            7,
+            0
+          ],
           "itemType": "damage",
           "sourcePath": [
             "chr_0004_pelica_combo_skill",
@@ -4341,6 +4702,10 @@
           "actionOrder": [
             7,
             15
+          ],
+          "sequenceOrder": [
+            7,
+            0
           ],
           "itemType": "resourceGain",
           "sourcePath": [
@@ -4558,7 +4923,8 @@
           "targets": [],
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
-          "targetScale": null
+          "targetScale": null,
+          "sequenceIndex": 7
         }
       ],
       "unresolvedCombatActions": [
@@ -4649,7 +5015,8 @@
               "damageDecorateMask": 0
             }
           ],
-          "timedMarkerGate": null
+          "timedMarkerGate": null,
+          "sequenceIndex": 6
         }
       ],
       "conditionalActions": [],
@@ -4672,7 +5039,8 @@
           "inheritSourceSkillCastInfo": true,
           "blackboardAssignments": {},
           "nestedCombatActions": [],
-          "buffSourceContextKey": ""
+          "buffSourceContextKey": "",
+          "sequenceIndex": 7
         },
         {
           "startFrame": 55,
@@ -4688,7 +5056,8 @@
           "inheritSourceSkillCastInfo": null,
           "blackboardAssignments": {},
           "nestedCombatActions": [],
-          "buffSourceContextKey": null
+          "buffSourceContextKey": null,
+          "sequenceIndex": 8
         }
       ],
       "blackboardCalculations": [],
@@ -4814,6 +5183,9 @@
               "definiteValue": null,
               "damageDecorateMask": 0
             }
+          ],
+          "sequenceOrder": [
+            6
           ]
         }
       ],
@@ -4822,6 +5194,9 @@
           "frame": 0,
           "actionOrder": [
             8
+          ],
+          "sequenceOrder": [
+            2
           ],
           "itemType": "timeDilation",
           "sourcePath": [
@@ -4833,6 +5208,9 @@
           "actionOrder": [
             21
           ],
+          "sequenceOrder": [
+            7
+          ],
           "itemType": "buffApplication",
           "sourcePath": [
             "chr_0004_pelica_ultimate_skill"
@@ -4842,6 +5220,9 @@
           "frame": 58,
           "actionOrder": [
             18
+          ],
+          "sequenceOrder": [
+            6
           ],
           "itemType": "damage",
           "sourcePath": [
@@ -4996,7 +5377,8 @@
           "targets": [],
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
-          "targetScale": 0.0
+          "targetScale": 0.0,
+          "sequenceIndex": 2
         }
       ],
       "unresolvedCombatActions": [

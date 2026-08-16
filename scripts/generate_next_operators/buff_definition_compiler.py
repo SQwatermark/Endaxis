@@ -116,10 +116,12 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
 
 
 def _compile_scalar(source: ScalarSource, *, negate: bool = False) -> str:
-    if source.levelValues is not None:
-        raise ValueError("generated Buff scalar still contains unresolved level values")
     if source.blackboardKey is None:
+        if source.levelValues is not None:
+            raise ValueError("generated Buff scalar still contains unresolved level values")
         return ts_inline_literal(-source.value if negate else source.value)
+    # blackboardKey 引用的默认值已在定义 blackboard 中声明；levelValues 只保留审计事实，
+    # 不进入内联定义，避免把等级数组冻结成单值或误报 unresolved。
     fields = [f"blackboardKey: {ts_inline_literal(source.blackboardKey)}"]
     if negate:
         fields.append("negate: true")
