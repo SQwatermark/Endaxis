@@ -5260,16 +5260,21 @@ def compile_combat_condition(
             raise ValueError(f"{path}: dynamic timed marker IDs are not supported")
         if not marker.markerId:
             raise ValueError(f"{path}: timed marker ID is empty")
-        if not (
-            marker.targetSource == "Source"
-            or (root_skill_context and marker.targetSource == "Owner")
-        ) or marker.targetGroupKey:
+        target = resolve_fixed_combat_target(
+            marker.targetSource,
+            marker.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
+        if target is None:
             raise ValueError(
                 f"{path}: unsupported timed marker target "
                 f"{marker.targetSource!r}/{marker.targetGroupKey!r}"
             )
         condition = (
-            "{ kind: 'timedMarkerPresent', target: 'caster', markerId: "
+            f"{{ kind: 'timedMarkerPresent', target: {ts_inline_literal(target)}, markerId: "
             f"{ts_inline_literal(marker.markerId)} }}"
         )
         if marker.returnTrueIfNotExists:
@@ -5834,14 +5839,18 @@ def compile_timed_marker_application(
     path: str,
     *,
     root_skill_context: bool,
+    input_target: Literal["enemy"] | None,
 ) -> str:
     """编译固定身份、普通战斗时间增量的原生定时标记创建。"""
     if payload.useTimeDilationDt:
         raise ValueError(f"{path}: time-dilated timed markers are not supported")
-    if not (
-        payload.targetSource == "Source"
-        or (root_skill_context and payload.targetSource == "Owner")
-    ) or payload.targetGroupKey:
+    target = resolve_fixed_combat_target(
+        payload.targetSource,
+        payload.targetGroupKey,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+    )
+    if target is None:
         raise ValueError(
             f"{path}: unsupported timed marker target "
             f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
@@ -5849,7 +5858,7 @@ def compile_timed_marker_application(
     return "\n".join(
         [
             "step('createTimedMarker', {",
-            "  target: 'caster',",
+            f"  target: {ts_inline_literal(target)},",
             f"  markerId: {ts_inline_literal(payload.markerId)},",
             "  durationSeconds: "
             f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
@@ -6284,6 +6293,7 @@ def compile_conditional_branch_action(
             action.timedMarkerApplication,
             path,
             root_skill_context=root_skill_context,
+            input_target=input_target,
         )
     if getattr(action, "globalCooldownApplication", None) is not None:
         return compile_global_cooldown_application(

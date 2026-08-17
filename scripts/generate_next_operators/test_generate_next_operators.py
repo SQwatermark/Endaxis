@@ -4637,8 +4637,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'not'", compiled)
         self.assertIn("kind: 'timedMarkerPresent'", compiled)
         self.assertIn("step('createTimedMarker'", compiled)
+        self.assertEqual(compiled.count("target: 'caster'"), 2)
         self.assertIn("durationSeconds: { kind: 'constant', value: 5 }", compiled)
         self.assertIn("autoFinishByAction: false", compiled)
+
+        condition_target = root["actionGroupData"]["timelineActions"][0][
+            "_sequenceActionData"
+        ]["actionData"][0]
+        condition_target["conditionAction"]["actionData"][0]["checkTarget"][
+            "targetSource"
+        ] = "Target"
+        condition_target["succeedActions"]["actionData"][0]["targetSettings"][
+            "targetSource"
+        ] = "Target"
+        enemy_action = parse_conditional_actions(root, "fixture.json", {})[0]
+        enemy_compiled = compile_conditional_action(
+            enemy_action,
+            "fixture.condition",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertEqual(enemy_compiled.count("target: 'enemy'"), 2)
 
     def test_global_cooldown_condition_and_write_use_caster_timed_marker(self) -> None:
         root = {
