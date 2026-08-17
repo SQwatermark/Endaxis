@@ -372,6 +372,7 @@ class AbilityEntityHitSource:
     buffFinishes: tuple[BuffFinishSource, ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -428,6 +429,8 @@ class ResolvedScheduleItemSource:
     inputTarget: Literal["enemy"] | None = None
     # 同帧且相同 sequenceOrder 的项目来自同一个原生 Sequence。
     sequenceOrder: tuple[int, ...] = ()
+    # 子 SkillData 的 Context 目标只能用自身写入证据归约，不能借用根技能目标组。
+    targetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -944,6 +947,7 @@ class ConditionalBranchActionSource:
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
     auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
+    keywordAction: TimedKeywordActionSource | None = None
 
 
 @dataclass(frozen=True)

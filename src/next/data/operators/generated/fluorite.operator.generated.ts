@@ -315,6 +315,33 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:01:6'),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_lv' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 3 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_affixes_slow',
+                definition: {
+                  stackingType: 'highPriority',
+                  priority: { blackboardKey: 'rate' },
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1925762097],
+                  blackboard: { rate: 0, duration: 0 },
+                },
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                  duration: { kind: 'blackboard', key: 'duration_potential' },
+                },
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -328,6 +355,33 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:02:20'),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_lv' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 3 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_affixes_slow',
+                definition: {
+                  stackingType: 'highPriority',
+                  priority: { blackboardKey: 'rate' },
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1925762097],
+                  blackboard: { rate: 0, duration: 0 },
+                },
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                  duration: { kind: 'blackboard', key: 'duration_potential' },
+                },
+              }),
+            ),
+          ),
         ),
       ),
     ],

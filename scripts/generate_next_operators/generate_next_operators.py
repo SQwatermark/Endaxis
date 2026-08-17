@@ -257,6 +257,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "abilityEntitySpawn",
         "auraAbilityEntityHits",
         "damageUnits",
+        "keywordAction",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
     }
@@ -273,6 +274,9 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
     }
 )
 
+# 这些字段只服务于生成期归约，不属于可审计的游戏源数据。
+INTERNAL_SOURCE_KEYS = frozenset({"localTargetGroupWrites"})
+
 
 def serialize_audit_value(value: Any) -> Any:
     """序列化审计对象，并省略仅对特定条件有意义的空详情。"""
@@ -283,7 +287,8 @@ def serialize_audit_value(value: Any) -> Any:
             key: serialize_audit_value(item)
             for key, item in value.items()
             if not (
-                (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
+                key in INTERNAL_SOURCE_KEYS
+                or (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
                 or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
             )
         }
@@ -301,7 +306,8 @@ def omit_empty_execution_frames(value: Any) -> Any:
             key: omit_empty_execution_frames(item)
             for key, item in value.items()
             if not (
-                (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
+                key in INTERNAL_SOURCE_KEYS
+                or (key in EMPTY_SOURCE_SEQUENCE_KEYS and not item)
                 or (key in OPTIONAL_SOURCE_PAYLOAD_KEYS and item is None)
             )
         }
@@ -3470,6 +3476,7 @@ def resolve_ability_entity_payload(
         keywordActions=parse_timed_keyword_actions(
             child, child_name, child_blackboard
         ),
+        localTargetGroupWrites=parse_target_group_writes(child, child_name),
     )
 
 
@@ -4297,6 +4304,7 @@ def collect_ability_entity_schedule(
             sequenceOrder=native_condition_sequence_order(
                 condition.actionPath, hit.actionOrder, hit.skillId, condition.actionIndex
             ),
+            targetGroupWrites=getattr(hit, "localTargetGroupWrites", ()),
         )
         for condition in getattr(hit, "conditionalActions", ())
         for frame in (
@@ -4305,6 +4313,7 @@ def collect_ability_entity_schedule(
         # 两个分支伤害等价时，周期伤害解析器已将其投影为确定伤害；这里不能重复排入。
         if getattr(condition, "executionFrames", ()) not in projected_interval_frames
         if len(getattr(condition, "executionFrames", ())) > 1
+        or conditional_action_contains_keyword(condition)
     )
     resource_gains = sorted(
         getattr(hit, "resourceGains", ()), key=lambda item: (item.startFrame, item.actionIndex)
@@ -4353,6 +4362,26 @@ def collect_ability_entity_schedule(
     )
     for nested in getattr(hit, "nestedAbilityEntityHits", ()):
         collect_ability_entity_schedule(nested, result)
+
+
+def conditional_action_contains_keyword(action: ConditionalActionSource) -> bool:
+    """判断条件树是否含已结构化关键词动作。"""
+
+    def branch_contains(
+        branch_actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> bool:
+        for branch_action in branch_actions:
+            if getattr(branch_action, "keywordAction", None) is not None:
+                return True
+            nested = getattr(branch_action, "nestedCondition", None)
+            if nested is not None and conditional_action_contains_keyword(nested):
+                return True
+            once_actions = getattr(branch_action, "onceActions", None)
+            if once_actions is not None and branch_contains(once_actions):
+                return True
+        return False
+
+    return branch_contains((*action.succeedActions, *action.failActions))
 
 
 def collect_consumed_root_timed_marker_action_ids(
@@ -5744,6 +5773,8 @@ def compile_keyword_action(
     *,
     root_skill_context: bool,
     input_target: Literal["enemy"] | None,
+    context_action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> str:
     """把关键词动作投影为现有 Buff 步骤；移动效果不属于定点战斗模型。"""
     if action.kind != "slow":
@@ -5755,6 +5786,8 @@ def compile_keyword_action(
         action.source.targetGroupKey,
         root_skill_context=root_skill_context,
         input_target=input_target,
+        action=context_action,
+        target_group_writes=target_group_writes,
     )
     if source != "caster":
         raise ValueError(f"{path}: unsupported slow source {action.source.targetSource!r}")
@@ -5763,6 +5796,8 @@ def compile_keyword_action(
         action.target.targetGroupKey,
         root_skill_context=root_skill_context,
         input_target=input_target,
+        action=context_action,
+        target_group_writes=target_group_writes,
     )
     if target != "enemy":
         raise ValueError(
@@ -6270,6 +6305,15 @@ def compile_conditional_branch_action(
                 runtime_blackboard_keys,
                 step_key,
             )
+        )
+    if getattr(action, "keywordAction", None) is not None:
+        return compile_keyword_action(
+            action.keywordAction,
+            path,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            context_action=context_action,
+            target_group_writes=target_group_writes,
         )
     if getattr(action, "buffBlackboardRead", None) is not None:
         buff_read = action.buffBlackboardRead
@@ -6951,6 +6995,8 @@ def collect_compilable_conditional_action_types(
                 result.add("SpellInfliction")
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
+            if getattr(branch_action, "keywordAction", None) is not None:
+                result.add("SlowAction")
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:
                 result.add("SpawnAbilityEntity")
             projectile_launch = getattr(branch_action, "projectileLaunch", None)
@@ -7952,8 +7998,9 @@ def compile_resolved_sequence(
             )
         elif item.itemType == "condition":
             payload = cast(ConditionalActionSource, item.payload)
-            target_group_writes = root_target_group_writes_for_condition(
-                skill, item, payload
+            target_group_writes = (
+                item.targetGroupWrites
+                or root_target_group_writes_for_condition(skill, item, payload)
             )
             compiled_condition = compile_conditional_action(
                 payload,

@@ -135,16 +135,18 @@ from generate_next_operators import (
     typescript_identifier,
     validate_skill_groups,
     parse_combo_skill_registrations,
+    serialize_audit_value,
     walk_actions,
     walk_single_enemy_actions,
     walk_unconditional_actions,
 )
-from keyword_action_parser import parse_timed_keyword_actions
+from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
 
 
 def target_settings_fixture(
     target_source: str,
     *,
+    target_group_key: str = "",
     finder_type: str | None = None,
     validator_types: tuple[str, ...] = (),
 ) -> dict:
@@ -161,7 +163,7 @@ def target_settings_fixture(
         }
     return {
         "targetSource": target_source,
-        "targetGroupKey": "",
+        "targetGroupKey": target_group_key,
         "selectorOwner": "ActionOwner",
         "ownerContextKey": "",
         "centerType": "ActionSource",
@@ -173,6 +175,44 @@ def target_settings_fixture(
         "selectorDirection": "SourceForward",
         "target": "ActionSource",
         "targetContextKey": "",
+    }
+
+
+def slow_action_fixture(
+    *,
+    target: dict | None = None,
+    duration: dict | None = None,
+    rate: dict | None = None,
+) -> dict:
+    return {
+        "$type": "Example.SlowAction+Data, Example",
+        "isEnable": True,
+        "priorityLevel": "Default",
+        "priorityOffset": 0,
+        "serverActionIndex": 7,
+        "source": target_settings_fixture("Source"),
+        "target": target or target_settings_fixture("Target"),
+        "duration": duration
+        or {
+            "useBlackboardKey": False,
+            "value": 3.1,
+            "blackboardKey": "duration",
+        },
+        "rate": rate
+        or {
+            "useBlackboardKey": True,
+            "value": 0,
+            "blackboardKey": "move_speed_scalar",
+        },
+        "overrideChildBuffId": False,
+        "childBuffId": {
+            "useBlackboardKey": False,
+            "value": "",
+            "blackboardKey": "",
+        },
+        "asChildBuff": False,
+        "enhancingList": [],
+        "autoFinishByAction": False,
     }
 
 
@@ -6717,34 +6757,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
     def test_slow_action_preserves_duration_rate_and_native_order(self) -> None:
-        action = {
-            "$type": "Example.SlowAction+Data, Example",
-            "isEnable": True,
-            "priorityLevel": "Default",
-            "priorityOffset": 0,
-            "serverActionIndex": 7,
-            "source": target_settings_fixture("Source"),
-            "target": target_settings_fixture("Target"),
-            "duration": {
-                "useBlackboardKey": False,
-                "value": 3.1,
-                "blackboardKey": "duration",
-            },
-            "rate": {
-                "useBlackboardKey": True,
-                "value": 0,
-                "blackboardKey": "move_speed_scalar",
-            },
-            "overrideChildBuffId": False,
-            "childBuffId": {
-                "useBlackboardKey": False,
-                "value": "",
-                "blackboardKey": "",
-            },
-            "asChildBuff": False,
-            "enhancingList": [],
-            "autoFinishByAction": False,
-        }
+        action = slow_action_fixture()
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -6765,6 +6778,157 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual((parsed[0].startFrame, parsed[0].actionIndex), (12, 7))
         self.assertEqual(parsed[0].duration.value, 3.1)
         self.assertEqual(parsed[0].rate.levelValues, (0.3, 0.4))
+
+    def test_conditional_parser_preserves_slow_action_payload(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 89,
+                        "_endFrame": 90,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 6,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CompareFloat+Data, Example",
+                                                "valueA": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "potential_lv",
+                                                },
+                                                "compare": "GE",
+                                                "valueB": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 3,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [slow_action_fixture()]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(
+            root,
+            "fixture.json",
+            {"potential_lv": (3,), "move_speed_scalar": (0.3,)},
+        )[0]
+
+        self.assertEqual(condition.succeedActions[0].actionType, "SlowAction")
+        self.assertEqual(condition.succeedActions[0].keywordAction.duration.value, 3.1)
+        self.assertEqual(
+            condition.succeedActions[0].keywordAction.rate.levelValues,
+            (0.3,),
+        )
+
+    def test_conditional_slow_action_uses_local_enemy_target_evidence(self) -> None:
+        keyword_action = parse_keyword_action(
+            slow_action_fixture(
+                target=target_settings_fixture("Context", target_group_key="tar"),
+                duration={
+                    "useBlackboardKey": True,
+                    "value": 0,
+                    "blackboardKey": "duration_potential",
+                },
+            ),
+            "fixture.slow",
+            {
+                "duration_potential": (6,),
+                "move_speed_scalar": (0.3,),
+            },
+            start_frame=89,
+            end_frame=90,
+        )
+        condition_path = (
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+        )
+        condition = ConditionalActionSource(
+            startFrame=89,
+            endFrame=90,
+            actionIndex=8,
+            actionPath=condition_path,
+            conditions=(
+                ConditionSource(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="GE",
+                    left=ScalarSource(0, "potential_lv", (3,)),
+                    right=ScalarSource(3, None, None),
+                    skillTypes=(),
+                ),
+            ),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="SlowAction",
+                    actionIndex=1,
+                    actionPath=(
+                        *condition_path,
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                    ),
+                    serverActionIndex=7,
+                    keywordAction=keyword_action,
+                ),
+            ),
+            failActions=(),
+        )
+        enemy_write = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=1,
+            actionIndex=0,
+            actionPath=(
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+            ),
+            targetGroupKey="tar",
+            producerType="FindTargetAction",
+            finderType="HitBoxFinder",
+            finderFactionTarget="Anti",
+            finderTargetObjectType="Normal",
+            finderCheckAlive=True,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        compiled = compile_conditional_action(
+            condition,
+            "fixture.condition",
+            target_group_writes=(enemy_write,),
+            input_target="enemy",
+        )
+
+        self.assertIn("buff_common_affixes_slow", compiled)
+        self.assertIn("duration_potential", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+
+    def test_local_target_group_writes_are_not_serialized(self) -> None:
+        source = {
+            "keywordActions": (),
+            "localTargetGroupWrites": ({"targetGroupKey": "tar"},),
+        }
+
+        self.assertEqual(serialize_audit_value(source), {})
 
     def test_primary_target_marker_excludes_projectile_child_combat_in_single_enemy_model(self) -> None:
         root = {

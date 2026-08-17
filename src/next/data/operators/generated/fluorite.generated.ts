@@ -4690,7 +4690,83 @@ export const fluoriteGeneratedSource = {
                         "actionData",
                         "[0]"
                       ],
-                      "serverActionIndex": 10
+                      "serverActionIndex": 10,
+                      "keywordAction": {
+                        "startFrame": 89,
+                        "endFrame": 90,
+                        "actionIndex": 10,
+                        "kind": "slow",
+                        "source": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "target": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "tar",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "duration": {
+                          "value": 0.0,
+                          "blackboardKey": "duration_potential",
+                          "levelValues": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        },
+                        "rate": {
+                          "value": 0.0,
+                          "blackboardKey": "move_speed_scalar",
+                          "levelValues": [
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3
+                          ]
+                        },
+                        "autoFinishByAction": false,
+                        "sequenceIndex": -1
+                      }
                     }
                   ],
                   "failActions": []
@@ -4819,7 +4895,83 @@ export const fluoriteGeneratedSource = {
                         "actionData",
                         "[0]"
                       ],
-                      "serverActionIndex": 24
+                      "serverActionIndex": 24,
+                      "keywordAction": {
+                        "startFrame": 149,
+                        "endFrame": 150,
+                        "actionIndex": 24,
+                        "kind": "slow",
+                        "source": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "target": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "tar",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "duration": {
+                          "value": 0.0,
+                          "blackboardKey": "duration_potential",
+                          "levelValues": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        },
+                        "rate": {
+                          "value": 0.0,
+                          "blackboardKey": "move_speed_scalar",
+                          "levelValues": [
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3
+                          ]
+                        },
+                        "autoFinishByAction": false,
+                        "sequenceIndex": -1
+                      }
                     }
                   ],
                   "failActions": []

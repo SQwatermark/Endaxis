@@ -3114,7 +3114,83 @@
                         "actionData",
                         "[0]"
                       ],
-                      "serverActionIndex": 10
+                      "serverActionIndex": 10,
+                      "keywordAction": {
+                        "startFrame": 89,
+                        "endFrame": 90,
+                        "actionIndex": 10,
+                        "kind": "slow",
+                        "source": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "target": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "tar",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "duration": {
+                          "value": 0.0,
+                          "blackboardKey": "duration_potential",
+                          "levelValues": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        },
+                        "rate": {
+                          "value": 0.0,
+                          "blackboardKey": "move_speed_scalar",
+                          "levelValues": [
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3
+                          ]
+                        },
+                        "autoFinishByAction": false,
+                        "sequenceIndex": -1
+                      }
                     }
                   ],
                   "failActions": []
@@ -3243,7 +3319,83 @@
                         "actionData",
                         "[0]"
                       ],
-                      "serverActionIndex": 24
+                      "serverActionIndex": 24,
+                      "keywordAction": {
+                        "startFrame": 149,
+                        "endFrame": 150,
+                        "actionIndex": 24,
+                        "kind": "slow",
+                        "source": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "target": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "tar",
+                          "selectorOwner": "ActionOwner",
+                          "ownerContextKey": "",
+                          "centerType": "ActionSource",
+                          "centerContextKey": "",
+                          "centerToGround": false,
+                          "target": "ActionSource",
+                          "targetContextKey": "",
+                          "enableAdvancedDirection": false,
+                          "selectorDirection": "SourceForward",
+                          "finderType": null,
+                          "validatorTypes": [],
+                          "postProcessorTypes": []
+                        },
+                        "duration": {
+                          "value": 0.0,
+                          "blackboardKey": "duration_potential",
+                          "levelValues": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        },
+                        "rate": {
+                          "value": 0.0,
+                          "blackboardKey": "move_speed_scalar",
+                          "levelValues": [
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3,
+                            0.3
+                          ]
+                        },
+                        "autoFinishByAction": false,
+                        "sequenceIndex": -1
+                      }
                     }
                   ],
                   "failActions": []
@@ -3696,6 +3848,27 @@
           ]
         },
         {
+          "frame": 99,
+          "actionOrder": [
+            19,
+            0,
+            8
+          ],
+          "sequenceOrder": [
+            19,
+            0,
+            1
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0022_bounda_normal_skill_abilityrange",
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[7]"
+          ]
+        },
+        {
           "frame": 159,
           "actionOrder": [
             19,
@@ -3729,6 +3902,27 @@
             "chr_0022_bounda_normal_skill",
             "chr_0022_bounda_normal_skill_projhit",
             "chr_0022_bounda_normal_skill_abilityrange"
+          ]
+        },
+        {
+          "frame": 159,
+          "actionOrder": [
+            19,
+            0,
+            22
+          ],
+          "sequenceOrder": [
+            19,
+            0,
+            3
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "chr_0022_bounda_normal_skill_abilityrange",
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[7]"
           ]
         }
       ],

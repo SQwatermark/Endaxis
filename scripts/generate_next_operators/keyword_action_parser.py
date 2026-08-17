@@ -16,7 +16,7 @@ from source_utils import (
 )
 from target_parser import parse_target_reference
 
-__all__ = ["parse_timed_keyword_actions"]
+__all__ = ["parse_keyword_action", "parse_timed_keyword_actions"]
 
 
 SLOW_ACTION_FIELDS = {
@@ -83,32 +83,49 @@ def parse_timed_keyword_actions(
                 continue
             if action.get("isEnable") is False:
                 continue
-            action_path = f"{path}.SlowAction"
-            if set(action) != SLOW_ACTION_FIELDS:
-                raise ValueError(f"{action_path}: unexpected fields {sorted(action)}")
-            if require_bool(action.get("overrideChildBuffId"), f"{action_path}.overrideChildBuffId"):
-                raise ValueError(f"{action_path}: child Buff override is not supported")
-            _validate_inactive_child_buff_id(action.get("childBuffId"), f"{action_path}.childBuffId")
-            if require_bool(action.get("asChildBuff"), f"{action_path}.asChildBuff"):
-                raise ValueError(f"{action_path}: child Buff lifetime is not supported")
-            if require_list(action.get("enhancingList"), f"{action_path}.enhancingList"):
-                raise ValueError(f"{action_path}: keyword enhancement chain is not supported")
             result.append(
-                TimedKeywordActionSource(
-                    startFrame=start_frame,
-                    endFrame=end_frame,
-                    actionIndex=require_server_action_index(action, action_path),
-                    kind="slow",
-                    source=parse_target_reference(action.get("source"), f"{action_path}.source"),
-                    target=parse_target_reference(action.get("target"), f"{action_path}.target"),
-                    duration=parse_scalar(
-                        action.get("duration"), f"{action_path}.duration", inherited_blackboard
-                    ),
-                    rate=parse_scalar(action.get("rate"), f"{action_path}.rate", inherited_blackboard),
-                    autoFinishByAction=require_bool(
-                        action.get("autoFinishByAction"), f"{action_path}.autoFinishByAction"
-                    ),
-                    sequenceIndex=timeline_index,
+                parse_keyword_action(
+                    action,
+                    f"{path}.SlowAction",
+                    inherited_blackboard,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    sequence_index=timeline_index,
                 )
             )
     return tuple(result)
+
+
+def parse_keyword_action(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+    *,
+    start_frame: int,
+    end_frame: int,
+    sequence_index: int = -1,
+) -> TimedKeywordActionSource:
+    """解析一项已定位的 SlowAction，供根时间轴和条件分支共用。"""
+    if set(action) != SLOW_ACTION_FIELDS:
+        raise ValueError(f"{path}: unexpected fields {sorted(action)}")
+    if require_bool(action.get("overrideChildBuffId"), f"{path}.overrideChildBuffId"):
+        raise ValueError(f"{path}: child Buff override is not supported")
+    _validate_inactive_child_buff_id(action.get("childBuffId"), f"{path}.childBuffId")
+    if require_bool(action.get("asChildBuff"), f"{path}.asChildBuff"):
+        raise ValueError(f"{path}: child Buff lifetime is not supported")
+    if require_list(action.get("enhancingList"), f"{path}.enhancingList"):
+        raise ValueError(f"{path}: keyword enhancement chain is not supported")
+    return TimedKeywordActionSource(
+        startFrame=start_frame,
+        endFrame=end_frame,
+        actionIndex=require_server_action_index(action, path),
+        kind="slow",
+        source=parse_target_reference(action.get("source"), f"{path}.source"),
+        target=parse_target_reference(action.get("target"), f"{path}.target"),
+        duration=parse_scalar(action.get("duration"), f"{path}.duration", inherited_blackboard),
+        rate=parse_scalar(action.get("rate"), f"{path}.rate", inherited_blackboard),
+        autoFinishByAction=require_bool(
+            action.get("autoFinishByAction"), f"{path}.autoFinishByAction"
+        ),
+        sequenceIndex=sequence_index,
+    )

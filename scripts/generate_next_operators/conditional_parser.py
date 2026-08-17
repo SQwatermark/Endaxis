@@ -64,6 +64,7 @@ from source_utils import (
     require_server_action_index,
 )
 from target_parser import parse_target_reference
+from keyword_action_parser import parse_keyword_action
 
 __all__ = [
     "contains_combat_effect",
@@ -821,6 +822,7 @@ def parse_conditional_actions(
                 projectile_launch = None
                 ability_entity_spawn = None
                 damage_units = None
+                keyword_action = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -870,6 +872,14 @@ def parse_conditional_actions(
                             source_path,
                             inherited_blackboard,
                         )
+                elif action_type == "SlowAction":
+                    keyword_action = parse_keyword_action(
+                        action,
+                        source_path,
+                        inherited_blackboard,
+                        start_frame=start_frame,
+                        end_frame=end_frame,
+                    )
                 actions.append(
                     ConditionalBranchActionSource(
                         actionType=action_type,
@@ -892,6 +902,7 @@ def parse_conditional_actions(
                         projectileLaunch=projectile_launch,
                         abilityEntitySpawn=ability_entity_spawn,
                         damageUnits=damage_units,
+                        keywordAction=keyword_action,
                     )
                 )
         return tuple(actions)
