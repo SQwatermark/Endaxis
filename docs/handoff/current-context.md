@@ -15,7 +15,7 @@
 
 - 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 当前 Git HEAD：`761cbab5 feat(next): generate ability entity child timelines`。
+- 本文对应的最近实现提交：`26113093 feat(next): generate ability entity child timelines`；实际 HEAD 始终以 `git log` 为准。
 - 紧邻提交：`7177c252 feat(next): run ability entity child timelines`
 - 再前提交：`8f41b4d7 feat(next): resolve ability entity time targets`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
