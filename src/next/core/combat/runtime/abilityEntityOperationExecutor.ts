@@ -6,6 +6,8 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
+import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -14,15 +16,24 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   readonly #operatorId: string;
   readonly #entities: LogicalAbilityEntityRuntime;
   readonly #delegate: CombatOperationExecutor;
+  readonly #childRuntimeDependencies?: {
+    readonly resolveOperations: () => CombatOperationExecutor;
+    readonly semanticEvents?: CombatSemanticEventRuntime;
+  };
 
   constructor(
     operatorId: string,
     entities: LogicalAbilityEntityRuntime,
     delegate: CombatOperationExecutor,
+    childRuntimeDependencies?: {
+      readonly resolveOperations: () => CombatOperationExecutor;
+      readonly semanticEvents?: CombatSemanticEventRuntime;
+    },
   ) {
     this.#operatorId = operatorId;
     this.#entities = entities;
     this.#delegate = delegate;
+    this.#childRuntimeDependencies = childRuntimeDependencies;
   }
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
@@ -80,6 +91,9 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       ]),
     );
     const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
+    if (parameters.childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
+      throw new Error('spawnAbilityEntity child skill runtime is not configured');
+    }
     const target =
       parameters.target === undefined
         ? undefined
@@ -102,6 +116,23 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           }),
       dieWhenSourceDies: parameters.dieWhenSourceDies,
       ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
+      ...(parameters.childSkill === undefined
+        ? {}
+        : {
+            createChildRuntime: (entity, entityBlackboard) =>
+              new AbilityEntityChildSkillRuntime(parameters.childSkill!, {
+                entity,
+                entityBlackboard,
+                operations: this.#childRuntimeDependencies!.resolveOperations(),
+                ownerOperatorId: this.#operatorId,
+                ...(this.#childRuntimeDependencies!.semanticEvents === undefined
+                  ? {}
+                  : { semanticEvents: this.#childRuntimeDependencies!.semanticEvents }),
+                ...(context.skillCastInfo === undefined
+                  ? {}
+                  : { inheritedSkillCastInfo: context.skillCastInfo }),
+              }),
+          }),
     });
     if (parameters.saveToContextKey !== undefined) {
       if (context.targetContext === undefined) {

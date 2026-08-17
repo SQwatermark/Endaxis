@@ -26,6 +26,17 @@ export interface LogicalAbilityEntitySpawnRequest {
   readonly overrideDurationSeconds?: number;
   readonly dieWhenSourceDies?: boolean;
   readonly blackboardAssignments?: Readonly<Record<string, ActionBlackboardValue>>;
+  /** 由操作解释链创建；目录只负责用实体局部时间推进和对称结束。 */
+  readonly createChildRuntime?: (
+    entity: RuntimeTargetRef,
+    blackboard: ActionBlackboard,
+  ) => LogicalAbilityEntityChildRuntime;
+}
+
+export interface LogicalAbilityEntityChildRuntime {
+  start(): void;
+  advance(deltaSeconds: number): void;
+  finish(): void;
 }
 
 export interface LogicalAbilityEntitySnapshot {
@@ -59,6 +70,7 @@ interface LogicalAbilityEntityInstance {
   readonly blackboard: ActionBlackboard;
   remainingDurationSeconds: number | null;
   elapsedDurationSeconds: number;
+  childRuntime?: LogicalAbilityEntityChildRuntime;
 }
 
 function requireDuration(value: number, name: string): number {
@@ -137,7 +149,12 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     if (instance.childSkillId !== undefined) {
       this.#hooks.childSkillRequested?.(snapshot, instance.childSkillId);
     }
-    return { kind: 'abilityEntity', instanceId: instance.instanceId };
+    const target = { kind: 'abilityEntity' as const, instanceId: instance.instanceId };
+    if (request.createChildRuntime !== undefined) {
+      instance.childRuntime = request.createChildRuntime(target, instance.blackboard);
+      instance.childRuntime.start();
+    }
+    return target;
   }
 
   /** 零空间范围查找：返回全部活动实例，不应用距离、半径或形状裁剪。 */
@@ -185,6 +202,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   finish(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
     this.#instances.delete(instance.instanceId);
+    instance.childRuntime?.finish();
     this.#hooks.finished?.(this.#snapshot(instance), reason);
   }
 
@@ -204,16 +222,22 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   advanceFrame(): void {
     for (const instance of [...this.#instances.values()]) {
-      if (instance.remainingDurationSeconds === null) continue;
       const delta = requireDuration(
         this.#resolveDeltaSeconds(this.#snapshot(instance)),
         'AbilityEntity delta',
       );
       instance.elapsedDurationSeconds += delta;
-      instance.remainingDurationSeconds = Math.max(0, instance.remainingDurationSeconds - delta);
-      if (instance.remainingDurationSeconds === 0) {
-        this.finish({ kind: 'abilityEntity', instanceId: instance.instanceId }, 'durationExpired');
+      if (instance.remainingDurationSeconds !== null) {
+        instance.remainingDurationSeconds = Math.max(0, instance.remainingDurationSeconds - delta);
+        if (instance.remainingDurationSeconds === 0) {
+          this.finish(
+            { kind: 'abilityEntity', instanceId: instance.instanceId },
+            'durationExpired',
+          );
+          continue;
+        }
       }
+      instance.childRuntime?.advance(delta);
     }
   }
 

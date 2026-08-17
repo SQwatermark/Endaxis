@@ -11,8 +11,10 @@ import type {
   SkillBuffDefinition,
   SkillType,
   StatusModifierDefinition,
+  AbilityEntityChildSkillDefinition,
 } from '../game-data/operatorDefinition';
 import type {
+  CompiledAbilityEntityChildSkillProgram,
   CompiledSkillProgram,
   ResolvedActionSequence,
   ResolvedCombatStep,
@@ -108,8 +110,34 @@ function resolveStep(
         parameters: step.parameters,
         body: compileActionSequence(step.body, skillLevel, `${path}.body`),
       };
-    case 'spawnAbilityEntity':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'spawnAbilityEntity': {
+      const { childSkill, ...parameters } = step.parameters;
+      if (
+        childSkill !== undefined &&
+        step.parameters.childSkillId !== undefined &&
+        childSkill.skillId !== step.parameters.childSkillId
+      ) {
+        throw new Error(
+          `${path}.parameters child skill '${childSkill.skillId}' does not match childSkillId '${step.parameters.childSkillId}'`,
+        );
+      }
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...parameters,
+          ...(childSkill === undefined
+            ? {}
+            : {
+                childSkill: compileAbilityEntityChildSkill(
+                  childSkill,
+                  skillLevel,
+                  `${path}.parameters.childSkill`,
+                ),
+              }),
+        },
+      };
+    }
     case 'dealDamage':
       return {
         ...keyed,
@@ -447,6 +475,31 @@ export function compileActionSequence(
     steps: sequence.steps.map((step, index) =>
       resolveStep(step, skillLevel, `${path}.steps[${index}]`),
     ),
+  };
+}
+
+function compileAbilityEntityChildSkill(
+  childSkill: AbilityEntityChildSkillDefinition,
+  skillLevel: number,
+  path: string,
+): CompiledAbilityEntityChildSkillProgram {
+  return {
+    skillId: childSkill.skillId,
+    initialBlackboard: Object.fromEntries(
+      Object.entries(childSkill.blackboard ?? {}).map(([key, value]) => [
+        key,
+        resolveLevelValue(value, skillLevel, `${path}.blackboard.${key}`),
+      ]),
+    ),
+    timelineActions: childSkill.scheduledSequences.map((scheduled, index) => ({
+      startFrame: scheduled.startFrame,
+      ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
+      sequence: compileActionSequence(
+        scheduled.sequence,
+        skillLevel,
+        `${path}.scheduledSequences[${index}].sequence`,
+      ),
+    })),
   };
 }
 

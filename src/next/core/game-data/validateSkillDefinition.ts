@@ -720,6 +720,36 @@ function validateCombatStep(
       if (parameters.childSkillId !== undefined) {
         requireString(parameters, 'childSkillId', `${path}.parameters`, out);
       }
+      if (parameters.childSkill !== undefined) {
+        const childPath = `${path}.parameters.childSkill`;
+        const child = asRecord(parameters.childSkill, childPath, out);
+        if (child !== null) {
+          const childSkillId = requireString(child, 'skillId', childPath, out);
+          if (
+            childSkillId !== null &&
+            typeof parameters.childSkillId === 'string' &&
+            childSkillId !== parameters.childSkillId
+          ) {
+            push(out, `${childPath}.skillId`, 'must match parameters.childSkillId');
+          }
+          if (child.blackboard !== undefined) {
+            const blackboard = asRecord(child.blackboard, `${childPath}.blackboard`, out);
+            if (blackboard !== null) {
+              for (const [key, value] of Object.entries(blackboard)) {
+                if (key.length === 0) push(out, `${childPath}.blackboard`, 'contains an empty key');
+                validateLevelValues(value, `${childPath}.blackboard.${key}`, out);
+              }
+            }
+          }
+          if (!Array.isArray(child.scheduledSequences)) {
+            push(out, `${childPath}.scheduledSequences`, 'expected an array');
+          } else {
+            child.scheduledSequences.forEach((sequence, index) =>
+              validateScheduledSequence(sequence, `${childPath}.scheduledSequences[${index}]`, out),
+            );
+          }
+        }
+      }
       if (parameters.target !== undefined) requireTarget();
       if (parameters.overrideDurationSeconds !== undefined) {
         validateActionValueOperand(

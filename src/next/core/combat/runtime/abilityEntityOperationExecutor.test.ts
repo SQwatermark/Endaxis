@@ -1,9 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { gameplayTagId } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import type { CombatOperationContext } from './skillRuntime';
 
 describe('AbilityEntityOperationExecutor', () => {
   it('spawns from operands and writes the resulting handle to Context', () => {
@@ -157,5 +159,71 @@ describe('AbilityEntityOperationExecutor', () => {
       ),
     ).toBe(true);
     expect(entities.snapshot(entity).remainingDurationSeconds).toBe(30);
+  });
+
+  it('advances an embedded child timeline with the entity local clock', () => {
+    const entities = new LogicalAbilityEntityRuntime({
+      templates: [
+        {
+          id: 'child-host',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          maxStackingCount: -1,
+        },
+      ],
+      resolveDeltaSeconds: () => 1 / 60,
+    });
+    const execute = vi.fn(
+      (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
+    );
+    const rootOperations = { execute, evaluate: () => false };
+    const executor = new AbilityEntityOperationExecutor('fixture', entities, rootOperations, {
+      resolveOperations: () => rootOperations,
+    });
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          templateId: 'child-host',
+          childSkillId: 'child-skill',
+          dieWhenSourceDies: false,
+          blackboardAssignments: { inherited: { kind: 'constant', value: 7 } },
+          childSkill: {
+            skillId: 'child-skill',
+            initialBlackboard: { local: 3 },
+            timelineActions: [
+              {
+                startFrame: 2,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'modifyActionValue',
+                      parameters: {
+                        key: 'result',
+                        operation: 'assign',
+                        value: { kind: 'blackboard', key: 'inherited' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    entities.advanceFrame();
+    entities.advanceFrame();
+    entities.advanceFrame();
+    expect(execute).not.toHaveBeenCalled();
+    entities.advanceFrame();
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    const operationContext = execute.mock.calls[0]?.[1];
+    expect(operationContext?.blackboard.getNumber('local')).toBe(3);
+    expect(operationContext?.blackboard.getNumber('inherited')).toBe(7);
   });
 });

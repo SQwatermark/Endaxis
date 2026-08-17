@@ -409,6 +409,13 @@ export const STATUS_MODIFIER_KINDS = [
   'skillCooldownMultiplier',
 ] as const satisfies readonly StatusModifierDefinition['kind'][];
 
+/** 由一个逻辑能力实体独占、按该实体局部时钟执行的无施法子技能。 */
+export interface AbilityEntityChildSkillDefinition {
+  readonly skillId: string;
+  readonly blackboard?: Readonly<Record<string, LevelValues>>;
+  readonly scheduledSequences: readonly ScheduledSequenceDefinition[];
+}
+
 /**
  * 所有战斗步骤与参数结构的集中映射。
  * 增加步骤时必须同时提供编译、运行时执行和严格校验，不能只扩展此类型。
@@ -441,6 +448,11 @@ export interface CombatStepParameters {
   spawnAbilityEntity: {
     templateId: string;
     childSkillId?: string;
+    /**
+     * 能力实体生成后按自身局部时间推进的子技能。它复用普通技能的序列协议，
+     * 但没有施法、费用、冷却或时间轴放置身份。
+     */
+    childSkill?: AbilityEntityChildSkillDefinition;
     target?: CombatTarget;
     overrideDurationSeconds?: ActionValueOperand;
     saveToContextKey?: string;

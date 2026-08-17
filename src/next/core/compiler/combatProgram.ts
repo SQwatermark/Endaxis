@@ -51,12 +51,21 @@ export type ResolvedSkillBuffDefinition = Omit<SkillBuffDefinition, 'lifecycleSe
   readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
 };
 
+/** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
+export interface CompiledAbilityEntityChildSkillProgram {
+  readonly skillId: string;
+  readonly initialBlackboard: Readonly<Record<string, number>>;
+  readonly timelineActions: readonly CompiledTimelineAction[];
+}
+
 export interface ResolvedCombatStepParameters {
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
   readAbilityEntityRemainingDuration: CombatStepParameters['readAbilityEntityRemainingDuration'];
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
-  spawnAbilityEntity: CombatStepParameters['spawnAbilityEntity'];
+  spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'childSkill'> & {
+    readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
+  };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];

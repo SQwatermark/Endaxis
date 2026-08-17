@@ -13,6 +13,71 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('compiles an embedded AbilityEntity child timeline at the parent skill level', () => {
+    const skill = {
+      key: 'entity-parent',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  templateId: 'entity',
+                  childSkillId: 'entity-child',
+                  dieWhenSourceDies: false,
+                  childSkill: {
+                    skillId: 'entity-child',
+                    blackboard: { coefficient: [1, 2] },
+                    scheduledSequences: [
+                      {
+                        startFrame: 3,
+                        sequence: {
+                          steps: [
+                            {
+                              kind: 'dealDamage',
+                              parameters: {
+                                damageType: 'physical',
+                                attackScale: [4, 5],
+                                tags: ['comboSkill'],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'combo',
+      skillType: 'comboSkill',
+      skillLevel: 2,
+      skill,
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
+      parameters: {
+        childSkill: {
+          skillId: 'entity-child',
+          initialBlackboard: { coefficient: 2 },
+          timelineActions: [
+            { startFrame: 3, sequence: { steps: [{ parameters: { attackScale: 5 } }] } },
+          ],
+        },
+      },
+    });
+  });
+
   it('rejects legacy top-level handlers because they do not preserve listener lifetime', () => {
     const skill = {
       key: 'legacy-listener',

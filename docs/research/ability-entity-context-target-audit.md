@@ -199,14 +199,23 @@ covered through the standard combat assembly, including owner/tag filtering.
 This closes target selection and finite-lifetime participation without adding
 space or a second entity hierarchy.
 
-This does not yet justify generator compilation of
-`effectAbilityEntityTargets`. Native time
-scale also belongs to the Entity hosting its AbilitySystem, whereas generated
-child SkillData damage is currently a static parent-timeline projection. Until
-those child actions are owned and scheduled by the logical entity clock,
-emitting the entity-scope action would preserve lifetime but still place hits
-at the wrong times. The generator therefore continues to fail closed for those
-effect queries and audit coverage remains 318 parsed / 280 compiled.
+The formal DSL, compiler and runtime now close the execution half of this gap.
+A spawn may carry an embedded, level-resolved child timeline with no separate
+cast, cost or cooldown model. Every logical entity owns an independent
+timeline cursor and sequence interpreter, reads its entity blackboard as the
+child action-blackboard fallback, advances on the same composed local/global
+delta as its lifetime, and ends active interval sequences when the entity is
+finished. Assembly regressions prove that a child action at local frame 2 fires
+after four raw frames under a constant 0.5 entity scale.
+
+This still does not justify generator compilation of
+`effectAbilityEntityTargets`: generated child SkillData is still statically
+projected onto the parent timeline and no generated spawn carries the embedded
+program yet. Enabling both paths would double-settle actions; enabling only the
+entity time-dilation target would retain the old wrong hit frames. The
+generator therefore continues to fail closed for those effect queries and
+audit coverage remains 318 parsed / 280 compiled until projection ownership is
+migrated atomically.
 
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.

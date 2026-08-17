@@ -246,6 +246,91 @@ describe('CombatRuntimeAssembly', () => {
     expect(snapshot.elapsedDurationSeconds).toBeCloseTo(0.5);
   });
 
+  it('runs an AbilityEntity child timeline on the same entity time scale', () => {
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  templateId: 'fixture_entity',
+                  childSkillId: 'fixture_child',
+                  dieWhenSourceDies: false,
+                  childSkill: {
+                    skillId: 'fixture_child',
+                    initialBlackboard: {},
+                    timelineActions: [
+                      {
+                        startFrame: 2,
+                        sequence: {
+                          steps: [
+                            {
+                              kind: 'changeResource',
+                              parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [
+        {
+          id: 'fixture_entity',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          maxStackingCount: -1,
+        },
+      ],
+      {
+        config: { priorities: new Map([[10, 10]]) },
+        timeManagerDeltaMode: 0,
+      },
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    const [entity] = assembly.abilityEntities.findAll();
+    if (entity?.kind !== 'abilityEntity') throw new Error('spawn must return an AbilityEntity');
+    assembly.timeDilation!.startEntity({
+      entityId: logicalAbilityEntityRuntimeId(entity.instanceId),
+      durationSeconds: 10,
+      slot: 1,
+      priority: 10,
+      curve: () => 0.5,
+    });
+
+    assembly.advanceFrames(3);
+    expect(
+      assembly.receipt.entries.some(
+        entry => entry.event === 'SpChanged' && entry.data?.requestedValue === 10,
+      ),
+    ).toBe(false);
+    assembly.advanceFrame();
+    expect(
+      assembly.receipt.entries.some(
+        entry => entry.event === 'SpChanged' && entry.data?.requestedValue === 10,
+      ),
+    ).toBe(true);
+  });
+
   it('resolves owner/tag AbilityEntity targets through the assembled time-dilation chain', () => {
     const marked = gameplayTagIdFromPath('AbilityEntity/Test/Marked');
     const program = skill({

@@ -727,10 +727,20 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
+    let rootOperations: CombatOperationExecutor | undefined;
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
       this.abilityEntities,
       baseDelegate,
+      {
+        resolveOperations: () => {
+          if (rootOperations === undefined) {
+            throw new Error('combat operation chain is not fully initialized');
+          }
+          return rootOperations;
+        },
+        semanticEvents: this.semanticEvents,
+      },
     );
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       abilityEntityOperations,
@@ -797,7 +807,7 @@ export class CombatRuntimeAssembly {
     );
     const eventConditions = new EventContextConditionExecutor(comboWindowOperations);
     const delegate = new ActionBlackboardOperationExecutor(eventConditions);
-    return new SkillResourceOperationExecutor({
+    rootOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId: program.skillId,
       clock: this.clock,
@@ -807,6 +817,7 @@ export class CombatRuntimeAssembly {
       finisherSpRecovery: enemy.stagger.finisherSpRecovery,
       delegate,
     });
+    return rootOperations;
   }
 
   #createEquipmentEventOperationChain(
