@@ -9,7 +9,10 @@ import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeA
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
-import type { LogicalAbilityEntityTemplate } from '../../game-data/logicalAbilityEntity';
+import {
+  logicalAbilityEntityRuntimeId,
+  type LogicalAbilityEntityTemplate,
+} from '../../game-data/logicalAbilityEntity';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -105,6 +108,7 @@ function createAssembly(
   >[0]['createOperatorBuffRuntime'],
   enemy: CombatEnemyProgram = testEnemy,
   abilityEntityTemplates: readonly LogicalAbilityEntityTemplate[] = [],
+  timeDilation?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['timeDilation'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -128,6 +132,7 @@ function createAssembly(
     },
     enemyBuffRuntime,
     abilityEntityTemplates,
+    ...(timeDilation === undefined ? {} : { timeDilation }),
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
@@ -197,6 +202,48 @@ describe('CombatRuntimeAssembly', () => {
         }),
       ]),
     );
+  });
+
+  it('advances a logical AbilityEntity lifetime with its entity time scale', () => {
+    const assembly = createAssembly(
+      [],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [
+        {
+          id: 'fixture_entity',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 1 },
+          maxStackingCount: -1,
+        },
+      ],
+      {
+        config: { priorities: new Map([[10, 10]]) },
+        timeManagerDeltaMode: 0,
+      },
+    );
+    const entity = assembly.abilityEntities.spawn({
+      templateId: 'fixture_entity',
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    if (entity.kind !== 'abilityEntity') throw new Error('spawn must return an AbilityEntity');
+    assembly.timeDilation!.startEntity({
+      entityId: logicalAbilityEntityRuntimeId(entity.instanceId),
+      durationSeconds: 10,
+      slot: 1,
+      priority: 10,
+      curve: () => 0.5,
+    });
+
+    assembly.simulation.advanceFrames(30);
+
+    const snapshot = assembly.abilityEntities.snapshot(entity);
+    expect(snapshot.remainingDurationSeconds).toBeCloseTo(0.5);
+    expect(snapshot.elapsedDurationSeconds).toBeCloseTo(0.5);
   });
 
   it('shares one cooldown ledger across placed casts of the same skill', () => {

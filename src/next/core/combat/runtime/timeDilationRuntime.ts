@@ -55,7 +55,7 @@ export interface StartGlobalTimeDilationOptions {
 }
 
 export interface StartEntityTimeDilationOptions {
-  readonly operatorId: string;
+  readonly entityId: string;
   readonly durationSeconds: number;
   readonly slot: number;
   readonly priority: number;
@@ -81,18 +81,18 @@ export interface TimeDilationRuntimeObserver {
   readonly started?: (
     kind: TimeDilationInstanceKind,
     instance: TimeDilationInstanceSnapshot,
-    operatorId?: string,
+    entityId?: string,
   ) => void;
   readonly rejected?: (
     kind: TimeDilationInstanceKind,
     instance: TimeDilationInstanceSnapshot,
-    operatorId?: string,
+    entityId?: string,
   ) => void;
   readonly ended?: (
     kind: TimeDilationInstanceKind,
     instance: TimeDilationInstanceSnapshot,
     reason: TimeDilationEndReason,
-    operatorId?: string,
+    entityId?: string,
   ) => void;
 }
 
@@ -110,7 +110,7 @@ interface GlobalTimeDilationInstance extends MutableTimeDilationInstance {
 }
 
 interface EntityTimeDilationInstance extends MutableTimeDilationInstance {
-  readonly operatorId: string;
+  readonly entityId: string;
   readonly curve: TimeScaleCurve;
   readonly lifetimeUsesGlobalScale: boolean;
 }
@@ -149,10 +149,10 @@ export class TimeDilationRuntime implements FrameRuntime {
     return this.#globalInstances.map(snapshotInstance);
   }
 
-  get entityInstances(): readonly (TimeDilationInstanceSnapshot & { operatorId: string })[] {
+  get entityInstances(): readonly (TimeDilationInstanceSnapshot & { entityId: string })[] {
     return this.#entityInstances.map(instance => ({
       ...snapshotInstance(instance),
-      operatorId: instance.operatorId,
+      entityId: instance.entityId,
     }));
   }
 
@@ -213,12 +213,12 @@ export class TimeDilationRuntime implements FrameRuntime {
   }
 
   startEntity(options: StartEntityTimeDilationOptions): number {
-    if (options.operatorId.length === 0) throw new Error('operator id must not be empty');
+    if (options.entityId.length === 0) throw new Error('entity id must not be empty');
     validateDuration(options.durationSeconds);
     this.#priorityOf(options.priority);
     const instance: EntityTimeDilationInstance = {
       id: ++this.#nextInstanceId,
-      operatorId: options.operatorId,
+      entityId: options.entityId,
       durationSeconds: options.durationSeconds,
       elapsedSeconds: 0,
       slot: options.slot,
@@ -230,11 +230,11 @@ export class TimeDilationRuntime implements FrameRuntime {
       ...(options.source === undefined ? {} : { source: options.source }),
     };
     if (!this.#tryAddEntity(instance, options.ignoreSlotCheck === true)) {
-      this.#observer.rejected?.('entity', snapshotInstance(instance), instance.operatorId);
+      this.#observer.rejected?.('entity', snapshotInstance(instance), instance.entityId);
       return instance.id;
     }
     this.#tickEntity(instance, 0, this.currentGlobalScale);
-    this.#observer.started?.('entity', snapshotInstance(instance), instance.operatorId);
+    this.#observer.started?.('entity', snapshotInstance(instance), instance.entityId);
     return instance.id;
   }
 
@@ -242,12 +242,7 @@ export class TimeDilationRuntime implements FrameRuntime {
     const entityIndex = this.#entityInstances.findIndex(instance => instance.id === instanceId);
     if (entityIndex >= 0) {
       const [instance] = this.#entityInstances.splice(entityIndex, 1);
-      this.#observer.ended?.(
-        'entity',
-        snapshotInstance(instance!),
-        'stopped',
-        instance!.operatorId,
-      );
+      this.#observer.ended?.('entity', snapshotInstance(instance!), 'stopped', instance!.entityId);
       return;
     }
     const globalIndex = this.#globalInstances.findIndex(instance => instance.id === instanceId);
@@ -257,14 +252,19 @@ export class TimeDilationRuntime implements FrameRuntime {
     }
   }
 
-  getOperatorScale(operatorId: string): number {
+  getEntityScale(entityId: string): number {
     const localScale = this.#entityInstances
-      .filter(instance => instance.operatorId === operatorId)
+      .filter(instance => instance.entityId === entityId)
       .reduce((scale, instance) => scale * instance.currentScale, 1);
     const ignoresGlobal = this.#globalInstances.some(
-      instance => instance.active && instance.ignoredOperatorIds.has(operatorId),
+      instance => instance.active && instance.ignoredOperatorIds.has(entityId),
     );
     return Math.max(0, localScale * (ignoresGlobal ? 1 : this.currentGlobalScale));
+  }
+
+  /** AbilitySystem 的兼容入口；干员也是具有稳定运行时身份的实体。 */
+  getOperatorScale(operatorId: string): number {
+    return this.getEntityScale(operatorId);
   }
 
   /** 按原生 AbilitySystem.PreLateTick 分支生成本实体使用的四路时钟。 */
@@ -300,12 +300,7 @@ export class TimeDilationRuntime implements FrameRuntime {
         this.#tickEntity(instance, COMBAT_FRAME_INTERVAL, globalScale);
       } else {
         const [removed] = this.#entityInstances.splice(index, 1);
-        this.#observer.ended?.(
-          'entity',
-          snapshotInstance(removed!),
-          'natural',
-          removed!.operatorId,
-        );
+        this.#observer.ended?.('entity', snapshotInstance(removed!), 'natural', removed!.entityId);
       }
     }
     for (let index = this.#globalInstances.length - 1; index >= 0; index -= 1) {
@@ -335,7 +330,7 @@ export class TimeDilationRuntime implements FrameRuntime {
     for (let index = this.#entityInstances.length - 1; index >= 0; index -= 1) {
       const current = this.#entityInstances[index]!;
       if (
-        current.operatorId !== candidate.operatorId ||
+        current.entityId !== candidate.entityId ||
         ignoreSlotCheck ||
         current.slot !== candidate.slot
       ) {
@@ -343,7 +338,7 @@ export class TimeDilationRuntime implements FrameRuntime {
       }
       if (this.#priorityOf(current.priority) > this.#priorityOf(candidate.priority)) return false;
       const [removed] = this.#entityInstances.splice(index, 1);
-      this.#observer.ended?.('entity', snapshotInstance(removed!), 'replaced', removed!.operatorId);
+      this.#observer.ended?.('entity', snapshotInstance(removed!), 'replaced', removed!.entityId);
     }
     this.#entityInstances.push(candidate);
     return true;

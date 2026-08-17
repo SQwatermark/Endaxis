@@ -163,6 +163,34 @@ entity clocks and their child-skill timing are modeled. This moves Li Zhiyan,
 Tangtang, Liino and Yvonne's combo skills from parser failure to the same named
 runtime capability gap. The paired full audit is now 318 parsed / 280 compiled.
 
+Direct IL2CPP evidence now closes the first half of that runtime gap.
+`TimeDilationAction.ExecuteInternal` is at RVA `0x042D8710`,
+`TimeDilationManager.StartEntityTimeDilation` at RVA `0x038CF9B0`,
+`EntityTimeDilationInst.Reset` at RVA `0x038CF810`, and
+`EntityTimeDilationInst.OnTick` at RVA `0x038D08D0` in the same hashed desktop
+module. When `layer == Entity`, the action enumerates every resolved
+`effectTargets` selection, obtains each target Entity, and starts a distinct
+entity time-dilation instance. The instance retains the target Entity,
+duration, curve, slot, priority and elapsed time; each tick evaluates the curve
+and installs the resulting time-scale handle on that Entity. This is gameplay
+entity time, not a visual-only curve.
+
+The shared time-dilation runtime therefore now keys local instances by a
+generic stable entity ID. Existing operator clocks use the same API through a
+compatibility method, while a logical AbilityEntity uses
+`ability-entity:<instanceId>`. The standard combat assembly consumes that
+entity's composed local/global scale when advancing its finite lifetime. An
+assembly-level regression proves that a constant 0.5 entity scale consumes
+only 0.5 seconds of a one-second logical lifetime over 30 raw frames.
+
+This does not yet justify compiling `effectAbilityEntityTargets`. Native time
+scale also belongs to the Entity hosting its AbilitySystem, whereas generated
+child SkillData damage is currently a static parent-timeline projection. Until
+those child actions are owned and scheduled by the logical entity clock,
+compiling the action would preserve lifetime but still place hits at the wrong
+times. The generator therefore continues to fail closed and audit coverage
+remains 318 parsed / 280 compiled.
+
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.
 Entity-target Buff ownership, projectile source identity, explicit entity
@@ -170,9 +198,10 @@ finish, and target mutation are not yet exposed. Child SkillData requests curren
 their already-proven damage remains statically projected so the runtime does
 not double execute it.
 
-The next safe slice is ability-entity time dilation and Li Zhiyan's positional
-spawn-target projection, followed by entity-target Buff ownership. Avywenna's projectile
-launch-point semantics, Camille's target mutation, entity-local time dilation, replacement/stacking
-policy, and non-numeric entity blackboard values remain blocked until direct
-native evidence and consumers are closed. `maxStackingCount` is evidence only
-and must not be treated as a guessed replacement rule.
+The next safe slice is dynamic child-SkillData ownership/scheduling or Li
+Zhiyan's positional spawn-target projection, followed by entity-target Buff
+ownership. Avywenna's projectile launch-point semantics, Camille's target
+mutation, replacement/stacking policy, and non-numeric entity blackboard
+values remain blocked until direct native evidence and consumers are closed.
+`maxStackingCount` is evidence only and must not be treated as a guessed
+replacement rule.

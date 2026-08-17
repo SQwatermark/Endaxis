@@ -84,7 +84,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
           ]
         : parameters.targets.map(target =>
             this.dependencies.runtime.startEntity({
-              operatorId: resolveSingleTargetId(this.dependencies, target),
+              entityId: resolveSingleTargetId(this.dependencies, target),
               durationSeconds,
               slot: parameters.slot,
               priority: parameters.priority,

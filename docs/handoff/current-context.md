@@ -15,9 +15,9 @@
 
 - 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 当前 Git HEAD：`659f0786 docs(next): refresh desktop handoff`。
-- 紧邻提交：`1c49dee8 feat(next): resolve enemy timed marker targets`
-- 再前提交：`a3dca4c2 feat(next): compile conditional time dilation`
+- 当前 Git HEAD：`9cff1e6d feat(next): model logical ability entities`。
+- 紧邻提交：`659f0786 docs(next): refresh desktop handoff`
+- 再前提交：`7b16107e feat(next): preserve sequence guard boundaries`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -66,6 +66,7 @@
 - `spawnAbilityEntity` 已贯通 DSL、严格校验、编译、标准模拟和生成器。正式生成产物目前覆盖 Arclight 终结技、Gilberta 战技/终结技、Lifeng 终结技；庄方宜审计产物也保存了对应步骤。子 SkillData 目前仍沿用已验证的静态伤害投影，运行时只发出 child-skill request 回执，避免双重结算。
 - `OwnerSpawnedEntityFinder + TagValidator` 的 Context 来源证据仍完整保留。统一 `findOwnerSpawnedAbilityEntities` 步骤已经能够按当前干员和原生标签查询逻辑目录，把完整组写入本次施法 Context，并可把数量写入动作黑板复用现有比较条件。Avywenna 三组长枪与 Tangtang 水体四个守卫仍需实体目标 Buff、投射物来源和生成器转换，不能提前宣称闭环。完整盘点见 `docs/research/ability-entity-context-target-audit.md`。
 - Context 组现在可按稳定句柄同步迭代；body 通过显式 `currentTarget` 读取、比较或 `Assign` 有限剩余时长。若 body 返回 false，运行时会因原生跨实例短路规则尚未证明而显式失败，不能猜测继续/终止。原始语料共有 10 个时长设置、2 个当前时长检查和 1 个目标设置；当前只接入全部已观察时长动作共有的 `Assign` 子集，目标设置仍阻塞。
+- 同一桌面 `GameAssembly.dll` 的进一步反汇编已确认 `TimeDilationAction` 的 Entity 分支逐个解析 `effectTargets` 并调用 `StartEntityTimeDilation`，实体实例逐帧把曲线倍率安装到目标 Entity。Next 时间膨胀运行时已将局部目标泛化为稳定实体 ID，能力实体有限寿命会消费 `ability-entity:<instanceId>` 对应的实体倍率，并有标准装配回归覆盖。子 SkillData 当前仍静态投影在父技能时间轴上，尚未消费实体时钟，因此生成器阻塞保持不变，不能把这一步误报成能力实体时间膨胀已完整编译。
 
 ## 4. 最新验证基线
 
@@ -75,7 +76,7 @@
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。严格生成已越过全部 11 个登记对象，当前全量审计为 30 名、320 个入口、318 个可解析、280 个可编译；新增的六个可解析入口来自能力实体时间膨胀目标的类型化保留，不代表该运行时已实现。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配的 36 项聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已修复。
-- `npm run test:next`：169 个文件中 168 个、955 项中 953 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
+- `npm run test:next`：169 个文件中 168 个、956 项中 954 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
 - 全仓 `npm test -- --run`：243 个文件中 235 个、1463 项中 1450 项通过。13 项失败里两项是既有 Next 时间线停滞；其余旧版/UI 工作树回归不属于能力实体链路，未在本任务中修改或掩盖。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
@@ -108,10 +109,11 @@
 
 下一会话应先重新确认工作树和提交，再从下列候选中只选一个推进：
 
-1. 证明 Li Zhiyan 命名 `ContextTarget` 在 `setMultipleTarget=false` 下的单例选择语义，并把已类型化的八个时长赋值安全接入 DSL；庄方宜的 `Context ForEach -> LT -> InputTarget/Assign` 已闭环；
-2. 接入实体目标 Buff、显式结束，再处理 Camille 的设置目标和 Avywenna 的投射物来源；继续研究能力实体时间膨胀，不允许通过忽略目标来让技能“转换成功”；
-3. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
-4. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
+1. 为能力实体建立动态子 SkillData 所有权和调度，让子动作真正消费实体时钟；在此之前保持 `effectAbilityEntityTargets` 编译失败关闭；
+2. 闭环 Li Zhiyan 的位置目标逻辑生成，使已有单例 Context 证明能够承载八个时长赋值；
+3. 接入实体目标 Buff、显式结束，再处理 Camille 的设置目标和 Avywenna 的投射物来源；不允许通过忽略目标来让技能“转换成功”；
+4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
+5. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
 

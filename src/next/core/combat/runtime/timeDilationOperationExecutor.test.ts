@@ -119,7 +119,7 @@ describe('TimeDilationOperationExecutor', () => {
     const context = { blackboard: new ActionBlackboard() };
 
     executor.execute(step, context);
-    expect(timeDilation.entityInstances.map(instance => instance.operatorId)).toEqual([
+    expect(timeDilation.entityInstances.map(instance => instance.entityId)).toEqual([
       'operator',
       'enemy',
     ]);

@@ -136,14 +136,14 @@ describe('TimeDilationRuntime', () => {
       ignoredOperatorIds: ['ignored'],
     });
     runtime.startEntity({
-      operatorId: 'ignored',
+      entityId: 'ignored',
       durationSeconds: 1,
       slot: 2,
       priority: LOW,
       curve: () => 0.4,
     });
     runtime.startEntity({
-      operatorId: 'other',
+      entityId: 'other',
       durationSeconds: 1,
       slot: 2,
       priority: LOW,
@@ -193,7 +193,7 @@ describe('TimeDilationRuntime', () => {
       ignoredOperatorIds: ['ignored'],
     });
     runtime.startEntity({
-      operatorId: 'ignored',
+      entityId: 'ignored',
       durationSeconds: 1,
       slot: 2,
       priority: LOW,
@@ -221,14 +221,14 @@ describe('TimeDilationRuntime', () => {
       constantScale: 0.5,
     });
     runtime.startEntity({
-      operatorId: 'scaled',
+      entityId: 'scaled',
       durationSeconds: 1,
       slot: 2,
       priority: LOW,
       curve: () => 1,
     });
     runtime.startEntity({
-      operatorId: 'raw',
+      entityId: 'raw',
       durationSeconds: 1,
       slot: 3,
       priority: LOW,
@@ -238,10 +238,10 @@ describe('TimeDilationRuntime', () => {
     runtime.advanceFrame();
 
     expect(
-      runtime.entityInstances.find(instance => instance.operatorId === 'scaled')?.elapsedSeconds,
+      runtime.entityInstances.find(instance => instance.entityId === 'scaled')?.elapsedSeconds,
     ).toBeCloseTo(1 / 60);
     expect(
-      runtime.entityInstances.find(instance => instance.operatorId === 'raw')?.elapsedSeconds,
+      runtime.entityInstances.find(instance => instance.entityId === 'raw')?.elapsedSeconds,
     ).toBeCloseTo(1 / 30);
   });
 });

@@ -9,6 +9,14 @@ export type RuntimeTargetRef =
 /** Context 目标组只保存稳定句柄；距离与形状不会进入组身份。 */
 export type RuntimeTargetGroup = readonly RuntimeTargetRef[];
 
+/** 逻辑能力实体参与通用实体运行时时使用的稳定身份。 */
+export function logicalAbilityEntityRuntimeId(instanceId: number): string {
+  if (!Number.isInteger(instanceId) || instanceId <= 0) {
+    throw new RangeError('AbilityEntity instance id must be a positive integer');
+  }
+  return `ability-entity:${instanceId}`;
+}
+
 /** 能力实体模板的生命周期；原生枚举值必须先在数据适配层得到明确映射。 */
 export type LogicalAbilityEntityLifetime =
   { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };

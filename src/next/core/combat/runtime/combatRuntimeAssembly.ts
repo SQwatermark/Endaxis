@@ -61,7 +61,10 @@ import { CombatTimelineClock } from './combatTimelineClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
-import type { LogicalAbilityEntityTemplate } from '../../game-data/logicalAbilityEntity';
+import {
+  logicalAbilityEntityRuntimeId,
+  type LogicalAbilityEntityTemplate,
+} from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 
@@ -255,8 +258,22 @@ export class CombatRuntimeAssembly {
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.timeDilation =
+      options.timeDilation === undefined
+        ? null
+        : new TimeDilationRuntime(options.timeDilation.config, {
+            started: (kind, instance, entityId) =>
+              this.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
+            rejected: (kind, instance, entityId) =>
+              this.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
+            ended: (kind, instance, reason, entityId) =>
+              this.#recordTimeDilation('TimeDilationEnded', kind, instance, entityId, reason),
+          });
     this.abilityEntities = new LogicalAbilityEntityRuntime({
       templates: options.abilityEntityTemplates ?? [],
+      resolveDeltaSeconds: entity =>
+        COMBAT_FRAME_INTERVAL *
+        (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
       hooks: {
         spawned: entity =>
           this.receipt.record({
@@ -264,7 +281,7 @@ export class CombatRuntimeAssembly {
             time: this.clock.time,
             event: 'AbilityEntitySpawned',
             sourceId: entity.ownerId,
-            targetId: `ability-entity:${entity.instanceId}`,
+            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: {
               templateId: entity.templateId,
               childSkillId: entity.childSkillId ?? null,
@@ -277,7 +294,7 @@ export class CombatRuntimeAssembly {
             time: this.clock.time,
             event: 'AbilityEntityChildSkillRequested',
             sourceId: entity.ownerId,
-            targetId: `ability-entity:${entity.instanceId}`,
+            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: { templateId: entity.templateId, childSkillId },
           }),
         finished: (entity, reason) =>
@@ -286,22 +303,11 @@ export class CombatRuntimeAssembly {
             time: this.clock.time,
             event: 'AbilityEntityFinished',
             sourceId: entity.ownerId,
-            targetId: `ability-entity:${entity.instanceId}`,
+            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: { templateId: entity.templateId, reason },
           }),
       },
     });
-    this.timeDilation =
-      options.timeDilation === undefined
-        ? null
-        : new TimeDilationRuntime(options.timeDilation.config, {
-            started: (kind, instance, operatorId) =>
-              this.#recordTimeDilation('TimeDilationStarted', kind, instance, operatorId),
-            rejected: (kind, instance, operatorId) =>
-              this.#recordTimeDilation('TimeDilationRejected', kind, instance, operatorId),
-            ended: (kind, instance, reason, operatorId) =>
-              this.#recordTimeDilation('TimeDilationEnded', kind, instance, operatorId, reason),
-          });
     this.timelineClock = new CombatTimelineClock({
       clock: this.clock,
       receipt: this.receipt,
@@ -947,7 +953,7 @@ export class CombatRuntimeAssembly {
     event: 'TimeDilationStarted' | 'TimeDilationRejected' | 'TimeDilationEnded',
     kind: TimeDilationInstanceKind,
     instance: TimeDilationInstanceSnapshot,
-    operatorId?: string,
+    entityId?: string,
     reason?: TimeDilationEndReason,
   ): void {
     this.receipt.record({
@@ -955,7 +961,7 @@ export class CombatRuntimeAssembly {
       time: this.clock.time,
       event,
       ...(instance.source?.sourceId === undefined ? {} : { sourceId: instance.source.sourceId }),
-      ...(operatorId === undefined ? {} : { targetId: operatorId }),
+      ...(entityId === undefined ? {} : { targetId: entityId }),
       data: {
         instanceId: instance.id,
         kind,
