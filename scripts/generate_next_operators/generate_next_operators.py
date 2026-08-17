@@ -37,6 +37,8 @@ from source_models import (
     BuffDefinitionSource,
     UnparsedBuffPayloadSource,
     BuffAttributeModifierSource,
+    BuffDamageModifierSource,
+    BuffDamageScaleProcessorSource,
     BuffEventActionSource,
     EventBuffApplicationSource,
     SkillEventActionSequenceSource,
@@ -1630,6 +1632,131 @@ def parse_buff_attribute_modifiers(
     return tuple(result)
 
 
+def parse_buff_damage_modifiers(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[tuple[BuffDamageModifierSource, ...], int]:
+    """解析 Buff 在伤害结算阶段注册的目标标签条件与倍率处理器。"""
+    result: list[BuffDamageModifierSource] = []
+    unsupported_count = 0
+    for index, raw_modifier in enumerate(
+        require_list(buff.get("damageModifier", []), f"{source_name}.damageModifier")
+    ):
+        path = f"{source_name}.damageModifier[{index}]"
+        modifier = require_dict(raw_modifier, path)
+        if set(modifier) != {"enableSide", "condition", "damageProcessors"}:
+            raise ValueError(f"{path}: unexpected fields {sorted(modifier)}")
+        enabled_side = modifier.get("enableSide")
+        if enabled_side not in {"Attacker", "Defender"}:
+            raise ValueError(f"{path}.enableSide: unsupported value {enabled_side!r}")
+
+        condition = require_dict(modifier.get("condition"), f"{path}.condition")
+        expected_condition_fields = {
+            "actionData",
+            "onlyExecuteWhenSourceIsMainChar",
+            "onlyExecuteWhenSourceIsGuard",
+        }
+        if set(condition) != expected_condition_fields:
+            raise ValueError(f"{path}.condition: unexpected fields {sorted(condition)}")
+        if require_bool(
+            condition.get("onlyExecuteWhenSourceIsMainChar"),
+            f"{path}.condition.onlyExecuteWhenSourceIsMainChar",
+        ) or require_bool(
+            condition.get("onlyExecuteWhenSourceIsGuard"),
+            f"{path}.condition.onlyExecuteWhenSourceIsGuard",
+        ):
+            raise ValueError(f"{path}.condition: source-role gates are unsupported")
+        condition_actions = require_list(
+            condition.get("actionData"), f"{path}.condition.actionData"
+        )
+        if len(condition_actions) != 1:
+            unsupported_count += 1
+            continue
+        tag_condition = require_dict(
+            condition_actions[0], f"{path}.condition.actionData[0]"
+        )
+        if action_name(str(tag_condition.get("$type", ""))) != "CheckTagMatch":
+            unsupported_count += 1
+            continue
+        expected_tag_condition_fields = {
+            "$type",
+            "isEnable",
+            "priorityLevel",
+            "priorityOffset",
+            "serverActionIndex",
+            "checkTarget",
+            "query",
+        }
+        if set(tag_condition) != expected_tag_condition_fields:
+            raise ValueError(
+                f"{path}.condition.actionData[0]: unexpected fields "
+                f"{sorted(tag_condition)}"
+            )
+        if tag_condition.get("isEnable") is not True:
+            raise ValueError(f"{path}.condition.actionData[0].isEnable: expected true")
+        target = parse_target_reference(
+            tag_condition.get("checkTarget"),
+            f"{path}.condition.actionData[0].checkTarget",
+        )
+        query_type, tag_ids = parse_tag_query(
+            tag_condition.get("query"), f"{path}.condition.actionData[0].query"
+        )
+        if not tag_ids:
+            raise ValueError(f"{path}.condition: empty tag query")
+
+        processors: list[BuffDamageScaleProcessorSource] = []
+        raw_processors = require_list(
+            modifier.get("damageProcessors"), f"{path}.damageProcessors"
+        )
+        if any(
+            action_name(str(require_dict(item, f"{path}.damageProcessors[]").get("$type", "")))
+            != "DamageScaleProcessor"
+            for item in raw_processors
+        ):
+            unsupported_count += 1
+            continue
+        for processor_index, raw_processor in enumerate(
+            raw_processors
+        ):
+            processor_path = f"{path}.damageProcessors[{processor_index}]"
+            processor = require_dict(raw_processor, processor_path)
+            if action_name(str(processor.get("$type", ""))) != "DamageScaleProcessor":
+                raise ValueError(f"{processor_path}: unsupported damage processor")
+            if set(processor) != {"$type", "side", "zoneName", "addition"}:
+                raise ValueError(f"{processor_path}: unexpected fields {sorted(processor)}")
+            side = processor.get("side")
+            if side not in {"Attacker", "Defender"}:
+                raise ValueError(f"{processor_path}.side: unsupported value {side!r}")
+            zone = processor.get("zoneName")
+            if not isinstance(zone, str) or not zone:
+                raise ValueError(f"{processor_path}.zoneName: expected string")
+            processors.append(
+                BuffDamageScaleProcessorSource(
+                    side=side,
+                    zone=zone,
+                    addition=parse_scalar(
+                        processor.get("addition"),
+                        f"{processor_path}.addition",
+                        blackboard,
+                    ),
+                )
+            )
+        if not processors:
+            raise ValueError(f"{path}.damageProcessors: expected non-empty list")
+        result.append(
+            BuffDamageModifierSource(
+                enabledSide=enabled_side,
+                targetSource=target.targetSource,
+                targetGroupKey=target.targetGroupKey,
+                tagQueryType=query_type,
+                tagIds=tag_ids,
+                processors=tuple(processors),
+            )
+        )
+    return tuple(result), unsupported_count
+
+
 def parse_buff_event_actions(
     buff: dict[str, Any],
     source_name: str,
@@ -1826,7 +1953,6 @@ def parse_skill_event_listeners(
 
 
 UNPARSED_BUFF_PAYLOAD_FIELDS = (
-    "damageModifier",
     "globalModifier",
     "healModifier",
     "igniteEventAction",
@@ -1836,7 +1962,7 @@ UNPARSED_BUFF_PAYLOAD_FIELDS = (
 
 
 def collect_unparsed_buff_payloads(
-    buff: dict[str, Any], source_name: str
+    buff: dict[str, Any], source_name: str, unsupported_damage_modifiers: int = 0
 ) -> tuple[UnparsedBuffPayloadSource, ...]:
     """列出尚未结构化解析的非空 Buff 根载荷，防止审计结果静默遗漏行为。"""
     result: list[UnparsedBuffPayloadSource] = []
@@ -1848,6 +1974,13 @@ def collect_unparsed_buff_payloads(
         if entries:
             result.append(UnparsedBuffPayloadSource(field=field, entryCount=len(entries)))
     attribute_modifier = buff.get("attributeModifier")
+    if unsupported_damage_modifiers:
+        result.append(
+            UnparsedBuffPayloadSource(
+                field="damageModifier",
+                entryCount=unsupported_damage_modifiers,
+            )
+        )
     if isinstance(attribute_modifier, dict) and attribute_modifier.get("isConvertedAttribute") is True:
         result.append(
             UnparsedBuffPayloadSource(
@@ -1893,6 +2026,7 @@ def resolve_buff_definitions(
                 applyTagIds=(),
                 extendTagIds=(),
                 attributeModifiers=(),
+                damageModifiers=(),
                 directDamageHits=(),
                 conditionalActions=(),
                 blackboardCalculations=(),
@@ -1918,6 +2052,9 @@ def resolve_buff_definitions(
         mutations, reads, finishes = parse_blackboard_runtime_actions(
             adapted_root, source_file, blackboard
         )
+        damage_modifiers, unsupported_damage_modifiers = parse_buff_damage_modifiers(
+            buff, source_file, blackboard
+        )
         result[buff_id] = BuffDefinitionSource(
             buffId=buff_id,
             sourceFile=source_file,
@@ -1929,6 +2066,7 @@ def resolve_buff_definitions(
             attributeModifiers=parse_buff_attribute_modifiers(
                 buff, source_file, blackboard
             ),
+            damageModifiers=damage_modifiers,
             directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
             conditionalActions=parse_conditional_actions(adapted_root, source_file, blackboard),
             blackboardCalculations=parse_blackboard_calculations(
@@ -1948,7 +2086,9 @@ def resolve_buff_definitions(
                     }
                 )
             ),
-            unparsedPayloads=collect_unparsed_buff_payloads(buff, source_file),
+            unparsedPayloads=collect_unparsed_buff_payloads(
+                buff, source_file, unsupported_damage_modifiers
+            ),
             auraActions=parse_buff_aura_actions(buff, source_file, blackboard),
         )
         pending.extend(

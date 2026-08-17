@@ -32,6 +32,17 @@ ATTRIBUTE_SLOTS = {
     "BaseFinalMultiplier": "baseFinalMultiplier",
 }
 
+DAMAGE_SIDES = {"Attacker": "attacker", "Defender": "defender"}
+DAMAGE_SCALE_ZONES = {
+    "ProdCalcZone": "product",
+    "NormalCalcZone": "normal",
+    "AbnormalAndBurstIncrease": "abnormalAndBurst",
+    "EnhancedDmgIncreace": "enhanced",
+    "ComboCalcZone": "combo",
+    "VulnerableDmgIncreace": "vulnerable",
+    "RaceCalcZone": "race",
+}
+
 BEHAVIOR_FIELDS = (
     "directDamageHits",
     "conditionalActions",
@@ -111,6 +122,46 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
                     "  },",
                 ]
             )
+        fields.append("],")
+    if source.damageModifiers:
+        fields.append("damageModifiers: [")
+        for modifier in source.damageModifiers:
+            if modifier.targetSource != "Target" or modifier.targetGroupKey:
+                raise ValueError(
+                    f"{path}: Buff {source.buffId!r} uses unsupported damage condition target "
+                    f"{modifier.targetSource!r}/{modifier.targetGroupKey!r}"
+                )
+            fields.extend(
+                [
+                    "  {",
+                    f"    enabledSide: {ts_inline_literal(DAMAGE_SIDES[modifier.enabledSide])},",
+                    "    condition: {",
+                    "      kind: 'entityTagMatch',",
+                    "      target: 'enemy',",
+                    f"      tagQueryType: {ts_inline_literal(modifier.tagQueryType)},",
+                    f"      tagIds: {ts_inline_literal(modifier.tagIds)},",
+                    "    },",
+                    "    processors: [",
+                ]
+            )
+            for processor in modifier.processors:
+                zone = DAMAGE_SCALE_ZONES.get(processor.zone)
+                if zone is None:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unknown damage scale zone "
+                        f"{processor.zone!r}"
+                    )
+                fields.extend(
+                    [
+                        "      {",
+                        "        kind: 'damageScale',",
+                        f"        side: {ts_inline_literal(DAMAGE_SIDES[processor.side])},",
+                        f"        zone: {ts_inline_literal(zone)},",
+                        f"        addition: {_compile_scalar(processor.addition)},",
+                        "      },",
+                    ]
+                )
+            fields.extend(["    ],", "  },"])
         fields.append("],")
     return "\n".join(fields)
 

@@ -49,6 +49,7 @@ export const fluoriteGeneratedSource = {
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
+      "damageModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -129,6 +130,91 @@ export const fluoriteGeneratedSource = {
           }
         }
       ],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_chr_0022_bounda_talent_1",
+      "sourceFile": "buff_chr_0022_bounda_talent_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "dmg_up",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "Target",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [
+            1925762097
+          ],
+          "processors": [
+            {
+              "side": "Attacker",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "dmg_up",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -195,6 +281,7 @@ export const fluoriteGeneratedSource = {
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
+      "damageModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -280,6 +367,7 @@ export const fluoriteGeneratedSource = {
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
+      "damageModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -352,6 +440,7 @@ export const fluoriteGeneratedSource = {
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
+      "damageModifiers": [],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],

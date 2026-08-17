@@ -11,6 +11,8 @@ import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createEnemyCombatVitals } from './combatVitalsFactory';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -192,6 +194,64 @@ describe('StandardPlayerDamageEnvironment', () => {
     const panel = createContext().panel;
     expect(createRuntime?.('operator', panel)).toBe(createRuntime?.('operator', panel));
     expect(createRuntime?.('operator', panel)?.ownerId).toBe('operator');
+  });
+
+  it('applies a Buff blackboard damage bonus only while the target entity tag matches', () => {
+    const environment = createEnvironment();
+    const context = createContext();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const operatorBuffs = environment.runtimeOptions.createOperatorBuffRuntime?.(
+      'operator',
+      context.panel,
+    );
+    if (!(operatorBuffs instanceof BuffDefinitionOperationTarget)) {
+      throw new Error('operator Buff runtime is unavailable');
+    }
+    operatorBuffs.apply({
+      buffId: 'buff.fluorite.talent-1',
+      sourceId: 'operator',
+      blackboardValues: {},
+      definition: {
+        stackingType: 'unique',
+        blackboard: { dmg_up: 0.2 },
+        damageModifiers: [
+          {
+            enabledSide: 'attacker',
+            condition: {
+              kind: 'entityTagMatch',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              tagIds: [1925762097],
+            },
+            processors: [
+              {
+                kind: 'damageScale',
+                side: 'attacker',
+                zone: 'normal',
+                addition: { blackboardKey: 'dmg_up' },
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    const healthBeforeNormalHit = environment.enemyVitals.health;
+    expect(executor.execute(damageStep)).toBe(true);
+    const normalDamage = healthBeforeNormalHit - environment.enemyVitals.health;
+
+    const enemyBuffs = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(enemyBuffs instanceof BuffDefinitionOperationTarget)) {
+      throw new Error('enemy Buff runtime is unavailable');
+    }
+    enemyBuffs.container.addEntityTags([gameplayTagId(1925762097)]);
+    const healthBeforeTaggedHit = environment.enemyVitals.health;
+    expect(executor.execute(damageStep)).toBe(true);
+    const taggedDamage = healthBeforeTaggedHit - environment.enemyVitals.health;
+
+    expect(normalDamage).toBe(224);
+    // 面板已有同区间 +20%，天赋再加 +20%，因此区间倍率从 1.2 变为 1.4。
+    expect(taggedDamage).toBeCloseTo(normalDamage * (1.4 / 1.2));
   });
 
   it('shares the scene-injected vitals instance across damage writes and poise', () => {

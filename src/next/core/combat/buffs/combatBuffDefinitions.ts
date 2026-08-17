@@ -4,6 +4,7 @@
  */
 import {
   INFLICTION_ELEMENTS,
+  type CombatCondition,
   type DamageType,
   type InflictionElement,
 } from '../../game-data/operatorDefinition';
@@ -30,6 +31,13 @@ import {
   attributeModifierValues,
   type AttributeModifierSlot,
 } from '../attributes/combatAttributes';
+import type {
+  DamageModifierDefinition,
+  DamageModifierNumber,
+  DamageProcessorDefinition,
+} from '../damage/damageModifiers';
+import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
+import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
 
 export const COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION = 1 as const;
 
@@ -122,6 +130,21 @@ export interface CombatBuffDefinitionAttributeModifier {
   readonly value: number | { readonly blackboardKey: string };
 }
 
+/** 外部和内联 Buff 定义中可序列化的伤害处理器。 */
+export type CombatBuffDefinitionDamageProcessor = {
+  readonly kind: 'damageScale';
+  readonly side: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['side'];
+  readonly zone: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['zone'];
+  readonly addition: DamageModifierNumber;
+};
+
+/** Buff 激活期间向伤害生命周期注册的一项纯数据修正。 */
+export interface CombatBuffDefinitionDamageModifier {
+  readonly enabledSide: DamageModifierDefinition['enabledSide'];
+  readonly condition?: CombatCondition;
+  readonly processors: readonly CombatBuffDefinitionDamageProcessor[];
+}
+
 /**
  * 游戏数据提取边界输出的稳定纯数据表示。
  * 原生表结构和可执行回调不得跨越此边界。
@@ -145,6 +168,7 @@ export interface CombatBuffDefinitionEntry {
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
+  readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
   readonly role?: CombatBuffSemanticRole;
   readonly actions?: CombatBuffDefinitionLifecycleActions;
   /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
@@ -257,6 +281,7 @@ export class CompiledCombatBuffDefinitions<
             : { slot: modifier.slot, blackboardKey: modifier.value.blackboardKey },
         timing: 'runtime',
       })),
+      damageModifiers: entry.damageModifiers,
       actions: compileLifecycleActions(entry, ports),
     };
     this.#definitions.set(entry.id, definition);
@@ -358,6 +383,7 @@ export function parseCombatBuffDefinitionEntry(
     'maxTriggerCount',
     'blackboard',
     'attributeModifiers',
+    'damageModifiers',
     'role',
     'actions',
     'spellBurst',
@@ -386,9 +412,98 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalTriggerCount(entry, path),
     ...parseOptionalBlackboard(entry, path),
     ...parseOptionalAttributeModifiers(entry, path),
+    ...parseOptionalDamageModifiers(entry, path),
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
     ...parseOptionalSpellBurst(entry, path),
+  };
+}
+
+function parseOptionalDamageModifiers(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { damageModifiers?: readonly CombatBuffDefinitionDamageModifier[] } {
+  if (entry.damageModifiers === undefined) return {};
+  if (!Array.isArray(entry.damageModifiers)) {
+    throw new Error(`${path}.damageModifiers: expected array`);
+  }
+  return {
+    damageModifiers: entry.damageModifiers.map((input, index) => {
+      const modifierPath = `${path}.damageModifiers[${index}]`;
+      const modifier = requireObject(input, modifierPath);
+      requireOnlyKeys(modifier, modifierPath, ['enabledSide', 'condition', 'processors']);
+      if (!Array.isArray(modifier.processors) || modifier.processors.length === 0) {
+        throw new Error(`${modifierPath}.processors: expected non-empty array`);
+      }
+      return {
+        enabledSide: requireEnum(
+          modifier.enabledSide,
+          DAMAGE_MODIFIER_SIDES,
+          `${modifierPath}.enabledSide`,
+        ),
+        ...(modifier.condition === undefined
+          ? {}
+          : {
+              condition: parseDamageModifierCondition(
+                modifier.condition,
+                `${modifierPath}.condition`,
+              ),
+            }),
+        processors: modifier.processors.map((processor, processorIndex) =>
+          parseDamageModifierProcessor(processor, `${modifierPath}.processors[${processorIndex}]`),
+        ),
+      };
+    }),
+  };
+}
+
+function parseDamageModifierCondition(input: unknown, path: string): CombatCondition {
+  const condition = requireObject(input, path);
+  requireOnlyKeys(condition, path, ['kind', 'target', 'tagQueryType', 'tagIds']);
+  if (condition.kind !== 'entityTagMatch') {
+    throw new Error(
+      `${path}.kind: unsupported damage modifier condition '${String(condition.kind)}'`,
+    );
+  }
+  if (!Array.isArray(condition.tagIds) || condition.tagIds.length === 0) {
+    throw new Error(`${path}.tagIds: expected non-empty array`);
+  }
+  return {
+    kind: 'entityTagMatch',
+    target: requireEnum(condition.target, ['caster', 'enemy'] as const, `${path}.target`),
+    tagQueryType: requireEnum(
+      condition.tagQueryType,
+      ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
+      `${path}.tagQueryType`,
+    ),
+    tagIds: condition.tagIds.map((value, index) => {
+      try {
+        return gameplayTagId(value as number);
+      } catch {
+        throw new Error(`${path}.tagIds[${index}]: expected signed 32-bit integer`);
+      }
+    }),
+  };
+}
+
+function parseDamageModifierProcessor(
+  input: unknown,
+  path: string,
+): CombatBuffDefinitionDamageProcessor {
+  const processor = requireObject(input, path);
+  if (processor.kind !== 'damageScale') {
+    throw new Error(`${path}.kind: unsupported damage processor '${String(processor.kind)}'`);
+  }
+  requireOnlyKeys(processor, path, ['kind', 'side', 'zone', 'addition']);
+  const addition =
+    typeof processor.addition === 'number' && Number.isFinite(processor.addition)
+      ? processor.addition
+      : parseBlackboardReference(processor.addition, `${path}.addition`);
+  return {
+    kind: 'damageScale',
+    side: requireEnum(processor.side, DAMAGE_SCALE_SIDES, `${path}.side`),
+    zone: requireEnum(processor.zone, DAMAGE_SCALE_ZONES, `${path}.zone`),
+    addition,
   };
 }
 

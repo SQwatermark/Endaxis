@@ -218,6 +218,88 @@ describe('compileCombatBuffDefinitions', () => {
     expect(attributes.get('attack')).toBe(150);
   });
 
+  it('parses and compiles conditional blackboard-backed damage modifiers', () => {
+    const slowTagId = 1925762097;
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-damage-modifier',
+      buffs: [
+        {
+          id: 'buff.fluorite.talent-1',
+          stackingType: 'unique',
+          blackboard: { dmg_up: 0.2 },
+          damageModifiers: [
+            {
+              enabledSide: 'attacker',
+              condition: {
+                kind: 'entityTagMatch',
+                target: 'enemy',
+                tagQueryType: 'hasAny',
+                tagIds: [slowTagId],
+              },
+              processors: [
+                {
+                  kind: 'damageScale',
+                  side: 'attacker',
+                  zone: 'normal',
+                  addition: { blackboardKey: 'dmg_up' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    });
+    const definition = index.get('buff.fluorite.talent-1');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+
+    expect(definition.damageModifiers).toEqual([
+      {
+        enabledSide: 'attacker',
+        condition: {
+          kind: 'entityTagMatch',
+          target: 'enemy',
+          tagQueryType: 'hasAny',
+          tagIds: [slowTagId],
+        },
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'attacker',
+            zone: 'normal',
+            addition: { blackboardKey: 'dmg_up' },
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('rejects unsupported damage modifier semantics at the stored-data boundary', () => {
+    const base = {
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-invalid-damage-modifier',
+      buffs: [
+        {
+          id: 'buff.invalid',
+          stackingType: 'unique',
+          damageModifiers: [
+            {
+              enabledSide: 'attacker',
+              processors: [{ kind: 'multiplyValue', timing: 'beforeCalculation', scale: 2 }],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(() => parseCombatBuffDefinitionsDocument(base)).toThrow(
+      "unsupported damage processor 'multiplyValue'",
+    );
+  });
+
   it('refreshes registered attribute modifiers from the current buff blackboard on trigger', () => {
     const document = parseCombatBuffDefinitionsDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,

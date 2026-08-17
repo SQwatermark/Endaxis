@@ -11,7 +11,12 @@ import {
   type AttributeModifierValues,
   type CombatAttributeSet,
 } from '../attributes/combatAttributes';
-import { DamageModifier, type DamageModifierDefinition } from '../damage/damageModifiers';
+import {
+  DamageModifier,
+  type DamageModifierConditionEvaluator,
+  type DamageModifierDefinition,
+  type DamageModifierNumber,
+} from '../damage/damageModifiers';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -222,7 +227,8 @@ export class CombatBuff<Key extends string> {
       this.#triggerRemainingTime = definition.waitFirstTriggerInterval ? triggerInterval : 0;
     }
     this.damageModifiers = (definition.damageModifiers ?? []).map(
-      modifier => new DamageModifier(owner.ownerId, modifier),
+      modifier =>
+        new DamageModifier(owner.ownerId, modifier, value => this.resolveDamageNumber(value)),
     );
     this.#attributeModifiers = this.createAttributeModifiers();
     this.#sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(
@@ -276,6 +282,17 @@ export class CombatBuff<Key extends string> {
 
   get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
     return this.#attributeModifiers;
+  }
+
+  private resolveDamageNumber(value: DamageModifierNumber): number {
+    if (typeof value === 'number') return value;
+    const resolved = this.blackboard.getNumber(value.blackboardKey);
+    if (resolved === undefined) {
+      throw new Error(
+        `buff '${this.definition.id}' damage modifier blackboard value '${value.blackboardKey}' is missing`,
+      );
+    }
+    return resolved;
   }
 
   /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
@@ -699,8 +716,11 @@ export class CombatBuffContainer<Key extends string> {
     timing: DamageProcessTiming,
     side: DamageModifierSide,
     context: PlayerDamageContext,
+    evaluateCondition?: DamageModifierConditionEvaluator,
   ): void {
-    for (const modifier of this.#damageModifiers) modifier.apply(timing, side, context);
+    for (const modifier of this.#damageModifiers) {
+      modifier.apply(timing, side, context, evaluateCondition);
+    }
   }
 
   tick(deltaTime: number | BuffTickDeltas): void {

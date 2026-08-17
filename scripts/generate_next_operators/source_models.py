@@ -32,6 +32,8 @@ __all__ = [
     "BuffDefinitionSource",
     "UnparsedBuffPayloadSource",
     "BuffAttributeModifierSource",
+    "BuffDamageModifierSource",
+    "BuffDamageScaleProcessorSource",
     "BuffEventActionSource",
     "EventBuffApplicationSource",
     "SkillEventActionSequenceSource",
@@ -433,6 +435,7 @@ class BuffDefinitionSource:
     applyTagIds: tuple[int, ...]
     extendTagIds: tuple[int, ...]
     attributeModifiers: tuple["BuffAttributeModifierSource", ...]
+    damageModifiers: tuple["BuffDamageModifierSource", ...]
     directDamageHits: tuple[TimedDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
@@ -458,6 +461,23 @@ class BuffAttributeModifierSource:
     attributeType: str
     slot: str
     value: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffDamageScaleProcessorSource:
+    side: str
+    zone: str
+    addition: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffDamageModifierSource:
+    enabledSide: str
+    targetSource: str
+    targetGroupKey: str
+    tagQueryType: str
+    tagIds: tuple[int, ...]
+    processors: tuple[BuffDamageScaleProcessorSource, ...]
 
 
 @dataclass(frozen=True)

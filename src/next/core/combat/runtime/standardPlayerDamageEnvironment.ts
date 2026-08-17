@@ -6,6 +6,7 @@
  * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import {
   createOperatorAttackAttributes,
@@ -46,6 +47,7 @@ import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -202,7 +204,12 @@ export class StandardPlayerDamageEnvironment {
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
       applyDamageModifiers: (timing, side, damageContext) =>
-        this.#buffContainer(side, operatorBuffs).applyDamageModifiers(timing, side, damageContext),
+        this.#buffContainer(side, operatorBuffs).applyDamageModifiers(
+          timing,
+          side,
+          damageContext,
+          condition => this.#evaluateDamageModifierCondition(condition, operatorBuffs),
+        ),
       addInstantAttributeModifier: (_side, request) => {
         throw new Error(
           `instant attribute '${request.attribute}' is not available in the standard life-damage subset`,
@@ -257,6 +264,19 @@ export class StandardPlayerDamageEnvironment {
       container: this.#reactions,
       delegate: this.#createInflictionExecutor(context),
     });
+  }
+
+  #evaluateDamageModifierCondition(
+    condition: CombatCondition,
+    operatorBuffs: CombatBuffContainer<string>,
+  ): boolean {
+    if (condition.kind !== 'entityTagMatch') {
+      throw new Error(
+        `standard player damage environment cannot evaluate damage modifier condition '${condition.kind}'`,
+      );
+    }
+    const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
+    return target.matchesEntityTags(condition.tagIds.map(gameplayTagId), condition.tagQueryType);
   }
 
   #createInflictionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {

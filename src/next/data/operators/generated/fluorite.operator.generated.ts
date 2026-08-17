@@ -657,6 +657,51 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0022_bounda_talent_1',
+          blackboard: {
+            'dmg_up': [0.1, 0.2],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0022_bounda_talent_1',
+              definition: {
+                stackingType: 'unique',
+                priority: 0,
+                maxStackCount: 1,
+                blackboard: {
+                  'dmg_up': 0,
+                },
+                damageModifiers: [
+                  {
+                    enabledSide: 'attacker',
+                    condition: {
+                      kind: 'entityTagMatch',
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      tagIds: [1925762097],
+                    },
+                    processors: [
+                      {
+                        kind: 'damageScale',
+                        side: 'attacker',
+                        zone: 'normal',
+                        addition: { blackboardKey: 'dmg_up' },
+                      },
+                    ],
+                  },
+                ],
+              },
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'dmg_up': { kind: 'blackboard', key: 'dmg_up' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',

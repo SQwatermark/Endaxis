@@ -52,7 +52,13 @@ function createContext(damageType: 'physical' | 'lifeDrain' = 'physical') {
 
 describe('DamageModifier', () => {
   it('checks side, owner and condition before running processors in declaration order', () => {
-    const condition = vi.fn(() => true);
+    const condition = {
+      kind: 'entityTagMatch',
+      target: 'enemy',
+      tagQueryType: 'hasAny',
+      tagIds: [1925762097],
+    } as const;
+    const evaluateCondition = vi.fn(() => true);
     const context = createContext();
     const modifier = new DamageModifier('operator', {
       enabledSide: 'attacker',
@@ -68,13 +74,13 @@ describe('DamageModifier', () => {
       ],
     });
 
-    modifier.apply('beforeCalculation', 'defender', context);
-    modifier.apply('beforeCalculation', 'attacker', context);
+    modifier.apply('beforeCalculation', 'defender', context, evaluateCondition);
+    modifier.apply('beforeCalculation', 'attacker', context, evaluateCondition);
     context.setCalculationResult(100);
-    modifier.apply('afterCalculation', 'attacker', context);
+    modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);
 
-    expect(condition).toHaveBeenCalledTimes(2);
-    expect(condition).toHaveBeenLastCalledWith(context, 'enemy');
+    expect(evaluateCondition).toHaveBeenCalledTimes(2);
+    expect(evaluateCondition).toHaveBeenLastCalledWith(condition);
     expect(context.value).toBe(150);
     expect(context.damageScales.getFinalValue()).toBeCloseTo(1.2);
   });

@@ -276,6 +276,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly extendTagIds: readonly number[];
   /** Buff 启用期间注册到原生八槽属性公式的修正；目标属性名仍保留原生身份。 */
   readonly attributeModifiers: readonly GeneratedBuffAttributeModifierSource[];
+  /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
+  readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
@@ -316,6 +318,23 @@ export interface GeneratedBuffAttributeModifierSource {
     | 'BaseFinalAddition'
     | 'BaseFinalMultiplier';
   readonly value: GeneratedScalarSource;
+}
+
+/** 原生 DamageScaleProcessor；正式 DSL 编译时才把 side 与 zone 映射为 Next 枚举。 */
+export interface GeneratedBuffDamageScaleProcessorSource {
+  readonly side: 'Attacker' | 'Defender';
+  readonly zone: string;
+  readonly addition: GeneratedScalarSource;
+}
+
+/** 原生伤害修正及其目标标签条件；标签使用有符号 CRC-32 ID。 */
+export interface GeneratedBuffDamageModifierSource {
+  readonly enabledSide: 'Attacker' | 'Defender';
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+  readonly tagIds: readonly number[];
+  readonly processors: readonly GeneratedBuffDamageScaleProcessorSource[];
 }
 
 /** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */

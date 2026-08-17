@@ -34,6 +34,7 @@ def definition(**overrides):
         "applyTagIds": (),
         "extendTagIds": (),
         "attributeModifiers": (),
+        "damageModifiers": (),
         "directDamageHits": (),
         "conditionalActions": (),
         "blackboardCalculations": (),
@@ -82,6 +83,36 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("buffId: 'buff.example'", result)
         self.assertIn("definition: {", result)
         self.assertIn("stackingType: 'refresh'", result)
+
+    def test_compiles_fluorite_style_conditional_damage_modifier(self) -> None:
+        source = definition(
+            blackboard=(SimpleNamespace(key="dmg_up", value=0.2),),
+            damageModifiers=(
+                SimpleNamespace(
+                    enabledSide="Attacker",
+                    targetSource="Target",
+                    targetGroupKey="",
+                    tagQueryType="hasAny",
+                    tagIds=(1925762097,),
+                    processors=(
+                        SimpleNamespace(
+                            side="Attacker",
+                            zone="NormalCalcZone",
+                            addition=scalar(0.2, "dmg_up"),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("kind: 'entityTagMatch'", result)
+        self.assertIn("target: 'enemy'", result)
+        self.assertIn("tagQueryType: 'hasAny'", result)
+        self.assertIn("tagIds: [1925762097]", result)
+        self.assertIn("zone: 'normal'", result)
+        self.assertIn("addition: { blackboardKey: 'dmg_up' }", result)
 
 
 if __name__ == "__main__":
