@@ -361,6 +361,18 @@ class TimedIntervalDamageSource:
 
 
 @dataclass(frozen=True)
+class TimedAbilityEntityFinishSource:
+    """能力实体子 SkillData 在本地时间轴上显式结束自身。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    target: "TargetReferenceSource"
+    skipDieDisplay: bool
+    sequenceIndex: int = -1
+
+
+@dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
     actionOrder: tuple[int, ...]
@@ -371,6 +383,7 @@ class AbilityEntityHitSource:
     spawnPayload: "AbilityEntitySpawnPayload"
     directDamageHits: tuple[TimedDamageSource, ...]
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...]
+    explicitFinishes: tuple[TimedAbilityEntityFinishSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]

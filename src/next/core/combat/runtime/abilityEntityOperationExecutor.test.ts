@@ -159,6 +159,14 @@ describe('AbilityEntityOperationExecutor', () => {
       ),
     ).toBe(true);
     expect(entities.snapshot(entity).remainingDurationSeconds).toBe(30);
+
+    expect(
+      executor.execute(
+        { kind: 'finishCurrentAbilityEntity', parameters: {} },
+        { blackboard, currentTarget: entity },
+      ),
+    ).toBe(true);
+    expect(entities.activeCount).toBe(0);
   });
 
   it('advances an embedded child timeline with the entity local clock', () => {
@@ -227,5 +235,52 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(operationContext?.blackboard.getNumber('local')).toBe(3);
     expect(operationContext?.blackboard.getNumber('inherited')).toBe(7);
     expect(operationContext?.blackboard.getNumber('inheritedParent')).toBe(11);
+  });
+
+  it('allows an embedded child timeline to finish its own host entity', () => {
+    const entities = new LogicalAbilityEntityRuntime({
+      templates: [
+        {
+          id: 'self-finishing-host',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          maxStackingCount: -1,
+        },
+      ],
+    });
+    const delegate = { execute: () => false, evaluate: () => false };
+    let executor!: AbilityEntityOperationExecutor;
+    executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
+      resolveOperations: () => executor,
+    });
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          templateId: 'self-finishing-host',
+          childSkillId: 'self-finishing-skill',
+          dieWhenSourceDies: false,
+          inheritActionBlackboard: false,
+          childSkill: {
+            skillId: 'self-finishing-skill',
+            initialBlackboard: {},
+            timelineActions: [
+              {
+                startFrame: 1,
+                sequence: {
+                  steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }],
+                },
+              },
+            ],
+          },
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    expect(entities.activeCount).toBe(1);
+    entities.advanceFrame();
+    expect(entities.activeCount).toBe(0);
   });
 });

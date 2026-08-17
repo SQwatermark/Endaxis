@@ -30,6 +30,7 @@ from source_models import (
     ProjectileTriggeredSkillSource,
     ProjectileLaunchSource,
     TimedIntervalDamageSource,
+    TimedAbilityEntityFinishSource,
     AbilityEntityHitSource,
     AbilityEntityTimeDilationTargetSource,
     ResolvedDamageHitSource,
@@ -2841,6 +2842,61 @@ def parse_auxiliary_actions(
     return tuple(result)
 
 
+def parse_ability_entity_finishes(
+    root: dict[str, Any],
+    source_name: str,
+) -> tuple[TimedAbilityEntityFinishSource, ...]:
+    """解析能力实体子时间轴中明确以 Owner 为目标的 FinishOwnerAction。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "owner",
+        "skipDieDisplay",
+    }
+    result: list[TimedAbilityEntityFinishSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        for action in walk_single_enemy_actions(
+            timeline.get("_sequenceActionData"),
+            f"{timeline_path}._sequenceActionData",
+        ):
+            if (
+                action_name(action["$type"]) != "FinishOwnerAction"
+                or action.get("isEnable") is False
+            ):
+                continue
+            path = f"{timeline_path}.FinishOwnerAction"
+            unknown_fields = sorted(set(action) - fields)
+            if unknown_fields:
+                raise ValueError(f"{path}: unsupported fields {unknown_fields}")
+            result.append(
+                TimedAbilityEntityFinishSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(action, path),
+                    target=parse_target_reference(action.get("owner"), f"{path}.owner"),
+                    skipDieDisplay=require_bool(
+                        action.get("skipDieDisplay"), f"{path}.skipDieDisplay"
+                    ),
+                    sequenceIndex=timeline_index,
+                )
+            )
+    return tuple(result)
+
+
 def parse_resource_gains(
     root: dict[str, Any],
     source_name: str,
@@ -3493,6 +3549,7 @@ def resolve_ability_entity_payload(
         spawnPayload=payload,
         directDamageHits=parse_direct_damage_hits(child, child_name, child_blackboard),
         intervalDamageHits=parse_interval_damage_hits(child, child_name, child_blackboard),
+        explicitFinishes=parse_ability_entity_finishes(child, child_name),
         conditionalActions=child_conditions,
         inflictions=parse_inflictions(child, child_name),
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, child_blackboard),
@@ -7231,6 +7288,7 @@ def ability_entity_child_timeline_can_compile(
         and bool(
             getattr(hit, "directDamageHits", ())
             or getattr(hit, "intervalDamageHits", ())
+            or getattr(hit, "explicitFinishes", ())
             or getattr(hit, "inflictions", ())
             or getattr(hit, "conditionalActions", ())
         )
@@ -7243,6 +7301,10 @@ def ability_entity_child_timeline_can_compile(
             )
             for action in getattr(hit, "auxiliaryActions", ())
         )
+        and all(
+            finish.target.targetSource == "Owner" and target_reference_is_plain(finish.target)
+            for finish in getattr(hit, "explicitFinishes", ())
+        )
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())
@@ -7252,7 +7314,13 @@ def ability_entity_child_timeline_can_compile(
         and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
         and set(getattr(hit, "combatActions", ()))
-        <= {"CreateBuffAction", "DamageAction", "ObtainCostAction", "SpellInfliction"}
+        <= {
+            "CreateBuffAction",
+            "DamageAction",
+            "FinishOwnerAction",
+            "ObtainCostAction",
+            "SpellInfliction",
+        }
     )
 
 
@@ -7370,6 +7438,24 @@ def compile_ability_entity_child_skill(
                 native_sequence_order(action, hit.actionOrder, hit.skillId),
                 (*hit.actionOrder, action.actionIndex),
                 source.splitlines(),
+            )
+        )
+
+    emitted_finish_frames: set[int] = set()
+    for finish in sorted(
+        getattr(hit, "explicitFinishes", ()),
+        key=lambda item: (item.startFrame, item.sequenceIndex, item.actionIndex),
+    ):
+        # 结束宿主是终止性操作；同一局部帧的后续等价 Owner 结束在原生中已无活动实体可处理。
+        if finish.startFrame in emitted_finish_frames:
+            continue
+        emitted_finish_frames.add(finish.startFrame)
+        compiled.append(
+            (
+                finish.startFrame,
+                native_sequence_order(finish, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, finish.actionIndex),
+                ["step('finishCurrentAbilityEntity', {})"],
             )
         )
 

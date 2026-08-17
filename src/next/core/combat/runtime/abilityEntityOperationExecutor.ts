@@ -79,6 +79,13 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       );
       return true;
     }
+    if (step.kind === 'finishCurrentAbilityEntity') {
+      if (context?.currentTarget === undefined) {
+        throw new Error('AbilityEntity finish requires a current Context target');
+      }
+      this.#entities.finish(context.currentTarget, 'explicit');
+      return true;
+    }
     if (step.kind !== 'spawnAbilityEntity') return this.#delegate.execute(step, context);
     if (context === undefined) {
       throw new Error('spawnAbilityEntity requires a combat operation context');

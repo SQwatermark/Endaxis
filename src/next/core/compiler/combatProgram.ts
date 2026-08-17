@@ -63,6 +63,7 @@ export interface ResolvedCombatStepParameters {
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
   readAbilityEntityRemainingDuration: CombatStepParameters['readAbilityEntityRemainingDuration'];
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
+  finishCurrentAbilityEntity: CombatStepParameters['finishCurrentAbilityEntity'];
   spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'childSkill'> & {
     readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
   };

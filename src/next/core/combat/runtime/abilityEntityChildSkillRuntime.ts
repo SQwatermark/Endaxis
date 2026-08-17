@@ -84,7 +84,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
 
   finish(): void {
     if (!this.#started || this.#finished) return;
-    this.#timeline.end(this.#passedFrames, this.#context);
     this.#finished = true;
+    this.#timeline.end(this.#passedFrames, this.#context);
   }
 }

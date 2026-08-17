@@ -1654,6 +1654,7 @@
         "forEachContextTarget": "对施法上下文中已经固定的目标句柄逐一同步执行同一个步骤序列。",
         "readAbilityEntityRemainingDuration": "读取当前 Context 迭代目标的有限剩余时长，并写入本次释放的动作黑板。",
         "setAbilityEntityRemainingDuration": "按原生 Assign 子集设置当前 Context 迭代目标的能力实体剩余时长。",
+        "finishCurrentAbilityEntity": "显式结束当前子时间线或 Context 迭代目标所指向的能力实体。",
         "spawnAbilityEntity": "在场景级逻辑目录中创建能力实体，保留模板、归属、目标、时长和黑板；空间查找按当前简化模型处理。",
         "applyElementalInfliction": "向敌人施加元素附着。附着本身不是伤害，但可参与后续元素反应。",
         "applyElementalReaction": "直接施加指定元素反应及其持续时间和效果强度。",

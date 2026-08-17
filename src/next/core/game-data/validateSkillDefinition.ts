@@ -715,6 +715,9 @@ function validateCombatStep(
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
+    case 'finishCurrentAbilityEntity':
+      if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
+      break;
     case 'spawnAbilityEntity': {
       requireString(parameters, 'templateId', `${path}.parameters`, out);
       if (parameters.childSkillId !== undefined) {

@@ -4615,6 +4615,54 @@ export const fluoriteGeneratedSource = {
                 }
               ],
               "intervalDamageHits": [],
+              "explicitFinishes": [
+                {
+                  "startFrame": 90,
+                  "endFrame": 90,
+                  "actionIndex": 14,
+                  "target": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "selectorOwner": "ActionOwner",
+                    "ownerContextKey": "",
+                    "centerType": "ActionSource",
+                    "centerContextKey": "",
+                    "centerToGround": false,
+                    "target": "ActionSource",
+                    "targetContextKey": "",
+                    "enableAdvancedDirection": false,
+                    "selectorDirection": "SourceForward",
+                    "finderType": null,
+                    "validatorTypes": [],
+                    "postProcessorTypes": []
+                  },
+                  "skipDieDisplay": false,
+                  "sequenceIndex": 2
+                },
+                {
+                  "startFrame": 150,
+                  "endFrame": 150,
+                  "actionIndex": 28,
+                  "target": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "selectorOwner": "ActionOwner",
+                    "ownerContextKey": "",
+                    "centerType": "ActionSource",
+                    "centerContextKey": "",
+                    "centerToGround": false,
+                    "target": "ActionSource",
+                    "targetContextKey": "",
+                    "enableAdvancedDirection": false,
+                    "selectorDirection": "SourceForward",
+                    "finderType": null,
+                    "validatorTypes": [],
+                    "postProcessorTypes": []
+                  },
+                  "skipDieDisplay": false,
+                  "sequenceIndex": 4
+                }
+              ],
               "conditionalActions": [
                 {
                   "startFrame": 89,

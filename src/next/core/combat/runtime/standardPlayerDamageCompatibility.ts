@@ -111,6 +111,7 @@ function inspectSequence(
       case 'findOwnerSpawnedAbilityEntities':
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':
+      case 'finishCurrentAbilityEntity':
         return;
       case 'dealDamage': {
         if (source === 'equipment') {

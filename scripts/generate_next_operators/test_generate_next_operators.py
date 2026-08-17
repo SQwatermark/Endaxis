@@ -94,6 +94,7 @@ from generate_next_operators import (
     parse_timeline,
     parse_time_dilations,
     parse_target_group_writes,
+    parse_target_reference,
     parse_direct_damage_hits,
     parse_entity_blackboard_assignments,
     parse_interval_damage_hits,
@@ -7859,6 +7860,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             skillId="child_skill",
             directDamageHits=(),
             intervalDamageHits=(),
+            explicitFinishes=(
+                SimpleNamespace(
+                    startFrame=8,
+                    actionIndex=6,
+                    sequenceIndex=6,
+                    target=parse_target_reference(target_settings_fixture("Owner"), "fixture"),
+                ),
+                SimpleNamespace(
+                    startFrame=8,
+                    actionIndex=7,
+                    sequenceIndex=7,
+                    target=parse_target_reference(target_settings_fixture("Owner"), "fixture"),
+                ),
+            ),
             inflictions=(TimedInflictionSource(1, 1, 1, "heat", False),),
             conditionalActions=(),
             auxiliaryActions=(application, ultimate_energy_gain),
@@ -7888,6 +7903,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('applyBuff'", source)
         self.assertIn("target: 'caster'", source)
         self.assertIn("step('gainSquadUltimateEnergyFromSkillCost'", source)
+        self.assertEqual(source.count("step('finishCurrentAbilityEntity'"), 1)
         self.assertNotIn("ignored_for_source", source)
 
     def test_ability_entity_child_owner_buff_remains_outside_strict_subset(self) -> None:
@@ -7978,7 +7994,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "costValue": {"useBlackboardKey": False, "value": 5, "blackboardKey": ""},
                             "coefficient": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
                         },
-                    }
+                    },
+                    {
+                        "_startFrame": 9,
+                        "_endFrame": 9,
+                        "_sequenceActionData": {
+                            "$type": "Example.FinishOwnerAction+Data, Example",
+                            "serverActionIndex": 1,
+                            "isEnable": True,
+                            "priorityLevel": "Default",
+                            "priorityOffset": 0,
+                            "owner": target_settings_fixture("Owner"),
+                            "skipDieDisplay": False,
+                        },
+                    },
                 ]
             }
         }
@@ -7997,6 +8026,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(hits[0].resourceGains[0].spGainKind, "gain")
         self.assertEqual(hits[0].resourceGains[0].spGainSource, "normalAttack")
         self.assertTrue(hits[0].resourceGains[0].onlyMainOperator)
+        self.assertEqual(hits[0].explicitFinishes[0].startFrame, 9)
+        self.assertEqual(hits[0].explicitFinishes[0].target.targetSource, "Owner")
+        self.assertFalse(hits[0].explicitFinishes[0].skipDieDisplay)
 
     def test_ability_entity_inherits_parent_blackboard_before_parsing_child_actions(self) -> None:
         spawn = {

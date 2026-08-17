@@ -8060,6 +8060,7 @@ export const lifengGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [],
           "conditionalActions": [
             {
               "startFrame": 67,

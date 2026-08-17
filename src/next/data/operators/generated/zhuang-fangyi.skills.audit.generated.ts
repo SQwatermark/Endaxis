@@ -139,6 +139,12 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
                     }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:22:14'),
                   ),
                 ),
+                scheduled(
+                  897,
+                  sequence(
+                    step('finishCurrentAbilityEntity', {}),
+                  ),
+                ),
               ],
             },
           }),
@@ -291,6 +297,12 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
                     }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:22:14'),
                   ),
                 ),
+                scheduled(
+                  897,
+                  sequence(
+                    step('finishCurrentAbilityEntity', {}),
+                  ),
+                ),
               ],
             },
           }),
@@ -367,6 +379,12 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
                       operation: 'assign',
                       value: { kind: 'constant', value: 1 },
                     }),
+                  ),
+                ),
+                scheduled(
+                  897,
+                  sequence(
+                    step('finishCurrentAbilityEntity', {}),
                   ),
                 ),
               ],

@@ -10430,6 +10430,7 @@ export const arclightGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [],
           "conditionalActions": [],
           "inflictions": [
             {

@@ -1659,6 +1659,7 @@
         "forEachContextTarget": "Synchronously executes one step sequence for each stable target handle already stored in the cast context.",
         "readAbilityEntityRemainingDuration": "Reads the finite remaining lifetime of the current iterated Context target into this cast's action blackboard.",
         "setAbilityEntityRemainingDuration": "Assigns the remaining lifetime of the current iterated ability entity using the proven native Assign subset.",
+        "finishCurrentAbilityEntity": "Explicitly finishes the ability entity referenced by the current child timeline or iterated Context target.",
         "spawnAbilityEntity": "Creates an ability entity in the scene-wide logical directory, preserving its template, owner, target, lifetime, and blackboard under the simplified spatial model.",
         "applyElementalInfliction": "Applies elemental infliction to the enemy for later elemental reactions.",
         "applyElementalReaction": "Directly applies an elemental reaction with duration and effectiveness.",

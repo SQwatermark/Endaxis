@@ -4006,6 +4006,31 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 30,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 7
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -6279,6 +6304,31 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 30,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 7
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -7680,6 +7730,54 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 5,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 3
+            },
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 9,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 7
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11080,6 +11178,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11215,6 +11338,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11350,6 +11498,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11485,6 +11658,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15505,6 +15703,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15640,6 +15863,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15775,6 +16023,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15910,6 +16183,31 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 897,
+              "endFrame": 900,
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 6
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -18378,6 +18676,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -21496,6 +21795,7 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
+                            "explicitFinishes": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -22346,6 +22646,7 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
+                            "explicitFinishes": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -26309,6 +26610,7 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
+                                  "explicitFinishes": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -26969,6 +27271,7 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
+                                  "explicitFinishes": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -28098,6 +28401,7 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
+                                  "explicitFinishes": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -28976,6 +29280,7 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
+                                  "explicitFinishes": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -29427,6 +29732,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [],
           "conditionalActions": [
             {
               "startFrame": 12,

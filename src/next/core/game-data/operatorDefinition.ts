@@ -444,6 +444,8 @@ export interface CombatStepParameters {
   setAbilityEntityRemainingDuration: {
     value: ActionValueOperand;
   };
+  /** 结束当前 Context 迭代目标所指向的能力实体。 */
+  finishCurrentAbilityEntity: Record<string, never>;
   /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
   spawnAbilityEntity: {
     templateId: string;
@@ -659,6 +661,7 @@ export const COMBAT_STEP_KINDS = [
   'forEachContextTarget',
   'readAbilityEntityRemainingDuration',
   'setAbilityEntityRemainingDuration',
+  'finishCurrentAbilityEntity',
   'spawnAbilityEntity',
   'applyElementalInfliction',
   'applyElementalReaction',

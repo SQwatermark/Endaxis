@@ -217,6 +217,16 @@ export interface GeneratedTimedIntervalDamageSource extends GeneratedNativeSeque
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
 }
 
+/** 能力实体子时间轴中显式结束当前宿主实体的原生动作。 */
+export interface GeneratedTimedAbilityEntityFinishSource extends GeneratedNativeSequenceMember {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly target: GeneratedTargetReferenceSource;
+  /** 原生死亡表现开关；零空间战斗模型仅保留证据，不解释表现。 */
+  readonly skipDieDisplay: boolean;
+}
+
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
 export interface GeneratedAbilityEntityHitSource {
   readonly spawnFrame: number;
@@ -231,6 +241,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly spawnPayload: GeneratedAbilityEntitySpawnPayload;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly intervalDamageHits: readonly GeneratedTimedIntervalDamageSource[];
+  readonly explicitFinishes: readonly GeneratedTimedAbilityEntityFinishSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];

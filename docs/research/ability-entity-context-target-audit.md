@@ -236,6 +236,26 @@ it is not aliased to the caster. Laevatain's normal-skill entity is the sole
 current corpus match: its 11 energy Buff applications and 11 skill-cost
 ultimate-energy gains now remain beside the damage on local frames 18–62.
 
+Direct IL2CPP evidence also closes the non-conditional child-host termination
+shape. `FinishOwnerAction.ExecuteInternal` is at RVA `0x06CF5E28` in the same
+hashed desktop module. It resolves the declared target before dispatching the
+finish call by entity kind; the strict AbilityEntity child samples use plain
+`Owner`, which is the child host established above. The formal child DSL now
+exposes only that exact operation as `finishCurrentAbilityEntity`. It is valid
+only with a current iterated/child target, removes the logical instance with an
+explicit finish reason, and symmetrically ends its active child sequences. A
+runtime regression executes the operation from inside the child interpreter,
+rather than only calling the entity directory directly.
+
+The generator preserves `skipDieDisplay` as presentation evidence but does not
+assign it combat semantics. It emits one terminal operation per local frame
+for enabled, field-exact `FinishOwnerAction(Owner)` samples and rejects other
+targets. Duplicate equivalent Owner finishes on one frame collapse after the
+first terminal operation. Zhuang Fangyi basic attacks 2, 4 and 5 now keep their
+observed local frame 897 termination in audit output; attack 5's two equivalent
+same-frame actions execute once. Conditional finish actions and Buff lifecycle
+callbacks are not covered by this direct-timeline slice.
+
 This partial migration still does not justify generator compilation of
 `effectAbilityEntityTargets` for the four blocked combo skills. An owner/tag
 query can select entities created by other skills, so the compiler needs an
@@ -247,14 +267,19 @@ compiled.
 
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.
-Entity-target Buff ownership, projectile source identity, explicit entity
+Entity-target Buff ownership, projectile source identity, conditional entity
 finish, and target mutation are not yet exposed. Proven child actions now run
 only on their owning entity timeline; their former parent projections are
 removed in the same compilation pass so they cannot execute twice.
 
-The next safe slice is the minimal Buff container required by child
-`Owner`/selected-entity applications, without widening ordinary combat targets
-or inventing spatial behavior. Li Zhiyan's positional spawn-target projection
+The next safe slice is the minimal reusable Buff lifecycle bridge required by
+child `Owner`/selected-entity applications. The three real child-Owner Buff
+consumers are not static ID attachments: they contain periodic triggers,
+conditions, Aura or finish-host behavior. The bridge must therefore reuse the
+existing Buff instance/lifecycle execution model with an AbilityEntity owner
+context; a separate entity-only Buff map would lose observed behavior. This
+does not widen ordinary combat targets or invent spatial behavior. Li Zhiyan's
+positional spawn-target projection
 can follow independently. Avywenna's projectile launch-point semantics, Camille's target
 mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.

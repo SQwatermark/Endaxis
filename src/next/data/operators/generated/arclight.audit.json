@@ -6544,6 +6544,7 @@
             }
           ],
           "intervalDamageHits": [],
+          "explicitFinishes": [],
           "conditionalActions": [],
           "inflictions": [
             {

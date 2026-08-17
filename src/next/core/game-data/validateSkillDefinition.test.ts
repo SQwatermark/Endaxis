@@ -546,6 +546,39 @@ describe('validateSkillDefinition', () => {
     ).toBe(true);
   });
 
+  it('requires an entity iteration target for explicit AbilityEntity finish', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: { steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }] },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].sequence.steps[0]',
+      message: 'requires a forEachContextTarget body',
+    });
+
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'forEachContextTarget',
+              parameters: { contextKey: 'entities' },
+              body: {
+                steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }],
+              },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+
   it('rejects conditional without whenTrue', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

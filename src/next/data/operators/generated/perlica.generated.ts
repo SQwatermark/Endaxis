@@ -7172,6 +7172,31 @@ export const perlicaGeneratedSource = {
           },
           "directDamageHits": [],
           "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 54,
+              "endFrame": 54,
+              "actionIndex": 2,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 2
+            }
+          ],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
