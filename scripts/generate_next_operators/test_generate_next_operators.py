@@ -111,6 +111,7 @@ from generate_next_operators import (
     resource_gain_can_change_value,
     filter_once_resource_gains,
     resolve_projectile_triggered_skills,
+    select_projectile_triggers_for_single_enemy,
     resolve_conditional_projectile_triggers,
     resolve_conditional_aura_ability_entity_children,
     resolve_ability_entity_hits,
@@ -138,6 +139,7 @@ from generate_next_operators import (
     walk_single_enemy_actions,
     walk_unconditional_actions,
 )
+from keyword_action_parser import parse_timed_keyword_actions
 
 
 def target_settings_fixture(
@@ -6698,6 +6700,71 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ProjectileSkillTriggerSource("reach", "skill.reach"),
             ),
         )
+
+    def test_guaranteed_hit_drops_the_same_child_skills_block_fallback(self) -> None:
+        triggers = (
+            ProjectileSkillTriggerSource("hit", "skill.hit"),
+            ProjectileSkillTriggerSource("block", "skill.hit"),
+            ProjectileSkillTriggerSource("block", "skill.block-only"),
+        )
+
+        self.assertEqual(
+            select_projectile_triggers_for_single_enemy(triggers),
+            (
+                ProjectileSkillTriggerSource("hit", "skill.hit"),
+                ProjectileSkillTriggerSource("block", "skill.block-only"),
+            ),
+        )
+
+    def test_slow_action_preserves_duration_rate_and_native_order(self) -> None:
+        action = {
+            "$type": "Example.SlowAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 7,
+            "source": target_settings_fixture("Source"),
+            "target": target_settings_fixture("Target"),
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 3.1,
+                "blackboardKey": "duration",
+            },
+            "rate": {
+                "useBlackboardKey": True,
+                "value": 0,
+                "blackboardKey": "move_speed_scalar",
+            },
+            "overrideChildBuffId": False,
+            "childBuffId": {
+                "useBlackboardKey": False,
+                "value": "",
+                "blackboardKey": "",
+            },
+            "asChildBuff": False,
+            "enhancingList": [],
+            "autoFinishByAction": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 12,
+                        "_endFrame": 15,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_timed_keyword_actions(
+            root, "slow.json", {"move_speed_scalar": (0.3, 0.4)}
+        )
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual((parsed[0].startFrame, parsed[0].actionIndex), (12, 7))
+        self.assertEqual(parsed[0].duration.value, 3.1)
+        self.assertEqual(parsed[0].rate.levelValues, (0.3, 0.4))
 
     def test_primary_target_marker_excludes_projectile_child_combat_in_single_enemy_model(self) -> None:
         root = {

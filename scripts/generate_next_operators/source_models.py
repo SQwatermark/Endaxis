@@ -82,6 +82,7 @@ __all__ = [
     "DeclaredBlackboardValueSource",
     "TargetGroupInputSource",
     "TargetGroupWriteSource",
+    "TimedKeywordActionSource",
     "SkillSource",
     "ResolvedScheduleItemType",
 ]
@@ -276,6 +277,22 @@ class TimedTimeDilationSource:
 
 
 @dataclass(frozen=True)
+class TimedKeywordActionSource:
+    """原生关键词动作在技能时间轴中的必要战斗语义。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    kind: Literal["slow"]
+    source: "TargetReferenceSource"
+    target: "TargetReferenceSource"
+    duration: ScalarSource
+    rate: ScalarSource
+    autoFinishByAction: bool
+    sequenceIndex: int = -1
+
+
+@dataclass(frozen=True)
 class ProjectileSkillTriggerSource:
     event: Literal["hit", "block", "reach", "finish"]
     skillId: str
@@ -302,6 +319,7 @@ class ProjectileTriggeredSkillSource:
     nestedProjectileTriggeredSkills: tuple["ProjectileTriggeredSkillSource", ...]
     abilityEntityHits: tuple["AbilityEntityHitSource", ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
+    keywordActions: tuple[TimedKeywordActionSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -353,6 +371,7 @@ class AbilityEntityHitSource:
     buffBlackboardReads: tuple[BuffBlackboardReadSource, ...] = ()
     buffFinishes: tuple[BuffFinishSource, ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
+    keywordActions: tuple[TimedKeywordActionSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -379,6 +398,7 @@ ResolvedScheduleItemType = Literal[
     "buffApplication",
     "eventListener",
     "timeDilation",
+    "keywordAction",
 ]
 
 
@@ -402,6 +422,7 @@ class ResolvedScheduleItemSource:
         " | TimedInflictionSource"
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
+        " | TimedKeywordActionSource"
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None
@@ -1113,3 +1134,4 @@ class SkillSource:
     physicalInflictions: tuple[TimedPhysicalInflictionSource, ...] = ()
     eventListeners: tuple[SkillEventListenerSource, ...] = ()
     timeDilations: tuple[TimedTimeDilationSource, ...] = ()
+    keywordActions: tuple[TimedKeywordActionSource, ...] = ()

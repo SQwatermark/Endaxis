@@ -106,30 +106,6 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
             tags: ['normalAttack', 'normalAttackLastCombo'],
             stagger: 15,
           }, '12:basicAttack410:projectile23:chr_0022_bounda_attack431:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([60, 66, 72, 78, 84, 90, 96, 102, 108, 116, 125, 135]),
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: 15,
-          }, '12:basicAttack410:projectile23:chr_0022_bounda_attack431:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-          ),
           branch(
             {
               kind: 'all',
@@ -174,30 +150,6 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
             tags: ['normalAttack', 'normalAttackLastCombo'],
             stagger: 15,
           }, '12:basicAttack510:projectile25:chr_0022_bounda_attack4_131:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([60, 66, 72, 78, 84, 90, 96, 102, 108, 116, 125, 135]),
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: 15,
-          }, '12:basicAttack510:projectile25:chr_0022_bounda_attack4_131:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-          ),
           branch(
             {
               kind: 'all',
@@ -331,17 +283,31 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        10,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_affixes_slow',
+            definition: {
+              stackingType: 'highPriority',
+              priority: { blackboardKey: 'rate' },
+              maxStackCount: 1,
+              durationSeconds: { blackboardKey: 'duration' },
+              applyTagIds: [1925762097],
+              blackboard: { rate: 0, duration: 0 },
+            },
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+              duration: { kind: 'constant', value: 3.1 },
+            },
+          }),
+        ),
+      ),
+      scheduled(
         99,
         sequence(
           step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-          step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:01:6'),
           step('dealDamage', {
             damageType: 'nature',
             attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
@@ -355,14 +321,6 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         159,
         sequence(
           step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-          step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:02:20'),
           step('dealDamage', {
             damageType: 'nature',
             attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),

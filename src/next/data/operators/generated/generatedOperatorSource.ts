@@ -155,6 +155,19 @@ export interface GeneratedTimedResourceGainSource
   readonly onceActionValueKey: string | null;
 }
 
+/** 原生关键词动作中会影响固定单敌人战斗判断的部分。 */
+export interface GeneratedTimedKeywordActionSource extends GeneratedNativeSequenceMember {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly kind: 'slow';
+  readonly source: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly duration: GeneratedScalarSource;
+  readonly rate: GeneratedScalarSource;
+  readonly autoFinishByAction: boolean;
+}
+
 export interface GeneratedProjectileSkillTriggerSource {
   readonly event: 'hit' | 'block' | 'reach' | 'finish';
   readonly skillId: string;
@@ -186,6 +199,7 @@ export interface GeneratedProjectileTriggeredSkillSource {
   readonly nestedProjectileTriggeredSkills: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   readonly auraActions: readonly GeneratedAuraActionSource[];
+  readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
 }
 
 export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
@@ -233,6 +247,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly auraActions: readonly GeneratedAuraActionSource[];
+  readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
 }
 
 /** BuffData 自身的计时与叠加事实。 */
@@ -938,6 +953,7 @@ export interface GeneratedSkillSource {
   readonly physicalInflictions: readonly GeneratedTimedPhysicalInflictionSource[];
   readonly eventListeners: readonly GeneratedSkillEventListenerSource[];
   readonly timeDilations: readonly GeneratedTimedTimeDilationSource[];
+  readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

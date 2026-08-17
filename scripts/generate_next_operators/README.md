@@ -47,6 +47,7 @@
 - `target_parser.py`：严格解析目标选择器和目标引用，但不负责将其归约为单敌人语义。
 - `action_payload_parser.py`：解析标量、伤害、Buff、资源、投射物和能力实体等可复用动作载荷。
 - `conditional_parser.py`：保留条件动作及其有序成功、失败分支，生成可审计控制流中间层。
+- `keyword_action_parser.py`：严格解析减速等关键词动作；当前只转换战斗模型能够精确表达的减速子集。
 - `progression_renderer.py`：将已解析的天赋、潜能来源事实转换为 `OperatorDefinition` 养成片段；后续全干员养成转换统一从这里扩展。
 - `audit_operator_progression.py`：盘点全干员天赋/潜能载荷，并单独审计潜能中的四维属性加点是否能够完整转换。
 - `audit_all_operators.py`：对全部干员入口执行严格解析与试编译，记录覆盖率和首个阻塞原因，不保存试编译产生的最终 DSL。
@@ -120,7 +121,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 
 ## 当前边界
 
-- Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。
+- Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若同一子技能同时绑定 `hit` 与 `block`，后者是碰撞结果的兜底路径，必命中投影只执行 `hit`，但审计层仍保留完整触发配置。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。
 - Buff 施加单独支持 `party` 集合目标：只有未附带筛选器或后处理器的 `CharacterTeamFinder` 目标组才能归约为当前全部存活干员。Buff 查询、结束和条件仍要求 `caster/enemy` 单一实体；主控筛选、召唤物和父级上下文目标不得借用 `party` 近似。
 - `InstantSearch` Buff 目标会在中间层保留 finder、validator 与 post-processor 类型；目前也只有无过滤、无后处理的 `CharacterTeamFinder` 能直接归约为 `party`，其他即时搜索继续显式阻塞。
 - `TargetSource.Source/Owner` 按原生分派忽略不会被读取的 `targetGroupKey`；根技能的 `CreateBuffAction.buffSource=InputTarget` 则归约为唯一敌人来源。两者都来自目标解析证据，不把命名组猜成实际目标。
@@ -152,7 +153,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - 含 `conditionalActions` 的技能只能交给能够消费完整条件树的统一序列编译器。即使成功/失败分支当前看起来相同，也不能在条件类型及其副作用尚未完整解析时提前消去；只有清单明确列出且已人工确认不影响战斗的表现 Buff，才允许从对应分支过滤。若过滤后分支完全为空，则连同无副作用条件节点一起省略。审计阶段始终保留完整来源树，不得生成遗漏条件分支的“部分技能”。
 - 佩丽卡已经完整生成并作为正式数据入口；新增干员前应优先把所需通用语义编译器补齐，避免在清单中复制手写 TS。
 - `CreateBuffAction` 引用的 BuffData 已在审计层保留持续时间、周期、首轮等待、触发次数、叠加身份、叠加策略、优先级和最大层数；这些字段会解析动作传入值及 Buff 自身黑板引用。事件顶层直接创建 Buff 时，还会保留 `actionIndex`、目标、次数、来源、施法身份继承及完整黑板传值；条件分支内的创建动作仍由条件树保存。事件动作尚未完整编译前，它们仍是中间层事实，不能只凭 Buff ID 生成一个无行为的 `applyBuff`。
-- BuffData 中已确认的 `CheckTagMatch(Target) -> DamageScaleProcessor` 会转换为内联 `damageModifiers`：标签查询保持原始有符号 CRC-32 ID，增伤值可从当前 Buff 实例黑板动态读取，并在标准伤害环境的原生增伤区间中结算。萤石第一天赋已走通“目标带减速标签时增伤”这一消费链；战技 `SlowAction` 如何向敌人实体登记同一减速标签仍未转换，因此不能据此宣称萤石技能循环已经完整闭环。
+- BuffData 中已确认的 `CheckTagMatch(Target) -> DamageScaleProcessor` 会转换为内联 `damageModifiers`：标签查询保持原始有符号 CRC-32 ID，增伤值可从当前 Buff 实例黑板动态读取，并在标准伤害环境的原生增伤区间中结算。`SlowAction` 当前会按原生 `buff_common_affixes_slow` 投影为高优先级 Buff，保留时长、倍率优先级和减速 GameplayTag；移动速度修正与图标子 Buff 不属于固定单敌人战斗模型，不进入模拟。随动作结束、子 Buff 覆盖和增强链尚未闭环，出现这些形状会明确报错。萤石战技的基础减速与第一天赋“目标带减速标签时增伤”消费链已经贯通；潜能条件分支中的延长减速仍需接入条件动作编译。
 - 每个技能的 `referencedBuffIds` 会遍历完整动作树并列出直接 Buff 依赖，包含条件分支中的创建动作；它只是构建定义目录的入口，不会把条件分支中的应用提升为无条件步骤。原动作树继续保存应用时机和参数。
 - 干员级 `buffDefinitions` 汇总所有技能的直接依赖，递归扫描 Buff 时间轴与事件动作创建的间接依赖，并按 Buff ID 去重；循环引用不会造成重复或无限递归，缺失数据源会被明确记录。定义只使用 Buff 自身黑板默认值，并保留原生 GameplayTag ID、原生八槽属性修正、时间轴伤害/条件/黑板/资源动作及事件动作；事件通过 `eventSource` 区分 Buff 生命周期事件和宿主实体事件，通过 `orderedActionTypes` 保留启用动作的原生顺序，并只保存创建依赖边，不嵌套复制子定义。技能应用时传入的覆盖值仍留在 `CreateBuffAction` 载荷中，生成结果不再保存一份合并应用覆盖值的 `buffBehaviors` 派生快照。当前属性修正仍是可审计事实，尚未映射到运行时目录；伤害修正器也尚未解析。Buff 根级别存在但尚未结构化解析的非空载荷会进入 `unparsedPayloads`，记录字段名和条目数；该列表非空时不得把对应定义视为完整运行时行为。
 - `adaptGeneratedBuffDefinition` 是审计事实进入通用 Buff 目录的严格边界。它只接受数据源存在、没有未解析根载荷、没有尚未表达的生命周期动作且属性目标为 `Specific` 的定义；属性名称与八槽值保持原生语义，不转换成旧版状态快捷项。任一条件不满足都会抛错，不能生成无行为 Buff 或部分定义。

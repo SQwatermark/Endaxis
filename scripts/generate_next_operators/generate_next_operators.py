@@ -25,6 +25,7 @@ from source_models import (
     TimedPhysicalInflictionSource,
     TimedResourceGainSource,
     TimedTimeDilationSource,
+    TimedKeywordActionSource,
     TimeScaleCurveKeySource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
@@ -169,6 +170,7 @@ from target_parser import (
     selector_component_name,
 )
 from buff_definition_compiler import compile_inline_buff_definition
+from keyword_action_parser import parse_timed_keyword_actions
 
 
 
@@ -265,6 +267,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "executionFrames",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
+        "keywordActions",
         "targetValidatorTypes",
         "targetPostProcessorTypes",
     }
@@ -2884,7 +2887,10 @@ def resolve_projectile_payload_triggers(
 ) -> tuple[ProjectileTriggeredSkillSource, ...]:
     """解析一次已定位的投射物发射；调用方负责提供其真实帧与动作顺序。"""
     result: list[ProjectileTriggeredSkillSource] = []
-    for trigger in payload.skillTriggers:
+    projected_triggers = select_projectile_triggers_for_single_enemy(
+        payload.skillTriggers
+    )
+    for trigger in projected_triggers:
         trigger_source_name = f"{trigger.skillId}.json"
         trigger_path = source_dir / trigger_source_name
         if not trigger_path.is_file():
@@ -3025,9 +3031,27 @@ def resolve_projectile_payload_triggers(
                 auraActions=parse_aura_actions(
                     trigger_root, trigger_source_name, trigger_blackboard
                 ),
+                keywordActions=parse_timed_keyword_actions(
+                    trigger_root, trigger_source_name, trigger_blackboard
+                ),
             )
         )
     return tuple(result)
+
+
+def select_projectile_triggers_for_single_enemy(
+    triggers: tuple[ProjectileSkillTriggerSource, ...],
+) -> tuple[ProjectileSkillTriggerSource, ...]:
+    """在必命中模型中去掉同一子技能的 block 兜底回调。"""
+    hit_skill_ids = {
+        trigger.skillId for trigger in triggers if trigger.event == "hit"
+    }
+    return tuple(
+        trigger
+        for trigger in triggers
+        # 同一命中技能兼挂 hit/block 是碰撞结果兜底；固定单敌人必命中时只走 hit。
+        if not (trigger.event == "block" and trigger.skillId in hit_skill_ids)
+    )
 
 
 def resolve_projectile_triggered_skills(
@@ -3443,6 +3467,9 @@ def resolve_ability_entity_payload(
         buffBlackboardReads=child_reads,
         buffFinishes=child_finishes,
         auraActions=parse_aura_actions(child, child_name, child_blackboard),
+        keywordActions=parse_timed_keyword_actions(
+            child, child_name, child_blackboard
+        ),
     )
 
 
@@ -4062,6 +4089,18 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for action in getattr(skill, "timeDilations", ())
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="keywordAction",
+            sourcePath=(skill.skillId,),
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(action, (), skill.skillId),
+        )
+        for action in getattr(skill, "keywordActions", ())
+    )
     for projectile in skill.projectileTriggeredSkills:
         collect_projectile_schedule(projectile, result)
     for entity in skill.abilityEntityHits:
@@ -4199,6 +4238,20 @@ def collect_projectile_schedule(
         )
         for infliction in getattr(hit, "inflictions", ())
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit_frame + action.startFrame,
+            actionOrder=(*hit.actionOrder, action.actionIndex),
+            itemType="keywordAction",
+            sourcePath=source_path,
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(
+                action, hit.actionOrder, hit.triggerSkillId
+            ),
+        )
+        for action in getattr(hit, "keywordActions", ())
+    )
     for nested in hit.nestedProjectileTriggeredSkills:
         collect_projectile_schedule(nested, result)
     for entity in getattr(hit, "abilityEntityHits", ()):
@@ -4283,6 +4336,20 @@ def collect_ability_entity_schedule(
             ),
         )
         for infliction in getattr(hit, "inflictions", ())
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit.spawnFrame + action.startFrame,
+            actionOrder=(*hit.actionOrder, action.actionIndex),
+            itemType="keywordAction",
+            sourcePath=source_path,
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(
+                action, hit.actionOrder, hit.skillId
+            ),
+        )
+        for action in getattr(hit, "keywordActions", ())
     )
     for nested in getattr(hit, "nestedAbilityEntityHits", ()):
         collect_ability_entity_schedule(nested, result)
@@ -4888,6 +4955,9 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             root, source_name, resolved_blackboard
         ),
         timeDilations=parse_time_dilations(root, source_name, resolved_blackboard),
+        keywordActions=parse_timed_keyword_actions(
+            root, source_name, resolved_blackboard
+        ),
     )
 
 
@@ -5665,6 +5735,62 @@ def compile_infliction(infliction: TimedInflictionSource) -> str:
         "step('applyElementalInfliction', "
         f"{{ element: {ts_inline_literal(infliction.element)}, "
         f"isExtra: {ts_inline_literal(infliction.isExtra)} }})"
+    )
+
+
+def compile_keyword_action(
+    action: TimedKeywordActionSource,
+    path: str,
+    *,
+    root_skill_context: bool,
+    input_target: Literal["enemy"] | None,
+) -> str:
+    """把关键词动作投影为现有 Buff 步骤；移动效果不属于定点战斗模型。"""
+    if action.kind != "slow":
+        raise ValueError(f"{path}: unsupported keyword action {action.kind!r}")
+    if action.autoFinishByAction:
+        raise ValueError(f"{path}: keyword Buff lifetime tied to its action is not supported")
+    source = resolve_fixed_combat_target(
+        action.source.targetSource,
+        action.source.targetGroupKey,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+    )
+    if source != "caster":
+        raise ValueError(f"{path}: unsupported slow source {action.source.targetSource!r}")
+    target = resolve_fixed_combat_target(
+        action.target.targetSource,
+        action.target.targetGroupKey,
+        root_skill_context=root_skill_context,
+        input_target=input_target,
+    )
+    if target != "enemy":
+        raise ValueError(
+            f"{path}: unsupported slow target "
+            f"{action.target.targetSource!r}/{action.target.targetGroupKey!r}"
+        )
+    duration = compile_condition_operand(action.duration, f"{path}.duration")
+    rate = compile_condition_operand(action.rate, f"{path}.rate")
+    return "\n".join(
+        [
+            "step('applyBuff', {",
+            "  buffId: 'buff_common_affixes_slow',",
+            "  definition: {",
+            "    stackingType: 'highPriority',",
+            "    priority: { blackboardKey: 'rate' },",
+            "    maxStackCount: 1,",
+            "    durationSeconds: { blackboardKey: 'duration' },",
+            "    applyTagIds: [1925762097],",
+            "    blackboard: { rate: 0, duration: 0 },",
+            "  },",
+            "  target: 'enemy',",
+            "  inheritSourceSkillCastInfo: true,",
+            "  blackboardAssignments: {",
+            f"    rate: {rate},",
+            f"    duration: {duration},",
+            "  },",
+            "})",
+        ]
     )
 
 
@@ -7734,6 +7860,8 @@ def compile_resolved_sequence(
             projected_actions.add("CreateBuffAction")
         if getattr(hit, "inflictions", ()):
             projected_actions.add("SpellInfliction")
+        if getattr(hit, "keywordActions", ()):
+            projected_actions.add("SlowAction")
         if hit.nestedProjectileTriggeredSkills:
             projected_actions.add("LaunchProjectile")
         if getattr(hit, "abilityEntityHits", ()):
@@ -7767,6 +7895,8 @@ def compile_resolved_sequence(
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
         allowed_actions.add("ObtainCostAction")
+    if getattr(skill, "keywordActions", ()):
+        allowed_actions.add("SlowAction")
     uncovered_actions = sorted(set(skill.unresolvedCombatActions) - allowed_actions)
     if uncovered_actions:
         raise ValueError(
@@ -7953,6 +8083,14 @@ def compile_resolved_sequence(
             step_lines = compile_time_dilation(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].timeDilation",
+            ).splitlines()
+        elif item.itemType == "keywordAction":
+            payload = cast(TimedKeywordActionSource, item.payload)
+            step_lines = compile_keyword_action(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].keywordAction",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
