@@ -7806,16 +7806,23 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     inputValueKey="",
                 ),
             ),
+            assignBlackboard=True,
             sourceType="ActionSource",
             overrideDuration=ScalarSource(40, None, None),
             saveToContextKey="spawned",
             dieWhenSourceDies=True,
         )
 
-        compiled = compile_logical_ability_entity_spawn(payload, "fixture")
+        compiled = compile_logical_ability_entity_spawn(
+            payload,
+            "fixture",
+            "{ skillId: 'child_skill', scheduledSequences: [] }",
+        )
 
         self.assertIn("step('spawnAbilityEntity'", compiled)
         self.assertIn("childSkillId: 'child_skill'", compiled)
+        self.assertIn("inheritActionBlackboard: true", compiled)
+        self.assertIn("childSkill: { skillId: 'child_skill', scheduledSequences: [] }", compiled)
         self.assertIn("overrideDurationSeconds: { kind: 'constant', value: 40 }", compiled)
         self.assertIn("saveToContextKey: 'spawned'", compiled)
         self.assertIn("'EntityBB_power': { kind: 'constant', value: 3 }", compiled)

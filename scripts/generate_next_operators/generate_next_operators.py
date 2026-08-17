@@ -4044,7 +4044,7 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             actionOrder=entity.actionOrder,
             itemType="abilityEntitySpawn",
             sourcePath=(skill.skillId,),
-            payload=payload,
+            payload=entity,
             inputTarget="enemy",
             sequenceOrder=entity.actionOrder[:-1],
         )
@@ -7140,6 +7140,7 @@ def logical_ability_entity_spawn_can_compile(payload: AbilityEntitySpawnPayload)
 def compile_logical_ability_entity_spawn(
     payload: AbilityEntitySpawnPayload,
     path: str,
+    child_skill: str | None = None,
 ) -> str:
     """把有完整来源证据的 SpawnAbilityEntity 转为逻辑实例生成步骤。"""
     if not logical_ability_entity_spawn_can_compile(payload):
@@ -7150,6 +7151,8 @@ def compile_logical_ability_entity_spawn(
     ]
     if payload.skillId is not None:
         fields.append(f"childSkillId: {ts_inline_literal(payload.skillId)}")
+    if payload.assignBlackboard:
+        fields.append("inheritActionBlackboard: true")
     if payload.target is not None:
         target = zero_distance_target_role(payload.target)
         if target is None:
@@ -7173,7 +7176,148 @@ def compile_logical_ability_entity_spawn(
         assignments.append(f"{ts_inline_literal(assignment.targetKey)}: {operand}")
     if assignments:
         fields.append("blackboardAssignments: { " + ", ".join(assignments) + " }")
+    if child_skill is not None:
+        child_lines = indent_source(f"childSkill: {child_skill}", 2)
+        child_lines[-1] += ","
+        return "\n".join(
+            [
+                "step('spawnAbilityEntity', {",
+                *(f"  {field}," for field in fields),
+                *child_lines,
+                "})",
+            ]
+        )
     return "step('spawnAbilityEntity', { " + ", ".join(fields) + " })"
+
+
+def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bool:
+    """Only migrate child graphs whose complete modeled action set fits one local timeline."""
+    return (
+        getattr(hit, "inheritsSourceBlackboard", False)
+        and not getattr(hit, "cycleTruncated", False)
+        and bool(
+            getattr(hit, "directDamageHits", ())
+            or getattr(hit, "inflictions", ())
+            or getattr(hit, "conditionalActions", ())
+        )
+        and not getattr(hit, "intervalDamageHits", ())
+        and not getattr(hit, "auxiliaryActions", ())
+        and not getattr(hit, "resourceGains", ())
+        and not getattr(hit, "projectileLaunches", ())
+        and not getattr(hit, "projectileTriggeredSkills", ())
+        and not getattr(hit, "nestedAbilityEntityHits", ())
+        and not getattr(hit, "blackboardCalculations", ())
+        and not getattr(hit, "blackboardMutations", ())
+        and not getattr(hit, "buffBlackboardReads", ())
+        and not getattr(hit, "buffFinishes", ())
+        and not getattr(hit, "auraActions", ())
+        and not getattr(hit, "keywordActions", ())
+        and set(getattr(hit, "combatActions", ())) <= {"DamageAction", "SpellInfliction"}
+    )
+
+
+def compile_ability_entity_child_skill(
+    hit: AbilityEntityHitSource,
+    skill: SkillSource,
+    config: dict[str, Any],
+    all_damage_hits: tuple[ResolvedDamageHitSource, ...],
+    runtime_blackboard_keys: frozenset[str],
+) -> str:
+    """Render a proven child graph in entity-local frames without a second action protocol."""
+    if not ability_entity_child_timeline_can_compile(hit):
+        raise ValueError(f"{skill.key}.{hit.skillId}: child timeline is outside the strict subset")
+
+    prefix = hit.actionOrder
+    child_damage_hits = tuple(
+        damage
+        for damage in all_damage_hits
+        if len(damage.actionOrder) > len(prefix)
+        and damage.actionOrder[: len(prefix)] == prefix
+        and hit.skillId in damage.sourcePath
+    )
+    compiled: list[tuple[int, tuple[int, ...], tuple[int, ...], list[str]]] = []
+    for damage in child_damage_hits:
+        index = all_damage_hits.index(damage)
+        local_frame = damage.frame - hit.spawnFrame
+        if local_frame < 0:
+            raise ValueError(f"{skill.key}.{hit.skillId}: child damage precedes its spawn")
+        compiled.append(
+            (
+                local_frame,
+                damage.sequenceOrder,
+                damage.actionOrder,
+                compile_resolved_damage_steps(
+                    skill,
+                    config,
+                    replace(damage, frame=local_frame),
+                    index,
+                    index == len(all_damage_hits) - 1,
+                    runtime_blackboard_keys,
+                ),
+            )
+        )
+
+    for infliction in hit.inflictions:
+        compiled.append(
+            (
+                infliction.startFrame,
+                native_sequence_order(infliction, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, infliction.actionIndex),
+                compile_infliction(infliction).splitlines(),
+            )
+        )
+
+    child_damage_frames = tuple(damage.frame - hit.spawnFrame for damage in child_damage_hits)
+    for condition in hit.conditionalActions:
+        frames = getattr(condition, "executionFrames", ()) or (condition.startFrame,)
+        for frame in frames:
+            source = compile_conditional_action(
+                condition,
+                f"{skill.key}.{hit.skillId}.conditionalAction",
+                damage_tags=tuple(
+                    require_list(config.get("tags", []), f"{skill.key}.compile.tags")
+                ),
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                target_group_writes=hit.localTargetGroupWrites,
+                root_skill_context=False,
+                input_target="enemy",
+                skill_has_output_damage=any(
+                    damage_frame < frame for damage_frame in child_damage_frames
+                ),
+                step_key_prefix=skill.key,
+                ability_entity_current_target=True,
+            )
+            if source == "sequence()":
+                continue
+            compiled.append(
+                (
+                    frame,
+                    native_condition_sequence_order(
+                        condition.actionPath,
+                        hit.actionOrder,
+                        hit.skillId,
+                        condition.actionIndex,
+                    ),
+                    (*hit.actionOrder, condition.actionIndex),
+                    source.splitlines(),
+                )
+            )
+
+    grouped: dict[tuple[int, tuple[int, ...]], list[tuple[tuple[int, ...], list[str]]]] = {}
+    for frame, sequence_order, action_order, step_lines in compiled:
+        grouped.setdefault((frame, sequence_order), []).append((action_order, step_lines))
+
+    lines = ["{", f"  skillId: {ts_inline_literal(hit.skillId)},", "  scheduledSequences: ["]
+    for frame, sequence_order in sorted(grouped):
+        lines.extend(["    scheduled(", f"      {frame},", "      sequence("])
+        for _, step_lines in sorted(grouped[(frame, sequence_order)], key=lambda entry: entry[0]):
+            lines.extend(
+                f"        {line}," if line.endswith(")") else f"        {line}"
+                for line in step_lines
+            )
+        lines.extend(["      ),", "    ),"])
+    lines.extend(["  ],", "}"])
+    return "\n".join(lines)
 
 
 def evaluate_zero_distance_condition(
@@ -8268,6 +8412,21 @@ def compile_resolved_sequence(
     if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
     resolved_schedule = collect_resolved_schedule(skill)
+    migrated_ability_entities = tuple(
+        entity
+        for entity in skill.abilityEntityHits
+        if ability_entity_child_timeline_can_compile(entity)
+    )
+
+    def is_migrated_child_item(item: ResolvedScheduleItemSource) -> bool:
+        if item.itemType == "abilityEntitySpawn":
+            return False
+        return any(
+            len(item.actionOrder) > len(entity.actionOrder)
+            and item.actionOrder[: len(entity.actionOrder)] == entity.actionOrder
+            and entity.skillId in item.sourcePath
+            for entity in migrated_ability_entities
+        )
     overlap = sorted(ignored_buff_ids & unmodeled_buff_ids)
     if overlap:
         raise ValueError(
@@ -8281,6 +8440,7 @@ def compile_resolved_sequence(
     schedule = tuple(
         item
         for item in resolved_schedule
+        if not is_migrated_child_item(item)
         if not (
             item.itemType == "buffApplication"
             and (
@@ -8316,10 +8476,23 @@ def compile_resolved_sequence(
                 runtime_blackboard_keys,
             )
         elif item.itemType == "abilityEntitySpawn":
-            payload = cast(AbilityEntitySpawnPayload, item.payload)
+            entity = cast(AbilityEntityHitSource, item.payload)
+            payload = entity.spawnPayload
+            child_skill = (
+                compile_ability_entity_child_skill(
+                    entity,
+                    skill,
+                    config,
+                    hits,
+                    runtime_blackboard_keys,
+                )
+                if entity in migrated_ability_entities
+                else None
+            )
             step_lines = compile_logical_ability_entity_spawn(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn",
+                child_skill,
             ).splitlines()
             if (
                 payload.saveToContextKey is not None

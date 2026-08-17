@@ -442,6 +442,7 @@ class ResolvedScheduleItemSource:
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"
         " | AbilityEntitySpawnPayload"
+        " | AbilityEntityHitSource"
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None

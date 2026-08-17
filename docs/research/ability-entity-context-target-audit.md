@@ -208,14 +208,26 @@ delta as its lifetime, and ends active interval sequences when the entity is
 finished. Assembly regressions prove that a child action at local frame 2 fires
 after four raw frames under a constant 0.5 entity scale.
 
-This still does not justify generator compilation of
-`effectAbilityEntityTargets`: generated child SkillData is still statically
-projected onto the parent timeline and no generated spawn carries the embedded
-program yet. Enabling both paths would double-settle actions; enabling only the
-entity time-dilation target would retain the old wrong hit frames. The
-generator therefore continues to fail closed for those effect queries and
-audit coverage remains 318 parsed / 280 compiled until projection ownership is
-migrated atomically.
+The generator now performs that ownership transfer for one strict subset: the
+child must inherit its source action blackboard, have no cycle, interval,
+projectile, nested entity, Aura, Buff, resource or other unowned action, and
+its remaining actions must be damage, infliction or a condition tree already
+accepted by the shared compiler. Arclight's ultimate child now owns local
+frames 7 and 63; Lifeng's owns 6, 66, 67 and 121, including its local
+blackboard branch. Their old parent-absolute entries are removed in the same
+generation pass, and a generated contract asserts the absence of both old
+Arclight frames. Native `assignBlackboard=true` is represented explicitly by
+copying the spawning action blackboard before applying per-key entity
+assignments.
+
+This partial migration still does not justify generator compilation of
+`effectAbilityEntityTargets` for the four blocked combo skills. An owner/tag
+query can select entities created by other skills, so the compiler needs an
+operator-wide proof that every matching spawn uses dynamic child ownership;
+the current per-skill subset is insufficient. Enabling the target earlier
+would still leave some selected child actions on parent clocks. The generator
+therefore continues to fail closed and audit coverage remains 318 parsed / 280
+compiled.
 
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.

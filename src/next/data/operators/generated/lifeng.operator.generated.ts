@@ -544,43 +544,74 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         58,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0015_lifeng_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity' }),
-        ),
-      ),
-      scheduled(
-        64,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 5,
-          }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:01:5'),
-        ),
-      ),
-      scheduled(
-        124,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 5,
-          }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:10'),
-        ),
-      ),
-      scheduled(
-        179,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 5,
-          }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:14'),
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity',
+            inheritActionBlackboard: true,
+            childSkill: {
+              skillId: 'chr_0015_lifeng_ultimate_skill_abentity',
+              scheduledSequences: [
+                scheduled(
+                  6,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: 5,
+                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:01:5'),
+                  ),
+                ),
+                scheduled(
+                  66,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: 5,
+                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:10'),
+                  ),
+                ),
+                scheduled(
+                  67,
+                  sequence(
+                    branch(
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'isCombo' },
+                        operator: 'equal',
+                        right: { kind: 'constant', value: 0 },
+                      },
+                      sequence(),
+                      sequence(
+                        step('modifyActionValue', {
+                          key: 'EntityBB_isCombo',
+                          operation: 'assign',
+                          value: { kind: 'constant', value: 0 },
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+                scheduled(
+                  121,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: percentages([267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600]),
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: 5,
+                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:14'),
+                  ),
+                ),
+              ],
+            },
+          }),
         ),
       ),
     ],

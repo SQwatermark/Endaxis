@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { ScheduledSequenceDefinition } from '../../../core/game-data/operatorDefinition';
+import type {
+  ScheduledSequenceDefinition,
+  SkillDefinition,
+} from '../../../core/game-data/operatorDefinition';
 import { arclightGeneratedOperator } from './arclight.operator.generated';
 
-function findSkill(key: string) {
+function findSkill(key: string): SkillDefinition {
   for (const group of arclightGeneratedOperator.skillGroups) {
     const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
     const skill = skills.find(candidate => candidate.key === key);
@@ -33,5 +36,22 @@ describe('arclight generated operator', () => {
         sequence.sequence.steps.map(step => step.kind),
     );
     expect(steps).toContain('gainSquadUltimateEnergyFromSkillCost');
+  });
+
+  it('owns ultimate AbilityEntity damage on the child local timeline only', () => {
+    const ultimate = findSkill('ultimate');
+    const spawn = ultimate.scheduledSequences
+      .flatMap(sequence => sequence.sequence.steps)
+      .find(step => step.kind === 'spawnAbilityEntity');
+    expect(spawn?.kind).toBe('spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('missing AbilityEntity spawn');
+
+    expect(spawn.parameters.inheritActionBlackboard).toBe(true);
+    expect(spawn.parameters.childSkill?.scheduledSequences.map(sequence => sequence.startFrame)).toEqual([
+      7, 63,
+    ]);
+    expect(ultimate.scheduledSequences.map(sequence => sequence.startFrame)).not.toEqual(
+      expect.arrayContaining([61, 117]),
+    );
   });
 });

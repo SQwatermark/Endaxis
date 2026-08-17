@@ -84,12 +84,16 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       throw new Error('spawnAbilityEntity requires a combat operation context');
     }
     const parameters = step.parameters;
-    const assignments = Object.fromEntries(
+    const explicitAssignments = Object.fromEntries(
       Object.entries(parameters.blackboardAssignments ?? {}).map(([key, operand]) => [
         key,
         resolveActionValueOperand(operand, context.blackboard),
       ]),
     );
+    const assignments = {
+      ...(parameters.inheritActionBlackboard ? context.blackboard.snapshot() : {}),
+      ...explicitAssignments,
+    };
     const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
     if (parameters.childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
       throw new Error('spawnAbilityEntity child skill runtime is not configured');

@@ -694,32 +694,42 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         54,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0007_ikut_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0007_ikut_ultimate_skill_abentity' }),
-        ),
-      ),
-      scheduled(
-        61,
-        sequence(
-          step('applyElementalInfliction', { element: 'electric', isExtra: false }),
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
-          }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:551:5'),
-        ),
-      ),
-      scheduled(
-        117,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([244, 269, 293, 318, 342, 367, 391, 415, 440, 470, 507, 550]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
-          }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:552:12'),
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0007_ikut_ultimate_skill',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0007_ikut_ultimate_skill_abentity',
+            inheritActionBlackboard: true,
+            childSkill: {
+              skillId: 'chr_0007_ikut_ultimate_skill_abentity',
+              scheduledSequences: [
+                scheduled(
+                  7,
+                  sequence(
+                    step('applyElementalInfliction', { element: 'electric', isExtra: false }),
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
+                    }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:551:5'),
+                  ),
+                ),
+                scheduled(
+                  63,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([244, 269, 293, 318, 342, 367, 391, 415, 440, 470, 507, 550]),
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
+                    }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:552:12'),
+                  ),
+                ),
+              ],
+            },
+          }),
         ),
       ),
     ],

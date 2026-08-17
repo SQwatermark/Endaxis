@@ -470,7 +470,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         21,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0013_aglina_normal_skill', dieWhenSourceDies: false, childSkillId: 'chr_0013_aglina_normal_skill_abilityrange' }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0013_aglina_normal_skill', dieWhenSourceDies: false, childSkillId: 'chr_0013_aglina_normal_skill_abilityrange', inheritActionBlackboard: true }),
         ),
       ),
       scheduled(
@@ -635,7 +635,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         60,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0013_aglina_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0013_aglina_ultimate_skill_abilityrange', overrideDurationSeconds: { kind: 'blackboard', key: 'duration' } }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0013_aglina_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0013_aglina_ultimate_skill_abilityrange', inheritActionBlackboard: true, overrideDurationSeconds: { kind: 'blackboard', key: 'duration' } }),
         ),
       ),
       scheduled(

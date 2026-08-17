@@ -453,6 +453,8 @@ export interface CombatStepParameters {
      * 但没有施法、费用、冷却或时间轴放置身份。
      */
     childSkill?: AbilityEntityChildSkillDefinition;
+    /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
+    inheritActionBlackboard?: boolean;
     target?: CombatTarget;
     overrideDurationSeconds?: ActionValueOperand;
     saveToContextKey?: string;

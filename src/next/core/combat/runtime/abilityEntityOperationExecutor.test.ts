@@ -188,6 +188,7 @@ describe('AbilityEntityOperationExecutor', () => {
           templateId: 'child-host',
           childSkillId: 'child-skill',
           dieWhenSourceDies: false,
+          inheritActionBlackboard: true,
           blackboardAssignments: { inherited: { kind: 'constant', value: 7 } },
           childSkill: {
             skillId: 'child-skill',
@@ -212,7 +213,7 @@ describe('AbilityEntityOperationExecutor', () => {
           },
         },
       },
-      { blackboard: new ActionBlackboard() },
+      { blackboard: new ActionBlackboard({ inheritedParent: 11 }) },
     );
 
     entities.advanceFrame();
@@ -225,5 +226,6 @@ describe('AbilityEntityOperationExecutor', () => {
     const operationContext = execute.mock.calls[0]?.[1];
     expect(operationContext?.blackboard.getNumber('local')).toBe(3);
     expect(operationContext?.blackboard.getNumber('inherited')).toBe(7);
+    expect(operationContext?.blackboard.getNumber('inheritedParent')).toBe(11);
   });
 });

@@ -91,7 +91,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         15,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange' }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange', inheritActionBlackboard: true }),
         ),
       ),
       scheduled(
@@ -233,7 +233,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         11,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange' }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange', inheritActionBlackboard: true }),
         ),
       ),
       scheduled(
@@ -292,7 +292,7 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
       scheduled(
         20,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack5', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange', target: 'enemy' }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack5', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange', inheritActionBlackboard: true, target: 'enemy' }),
         ),
       ),
       scheduled(
@@ -436,7 +436,7 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
       scheduled(
         3,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange', target: 'enemy', saveToContextKey: 'thunder' }),
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange', inheritActionBlackboard: true, target: 'enemy', saveToContextKey: 'thunder' }),
         ),
       ),
       scheduled(

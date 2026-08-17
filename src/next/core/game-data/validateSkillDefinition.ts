@@ -750,6 +750,9 @@ function validateCombatStep(
           }
         }
       }
+      if (parameters.inheritActionBlackboard !== undefined) {
+        requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
+      }
       if (parameters.target !== undefined) requireTarget();
       if (parameters.overrideDurationSeconds !== undefined) {
         validateActionValueOperand(
