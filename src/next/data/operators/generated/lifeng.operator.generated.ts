@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -173,7 +173,7 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
           ),
           step('dealDamage', {
             damageType: 'physical',
-            attackScale: percentages([0]),
+            attackScale: percentage(0),
             tags: [],
           }, '12:basicAttack46:direct23:chr_0015_lifeng_attack511:actionOrder2:30'),
           branch(

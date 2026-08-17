@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { akekuri, endministrator, estella, fluorite, gilberta, lastRite, lifeng } from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
@@ -41,5 +43,26 @@ describe('新增的完整技能转换干员', () => {
     expect(capabilities.has('potentialEffects')).toBe(
       operator.potentials.some(potential => !hasUpgradeBehavior(potential)),
     );
+  });
+
+  it.each(generatedOperators)('所有技能等级都能编译为运行时程序', operator => {
+    for (let level = 1; level <= 12; level += 1) {
+      const build: OperatorInstanceDocument = {
+        operatorSlug: operator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: {
+          basicAttack: level,
+          battleSkill: level,
+          comboSkill: level,
+          ultimate: level,
+        },
+        talentStates: {},
+      };
+
+      expect(() => compileOperatorDefinitionSkills('operator', build, operator)).not.toThrow();
+    }
   });
 });

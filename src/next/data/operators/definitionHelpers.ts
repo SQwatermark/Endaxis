@@ -248,8 +248,13 @@ export function damageHits(
 }
 
 /** 将来源表中的百分数转换为战斗计算使用的小数倍率。 */
+export function percentage(value: number): number {
+  return value / 100;
+}
+
+/** 将来源表中的逐等级百分数转换为战斗计算使用的小数倍率。 */
 export function percentages(values: readonly number[]): number[] {
-  return values.map(value => value / 100);
+  return values.map(percentage);
 }
 
 export function secondsToFrames(value: number): number;

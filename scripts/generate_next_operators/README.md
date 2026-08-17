@@ -24,6 +24,8 @@
 
 技能费用与冷却由稳定技能类型和 `SkillPatchTable` 自动恢复。非零战技费用必须使用原生技力类型，非零终结技费用必须使用原生终结技能量类型；冷却只接受非零补丁值。`operators.json` 中已有的 `costResource` 与 `usePatchCooldown` 只作为旧配置的断言，不能覆盖或补造数据源结果。
 
+逐等级数值只有在等级间确实不同时才生成数组；单值或所有等级相同的数值会压成标量。百分比标量使用 `percentage`，逐等级百分比使用 `percentages`，避免把固定值误解释为“仅第 1 级有值”。
+
 天赋阵列的四次属性加点来自 `CharGrowthTable.talentNodeMap` 中 `nodeType = 3` 的节点，而不是面板成长表。生成器按 `attributeNodeInfo.breakStage` 排序并严格校验四个阶段、属性修正模式和目标属性；与全局 `[10, 15, 15, 20]` 主属性规则一致时省略 `trustAttributeBonus`，存在例外时才把源数据写入定义。全量核对记录见 [trust-attribute-bonus-audit.md](trust-attribute-bonus-audit.md)。
 
 ### 宽松转换支持状态

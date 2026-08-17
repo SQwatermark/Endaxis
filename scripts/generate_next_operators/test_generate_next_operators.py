@@ -1593,7 +1593,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIsNotNone(compiled)
         self.assertLess(compiled.index("applyElementalInfliction"), compiled.index("dealDamage"))
-        self.assertIn("percentages([150])", compiled)
+        self.assertIn("percentage(150)", compiled)
 
     def test_conditional_compiler_rejects_divergent_projectile_children(self) -> None:
         launch = ProjectileLaunchPayload(

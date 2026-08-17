@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
@@ -43,7 +43,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('dealDamage', {
                 damageType: 'physical',
-                attackScale: percentages([0]),
+                attackScale: percentage(0),
                 tags: ['comboSkill'],
                 features: ['canBreakWeakness'],
               }, '10:comboSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[2]11:actionOrder2:38'),
@@ -130,7 +130,7 @@ export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboa
             sequence(
               step('dealDamage', {
                 damageType: 'physical',
-                attackScale: percentages([0]),
+                attackScale: percentage(0),
                 tags: ['comboSkill'],
                 features: ['canBreakWeakness'],
               }, '16:comboSkillFemale11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[2]11:actionOrder2:36'),

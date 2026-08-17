@@ -5284,6 +5284,13 @@ def percentage_values(values: tuple[float, ...]) -> tuple[int | float, ...]:
     return tuple(result)
 
 
+def compile_percentage_level_values(values: tuple[float, ...]) -> str:
+    """固定百分比生成标量；只有真正随等级变化时才保留 LevelValues 数组。"""
+    compact = compact_level_values(percentage_values(values))
+    helper = "percentages" if isinstance(compact, tuple) else "percentage"
+    return f"{helper}({ts_inline_literal(compact)})"
+
+
 def compile_buff_blackboard_read(
     read: BuffBlackboardReadPayload | BuffBlackboardReadSource,
     path: str,
@@ -6846,7 +6853,7 @@ def compile_basic_attack(skill: SkillSource, config: dict[str, Any], factory_nam
         ts_inline_literal(skill.key),
         str(skill.timelineBlockFrames),
         ts_inline_literal(frames),
-        f"percentages({ts_inline_literal(percentage_values(attack_scale))})",
+        compile_percentage_level_values(attack_scale),
     ]
     if options:
         arguments.append(ts_inline_literal(options))
@@ -6962,10 +6969,12 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
     damage_type = DAMAGE_TYPE_MAP.get(hp.damageType)
     if damage_type is None:
         raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
-    scale = percentage_values(require_level_values(hp.attackScale, f"{skill.key}.attackScale"))
+    scale = compile_percentage_level_values(
+        require_level_values(hp.attackScale, f"{skill.key}.attackScale")
+    )
     damage_fields = [
         f"damageType: {ts_inline_literal(damage_type)}",
-        f"attackScale: percentages({ts_inline_literal(scale)})",
+        f"attackScale: {scale}",
         f"tags: {ts_inline_literal(require_list(config.get('tags'), f'{skill.key}.compile.tags'))}",
     ]
     if hp.calculation != "standard":
@@ -7164,7 +7173,10 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         raise ValueError(f"{skill.key}: unsupported damage type {hp.damageType}")
     damage_fields = [
         f"damageType: {ts_inline_literal(damage_type)}",
-        f"attackScale: percentages({ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{skill.key}.attackScale')))})",
+        "attackScale: "
+        + compile_percentage_level_values(
+            require_level_values(hp.attackScale, f"{skill.key}.attackScale")
+        ),
         f"tags: {ts_inline_literal(require_list(config.get('tags'), f'{skill.key}.compile.tags'))}",
     ]
     if poise_units:
@@ -7386,10 +7398,8 @@ def compile_damage_units_step(
                 f"{ts_inline_literal(hp.attackScale.blackboardKey)} }}"
             )
         else:
-            attack_scale = (
-                "percentages("
-                f"{ts_inline_literal(percentage_values(require_level_values(hp.attackScale, f'{path}.attackScale')))}"
-                ")"
+            attack_scale = compile_percentage_level_values(
+                require_level_values(hp.attackScale, f"{path}.attackScale")
             )
         fields = [
             f"damageType: {ts_inline_literal(damage_type)}",
@@ -8060,14 +8070,18 @@ def collect_definition_helpers(
     compiled: list[tuple[SkillSource, str]], damage_type_factories: set[str]
 ) -> str:
     """收集生成技能实际需要的 DSL helper，供两种输出入口共用。"""
+    compiled_source = "\n".join(source for _, source in compiled)
     helpers = {
         *damage_type_factories,
-        "percentages",
         "scheduled",
         "sequence",
         "step",
         "withSkillBlackboard",
     }
+    if "percentage(" in compiled_source:
+        helpers.add("percentage")
+    if "percentages(" in compiled_source:
+        helpers.add("percentages")
     if any(skill.conditionalActions for skill, _ in compiled):
         helpers.add("branch")
     if any("once(" in source for _, source in compiled):
