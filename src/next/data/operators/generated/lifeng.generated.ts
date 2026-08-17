@@ -8074,6 +8074,15 @@ export const lifengGeneratedSource = {
               "endFrame": 68,
               "destFrame": 150,
               "actionIndex": 22,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
               "conditionActionTypes": [],
               "sequenceIndex": 8
             }

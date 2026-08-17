@@ -233,6 +233,8 @@ export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenc
   readonly endFrame: number;
   readonly destFrame: number;
   readonly actionIndex: number;
+  /** 原始 SkillData 中的精确位置，用于关联外层 IfElse/事件等控制流。 */
+  readonly actionPath: readonly string[];
   readonly conditionActionTypes: readonly string[];
 }
 

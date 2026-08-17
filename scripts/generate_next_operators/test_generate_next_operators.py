@@ -8095,6 +8095,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(jumps), 1)
         self.assertEqual(jumps[0].destFrame, 149)
+        self.assertEqual(
+            jumps[0].actionPath,
+            (
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+            ),
+        )
         self.assertEqual(jumps[0].conditionActionTypes, ("CheckBuffStackNum",))
         self.assertFalse(
             ability_entity_child_timeline_can_compile(

@@ -29779,6 +29779,18 @@ export const zhuangFangyiGeneratedSource = {
               "endFrame": 64,
               "destFrame": 64,
               "actionIndex": 22,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "actionOnTick",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
               "conditionActionTypes": [],
               "sequenceIndex": 5
             }

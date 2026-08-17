@@ -3010,7 +3010,24 @@ def parse_timeline_jumps(
     root: dict[str, Any],
     source_name: str,
 ) -> tuple[TimedTimelineJumpSource, ...]:
-    """保留 JumpToAction 的时间与条件类型；未建模控制流不得被线性化。"""
+    """保留 JumpToAction 的位置、时间与条件类型；未建模控制流不得被线性化。"""
+
+    def walk_action_paths(
+        value: Any,
+        path: tuple[str, ...],
+    ) -> Iterable[tuple[dict[str, Any], tuple[str, ...]]]:
+        if isinstance(value, dict):
+            if value.get("isEnable") is False:
+                return
+            type_name = value.get("$type")
+            if isinstance(type_name, str):
+                yield value, path
+            for key, child in value.items():
+                yield from walk_action_paths(child, (*path, key))
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                yield from walk_action_paths(child, (*path, f"[{index}]"))
+
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[TimedTimelineJumpSource] = []
     for timeline_index, raw_timeline in enumerate(
@@ -3024,10 +3041,13 @@ def parse_timeline_jumps(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{timeline_path}._endFrame"
         )
-        for action in walk_actions(timeline.get("_sequenceActionData")):
+        for action, action_path in walk_action_paths(
+            timeline.get("_sequenceActionData"),
+            (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
+        ):
             if action_name(action["$type"]) != "JumpToAction" or action.get("isEnable") is False:
                 continue
-            path = f"{timeline_path}.JumpToAction"
+            path = f"{source_name}.{'.'.join(action_path)}"
             condition_types = tuple(
                 action_name(item["$type"])
                 for item in walk_actions(action.get("conditionAction"))
@@ -3041,6 +3061,7 @@ def parse_timeline_jumps(
                         action.get("destFrame"), f"{path}.destFrame"
                     ),
                     actionIndex=require_server_action_index(action, path),
+                    actionPath=action_path,
                     conditionActionTypes=condition_types,
                     sequenceIndex=timeline_index,
                 )

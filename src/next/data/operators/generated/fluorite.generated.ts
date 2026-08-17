@@ -4675,6 +4675,12 @@ export const fluoriteGeneratedSource = {
                   "endFrame": 89,
                   "destFrame": 89,
                   "actionIndex": 29,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]"
+                  ],
                   "conditionActionTypes": [
                     "CheckHp"
                   ],
@@ -4685,6 +4691,12 @@ export const fluoriteGeneratedSource = {
                   "endFrame": 89,
                   "destFrame": 149,
                   "actionIndex": 36,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]"
+                  ],
                   "conditionActionTypes": [
                     "CheckBuffStackNum"
                   ],

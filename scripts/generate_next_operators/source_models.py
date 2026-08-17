@@ -380,6 +380,7 @@ class TimedTimelineJumpSource:
     endFrame: int
     destFrame: int
     actionIndex: int
+    actionPath: tuple[str, ...]
     conditionActionTypes: tuple[str, ...]
     sequenceIndex: int = -1
 
