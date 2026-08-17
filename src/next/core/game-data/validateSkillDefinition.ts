@@ -28,6 +28,7 @@ import {
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
   STATUS_MODIFIER_KINDS,
+  TIME_DILATION_IGNORE_TARGETS,
 } from './operatorDefinition';
 import { collectDamageStepKeys } from './collectDamageStepKeys';
 import { parseCombatBuffDefinitionEntry } from '../combat/buffs/combatBuffDefinitions';
@@ -47,6 +48,7 @@ const INFLICTION_ELEMENTS_SET = new Set<string>(INFLICTION_ELEMENTS);
 const ELEMENTAL_REACTIONS_SET = new Set<string>(ELEMENTAL_REACTIONS);
 const COMBAT_RESOURCES_SET = new Set<string>(COMBAT_RESOURCES);
 const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
+const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
@@ -264,13 +266,14 @@ function validateCombatTargetArray(
   path: string,
   out: SkillDefinitionValidationIssue[],
   allowEmpty: boolean,
+  allowedTargets: ReadonlySet<string> = COMBAT_TARGETS_SET,
 ): void {
   if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
     push(out, path, allowEmpty ? 'expected an array' : 'expected a non-empty array');
     return;
   }
   value.forEach((target, index) => {
-    if (typeof target !== 'string' || !COMBAT_TARGETS_SET.has(target)) {
+    if (typeof target !== 'string' || !allowedTargets.has(target)) {
       push(out, `${path}[${index}]`, 'unknown combat target');
     }
   });
@@ -910,6 +913,7 @@ function validateCombatStep(
           `${parameterPath}.ignoredTargets`,
           out,
           true,
+          TIME_DILATION_IGNORE_TARGETS_SET,
         );
         if (parameters.influenceSkillCooldownSeconds !== undefined) {
           validateActionValueOperand(
@@ -935,6 +939,7 @@ function validateCombatStep(
         `${parameterPath}.ignoredTargets`,
         out,
         true,
+        TIME_DILATION_IGNORE_TARGETS_SET,
       );
       break;
     }

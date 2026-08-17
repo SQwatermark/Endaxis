@@ -97,6 +97,15 @@ ORDERED_STATE_EFFECT_ACTION_NAMES = {
     "UltimateTimeAction",
 }
 
+# 这些 ForEach 守卫尾部仍会被现有根级解析器递归展开。在建立显式消费身份前
+# 不能迁入条件树，否则会产生条件与无条件双份调度。其他动作的根解析器遇到
+# ForEach 会停止，因而可由条件树独占；尚未支持的叶子仍会留在覆盖检查中。
+FOR_EACH_GUARD_NON_OWNABLE_EFFECT_ACTION_NAMES = {
+    "DamageAction",
+    "ObtainCostAction",
+    "SimpleCalcBBAction",
+}
+
 
 def optional_server_action_index(action: dict[str, Any], path: str) -> int | None:
     """读取真实数据中的服务器动作序号；精简测试夹具可以省略该元数据。"""
@@ -130,6 +139,7 @@ def parse_conditional_actions(
     consumed_action_ids: frozenset[int] = frozenset(),
     *,
     include_target_group_provenance: bool = False,
+    include_for_each_sequence_guards: bool = False,
 ) -> tuple[ConditionalActionSource, ...]:
     """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -967,6 +977,94 @@ def parse_conditional_actions(
                 (*path, "actionOnTick"),
                 tick_frames,
             )
+            return
+        if action_type == "ForEachAction" and include_for_each_sequence_guards:
+            # 只有直接遍历技能输入目标时，固定单敌人模型才能把容器退化为
+            # 一次顺序执行。Context 组可能装的是能力实体或队伍成员；在取得
+            # 显式生产者身份前不能把其中的 Target 近似成敌人。
+            target = require_dict(
+                value.get("target"), f"{source_name}.{'.'.join(path)}.target"
+            )
+            if not (
+                target.get("targetSource") == "Target"
+                and target.get("targetGroupKey") == ""
+            ):
+                for key, child in value.items():
+                    visit(child, start_frame, end_frame, (*path, key), execution_frames)
+                return
+
+            # 含序列守卫的单敌人子树由这里独占，避免根伤害/黑板解析器把
+            # 守卫尾部提升成无条件动作。
+            tuple(
+                walk_single_enemy_actions(
+                    value, f"{source_name}.{'.'.join(path)}"
+                )
+            )
+            sequence = value.get("action")
+            sequence_data = require_dict(
+                sequence, f"{source_name}.{'.'.join(path)}.action"
+            )
+            sequence_actions = require_list(
+                sequence_data.get("actionData"),
+                f"{source_name}.{'.'.join(path)}.action.actionData",
+            )
+            has_direct_guard = any(
+                isinstance(action, dict)
+                and action.get("isEnable") is not False
+                and action_name(str(action.get("$type", "")))
+                in SEQUENCE_GUARD_ACTION_NAMES
+                for action in sequence_actions
+            )
+            if not has_direct_guard:
+                for key, child in value.items():
+                    visit(child, start_frame, end_frame, (*path, key), execution_frames)
+                return
+
+            def collect_effect_types(current: Any) -> set[str]:
+                if isinstance(current, list):
+                    return set().union(*(collect_effect_types(item) for item in current))
+                if not isinstance(current, dict) or current.get("isEnable") is False:
+                    return set()
+                current_type = action_name(str(current.get("$type", "")))
+                result_types = (
+                    {current_type}
+                    if current_type
+                    in AUDITED_COMBAT_EFFECT_ACTION_NAMES
+                    | ORDERED_STATE_EFFECT_ACTION_NAMES
+                    else set()
+                )
+                return result_types | set().union(
+                    *(collect_effect_types(child) for child in current.values())
+                )
+
+            effect_types = collect_effect_types(sequence)
+            if effect_types & FOR_EACH_GUARD_NON_OWNABLE_EFFECT_ACTION_NAMES:
+                # 保持旧遍历，让未取得独占所有权的守卫继续进入严格覆盖检查。
+                for key, child in value.items():
+                    visit(child, start_frame, end_frame, (*path, key), execution_frames)
+                return
+            actions = parse_branch(
+                sequence,
+                start_frame,
+                end_frame,
+                (*path, "action"),
+                execution_frames,
+            )
+            if actions:
+                result.append(
+                    UnconditionalActionSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=require_server_action_index(
+                            value, f"{source_name}.{'.'.join(path)}"
+                        ),
+                        actionPath=path,
+                        conditions=(),
+                        succeedActions=actions,
+                        failActions=(),
+                        executionFrames=execution_frames,
+                    )
+                )
             return
         if action_type == "IfElseAction":
             conditional = parse_if_else(

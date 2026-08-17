@@ -676,6 +676,7 @@ export class CombatRuntimeAssembly {
       baseDelegate,
       operatorId,
       program.skillId,
+      isOperatorControlled,
     );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
@@ -781,6 +782,7 @@ export class CombatRuntimeAssembly {
       terminal,
       operatorId,
       sourceActionId,
+      options.isOperatorControlled,
     );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
@@ -863,11 +865,23 @@ export class CombatRuntimeAssembly {
     delegate: CombatOperationExecutor,
     operatorId: string,
     sourceActionId: string,
+    isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
   ): CombatOperationExecutor {
     if (this.timeDilation === null) return delegate;
     return new TimeDilationOperationExecutor({
       runtime: this.timeDilation,
-      resolveTargetId: target => (target === 'caster' ? operatorId : 'enemy'),
+      resolveTargetIds: target => {
+        if (target === 'caster') return [operatorId];
+        if (target === 'enemy') return ['enemy'];
+        if (isOperatorControlled === undefined) {
+          throw new Error(
+            `time dilation '${sourceActionId}' requires the current controlled operator`,
+          );
+        }
+        return this.#operatorOrder.filter(candidate =>
+          isOperatorControlled(candidate, this.clock.frame),
+        );
+      },
       sourceId: operatorId,
       sourceActionId,
       delegate,

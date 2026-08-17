@@ -46,6 +46,33 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(definition)).toEqual([]);
   });
 
+  it('允许全局时间膨胀在执行帧排除当前主控干员', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'startTimeDilation',
+              parameters: {
+                scope: 'global',
+                durationSeconds: { kind: 'constant', value: 1 },
+                slot: 1,
+                priority: 2,
+                curve: { kind: 'named', key: 'ComboSkill' },
+                finishByAction: false,
+                ignoredTargets: ['controlled'],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+  });
+
   it('accepts a structurally valid skill', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

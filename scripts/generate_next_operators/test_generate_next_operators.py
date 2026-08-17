@@ -74,6 +74,7 @@ from generate_next_operators import (
     SkillEventActionSequenceSource,
     SkillEventListenerSource,
     SequenceGuardActionSource,
+    UnconditionalActionSource,
     ConditionSource,
     EntityCountConditionSource,
     MainOperatorConditionSource,
@@ -145,6 +146,7 @@ from generate_next_operators import (
     walk_unconditional_actions,
 )
 from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
+from time_dilation_parser import parse_time_dilation_target
 
 
 def target_settings_fixture(
@@ -370,6 +372,24 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_time_dilation_main_character_search_resolves_to_controlled(self) -> None:
+        target = target_settings_fixture(
+            "InstantSearch",
+            finder_type="CharacterTeamFinder",
+            validator_types=("MainCharacterValidator",),
+        )
+
+        self.assertEqual(
+            parse_time_dilation_target(target, "fixture.ignoreTargets[0]"),
+            "controlled",
+        )
+
+        target["selectorData"]["postProcessorData"] = [
+            {"$type": "Example.Selector+ExcludeTarget+Data, Example"}
+        ]
+        with self.assertRaisesRegex(ValueError, "unsupported time-dilation target"):
+            parse_time_dilation_target(target, "fixture.ignoreTargets[0]")
+
     def test_time_dilation_source_target_resolves_to_caster(self) -> None:
         source_target = target_settings_fixture("Source")
         root = {
@@ -5050,7 +5070,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }",
         )
 
-    def test_direct_main_operator_guard_remains_an_unresolved_root_action(self) -> None:
+    def test_direct_main_operator_guard_is_assumed_to_pass_for_a_placed_skill(self) -> None:
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -5080,12 +5100,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
 
-        self.assertIn(
-            "CheckMainCharacterCondition",
-            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
-        )
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertNotIn("CheckMainCharacterCondition", unresolved)
+        self.assertIn("ObtainCostAction", unresolved)
 
-    def test_direct_distance_guard_remains_an_unresolved_root_action(self) -> None:
+    def test_direct_distance_guard_is_assumed_to_pass_for_a_placed_skill(self) -> None:
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -5111,10 +5130,9 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
 
-        self.assertIn(
-            "CheckDistanceCondition",
-            collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
-        )
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertNotIn("CheckDistanceCondition", unresolved)
+        self.assertIn("DamageAction", unresolved)
 
         root["actionGroupData"]["timelineActions"][0]["_sequenceActionData"][
             "actionData"
@@ -5123,6 +5141,267 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "CheckDistanceCondition",
             collect_unresolved_combat_actions(parse_timeline(root, "fixture.json")),
         )
+
+    def test_nested_distance_guard_remains_an_unresolved_sequence_action(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "target": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "",
+                                    },
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckDistanceCondition+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 2,
+                                            },
+                                            {
+                                                "$type": "Example.DamageAction+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 3,
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertIn("CheckDistanceCondition", unresolved)
+        self.assertIn("DamageAction", unresolved)
+        self.assertEqual(
+            parse_conditional_actions(
+                root,
+                "fixture.json",
+                {},
+                include_for_each_sequence_guards=True,
+            ),
+            (),
+        )
+
+    def test_for_each_sequence_guard_owns_its_tail_actions(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 7,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "target": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "",
+                                    },
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckDistanceCondition+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 2,
+                                                "source": target_settings_fixture("Owner"),
+                                                "target": target_settings_fixture("Target"),
+                                                "distance": 50,
+                                                "lessThan": True,
+                                                "includeTargetRadius": False,
+                                                "containsHittableObj": False,
+                                            },
+                                            {
+                                                "$type": "Example.SpellInfliction+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 3,
+                                                "inflictionType": "Fire",
+                                                "isExtra": False,
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(
+            root,
+            "fixture.json",
+            {},
+            include_for_each_sequence_guards=True,
+        )
+        self.assertEqual(len(parsed), 1)
+        self.assertIsInstance(parsed[0], UnconditionalActionSource)
+        self.assertEqual(len(parsed[0].succeedActions), 1)
+        guarded = parsed[0].succeedActions[0].nestedCondition
+        self.assertIsInstance(guarded, SequenceGuardActionSource)
+        assert guarded is not None
+        self.assertEqual(
+            tuple(action.actionType for action in guarded.succeedActions),
+            ("SpellInfliction",),
+        )
+        compiled = compile_conditional_action(
+            parsed[0],
+            "fixture.forEach",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+        self.assertIn("applyElementalInfliction", compiled)
+
+    def test_for_each_context_group_guard_is_not_assumed_to_target_enemy(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 7,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "target": {
+                                        "targetSource": "Context",
+                                        "targetGroupKey": "spawned_entities",
+                                    },
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckDistanceCondition+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 2,
+                                                "source": target_settings_fixture("Owner"),
+                                                "target": target_settings_fixture("Target"),
+                                                "distance": 50,
+                                                "lessThan": True,
+                                                "includeTargetRadius": False,
+                                                "containsHittableObj": False,
+                                            },
+                                            {
+                                                "$type": "Example.SpellInfliction+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 3,
+                                                "inflictionType": "Fire",
+                                                "isExtra": False,
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        self.assertEqual(
+            parse_conditional_actions(
+                root,
+                "fixture.json",
+                {},
+                include_for_each_sequence_guards=True,
+            ),
+            (),
+        )
+        unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
+        self.assertIn("CheckDistanceCondition", unresolved)
+        self.assertIn("SpellInfliction", unresolved)
+
+    def test_for_each_guard_claims_blackboard_tail_not_seen_by_root_parser(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 7,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "target": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "",
+                                    },
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckDistanceCondition+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 2,
+                                                "source": target_settings_fixture("Owner"),
+                                                "target": target_settings_fixture("Target"),
+                                                "distance": 50,
+                                                "lessThan": True,
+                                                "includeTargetRadius": False,
+                                                "containsHittableObj": False,
+                                            },
+                                            {
+                                                "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                                "isEnable": True,
+                                                "serverActionIndex": 3,
+                                                "key": "guarded_flag",
+                                                "operation": "Assign",
+                                                "directValue": True,
+                                                "value": {
+                                                    "useBlackboardKey": False,
+                                                    "blackboardKey": "",
+                                                    "value": 1,
+                                                },
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(
+                root,
+                "fixture.json",
+                {},
+                include_for_each_sequence_guards=True,
+            )
+        self.assertEqual(len(parsed), 1)
+        guarded = parsed[0].succeedActions[0].nestedCondition
+        self.assertIsInstance(guarded, SequenceGuardActionSource)
+        assert guarded is not None
+        self.assertEqual(
+            tuple(action.actionType for action in guarded.succeedActions),
+            ("ModifyDynamicBlackboard",),
+        )
+        mutations, _, _ = parse_blackboard_runtime_actions(root, "fixture.json", {})
+        self.assertEqual(mutations, ())
 
     def test_direct_main_operator_guard_before_presentation_only_tail_is_ignored(self) -> None:
         root = {

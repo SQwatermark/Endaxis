@@ -1484,7 +1484,7 @@
       "attributes": { "strength": "力量", "agility": "敏捷", "intellect": "智识", "will": "意志" },
       "scalarValue": "直接数值",
       "actionOperandValue": "动作黑板操作数",
-      "targets": { "caster": "施法者", "enemy": "敌人" },
+      "targets": { "caster": "施法者", "enemy": "敌人", "controlled": "当前主控干员" },
       "timeDilationScope": "作用范围",
       "timeDilationScopes": { "global": "全局", "entity": "指定实体" },
       "timeDilationSlot": "槽位",

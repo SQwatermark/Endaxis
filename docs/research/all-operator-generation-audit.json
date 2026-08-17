@@ -7,7 +7,7 @@
   },
   "summary": {
     "parsedCount": 303,
-    "compiledCount": 273,
+    "compiledCount": 274,
     "completeOperatorCount": 9,
     "blockerKinds": {
       "other": 6,
@@ -15,7 +15,7 @@
       "projectile-child-actions": 2,
       "root-action-coverage": 3,
       "projectile-data": 2,
-      "condition-distance": 2,
+      "condition-distance": 1,
       "conditional-leaf": 3,
       "condition-other": 6,
       "buff-source-or-target": 9
@@ -24,7 +24,7 @@
       "LaunchProjectile": 73,
       "DamageAction": 226,
       "CreateBuffAction": 125,
-      "CheckDistanceCondition": 3,
+      "CheckDistanceCondition": 2,
       "IfElseAction": 169,
       "ObtainCostAction": 161,
       "SpawnAbilityEntity": 26,
@@ -32,7 +32,7 @@
       "AuraAction": 1,
       "FractureAction": 2,
       "SwitchAction": 5,
-      "CheckMainCharacterCondition": 2,
+      "CheckMainCharacterCondition": 1,
       "CreateTimedMarker": 7,
       "AddGlobalCDTimer": 1
     },
@@ -1170,10 +1170,9 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 8,
+      "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "condition-distance": 1,
         "condition-other": 2
       }
     },
@@ -3965,13 +3964,7 @@
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
       "blocker": "power_attack.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
-      "unresolvedActions": [
-        "CheckMainCharacterCondition",
-        "CreateBuffAction",
-        "DamageAction",
-        "IfElseAction",
-        "ObtainCostAction"
-      ],
+      "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
       "projectileChildCount": 0,
@@ -6741,12 +6734,11 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "AddGlobalCDTimer",
-        "CheckDistanceCondition",
         "CreateBuffAction",
         "DamageAction",
         "IfElseAction",

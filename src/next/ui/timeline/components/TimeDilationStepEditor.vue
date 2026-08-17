@@ -10,9 +10,10 @@ import { useI18n } from 'vue-i18n';
 import { Delete, Plus } from '@element-plus/icons-vue';
 import {
   COMBAT_TARGETS,
+  TIME_DILATION_IGNORE_TARGETS,
   type ActionValueOperand,
   type CombatStepDefinition,
-  type CombatTarget,
+  type TimeDilationIgnoreTarget,
   type TimeScaleCurveDefinition,
   type TimeScaleCurveKeyDefinition,
 } from '../../../core/game-data/operatorDefinition';
@@ -87,7 +88,7 @@ function setFinishByAction(event: Event): void {
   });
 }
 
-function setTarget(target: CombatTarget, checked: boolean): void {
+function setTarget(target: TimeDilationIgnoreTarget, checked: boolean): void {
   const step = ordinary.value;
   if (step === undefined) return;
   if (step.parameters.scope === 'global') {
@@ -97,10 +98,20 @@ function setTarget(target: CombatTarget, checked: boolean): void {
     updateOrdinary({ ...step.parameters, ignoredTargets });
     return;
   }
+  if (target === 'controlled') return;
   const targets = checked
     ? [...new Set([...step.parameters.targets, target])]
     : step.parameters.targets.filter(item => item !== target);
   if (targets.length > 0) updateOrdinary({ ...step.parameters, targets });
+}
+
+function hasTarget(target: TimeDilationIgnoreTarget): boolean {
+  const step = ordinary.value;
+  if (step === undefined) return false;
+  if (step.parameters.scope === 'global') {
+    return step.parameters.ignoredTargets.includes(target);
+  }
+  return target !== 'controlled' && step.parameters.targets.includes(target);
 }
 
 function setIgnoreSlotCheck(event: Event): void {
@@ -242,7 +253,7 @@ function setUltimateScale(targetScale: ActionValueOperand): void {
   emit('update', { ...props.step, parameters: { ...props.step.parameters, targetScale } });
 }
 
-function setUltimateIgnoredTarget(target: CombatTarget, checked: boolean): void {
+function setUltimateIgnoredTarget(target: TimeDilationIgnoreTarget, checked: boolean): void {
   if (props.step.kind !== 'startUltimateTimeDilation') return;
   const ignoredTargets = checked
     ? [...new Set([...props.step.parameters.ignoredTargets, target])]
@@ -283,7 +294,11 @@ function setUltimateIgnoredTarget(target: CombatTarget, checked: boolean): void 
           :help="t('nextTimeline.skillEditing.fieldHelp.ultimateIgnoredTargets')"
         />
       </legend>
-      <label v-for="target in COMBAT_TARGETS" :key="target" class="step-editor__check">
+      <label
+        v-for="target in TIME_DILATION_IGNORE_TARGETS"
+        :key="target"
+        class="step-editor__check"
+      >
         <input
           type="checkbox"
           :checked="step.parameters.ignoredTargets.includes(target)"
@@ -418,14 +433,16 @@ function setUltimateIgnoredTarget(target: CombatTarget, checked: boolean): void 
           "
         />
       </legend>
-      <label v-for="target in COMBAT_TARGETS" :key="target" class="step-editor__check">
+      <label
+        v-for="target in step.parameters.scope === 'global'
+          ? TIME_DILATION_IGNORE_TARGETS
+          : COMBAT_TARGETS"
+        :key="target"
+        class="step-editor__check"
+      >
         <input
           type="checkbox"
-          :checked="
-            step.parameters.scope === 'global'
-              ? step.parameters.ignoredTargets.includes(target)
-              : step.parameters.targets.includes(target)
-          "
+          :checked="hasTarget(target)"
           @change="setTarget(target, ($event.target as HTMLInputElement).checked)"
         />
         {{ t(`nextTimeline.skillEditing.targets.${target}`) }}

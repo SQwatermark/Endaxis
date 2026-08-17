@@ -1366,7 +1366,11 @@
       },
       "scalarValue": "Прямое значение",
       "actionOperandValue": "Операнд таблицы действия",
-      "targets": { "caster": "Исполнитель", "enemy": "Враг" },
+      "targets": {
+        "caster": "Исполнитель",
+        "enemy": "Враг",
+        "controlled": "Управляемый оперативник"
+      },
       "timeDilationScope": "Область",
       "timeDilationScopes": { "global": "Глобальная", "entity": "Выбранные сущности" },
       "timeDilationSlot": "Слот",

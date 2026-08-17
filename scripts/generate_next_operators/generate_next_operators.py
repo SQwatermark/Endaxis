@@ -4409,19 +4409,43 @@ def parse_timeline(
     source_name: str,
     consumed_action_ids: frozenset[int] = frozenset(),
 ) -> tuple[TimelineActionSource, ...]:
+    """审计根时间轴动作，并按“技能已释放”边界省略直接入口守卫。
+
+    直接位于 ``_sequenceActionData.actionData`` 的序列守卫只决定原生技能入口是否
+    继续。Endaxis 会执行用户已经排入时间轴的技能，因此把这一级守卫视为已通过。
+    ForEach、IfElse、Channeling、事件等内部序列中的同名守卫仍必须保留其动作帧
+    控制流，不能借用这条入口规则。
+    """
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     timeline = require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
     result: list[TimelineActionSource] = []
     for index, raw in enumerate(timeline):
         item = require_dict(raw, f"{source_name}.timelineActions[{index}]")
         sequence = require_dict(item.get("_sequenceActionData"), f"{source_name}.timelineActions[{index}]._sequenceActionData")
+        direct_root_guard_ids = frozenset(
+            id(action)
+            for action_index, raw_action in enumerate(
+                require_list(
+                    sequence.get("actionData", []),
+                    f"{source_name}.timelineActions[{index}]._sequenceActionData.actionData",
+                )
+            )
+            for action in (
+                require_dict(
+                    raw_action,
+                    f"{source_name}.timelineActions[{index}]._sequenceActionData.actionData[{action_index}]",
+                ),
+            )
+            if action.get("isEnable") is not False
+            and action_name(str(action.get("$type", ""))) in SEQUENCE_GUARD_ACTION_NAMES
+        )
         types: list[str] = []
         # 监听器响应体不属于根时间轴；它由专用解析器按事件触发时机消费。
         for action in walk_actions(
             sequence,
             opaque_action_names=frozenset({"EventListenerAction"}),
         ):
-            if id(action) in consumed_action_ids:
+            if id(action) in consumed_action_ids or id(action) in direct_root_guard_ids:
                 continue
             name = action_name(action["$type"])
             # Switch 只是控制流容器；纯镜头、停帧等选项不属于战斗模拟缺口。
@@ -4761,6 +4785,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             source_name,
             resolved_blackboard,
             consumed_root_timed_markers,
+            include_for_each_sequence_guards=True,
         ),
         root,
         source_name,
@@ -4858,6 +4883,7 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
             resolved_blackboard,
             consumed_root_timed_markers,
             include_target_group_provenance=True,
+            include_for_each_sequence_guards=True,
         ),
         auraActions=parse_aura_actions(root, source_name, resolved_blackboard),
         physicalInflictions=parse_physical_inflictions(

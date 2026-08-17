@@ -23,7 +23,7 @@ describe('TimeDilationOperationExecutor', () => {
     const timeDilation = runtime();
     const executor = new TimeDilationOperationExecutor({
       runtime: timeDilation,
-      resolveTargetId: target => (target === 'caster' ? 'operator' : 'enemy'),
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
       sourceId: 'operator',
       sourceActionId: 'skill',
       delegate,
@@ -49,11 +49,44 @@ describe('TimeDilationOperationExecutor', () => {
     expect(timeDilation.getOperatorScale('enemy')).toBe(0.5);
   });
 
+  it('resolves the controlled operator when the global action executes', () => {
+    const timeDilation = runtime();
+    const resolvedTargets: string[] = [];
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => {
+        resolvedTargets.push(target);
+        return target === 'controlled' ? ['active-operator'] : [target];
+      },
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    });
+    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+      kind: 'startTimeDilation',
+      parameters: {
+        scope: 'global',
+        durationSeconds: { kind: 'constant', value: 1 },
+        slot: 1,
+        priority: PRIORITY,
+        curve: { kind: 'named', key: 'constant-half' },
+        finishByAction: false,
+        ignoredTargets: ['controlled'],
+      },
+    };
+
+    executor.execute(step, { blackboard: new ActionBlackboard() });
+
+    expect(resolvedTargets).toEqual(['controlled']);
+    expect(timeDilation.getOperatorScale('active-operator')).toBe(1);
+    expect(timeDilation.getOperatorScale('operator')).toBe(0.5);
+  });
+
   it('creates one entity instance per target and stops action-scoped instances', () => {
     const timeDilation = runtime();
     const executor = new TimeDilationOperationExecutor({
       runtime: timeDilation,
-      resolveTargetId: target => (target === 'caster' ? 'operator' : 'enemy'),
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
       sourceId: 'operator',
       sourceActionId: 'skill',
       delegate,
@@ -98,7 +131,7 @@ describe('TimeDilationOperationExecutor', () => {
     const timeDilation = runtime();
     const executor = new TimeDilationOperationExecutor({
       runtime: timeDilation,
-      resolveTargetId: target => (target === 'caster' ? 'operator' : 'enemy'),
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
       sourceId: 'operator',
       sourceActionId: 'skill',
       delegate,

@@ -193,7 +193,7 @@ describe('CombatRuntimeAssembly', () => {
                   priority: 10,
                   curve: { kind: 'named', key: 'half' },
                   finishByAction: false,
-                  ignoredTargets: ['caster'],
+                  ignoredTargets: ['controlled'],
                 },
               },
             ],
@@ -241,6 +241,7 @@ describe('CombatRuntimeAssembly', () => {
         },
         timeManagerDeltaMode: 2,
       },
+      isOperatorControlled: operatorId => operatorId === 'other',
       createOperationExecutor: () => rejectingExecutor,
     });
 
@@ -254,8 +255,8 @@ describe('CombatRuntimeAssembly', () => {
     });
     assembly.advanceFrame();
 
-    expect(casterDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 30);
-    expect(otherDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 60);
+    expect(casterDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 60);
+    expect(otherDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 30);
     expect(assembly.receipt.entries.some(entry => entry.event === 'SkillInputProcessed')).toBe(
       false,
     );

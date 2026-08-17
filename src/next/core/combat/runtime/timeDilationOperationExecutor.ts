@@ -3,7 +3,7 @@
  * 曲线存储方式不决定作用范围；目标解析由整场战斗的装配根提供。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { CombatTarget } from '../../game-data/operatorDefinition';
+import type { CombatTarget, TimeDilationIgnoreTarget } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveTimeScaleCurve } from './timeScaleCurve';
@@ -13,7 +13,7 @@ type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'onc
 
 export interface TimeDilationOperationDependencies {
   readonly runtime: TimeDilationRuntime;
-  readonly resolveTargetId: (target: CombatTarget) => string;
+  readonly resolveTargetIds: (target: TimeDilationIgnoreTarget) => readonly string[];
   readonly sourceId: string;
   readonly sourceActionId: string;
   readonly delegate: CombatOperationExecutor;
@@ -46,8 +46,8 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
         step.parameters.priority,
         resolveActionValueOperand(step.parameters.targetScale, context.blackboard),
         [
-          this.dependencies.resolveTargetId('caster'),
-          ...step.parameters.ignoredTargets.map(this.dependencies.resolveTargetId),
+          ...this.dependencies.resolveTargetIds('caster'),
+          ...step.parameters.ignoredTargets.flatMap(this.dependencies.resolveTargetIds),
         ],
         source,
       );
@@ -68,7 +68,9 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
               slot: parameters.slot,
               priority: parameters.priority,
               curve,
-              ignoredOperatorIds: parameters.ignoredTargets.map(this.dependencies.resolveTargetId),
+              ignoredOperatorIds: parameters.ignoredTargets.flatMap(
+                this.dependencies.resolveTargetIds,
+              ),
               source,
               ...(parameters.influenceSkillCooldownSeconds === undefined
                 ? {}
@@ -82,7 +84,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
           ]
         : parameters.targets.map(target =>
             this.dependencies.runtime.startEntity({
-              operatorId: this.dependencies.resolveTargetId(target),
+              operatorId: resolveSingleTargetId(this.dependencies, target),
               durationSeconds,
               slot: parameters.slot,
               priority: parameters.priority,
@@ -119,4 +121,15 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
   }
+}
+
+function resolveSingleTargetId(
+  dependencies: TimeDilationOperationDependencies,
+  target: CombatTarget,
+): string {
+  const ids = dependencies.resolveTargetIds(target);
+  if (ids.length !== 1) {
+    throw new Error(`time-dilation entity target '${target}' must resolve to exactly one entity`);
+  }
+  return ids[0]!;
 }

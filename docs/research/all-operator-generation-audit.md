@@ -11,7 +11,7 @@
 - 干员：29 名。
 - 技能入口：308 个。
 - 进入严格中间层：303 个。
-- 无角色专用声明即可进入通用 DSL：273 个。
+- 无角色专用声明即可进入通用 DSL：274 个。
 - 当前整名干员完整直转：9 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：14 个。
 - 当前技能入口中已结构化的事件监听器：6 个。
@@ -50,7 +50,7 @@
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     12 |      9 | 否       |
 
 ## 共通阻塞簇
@@ -65,10 +65,10 @@
 | `other`                    |      6 |
 | `conditional-leaf`         |      3 |
 | `root-action-coverage`     |      3 |
-| `condition-distance`       |      2 |
 | `condition-entity-count`   |      2 |
 | `projectile-child-actions` |      2 |
 | `projectile-data`          |      2 |
+| `condition-distance`       |      1 |
 
 ## 技能事件监听器
 
@@ -191,11 +191,11 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `SpellInfliction`             |         11 |
 | `CreateTimedMarker`           |          7 |
 | `SwitchAction`                |          5 |
-| `CheckDistanceCondition`      |          3 |
-| `CheckMainCharacterCondition` |          2 |
+| `CheckDistanceCondition`      |          2 |
 | `FractureAction`              |          2 |
 | `AddGlobalCDTimer`            |          1 |
 | `AuraAction`                  |          1 |
+| `CheckMainCharacterCondition` |          1 |
 
 ## 使用方式
 

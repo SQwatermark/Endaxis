@@ -895,7 +895,7 @@ export interface GeneratedTimedTimeDilationSource extends GeneratedNativeSequenc
   readonly namedCurve: string | null;
   readonly inlineCurve: readonly GeneratedTimeScaleCurveKeySource[];
   readonly finishByAction: boolean;
-  readonly ignoredTargets: readonly ('caster' | 'enemy')[];
+  readonly ignoredTargets: readonly ('caster' | 'enemy' | 'controlled')[];
   readonly targets: readonly ('caster' | 'enemy')[];
   readonly omittedAbilityEntityTargets: number;
   readonly influenceSkillCooldown: GeneratedScalarSource | null;

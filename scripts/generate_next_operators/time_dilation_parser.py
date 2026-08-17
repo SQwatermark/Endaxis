@@ -15,12 +15,13 @@ from source_utils import (
     require_number,
     require_server_action_index,
 )
+from target_parser import parse_target_reference
 
 
 def parse_time_dilation_target(
     value: Any,
     path: str,
-) -> Literal["caster", "enemy", "abilityEntity"]:
+) -> Literal["caster", "enemy", "controlled", "abilityEntity"]:
     """把时间膨胀目标收窄到 Endaxis 当前实际模拟的实体身份。"""
     target = require_dict(value, path)
     source = target.get("targetSource")
@@ -29,6 +30,23 @@ def parse_time_dilation_target(
     if source == "Target":
         return "enemy"
     if source == "InstantSearch":
+        reference = parse_target_reference(target, path)
+        if (
+            not reference.targetGroupKey
+            and reference.selectorOwner == "ActionOwner"
+            and not reference.ownerContextKey
+            and reference.centerType == "ActionSource"
+            and not reference.centerContextKey
+            and not reference.centerToGround
+            and reference.target == "ActionSource"
+            and not reference.targetContextKey
+            and not reference.enableAdvancedDirection
+            and reference.selectorDirection == "SourceForward"
+            and reference.finderType == "CharacterTeamFinder"
+            and reference.validatorTypes == ("MainCharacterValidator",)
+            and not reference.postProcessorTypes
+        ):
+            return "controlled"
         selector = require_dict(target.get("selectorData"), f"{path}.selectorData")
         finder = require_dict(
             selector.get("finderData"),
@@ -119,7 +137,7 @@ def parse_time_dilation_action(
     )
     omitted = sum(target == "abilityEntity" for target in ignored)
     fixed_ignored = tuple(
-        cast(Literal["caster", "enemy"], target)
+        cast(Literal["caster", "enemy", "controlled"], target)
         for target in ignored
         if target != "abilityEntity"
     )

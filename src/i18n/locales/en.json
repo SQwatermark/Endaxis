@@ -1489,7 +1489,7 @@
       },
       "scalarValue": "Direct value",
       "actionOperandValue": "Action blackboard operand",
-      "targets": { "caster": "Caster", "enemy": "Enemy" },
+      "targets": { "caster": "Caster", "enemy": "Enemy", "controlled": "Controlled operator" },
       "timeDilationScope": "Scope",
       "timeDilationScopes": { "global": "Global", "entity": "Selected entities" },
       "timeDilationSlot": "Slot",

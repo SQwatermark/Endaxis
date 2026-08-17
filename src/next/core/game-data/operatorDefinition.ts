@@ -131,6 +131,10 @@ export const COMBAT_TARGETS = ['caster', 'enemy'] as const;
 /** 干员 DSL 中无需多敌人寻址的语义目标。 */
 export type CombatTarget = (typeof COMBAT_TARGETS)[number];
 
+export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as const;
+/** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */
+export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[number];
+
 export const BUFF_APPLICATION_TARGETS = [...COMBAT_TARGETS, 'party'] as const;
 /** Buff 施加允许面向单一战斗实体或当前队伍中的全部存活干员。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
@@ -481,7 +485,7 @@ export interface CombatStepParameters {
         priority: number;
         curve: TimeScaleCurveDefinition;
         finishByAction: boolean;
-        ignoredTargets: readonly CombatTarget[];
+        ignoredTargets: readonly TimeDilationIgnoreTarget[];
         influenceSkillCooldownSeconds?: ActionValueOperand;
       }
     | {
@@ -498,7 +502,7 @@ export interface CombatStepParameters {
   startUltimateTimeDilation: {
     priority: number;
     targetScale: ActionValueOperand;
-    ignoredTargets: readonly CombatTarget[];
+    ignoredTargets: readonly TimeDilationIgnoreTarget[];
   };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   modifyActionValue: {
