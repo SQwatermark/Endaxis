@@ -272,14 +272,23 @@ finish, and target mutation are not yet exposed. Proven child actions now run
 only on their owning entity timeline; their former parent projections are
 removed in the same compilation pass so they cannot execute twice.
 
-The next safe slice is the minimal reusable Buff lifecycle bridge required by
-child `Owner`/selected-entity applications. The three real child-Owner Buff
-consumers are not static ID attachments: they contain periodic triggers,
-conditions, Aura or finish-host behavior. The bridge must therefore reuse the
-existing Buff instance/lifecycle execution model with an AbilityEntity owner
-context; a separate entity-only Buff map would lose observed behavior. This
-does not widen ordinary combat targets or invent spatial behavior. Li Zhiyan's
-positional spawn-target projection
+The runtime half of the minimal reusable Buff lifecycle bridge is now present.
+`currentAbilityEntity` is a Buff-application-only target and is valid only in a
+child/Context target scope. The assembly lazily creates one existing
+`CombatBuffContainer` adapter per logical entity, shares the entity blackboard,
+advances it with that AbilitySystem's existing default/global/self time deltas,
+and finishes all owned Buffs when the host entity ends. Buff lifecycle
+sequences receive the same stable entity handle, so a trigger can use the
+shared `finishCurrentAbilityEntity` operation instead of a second callback
+protocol. An assembly regression covers apply -> periodic trigger -> explicit
+host finish -> Buff cleanup through the production operation chain.
+
+This is deliberately not yet generator coverage. The three real child-Owner
+Buff consumers are not static ID attachments: they contain periodic triggers,
+conditions, Aura or finish-host behavior. Each BuffData must pass the existing
+strict inline-definition/lifecycle compiler before its parent child graph may
+migrate; a separate entity-only Buff map or ID attachment would lose observed
+behavior. Li Zhiyan's positional spawn-target projection
 can follow independently. Avywenna's projectile launch-point semantics, Camille's target
 mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.

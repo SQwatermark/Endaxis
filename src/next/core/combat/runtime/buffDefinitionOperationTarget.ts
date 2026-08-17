@@ -21,6 +21,7 @@ import type { FrameRuntime } from './combatSimulation';
 import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
@@ -39,6 +40,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   constructor(
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
+    readonly currentTarget?: RuntimeTargetRef,
   ) {}
 
   get ownerId(): string {
@@ -105,8 +107,11 @@ export class BuffDefinitionOperationTarget<Key extends string>
     const definition =
       lifecycleSequences === undefined
         ? baseDefinition
-        : attachBuffLifecycleSequences(baseDefinition, lifecycleSequences, buff =>
-            this.#resolveLifecycleOperations!(buff),
+        : attachBuffLifecycleSequences(
+            baseDefinition,
+            lifecycleSequences,
+            buff => this.#resolveLifecycleOperations!(buff),
+            this.currentTarget,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;
@@ -119,6 +124,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
   /** AbilitySystem 提供四路时钟后，由各 Buff 定义自行选择其生命周期时间域。 */
   advanceWithDeltas(deltas: AbilityTickDeltas): void {
     this.container.tick(deltas);
+  }
+
+  finishAll(reason: BuffFinishReason = 'other'): number {
+    return this.container.finishAll(reason);
   }
 
   getCountByIds(ids: readonly string[]): number {

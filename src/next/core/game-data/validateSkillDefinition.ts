@@ -970,6 +970,9 @@ function validateCombatStep(
         }
       }
       requireEnum(parameters, 'target', BUFF_APPLICATION_TARGETS_SET, `${path}.parameters`, out);
+      if (parameters.target === 'currentAbilityEntity' && !currentTargetAvailable) {
+        push(out, path, 'currentAbilityEntity target requires a forEachContextTarget body');
+      }
       if (parameters.count !== undefined) {
         validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       }

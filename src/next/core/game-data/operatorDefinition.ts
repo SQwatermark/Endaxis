@@ -135,8 +135,12 @@ export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as
 /** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */
 export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[number];
 
-export const BUFF_APPLICATION_TARGETS = [...COMBAT_TARGETS, 'party'] as const;
-/** Buff 施加允许面向单一战斗实体或当前队伍中的全部存活干员。 */
+export const BUFF_APPLICATION_TARGETS = [
+  ...COMBAT_TARGETS,
+  'party',
+  'currentAbilityEntity',
+] as const;
+/** Buff 施加允许面向单一战斗实体、当前能力实体或队伍中的全部存活干员。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
 
 export const COMPARISON_OPERATORS = [

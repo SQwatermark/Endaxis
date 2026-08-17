@@ -1417,7 +1417,12 @@
       "buffMaxTriggerCount": "Maximum trigger count",
       "buffCount": "Creation count",
       "buffSource": "Source entity",
-      "buffTargets": { "caster": "Caster", "enemy": "Enemy", "party": "All operators" },
+      "buffTargets": {
+        "caster": "Caster",
+        "enemy": "Enemy",
+        "party": "All operators",
+        "currentAbilityEntity": "Current ability entity"
+      },
       "inheritSkillCast": "Inherit skill-cast identity",
       "buffAssignments": "Initial blackboard assignments",
       "addAssignment": "Add assignment",

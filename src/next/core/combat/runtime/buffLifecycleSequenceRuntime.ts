@@ -9,12 +9,14 @@ import type {
 import type { BuffLifecycleActions, CombatBuff, CombatBuffDefinition } from '../buffs/combatBuffs';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 /** 为一份已编译 Buff 定义安装同步生命周期序列。 */
 export function attachBuffLifecycleSequences<Key extends string>(
   definition: CombatBuffDefinition<Key>,
   sequences: ResolvedSkillBuffLifecycleSequences,
   resolveOperations: (buff: CombatBuff<Key>) => CombatOperationExecutor,
+  currentTarget?: RuntimeTargetRef,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -28,6 +30,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
     if (runtime !== undefined) return runtime;
     const context: CombatOperationContext = {
       blackboard: buff.blackboard,
+      ...(currentTarget === undefined ? {} : { currentTarget }),
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
     };
     runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);

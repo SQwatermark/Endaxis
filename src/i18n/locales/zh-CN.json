@@ -1417,7 +1417,12 @@
       "buffMaxTriggerCount": "最多触发次数",
       "buffCount": "创建次数",
       "buffSource": "来源实体",
-      "buffTargets": { "caster": "施法者", "enemy": "敌人", "party": "全队干员" },
+      "buffTargets": {
+        "caster": "施法者",
+        "enemy": "敌人",
+        "party": "全队干员",
+        "currentAbilityEntity": "当前能力实体"
+      },
       "inheritSkillCast": "继承技能释放身份",
       "buffAssignments": "初始黑板赋值",
       "addAssignment": "添加赋值",

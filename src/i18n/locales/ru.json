@@ -1294,7 +1294,12 @@
       "buffMaxTriggerCount": "Максимум срабатываний",
       "buffCount": "Количество созданий",
       "buffSource": "Источник",
-      "buffTargets": { "caster": "Исполнитель", "enemy": "Враг", "party": "Все операторы" },
+      "buffTargets": {
+        "caster": "Исполнитель",
+        "enemy": "Враг",
+        "party": "Все операторы",
+        "currentAbilityEntity": "Текущая сущность способности"
+      },
       "inheritSkillCast": "Наследовать источник навыка",
       "buffAssignments": "Начальные значения таблицы",
       "addAssignment": "Добавить значение",

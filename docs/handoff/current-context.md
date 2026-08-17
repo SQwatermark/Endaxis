@@ -15,9 +15,9 @@
 
 - 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 本文对应的最近实现提交：`2d8720fb feat(next): migrate ability entity source buffs`；实际 HEAD 始终以 `git log` 为准。
-- 紧邻提交：`dbb9a11e feat(next): migrate ability entity resource timelines`
-- 再前提交：`79472682 feat(next): migrate ability entity interval timelines`
+- 本文对应的最近实现提交：`d3e5668d feat(next): finish ability entities from child timelines`；实际 HEAD 始终以 `git log` 为准。
+- 紧邻提交：`2d8720fb feat(next): migrate ability entity source buffs`
+- 再前提交：`dbb9a11e feat(next): migrate ability entity resource timelines`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -65,6 +65,7 @@
 - 能力实体 `TimeDilationAction.effectTargets` 已从源解析阻塞改为类型化审计：保留 owner-spawned 与可选 GameplayTag 查询，编译阶段明确报告实体时钟/子技能调度缺失。Tangtang、Yvonne、Li Zhiyan、Liino 的连携技现统一暴露该运行时边界；不得把它误认作纯表现 `EffectAction`。
 - `spawnAbilityEntity` 已贯通 DSL、严格校验、编译、标准模拟和生成器。正式生成产物目前覆盖 Arclight 终结技、Gilberta 战技/终结技、Lifeng 终结技；庄方宜审计产物也保存了对应步骤。DSL/编译器/运行时可在生成步骤内携带已解析子时间轴；每个实例独占游标，复用统一序列解释器，以实体黑板为回退，并消费与寿命相同的实体局部时间。生成器已把 Arclight 与 Lifeng 终结技的严格子图，以及庄方宜普攻二/四的固定周期子图和普攻五的伤害/回能/黑板修改，原子迁入局部时间轴并删除父时间轴投影；原生 `assignBlackboard` 会先复制生成动作黑板，再应用显式实体赋值。Gilberta 的实体目标 Buff/Aura 等未闭环形状不迁移。
 - 子时间线直接 `FinishOwnerAction(Owner)` 已经按原生 RVA `0x06CF5E28` 的目标解析证据接入统一实体目录。运行时允许子技能结束自己的宿主并对称收尾；生成器只接受字段精确的 plain Owner 形状，保留但不解释 `skipDieDisplay`，同帧等价结束去重。庄方宜普攻二、四、五的审计输出新增局部帧 897 结束。条件结束和 Buff 生命周期回调仍未闭环。
+- 能力实体 Buff 的运行时所有权桥已接入：`currentAbilityEntity` 目标只允许出现在已有实体作用域内；首次施加时惰性创建标准 Buff 容器，与子技能共享实体黑板并消费该实体的四路时钟，宿主结束时统一清理。Buff 生命周期上下文保留同一实体句柄，周期触发可以复用 `finishCurrentAbilityEntity` 结束宿主。真实 Owner-Buff 语料尚未开放生成，必须先逐个越过内联 Buff 条件/Aura 编译边界。
 - `OwnerSpawnedEntityFinder + TagValidator` 的 Context 来源证据仍完整保留。统一 `findOwnerSpawnedAbilityEntities` 步骤已经能够按当前干员和原生标签查询逻辑目录，把完整组写入本次施法 Context，并可把数量写入动作黑板复用现有比较条件。Avywenna 三组长枪与 Tangtang 水体四个守卫仍需实体目标 Buff、投射物来源和生成器转换，不能提前宣称闭环。完整盘点见 `docs/research/ability-entity-context-target-audit.md`。
 - Context 组现在可按稳定句柄同步迭代；body 通过显式 `currentTarget` 读取、比较或 `Assign` 有限剩余时长。若 body 返回 false，运行时会因原生跨实例短路规则尚未证明而显式失败，不能猜测继续/终止。原始语料共有 10 个时长设置、2 个当前时长检查和 1 个目标设置；当前只接入全部已观察时长动作共有的 `Assign` 子集，目标设置仍阻塞。
 - 同一桌面 `GameAssembly.dll` 的进一步反汇编已确认 `TimeDilationAction` 的 Entity 分支逐个解析 `effectTargets` 并调用 `StartEntityTimeDilation`，实体实例逐帧把曲线倍率安装到目标 Entity。Next 时间膨胀运行时已将局部目标泛化为稳定实体 ID，能力实体有限寿命和已内嵌的子技能时间轴都会消费 `ability-entity:<instanceId>` 对应的实体倍率，并有标准装配回归覆盖。两个正式生成子图已迁移，但 owner/tag 目标可跨技能选中尚未迁移的实体；在建立干员级全生成点证明前，Entity 目标阻塞保持不变。
@@ -78,7 +79,7 @@
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。严格生成已越过全部 11 个登记对象，当前全量审计为 30 名、320 个入口、318 个可解析、280 个可编译；新增的六个可解析入口来自能力实体时间膨胀目标的类型化保留，不代表该运行时已实现。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
-- `npm run test:next`：169 个文件中 168 个、967 项中 965 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
+- `npm run test:next`：169 个文件中 168 个、969 项中 967 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
 - 全仓 `npm test -- --run`：243 个文件中 235 个、1463 项中 1450 项通过。13 项失败里两项是既有 Next 时间线停滞；其余旧版/UI 工作树回归不属于能力实体链路，未在本任务中修改或掩盖。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
@@ -113,7 +114,7 @@
 
 1. 扩大能力实体子图动态迁移的严格覆盖，并为 owner/tag 查询建立干员级匹配生成点闭包；只有闭包内所有生成点都已迁移时才开放 `effectAbilityEntityTargets`；
 2. 闭环 Li Zhiyan 的位置目标逻辑生成，使已有单例 Context 证明能够承载八个时长赋值；
-3. 复用现有 Buff 实例/生命周期执行模型，为能力实体 Owner 建立极简操作上下文；真实三个消费者含周期触发、条件、Aura 或结束宿主行为，不能退化成 Buff ID 映射。直接显式结束已经闭环，条件/Buff 回调结束仍待该桥接；之后再处理 Camille 的设置目标和 Avywenna 的投射物来源；
+3. 运行时 Buff 所有权与回调结束桥已经闭环；下一步逐个严格编译三个真实 Owner-Buff 定义，先选择不含未建模 Aura/条件的完整消费者，不得为提高覆盖而忽略生命周期步骤。之后再处理 Camille 的设置目标和 Avywenna 的投射物来源；
 4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
 5. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 

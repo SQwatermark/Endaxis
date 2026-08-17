@@ -11,6 +11,7 @@ import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackb
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -79,8 +80,10 @@ export interface BuffOperationDependencies {
   readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
   /** 集合施加只用于 CreateBuffAction；Buff 查询与结束仍必须解析为单一实体。 */
   readonly resolveApplicationTargets?: (
-    target: BuffApplicationTarget,
+    target: Exclude<BuffApplicationTarget, 'currentAbilityEntity'>,
   ) => readonly BuffOperationTarget[];
+  /** 当前子时间线/Context 句柄只在显式能力实体目标的施加路径使用。 */
+  readonly resolveCurrentAbilityEntityTarget?: (target: RuntimeTargetRef) => BuffOperationTarget;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -102,7 +105,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
       }
-      const targets = this.#resolveApplicationTargets(step.parameters.target);
+      const targets = this.#resolveApplicationTargets(step.parameters.target, context);
       if (targets.some(target => target.apply === undefined)) {
         return context === undefined
           ? this.dependencies.delegate.execute(step)
@@ -220,7 +223,20 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.execute(step, context);
   }
 
-  #resolveApplicationTargets(target: BuffApplicationTarget): readonly BuffOperationTarget[] {
+  #resolveApplicationTargets(
+    target: BuffApplicationTarget,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): readonly BuffOperationTarget[] {
+    if (target === 'currentAbilityEntity') {
+      if (context?.currentTarget === undefined) {
+        throw new Error('currentAbilityEntity Buff application requires a current target');
+      }
+      const resolve = this.dependencies.resolveCurrentAbilityEntityTarget;
+      if (resolve === undefined) {
+        throw new Error('currentAbilityEntity Buff application is not configured');
+      }
+      return [resolve(context.currentTarget)];
+    }
     const resolved = this.dependencies.resolveApplicationTargets?.(target);
     if (resolved !== undefined) return resolved;
     if (target === 'party') {

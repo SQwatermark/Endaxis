@@ -68,6 +68,8 @@ import {
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { gameplayTagId } from '../tags/gameplayTags';
+import type { BuffFinishReason } from '../buffs/combatBuffs';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -98,6 +100,12 @@ export interface CombatOperatorProgram {
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
 export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {
   advanceWithDeltas?(deltas: AbilityTickDeltas): void;
+}
+
+/** 动态能力实体独占的 Buff 所有者；生命周期使用该实体的四路时间增量。 */
+export interface AbilityEntityBuffRuntime extends BuffOperationTarget {
+  advanceWithDeltas(deltas: AbilityTickDeltas): void;
+  finishAll(reason?: BuffFinishReason): number;
 }
 
 /** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非定义回查。 */
@@ -168,6 +176,12 @@ export interface CombatRuntimeAssemblyOptions {
     operatorId: string,
     panel?: ResolvedOperatorPanel,
   ) => OperatorBuffRuntime;
+  /** 仅在能力实体首次成为 Buff 目标时创建，返回值必须由该实例独占。 */
+  readonly createAbilityEntityBuffRuntime?: (
+    entityId: string,
+    entityBlackboard: ActionBlackboard,
+    target: RuntimeTargetRef,
+  ) => AbilityEntityBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
@@ -209,6 +223,7 @@ const unsupportedReactiveTerminal: CombatOperationExecutor = {
 
 /** 一次战斗的时钟、账本、实体能力系统与回执的唯一装配根。 */
 export class CombatRuntimeAssembly {
+  readonly #options: CombatRuntimeAssemblyOptions;
   readonly clock = new CombatClock();
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptCollector;
@@ -226,6 +241,7 @@ export class CombatRuntimeAssembly {
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #enemyBuffRuntime: EnemyBuffRuntime;
   readonly #operatorBuffs = new Map<string, BuffOperationTarget>();
+  readonly #abilityEntityBuffs = new Map<number, AbilityEntityBuffRuntime>();
   readonly #operatorOrder: string[] = [];
   readonly #enemyStatuses?: CombatStatusRuntime;
   readonly #operatorStatuses = new Map<string, CombatStatusRuntime>();
@@ -257,6 +273,7 @@ export class CombatRuntimeAssembly {
   >();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
+    this.#options = options;
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
     this.timeDilation =
@@ -298,7 +315,12 @@ export class CombatRuntimeAssembly {
             targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: { templateId: entity.templateId, childSkillId },
           }),
-        finished: (entity, reason) =>
+        finished: (entity, reason) => {
+          const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
+          if (buffRuntime !== undefined) {
+            buffRuntime.finishAll('other');
+            this.#abilityEntityBuffs.delete(entity.instanceId);
+          }
           this.receipt.record({
             frame: this.clock.frame,
             time: this.clock.time,
@@ -306,7 +328,8 @@ export class CombatRuntimeAssembly {
             sourceId: entity.ownerId,
             targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: { templateId: entity.templateId, reason },
-          }),
+          });
+        },
       },
     });
     this.timelineClock = new CombatTimelineClock({
@@ -494,6 +517,29 @@ export class CombatRuntimeAssembly {
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
     this.simulation.add(this.abilityEntities);
+    this.simulation.add({
+      advanceFrame: () => {
+        for (const [instanceId, runtime] of this.#abilityEntityBuffs) {
+          const target = { kind: 'abilityEntity' as const, instanceId };
+          if (!this.abilityEntities.isActive(target)) continue;
+          const entityId = logicalAbilityEntityRuntimeId(instanceId);
+          runtime.advanceWithDeltas(
+            this.timeDilation === null
+              ? {
+                  defaultDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  globalScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                }
+              : this.timeDilation.getAbilityTickDeltas(
+                  entityId,
+                  COMBAT_FRAME_INTERVAL,
+                  options.timeDilation!.timeManagerDeltaMode,
+                ),
+          );
+        }
+      },
+    });
     // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
     this.simulation.add({
       advanceFrame: () => {
@@ -756,6 +802,8 @@ export class CombatRuntimeAssembly {
         target === 'party'
           ? this.#requirePartyBuffTargets()
           : [this.#resolveBuffTarget(target, operatorId)],
+      resolveCurrentAbilityEntityTarget: target =>
+        this.#resolveAbilityEntityBuffTarget(target, this.#options),
       delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -864,6 +912,8 @@ export class CombatRuntimeAssembly {
         target === 'party'
           ? this.#requirePartyBuffTargets()
           : [this.#resolveBuffTarget(target, operatorId)],
+      resolveCurrentAbilityEntityTarget: target =>
+        this.#resolveAbilityEntityBuffTarget(target, options),
       delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);
@@ -1037,6 +1087,36 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
     }
     return casterBuffs;
+  }
+
+  #resolveAbilityEntityBuffTarget(
+    target: RuntimeTargetRef,
+    options: CombatRuntimeAssemblyOptions,
+  ): AbilityEntityBuffRuntime {
+    if (target.kind !== 'abilityEntity' || !this.abilityEntities.isActive(target)) {
+      throw new Error('current Buff target is not an active AbilityEntity');
+    }
+    let runtime = this.#abilityEntityBuffs.get(target.instanceId);
+    if (runtime !== undefined) return runtime;
+    const create = options.createAbilityEntityBuffRuntime;
+    if (create === undefined) {
+      throw new Error('AbilityEntity Buff runtime is not configured');
+    }
+    runtime = create(
+      logicalAbilityEntityRuntimeId(target.instanceId),
+      this.abilityEntities.entityBlackboard(target),
+      target,
+    );
+    if (runtime.ownerId !== logicalAbilityEntityRuntimeId(target.instanceId)) {
+      throw new Error(
+        `AbilityEntity Buff owner '${runtime.ownerId}' does not match instance '${target.instanceId}'`,
+      );
+    }
+    runtime.configureLifecycleOperations?.(source =>
+      this.#createBuffLifecycleOperationChain(source, options),
+    );
+    this.#abilityEntityBuffs.set(target.instanceId, runtime);
+    return runtime;
   }
 
   #requirePartyBuffTargets(): readonly BuffOperationTarget[] {

@@ -579,6 +579,39 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(skill)).toEqual([]);
   });
 
+  it('allows current AbilityEntity Buff application only inside an entity target scope', () => {
+    const apply = {
+      kind: 'applyBuff' as const,
+      parameters: {
+        buffId: 'entity-monitor',
+        target: 'currentAbilityEntity' as const,
+        definition: { stackingType: 'unique' as const },
+      },
+    };
+    const skill = baseSkill();
+    skill.scheduledSequences = [{ startFrame: 0, sequence: { steps: [apply] } }];
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].sequence.steps[0]',
+      message: 'currentAbilityEntity target requires a forEachContextTarget body',
+    });
+
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'forEachContextTarget',
+              parameters: { contextKey: 'entities' },
+              body: { steps: [apply] },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+
   it('rejects conditional without whenTrue', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

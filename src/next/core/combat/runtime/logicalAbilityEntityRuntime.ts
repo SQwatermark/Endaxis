@@ -187,6 +187,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return this.#snapshot(this.#requireInstance(target));
   }
 
+  /** 同一实例的子技能与 Buff 共用这一持久黑板；不对场景外暴露实例对象。 */
+  entityBlackboard(target: RuntimeTargetRef): ActionBlackboard {
+    return this.#requireInstance(target).blackboard;
+  }
+
   setTarget(entity: RuntimeTargetRef, target: RuntimeTargetRef): void {
     this.#requireInstance(entity).target = target;
   }

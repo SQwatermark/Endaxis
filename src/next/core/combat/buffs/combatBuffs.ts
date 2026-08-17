@@ -617,6 +617,15 @@ export class CombatBuffContainer<Key extends string> {
     return count;
   }
 
+  /** 按插入顺序结束所属实体上的全部活动 Buff。 */
+  finishAll(reason: BuffFinishReason = 'other'): number {
+    let count = 0;
+    for (const buff of this.#buffs) {
+      if (!buff.isFinished && buff.finish(reason)) count += 1;
+    }
+    return count;
+  }
+
   /** 固定当前匹配实例并禁止其结束；释放不会影响保护开始后新增的同 ID Buff。 */
   holdByIds(ids: readonly string[]): { release(): void } {
     const accepted = new Set(ids);

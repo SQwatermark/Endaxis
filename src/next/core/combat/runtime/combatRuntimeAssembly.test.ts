@@ -7,11 +7,13 @@ import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import { ActionBlackboard } from './actionBlackboard';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 import {
   logicalAbilityEntityRuntimeId,
   type LogicalAbilityEntityTemplate,
+  type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 
 const emptyEnemyBuffRuntime = {
@@ -109,6 +111,9 @@ function createAssembly(
   enemy: CombatEnemyProgram = testEnemy,
   abilityEntityTemplates: readonly LogicalAbilityEntityTemplate[] = [],
   timeDilation?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['timeDilation'],
+  createAbilityEntityBuffRuntime?: ConstructorParameters<
+    typeof CombatRuntimeAssembly
+  >[0]['createAbilityEntityBuffRuntime'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -136,6 +141,7 @@ function createAssembly(
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
+    ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
     ...(resolveVitals === undefined ? {} : { resolveVitals }),
   });
@@ -329,6 +335,123 @@ describe('CombatRuntimeAssembly', () => {
         entry => entry.event === 'SpChanged' && entry.data?.requestedValue === 10,
       ),
     ).toBe(true);
+  });
+
+  it('lets an AbilityEntity Buff lifecycle finish its owning entity through the shared chain', () => {
+    let entityBuffs: CombatBuffContainer<string> | undefined;
+    const createAbilityEntityBuffRuntime = vi.fn(
+      (entityId: string, blackboard: ActionBlackboard, target: RuntimeTargetRef) => {
+        entityBuffs = new CombatBuffContainer(
+          entityId,
+          new CombatAttributeSet<string>(),
+          undefined,
+          null,
+          blackboard,
+        );
+        return new BuffDefinitionOperationTarget(
+          entityBuffs,
+          {
+            get: () => undefined,
+            compile: entry => ({
+              id: entry.id,
+              stackingType: entry.stackingType,
+              triggerIntervalSeconds: entry.triggerIntervalSeconds,
+              waitFirstTriggerInterval: entry.waitFirstTriggerInterval,
+              maxTriggerCount: entry.maxTriggerCount,
+            }),
+          },
+          target,
+        );
+      },
+    );
+    const program = skill({
+      castId: 'entity-buff-cast',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  templateId: 'buff-host',
+                  childSkillId: 'buff-child',
+                  dieWhenSourceDies: false,
+                  childSkill: {
+                    skillId: 'buff-child',
+                    initialBlackboard: {},
+                    timelineActions: [
+                      {
+                        startFrame: 0,
+                        sequence: {
+                          steps: [
+                            {
+                              kind: 'applyBuff',
+                              parameters: {
+                                buffId: 'entity-monitor',
+                                target: 'currentAbilityEntity',
+                                inheritSourceSkillCastInfo: true,
+                                definition: {
+                                  stackingType: 'unique',
+                                  triggerIntervalSeconds: 1 / 30,
+                                  waitFirstTriggerInterval: true,
+                                  maxTriggerCount: 1,
+                                  lifecycleSequences: {
+                                    trigger: {
+                                      steps: [
+                                        { kind: 'finishCurrentAbilityEntity', parameters: {} },
+                                      ],
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [
+        {
+          id: 'buff-host',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          maxStackingCount: -1,
+        },
+      ],
+      undefined,
+      createAbilityEntityBuffRuntime,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill', 'entity-buff-cast')).toBe(true);
+    expect(createAbilityEntityBuffRuntime).toHaveBeenCalledOnce();
+    expect(entityBuffs?.buffs).toHaveLength(1);
+    expect(assembly.abilityEntities.activeCount).toBe(1);
+    assembly.advanceFrames(1);
+    expect(assembly.abilityEntities.activeCount).toBe(0);
+    expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'AbilityEntityFinished',
+        data: expect.objectContaining({ reason: 'explicit' }),
+      }),
+    );
   });
 
   it('resolves owner/tag AbilityEntity targets through the assembled time-dilation chain', () => {

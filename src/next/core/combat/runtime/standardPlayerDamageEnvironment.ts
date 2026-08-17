@@ -55,6 +55,7 @@ type EnvironmentOptions = Pick<
   | 'enemyBuffRuntime'
   | 'enemyVitalsRuntime'
   | 'createOperatorBuffRuntime'
+  | 'createAbilityEntityBuffRuntime'
   | 'createOperationExecutor'
   | 'createEquipmentEventOperationExecutor'
   | 'resolveVitals'
@@ -149,6 +150,22 @@ export class StandardPlayerDamageEnvironment {
       },
       createOperatorBuffRuntime: (operatorId, panel) =>
         this.#operatorBuffRuntime(operatorId, panel),
+      createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target) =>
+        new BuffDefinitionOperationTarget(
+          new CombatBuffContainer(
+            entityId,
+            new CombatAttributeSet<string>(),
+            undefined,
+            null,
+            entityBlackboard,
+            (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
+          ),
+          {
+            get: () => undefined,
+            compile: entry => this.#compileInlineBuffDefinition(entry),
+          },
+          target,
+        ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
@@ -455,14 +472,22 @@ export class StandardPlayerDamageEnvironment {
 
   /** 敌人 Buff 结束（到期、消费、驱散等）时记录结束事实，供效果投影画段。 */
   #recordBuffFinished(buff: CombatBuff<string>, reason: BuffFinishReason): void {
+    this.#recordOwnedBuffFinished('enemy', buff, reason);
+  }
+
+  #recordOwnedBuffFinished(
+    ownerId: string,
+    buff: CombatBuff<string>,
+    reason: BuffFinishReason,
+  ): void {
     if (this.#clock === null || this.#receipt === null) {
-      throw new Error('enemy buff finished before the environment was bound to a battle');
+      throw new Error(`Buff on '${ownerId}' finished before the environment was bound to a battle`);
     }
     this.#receipt.record({
       frame: this.#clock.frame,
       time: this.#clock.time,
       event: 'BuffFinished',
-      targetId: 'enemy',
+      targetId: ownerId,
       data: {
         buffId: buff.definition.id,
         reason,
