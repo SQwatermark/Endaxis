@@ -78,6 +78,7 @@ from generate_next_operators import (
     TimedInflictionSource,
     TimedMarkerGateSource,
     TimedResourceGainSource,
+    TimedTimelineJumpSource,
     TargetGroupWriteSource,
     TargetGroupInputSource,
     ConditionalActionSource,
@@ -8226,6 +8227,53 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             keywordActions=(),
         )
         self.assertTrue(ability_entity_child_finishes_are_terminal(control_flow))
+
+    def test_outer_if_else_jump_is_one_shot_only_for_the_exact_success_path(self) -> None:
+        condition_path = (
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+        )
+        condition = ConditionalActionSource(
+            startFrame=67,
+            endFrame=68,
+            actionIndex=20,
+            actionPath=condition_path,
+            conditions=(
+                ConditionSource(
+                    sourceType="CompareFloat",
+                    supported=True,
+                    comparison="Equals",
+                    left=ScalarSource(0, "isCombo", None),
+                    right=ScalarSource(0, None, None),
+                    skillTypes=(),
+                ),
+            ),
+            succeedActions=(),
+            failActions=(),
+        )
+        jump = TimedTimelineJumpSource(
+            startFrame=67,
+            endFrame=68,
+            destFrame=150,
+            actionIndex=22,
+            actionPath=(*condition_path, "succeedActions", "actionData", "[0]"),
+            conditionActionTypes=(),
+            isOnlyBranchAction=True,
+            isRootContainerOnlySequenceAction=True,
+            sequenceIndex=8,
+        )
+        hit = SimpleNamespace(conditionalActions=(condition,), localTargetGroupWrites=())
+
+        self.assertTrue(timeline_jump_can_compile(jump, hit))
+        self.assertFalse(timeline_jump_can_compile(replace(jump, isOnlyBranchAction=False), hit))
+        self.assertFalse(
+            timeline_jump_can_compile(
+                replace(jump, actionPath=(*condition_path, "failActions", "actionData", "[0]")),
+                hit,
+            )
+        )
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

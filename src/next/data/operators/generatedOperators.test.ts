@@ -57,12 +57,16 @@ describe('新增的完整技能转换干员', () => {
     expect(behaviorGaps ?? []).not.toContain('battleSkill');
   });
 
-  it('Lifeng 终结技不会把条件跳转后的能力实体动作线性内嵌', () => {
+  it('Lifeng 终结技把外层 IfElse 跳转保留为一次性局部条件分支', () => {
     const serialized = JSON.stringify(lifengUltimate);
     const frames = lifengUltimate.scheduledSequences.map(sequence => sequence.startFrame);
 
-    expect(serialized).not.toContain('"childSkill":');
-    expect(frames).toEqual(expect.arrayContaining([64, 124, 179]));
+    expect(serialized).toContain('"childSkill":');
+    expect(serialized).toContain('"destinationFrame":150');
+    expect(serialized).toContain('"key":"EntityBB_isCombo"');
+    const jumpIndex = serialized.indexOf('"destinationFrame":150');
+    expect(jumpIndex).toBeLessThan(serialized.indexOf('"key":"EntityBB_isCombo"', jumpIndex));
+    expect(frames).not.toEqual(expect.arrayContaining([64, 124, 179]));
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {

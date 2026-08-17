@@ -4709,6 +4709,8 @@ export const fluoriteGeneratedSource = {
                   ],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
+                  "isOnlyBranchAction": true,
+                  "isRootContainerOnlySequenceAction": true,
                   "sequenceIndex": 5
                 },
                 {
@@ -4757,6 +4759,8 @@ export const fluoriteGeneratedSource = {
                   ],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
+                  "isOnlyBranchAction": true,
+                  "isRootContainerOnlySequenceAction": true,
                   "sequenceIndex": 11
                 }
               ],

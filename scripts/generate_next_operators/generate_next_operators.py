@@ -375,7 +375,7 @@ def skill_contains_ability_entity_timeline_jumps(skill: SkillSource) -> bool:
         for entity in entities:
             jumps = entity.timelineJumps
             if jumps and (
-                not all(timeline_jump_can_compile(jump) for jump in jumps)
+                not all(timeline_jump_can_compile(jump, entity) for jump in jumps)
                 or not ability_entity_child_finishes_are_terminal(entity)
             ):
                 found = True
@@ -3021,15 +3021,29 @@ def parse_timeline_jumps(
     def walk_action_paths(
         value: Any,
         path: tuple[str, ...],
-    ) -> Iterable[tuple[dict[str, Any], tuple[str, ...]]]:
+        is_only_branch_action: bool = False,
+    ) -> Iterable[tuple[dict[str, Any], tuple[str, ...], bool]]:
         if isinstance(value, dict):
             if value.get("isEnable") is False:
                 return
             type_name = value.get("$type")
             if isinstance(type_name, str):
-                yield value, path
+                yield value, path, is_only_branch_action
             for key, child in value.items():
-                yield from walk_action_paths(child, (*path, key))
+                if key == "actionData" and isinstance(child, list):
+                    enabled_children = tuple(
+                        item
+                        for item in child
+                        if isinstance(item, dict) and item.get("isEnable") is not False
+                    )
+                    for index, item in enumerate(child):
+                        yield from walk_action_paths(
+                            item,
+                            (*path, key, f"[{index}]"),
+                            len(enabled_children) == 1 and enabled_children[0] is item,
+                        )
+                else:
+                    yield from walk_action_paths(child, (*path, key))
         elif isinstance(value, list):
             for index, child in enumerate(value):
                 yield from walk_action_paths(child, (*path, f"[{index}]"))
@@ -3056,7 +3070,7 @@ def parse_timeline_jumps(
             for action in raw_root_actions
             if isinstance(action, dict) and action.get("isEnable") is not False
         ) if isinstance(raw_root_actions, list) else ()
-        for action, action_path in walk_action_paths(
+        for action, action_path, is_only_branch_action in walk_action_paths(
             sequence_data,
             (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
         ):
@@ -3103,6 +3117,17 @@ def parse_timeline_jumps(
                     directConditionsSupported=direct_conditions_supported,
                     isOnlySequenceAction=(
                         len(enabled_root_actions) == 1 and enabled_root_actions[0] is action
+                    ),
+                    isOnlyBranchAction=is_only_branch_action,
+                    isRootContainerOnlySequenceAction=(
+                        len(enabled_root_actions) == 1
+                        and action_path[:4]
+                        == (
+                            f"timelineActions[{timeline_index}]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                        )
                     ),
                     sequenceIndex=timeline_index,
                 )
@@ -7634,7 +7659,33 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
     return True
 
 
-def timeline_jump_can_compile(jump: TimedTimelineJumpSource) -> bool:
+def timeline_jump_outer_condition(
+    hit: AbilityEntityHitSource,
+    jump: TimedTimelineJumpSource,
+) -> ConditionalActionSource | None:
+    """关联唯一根 IfElse 成功分支中的一次性空条件跳转。"""
+    if not (
+        jump.isOnlyBranchAction
+        and jump.isRootContainerOnlySequenceAction
+        and not jump.conditionActionTypes
+        and not jump.directConditions
+    ):
+        return None
+    for condition in getattr(hit, "conditionalActions", ()):
+        if (
+            jump.actionPath
+            == (*condition.actionPath, "succeedActions", "actionData", "[0]")
+            and not condition.succeedActions
+            and condition.conditions
+        ):
+            return condition
+    return None
+
+
+def timeline_jump_can_compile(
+    jump: TimedTimelineJumpSource,
+    hit: AbilityEntityHitSource | None = None,
+) -> bool:
     """只接受唯一根动作、前向目的地和完整直接条件的已证实跳转形状。"""
     sequence_index = getattr(jump, "sequenceIndex", -1)
     expected_path = (
@@ -7644,18 +7695,33 @@ def timeline_jump_can_compile(jump: TimedTimelineJumpSource) -> bool:
         "[0]",
     )
     if not (
+        getattr(jump, "startFrame", 1) <= getattr(jump, "endFrame", 0)
+        and getattr(jump, "destFrame", -1) >= getattr(jump, "startFrame", 0)
+    ):
+        return False
+    if (
         getattr(jump, "actionPath", ()) == expected_path
         and getattr(jump, "isOnlySequenceAction", False)
-        and getattr(jump, "startFrame", 1) <= getattr(jump, "endFrame", 0)
-        and getattr(jump, "destFrame", -1) >= getattr(jump, "startFrame", 0)
         and getattr(jump, "directConditionsSupported", False)
         and getattr(jump, "directConditions", ())
     ):
+        try:
+            compile_combat_condition_group(
+                getattr(jump, "directConditions"),
+                "timelineJump.condition",
+                root_skill_context=False,
+                input_target="enemy",
+            )
+        except ValueError:
+            return False
+        return True
+    if hit is None or (outer := timeline_jump_outer_condition(hit, jump)) is None:
         return False
     try:
         compile_combat_condition_group(
-            getattr(jump, "directConditions"),
-            "timelineJump.condition",
+            outer.conditions,
+            "timelineJump.outerCondition",
+            target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
             root_skill_context=False,
             input_target="enemy",
         )
@@ -7715,7 +7781,7 @@ def ability_entity_child_timeline_can_compile(
             finish.target.targetSource == "Owner" and target_reference_is_plain(finish.target)
             for finish in getattr(hit, "explicitFinishes", ())
         )
-        and all(timeline_jump_can_compile(jump) for jump in getattr(hit, "timelineJumps", ()))
+        and all(timeline_jump_can_compile(jump, hit) for jump in getattr(hit, "timelineJumps", ()))
         and ability_entity_child_finishes_are_terminal(hit)
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
@@ -7911,37 +7977,68 @@ def compile_ability_entity_child_skill(
     for frame, sequence_order, action_order, step_lines in compiled:
         grouped.setdefault((frame, sequence_order), []).append((action_order, step_lines))
 
-    render_groups: list[
+    ordinary_render_groups: list[
         tuple[int, tuple[int, ...], int | None, list[tuple[tuple[int, ...], list[str]]]]
     ] = [
         (frame, sequence_order, None, actions)
         for (frame, sequence_order), actions in grouped.items()
     ]
+    render_groups: list[
+        tuple[int, tuple[int, ...], int | None, list[tuple[tuple[int, ...], list[str]]]]
+    ] = []
     for jump in getattr(hit, "timelineJumps", ()):
-        condition = compile_combat_condition_group(
-            jump.directConditions,
-            f"{skill.key}.{hit.skillId}.timelineJump.condition",
-            root_skill_context=False,
-            input_target="enemy",
-        )
-        condition_lines = condition.splitlines()
-        condition_lines[0] = f"  condition: {condition_lines[0]}"
-        condition_lines[1:] = [f"  {line}" for line in condition_lines[1:]]
-        condition_lines[-1] += ","
-        step_lines = [
-            "step('jumpTimeline', {",
-            f"  destinationFrame: {jump.destFrame},",
-            *condition_lines,
-            "})",
-        ]
+        outer_condition = timeline_jump_outer_condition(hit, jump)
+        if outer_condition is None:
+            condition = compile_combat_condition_group(
+                jump.directConditions,
+                f"{skill.key}.{hit.skillId}.timelineJump.condition",
+                root_skill_context=False,
+                input_target="enemy",
+            )
+            condition_lines = condition.splitlines()
+            condition_lines[0] = f"  condition: {condition_lines[0]}"
+            condition_lines[1:] = [f"  {line}" for line in condition_lines[1:]]
+            condition_lines[-1] += ","
+            step_lines = [
+                "step('jumpTimeline', {",
+                f"  destinationFrame: {jump.destFrame},",
+                *condition_lines,
+                "})",
+            ]
+            end_frame: int | None = jump.endFrame
+        else:
+            condition = compile_combat_condition_group(
+                outer_condition.conditions,
+                f"{skill.key}.{hit.skillId}.timelineJump.outerCondition",
+                target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
+                root_skill_context=False,
+                input_target="enemy",
+            )
+            condition_lines = [f"  {line}" for line in condition.splitlines()]
+            condition_lines[-1] += ","
+            step_lines = [
+                "branch(",
+                *condition_lines,
+                "  sequence(",
+                "    step('jumpTimeline', {",
+                f"      destinationFrame: {jump.destFrame},",
+                "    }),",
+                "  ),",
+                ")",
+            ]
+            # 外层 IfElse 只在起始帧求值；不能把条件错误扩展成区间重试。
+            end_frame = None
         render_groups.append(
             (
                 jump.startFrame,
                 native_sequence_order(jump, hit.actionOrder, hit.skillId),
-                jump.endFrame,
+                end_frame,
                 [((*hit.actionOrder, jump.actionIndex), step_lines)],
             )
         )
+    # 同一原生 IfElse 的一次性跳转必须先求值：成功时游标会跳过随后待执行的
+    # 条件调度，失败时才让原失败分支继续执行，避免失败分支写入影响重复求值。
+    render_groups.extend(ordinary_render_groups)
 
     lines = ["{", f"  skillId: {ts_inline_literal(hit.skillId)},", "  scheduledSequences: ["]
     for frame, sequence_order, end_frame, actions in sorted(

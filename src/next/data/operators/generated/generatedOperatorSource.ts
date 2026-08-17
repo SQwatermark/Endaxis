@@ -241,6 +241,10 @@ export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenc
   readonly directConditionsSupported: boolean;
   /** 跳转是其所在原生 Sequence 的唯一启用根动作。 */
   readonly isOnlySequenceAction: boolean;
+  /** 跳转是其所在 succeed/fail actionData 的唯一启用动作。 */
+  readonly isOnlyBranchAction: boolean;
+  /** 包含跳转的根动作是所在时间轴 Sequence 的唯一启用动作。 */
+  readonly isRootContainerOnlySequenceAction: boolean;
 }
 
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */

@@ -385,6 +385,8 @@ class TimedTimelineJumpSource:
     directConditions: tuple["ConditionSource", ...] = ()
     directConditionsSupported: bool = False
     isOnlySequenceAction: bool = False
+    isOnlyBranchAction: bool = False
+    isRootContainerOnlySequenceAction: bool = False
     sequenceIndex: int = -1
 
 

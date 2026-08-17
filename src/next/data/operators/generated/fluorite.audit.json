@@ -3179,6 +3179,8 @@
                   ],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
+                  "isOnlyBranchAction": true,
+                  "isRootContainerOnlySequenceAction": true,
                   "sequenceIndex": 5
                 },
                 {
@@ -3227,6 +3229,8 @@
                   ],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
+                  "isOnlyBranchAction": true,
+                  "isRootContainerOnlySequenceAction": true,
                   "sequenceIndex": 11
                 }
               ],
