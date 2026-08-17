@@ -312,54 +312,65 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
       scheduled(
         20,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack5', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange', inheritActionBlackboard: true, target: 'enemy' }),
-        ),
-      ),
-      scheduled(
-        20,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([48, 53, 58, 62, 67, 72, 77, 82, 86, 92, 100, 108]),
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: 18,
-          }, '12:basicAttack513:abilityEntity25:chr_0030_zhuangfy_attack538:chr_0030_zhuangfy_attack5_abilityrange11:actionOrder1:61:02:11'),
-        ),
-      ),
-      scheduled(
-        20,
-        sequence(
-          step('changeResourceByActionValue', {
-            resource: 'sp',
-            amount: { kind: 'blackboard', key: 'atb' },
-            recipient: 'team',
-            spGainKind: 'gain',
-            spGainSource: 'normalAttack',
-          }),
-          step('modifyActionValue', {
-            key: 'hasGainAtb',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
-          }),
-        ),
-      ),
-      scheduled(
-        24,
-        sequence(
-          step('modifyActionValue', {
-            key: 'hasGainAtb',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
-          }),
-        ),
-      ),
-      scheduled(
-        28,
-        sequence(
-          step('modifyActionValue', {
-            key: 'hasGainAtb',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0030_zhuangfy_attack5',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+            inheritActionBlackboard: true,
+            target: 'enemy',
+            childSkill: {
+              skillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([48, 53, 58, 62, 67, 72, 77, 82, 86, 92, 100, 108]),
+                      tags: ['normalAttack', 'normalAttackLastCombo'],
+                      stagger: 18,
+                    }, '12:basicAttack513:abilityEntity25:chr_0030_zhuangfy_attack538:chr_0030_zhuangfy_attack5_abilityrange11:actionOrder1:61:02:11'),
+                  ),
+                ),
+                scheduled(
+                  0,
+                  sequence(
+                    step('changeResourceByActionValue', {
+                      resource: 'sp',
+                      amount: { kind: 'blackboard', key: 'atb' },
+                      recipient: 'team',
+                      spGainKind: 'gain',
+                      spGainSource: 'normalAttack',
+                    }),
+                    step('modifyActionValue', {
+                      key: 'hasGainAtb',
+                      operation: 'assign',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                ),
+                scheduled(
+                  4,
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'hasGainAtb',
+                      operation: 'assign',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                ),
+                scheduled(
+                  8,
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'hasGainAtb',
+                      operation: 'assign',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                ),
+              ],
+            },
           }),
         ),
       ),
@@ -456,30 +467,42 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
       scheduled(
         3,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange', inheritActionBlackboard: true, target: 'enemy', saveToContextKey: 'thunder' }),
-        ),
-      ),
-      scheduled(
-        33,
-        sequence(
-          step('changeResourceByActionValue', {
-            resource: 'sp',
-            amount: { kind: 'blackboard', key: 'atb' },
-            recipient: 'team',
-            spGainKind: 'gain',
-            spGainSource: 'normalAttack',
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
+            inheritActionBlackboard: true,
+            target: 'enemy',
+            saveToContextKey: 'thunder',
+            childSkill: {
+              skillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  30,
+                  sequence(
+                    step('changeResourceByActionValue', {
+                      resource: 'sp',
+                      amount: { kind: 'blackboard', key: 'atb' },
+                      recipient: 'team',
+                      spGainKind: 'gain',
+                      spGainSource: 'normalAttack',
+                    }),
+                  ),
+                ),
+                scheduled(
+                  30,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([134, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300]),
+                      tags: ['normalAttack', 'normalAttackLastCombo'],
+                      stagger: 18,
+                    }, '20:enhancedBasicAttack313:abilityEntity29:chr_0030_zhuangfy_attack3_ult42:chr_0030_zhuangfy_attack3_ult_abilityrange11:actionOrder2:111:01:2'),
+                  ),
+                ),
+              ],
+            },
           }),
-        ),
-      ),
-      scheduled(
-        33,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([134, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300]),
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: 18,
-          }, '20:enhancedBasicAttack313:abilityEntity29:chr_0030_zhuangfy_attack3_ult42:chr_0030_zhuangfy_attack3_ult_abilityrange11:actionOrder2:111:01:2'),
         ),
       ),
     ],

@@ -7202,17 +7202,16 @@ def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bo
             or getattr(hit, "conditionalActions", ())
         )
         and not getattr(hit, "auxiliaryActions", ())
-        and not getattr(hit, "resourceGains", ())
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())
         and not getattr(hit, "blackboardCalculations", ())
-        and not getattr(hit, "blackboardMutations", ())
         and not getattr(hit, "buffBlackboardReads", ())
         and not getattr(hit, "buffFinishes", ())
         and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
-        and set(getattr(hit, "combatActions", ())) <= {"DamageAction", "SpellInfliction"}
+        and set(getattr(hit, "combatActions", ()))
+        <= {"DamageAction", "ObtainCostAction", "SpellInfliction"}
     )
 
 
@@ -7264,6 +7263,37 @@ def compile_ability_entity_child_skill(
                 native_sequence_order(infliction, hit.actionOrder, hit.skillId),
                 (*hit.actionOrder, infliction.actionIndex),
                 compile_infliction(infliction).splitlines(),
+            )
+        )
+
+    for mutation in hit.blackboardMutations:
+        compiled.append(
+            (
+                mutation.startFrame,
+                native_sequence_order(mutation, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, mutation.actionIndex),
+                compile_blackboard_mutation(
+                    mutation,
+                    f"{skill.key}.{hit.skillId}.blackboardMutation",
+                ).splitlines(),
+            )
+        )
+
+    resource_gains = sorted(
+        hit.resourceGains, key=lambda item: (item.startFrame, item.actionIndex)
+    )
+    for gain in filter_once_resource_gains(resource_gains):
+        if not resource_gain_can_change_value(gain, f"{hit.skillId}.resourceGain"):
+            continue
+        compiled.append(
+            (
+                gain.startFrame,
+                native_sequence_order(gain, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, gain.actionIndex),
+                compile_resource_gain(
+                    gain,
+                    f"{skill.key}.{hit.skillId}.resourceGain",
+                ).splitlines(),
             )
         )
 

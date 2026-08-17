@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   zhuangFangyiBasicAttack2,
+  zhuangFangyiBasicAttack5,
   zhuangFangyiComboSkill,
   zhuangFangyiEnhancedComboSkill,
 } from './zhuang-fangyi.skills.audit.generated';
@@ -21,6 +22,21 @@ describe('zhuangFangyi generated skill audit', () => {
     expect(zhuangFangyiBasicAttack2.scheduledSequences.map(item => item.startFrame)).not.toEqual(
       expect.arrayContaining([24, 26, 29]),
     );
+  });
+
+  it('keeps blackboard mutations and resource gain on the AbilityEntity clock', () => {
+    const spawn = zhuangFangyiBasicAttack5.scheduledSequences
+      .flatMap(sequence => sequence.sequence.steps)
+      .find(step => step.kind === 'spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
+
+    const child = spawn.parameters.childSkill;
+    expect(child?.scheduledSequences.map(item => item.startFrame)).toEqual([0, 0, 4, 8]);
+    expect(zhuangFangyiBasicAttack5.scheduledSequences.map(item => item.startFrame)).toEqual([20]);
+    expect(child?.scheduledSequences[1]?.sequence.steps.map(step => step.kind)).toEqual([
+      'changeResourceByActionValue',
+      'modifyActionValue',
+    ]);
   });
 
   it('preserves combo-skill Buff counting and same-frame native order', () => {

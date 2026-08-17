@@ -93,11 +93,11 @@ describe('next Zhuang Fangyi definition', () => {
   it('keeps the generated fifth normal attack equivalent to the current definition', () => {
     const current = getSkill(generatedBasicAttack5.key);
     expect(generatedBasicAttack5.timelineBlockFrames).toBe(current.timelineBlockFrames);
-    const generatedSteps = generatedBasicAttack5.scheduledSequences.flatMap(item =>
+    const generatedRootSteps = generatedBasicAttack5.scheduledSequences.flatMap(item =>
       collectSteps(item.sequence),
     );
     const currentSteps = current.scheduledSequences.flatMap(item => collectSteps(item.sequence));
-    expect(generatedSteps).toContainEqual(
+    expect(generatedRootSteps).toContainEqual(
       expect.objectContaining({
         kind: 'spawnAbilityEntity',
         parameters: expect.objectContaining({
@@ -106,10 +106,19 @@ describe('next Zhuang Fangyi definition', () => {
         }),
       }),
     );
-    const generatedDamage = generatedSteps.find(step => step.kind === 'dealDamage');
+    const spawn = generatedRootSteps.find(step => step.kind === 'spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity' || spawn.parameters.childSkill === undefined) {
+      throw new Error('missing generated AbilityEntity child timeline');
+    }
+    const generatedChildSteps = spawn.parameters.childSkill.scheduledSequences.flatMap(item =>
+      collectSteps(item.sequence),
+    );
+    const generatedDamage = generatedChildSteps.find(step => step.kind === 'dealDamage');
     const currentDamage = currentSteps.find(step => step.kind === 'dealDamage');
     expect(withoutStepKey(generatedDamage)).toEqual(withoutStepKey(currentDamage));
-    expect(generatedSteps.find(step => step.kind === 'changeResourceByActionValue')).toMatchObject({
+    expect(
+      generatedChildSteps.find(step => step.kind === 'changeResourceByActionValue'),
+    ).toMatchObject({
       kind: 'changeResourceByActionValue',
       parameters: {
         resource: 'sp',
