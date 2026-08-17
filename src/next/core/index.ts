@@ -11,6 +11,7 @@ export * from './combat/random/criticalSampleSource';
 export * from './combat/receipt/combatReceipt';
 export * from './combat/status/combatStatuses';
 export * from './combat/runtime/combatClock';
+export * from './combat/runtime/skillOperableBoundaryRuntime';
 export * from './combat/runtime/combatResources';
 export * from './combat/runtime/combatSimulation';
 export * from './combat/runtime/combatTimelineClock';
