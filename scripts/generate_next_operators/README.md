@@ -110,6 +110,12 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 
 纯 `skillBbModifier` 养成效果可使用 `compile: "skillBlackboardPatch"` 转换为技能初始黑板补丁。转换器逐条验证目标原生技能能唯一对应到稳定技能组、黑板键非空、操作类型受支持，并保持天赋等级顺序。指向隐藏天赋技能、混入 Buff/附加技能或同时修改其他参数的效果不能借用该编译器，仍应显式保留为未建模。
 
+天赋和潜能中的 `attachSkill` 会沿隐藏 SkillData 继续解析，不需要把隐藏技能列入可放置技能清单。
+当前只允许 `PassiveSkillType.AddBuff`、启动 Buff 和黑板传值均可无损表达的子集生成
+`passiveSkills`。切换 Buff、事件/光环行为、未知 Buff 载荷，以及尚无运行时消费端的原生属性修正
+都会写入 `*.audit.json` 的 `passiveSkills[].generationIssues`，不会阻断其他技能生成，也不会降级为
+空效果。正式定义只包含完整通过检查的隐藏被动 Buff；审计失败的依赖不会进入运行时 Buff 目录。
+
 ## 当前边界
 
 - Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。

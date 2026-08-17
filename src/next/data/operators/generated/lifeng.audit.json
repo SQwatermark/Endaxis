@@ -422,6 +422,31 @@
       "auraActions": []
     }
   ],
+  "passiveSkills": [
+    {
+      "skill_id": "chr_0015_lifeng_talent_1",
+      "source_file": "chr_0015_lifeng_talent_1.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "atk_up"
+      ],
+      "buffs": [
+        {
+          "buff_id": "buff_chr_0015_lifeng_talent_1",
+          "assignments": [
+            {
+              "target_key": "atk_up",
+              "input_key": "atk_up"
+            }
+          ]
+        }
+      ],
+      "unsupported_reasons": [],
+      "generationIssues": [
+        "Buff 'buff_chr_0015_lifeng_talent_1' modifies native attributes whose runtime consumers are not connected"
+      ]
+    }
+  ],
   "skills": [
     {
       "key": "basicAttack1",

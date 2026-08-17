@@ -362,6 +362,64 @@
       "auraActions": []
     }
   ],
+  "passiveSkills": [
+    {
+      "skill_id": "chr_0022_bounda_talent_1",
+      "source_file": "chr_0022_bounda_talent_1.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "dmg_up"
+      ],
+      "buffs": [
+        {
+          "buff_id": "buff_chr_0022_bounda_talent_1",
+          "assignments": [
+            {
+              "target_key": "dmg_up",
+              "input_key": "dmg_up"
+            }
+          ]
+        }
+      ],
+      "unsupported_reasons": [],
+      "generationIssues": [
+        "passive 'chr_0022_bounda_talent_1': Buff 'buff_chr_0022_bounda_talent_1' contains unsupported behavior: damageModifier"
+      ]
+    },
+    {
+      "skill_id": "chr_0022_bounda_talent_2",
+      "source_file": "chr_0022_bounda_talent_2.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "atk_up",
+        "duration",
+        "probability"
+      ],
+      "buffs": [
+        {
+          "buff_id": "buff_chr_0022_bounda_talent_2",
+          "assignments": [
+            {
+              "target_key": "atk_up",
+              "input_key": "atk_up"
+            },
+            {
+              "target_key": "probability",
+              "input_key": "probability"
+            },
+            {
+              "target_key": "duration",
+              "input_key": "duration"
+            }
+          ]
+        }
+      ],
+      "unsupported_reasons": [],
+      "generationIssues": [
+        "passive 'chr_0022_bounda_talent_2': Buff 'buff_chr_0022_bounda_talent_2' contains unsupported behavior: eventActions"
+      ]
+    }
+  ],
   "skills": [
     {
       "key": "basicAttack1",

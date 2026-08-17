@@ -2713,6 +2713,46 @@
       "auraActions": []
     }
   ],
+  "passiveSkills": [
+    {
+      "skill_id": "chr_0030_zhuangfy_talent1",
+      "source_file": "chr_0030_zhuangfy_talent1.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "base_rate",
+        "duration",
+        "enhance_rate"
+      ],
+      "buffs": [],
+      "unsupported_reasons": [
+        "passive has no startup Buff"
+      ],
+      "generationIssues": [
+        "passive has no startup Buff"
+      ]
+    },
+    {
+      "skill_id": "chr_0030_zhuangfy_talent2",
+      "source_file": "chr_0030_zhuangfy_talent2.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "base_rate",
+        "duration",
+        "heal",
+        "probability",
+        "swordRateFinal",
+        "sword_rate",
+        "swordsNum"
+      ],
+      "buffs": [],
+      "unsupported_reasons": [
+        "passive has no startup Buff"
+      ],
+      "generationIssues": [
+        "passive has no startup Buff"
+      ]
+    }
+  ],
   "skills": [
     {
       "key": "basicAttack1",

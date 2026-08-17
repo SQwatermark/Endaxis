@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from audit_operator_progression import (
     audit_effect,
@@ -16,6 +17,11 @@ from progression_renderer import (
     parse_ultimate_cost_multiplier,
     render_potentials,
     render_talents,
+)
+from passive_skill_parser import (
+    PassiveBuffApplicationSource,
+    PassiveBuffAssignmentSource,
+    PassiveSkillSource,
 )
 
 
@@ -84,6 +90,81 @@ def skill_blackboard_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_unmodeled_talent_can_still_render_a_proven_attached_passive(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "node.a": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 1,
+                        "talentEffectId": "effect.talent1",
+                    }
+                },
+                "node.b": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 2,
+                        "talentEffectId": "effect.talent2",
+                    }
+                },
+            }
+        }
+        effects = {
+            effect_id: {
+                "dataList": [
+                    effect_entry(
+                        attr_type=0,
+                        value=0,
+                        attachSkill={
+                            "blackboard": [
+                                {"key": "amount", "value": amount, "valueStr": ""}
+                            ],
+                            "skillId": "hidden.passive",
+                            "skillPath": "",
+                        },
+                    )
+                ]
+            }
+            for effect_id, amount in (("effect.talent1", 1), ("effect.talent2", 2))
+        }
+        passive = PassiveSkillSource(
+            skill_id="hidden.passive",
+            source_file="hidden.passive.json",
+            passive_type="AddBuff",
+            declared_blackboard_keys=("amount",),
+            buffs=(
+                PassiveBuffApplicationSource(
+                    "buff.hidden",
+                    (PassiveBuffAssignmentSource("value", "amount"),),
+                ),
+            ),
+            unsupported_reasons=(),
+        )
+        with patch(
+            "progression_renderer.compile_inline_buff_definition",
+            return_value="stackingType: 'unique',\npriority: 0,",
+        ):
+            rendered = render_talents(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "talents": [
+                        {"index": 0, "key": "talent1", "compile": "unmodeledTalent"}
+                    ],
+                },
+                [],
+                growth,
+                effects,
+                {passive.skill_id: passive},
+                {"buff.hidden": SimpleNamespace(buffId="buff.hidden")},
+            )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("passiveSkills: [", rendered[0])
+        self.assertIn("'amount': [1, 2]", rendered[0])
+        self.assertIn("buffId: 'buff.hidden'", rendered[0])
+        self.assertIn("'value': { kind: 'blackboard', key: 'amount' }", rendered[0])
+
     def test_audit_json_keeps_scalar_arrays_compact(self) -> None:
         self.assertEqual(
             render_json({"items": ["a", "b"], "rows": [{"value": 1}]}),

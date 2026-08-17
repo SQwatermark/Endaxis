@@ -9,7 +9,9 @@ import math
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from source_models import SkillSource
+from buff_definition_compiler import compile_inline_buff_definition
+from passive_skill_parser import PassiveSkillSource
+from source_models import BuffDefinitionSource, SkillSource
 from source_utils import (
     require_dict,
     require_list,
@@ -172,6 +174,109 @@ def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
     ):
         kinds.append("skillParamModifier")
     return tuple(kinds)
+
+
+def _render_attached_passive_skills(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str | None:
+    """将各等级同一 attachSkill 合并为一个按等级取值的常驻被动。"""
+    if not effect_entries:
+        return None
+    skill_id: str | None = None
+    value_keys: tuple[str, ...] | None = None
+    values_by_key: dict[str, list[int | float]] = {}
+    for effect_id, data_list in effect_entries:
+        if len(data_list) != 1:
+            return None
+        entry_path = f"{effect_id}.dataList[0]"
+        entry = data_list[0]
+        if _effect_payload_kinds(entry, entry_path) != ("attachSkill",):
+            return None
+        attach = require_dict(entry.get("attachSkill"), f"{entry_path}.attachSkill")
+        current_skill_id = attach.get("skillId")
+        if not isinstance(current_skill_id, str) or not current_skill_id:
+            raise ValueError(f"{entry_path}.attachSkill.skillId: expected non-empty skill id")
+        if skill_id is None:
+            skill_id = current_skill_id
+        elif skill_id != current_skill_id:
+            raise ValueError(f"{effect_id}: talent levels attach different passive skills")
+
+        level_values: dict[str, int | float] = {}
+        for index, raw_value in enumerate(
+            require_list(attach.get("blackboard"), f"{entry_path}.attachSkill.blackboard")
+        ):
+            value_path = f"{entry_path}.attachSkill.blackboard[{index}]"
+            item = require_dict(raw_value, value_path)
+            key = item.get("key")
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"{value_path}.key: expected non-empty string")
+            if key in level_values:
+                raise ValueError(f"{value_path}.key: duplicate {key!r}")
+            level_values[key] = require_number(item.get("value"), f"{value_path}.value")
+        current_keys = tuple(sorted(level_values))
+        if value_keys is None:
+            value_keys = current_keys
+            values_by_key = {key: [] for key in current_keys}
+        elif value_keys != current_keys:
+            raise ValueError(f"{effect_id}: talent levels attach different blackboard keys")
+        for key in current_keys:
+            values_by_key[key].append(level_values[key])
+
+    assert skill_id is not None
+    source = passive_skills.get(skill_id)
+    if source is None or not source.can_generate_add_buff:
+        return None
+    unknown_keys = set(values_by_key).difference(source.declared_blackboard_keys)
+    if unknown_keys:
+        raise ValueError(
+            f"passive {skill_id!r}: effect supplies undeclared blackboard keys {sorted(unknown_keys)}"
+        )
+
+    lines = ["  passiveSkills: [", "    {", f"      key: {ts_inline_literal(skill_id)},"]
+    if values_by_key:
+        lines.append("      blackboard: {")
+        for key, values in values_by_key.items():
+            value: int | float | list[int | float] = values[0] if len(set(values)) == 1 else values
+            lines.append(f"        {ts_inline_literal(key)}: {ts_inline_literal(value)},")
+        lines.append("      },")
+    lines.append("      enableSequence: sequence(")
+    for application in source.buffs:
+        definition = buff_definitions.get(application.buff_id)
+        if definition is None:
+            raise ValueError(
+                f"passive {skill_id!r}: missing resolved Buff {application.buff_id!r}"
+            )
+        lines.extend(
+            [
+                "        step('applyBuff', {",
+                f"          buffId: {ts_inline_literal(application.buff_id)},",
+                "          definition: {",
+                *(
+                    "            " + line
+                    for line in compile_inline_buff_definition(
+                        definition,
+                        f"passive {skill_id!r}",
+                    ).splitlines()
+                ),
+                "          },",
+                "          target: 'caster',",
+                "          inheritSourceSkillCastInfo: false,",
+            ]
+        )
+        if application.assignments:
+            lines.append("          blackboardAssignments: {")
+            for assignment in application.assignments:
+                lines.append(
+                    "            "
+                    f"{ts_inline_literal(assignment.target_key)}: "
+                    f"{{ kind: 'blackboard', key: {ts_inline_literal(assignment.input_key)} }},"
+                )
+            lines.append("          },")
+        lines.append("        }),")
+    lines.extend(["      ),", "    },", "  ],"])
+    return "\n".join(lines)
 
 
 def _parse_skill_blackboard_patch_entry(
@@ -535,7 +640,11 @@ def render_talents(
     skills: list[SkillSource],
     growth: dict[str, Any],
     effects: dict[str, Any],
+    passive_skills: dict[str, PassiveSkillSource] | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> list[str]:
+    passive_skills = passive_skills or {}
+    buff_definitions = buff_definitions or {}
     nodes = require_dict(growth.get("talentNodeMap"), "CharGrowthTable.talentNodeMap")
     by_index: dict[int, list[tuple[int, str]]] = {}
     for raw_node in nodes.values():
@@ -556,6 +665,26 @@ def render_talents(
             raise ValueError(f"talent index {index}: no source effects")
         kind = config.get("compile")
         key = str(config["key"])
+        attach_entries = [
+            (
+                effect_id,
+                [
+                    require_dict(item, f"{effect_id}.dataList[{item_index}]")
+                    for item_index, item in enumerate(
+                        require_list(
+                            table_row(effects, effect_id, "PotentialTalentEffectTable").get("dataList"),
+                            f"{effect_id}.dataList",
+                        )
+                    )
+                ],
+            )
+            for _, effect_id in entries
+        ]
+        passive_body = _render_attached_passive_skills(
+            attach_entries,
+            passive_skills,
+            buff_definitions,
+        )
         if isinstance(kind, str) and kind.startswith("unmodeled") and kind != "unmodeledMultiTarget":
             # 显式未建模天赋：保留稳定身份和等级数，不生成无证据的 modifiers；
             # conversionSupport 会依据 unmodeled 前缀自动标记 talentEffects 缺口。
@@ -566,6 +695,7 @@ def render_talents(
                         f"  key: {ts_inline_literal(key)},",
                         f"  levels: {len(entries)},",
                         "  modifiers: [],",
+                        *([passive_body] if passive_body is not None else []),
                         "}",
                     ]
                 )
@@ -678,7 +808,11 @@ def render_potentials(
     skills: list[SkillSource],
     potential_table: dict[str, Any],
     effects: dict[str, Any],
+    passive_skills: dict[str, PassiveSkillSource] | None = None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> list[str]:
+    passive_skills = passive_skills or {}
+    buff_definitions = buff_definitions or {}
     char_id = str(operator["charId"])
     source = table_row(potential_table, char_id, "CharacterPotentialTable")
     unlocks = require_list(source.get("potentialUnlockBundle"), f"CharacterPotentialTable.{char_id}")
@@ -697,6 +831,19 @@ def render_potentials(
         data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
         key = str(config["key"])
         kind = config.get("compile")
+        passive_body = _render_attached_passive_skills(
+            [
+                (
+                    effect_id,
+                    [
+                        require_dict(entry, f"{effect_id}.dataList[{index}]")
+                        for index, entry in enumerate(data_list)
+                    ],
+                )
+            ],
+            passive_skills,
+            buff_definitions,
+        )
         if isinstance(kind, str) and kind.startswith("unmodeled"):
             # 显式未建模潜能：保留稳定身份，不生成无证据的 modifiers；
             # conversionSupport 会依据 unmodeled 前缀自动标记 potentialEffects 缺口。
@@ -707,6 +854,7 @@ def render_potentials(
                         f"  key: {ts_inline_literal(key)},",
                         "  levels: 1,",
                         "  modifiers: [],",
+                        *([passive_body] if passive_body is not None else []),
                         "}",
                     ]
                 )

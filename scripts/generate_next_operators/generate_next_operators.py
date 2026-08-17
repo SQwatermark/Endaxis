@@ -108,6 +108,7 @@ from progression_renderer import (
     render_talents,
     skill_id_by_key,
 )
+from passive_skill_parser import PassiveSkillSource, parse_passive_skill
 from action_kinds import (
     AUDITED_COMBAT_ACTION_NAMES,
     AUDITED_COMBAT_EFFECT_ACTION_NAMES,
@@ -1965,6 +1966,112 @@ def resolve_operator_buff_definitions(
         referenced_ids,
         (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
     )
+
+
+def resolve_passive_buff_definitions(
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_source_dir: Path,
+) -> tuple[tuple[BuffDefinitionSource, ...], dict[str, str]]:
+    """逐个解析隐藏被动 Buff，使单个未知原生结构只影响对应被动。"""
+    definitions: dict[str, BuffDefinitionSource] = {}
+    issues: dict[str, str] = {}
+    buff_ids = {
+        buff_id
+        for passive in passive_skills.values()
+        for buff_id in passive.referenced_buff_ids
+    }
+    for buff_id in sorted(buff_ids):
+        try:
+            resolved = resolve_buff_definitions(
+                (buff_id,),
+                (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+            )
+        except (ValueError, FileNotFoundError) as error:
+            issues[buff_id] = str(error)
+            continue
+        for definition in resolved:
+            definitions[definition.buffId] = definition
+    return tuple(definitions[key] for key in sorted(definitions)), issues
+
+
+def collect_operator_passive_skills(
+    char_id: str,
+    growth: dict[str, Any],
+    potential_table: dict[str, Any],
+    effects: dict[str, Any],
+    source_dir: Path,
+) -> dict[str, PassiveSkillSource]:
+    """收集该干员养成效果引用的隐藏技能，供 Buff 解析、审计和 DSL 生成共用。"""
+    effect_ids: set[str] = set()
+    nodes = require_dict(growth.get("talentNodeMap"), f"CharGrowthTable.{char_id}.talentNodeMap")
+    for raw_node in nodes.values():
+        node = require_dict(raw_node, f"CharGrowthTable.{char_id}.talentNodeMap[]")
+        passive = require_dict(node.get("passiveSkillNodeInfo"), "passiveSkillNodeInfo")
+        effect_id = passive.get("talentEffectId")
+        if effect_id:
+            effect_ids.add(str(effect_id))
+    potential = table_row(potential_table, char_id, "CharacterPotentialTable")
+    for index, raw_unlock in enumerate(
+        require_list(potential.get("potentialUnlockBundle"), f"{char_id}.potentialUnlockBundle")
+    ):
+        unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[{index}]")
+        effect_ids.add(str(unlock["potentialEffectId"]))
+
+    skill_ids: set[str] = set()
+    for effect_id in effect_ids:
+        effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+        for index, raw_entry in enumerate(
+            require_list(effect.get("dataList"), f"{effect_id}.dataList")
+        ):
+            entry = require_dict(raw_entry, f"{effect_id}.dataList[{index}]")
+            attach = require_dict(
+                entry.get("attachSkill"),
+                f"{effect_id}.dataList[{index}].attachSkill",
+            )
+            skill_id = attach.get("skillId")
+            if skill_id:
+                skill_ids.add(str(skill_id))
+    return {
+        skill_id: parse_passive_skill(skill_id, source_dir)
+        for skill_id in sorted(skill_ids)
+    }
+
+
+def audit_passive_skill_generation(
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_definitions: tuple[BuffDefinitionSource, ...],
+    buff_resolution_issues: dict[str, str] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """检查隐藏被动能否无损生成；失败原因进入审计，不阻断其他已闭环内容。"""
+    definitions_by_id = {definition.buffId: definition for definition in buff_definitions}
+    buff_resolution_issues = buff_resolution_issues or {}
+    issues: dict[str, tuple[str, ...]] = {}
+    for skill_id, passive in passive_skills.items():
+        reasons = list(passive.unsupported_reasons)
+        if passive.can_generate_add_buff:
+            for buff_id in passive.referenced_buff_ids:
+                if buff_id in buff_resolution_issues:
+                    reasons.append(
+                        f"Buff {buff_id!r} could not be resolved: {buff_resolution_issues[buff_id]}"
+                    )
+                    continue
+                definition = definitions_by_id.get(buff_id)
+                if definition is None:
+                    reasons.append(f"missing resolved Buff {buff_id!r}")
+                    continue
+                if definition.attributeModifiers:
+                    reasons.append(
+                        f"Buff {buff_id!r} modifies native attributes whose runtime consumers "
+                        "are not connected"
+                    )
+                    continue
+                try:
+                    compile_inline_buff_definition(definition, f"passive {skill_id!r}")
+                except ValueError as error:
+                    reasons.append(str(error))
+        if reasons:
+            issues[skill_id] = tuple(dict.fromkeys(reasons))
+    return issues
 
 
 def parse_buff_lifecycle(
@@ -8271,6 +8378,7 @@ def render_operator_definition(
     potential_table: dict[str, Any],
     effects: dict[str, Any],
     buff_definitions: tuple[BuffDefinitionSource, ...] = (),
+    passive_skills: dict[str, PassiveSkillSource] | None = None,
 ) -> str:
     char_id = str(operator["charId"])
     character = table_row(character_table, char_id, "CharacterTable")
@@ -8286,6 +8394,7 @@ def render_operator_definition(
     identifier = typescript_identifier(str(operator["slug"]))
     operator_export_name = f"{identifier}GeneratedOperator"
     definitions_by_id = {definition.buffId: definition for definition in buff_definitions}
+    passive_skills = passive_skills or {}
     skill_entries, damage_type_factories = compile_skill_entries(
         operator,
         skills,
@@ -8294,8 +8403,17 @@ def render_operator_definition(
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(operator, skills)
     combo_skill_registrations = parse_combo_skill_registrations(operator, skills)
-    talents = render_talents(operator, skills, growth, effects)
-    potentials = render_potentials(operator, skills, potential_table, effects)
+    talents = render_talents(
+        operator, skills, growth, effects, passive_skills, definitions_by_id
+    )
+    potentials = render_potentials(
+        operator,
+        skills,
+        potential_table,
+        effects,
+        passive_skills,
+        definitions_by_id,
+    )
     trust_attribute_bonus = parse_trust_attribute_bonus(
         growth,
         main_attribute,
@@ -8355,7 +8473,11 @@ def render_report(
     slug: str,
     skills: list[SkillSource],
     buff_definitions: tuple[BuffDefinitionSource, ...],
+    passive_skills: dict[str, PassiveSkillSource] | None = None,
+    passive_generation_issues: dict[str, tuple[str, ...]] | None = None,
 ) -> str:
+    passive_skills = passive_skills or {}
+    passive_generation_issues = passive_generation_issues or {}
     report = {
         "operator": slug,
         "complete": all(
@@ -8363,10 +8485,24 @@ def render_report(
             and not skill.blackboardKeys
             and not skill.conditionalActions
             for skill in skills
-        ),
+        )
+        and not passive_generation_issues,
         "buffDefinitions": [
             serialize_audit_value(definition) for definition in buff_definitions
         ],
+        **(
+            {
+                "passiveSkills": [
+                    {
+                        **serialize_audit_value(passive_skills[key]),
+                        "generationIssues": list(passive_generation_issues.get(key, ())),
+                    }
+                    for key in sorted(passive_skills)
+                ]
+            }
+            if passive_skills
+            else {}
+        ),
         "skills": [
             {
                 "key": skill.key,
@@ -8474,9 +8610,58 @@ def main() -> None:
             parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source, patch_table)
             for entry in require_list(operator["skills"], f"{slug}.skills")
         ]
-        buff_definitions = resolve_operator_buff_definitions(
+        char_id = str(operator["charId"])
+        growth = table_row(loaded_tables["CharGrowthTable.json"], char_id, "CharGrowthTable")
+        passive_skills = collect_operator_passive_skills(
+            char_id,
+            growth,
+            loaded_tables["CharacterPotentialTable.json"],
+            loaded_tables["PotentialTalentEffectTable.json"],
+            args.source,
+        )
+        buff_source_dir = args.source.parent / "BuffData"
+        skill_buff_definitions = resolve_operator_buff_definitions(
             skills,
-            args.source.parent / "BuffData",
+            buff_source_dir,
+        )
+        passive_buff_definitions, passive_buff_resolution_issues = (
+            resolve_passive_buff_definitions(passive_skills, buff_source_dir)
+        )
+        audited_buff_definitions_by_id = {
+            definition.buffId: definition
+            for definition in (*skill_buff_definitions, *passive_buff_definitions)
+        }
+        audited_buff_definitions = tuple(
+            audited_buff_definitions_by_id[key]
+            for key in sorted(audited_buff_definitions_by_id)
+        )
+        passive_generation_issues = audit_passive_skill_generation(
+            passive_skills,
+            audited_buff_definitions,
+            passive_buff_resolution_issues,
+        )
+        renderable_passive_skills = {
+            skill_id: passive
+            for skill_id, passive in passive_skills.items()
+            if skill_id not in passive_generation_issues
+        }
+        renderable_passive_buff_ids = {
+            buff_id
+            for passive in renderable_passive_skills.values()
+            for buff_id in passive.referenced_buff_ids
+        }
+        buff_definitions_by_id = {
+            definition.buffId: definition for definition in skill_buff_definitions
+        }
+        buff_definitions_by_id.update(
+            {
+                definition.buffId: definition
+                for definition in passive_buff_definitions
+                if definition.buffId in renderable_passive_buff_ids
+            }
+        )
+        buff_definitions = tuple(
+            buff_definitions_by_id[key] for key in sorted(buff_definitions_by_id)
         )
         write_or_check(
             args.output / f"{slug}.generated.ts",
@@ -8485,7 +8670,13 @@ def main() -> None:
         )
         write_or_check(
             args.output / f"{slug}.audit.json",
-            render_report(slug, skills, buff_definitions),
+            render_report(
+                slug,
+                skills,
+                buff_definitions,
+                passive_skills,
+                passive_generation_issues,
+            ),
             args.check,
         )
         output_stage = operator.get("outputStage", "complete")
@@ -8512,6 +8703,7 @@ def main() -> None:
                 loaded_tables["CharacterPotentialTable.json"],
                 loaded_tables["PotentialTalentEffectTable.json"],
                 buff_definitions,
+                renderable_passive_skills,
             ),
             args.check,
         )

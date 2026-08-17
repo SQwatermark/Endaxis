@@ -362,6 +362,31 @@
       "auraActions": []
     }
   ],
+  "passiveSkills": [
+    {
+      "skill_id": "chr_0013_aglina_talent_0",
+      "source_file": "chr_0013_aglina_talent_0.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "add"
+      ],
+      "buffs": [
+        {
+          "buff_id": "buff_chr_0013_aglina_talent_0",
+          "assignments": [
+            {
+              "target_key": "add",
+              "input_key": "add"
+            }
+          ]
+        }
+      ],
+      "unsupported_reasons": [],
+      "generationIssues": [
+        "passive 'chr_0013_aglina_talent_0': Buff 'buff_chr_0013_aglina_talent_0' contains unsupported behavior: eventActions, auraActions"
+      ]
+    }
+  ],
   "skills": [
     {
       "key": "basicAttack1",

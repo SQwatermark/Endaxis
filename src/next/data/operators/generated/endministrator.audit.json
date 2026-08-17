@@ -678,6 +678,31 @@
       "auraActions": []
     }
   ],
+  "passiveSkills": [
+    {
+      "skill_id": "chr_0003_endminf_talent_0",
+      "source_file": "chr_0003_endminf_talent_0.json",
+      "passive_type": "AddBuff",
+      "declared_blackboard_keys": [
+        "dmg"
+      ],
+      "buffs": [
+        {
+          "buff_id": "buff_chr_0003_endminf_talent_0_aura",
+          "assignments": [
+            {
+              "target_key": "dmg",
+              "input_key": "dmg"
+            }
+          ]
+        }
+      ],
+      "unsupported_reasons": [],
+      "generationIssues": [
+        "Buff 'buff_chr_0003_endminf_talent_0_aura' could not be resolved: buff_chr_0003_endminf_talent_0_aura.json.timelineActions[0]._sequenceActionData.actionData.[0]: unexpected fields ['$type', 'actionInAura', 'actionWhenExitAura', 'auraDebugName', 'auraRoot', 'auraType', 'buffIconDurationSource', 'buffInput', 'buffSource', 'excludeColliderOptions', 'excludeOwner', 'fixedWhenStart', 'includeUnmarkable', 'inheritSourceSkillCastId', 'isEnable', 'limitInfluenceCountPerTarget', 'm_auraTypeWarning', 'maxInfluenceCountPerTarget', 'overrideBuffIconDuration', 'priorityLevel', 'priorityOffset', 'serverActionIndex', 'shapeData', 'targetFilter', 'targetObjectType']"
+      ]
+    }
+  ],
   "skills": [
     {
       "key": "comboSkill",
