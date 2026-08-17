@@ -47,6 +47,7 @@ from generate_next_operators import (
     compile_immediate_projectile_children,
     compile_logical_ability_entity_spawn,
     ability_entity_child_buff_can_compile,
+    ability_entity_child_finishes_are_terminal,
     compile_ability_entity_child_skill,
     compile_damage_units_step,
     encode_damage_step_key,
@@ -7992,6 +7993,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_ability_entity_owner=True,
         )
         self.assertIn("target: 'currentAbilityEntity'", source)
+
+    def test_ability_entity_child_finish_must_be_terminal(self) -> None:
+        terminal = SimpleNamespace(
+            explicitFinishes=(SimpleNamespace(startFrame=90),),
+            directDamageHits=(SimpleNamespace(startFrame=89),),
+            intervalDamageHits=(),
+            inflictions=(),
+            conditionalActions=(),
+            auxiliaryActions=(),
+            resourceGains=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            keywordActions=(),
+        )
+        nonterminal = SimpleNamespace(
+            **{
+                **terminal.__dict__,
+                "explicitFinishes": (
+                    SimpleNamespace(startFrame=90),
+                    SimpleNamespace(startFrame=150),
+                ),
+                "directDamageHits": (
+                    SimpleNamespace(startFrame=89),
+                    SimpleNamespace(startFrame=149),
+                ),
+            }
+        )
+
+        self.assertTrue(ability_entity_child_finishes_are_terminal(terminal))
+        self.assertFalse(ability_entity_child_finishes_are_terminal(nonterminal))
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

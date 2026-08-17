@@ -3,6 +3,7 @@ import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScen
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
+import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
 import {
   akekuri,
   daPan,
@@ -38,6 +39,14 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('buff_chr_0013_aglina_normal_skill_monitor');
     expect(serialized).toContain('currentAbilityEntity');
     expect(serialized).toContain('finishCurrentAbilityEntityWhenSourceDies');
+  });
+
+  it('Fluorite 战技在宿主结束语义冲突未解决前保留父时间轴投影', () => {
+    const serialized = JSON.stringify(fluoriteBattleSkill);
+    const frames = fluoriteBattleSkill.scheduledSequences.map(sequence => sequence.startFrame);
+
+    expect(serialized).not.toContain('abilityentity_chr_0022_bounda_normal_skill');
+    expect(frames).toEqual(expect.arrayContaining([99, 159]));
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {

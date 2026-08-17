@@ -7392,6 +7392,39 @@ def ability_entity_child_buff_can_compile(
     return definition is not None and definition.sourceDeathFinish is not None
 
 
+def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> bool:
+    """Reject child graphs that still contain modeled combat work after their first host finish."""
+    finishes = getattr(hit, "explicitFinishes", ())
+    if not finishes:
+        return True
+    first_finish_frame = min(finish.startFrame for finish in finishes)
+    if any(finish.startFrame > first_finish_frame for finish in finishes):
+        return False
+
+    action_frames = [
+        action.startFrame
+        for field in (
+            "directDamageHits",
+            "inflictions",
+            "conditionalActions",
+            "auxiliaryActions",
+            "resourceGains",
+            "blackboardCalculations",
+            "blackboardMutations",
+            "buffBlackboardReads",
+            "buffFinishes",
+            "keywordActions",
+        )
+        for action in getattr(hit, field, ())
+    ]
+    action_frames.extend(
+        frame
+        for interval in getattr(hit, "intervalDamageHits", ())
+        for frame in interval.tickFrames
+    )
+    return all(frame <= first_finish_frame for frame in action_frames)
+
+
 def ability_entity_child_timeline_can_compile(
     hit: AbilityEntityHitSource,
     *,
@@ -7426,6 +7459,7 @@ def ability_entity_child_timeline_can_compile(
             finish.target.targetSource == "Owner" and target_reference_is_plain(finish.target)
             for finish in getattr(hit, "explicitFinishes", ())
         )
+        and ability_entity_child_finishes_are_terminal(hit)
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())

@@ -312,3 +312,14 @@ mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed
 replacement rule.
+
+Fluorite also establishes a stricter child-termination boundary. Its battle
+skill projectile spawns
+`abilityentity_chr_0022_bounda_normal_skill`, whose five-second child timeline
+deals damage at local frames 89 and 149 but executes
+`FinishOwnerAction(Owner)` at both 90 and 150. Treating the first finish as
+logical entity destruction would make the second hit unreachable. The
+generator therefore now requires every direct child-host finish to be terminal:
+no later modeled combat action or later finish may exist. Fluorite keeps its
+existing parent-frame 99/159 projection and does not create a logical entity
+until native evidence distinguishes action termination from entity lifetime.
