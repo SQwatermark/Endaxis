@@ -365,7 +365,36 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[dict[str, Any]]:
+def skill_contains_ability_entity_timeline_jumps(skill: SkillSource) -> bool:
+    """递归确认技能是否仍把 AbilityEntity JumpToAction 留在父投影中。"""
+    found = False
+
+    def visit_entities(entities: Iterable[AbilityEntityHitSource]) -> None:
+        nonlocal found
+        for entity in entities:
+            if entity.timelineJumps:
+                found = True
+                return
+            visit_entities(entity.nestedAbilityEntityHits)
+            visit_projectiles(entity.projectileTriggeredSkills)
+
+    def visit_projectiles(projectiles: Iterable[ProjectileTriggeredSkillSource]) -> None:
+        nonlocal found
+        for projectile in projectiles:
+            visit_entities(projectile.abilityEntityHits)
+            visit_projectiles(projectile.nestedProjectileTriggeredSkills)
+            if found:
+                return
+
+    visit_entities(skill.abilityEntityHits)
+    visit_projectiles(skill.projectileTriggeredSkills)
+    return found
+
+
+def infer_unmodeled_progression_capabilities(
+    operator: dict[str, Any],
+    skills: Iterable[SkillSource] = (),
+) -> list[dict[str, Any]]:
     """从清单中明确标为未建模的编译器推导稳定能力缺口。"""
     inferred: list[dict[str, Any]] = []
     for field, capability in (
@@ -396,12 +425,35 @@ def infer_unmodeled_progression_capabilities(operator: dict[str, Any]) -> list[d
                 skill_group_keys.append(str(skill["key"]))
     if skill_group_keys:
         inferred.append({"capability": "skillBehavior", "skillGroupKeys": skill_group_keys})
+    jump_skill_keys = [
+        skill.key for skill in skills if skill_contains_ability_entity_timeline_jumps(skill)
+    ]
+    if jump_skill_keys:
+        existing = next(
+            (
+                item
+                for item in inferred
+                if item["capability"] == "skillBehavior"
+            ),
+            None,
+        )
+        if existing is None:
+            inferred.append(
+                {"capability": "skillBehavior", "skillGroupKeys": jump_skill_keys}
+            )
+        else:
+            existing["skillGroupKeys"] = list(
+                dict.fromkeys([*existing["skillGroupKeys"], *jump_skill_keys])
+            )
     return inferred
 
 
-def parse_conversion_support(operator: dict[str, Any]) -> dict[str, Any]:
+def parse_conversion_support(
+    operator: dict[str, Any],
+    skills: Iterable[SkillSource] = (),
+) -> dict[str, Any]:
     """读取面向产物的稳定摘要，并拒绝漏报清单中明确未建模的养成效果。"""
-    inferred = infer_unmodeled_progression_capabilities(operator)
+    inferred = infer_unmodeled_progression_capabilities(operator, skills)
     raw = operator.get("conversionSupport")
     if raw is None:
         return {
@@ -434,8 +486,30 @@ def parse_conversion_support(operator: dict[str, Any]) -> dict[str, Any]:
                 raise ValueError(f"{path}.skillGroupKeys: expected non-empty stable identities")
             normalized["skillGroupKeys"] = keys
         missing.append(normalized)
-    declared_capabilities = {item["capability"] for item in missing}
-    omitted = [item for item in inferred if item["capability"] not in declared_capabilities]
+    omitted: list[dict[str, Any]] = []
+    for inferred_item in inferred:
+        declared = [
+            item for item in missing if item["capability"] == inferred_item["capability"]
+        ]
+        if not declared:
+            omitted.append(inferred_item)
+            continue
+        inferred_keys = set(inferred_item.get("skillGroupKeys", ()))
+        if not inferred_keys:
+            continue
+        if any("skillGroupKeys" not in item for item in declared):
+            continue
+        declared_keys = {
+            key for item in declared for key in item.get("skillGroupKeys", ())
+        }
+        uncovered_keys = sorted(inferred_keys - declared_keys)
+        if uncovered_keys:
+            omitted.append(
+                {
+                    "capability": inferred_item["capability"],
+                    "skillGroupKeys": uncovered_keys,
+                }
+            )
     if omitted:
         raise ValueError(
             f"{operator['slug']}.conversionSupport: missing inferred capabilities {omitted!r}"
@@ -9697,7 +9771,9 @@ def render_operator_definition(
     )
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
     helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
-    conversion_support = parse_conversion_support(operator)
+    conversion_support = parse_conversion_support(
+        operator, (skill for skill, _ in skill_entries)
+    )
     return "\n".join(
         [
             "/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */",

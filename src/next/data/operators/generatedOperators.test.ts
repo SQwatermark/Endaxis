@@ -48,6 +48,11 @@ describe('新增的完整技能转换干员', () => {
 
     expect(serialized).not.toContain('abilityentity_chr_0022_bounda_normal_skill');
     expect(frames).toEqual(expect.arrayContaining([99, 159]));
+    expect(
+      fluorite.conversionSupport?.missingCapabilities.find(
+        item => item.capability === 'skillBehavior',
+      )?.skillGroupKeys,
+    ).toContain('battleSkill');
   });
 
   it('Lifeng 终结技不会把条件跳转后的能力实体动作线性内嵌', () => {

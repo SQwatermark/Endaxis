@@ -1282,6 +1282,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             write.validatorTagQueries,
             (("HasAny", (-549424863,)),),
         )
+
         self.assertFalse(target_group_write_guarantees_single_enemy(write))
         self.assertEqual(
             target_group_write_ability_entity_collection_identity(write),
@@ -1291,6 +1292,37 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         action["selectorData"]["finderData"]["unexpected"] = True
         with self.assertRaisesRegex(ValueError, "owner-spawned finder fields"):
             parse_target_group_writes(root, "fixture.json")
+
+    def test_conversion_support_marks_ability_entity_timeline_jumps(self) -> None:
+        skill = SimpleNamespace(
+            key="battleSkill",
+            abilityEntityHits=(),
+            projectileTriggeredSkills=(
+                SimpleNamespace(
+                    abilityEntityHits=(
+                        SimpleNamespace(
+                            timelineJumps=(SimpleNamespace(destFrame=149),),
+                            nestedAbilityEntityHits=(),
+                            projectileTriggeredSkills=(),
+                        ),
+                    ),
+                    nestedProjectileTriggeredSkills=(),
+                ),
+            ),
+        )
+
+        self.assertEqual(
+            parse_conversion_support({"slug": "jumping"}, (skill,)),
+            {
+                "completeness": "partial",
+                "missingCapabilities": [
+                    {
+                        "capability": "skillBehavior",
+                        "skillGroupKeys": ["battleSkill"],
+                    }
+                ],
+            },
+        )
 
     def test_projectile_child_conditions_and_resource_gains_use_hit_frame(self) -> None:
         condition = SimpleNamespace(

@@ -334,7 +334,10 @@ Because Next has no proven timeline-jump interpreter, any AbilityEntity child
 containing such a jump is rejected before linear compilation. The existing
 terminal-finish guard remains as an independent defence for genuinely linear
 children. Fluorite keeps its parent-frame 99/159 projection until those jump
-conditions and their scheduling semantics are modeled end to end.
+conditions and their scheduling semantics are modeled end to end. Conversion
+support inference recursively sees the same retained jump and marks Fluorite's
+`battleSkill` under `skillBehavior`, so this fallback is not presented as a
+complete conversion.
 
 Lifeng exposes the same class of omission in a smaller graph. At local frame
 67, `CompareFloat(isCombo == 0)` succeeds into an unconditional jump to frame
