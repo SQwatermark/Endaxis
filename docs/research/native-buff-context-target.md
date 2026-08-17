@@ -62,6 +62,11 @@ CreateBuffAction.Data
 - `../combat-runtime-dumps/1.4.4/runtime-1/runtime-1-full.analysis.json`
 - `../combat-runtime-dumps/1.4.4/runtime-1/IL2CPP_GameAssembly.runtime.runtime-1.bin`
 
+桌面安装的 `D:\Hypergryph Launcher\games\Endfield Game\GameAssembly.dll` 也已按同一版本
+复核，SHA-256 为
+`0C5573679BC6DEC2D068A14335466DB7CCF20AF9BAE2B983FB9D45677D80FFCE`。对应元数据来自
+`D:\Projects\IL2CPP-Dumper\Arknights Endfield 1.4.4\IL2CPP_Dump_Normal\Gameplay.Beyond.dll.cs`。
+
 机器码中与本结论直接相关的分支为：
 
 - `0x035F1E44`：调用 `GetTargets_Dispose` 取得 Buff 接收者；
@@ -110,6 +115,31 @@ CreateBuffAction.ExecuteInternal(inputTarget)
 
 接收者解析与来源解析不会互相替代：`currentTarget` 是本轮要接收 Buff 的实体，而
 `ContextTarget` 得到的是传给 Buff 的来源实体。
+
+## AbilityEntity 子技能的 Owner 与 Source
+
+桌面模块补齐了能力实体创建到子技能动作环境的直接调用链：
+
+- `SpawnAbilityEntity.ExecuteInternal`：RVA `0x03F54F60`；
+- 场景管理器内部创建：RVA `0x03F549D0`，并在 `0x03F54AE8` 对新实体的
+  `AbilitySystem` 调用 `AbilitySystem.SetSource`（RVA `0x035F5560`）；
+- `AbilityEntityController._CastSkill`：RVA `0x03ED5C00`，调用该实体自身
+  `AbilitySystem.TryCastSkill`；
+- `Ability.owner`：RVA `0x033B5640`，沿 `sourceSkill.owner` 返回承载该技能的
+  `AbilitySystem`；
+- `Ability.source`：RVA `0x033B6830`，沿 `sourceSkill.source` 返回该
+  `AbilitySystem` 在创建时保存的 source。
+
+因此，能力实体子 SkillData 中的身份不是命名推断，而是：
+
+```text
+Owner / ActionOwner  = 能力实体自己的 AbilitySystem
+Source / ActionSource = SpawnAbilityEntity 创建时传入并由 SetSource 保存的实体
+```
+
+当前生成器只接受 `abilityEntitySource = ActionSource | ActionOwner` 且根动作来源已归约为施术
+干员的创建形状，所以这个严格子集中的子技能 `Source` 可以映射为 `caster`。子技能 `Owner`
+仍是能力实体宿主，不能映射为 `caster` 或唯一敌人。
 
 ## ContextTarget 的精确语义
 
@@ -254,8 +284,8 @@ Buff：buff_chr_0033_camille_normal_skill_delay_damage
 
 - `tar` 由 `InFightEnemyFinder + TagValidator` 写入，可确认是通过标签校验的战斗中敌人；
 - `src` 由 `SourceFinder` 写入，可确认等价于该动作上下文可见的 source；
-- 在能力实体链路中，`source` 是否就是最初施法干员，仍取决于实体创建时的来源传递；不能仅凭
-  本文件跳过该链路。
+- 能力实体来源链现已由上述 `SetSource -> child Skill.owner/source` 机器码闭环；若其创建点属于
+  当前生成器接受的严格来源子集，则可继续映射为最初施法干员。
 
 ### 艾尔黛拉普通战技治疗 Buff
 
@@ -291,7 +321,7 @@ Endaxis 可以忽略空间选择和多敌人分配，但不能把所有 `Context
 
 - 莱万汀 `main_char`：`mainCharacter`，只有当前主控就是施法者时才折叠为 `caster`；
 - 伊冯 `smart_target`：身份未知，暂不能静态折叠；
-- 卡缪 `src`：`actionSource`，完成能力实体来源链追溯后才能折叠为 `caster`；
+- 卡缪 `src`：`actionSource`；在创建点来源也属于已闭环严格子集时可折叠为 `caster`；
 - 艾尔黛拉 `seraph`：`actionSource`，完成父 Buff 来源追溯后才能折叠为 `caster`。
 
 接收者方面，卡缪的 `tar` 已有 finder 证据可折叠为单一 `enemy`；莱万汀的 `tar` 是碰撞
@@ -304,11 +334,10 @@ Endaxis 可以忽略空间选择和多敌人分配，但不能把所有 `Context
 
 1. 伊冯 `smart_target` 在技能启动前由哪一个原生系统写入，以及该组是否在所有释放路径上都
    只包含敌人；
-2. 卡缪能力实体的 `ActionSource` 是否在全部生成路径中都保持为卡缪本人；
-3. 艾尔黛拉治疗 Buff 的 source 在全部创建路径中是否始终为艾尔黛拉；
-4. 多目标组中“第一个”的上游排序规则。已确认 `ContextTarget` 消费当前顺序的首实体，但
+2. 艾尔黛拉治疗 Buff 的 source 在全部创建路径中是否始终为艾尔黛拉；
+3. 多目标组中“第一个”的上游排序规则。已确认 `ContextTarget` 消费当前顺序的首实体，但
    排序可能由 finder、validator 或 post-processor 决定，不能统一解释；
-5. 目标实体在解析后、`AddBuffByAbilityAction` 前同帧失效时的对象指针竞态。当前机器码足以
+4. 目标实体在解析后、`AddBuffByAbilityAction` 前同帧失效时的对象指针竞态。当前机器码足以
    说明解析时 null 会跳过，但没有运行时样本覆盖解析后失效。
 
 后续若要把这些形状转为 Endaxis DSL，应保存并解析“目标组的生产/传递来源”，而不是只按
@@ -337,6 +366,12 @@ Next 生成器现在把目标组事实拆成两层：
   施加 Buff，可证明为队伍；
 - 深潜者连携技：同分支中先写入未过滤的 `CharacterTeamFinder("team")`，再向该组施加
   Buff，可证明为队伍。
+
+能力实体子时间轴另有一条更窄的编译边界：只有接收者 `Source`、Buff 来源
+`ActionSource`、创建次数为字面量 1 的 `CreateBuffAction` 才会进入子时间轴，并统一编译为
+对 `caster` 施加 Buff；`Owner` 目标继续拒绝。莱万汀普通战技的能力实体是当前语料唯一命中
+该严格形状的完整子图，11 次能量 Buff 与 11 次“按技力消耗为全队回能”载体均随伤害保留在
+实体局部帧 18–62，不再投射到父技能绝对时间轴。
 
 梅尔的 `shieldTar` 刻意没有折叠为 `party`：两条分支分别合并“筛选出的一名队友与自己”或
 “主控与自己”，都不是全队集合。召唤物、位置点和带过滤器的实体集合也继续保留为未知，避免

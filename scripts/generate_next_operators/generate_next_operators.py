@@ -7190,7 +7190,40 @@ def compile_logical_ability_entity_spawn(
     return "step('spawnAbilityEntity', { " + ", ".join(fields) + " })"
 
 
-def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bool:
+def ability_entity_child_buff_can_compile(
+    action: AuxiliaryActionSource,
+    *,
+    ignored_auxiliary_classifications: frozenset[str] = frozenset(),
+    ignored_buff_ids: frozenset[str] = frozenset(),
+    unmodeled_buff_ids: frozenset[str] = frozenset(),
+) -> bool:
+    """Accept only child Buff actions whose native source chain resolves to the caster."""
+    if (
+        action.classification in ignored_auxiliary_classifications
+        or action.sourceId in ignored_buff_ids
+        or action.sourceId in unmodeled_buff_ids
+    ):
+        return True
+    if action.classification == "skillCostUltimateEnergyGain":
+        return True
+    return (
+        action.actionType == "CreateBuffAction"
+        and action.targetSource == "Source"
+        and action.buffSource == "ActionSource"
+        and action.inheritSourceSkillCastInfo is not None
+        and action.count is not None
+        and action.count.blackboardKey is None
+        and action.count.value == 1
+    )
+
+
+def ability_entity_child_timeline_can_compile(
+    hit: AbilityEntityHitSource,
+    *,
+    ignored_auxiliary_classifications: frozenset[str] = frozenset(),
+    ignored_buff_ids: frozenset[str] = frozenset(),
+    unmodeled_buff_ids: frozenset[str] = frozenset(),
+) -> bool:
     """Only migrate child graphs whose complete modeled action set fits one local timeline."""
     return (
         getattr(hit, "inheritsSourceBlackboard", False)
@@ -7201,7 +7234,15 @@ def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bo
             or getattr(hit, "inflictions", ())
             or getattr(hit, "conditionalActions", ())
         )
-        and not getattr(hit, "auxiliaryActions", ())
+        and all(
+            ability_entity_child_buff_can_compile(
+                action,
+                ignored_auxiliary_classifications=ignored_auxiliary_classifications,
+                ignored_buff_ids=ignored_buff_ids,
+                unmodeled_buff_ids=unmodeled_buff_ids,
+            )
+            for action in getattr(hit, "auxiliaryActions", ())
+        )
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())
@@ -7211,7 +7252,7 @@ def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bo
         and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
         and set(getattr(hit, "combatActions", ()))
-        <= {"DamageAction", "ObtainCostAction", "SpellInfliction"}
+        <= {"CreateBuffAction", "DamageAction", "ObtainCostAction", "SpellInfliction"}
     )
 
 
@@ -7221,9 +7262,19 @@ def compile_ability_entity_child_skill(
     config: dict[str, Any],
     all_damage_hits: tuple[ResolvedDamageHitSource, ...],
     runtime_blackboard_keys: frozenset[str],
+    *,
+    ignored_auxiliary_classifications: frozenset[str] = frozenset(),
+    ignored_buff_ids: frozenset[str] = frozenset(),
+    unmodeled_buff_ids: frozenset[str] = frozenset(),
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """Render a proven child graph in entity-local frames without a second action protocol."""
-    if not ability_entity_child_timeline_can_compile(hit):
+    if not ability_entity_child_timeline_can_compile(
+        hit,
+        ignored_auxiliary_classifications=ignored_auxiliary_classifications,
+        ignored_buff_ids=ignored_buff_ids,
+        unmodeled_buff_ids=unmodeled_buff_ids,
+    ):
         raise ValueError(f"{skill.key}.{hit.skillId}: child timeline is outside the strict subset")
 
     prefix = hit.actionOrder
@@ -7294,6 +7345,31 @@ def compile_ability_entity_child_skill(
                     gain,
                     f"{skill.key}.{hit.skillId}.resourceGain",
                 ).splitlines(),
+            )
+        )
+
+    for index, action in enumerate(hit.auxiliaryActions):
+        if (
+            action.classification in ignored_auxiliary_classifications
+            or action.sourceId in ignored_buff_ids
+            or action.sourceId in unmodeled_buff_ids
+        ):
+            continue
+        if action.classification == "skillCostUltimateEnergyGain":
+            source = "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })"
+        else:
+            source = compile_buff_application(
+                action,
+                f"{skill.key}.{hit.skillId}.auxiliaryActions[{index}]",
+                root_skill_context=False,
+                buff_definitions=buff_definitions,
+            )
+        compiled.append(
+            (
+                action.startFrame,
+                native_sequence_order(action, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, action.actionIndex),
+                source.splitlines(),
             )
         )
 
@@ -8450,7 +8526,14 @@ def compile_resolved_sequence(
     migrated_ability_entities = tuple(
         entity
         for entity in skill.abilityEntityHits
-        if ability_entity_child_timeline_can_compile(entity)
+        if ability_entity_child_timeline_can_compile(
+            entity,
+            ignored_auxiliary_classifications=frozenset(
+                ignored_auxiliary_classifications
+            ),
+            ignored_buff_ids=ignored_buff_ids,
+            unmodeled_buff_ids=unmodeled_buff_ids,
+        )
     )
 
     def is_migrated_child_item(item: ResolvedScheduleItemSource) -> bool:
@@ -8520,6 +8603,12 @@ def compile_resolved_sequence(
                     config,
                     hits,
                     runtime_blackboard_keys,
+                    ignored_auxiliary_classifications=frozenset(
+                        ignored_auxiliary_classifications
+                    ),
+                    ignored_buff_ids=ignored_buff_ids,
+                    unmodeled_buff_ids=unmodeled_buff_ids,
+                    buff_definitions=buff_definitions,
                 )
                 if entity in migrated_ability_entities
                 else None

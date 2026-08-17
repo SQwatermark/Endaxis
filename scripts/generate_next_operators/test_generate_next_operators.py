@@ -46,6 +46,8 @@ from generate_next_operators import (
     compile_conditional_action,
     compile_immediate_projectile_children,
     compile_logical_ability_entity_spawn,
+    ability_entity_child_buff_can_compile,
+    compile_ability_entity_child_skill,
     compile_damage_units_step,
     encode_damage_step_key,
     encode_step_key_parts,
@@ -7826,6 +7828,86 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("overrideDurationSeconds: { kind: 'constant', value: 40 }", compiled)
         self.assertIn("saveToContextKey: 'spawned'", compiled)
         self.assertIn("'EntityBB_power': { kind: 'constant', value: 3 }", compiled)
+
+    def test_ability_entity_child_buff_source_resolves_to_caster(self) -> None:
+        application = AuxiliaryActionSource(
+            startFrame=3,
+            endFrame=3,
+            actionIndex=4,
+            actionType="CreateBuffAction",
+            sourceId="buff.fixture",
+            classification=None,
+            targetSource="Source",
+            targetGroupKey="ignored_for_source",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+        ultimate_energy_gain = replace(
+            application,
+            actionIndex=5,
+            sourceId="buff_common_obtain_ultimate_sp",
+            classification="skillCostUltimateEnergyGain",
+        )
+        hit = SimpleNamespace(
+            inheritsSourceBlackboard=True,
+            cycleTruncated=False,
+            spawnFrame=10,
+            actionOrder=(2,),
+            skillId="child_skill",
+            directDamageHits=(),
+            intervalDamageHits=(),
+            inflictions=(TimedInflictionSource(1, 1, 1, "heat", False),),
+            conditionalActions=(),
+            auxiliaryActions=(application, ultimate_energy_gain),
+            projectileLaunches=(),
+            projectileTriggeredSkills=(),
+            nestedAbilityEntityHits=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            resourceGains=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            auraActions=(),
+            keywordActions=(),
+            combatActions=("SpellInfliction", "CreateBuffAction"),
+            localTargetGroupWrites=(),
+        )
+
+        source = compile_ability_entity_child_skill(
+            hit,
+            SimpleNamespace(key="battleSkill"),
+            {},
+            (),
+            frozenset(),
+        )
+
+        self.assertIn("scheduled(\n      3,", source)
+        self.assertIn("step('applyBuff'", source)
+        self.assertIn("target: 'caster'", source)
+        self.assertIn("step('gainSquadUltimateEnergyFromSkillCost'", source)
+        self.assertNotIn("ignored_for_source", source)
+
+    def test_ability_entity_child_owner_buff_remains_outside_strict_subset(self) -> None:
+        application = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff.fixture",
+            classification=None,
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        self.assertFalse(ability_entity_child_buff_can_compile(application))
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

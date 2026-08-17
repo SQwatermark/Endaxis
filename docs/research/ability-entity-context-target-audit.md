@@ -210,9 +210,10 @@ after four raw frames under a constant 0.5 entity scale.
 
 The generator now performs that ownership transfer for one strict subset: the
 child must inherit its source action blackboard, have no cycle, projectile,
-nested entity, Aura, Buff, resource or other unowned action, and its remaining
-actions must be damage, already-projected fixed interval damage, infliction,
-action-blackboard mutation, resource gain or a condition tree accepted by the shared compiler. Interval condition carriers
+nested entity, Aura or other unowned action, and its remaining actions must be
+damage, already-projected fixed interval damage, infliction,
+action-blackboard mutation, resource gain, a proven caster-target Buff, or a
+condition tree accepted by the shared compiler. Interval condition carriers
 whose execution frames were already projected are omitted rather than executed
 twice. Arclight's ultimate child now owns local
 frames 7 and 63; Lifeng's owns 6, 66, 67 and 121, including its local
@@ -224,6 +225,16 @@ assignments. The same migration now covers Zhuang Fangyi basic attacks 2, 4 and
 5 in audit output. The first two preserve their float32-projected local interval
 frames; basic attack 5 keeps damage, dynamic SP gain and three blackboard writes
 at local frames 0, 0, 4 and 8. All corresponding parent projections are removed.
+
+Direct IL2CPP evidence also establishes that a child skill's `Owner` is the
+AbilityEntity's own AbilitySystem, while its `Source` is the entity source set
+at spawn time. For the generator's strict spawn subset that source is the
+casting operator. Child `CreateBuffAction` can therefore migrate only when its
+receiver is `Source`, its Buff source is `ActionSource`, and its application
+count is the already-supported literal one. `Owner` is deliberately rejected;
+it is not aliased to the caster. Laevatain's normal-skill entity is the sole
+current corpus match: its 11 energy Buff applications and 11 skill-cost
+ultimate-energy gains now remain beside the damage on local frames 18–62.
 
 This partial migration still does not justify generator compilation of
 `effectAbilityEntityTargets` for the four blocked combo skills. An owner/tag
@@ -237,13 +248,14 @@ compiled.
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.
 Entity-target Buff ownership, projectile source identity, explicit entity
-finish, and target mutation are not yet exposed. Child SkillData requests currently produce receipts only;
-their already-proven damage remains statically projected so the runtime does
-not double execute it.
+finish, and target mutation are not yet exposed. Proven child actions now run
+only on their owning entity timeline; their former parent projections are
+removed in the same compilation pass so they cannot execute twice.
 
-The next safe slice is dynamic child-SkillData ownership/scheduling or Li
-Zhiyan's positional spawn-target projection, followed by entity-target Buff
-ownership. Avywenna's projectile launch-point semantics, Camille's target
+The next safe slice is the minimal Buff container required by child
+`Owner`/selected-entity applications, without widening ordinary combat targets
+or inventing spatial behavior. Li Zhiyan's positional spawn-target projection
+can follow independently. Avywenna's projectile launch-point semantics, Camille's target
 mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed
