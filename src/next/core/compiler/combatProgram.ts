@@ -135,6 +135,7 @@ export interface ResolvedCombatStepParameters {
     modifiers?: readonly ResolvedStatusModifier[];
   };
   consumeStatus: CombatStepParameters['consumeStatus'];
+  jumpTimeline: CombatStepParameters['jumpTimeline'];
   conditional: { condition: CombatCondition };
   once: CombatStepParameters['once'];
   setContextFlag: CombatStepParameters['setContextFlag'];
@@ -174,7 +175,7 @@ export type ResolvedCombatStep = {
 /** 条件、once 与 Context 迭代由序列运行时解释，其余步骤交给操作链。 */
 export type ResolvedCombatOperationStep = Exclude<
   ResolvedCombatStep,
-  { kind: 'conditional' | 'once' | 'forEachContextTarget' }
+  { kind: 'conditional' | 'once' | 'forEachContextTarget' | 'jumpTimeline' }
 >;
 
 /** 已解析且严格保持声明顺序的同步操作序列。 */

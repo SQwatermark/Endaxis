@@ -110,4 +110,54 @@ describe('CombatActionSequenceRuntime', () => {
 
     expect(visited).toEqual([3, 7]);
   });
+
+  it('无条件时间轴跳转在首次执行时立即请求一次', () => {
+    const requestTimelineJump = vi.fn();
+    const fixture = createFixture();
+    const runtime = new CombatActionSequenceRuntime(fixture.operations, {
+      blackboard: new ActionBlackboard(),
+      requestTimelineJump,
+    });
+    const action = runtime.createSequence(
+      sequence({ kind: 'jumpTimeline', parameters: { destinationFrame: 150 } }),
+    );
+
+    action.execute({});
+    action.tick(0, {});
+    action.tick(1 / 30, {});
+
+    expect(requestTimelineJump).toHaveBeenCalledTimes(1);
+    expect(requestTimelineJump).toHaveBeenCalledWith(150);
+  });
+
+  it('条件时间轴跳转在后续 Tick 重试并只在首次通过时请求', () => {
+    const requestTimelineJump = vi.fn();
+    const conditionResults = [false, true];
+    const operations: CombatOperationExecutor = {
+      execute: vi.fn(() => true),
+      evaluate: vi.fn(() => conditionResults.shift() ?? true),
+    };
+    const runtime = new CombatActionSequenceRuntime(operations, {
+      blackboard: new ActionBlackboard(),
+      requestTimelineJump,
+    });
+    const condition = { kind: 'combatActive' } as const;
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'jumpTimeline',
+        parameters: { destinationFrame: 89, condition },
+      }),
+    );
+
+    action.execute({});
+    action.tick(0, {});
+    expect(requestTimelineJump).not.toHaveBeenCalled();
+
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+
+    expect(operations.evaluate).toHaveBeenCalledTimes(2);
+    expect(requestTimelineJump).toHaveBeenCalledTimes(1);
+    expect(requestTimelineJump).toHaveBeenCalledWith(89);
+  });
 });

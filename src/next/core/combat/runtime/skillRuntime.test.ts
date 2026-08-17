@@ -78,6 +78,67 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('时间轴跳转改写本次释放的局部帧并跳过中间调度项', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'timeline-jump-fixture',
+      timelineBlockFrames: 6,
+      scheduledSequences: [
+        {
+          startFrame: 1,
+          endFrame: 2,
+          sequence: {
+            steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+          },
+        },
+        {
+          startFrame: 3,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'skipped', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+        {
+          startFrame: 5,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'destination', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(1);
+
+    expect(fixture.runtime.passedFrames).toBe(5);
+    expect(fixture.operations.execute).not.toHaveBeenCalled();
+    expect(fixture.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillTimelineJumped',
+        data: expect.objectContaining({ destinationFrame: 5 }),
+      }),
+    );
+
+    fixture.simulation.advanceFrames(1);
+
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(1);
+    expect(fixture.operations.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'setContextFlag',
+        parameters: expect.objectContaining({ flag: 'destination' }),
+      }),
+      expect.anything(),
+    );
+  });
+
   it('只在调度区间内响应技能临时监听事件，并在中断时立即注销', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'listener-fixture',

@@ -123,6 +123,52 @@ class ConditionalStep extends CombatStep {
   }
 }
 
+class TimelineJumpStep extends CombatStep {
+  #jumped = false;
+  #skipInitialTick = false;
+
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'jumpTimeline' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    this.runtime.hooks.stepReached?.(this.step);
+    this.#skipInitialTick = true;
+    this.#tryJump();
+  }
+
+  override tick(): void {
+    if (this.#skipInitialTick) {
+      this.#skipInitialTick = false;
+      return;
+    }
+    this.#tryJump();
+  }
+
+  override reset(): void {
+    this.#jumped = false;
+    this.#skipInitialTick = false;
+  }
+
+  #tryJump(): void {
+    if (this.#jumped) return;
+    const condition = this.step.parameters.condition;
+    if (condition !== undefined) {
+      const passed = this.runtime.operations.evaluate(condition, this.operationContext);
+      this.runtime.hooks.conditionEvaluated?.(condition, passed);
+      if (!passed) return;
+    }
+    const request = this.operationContext.requestTimelineJump;
+    if (request === undefined) throw new Error('jumpTimeline requires a timeline host');
+    this.#jumped = true;
+    request(this.step.parameters.destinationFrame);
+  }
+}
+
 class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
 
@@ -199,6 +245,9 @@ export class CombatActionSequenceRuntime {
     return new ActionSequence(
       sequence.steps.map(step => {
         if (step.kind === 'conditional') return new ConditionalStep(step, this, operationContext);
+        if (step.kind === 'jumpTimeline') {
+          return new TimelineJumpStep(step, this, operationContext);
+        }
         if (step.kind === 'once') return new OnceStep(step, this, operationContext);
         if (step.kind === 'forEachContextTarget') {
           return new ForEachContextTargetStep(step, this, operationContext);

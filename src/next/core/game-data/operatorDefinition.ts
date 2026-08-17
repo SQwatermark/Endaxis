@@ -641,6 +641,11 @@ export interface CombatStepParameters {
     target: CombatTarget;
     stacks?: number;
   };
+  /** 在所在调度区间内持续检查条件，首次通过时把宿主局部时间轴推进到目的帧。 */
+  jumpTimeline: {
+    destinationFrame: number;
+    condition?: CombatCondition;
+  };
   conditional: { condition: CombatCondition };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
@@ -693,6 +698,7 @@ export const COMBAT_STEP_KINDS = [
   'gainFinisherSp',
   'applyStatus',
   'consumeStatus',
+  'jumpTimeline',
   'conditional',
   'once',
   'setContextFlag',

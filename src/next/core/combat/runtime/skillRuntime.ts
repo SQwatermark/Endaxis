@@ -39,6 +39,8 @@ export interface CombatOperationContext {
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
   readonly event?: CombatSemanticEvent;
+  /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
+  readonly requestTimelineJump?: (destinationFrame: number) => void;
 }
 
 export interface CombatOperationExecutor {
@@ -96,6 +98,7 @@ export class SkillRuntime {
     this.#operationContext = {
       blackboard: this.#blackboard,
       targetContext: this.#targetContext,
+      requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       get skillCastInfo() {
         return runtime.skillCastInfo;
       },
@@ -356,5 +359,15 @@ export class SkillRuntime {
       }
     }
     this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
+  }
+
+  #requestTimelineJump(destinationFrame: number): void {
+    const timeline = this.#timeline;
+    if (timeline === null || this.#state !== 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' cannot jump outside an active cast`);
+    }
+    timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
+    this.#passedFrames = destinationFrame;
+    this.record('SkillTimelineJumped', { destinationFrame });
   }
 }

@@ -237,6 +237,89 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(operationContext?.blackboard.getNumber('inheritedParent')).toBe(11);
   });
 
+  it('applies child-skill timeline jumps on the ability entity local clock', () => {
+    const entities = new LogicalAbilityEntityRuntime({
+      templates: [
+        {
+          id: 'jump-host',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          maxStackingCount: -1,
+        },
+      ],
+      resolveDeltaSeconds: () => 1 / 60,
+    });
+    const execute = vi.fn(
+      (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
+    );
+    const delegate = { execute, evaluate: () => true };
+    let executor!: AbilityEntityOperationExecutor;
+    executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
+      resolveOperations: () => executor,
+    });
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          templateId: 'jump-host',
+          childSkillId: 'jump-child',
+          dieWhenSourceDies: false,
+          childSkill: {
+            skillId: 'jump-child',
+            initialBlackboard: {},
+            timelineActions: [
+              {
+                startFrame: 1,
+                endFrame: 2,
+                sequence: {
+                  steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+                },
+              },
+              {
+                startFrame: 3,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'skipped', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+              {
+                startFrame: 5,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'destination', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    entities.advanceFrame();
+    entities.advanceFrame();
+    expect(execute).not.toHaveBeenCalled();
+
+    entities.advanceFrame();
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'setContextFlag',
+        parameters: expect.objectContaining({ flag: 'destination' }),
+      }),
+      expect.anything(),
+    );
+  });
+
   it('allows an embedded child timeline to finish its own host entity', () => {
     const entities = new LogicalAbilityEntityRuntime({
       templates: [

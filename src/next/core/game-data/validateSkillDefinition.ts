@@ -1208,6 +1208,17 @@ function validateCombatStep(
         requireNonNegativeInteger(parameters, 'stacks', `${path}.parameters`, out);
       }
       break;
+    case 'jumpTimeline':
+      requireNonNegativeInteger(parameters, 'destinationFrame', `${path}.parameters`, out);
+      if (parameters.condition !== undefined) {
+        validateCombatCondition(
+          parameters.condition,
+          `${path}.parameters.condition`,
+          out,
+          currentTargetAvailable,
+        );
+      }
+      break;
     case 'conditional':
       validateCombatCondition(
         parameters.condition,

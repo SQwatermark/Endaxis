@@ -44,6 +44,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       blackboard,
       targetContext: new RuntimeTargetContext(),
       currentTarget: dependencies.entity,
+      requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       ...(dependencies.inheritedSkillCastInfo === undefined
         ? {}
         : { skillCastInfo: dependencies.inheritedSkillCastInfo }),
@@ -86,5 +87,13 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     if (!this.#started || this.#finished) return;
     this.#finished = true;
     this.#timeline.end(this.#passedFrames, this.#context);
+  }
+
+  #requestTimelineJump(destinationFrame: number): void {
+    if (!this.#started || this.#finished) {
+      throw new Error('AbilityEntity child skill cannot jump outside an active timeline');
+    }
+    this.#timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
+    this.#passedFrames = destinationFrame;
   }
 }

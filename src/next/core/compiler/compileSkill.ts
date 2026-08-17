@@ -106,6 +106,8 @@ function resolveStep(
     case 'finishCurrentAbilityEntity':
     case 'finishCurrentAbilityEntityWhenSourceDies':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'jumpTimeline':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
       return {
         ...keyed,

@@ -195,6 +195,11 @@ function inspectSequence(
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
         return;
+      case 'jumpTimeline':
+        if (step.parameters.condition !== undefined) {
+          inspectCondition(step.parameters.condition, `${stepPath}.parameters.condition`, collect);
+        }
+        return;
       case 'changeResource':
       case 'changeResourceByActionValue': {
         const { resource, recipient } = step.parameters;
