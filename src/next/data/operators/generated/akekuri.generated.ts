@@ -74,6 +74,7 @@ export const akekuriGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -149,6 +150,7 @@ export const akekuriGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -226,6 +228,7 @@ export const akekuriGeneratedSource = {
           ]
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -304,6 +307,7 @@ export const akekuriGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -371,6 +375,7 @@ export const akekuriGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -450,6 +455,7 @@ export const akekuriGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -533,6 +539,7 @@ export const akekuriGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -594,6 +601,7 @@ export const akekuriGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],

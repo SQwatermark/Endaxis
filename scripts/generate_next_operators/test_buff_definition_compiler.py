@@ -42,6 +42,7 @@ def definition(**overrides):
         "buffBlackboardReads": (),
         "buffFinishes": (),
         "eventActions": (),
+        "sourceDeathFinish": None,
         "resourceGains": (),
         "combatActions": (),
         "auraActions": (),
@@ -64,6 +65,17 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "eventActions"):
             compile_inline_buff_definition(source, "fixture")
+
+    def test_compiles_the_strict_source_death_owner_finish_monitor(self) -> None:
+        source = definition(
+            eventActions=(SimpleNamespace(event="OnBuffTrigger"),),
+            sourceDeathFinish=SimpleNamespace(skipDieDisplay=False),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("lifecycleSequences", result)
+        self.assertIn("step('finishCurrentAbilityEntityWhenSourceDies', {})", result)
 
     def test_apply_step_inlines_the_resolved_definition(self) -> None:
         source = definition()

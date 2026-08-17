@@ -55,6 +55,78 @@ export const gilbertaGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
+      "buffId": "buff_chr_0013_aglina_normal_skill_monitor",
+      "sourceFile": "buff_chr_0013_aglina_normal_skill_monitor.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.1,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.15,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "CheckHp",
+            "FinishOwnerAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": []
+        }
+      ],
+      "sourceDeathFinish": {
+        "skipDieDisplay": false
+      },
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -134,6 +206,7 @@ export const gilbertaGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -220,6 +293,7 @@ export const gilbertaGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -303,6 +377,7 @@ export const gilbertaGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -364,6 +439,7 @@ export const gilbertaGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],

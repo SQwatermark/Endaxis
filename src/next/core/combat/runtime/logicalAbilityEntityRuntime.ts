@@ -84,6 +84,7 @@ function requireDuration(value: number, name: string): number {
 export class LogicalAbilityEntityRuntime implements FrameRuntime {
   readonly #templates = new Map<string, LogicalAbilityEntityTemplate>();
   readonly #instances = new Map<number, LogicalAbilityEntityInstance>();
+  readonly #deadSources: RuntimeTargetRef[] = [];
   readonly #tagRegistry: GameplayTagRegistry;
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
   readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
@@ -196,6 +197,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     this.#requireInstance(entity).target = target;
   }
 
+  isSourceDead(entity: RuntimeTargetRef): boolean {
+    const source = this.#requireInstance(entity).source;
+    return this.#deadSources.some(dead => this.#sameTarget(dead, source));
+  }
+
   /** SetAbilityEntityDuration 的 Assign 路径设置当前剩余时长。 */
   setRemainingDuration(entity: RuntimeTargetRef, seconds: number): void {
     this.#requireInstance(entity).remainingDurationSeconds = requireDuration(
@@ -218,6 +224,9 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   notifySourceDied(source: RuntimeTargetRef): number {
+    if (!this.#deadSources.some(dead => this.#sameTarget(dead, source))) {
+      this.#deadSources.push(source);
+    }
     const targets = [...this.#instances.values()]
       .filter(instance => instance.dieWhenSourceDies && this.#sameTarget(instance.source, source))
       .map(instance => ({ kind: 'abilityEntity' as const, instanceId: instance.instanceId }));

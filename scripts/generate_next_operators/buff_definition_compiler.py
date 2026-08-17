@@ -62,7 +62,13 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
     if not source.sourceAvailable or source.lifecycle is None:
         raise ValueError(f"{path}: Buff {source.buffId!r} has no available source definition")
     unsupported = [payload.field for payload in source.unparsedPayloads]
-    unsupported.extend(field for field in BEHAVIOR_FIELDS if getattr(source, field))
+    source_death_finish = getattr(source, "sourceDeathFinish", None)
+    unsupported.extend(
+        field
+        for field in BEHAVIOR_FIELDS
+        if getattr(source, field)
+        and not (field == "eventActions" and source_death_finish is not None)
+    )
     if unsupported:
         raise ValueError(
             f"{path}: Buff {source.buffId!r} contains unsupported behavior: "
@@ -163,6 +169,18 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
                 )
             fields.extend(["    ],", "  },"])
         fields.append("],")
+    if source_death_finish is not None:
+        fields.extend(
+            [
+                "lifecycleSequences: {",
+                "  trigger: {",
+                "    steps: [",
+                "      step('finishCurrentAbilityEntityWhenSourceDies', {}),",
+                "    ],",
+                "  },",
+                "},",
+            ]
+        )
     return "\n".join(fields)
 
 

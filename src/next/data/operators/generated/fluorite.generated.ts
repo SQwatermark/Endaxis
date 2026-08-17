@@ -57,6 +57,7 @@ export const fluoriteGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -138,6 +139,7 @@ export const fluoriteGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -222,6 +224,7 @@ export const fluoriteGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -301,6 +304,7 @@ export const fluoriteGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -387,6 +391,7 @@ export const fluoriteGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -448,6 +453,7 @@ export const fluoriteGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],

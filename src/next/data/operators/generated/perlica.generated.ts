@@ -67,6 +67,7 @@ export const perlicaGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -146,6 +147,7 @@ export const perlicaGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -229,6 +231,7 @@ export const perlicaGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -290,6 +293,7 @@ export const perlicaGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],

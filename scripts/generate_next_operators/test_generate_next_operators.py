@@ -111,6 +111,7 @@ from generate_next_operators import (
     parse_buff_application_payload,
     parse_buff_find_settings,
     parse_buff_lifecycle,
+    parse_buff_source_death_finish,
     parse_blackboard_calculations,
     parse_blackboard_runtime_actions,
     parse_buff_hold_actions,
@@ -7319,6 +7320,56 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(application.payload.count.value, 1)
         self.assertTrue(application.payload.inheritSourceSkillCastInfo)
 
+    def test_buff_source_death_finish_requires_exact_monitor_shape(self) -> None:
+        common = {
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 0,
+        }
+        buff = {
+            "buffEventAction": [
+                {
+                    "buffEvent": "OnBuffTrigger",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    **common,
+                                    "$type": "Example.CheckHp+Data, Example",
+                                    "hpOwner": target_settings_fixture("Source"),
+                                    "compare": "LE",
+                                    "isRatio": True,
+                                    "value": {
+                                        "useBlackboardKey": False,
+                                        "value": 0,
+                                        "blackboardKey": "",
+                                    },
+                                },
+                                {
+                                    **common,
+                                    "$type": "Example.FinishOwnerAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "owner": target_settings_fixture("Owner"),
+                                    "skipDieDisplay": False,
+                                },
+                            ],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        }
+                    ],
+                }
+            ]
+        }
+
+        parsed = parse_buff_source_death_finish(buff, "fixture", {})
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertFalse(parsed.skipDieDisplay)
+
+        buff["buffEventAction"][0]["actions"][0]["actionData"][0]["compare"] = "LT"
+        self.assertIsNone(parse_buff_source_death_finish(buff, "fixture", {}))
+
     def test_buff_ability_event_actions_preserve_source_and_order(self) -> None:
         buff = {
             "lifeType": "Infinity",
@@ -7906,7 +7957,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(source.count("step('finishCurrentAbilityEntity'"), 1)
         self.assertNotIn("ignored_for_source", source)
 
-    def test_ability_entity_child_owner_buff_remains_outside_strict_subset(self) -> None:
+    def test_ability_entity_child_owner_buff_uses_current_entity_target(self) -> None:
         application = AuxiliaryActionSource(
             startFrame=0,
             endFrame=0,
@@ -7924,6 +7975,23 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertFalse(ability_entity_child_buff_can_compile(application))
+        self.assertTrue(
+            ability_entity_child_buff_can_compile(
+                application,
+                buff_definitions={
+                    "buff.fixture": SimpleNamespace(
+                        sourceDeathFinish=SimpleNamespace(skipDieDisplay=False)
+                    )
+                },
+            )
+        )
+        source = compile_buff_application(
+            application,
+            "fixture",
+            root_skill_context=False,
+            current_ability_entity_owner=True,
+        )
+        self.assertIn("target: 'currentAbilityEntity'", source)
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

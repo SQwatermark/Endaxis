@@ -112,6 +112,7 @@ function inspectSequence(
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':
       case 'finishCurrentAbilityEntity':
+      case 'finishCurrentAbilityEntityWhenSourceDies':
         return;
       case 'dealDamage': {
         if (source === 'equipment') {

@@ -67,6 +67,7 @@ export const endministratorGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -122,6 +123,7 @@ export const endministratorGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -177,6 +179,7 @@ export const endministratorGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -258,6 +261,7 @@ export const endministratorGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -325,6 +329,7 @@ export const endministratorGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -404,6 +409,7 @@ export const endministratorGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -487,6 +493,7 @@ export const endministratorGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
@@ -618,6 +625,7 @@ export const endministratorGeneratedSource = {
           "createdBuffIds": []
         }
       ],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [
@@ -684,6 +692,7 @@ export const endministratorGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],

@@ -229,12 +229,14 @@ at local frames 0, 0, 4 and 8. All corresponding parent projections are removed.
 Direct IL2CPP evidence also establishes that a child skill's `Owner` is the
 AbilityEntity's own AbilitySystem, while its `Source` is the entity source set
 at spawn time. For the generator's strict spawn subset that source is the
-casting operator. Child `CreateBuffAction` can therefore migrate only when its
-receiver is `Source`, its Buff source is `ActionSource`, and its application
-count is the already-supported literal one. `Owner` is deliberately rejected;
-it is not aliased to the caster. Laevatain's normal-skill entity is the sole
-current corpus match: its 11 energy Buff applications and 11 skill-cost
-ultimate-energy gains now remain beside the damage on local frames 18–62.
+casting operator. Child `CreateBuffAction` can migrate when its receiver is
+`Source`, its Buff source is `ActionSource`, and its application count is the
+already-supported literal one. `Owner` is never aliased to the caster: it may
+only compile as `currentAbilityEntity` when the referenced BuffData itself has
+passed the strict inline-definition compiler. Laevatain's normal-skill entity
+is the current `Source` corpus match: its 11 energy Buff applications and 11
+skill-cost ultimate-energy gains remain beside the damage on local frames
+18–62.
 
 Direct IL2CPP evidence also closes the non-conditional child-host termination
 shape. `FinishOwnerAction.ExecuteInternal` is at RVA `0x06CF5E28` in the same
@@ -253,8 +255,8 @@ for enabled, field-exact `FinishOwnerAction(Owner)` samples and rejects other
 targets. Duplicate equivalent Owner finishes on one frame collapse after the
 first terminal operation. Zhuang Fangyi basic attacks 2, 4 and 5 now keep their
 observed local frame 897 termination in audit output; attack 5's two equivalent
-same-frame actions execute once. Conditional finish actions and Buff lifecycle
-callbacks are not covered by this direct-timeline slice.
+same-frame actions execute once. Conditional finish actions are not covered by
+this direct-timeline slice.
 
 This partial migration still does not justify generator compilation of
 `effectAbilityEntityTargets` for the four blocked combo skills. An owner/tag
@@ -283,12 +285,25 @@ shared `finishCurrentAbilityEntity` operation instead of a second callback
 protocol. An assembly regression covers apply -> periodic trigger -> explicit
 host finish -> Buff cleanup through the production operation chain.
 
-This is deliberately not yet generator coverage. The three real child-Owner
-Buff consumers are not static ID attachments: they contain periodic triggers,
-conditions, Aura or finish-host behavior. Each BuffData must pass the existing
-strict inline-definition/lifecycle compiler before its parent child graph may
-migrate; a separate entity-only Buff map or ID attachment would lose observed
-behavior. Li Zhiyan's positional spawn-target projection
+The first real child-Owner Buff is now generator coverage. Gilberta's battle
+skill entity applies `buff_chr_0013_aglina_normal_skill_monitor` to
+`currentAbilityEntity` at local frame 0. Its exact sole `OnBuffTrigger`
+sequence is `CheckHp(Source, ratio, LE, 0)` followed by
+`FinishOwnerAction(Owner)`, so the inline definition compiles to a 0.15-second
+periodic source-death check which finishes the current host. The runtime stores
+source-death notifications independently of the template's
+`dieWhenSourceDies` flag, allowing the observed monitor to work without adding
+an operator HP ledger. In the current player-damage-only environment no such
+notification is invented, so the monitor remains inert until a caller supplies
+that fact.
+
+The other real child-Owner Buff consumers remain blocked rather than reduced
+to static ID attachments. Yvonne's definition includes effects, target search,
+pull, hurt animation, nested conditions, damage, entity count, Buff queries,
+resources and blackboard operations. Li Zhiyan's listener finishes another
+Buff and owner/tag-selected entities, while its child graph also contains an
+Aura. Each must pass the existing strict inline-definition/lifecycle compiler;
+a separate entity-only Buff map would lose observed behavior. Li Zhiyan's positional spawn-target projection
 can follow independently. Avywenna's projectile launch-point semantics, Camille's target
 mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.

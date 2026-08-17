@@ -104,6 +104,7 @@ function resolveStep(
     case 'setAbilityEntityRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishCurrentAbilityEntity':
+    case 'finishCurrentAbilityEntityWhenSourceDies':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
       return {

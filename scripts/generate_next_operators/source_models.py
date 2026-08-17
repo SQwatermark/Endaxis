@@ -499,10 +499,18 @@ class BuffDefinitionSource:
     buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
     buffFinishes: tuple["BuffFinishSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
+    sourceDeathFinish: "BuffSourceDeathFinishSource | None"
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
     unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
     auraActions: tuple["AuraActionSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffSourceDeathFinishSource:
+    """周期检查来源 HP 归零后结束 Buff 所属能力实体的严格组合。"""
+
+    skipDieDisplay: bool
 
 
 @dataclass(frozen=True)

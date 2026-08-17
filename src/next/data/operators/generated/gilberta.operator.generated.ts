@@ -470,7 +470,42 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         21,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0013_aglina_normal_skill', dieWhenSourceDies: false, childSkillId: 'chr_0013_aglina_normal_skill_abilityrange', inheritActionBlackboard: true }),
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0013_aglina_normal_skill',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0013_aglina_normal_skill_abilityrange',
+            inheritActionBlackboard: true,
+            childSkill: {
+              skillId: 'chr_0013_aglina_normal_skill_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0013_aglina_normal_skill_monitor',
+                      definition: {
+                        stackingType: 'unlimited',
+                        priority: 0,
+                        maxStackCount: 1,
+                        triggerIntervalSeconds: 0.15,
+                        waitFirstTriggerInterval: false,
+                        maxTriggerCount: -1,
+                        lifecycleSequences: {
+                          trigger: {
+                            steps: [
+                              step('finishCurrentAbilityEntityWhenSourceDies', {}),
+                            ],
+                          },
+                        },
+                      },
+                      target: 'currentAbilityEntity',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ],
+            },
+          }),
         ),
       ),
       scheduled(

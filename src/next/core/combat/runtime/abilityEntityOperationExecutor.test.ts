@@ -283,4 +283,36 @@ describe('AbilityEntityOperationExecutor', () => {
     entities.advanceFrame();
     expect(entities.activeCount).toBe(0);
   });
+
+  it('keeps a source-death monitor alive until its recorded source dies', () => {
+    const entities = new LogicalAbilityEntityRuntime({
+      templates: [
+        {
+          id: 'source-monitor',
+          bornTagIds: [],
+          lifetime: { kind: 'infinite' },
+          maxStackingCount: -1,
+        },
+      ],
+    });
+    const executor = new AbilityEntityOperationExecutor('gilberta', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const source = { kind: 'operator' as const, operatorId: 'gilberta' };
+    const entity = entities.spawn({
+      templateId: 'source-monitor',
+      ownerId: 'gilberta',
+      source,
+      dieWhenSourceDies: false,
+    });
+    const step = { kind: 'finishCurrentAbilityEntityWhenSourceDies' as const, parameters: {} };
+    const context = { blackboard: new ActionBlackboard(), currentTarget: entity };
+
+    expect(executor.execute(step, context)).toBe(true);
+    expect(entities.activeCount).toBe(1);
+    expect(entities.notifySourceDied(source)).toBe(0);
+    expect(executor.execute(step, context)).toBe(true);
+    expect(entities.activeCount).toBe(0);
+  });
 });

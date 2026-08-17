@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
+import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
 import {
   akekuri,
   daPan,
@@ -31,6 +32,14 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('Gilberta 战技把来源死亡监视 Buff 留在能力实体局部时间轴', () => {
+    const serialized = JSON.stringify(gilbertaBattleSkill);
+
+    expect(serialized).toContain('buff_chr_0013_aglina_normal_skill_monitor');
+    expect(serialized).toContain('currentAbilityEntity');
+    expect(serialized).toContain('finishCurrentAbilityEntityWhenSourceDies');
+  });
+
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
     const skills = operator.skillGroups.flatMap(group =>
       Array.isArray(group.skills) ? group.skills : [group.skills],

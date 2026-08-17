@@ -37,6 +37,7 @@ from source_models import (
     ResolvedScheduleItemSource,
     BuffLifecycleSource,
     BuffDefinitionSource,
+    BuffSourceDeathFinishSource,
     UnparsedBuffPayloadSource,
     BuffAttributeModifierSource,
     BuffDamageModifierSource,
@@ -2053,6 +2054,7 @@ def resolve_buff_definitions(
                 buffBlackboardReads=(),
                 buffFinishes=(),
                 eventActions=(),
+                sourceDeathFinish=None,
                 resourceGains=(),
                 combatActions=(),
                 unparsedPayloads=(),
@@ -2095,6 +2097,7 @@ def resolve_buff_definitions(
             buffBlackboardReads=reads,
             buffFinishes=finishes,
             eventActions=parse_buff_event_actions(buff, source_file, blackboard),
+            sourceDeathFinish=parse_buff_source_death_finish(buff, source_file, blackboard),
             resourceGains=parse_resource_gains(adapted_root, source_file, blackboard),
             combatActions=tuple(
                 sorted(
@@ -2123,14 +2126,45 @@ def resolve_operator_buff_definitions(
     buff_source_dir: Path,
 ) -> tuple[BuffDefinitionSource, ...]:
     """按干员汇总技能引用，生成一份共享且去重的 Buff 定义目录。"""
-    referenced_ids = tuple(
-        sorted({buff_id for skill in skills for buff_id in skill.referencedBuffIds})
-    )
+    def nested_buff_targets(node: Any) -> dict[str, set[str]]:
+        result: dict[str, set[str]] = {}
+        for action in getattr(node, "auxiliaryActions", ()):
+            if action.actionType == "CreateBuffAction":
+                result.setdefault(action.sourceId, set()).add(action.targetSource)
+        for field in (
+            "abilityEntityHits",
+            "nestedAbilityEntityHits",
+            "projectileTriggeredSkills",
+            "nestedProjectileTriggeredSkills",
+        ):
+            for child in getattr(node, field, ()):
+                for buff_id, targets in nested_buff_targets(child).items():
+                    result.setdefault(buff_id, set()).update(targets)
+        return result
+
+    skills = tuple(skills)
+    root_ids = {buff_id for skill in skills for buff_id in skill.referencedBuffIds}
+    nested_targets: dict[str, set[str]] = {}
+    for skill in skills:
+        for buff_id, targets in nested_buff_targets(skill).items():
+            nested_targets.setdefault(buff_id, set()).update(targets)
     # 主目录保持精选 BuffData；完整导出回退用于公共 Buff 与尚未精选的干员 Buff。
-    return resolve_buff_definitions(
-        referenced_ids,
-        (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+    source_dirs = (buff_source_dir, buff_source_dir.parent / "buff-data-current")
+    definitions = {
+        definition.buffId: definition
+        for definition in resolve_buff_definitions(tuple(sorted(root_ids)), source_dirs)
+    }
+    owner_ids = tuple(
+        sorted(
+            buff_id
+            for buff_id, targets in nested_targets.items()
+            if "Owner" in targets and buff_id not in definitions
+        )
     )
+    for definition in resolve_buff_definitions(owner_ids, source_dirs):
+        if definition.buffId in owner_ids and definition.sourceDeathFinish is not None:
+            definitions[definition.buffId] = definition
+    return tuple(definitions[buff_id] for buff_id in sorted(definitions))
 
 
 def resolve_passive_buff_definitions(
@@ -2895,6 +2929,79 @@ def parse_ability_entity_finishes(
                 )
             )
     return tuple(result)
+
+
+def parse_buff_source_death_finish(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> BuffSourceDeathFinishSource | None:
+    """识别 Source HP ratio <= 0 后结束 plain Owner 的周期监视器。"""
+    events = require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    if len(events) != 1:
+        return None
+    event = require_dict(events[0], f"{source_name}.buffEventAction[0]")
+    if set(event) != {"buffEvent", "actions"} or event.get("buffEvent") != "OnBuffTrigger":
+        return None
+    sequences = require_list(event.get("actions"), f"{source_name}.buffEventAction[0].actions")
+    if len(sequences) != 1:
+        return None
+    sequence = require_dict(sequences[0], f"{source_name}.buffEventAction[0].actions[0]")
+    if set(sequence) != {
+        "actionData",
+        "onlyExecuteWhenSourceIsMainChar",
+        "onlyExecuteWhenSourceIsGuard",
+    }:
+        return None
+    if sequence.get("onlyExecuteWhenSourceIsMainChar") is not False:
+        return None
+    if sequence.get("onlyExecuteWhenSourceIsGuard") is not False:
+        return None
+    actions = require_list(sequence.get("actionData"), f"{source_name}.sourceDeathFinish.actions")
+    if len(actions) != 2:
+        return None
+    health = require_dict(actions[0], f"{source_name}.sourceDeathFinish.health")
+    finish = require_dict(actions[1], f"{source_name}.sourceDeathFinish.finish")
+    common = {"$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex"}
+    if action_name(str(health.get("$type", ""))) != "CheckHp" or set(health) != common | {
+        "hpOwner",
+        "compare",
+        "isRatio",
+        "value",
+    }:
+        return None
+    if action_name(str(finish.get("$type", ""))) != "FinishOwnerAction" or set(finish) != common | {
+        "owner",
+        "skipDieDisplay",
+    }:
+        return None
+    if health.get("isEnable") is False or finish.get("isEnable") is False:
+        return None
+    health_target = parse_target_reference(
+        health.get("hpOwner"), f"{source_name}.sourceDeathFinish.health.hpOwner"
+    )
+    finish_target = parse_target_reference(
+        finish.get("owner"), f"{source_name}.sourceDeathFinish.finish.owner"
+    )
+    value = parse_scalar(
+        health.get("value"), f"{source_name}.sourceDeathFinish.health.value", blackboard
+    )
+    if not (
+        health_target.targetSource == "Source"
+        and target_reference_is_plain(health_target)
+        and health.get("compare") == "LE"
+        and health.get("isRatio") is True
+        and value.blackboardKey is None
+        and value.value == 0
+        and finish_target.targetSource == "Owner"
+        and target_reference_is_plain(finish_target)
+    ):
+        return None
+    return BuffSourceDeathFinishSource(
+        skipDieDisplay=require_bool(
+            finish.get("skipDieDisplay"), f"{source_name}.sourceDeathFinish.finish.skipDieDisplay"
+        )
+    )
 
 
 def parse_resource_gains(
@@ -6008,6 +6115,7 @@ def compile_buff_application_values(
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
     allow_dynamic_count: bool = False,
+    current_ability_entity_owner: bool = False,
     target_finder_type: str | None = None,
     target_validator_types: tuple[str, ...] = (),
     target_post_processor_types: tuple[str, ...] = (),
@@ -6023,7 +6131,7 @@ def compile_buff_application_values(
         source = "enemy"
     elif buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
-    target: Literal["caster", "enemy", "party"] | None
+    target: Literal["caster", "enemy", "party", "currentAbilityEntity"] | None
     if target_source == "Context" and context_application_target is not None:
         target = context_application_target
     elif (
@@ -6033,6 +6141,8 @@ def compile_buff_application_values(
         and not target_post_processor_types
     ):
         target = "party"
+    elif target_source == "Owner" and current_ability_entity_owner:
+        target = "currentAbilityEntity"
     else:
         target = resolve_fixed_combat_target(
             target_source,
@@ -6085,6 +6195,7 @@ def compile_buff_application(
     root_skill_context: bool = True,
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
+    current_ability_entity_owner: bool = False,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
@@ -6103,6 +6214,7 @@ def compile_buff_application(
         root_skill_context=root_skill_context,
         context_application_target=context_application_target,
         input_target=input_target,
+        current_ability_entity_owner=current_ability_entity_owner,
         target_finder_type=action.targetFinderType,
         target_validator_types=action.targetValidatorTypes,
         target_post_processor_types=action.targetPostProcessorTypes,
@@ -7253,6 +7365,7 @@ def ability_entity_child_buff_can_compile(
     ignored_auxiliary_classifications: frozenset[str] = frozenset(),
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> bool:
     """Accept only child Buff actions whose native source chain resolves to the caster."""
     if (
@@ -7263,15 +7376,20 @@ def ability_entity_child_buff_can_compile(
         return True
     if action.classification == "skillCostUltimateEnergyGain":
         return True
-    return (
+    if not (
         action.actionType == "CreateBuffAction"
-        and action.targetSource == "Source"
+        and action.targetSource in {"Source", "Owner"}
         and action.buffSource == "ActionSource"
         and action.inheritSourceSkillCastInfo is not None
         and action.count is not None
         and action.count.blackboardKey is None
         and action.count.value == 1
-    )
+    ):
+        return False
+    if action.targetSource == "Source":
+        return True
+    definition = None if buff_definitions is None else buff_definitions.get(action.sourceId)
+    return definition is not None and definition.sourceDeathFinish is not None
 
 
 def ability_entity_child_timeline_can_compile(
@@ -7280,6 +7398,7 @@ def ability_entity_child_timeline_can_compile(
     ignored_auxiliary_classifications: frozenset[str] = frozenset(),
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> bool:
     """Only migrate child graphs whose complete modeled action set fits one local timeline."""
     return (
@@ -7291,6 +7410,7 @@ def ability_entity_child_timeline_can_compile(
             or getattr(hit, "explicitFinishes", ())
             or getattr(hit, "inflictions", ())
             or getattr(hit, "conditionalActions", ())
+            or getattr(hit, "auxiliaryActions", ())
         )
         and all(
             ability_entity_child_buff_can_compile(
@@ -7298,6 +7418,7 @@ def ability_entity_child_timeline_can_compile(
                 ignored_auxiliary_classifications=ignored_auxiliary_classifications,
                 ignored_buff_ids=ignored_buff_ids,
                 unmodeled_buff_ids=unmodeled_buff_ids,
+                buff_definitions=buff_definitions,
             )
             for action in getattr(hit, "auxiliaryActions", ())
         )
@@ -7342,6 +7463,7 @@ def compile_ability_entity_child_skill(
         ignored_auxiliary_classifications=ignored_auxiliary_classifications,
         ignored_buff_ids=ignored_buff_ids,
         unmodeled_buff_ids=unmodeled_buff_ids,
+        buff_definitions=buff_definitions,
     ):
         raise ValueError(f"{skill.key}.{hit.skillId}: child timeline is outside the strict subset")
 
@@ -7430,6 +7552,7 @@ def compile_ability_entity_child_skill(
                 action,
                 f"{skill.key}.{hit.skillId}.auxiliaryActions[{index}]",
                 root_skill_context=False,
+                current_ability_entity_owner=True,
                 buff_definitions=buff_definitions,
             )
         compiled.append(
@@ -8619,6 +8742,7 @@ def compile_resolved_sequence(
             ),
             ignored_buff_ids=ignored_buff_ids,
             unmodeled_buff_ids=unmodeled_buff_ids,
+            buff_definitions=buff_definitions,
         )
     )
 

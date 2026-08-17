@@ -450,6 +450,8 @@ export interface CombatStepParameters {
   };
   /** 结束当前 Context 迭代目标所指向的能力实体。 */
   finishCurrentAbilityEntity: Record<string, never>;
+  /** 仅在当前能力实体的来源已经死亡时结束该实体。 */
+  finishCurrentAbilityEntityWhenSourceDies: Record<string, never>;
   /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
   spawnAbilityEntity: {
     templateId: string;
@@ -666,6 +668,7 @@ export const COMBAT_STEP_KINDS = [
   'readAbilityEntityRemainingDuration',
   'setAbilityEntityRemainingDuration',
   'finishCurrentAbilityEntity',
+  'finishCurrentAbilityEntityWhenSourceDies',
   'spawnAbilityEntity',
   'applyElementalInfliction',
   'applyElementalReaction',

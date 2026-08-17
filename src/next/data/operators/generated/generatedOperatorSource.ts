@@ -313,6 +313,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
+  /** 严格识别的周期 Source 死亡检查与 Owner 结束组合。 */
+  readonly sourceDeathFinish: { readonly skipDieDisplay: boolean } | null;
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
   readonly combatActions: readonly string[];
   /** 数据源中存在但生成器尚未结构化解析的 Buff 根载荷；非空时不得视为完整行为定义。 */

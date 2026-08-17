@@ -716,6 +716,7 @@ function validateCombatStep(
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'finishCurrentAbilityEntity':
+    case 'finishCurrentAbilityEntityWhenSourceDies':
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'spawnAbilityEntity': {

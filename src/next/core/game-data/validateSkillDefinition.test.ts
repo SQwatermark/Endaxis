@@ -546,7 +546,7 @@ describe('validateSkillDefinition', () => {
     ).toBe(true);
   });
 
-  it('requires an entity iteration target for explicit AbilityEntity finish', () => {
+  it('requires an entity iteration target for AbilityEntity finish operations', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [
       {
@@ -577,6 +577,19 @@ describe('validateSkillDefinition', () => {
       },
     ];
     expect(validateSkillDefinition(skill)).toEqual([]);
+
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [{ kind: 'finishCurrentAbilityEntityWhenSourceDies', parameters: {} }],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].sequence.steps[0]',
+      message: 'requires a forEachContextTarget body',
+    });
   });
 
   it('allows current AbilityEntity Buff application only inside an entity target scope', () => {
