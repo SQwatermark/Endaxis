@@ -162,6 +162,8 @@ export interface CombatBuffDefinition<Key extends string> {
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
 export interface CombatBuffAddOptions {
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
+  /** 创建该实例的技能、被动或配装动作身份，用于解释后续生命周期步骤。 */
+  readonly sourceActionId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
 }
@@ -171,6 +173,7 @@ export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
+  readonly sourceActionId: string;
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];
@@ -200,6 +203,7 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
     this.blackboard.assign(options?.blackboardValues);
+    this.sourceActionId = options?.sourceActionId ?? definition.id;
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     this.priority = resolveBuffPriority(definition, this.blackboard);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);

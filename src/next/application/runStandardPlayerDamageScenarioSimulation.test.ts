@@ -87,7 +87,7 @@ function createGeneratedTeamScenario() {
   const scenario = createEmptyScenario('scenario:generated-team', '自动生成干员组队样本');
   scenario.battle.resourceRules = {
     ...scenario.battle.resourceRules,
-    initialSp: 0,
+    initialSp: 100,
     spRecoveryPerSecond: 0,
   };
   const build = (operatorSlug: string) => ({
@@ -112,29 +112,49 @@ function createGeneratedTeamScenario() {
     operator: build(perlicaGeneratedOperator.slug),
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-    initialState: { ultimateEnergy: 0 },
+    initialState: { ultimateEnergy: 80 },
     skillCasts: [],
   };
 
   let nextId = 0;
   const ids = { allocate: (kind: string) => `${kind}:${++nextId}` };
-  const withTrigger = placeSkillGroup({
+  const placements = [
+    {
+      trackIndex: 0,
+      operator: arclightGeneratedOperator,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack5',
+      startFrame: 1,
+    },
+    {
+      trackIndex: 1,
+      operator: perlicaGeneratedOperator,
+      skillGroupKey: 'comboSkill',
+      startFrame: 20,
+    },
+    {
+      trackIndex: 1,
+      operator: perlicaGeneratedOperator,
+      skillGroupKey: 'battleSkill',
+      startFrame: 40,
+    },
+    {
+      trackIndex: 1,
+      operator: perlicaGeneratedOperator,
+      skillGroupKey: 'ultimate',
+      startFrame: 180,
+    },
+    {
+      trackIndex: 1,
+      operator: perlicaGeneratedOperator,
+      skillGroupKey: 'ultimate',
+      startFrame: 260,
+    },
+  ] as const;
+  return placements.reduce(
+    (current, placement) => placeSkillGroup({ scenario: current, ids, ...placement }).scenario,
     scenario,
-    trackIndex: 0,
-    operator: arclightGeneratedOperator,
-    skillGroupKey: 'basicAttack',
-    skillKey: 'basicAttack5',
-    startFrame: 1,
-    ids,
-  }).scenario;
-  return placeSkillGroup({
-    scenario: withTrigger,
-    trackIndex: 1,
-    operator: perlicaGeneratedOperator,
-    skillGroupKey: 'comboSkill',
-    startFrame: 20,
-    ids,
-  }).scenario;
+  );
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
@@ -142,8 +162,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     const definitions = [arclightGeneratedOperator, perlicaGeneratedOperator];
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedTeamScenario(),
-      endFrame: 80,
-      criticalSamples: new ExplicitCriticalSampleSource(Array(12).fill(1)),
+      endFrame: 400,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
@@ -168,6 +188,9 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     ).toEqual([
       ['track:0', 'basicAttack5'],
       ['track:1', 'comboSkill'],
+      ['track:1', 'battleSkill'],
+      ['track:1', 'ultimate'],
+      ['track:1', 'ultimate'],
     ]);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:1' }),
@@ -182,7 +205,36 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           .map(entry => entry.sourceId),
       ),
     ).toEqual(new Set(['track:0', 'track:1']));
-    expect(result.finalResources.sp).toBeGreaterThan(result.initialResources.sp);
+    expect(result.finalResources.sp).toBeGreaterThan(0);
+    expect(result.finalResources.sp).toBeLessThan(result.initialResources.sp);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCostApplied',
+        sourceId: 'track:1',
+        data: expect.objectContaining({ skillId: 'battleSkill', nonReturnedSpCost: 100 }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCostApplied',
+        sourceId: 'track:1',
+        data: expect.objectContaining({ skillId: 'ultimate', remainingUltimateEnergy: 0 }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCooldownUnavailableAtStart',
+        sourceId: 'track:1',
+        data: expect.objectContaining({ skillId: 'ultimate' }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCostRejected',
+        sourceId: 'track:1',
+        data: expect.objectContaining({ skillId: 'ultimate' }),
+      }),
+    );
   });
 
   it('runs every generated Perlica skill type through the production simulation flow', () => {

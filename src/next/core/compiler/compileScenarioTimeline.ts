@@ -18,6 +18,7 @@ import type {
 import { compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
+  compileOperatorPassivePrograms,
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
@@ -158,6 +159,7 @@ function compileResolvedTimelineTracks(
   let order = 0;
 
   for (const { track, operatorInstance, operator } of tracks) {
+    const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
     const skills: CompiledSkillProgram[] = [];
     for (const cast of track.skillCasts) {
       if (cast.presentation?.disabled) continue;
@@ -182,10 +184,8 @@ function compileResolvedTimelineTracks(
     operators.push({
       operatorId: track.id,
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
-      skills: applyOperatorUpgradeSkillPatches(
-        skills,
-        resolveActiveOperatorUpgrades(operatorInstance, operator),
-      ),
+      passivePrograms: compileOperatorPassivePrograms(activeUpgrades),
+      skills: applyOperatorUpgradeSkillPatches(skills, activeUpgrades),
     });
   }
 

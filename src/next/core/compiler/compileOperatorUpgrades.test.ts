@@ -6,6 +6,7 @@ import type { OperatorInstanceDocument } from '../project/schema';
 import { compileOperatorDefinitionSkills } from './compileScenarioTimeline';
 import {
   applyOperatorUpgradeSkillPatches,
+  compileOperatorPassivePrograms,
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
 
@@ -140,8 +141,14 @@ describe('operator upgrade compilation', () => {
 
   it('patches initial skill blackboards with add, multiply and assign operations', () => {
     const source = [
-      { ...program('battle-a', 'battleSkill', 'sp', 100), initialBlackboard: { atb: 40, pulse_up: 0.0005, count: 3 } },
-      { ...program('battle-b', 'battleSkill', 'sp', 100), initialBlackboard: { atb: 35, pulse_up: 0.0008, count: 3 } },
+      {
+        ...program('battle-a', 'battleSkill', 'sp', 100),
+        initialBlackboard: { atb: 40, pulse_up: 0.0005, count: 3 },
+      },
+      {
+        ...program('battle-b', 'battleSkill', 'sp', 100),
+        initialBlackboard: { atb: 35, pulse_up: 0.0008, count: 3 },
+      },
       program('ultimate', 'ultimate', 'ultimateEnergy', 100),
     ];
     const patched = applyOperatorUpgradeSkillPatches(source, [
@@ -171,10 +178,90 @@ describe('operator upgrade compilation', () => {
       },
     ]);
 
-    expect(patched[0]!.initialBlackboard).toMatchObject({ talent_1: 1, atb: 40, pulse_up: Math.fround(0.0005 * 1.3), count: 3 });
-    expect(patched[1]!.initialBlackboard).toMatchObject({ talent_1: 1, atb: 35, pulse_up: Math.fround(0.0008 * 1.3), count: 3 });
+    expect(patched[0]!.initialBlackboard).toMatchObject({
+      talent_1: 1,
+      atb: 40,
+      pulse_up: Math.fround(0.0005 * 1.3),
+      count: 3,
+    });
+    expect(patched[1]!.initialBlackboard).toMatchObject({
+      talent_1: 1,
+      atb: 35,
+      pulse_up: Math.fround(0.0008 * 1.3),
+      count: 3,
+    });
     expect(patched[2]!.initialBlackboard).toEqual({});
     expect(source[0]!.initialBlackboard).not.toHaveProperty('talent_1');
+  });
+
+  it('compiles active passive skills with upgrade-level blackboard values', () => {
+    const programs = compileOperatorPassivePrograms([
+      {
+        source: 'talent',
+        level: 2,
+        definition: {
+          key: 'talent-passive',
+          levels: 2,
+          passiveSkills: [
+            {
+              key: 'persistent-buff',
+              blackboard: { attackIncrease: [0.1, 0.2] },
+              enableSequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'persistent-buff',
+                      target: 'caster',
+                      blackboardAssignments: {
+                        attackIncrease: { kind: 'blackboard', key: 'attackIncrease' },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    expect(programs).toEqual([
+      {
+        key: 'persistent-buff',
+        initialBlackboard: { attackIncrease: 0.2 },
+        enableSequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'persistent-buff',
+                target: 'caster',
+                blackboardAssignments: {
+                  attackIncrease: { kind: 'blackboard', key: 'attackIncrease' },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('rejects duplicate passive identities across active upgrades', () => {
+    expect(() =>
+      compileOperatorPassivePrograms(
+        ['talent', 'potential'].map(source => ({
+          source,
+          level: 1,
+          definition: {
+            key: source,
+            levels: 1,
+            passiveSkills: [{ key: 'same-passive', enableSequence: { steps: [] } }],
+          },
+        })) as Parameters<typeof compileOperatorPassivePrograms>[0],
+      ),
+    ).toThrow("duplicates passive 'same-passive'");
   });
 
   it('fails closed for missing targets and unsupported active modifiers', () => {

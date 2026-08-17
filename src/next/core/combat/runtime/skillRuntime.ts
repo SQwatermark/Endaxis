@@ -1,6 +1,6 @@
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
- * 每个技能实例独立持有调度游标和黑板；调用方不能跨实例复用或直接修改其内部状态。
+ * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
  */
 import type { ActionSequence } from '../actions/actionSequence';
 import type { CombatExecutionContext } from '../actions/combatStep';
@@ -58,6 +58,10 @@ interface SkillRuntimeDependencies {
   readonly semanticEvents?: CombatSemanticEventRuntime;
   /** 干员实体级黑板由同一能力系统下的所有技能共享，技能 direct blackboard 仅回退读取它。 */
   readonly entityBlackboard?: ActionBlackboard;
+  /** 同一干员同一技能的多个时间轴块共用冷却账本。 */
+  readonly cooldown?: SkillCooldown;
+  /** 共享账本只能由一个运行实例逐帧推进。 */
+  readonly advancesCooldown?: boolean;
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
@@ -69,6 +73,7 @@ export class SkillRuntime {
   readonly #operationContext: CombatOperationContext;
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #cooldown: SkillCooldown;
+  readonly #advancesCooldown: boolean;
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
@@ -82,7 +87,9 @@ export class SkillRuntime {
     this.#program = program;
     this.#dependencies = dependencies;
     this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
-    this.#cooldown = new SkillCooldown(program.cooldownFrames, program.costFrame);
+    this.#cooldown =
+      dependencies.cooldown ?? new SkillCooldown(program.cooldownFrames, program.costFrame);
+    this.#advancesCooldown = dependencies.advancesCooldown ?? true;
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,
@@ -229,7 +236,10 @@ export class SkillRuntime {
     ) {
       throw new RangeError('skill deltas must be non-negative finite numbers');
     }
-    if (this.#cooldown.advance(cooldownDeltaSeconds * COMBAT_FRAMES_PER_SECOND)) {
+    if (
+      this.#advancesCooldown &&
+      this.#cooldown.advance(cooldownDeltaSeconds * COMBAT_FRAMES_PER_SECOND)
+    ) {
       this.record('SkillCooldownReady');
     }
     if (this.#state !== 'casting') return;

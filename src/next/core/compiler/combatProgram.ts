@@ -158,6 +158,13 @@ export interface ResolvedActionSequence {
   readonly steps: readonly ResolvedCombatStep[];
 }
 
+/** 构筑编译出的常驻被动程序；由战斗装配层启用，不进入时间轴技能集合。 */
+export interface CompiledOperatorPassiveProgram {
+  readonly key: string;
+  readonly initialBlackboard: Readonly<Record<string, number>>;
+  readonly enableSequence: ResolvedActionSequence;
+}
+
 /** 技能释放时刻相对帧上的一个已编译调度项。 */
 export interface CompiledTimelineAction {
   readonly startFrame: number;

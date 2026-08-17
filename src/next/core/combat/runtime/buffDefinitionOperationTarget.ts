@@ -58,6 +58,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return (
       this.container.add(definition, request.sourceId, {
         blackboardValues: request.blackboardValues,
+        sourceActionId: request.sourceActionId ?? request.buffId,
         ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
       }) !== null
     );

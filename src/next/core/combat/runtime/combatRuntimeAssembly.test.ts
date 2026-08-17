@@ -132,6 +132,40 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('shares one cooldown ledger across placed casts of the same skill', () => {
+    const assembly = createAssembly([
+      skill({ castId: 'cast:1', cooldownFrames: 10, costs: [], costFrame: 0 }),
+      skill({ castId: 'cast:2', cooldownFrames: 10, costs: [], costFrame: 0 }),
+    ]);
+
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast:1')).toBe(true);
+    assembly.advanceFrame();
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast:2')).toBe(true);
+
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCooldownUnavailableAtStart',
+        data: expect.objectContaining({ castId: 'cast:2', skillId: 'skill' }),
+      }),
+    );
+  });
+
+  it('rejects conflicting cooldown definitions for placed casts of the same skill', () => {
+    expect(() =>
+      createAssembly([
+        skill({ castId: 'cast:1', cooldownFrames: 10, costs: [], costFrame: 0 }),
+        skill({ castId: 'cast:2', cooldownFrames: 20, costs: [], costFrame: 0 }),
+      ]),
+    ).toThrow("skill 'skill' of 'operator' has inconsistent cooldown configuration");
+
+    expect(() =>
+      createAssembly([
+        skill({ castId: 'cast:1', cooldownFrames: undefined, costs: [], costFrame: 0 }),
+        skill({ castId: 'cast:2', cooldownFrames: 20, costs: [], costFrame: 0 }),
+      ]),
+    ).toThrow("skill 'skill' of 'operator' has inconsistent cooldown configuration");
+  });
+
   it('routes time-dilation clocks through the assembled ability systems', () => {
     const casterDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
     const otherDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
@@ -410,6 +444,97 @@ describe('CombatRuntimeAssembly', () => {
     });
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
+    );
+  });
+
+  it('enables compiled passive programs once after Buff runtimes are configured', () => {
+    const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+      get: () => undefined,
+      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+    });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [],
+          buffRuntime,
+          passivePrograms: [
+            {
+              key: 'talent-aura',
+              initialBlackboard: { attackIncrease: 0.2 },
+              enableSequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'talent-aura',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'unique',
+                        lifecycleSequences: {
+                          start: {
+                            steps: [
+                              {
+                                kind: 'changeResource',
+                                parameters: {
+                                  resource: 'sp',
+                                  amount: 20,
+                                  recipient: 'team',
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                      blackboardAssignments: {
+                        attackIncrease: { kind: 'blackboard', key: 'attackIncrease' },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(buffs.buffs).toHaveLength(1);
+    expect(buffs.buffs[0]?.sourceActionId).toBe('passive:talent-aura');
+    expect(buffs.buffs[0]?.blackboard.getNumber('attackIncrease')).toBeCloseTo(0.2);
+    expect(assembly.resources.sp).toBe(20);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
+    );
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        frame: 0,
+        event: 'PassiveSkillEnabled',
+        sourceId: 'operator',
+        data: { passiveKey: 'talent-aura' },
+      }),
     );
   });
 

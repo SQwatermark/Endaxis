@@ -956,11 +956,25 @@ export interface UpgradeEventHandlerDefinition {
   sequence: ActionSequenceDefinition;
 }
 
+/**
+ * 天赋启用后随干员能力系统一起安装的常驻被动。
+ * 它复用技能步骤协议，但不属于技能库，也不能被时间轴输入释放。
+ */
+export interface OperatorPassiveSkillDefinition {
+  key: string;
+  /** 被动启用序列读取的初始黑板；数组按当前天赋等级解析。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
+  /** 原生被动 Skill.Enable 时执行的有序行为。 */
+  enableSequence: ActionSequenceDefinition;
+}
+
 export interface OperatorUpgradeDefinition {
   key: string;
   levels: number;
   modifiers?: readonly UpgradeModifierDefinition[];
   eventHandlers?: readonly UpgradeEventHandlerDefinition[];
+  /** 仅在这个养成项启用时安装；每个被动在一场战斗中只启用一次。 */
+  passiveSkills?: readonly OperatorPassiveSkillDefinition[];
 }
 
 export const OPERATOR_EVENTS = ['deckAttributesChanged'] as const;

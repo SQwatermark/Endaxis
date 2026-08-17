@@ -2,7 +2,7 @@
  * 把构筑中启用的天赋、潜能统一解析为编译期养成计划，并将已支持的修正应用到技能程序。
  * 各编译阶段应复用这里的选择结果；运行时只消费修正后的程序，不再解释养成 DSL。
  */
-import type { CompiledSkillProgram } from './combatProgram';
+import type { CompiledOperatorPassiveProgram, CompiledSkillProgram } from './combatProgram';
 import type {
   LevelValues,
   OperatorDefinition,
@@ -10,6 +10,7 @@ import type {
   UpgradeModifierDefinition,
 } from '../game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../project/schema';
+import { compileActionSequence } from './compileSkill';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
@@ -80,6 +81,40 @@ function resolveUpgradeLevelValue(value: LevelValues, upgradeLevel: number, path
   }
   if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
   return resolved;
+}
+
+/**
+ * 将已启用养成项中的原生常驻被动编译为单等级程序。
+ * 声明顺序决定启用顺序；重复 key 会让 Buff 和事件归因不稳定，因此直接拒绝。
+ */
+export function compileOperatorPassivePrograms(
+  upgrades: readonly ActiveOperatorUpgrade[],
+): readonly CompiledOperatorPassiveProgram[] {
+  const programs: CompiledOperatorPassiveProgram[] = [];
+  const keys = new Set<string>();
+  for (const upgrade of upgrades) {
+    for (const [index, passive] of (upgrade.definition.passiveSkills ?? []).entries()) {
+      const path = `${upgrade.source} '${upgrade.definition.key}'.passiveSkills[${index}]`;
+      if (passive.key.length === 0) throw new Error(`${path}.key must not be empty`);
+      if (keys.has(passive.key)) throw new Error(`${path} duplicates passive '${passive.key}'`);
+      keys.add(passive.key);
+      programs.push({
+        key: passive.key,
+        initialBlackboard: Object.fromEntries(
+          Object.entries(passive.blackboard ?? {}).map(([key, value]) => [
+            key,
+            resolveUpgradeLevelValue(value, upgrade.level, `${path}.blackboard.${key}`),
+          ]),
+        ),
+        enableSequence: compileActionSequence(
+          passive.enableSequence,
+          upgrade.level,
+          `${path}.enableSequence`,
+        ),
+      });
+    }
+  }
+  return programs;
 }
 
 function patchSkillBlackboard(

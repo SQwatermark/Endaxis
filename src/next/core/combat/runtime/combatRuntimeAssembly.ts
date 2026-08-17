@@ -4,6 +4,7 @@
  */
 import type {
   CompiledComboSkillRegistration,
+  CompiledOperatorPassiveProgram,
   CompiledSkillProgram,
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
@@ -55,6 +56,9 @@ import {
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import { CombatTimelineClock } from './combatTimelineClock';
+import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
+import type { ActionSequence } from '../actions/actionSequence';
+import { SkillCooldown } from './skillCooldown';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -67,6 +71,8 @@ export type OperatorBuffRuntime = FrameRuntime &
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 构筑启用的常驻被动；按声明顺序在战斗装配完成后启用一次。 */
+  readonly passivePrograms?: readonly CompiledOperatorPassiveProgram[];
   /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
   readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
   /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
@@ -209,8 +215,21 @@ export class CombatRuntimeAssembly {
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #skillCastIds = new SkillCastIdAllocator();
+  /** 同一干员同一技能的所有放置块共用一份冷却事实。 */
+  readonly #skillCooldowns = new Map<
+    string,
+    {
+      readonly cooldown: SkillCooldown;
+      readonly periodFrames?: number;
+      readonly commitFrame?: number;
+    }
+  >();
   readonly #equipmentEventRuntimes: EquipmentEventRuntime[] = [];
   readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
+  /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
+  readonly #passiveSequences: ActionSequence[] = [];
+  /** 不依赖施法实例的 Buff 生命周期按动作身份回到原解释链。 */
+  readonly #reactiveOperationBindings = new Map<string, CombatOperationExecutor>();
   readonly #castOperationBindings = new Map<
     string,
     {
@@ -382,6 +401,36 @@ export class CombatRuntimeAssembly {
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
 
+    // 原生先初始化全部技能，再统一 Enable 被动；此处也必须晚于实体和 Buff 生命周期装配。
+    for (const operator of options.operators) {
+      for (const passive of operator.passivePrograms ?? []) {
+        const blackboard = new ActionBlackboard(passive.initialBlackboard);
+        const operations = this.#createReactiveOperationChain(
+          operator,
+          `passive:${passive.key}`,
+          unsupportedReactiveTerminal,
+          options,
+        );
+        const runtime = new CombatActionSequenceRuntime(
+          operations,
+          { blackboard },
+          {},
+          this.semanticEvents,
+          operator.operatorId,
+        );
+        const sequence = runtime.createSequence(passive.enableSequence);
+        sequence.executeInstant({});
+        this.#passiveSequences.push(sequence);
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'PassiveSkillEnabled',
+          sourceId: operator.operatorId,
+          data: { passiveKey: passive.key },
+        });
+      }
+    }
+
     if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
     // 先由时间膨胀更新本帧倍率，再推进项目逻辑时间；后续输入读取同一结果。
     this.simulation.add(this.timelineClock);
@@ -505,6 +554,7 @@ export class CombatRuntimeAssembly {
       resolveVitals,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
     });
+    const cooldownBinding = this.#resolveSkillCooldown(operatorId, program);
     runtime = new SkillRuntime(program, {
       clock: this.clock,
       resources: this.resources,
@@ -513,8 +563,42 @@ export class CombatRuntimeAssembly {
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
       semanticEvents: this.semanticEvents,
       entityBlackboard,
+      ...cooldownBinding,
     });
     return runtime;
+  }
+
+  #resolveSkillCooldown(
+    operatorId: string,
+    program: CompiledSkillProgram,
+  ): { readonly cooldown?: SkillCooldown; readonly advancesCooldown?: boolean } {
+    const key = `${operatorId}\u0000${program.skillId}`;
+    const existing = this.#skillCooldowns.get(key);
+    if (existing !== undefined) {
+      if (
+        existing.periodFrames !== program.cooldownFrames ||
+        (program.cooldownFrames !== undefined && existing.commitFrame !== program.costFrame)
+      ) {
+        throw new Error(
+          `skill '${program.skillId}' of '${operatorId}' has inconsistent cooldown configuration`,
+        );
+      }
+      return { cooldown: existing.cooldown, advancesCooldown: false };
+    }
+    const cooldown = new SkillCooldown(
+      program.cooldownFrames,
+      program.cooldownFrames === undefined ? undefined : program.costFrame,
+    );
+    this.#skillCooldowns.set(key, {
+      cooldown,
+      ...(program.cooldownFrames === undefined
+        ? {}
+        : {
+            periodFrames: program.cooldownFrames,
+            ...(program.costFrame === undefined ? {} : { commitFrame: program.costFrame }),
+          }),
+    });
+    return { cooldown, advancesCooldown: true };
   }
 
   #createBuffLifecycleOperationChain(
@@ -522,21 +606,23 @@ export class CombatRuntimeAssembly {
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
     const cast = source.skillCastInfo;
-    if (cast?.originCastId === undefined) {
-      throw new Error(
-        `Buff lifecycle from '${source.sourceId}' requires inherited timeline skill-cast info`,
+    const castId = cast?.originCastId ?? source.sourceActionId;
+    const binding = this.#castOperationBindings.get(castId);
+    if (binding === undefined && cast?.originCastId === undefined) {
+      const operations = this.#reactiveOperationBindings.get(
+        `${source.sourceId}\u0000${source.sourceActionId}`,
       );
+      if (operations !== undefined) return operations;
     }
-    const binding = this.#castOperationBindings.get(cast.originCastId);
     if (binding === undefined) {
-      throw new Error(`Buff lifecycle references unknown skill cast '${cast.originCastId}'`);
+      throw new Error(`Buff lifecycle references unknown source action '${castId}'`);
     }
     if (
       binding.operator.operatorId !== source.sourceId ||
-      binding.program.skillId !== cast.originSkillId
+      (cast !== null && binding.program.skillId !== cast.originSkillId)
     ) {
       throw new Error(
-        `Buff lifecycle source '${source.sourceId}' does not match skill cast '${cast.originCastId}'`,
+        `Buff lifecycle source '${source.sourceId}' does not match action '${castId}'`,
       );
     }
     return this.#createOperationChain({
@@ -547,7 +633,7 @@ export class CombatRuntimeAssembly {
       createDelegate: options.createOperationExecutor,
       isOperatorControlled: options.isOperatorControlled,
       resolveVitals: options.resolveVitals,
-      getNonReturnedSpCost: () => cast.nonReturnedSpCost,
+      getNonReturnedSpCost: () => cast?.nonReturnedSpCost ?? 0,
     });
   }
 
@@ -589,6 +675,7 @@ export class CombatRuntimeAssembly {
     );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
+      sourceActionId: program.castId ?? program.skillId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         target === 'party'
@@ -693,6 +780,7 @@ export class CombatRuntimeAssembly {
     );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
+      sourceActionId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         target === 'party'
@@ -742,7 +830,7 @@ export class CombatRuntimeAssembly {
     });
     const eventConditions = new EventContextConditionExecutor(controlConditions);
     const blackboardOperations = new ActionBlackboardOperationExecutor(eventConditions);
-    return new SkillResourceOperationExecutor({
+    const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId,
       clock: this.clock,
@@ -752,6 +840,11 @@ export class CombatRuntimeAssembly {
       finisherSpRecovery: options.enemy.stagger.finisherSpRecovery,
       delegate: blackboardOperations,
     });
+    const bindingKey = `${operatorId}\u0000${sourceActionId}`;
+    if (!this.#reactiveOperationBindings.has(bindingKey)) {
+      this.#reactiveOperationBindings.set(bindingKey, operations);
+    }
+    return operations;
   }
 
   #requireAbilitySystem(operatorId: string): AbilitySystemRuntime {

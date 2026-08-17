@@ -22,6 +22,7 @@ export interface BuffQueryResult {
 /** Buff 生命周期解析操作链时可使用的稳定实例来源。 */
 export interface BuffLifecycleOperationSource {
   readonly sourceId: string;
+  readonly sourceActionId: string;
   readonly skillCastInfo: CombatSkillCastInfo | null;
 }
 
@@ -67,12 +68,14 @@ export interface BuffApplicationRequest {
   /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
   readonly definition?: ResolvedSkillBuffDefinition;
   readonly sourceId: string;
+  readonly sourceActionId?: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
 }
 
 export interface BuffOperationDependencies {
   readonly sourceId: string;
+  readonly sourceActionId?: string;
   readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
   /** 集合施加只用于 CreateBuffAction；Buff 查询与结束仍必须解析为单一实体。 */
   readonly resolveApplicationTargets?: (
@@ -129,6 +132,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           step.parameters.source === undefined
             ? this.dependencies.sourceId
             : this.dependencies.resolveTarget(step.parameters.source).ownerId,
+        ...(this.dependencies.sourceActionId === undefined
+          ? {}
+          : { sourceActionId: this.dependencies.sourceActionId }),
         blackboardValues: Object.fromEntries(
           Object.entries(assignments).map(([key, operand]) => [
             key,

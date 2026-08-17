@@ -118,7 +118,8 @@ sequence([
 每次模拟创建全新状态：
 
 - `CombatResources`：共享技力和逐干员终结技能量；
-- `SkillRuntime`：冷却、费用、执行游标、一次性 scope 和动作黑板；
+- `SkillRuntime`：一次放置块的费用、执行游标、一次性 scope 和动作黑板；
+- `SkillCooldown`：同一干员同一技能的放置块共享冷却账本，由其中一个运行实例负责逐帧推进；
 - `CombatBuffContainer`：实体 Buff、叠层和修正注册；
 - `CombatStatusContainer`：语义状态层数与持续时间；
 - `CombatVitals`：生命和失衡；
