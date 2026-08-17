@@ -49,6 +49,7 @@ from generate_next_operators import (
     ability_entity_child_buff_can_compile,
     ability_entity_child_finishes_are_terminal,
     ability_entity_child_timeline_can_compile,
+    timeline_jump_can_compile,
     parse_timeline_jumps,
     compile_ability_entity_child_skill,
     compile_damage_units_step,
@@ -8077,7 +8078,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "conditionAction": {
                                         "actionData": [
                                             {
-                                                "$type": "Example.CheckBuffStackNum+Data, Example",
+                                                "$type": "Example.UnsupportedJumpCondition+Data, Example",
                                                 "serverActionIndex": 30,
                                                 "isEnable": True,
                                             }
@@ -8104,7 +8105,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "[0]",
             ),
         )
-        self.assertEqual(jumps[0].conditionActionTypes, ("CheckBuffStackNum",))
+        self.assertEqual(jumps[0].conditionActionTypes, ("UnsupportedJumpCondition",))
         self.assertFalse(
             ability_entity_child_timeline_can_compile(
                 SimpleNamespace(
@@ -8131,6 +8132,100 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 )
             )
         )
+
+    def test_root_timeline_jumps_compile_only_with_direct_supported_conditions(self) -> None:
+        def scalar(value: float) -> dict[str, object]:
+            return {"useBlackboardKey": False, "value": value, "blackboardKey": ""}
+
+        target = {"targetSource": "Target", "targetGroupKey": "follow_tar"}
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 89,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 29,
+                                    "isEnable": True,
+                                    "destFrame": 89,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckHp+Data, Example",
+                                                "serverActionIndex": 30,
+                                                "isEnable": True,
+                                                "hpOwner": target,
+                                                "compare": "LE",
+                                                "isRatio": True,
+                                                "value": scalar(0),
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    },
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 89,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 36,
+                                    "isEnable": True,
+                                    "destFrame": 149,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckBuffStackNum+Data, Example",
+                                                "serverActionIndex": 37,
+                                                "isEnable": True,
+                                                "checkTarget": target,
+                                                "buffId": {"buffId": "buff.example"},
+                                                "compareType": "GE",
+                                                "value": scalar(1),
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    },
+                ]
+            }
+        }
+
+        jumps = parse_timeline_jumps(root, "fixture.json")
+
+        self.assertEqual([jump.directConditionsSupported for jump in jumps], [True, True])
+        self.assertEqual([jump.isOnlySequenceAction for jump in jumps], [True, True])
+        self.assertTrue(all(timeline_jump_can_compile(jump) for jump in jumps))
+        control_flow = SimpleNamespace(
+            explicitFinishes=(
+                SimpleNamespace(startFrame=90),
+                SimpleNamespace(startFrame=150),
+            ),
+            timelineJumps=jumps,
+            directDamageHits=(
+                SimpleNamespace(startFrame=89),
+                SimpleNamespace(startFrame=149),
+            ),
+            intervalDamageHits=(),
+            inflictions=(),
+            conditionalActions=(),
+            auxiliaryActions=(),
+            resourceGains=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            keywordActions=(),
+        )
+        self.assertTrue(ability_entity_child_finishes_are_terminal(control_flow))
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

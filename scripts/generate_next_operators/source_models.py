@@ -382,6 +382,9 @@ class TimedTimelineJumpSource:
     actionIndex: int
     actionPath: tuple[str, ...]
     conditionActionTypes: tuple[str, ...]
+    directConditions: tuple["ConditionSource", ...] = ()
+    directConditionsSupported: bool = False
+    isOnlySequenceAction: bool = False
     sequenceIndex: int = -1
 
 

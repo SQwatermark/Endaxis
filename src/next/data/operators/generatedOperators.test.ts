@@ -42,17 +42,19 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('finishCurrentAbilityEntityWhenSourceDies');
   });
 
-  it('Fluorite 战技在时间轴跳转未解决前保留父时间轴投影', () => {
+  it('Fluorite 战技把已证明的根级跳转迁入能力实体局部时间轴', () => {
     const serialized = JSON.stringify(fluoriteBattleSkill);
     const frames = fluoriteBattleSkill.scheduledSequences.map(sequence => sequence.startFrame);
+    const behaviorGaps = fluorite.conversionSupport?.missingCapabilities.find(
+      item => item.capability === 'skillBehavior',
+    )?.skillGroupKeys;
 
-    expect(serialized).not.toContain('abilityentity_chr_0022_bounda_normal_skill');
-    expect(frames).toEqual(expect.arrayContaining([99, 159]));
-    expect(
-      fluorite.conversionSupport?.missingCapabilities.find(
-        item => item.capability === 'skillBehavior',
-      )?.skillGroupKeys,
-    ).toContain('battleSkill');
+    expect(serialized).toContain('abilityentity_chr_0022_bounda_normal_skill');
+    expect(serialized).toContain('jumpTimeline');
+    expect(serialized).toContain('"destinationFrame":89');
+    expect(serialized).toContain('"destinationFrame":149');
+    expect(frames).not.toEqual(expect.arrayContaining([99, 159]));
+    expect(behaviorGaps ?? []).not.toContain('battleSkill');
   });
 
   it('Lifeng 终结技不会把条件跳转后的能力实体动作线性内嵌', () => {

@@ -4684,6 +4684,31 @@ export const fluoriteGeneratedSource = {
                   "conditionActionTypes": [
                     "CheckHp"
                   ],
+                  "directConditions": [
+                    {
+                      "sourceType": "CheckHp",
+                      "supported": false,
+                      "comparison": null,
+                      "left": null,
+                      "right": null,
+                      "skillTypes": [],
+                      "health": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "follow_tar",
+                        "comparison": "LE",
+                        "isRatio": true,
+                        "value": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        }
+                      },
+                      "damageDecorateMask": null,
+                      "contextBuffId": null
+                    }
+                  ],
+                  "directConditionsSupported": true,
+                  "isOnlySequenceAction": true,
                   "sequenceIndex": 5
                 },
                 {
@@ -4700,6 +4725,38 @@ export const fluoriteGeneratedSource = {
                   "conditionActionTypes": [
                     "CheckBuffStackNum"
                   ],
+                  "directConditions": [
+                    {
+                      "sourceType": "CheckBuffStackNum",
+                      "supported": true,
+                      "comparison": null,
+                      "left": null,
+                      "right": null,
+                      "skillTypes": [],
+                      "buffStack": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "follow_tar",
+                        "buffCheckType": "Id",
+                        "buffIds": [
+                          "buff_chr_0022_bounda_ultimate_skill"
+                        ],
+                        "tagQueryType": "hasAny",
+                        "buffTagIds": [],
+                        "countType": "BuffCount",
+                        "comparison": "GE",
+                        "value": {
+                          "value": 1.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "limitSkillCastId": false
+                      },
+                      "damageDecorateMask": null,
+                      "contextBuffId": null
+                    }
+                  ],
+                  "directConditionsSupported": true,
+                  "isOnlySequenceAction": true,
                   "sequenceIndex": 11
                 }
               ],

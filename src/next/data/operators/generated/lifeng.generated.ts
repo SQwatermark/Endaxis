@@ -8084,6 +8084,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "conditionActionTypes": [],
+              "directConditions": [],
+              "directConditionsSupported": false,
+              "isOnlySequenceAction": false,
               "sequenceIndex": 8
             }
           ],

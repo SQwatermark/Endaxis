@@ -156,6 +156,7 @@ from conditional_parser import (
     contains_combat_effect,
     parse_conditional_actions,
     parse_ordered_action_sequence,
+    parse_timeline_jump_condition,
 )
 from source_schema import (
     AURA_ACTION_FIELDS,
@@ -372,7 +373,11 @@ def skill_contains_ability_entity_timeline_jumps(skill: SkillSource) -> bool:
     def visit_entities(entities: Iterable[AbilityEntityHitSource]) -> None:
         nonlocal found
         for entity in entities:
-            if entity.timelineJumps:
+            jumps = entity.timelineJumps
+            if jumps and (
+                not all(timeline_jump_can_compile(jump) for jump in jumps)
+                or not ability_entity_child_finishes_are_terminal(entity)
+            ):
                 found = True
                 return
             visit_entities(entity.nestedAbilityEntityHits)
@@ -3009,6 +3014,7 @@ def parse_ability_entity_finishes(
 def parse_timeline_jumps(
     root: dict[str, Any],
     source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]] | None = None,
 ) -> tuple[TimedTimelineJumpSource, ...]:
     """保留 JumpToAction 的位置、时间与条件类型；未建模控制流不得被线性化。"""
 
@@ -3041,8 +3047,17 @@ def parse_timeline_jumps(
         end_frame = require_non_negative_int(
             timeline.get("_endFrame"), f"{timeline_path}._endFrame"
         )
+        sequence_data = require_dict(
+            timeline.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData"
+        )
+        raw_root_actions = sequence_data.get("actionData")
+        enabled_root_actions = tuple(
+            action
+            for action in raw_root_actions
+            if isinstance(action, dict) and action.get("isEnable") is not False
+        ) if isinstance(raw_root_actions, list) else ()
         for action, action_path in walk_action_paths(
-            timeline.get("_sequenceActionData"),
+            sequence_data,
             (f"timelineActions[{timeline_index}]", "_sequenceActionData"),
         ):
             if action_name(action["$type"]) != "JumpToAction" or action.get("isEnable") is False:
@@ -3053,6 +3068,27 @@ def parse_timeline_jumps(
                 for item in walk_actions(action.get("conditionAction"))
                 if item.get("isEnable") is not False
             )
+            raw_conditions = tuple(
+                item
+                for item in walk_actions(action.get("conditionAction"))
+                if item.get("isEnable") is not False
+            )
+            direct_conditions: tuple[ConditionSource, ...] = ()
+            direct_conditions_supported = False
+            if raw_conditions and all(
+                action_name(str(item.get("$type", "")))
+                in {"CheckHp", "CheckBuffStackNum"}
+                for item in raw_conditions
+            ):
+                direct_conditions = tuple(
+                    parse_timeline_jump_condition(
+                        item,
+                        f"{path}.conditionAction[{index}]",
+                        inherited_blackboard or {},
+                    )
+                    for index, item in enumerate(raw_conditions)
+                )
+                direct_conditions_supported = True
             result.append(
                 TimedTimelineJumpSource(
                     startFrame=start_frame,
@@ -3063,6 +3099,11 @@ def parse_timeline_jumps(
                     actionIndex=require_server_action_index(action, path),
                     actionPath=action_path,
                     conditionActionTypes=condition_types,
+                    directConditions=direct_conditions,
+                    directConditionsSupported=direct_conditions_supported,
+                    isOnlySequenceAction=(
+                        len(enabled_root_actions) == 1 and enabled_root_actions[0] is action
+                    ),
                     sequenceIndex=timeline_index,
                 )
             )
@@ -3795,7 +3836,7 @@ def resolve_ability_entity_payload(
         directDamageHits=parse_direct_damage_hits(child, child_name, child_blackboard),
         intervalDamageHits=parse_interval_damage_hits(child, child_name, child_blackboard),
         explicitFinishes=parse_ability_entity_finishes(child, child_name),
-        timelineJumps=parse_timeline_jumps(child, child_name),
+        timelineJumps=parse_timeline_jumps(child, child_name, child_blackboard),
         conditionalActions=child_conditions,
         inflictions=parse_inflictions(child, child_name),
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, child_blackboard),
@@ -7537,9 +7578,6 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
     if not finishes:
         return True
     first_finish_frame = min(finish.startFrame for finish in finishes)
-    if any(finish.startFrame > first_finish_frame for finish in finishes):
-        return False
-
     action_frames = [
         action.startFrame
         for field in (
@@ -7561,7 +7599,86 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
         for interval in getattr(hit, "intervalDamageHits", ())
         for frame in interval.tickFrames
     )
-    return all(frame <= first_finish_frame for frame in action_frames)
+    jumps = getattr(hit, "timelineJumps", ())
+    if not jumps:
+        return (
+            not any(finish.startFrame > first_finish_frame for finish in finishes)
+            and all(frame <= first_finish_frame for frame in action_frames)
+        )
+
+    destinations = tuple(sorted({jump.destFrame for jump in jumps}))
+    finish_frames = tuple(sorted({finish.startFrame for finish in finishes}))
+    if not destinations or any(
+        jump.startFrame > first_finish_frame or jump.endFrame >= first_finish_frame
+        for jump in jumps
+    ):
+        return False
+    # 每个可跳入区段必须在下一个目的帧前显式结束；区段内的战斗动作也必须位于
+    # 该结束点之前。这样正常路径和任一跳转路径都会在继续落入后续区段前终止。
+    for index, destination in enumerate(destinations):
+        next_destination = destinations[index + 1] if index + 1 < len(destinations) else None
+        segment_finishes = tuple(
+            frame
+            for frame in finish_frames
+            if frame >= destination and (next_destination is None or frame < next_destination)
+        )
+        if not segment_finishes:
+            return False
+        segment_finish = segment_finishes[0]
+        if any(
+            frame > segment_finish
+            for frame in action_frames
+            if frame >= destination and (next_destination is None or frame < next_destination)
+        ):
+            return False
+    return True
+
+
+def timeline_jump_can_compile(jump: TimedTimelineJumpSource) -> bool:
+    """只接受唯一根动作、前向目的地和完整直接条件的已证实跳转形状。"""
+    sequence_index = getattr(jump, "sequenceIndex", -1)
+    expected_path = (
+        f"timelineActions[{sequence_index}]",
+        "_sequenceActionData",
+        "actionData",
+        "[0]",
+    )
+    if not (
+        getattr(jump, "actionPath", ()) == expected_path
+        and getattr(jump, "isOnlySequenceAction", False)
+        and getattr(jump, "startFrame", 1) <= getattr(jump, "endFrame", 0)
+        and getattr(jump, "destFrame", -1) >= getattr(jump, "startFrame", 0)
+        and getattr(jump, "directConditionsSupported", False)
+        and getattr(jump, "directConditions", ())
+    ):
+        return False
+    try:
+        compile_combat_condition_group(
+            getattr(jump, "directConditions"),
+            "timelineJump.condition",
+            root_skill_context=False,
+            input_target="enemy",
+        )
+    except ValueError:
+        return False
+    return True
+
+
+def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource) -> bool:
+    """核对能力实体子图中的原生战斗动作均有对应的共享编译路径。"""
+    allowed = {
+        "CreateBuffAction",
+        "DamageAction",
+        "FinishOwnerAction",
+        "JumpToAction",
+        "ObtainCostAction",
+        "SpellInfliction",
+    }
+    conditional_actions = getattr(hit, "conditionalActions", ())
+    if conditional_actions:
+        allowed.add("IfElseAction")
+        allowed.update(collect_compilable_conditional_action_types(conditional_actions))
+    return set(getattr(hit, "combatActions", ())) <= allowed
 
 
 def ability_entity_child_timeline_can_compile(
@@ -7598,8 +7715,8 @@ def ability_entity_child_timeline_can_compile(
             finish.target.targetSource == "Owner" and target_reference_is_plain(finish.target)
             for finish in getattr(hit, "explicitFinishes", ())
         )
+        and all(timeline_jump_can_compile(jump) for jump in getattr(hit, "timelineJumps", ()))
         and ability_entity_child_finishes_are_terminal(hit)
-        and not getattr(hit, "timelineJumps", ())
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())
@@ -7608,14 +7725,7 @@ def ability_entity_child_timeline_can_compile(
         and not getattr(hit, "buffFinishes", ())
         and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
-        and set(getattr(hit, "combatActions", ()))
-        <= {
-            "CreateBuffAction",
-            "DamageAction",
-            "FinishOwnerAction",
-            "ObtainCostAction",
-            "SpellInfliction",
-        }
+        and ability_entity_child_combat_actions_can_compile(hit)
     )
 
 
@@ -7801,15 +7911,53 @@ def compile_ability_entity_child_skill(
     for frame, sequence_order, action_order, step_lines in compiled:
         grouped.setdefault((frame, sequence_order), []).append((action_order, step_lines))
 
+    render_groups: list[
+        tuple[int, tuple[int, ...], int | None, list[tuple[tuple[int, ...], list[str]]]]
+    ] = [
+        (frame, sequence_order, None, actions)
+        for (frame, sequence_order), actions in grouped.items()
+    ]
+    for jump in getattr(hit, "timelineJumps", ()):
+        condition = compile_combat_condition_group(
+            jump.directConditions,
+            f"{skill.key}.{hit.skillId}.timelineJump.condition",
+            root_skill_context=False,
+            input_target="enemy",
+        )
+        condition_lines = condition.splitlines()
+        condition_lines[0] = f"  condition: {condition_lines[0]}"
+        condition_lines[1:] = [f"  {line}" for line in condition_lines[1:]]
+        condition_lines[-1] += ","
+        step_lines = [
+            "step('jumpTimeline', {",
+            f"  destinationFrame: {jump.destFrame},",
+            *condition_lines,
+            "})",
+        ]
+        render_groups.append(
+            (
+                jump.startFrame,
+                native_sequence_order(jump, hit.actionOrder, hit.skillId),
+                jump.endFrame,
+                [((*hit.actionOrder, jump.actionIndex), step_lines)],
+            )
+        )
+
     lines = ["{", f"  skillId: {ts_inline_literal(hit.skillId)},", "  scheduledSequences: ["]
-    for frame, sequence_order in sorted(grouped):
+    for frame, sequence_order, end_frame, actions in sorted(
+        render_groups,
+        key=lambda item: (item[0], item[1], -1 if item[2] is None else item[2]),
+    ):
         lines.extend(["    scheduled(", f"      {frame},", "      sequence("])
-        for _, step_lines in sorted(grouped[(frame, sequence_order)], key=lambda entry: entry[0]):
+        for _, step_lines in sorted(actions, key=lambda entry: entry[0]):
             lines.extend(
                 f"        {line}," if line.endswith(")") else f"        {line}"
                 for line in step_lines
             )
-        lines.extend(["      ),", "    ),"])
+        lines.append("      ),")
+        if end_frame is not None:
+            lines.append(f"      {end_frame},")
+        lines.append("    ),")
     lines.extend(["  ],", "}"])
     return "\n".join(lines)
 
@@ -8906,9 +9054,28 @@ def compile_resolved_sequence(
     if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
     resolved_schedule = collect_resolved_schedule(skill)
+
+    def collect_reachable_ability_entities() -> tuple[AbilityEntityHitSource, ...]:
+        result: list[AbilityEntityHitSource] = []
+
+        def visit_entities(entities: Iterable[AbilityEntityHitSource]) -> None:
+            for entity in entities:
+                result.append(entity)
+                visit_entities(entity.nestedAbilityEntityHits)
+                visit_projectiles(entity.projectileTriggeredSkills)
+
+        def visit_projectiles(projectiles: Iterable[ProjectileTriggeredSkillSource]) -> None:
+            for projectile in projectiles:
+                visit_entities(projectile.abilityEntityHits)
+                visit_projectiles(projectile.nestedProjectileTriggeredSkills)
+
+        visit_entities(skill.abilityEntityHits)
+        visit_projectiles(skill.projectileTriggeredSkills)
+        return tuple(result)
+
     migrated_ability_entities = tuple(
         entity
-        for entity in skill.abilityEntityHits
+        for entity in collect_reachable_ability_entities()
         if ability_entity_child_timeline_can_compile(
             entity,
             ignored_auxiliary_classifications=frozenset(
@@ -8917,6 +9084,32 @@ def compile_resolved_sequence(
             ignored_buff_ids=ignored_buff_ids,
             unmodeled_buff_ids=unmodeled_buff_ids,
             buff_definitions=buff_definitions,
+        )
+    )
+    scheduled_entity_ids = {
+        id(item.payload)
+        for item in resolved_schedule
+        if item.itemType == "abilityEntitySpawn"
+    }
+    resolved_schedule = tuple(
+        sorted(
+            (
+                *resolved_schedule,
+                *(
+                    ResolvedScheduleItemSource(
+                        frame=entity.spawnFrame,
+                        actionOrder=entity.actionOrder,
+                        itemType="abilityEntitySpawn",
+                        sourcePath=(skill.skillId,),
+                        payload=entity,
+                        inputTarget="enemy",
+                        sequenceOrder=entity.actionOrder[:-1],
+                    )
+                    for entity in migrated_ability_entities
+                    if id(entity) not in scheduled_entity_ids
+                ),
+            ),
+            key=lambda item: (item.frame, item.sequenceOrder, item.actionOrder),
         )
     )
 

@@ -227,7 +227,7 @@ export interface GeneratedTimedAbilityEntityFinishSource extends GeneratedNative
   readonly skipDieDisplay: boolean;
 }
 
-/** SkillData 时间轴跳转证据；当前生成运行时不会把它线性化为动作。 */
+/** SkillData 时间轴跳转证据；只有严格证明的根级形状才会进入实体子时间轴。 */
 export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
@@ -236,6 +236,11 @@ export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenc
   /** 原始 SkillData 中的精确位置，用于关联外层 IfElse/事件等控制流。 */
   readonly actionPath: readonly string[];
   readonly conditionActionTypes: readonly string[];
+  /** 复用条件中间层解析成功的直接条件；未知类型保持空数组并由支持标记阻塞。 */
+  readonly directConditions: readonly GeneratedConditionSource[];
+  readonly directConditionsSupported: boolean;
+  /** 跳转是其所在原生 Sequence 的唯一启用根动作。 */
+  readonly isOnlySequenceAction: boolean;
 }
 
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */

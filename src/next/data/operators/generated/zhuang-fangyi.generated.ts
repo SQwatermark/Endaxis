@@ -29792,6 +29792,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "conditionActionTypes": [],
+              "directConditions": [],
+              "directConditionsSupported": false,
+              "isOnlySequenceAction": false,
               "sequenceIndex": 5
             }
           ],

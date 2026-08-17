@@ -76,6 +76,7 @@ __all__ = [
     "contains_combat_effect",
     "parse_conditional_actions",
     "parse_ordered_action_sequence",
+    "parse_timeline_jump_condition",
 ]
 
 # 这些动作本身不会进入 Next 执行序列，但它们决定后续 Context 目标组的身份。
@@ -134,6 +135,88 @@ def contains_combat_effect(value: Any) -> bool:
     if isinstance(value, list):
         return any(contains_combat_effect(child) for child in value)
     return False
+
+
+def _parse_buff_stack_num_condition(
+    condition: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ConditionSource:
+    target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+    buff_id_value = require_dict(condition.get("buffId"), f"{path}.buffId")
+    buff_id = buff_id_value.get("buffId")
+    if not isinstance(buff_id, str) or not buff_id:
+        raise ValueError(f"{path}.buffId.buffId: expected non-empty string")
+    return ConditionSource(
+        sourceType="CheckBuffStackNum",
+        supported=True,
+        comparison=None,
+        left=None,
+        right=None,
+        skillTypes=(),
+        buffStack=BuffStackConditionSource(
+            targetSource=str(target.get("targetSource", "")),
+            targetGroupKey=str(target.get("targetGroupKey", "")),
+            buffCheckType="Id",
+            buffIds=(buff_id,),
+            tagQueryType="hasAny",
+            buffTagIds=(),
+            countType="BuffCount",
+            comparison=str(condition.get("compareType", "")),
+            value=parse_scalar(
+                condition.get("value"), f"{path}.value", inherited_blackboard
+            ),
+            limitSkillCastId=False,
+        ),
+    )
+
+
+def _parse_hp_condition(
+    condition: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ConditionSource:
+    target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
+    comparison = condition.get("compare")
+    is_ratio = condition.get("isRatio")
+    if not isinstance(comparison, str) or not comparison:
+        raise ValueError(f"{path}.compare: expected string")
+    if not isinstance(is_ratio, bool):
+        raise ValueError(f"{path}.isRatio: expected boolean")
+    target_source = str(target.get("targetSource", ""))
+    target_group_key = str(target.get("targetGroupKey", ""))
+    return ConditionSource(
+        sourceType="CheckHp",
+        supported=(target_source == "Context" and target_group_key == "smart_target"),
+        comparison=None,
+        left=None,
+        right=None,
+        skillTypes=(),
+        health=HealthConditionSource(
+            targetSource=target_source,
+            targetGroupKey=target_group_key,
+            comparison=comparison,
+            isRatio=is_ratio,
+            value=parse_scalar(
+                condition.get("value"), f"{path}.value", inherited_blackboard
+            ),
+        ),
+    )
+
+
+def parse_timeline_jump_condition(
+    raw_condition: Any,
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ConditionSource:
+    """解析当前有直接原生样本、且 Next 条件编译器已闭环的跳转条件。"""
+    condition = require_dict(raw_condition, path)
+    condition_type = action_name(str(condition.get("$type", "")))
+    if condition_type == "CheckBuffStackNum":
+        return _parse_buff_stack_num_condition(condition, path, inherited_blackboard)
+    if condition_type == "CheckHp":
+        return _parse_hp_condition(condition, path, inherited_blackboard)
+    raise ValueError(f"{path}: unsupported timeline jump condition {condition_type!r}")
 
 
 def parse_conditional_actions(
@@ -297,35 +380,7 @@ def parse_conditional_actions(
                 ),
             )
         if condition_type == "CheckBuffStackNum":
-            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
-            buff_id_value = require_dict(condition.get("buffId"), f"{path}.buffId")
-            buff_id = buff_id_value.get("buffId")
-            if not isinstance(buff_id, str) or not buff_id:
-                raise ValueError(f"{path}.buffId.buffId: expected non-empty string")
-            return ConditionSource(
-                sourceType=condition_type,
-                supported=True,
-                comparison=None,
-                left=None,
-                right=None,
-                skillTypes=(),
-                buffStack=BuffStackConditionSource(
-                    targetSource=str(target.get("targetSource", "")),
-                    targetGroupKey=str(target.get("targetGroupKey", "")),
-                    buffCheckType="Id",
-                    buffIds=(buff_id,),
-                    tagQueryType="hasAny",
-                    buffTagIds=(),
-                    countType="BuffCount",
-                    comparison=str(condition.get("compareType", "")),
-                    value=parse_scalar(
-                        condition.get("value"),
-                        f"{path}.value",
-                        inherited_blackboard,
-                    ),
-                    limitSkillCastId=False,
-                ),
-            )
+            return _parse_buff_stack_num_condition(condition, path, inherited_blackboard)
         if condition_type == "CheckBuffStackNumAdvanced":
             target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
             check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
@@ -487,37 +542,7 @@ def parse_conditional_actions(
                 skillHasHit=SkillHasHitConditionSource(),
             )
         if condition_type == "CheckHp":
-            target = require_dict(condition.get("hpOwner"), f"{path}.hpOwner")
-            comparison = condition.get("compare")
-            is_ratio = condition.get("isRatio")
-            if not isinstance(comparison, str) or not comparison:
-                raise ValueError(f"{path}.compare: expected string")
-            if not isinstance(is_ratio, bool):
-                raise ValueError(f"{path}.isRatio: expected boolean")
-            target_source = str(target.get("targetSource", ""))
-            target_group_key = str(target.get("targetGroupKey", ""))
-            return ConditionSource(
-                sourceType=condition_type,
-                supported=(
-                    target_source == "Context"
-                    and target_group_key == "smart_target"
-                ),
-                comparison=None,
-                left=None,
-                right=None,
-                skillTypes=(),
-                health=HealthConditionSource(
-                    targetSource=target_source,
-                    targetGroupKey=target_group_key,
-                    comparison=comparison,
-                    isRatio=is_ratio,
-                    value=parse_scalar(
-                        condition.get("value"),
-                        f"{path}.value",
-                        inherited_blackboard,
-                    ),
-                ),
-            )
+            return _parse_hp_condition(condition, path, inherited_blackboard)
         if condition_type == "CheckMainCharacterCondition":
             target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
             target_source = str(target.get("targetSource", ""))
