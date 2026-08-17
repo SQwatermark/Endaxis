@@ -15,15 +15,66 @@
 
 - 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 本文对应的最近实现提交：`29ad626c test(next): verify generated entity owner monitor`；实际 HEAD 始终以 `git log` 为准。
-- 紧邻提交：`65e2526c feat(next): migrate ability entity owner monitor buffs`
-- 再前提交：`0f43a500 feat(next): host buff lifecycles on ability entities`
+- 本文对应的最近实现提交：`c4258472 feat(next): prove entity time dilation closure`；实际 HEAD 始终以 `git log` 为准。
+- 紧邻提交：`f82edb56 feat(next): fold entity child distances`
+- 再前提交：`98ba750d feat(next): compile conditional entity timeline jumps`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
-大潘代码与生成产物已提交。本文的交接更新会作为独立文档提交；新会话仍应以 Git 实际 HEAD 为准。
+大潘代码与生成产物已提交。本次能力实体架构讨论目前只写入交接文档、尚未提交；新会话仍应以 Git 实际 HEAD 与 `git status --short` 为准。
 
-## 3. 本轮已经完成
+## 3. 能力实体最新架构决策（尚未实现）
+
+2026-08-18 已明确以下边界。这里记录的是下一阶段必须遵守的设计结论；截至 `c4258472`，现有代码仍使用运行时模板注册表与 `templateId` 查找，不能把本节误读成已经完成的实现。
+
+### Buff 与能力实体彻底分离
+
+- 不把能力实体降级成 Buff，也不设计“部分能力实体可折叠成 Buff”的生产模型；既然 Buff 无法完整表达独立实体身份、Context 句柄、实体查询、局部时间、独立子时间轴和作为 Buff 宿主等语义，就不做半合并。
+- Buff 继续是附着于既有宿主的效果实例，保留 Buff ID/Tag 查询、叠层/刷新、属性修正和 Buff 生命周期语义。
+- 能力实体继续是场景中的独立逻辑目标，保留稳定句柄、owner/source/target、born tags、独立寿命、实体局部时间、实体黑板、Context 查询、子技能时间轴和自己的 Buff 容器。
+- 两者可以复用没有领域含义的底层设施，例如动作序列解释器、黑板数值、时钟与帧调度工具；不得为复用代码而引入模糊两者语义的“通用效果实体”领域类型。
+
+### 能力实体定义内联进技能组件树
+
+- 目标结构与 Buff 的“身份 + 内联 definition”形式相似，但只是数据组织方式相似，不代表运行时语义合并。
+- `spawnAbilityEntity` 应从当前的 `templateId + childSkill` 改为 `abilityEntityId + definition`。`abilityEntityId` 保留原生身份，供审计、日志和未来原生规则识别；`definition` 携带完整可执行蓝图，包括 born tags、默认生命周期和可选子技能组件树。
+- 本次生成才决定的字段仍留在 spawn 层，例如 target、动态覆盖时长、动作黑板继承、实体黑板赋值、Context 输出和 `dieWhenSourceDies`；不要混入公共证据定义。
+- VFS 提取文件 `src/next/data/ability-entities/ability-entity-templates-1.4.4.json` 继续作为版本化生成证据和审计来源，但前端、项目存档、编译器与运行时最终不应通过它进行共享模板查找。
+- 当前桌面环境就是其他文档所称的“远程”。54 个模板的版本化证据已经进入仓库；笔记本执行内联重构不需要依赖桌面的 `tmp/`。只有重新提取原始资源或补充反编译证据时，才需要回到桌面环境。
+- 生成器负责在每个使用点把 VFS 模板证据和已证明的子 SkillData 原子展开为完整 `AbilityEntityDefinition`。由此每个技能定义是自包含组件树，不再形成“技能 -> 共享模板、技能 -> 子技能、运行时再查模板”的钻石依赖。
+- `assetPath`、`assetIndex`、`rawSha256`、组件计数等只属于证据；没有执行规则的字段也不能伪装成可编辑、可执行定义。当前 `maxStackingCount` 只有来源事实，达到上限时如何处理尚无规则证据，重构时必须继续失败关闭或仅留审计层，不能猜测替换策略。
+
+目标形状示意：
+
+```ts
+step('spawnAbilityEntity', {
+  abilityEntityId: 'abilityentity_xxx',
+  definition: {
+    bornTagIds: [...],
+    lifetime: { kind: 'limited', durationSeconds: 10 },
+    childSkill: {
+      skillId: 'xxx_child',
+      blackboard: {},
+      scheduledSequences: [...],
+    },
+  },
+  target: 'enemy',
+  dieWhenSourceDies: false,
+  inheritActionBlackboard: true,
+  overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
+  blackboardAssignments: {},
+  saveToContextKey: 'entity',
+});
+```
+
+### 前端编辑边界
+
+- 当前 Next 技能编辑器尚未给能力实体步骤提供专用控件：已有能力实体步骤只能随技能定义加载、排序、复制或删除，不能新增或编辑参数；时间膨胀界面也没有暴露能力实体查询字段。
+- 不要先为现有 `templateId` 引用式结构制作 UI。应先完成内联数据模型、生成、校验、编译和运行时迁移，再实现前端递归编辑器。
+- 前端最终编辑技能组件树中的 `spawnAbilityEntity.definition`：生成参数、实体生命周期覆盖、黑板和内联子技能时间线。子技能应复用现有调度序列/战斗步骤编辑器，并明确它使用实体局部时间、没有独立费用/冷却/施法身份。
+- VFS 原始模板证据保持只读，不允许用户修改公共模板。前端可显示 `abilityEntityId` 及证据摘要，但用户修改的是当前技能内联定义，不会影响其他技能。
+
+## 4. 本轮已经完成
 
 ### 条件减速动作
 
@@ -72,7 +123,7 @@
 - 同一桌面 `GameAssembly.dll` 的进一步反汇编已确认 `TimeDilationAction` 的 Entity 分支逐个解析 `effectTargets` 并调用 `StartEntityTimeDilation`，实体实例逐帧把曲线倍率安装到目标 Entity。Next 时间膨胀运行时已将局部目标泛化为稳定实体 ID，能力实体有限寿命和已内嵌的子技能时间轴都会消费 `ability-entity:<instanceId>` 对应的实体倍率，并有标准装配回归覆盖。两个正式生成子图已迁移，但 owner/tag 目标可跨技能选中尚未迁移的实体；在建立干员级全生成点证明前，Entity 目标阻塞保持不变。
 - 全局/终结技时间动作原本还会在 `ignoreTargets` 排除 owner-spawned 或命名 Context 中的能力实体；过去丢弃这些目标没有运行时影响，但能力实体开始消费时间后会造成错误减速。生成中间层现已保留这些查询，正式 DSL/执行器会在动作执行时解析 owner/tag 或 Context 稳定句柄并加入全局排除集合；全部生成产物已重建。Entity 作用目标复用同一查询协议并有装配测试，但生成器仍因子 SkillData 调度缺口而拒绝输出。
 
-## 4. 最新验证基线
+## 5. 最新验证基线
 
 当前验证结果：
 
@@ -85,7 +136,7 @@
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
 
-## 5. 当前生成器状态
+## 6. 当前生成器状态
 
 目录：`scripts/generate_next_operators`。
 
@@ -109,19 +160,21 @@
 - 尚会被旧根解析器展开的内部 SequenceAction 守卫尾部，需要显式消费身份后才能迁入局部短路；
 - 隐藏技能、复杂 Buff、混合养成载荷及无法从数据稳定推导的例外。
 
-## 6. 下一步建议
+## 7. 下一步建议
 
-下一会话应先重新确认工作树和提交，再从下列候选中只选一个推进：
+下一会话应先重新确认工作树和提交。用户已把能力实体内联重构定为优先方向，笔记本接续时先推进第 1 项，不要继续扩展即将废弃的 `templateId` 前端或运行时接口：
 
-1. 扩大能力实体子图动态迁移的严格覆盖，并为 owner/tag 查询建立干员级匹配生成点闭包；只有闭包内所有生成点都已迁移时才开放 `effectAbilityEntityTargets`；
-2. 闭环 Li Zhiyan 连携技 `trigger` 的三路互斥生产者：两路归约为唯一敌人，一路为固定位置；需要证明穷尽分支后的目标组恒非空，再折叠 `CheckEntityNum(Context/trigger >= 1)`，不能把位置目标伪装成敌人；
-3. Gilberta 的严格来源死亡监视器已经作为首个真实 Owner-Buff 闭环；下一步从 Yvonne 或 Li Zhiyan 中选择一个可独立证明的最小动作子集，但不得忽略其余条件、伤害、资源、Buff 结束、owner/tag 实体结束或 Aura。之后再处理 Camille 的设置目标和 Avywenna 的投射物来源；
-4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
-5. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
+1. 将 `LogicalAbilityEntityTemplate` 重构为技能内联的 `AbilityEntityDefinition`：先改 DSL 与严格校验，再让生成器展开 VFS 证据和子技能，随后改编译器/运行时以移除模板注册表，最后重建生成产物与测试。迁移过程中保持每一步类型检查和聚焦测试通过，不为尚未发布的 Next 中间格式维护兼容层；
+2. 内联重构稳定后，再实现能力实体前端递归编辑器；不要把 Buff 编辑器改造成两者共用的领域编辑器，只复用通用序列控件；
+3. 扩大能力实体子图动态迁移的严格覆盖，并为 owner/tag 查询建立干员级匹配生成点闭包；只有闭包内所有生成点都已迁移时才开放 `effectAbilityEntityTargets`；
+4. 闭环 Li Zhiyan 连携技 `trigger` 的三路互斥生产者：两路归约为唯一敌人，一路为固定位置；需要证明穷尽分支后的目标组恒非空，再折叠 `CheckEntityNum(Context/trigger >= 1)`，不能把位置目标伪装成敌人；
+5. Gilberta 的严格来源死亡监视器已经作为首个真实 Owner-Buff 闭环；下一步从 Yvonne 或 Li Zhiyan 中选择一个可独立证明的最小动作子集，但不得忽略其余条件、伤害、资源、Buff 结束、owner/tag 实体结束或 Aura。之后再处理 Camille 的设置目标和 Avywenna 的投射物来源；
+6. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
+7. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
 
-## 7. 恢复工作清单
+## 8. 恢复工作清单
 
 1. `git status --short`，确认没有把 `tmp/` 或用户文件带入提交；
 2. `git log -10 --oneline`，以实际 HEAD 为准；
@@ -131,7 +184,7 @@
 6. 新增行为同时更新生成器测试、Next 类型检查、Next 测试和文档；
 7. 不修改旧版代码，不提交 `tmp/`，不为尚未发布的 Next 中间存档保留兼容脚手架。
 
-## 8. 跨项目背景
+## 9. 跨项目背景
 
 本项目不是只依赖 Endaxis 自身：
 
