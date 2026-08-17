@@ -24,6 +24,21 @@ class RecordingStep extends CombatStep {
   }
 }
 
+class JumpingStep extends RecordingStep {
+  constructor(
+    name: string,
+    events: string[],
+    readonly jump: () => void,
+  ) {
+    super(name, events);
+  }
+
+  override execute(): void {
+    super.execute();
+    this.jump();
+  }
+}
+
 function timelineAction(startFrame: number, name: string, events: string[]): TimelineAction {
   return {
     startFrame,
@@ -191,6 +206,36 @@ describe('TimelineActionProcessor', () => {
     expect(processor.isComplete).toBe(false);
     processor.tick(5, 1 / 30, context);
     expect(events).toEqual(['exact:execute', 'exact:tick', 'exact:end']);
+  });
+
+  it('ends the currently starting action after a reentrant jump and skips crossed actions', () => {
+    const events: string[] = [];
+    let processor: TimelineActionProcessor;
+    const jumping: TimelineAction = {
+      startFrame: 1,
+      endFrame: 2,
+      sequence: new ActionSequence([
+        new JumpingStep('jumping', events, () => processor.jumpTo(5, 1, context)),
+      ]),
+    };
+    processor = new TimelineActionProcessor([
+      jumping,
+      timelineAction(3, 'skipped', events),
+      timelineAction(5, 'destination', events),
+    ]);
+    processor.reset(context);
+
+    processor.tick(1, 1 / 30, context);
+    processor.tick(5, 0, context);
+
+    expect(events).toEqual([
+      'jumping:execute',
+      'jumping:end',
+      'destination:execute',
+      'destination:tick',
+      'destination:end',
+    ]);
+    expect(processor.isComplete).toBe(true);
   });
 
   it('rejects unsupported backward jumps', () => {

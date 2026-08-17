@@ -32,6 +32,9 @@ export class TimelineActionProcessor {
   readonly #lifecycle: TimelineActionLifecycleSink;
   readonly #active: IndexedTimelineAction[] = [];
   #nextPendingIndex = 0;
+  #starting: IndexedTimelineAction | null = null;
+  #startingCrossedByJump = false;
+  #startingJumpDestination: number | null = null;
 
   constructor(actions: readonly TimelineAction[], lifecycle: TimelineActionLifecycleSink = {}) {
     actions.forEach((action, index) => {
@@ -63,6 +66,9 @@ export class TimelineActionProcessor {
   reset(context: CombatExecutionContext): void {
     this.#nextPendingIndex = 0;
     this.#active.length = 0;
+    this.#starting = null;
+    this.#startingCrossedByJump = false;
+    this.#startingJumpDestination = null;
     for (const { action } of this.#actions) action.sequence.reset(context);
   }
 
@@ -78,10 +84,21 @@ export class TimelineActionProcessor {
     ) {
       const indexedAction = this.#actions[this.#nextPendingIndex]!;
       this.#nextPendingIndex += 1;
+      this.#starting = indexedAction;
+      this.#startingCrossedByJump = false;
+      this.#startingJumpDestination = null;
       this.#lifecycle.started?.(indexedAction.action, indexedAction.sourceIndex, currentFrame);
       indexedAction.action.sequence.execute(context);
-      indexedAction.action.sequence.tick(deltaTime, context);
-      if (indexedAction.action.endFrame === undefined) {
+      if (this.#startingCrossedByJump) {
+        this.#end(indexedAction, this.#startingJumpDestination!, context);
+      } else {
+        indexedAction.action.sequence.tick(deltaTime, context);
+      }
+      this.#starting = null;
+      this.#startingJumpDestination = null;
+      if (this.#startingCrossedByJump) {
+        this.#startingCrossedByJump = false;
+      } else if (indexedAction.action.endFrame === undefined) {
         this.#end(indexedAction, currentFrame, context);
       } else {
         this.#active.push(indexedAction);
@@ -110,6 +127,16 @@ export class TimelineActionProcessor {
     }
     if (destinationFrame < currentFrame) {
       throw new RangeError('backward timeline jumps are not supported');
+    }
+
+    if (
+      this.#starting !== null &&
+      (this.#starting.action.endFrame === undefined ||
+        this.#starting.action.endFrame <= destinationFrame)
+    ) {
+      // 当前序列仍位于 execute 调用栈中；返回后再 End，避免重入其步骤生命周期。
+      this.#startingCrossedByJump = true;
+      this.#startingJumpDestination = destinationFrame;
     }
 
     for (let index = this.#active.length - 1; index >= 0; index -= 1) {
