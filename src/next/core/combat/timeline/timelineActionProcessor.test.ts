@@ -140,6 +140,66 @@ describe('TimelineActionProcessor', () => {
     expect(events).toEqual(['ranged:execute', 'ranged:tick', 'ranged:end']);
   });
 
+  it('skips pending actions whose start frame is before a jump destination', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([
+      timelineAction(2, 'skipped', events),
+      timelineAction(5, 'destination', events),
+    ]);
+    processor.reset(context);
+
+    processor.jumpTo(5, 1, context);
+    processor.tick(5, 1 / 30, context);
+
+    expect(events).toEqual(['destination:execute', 'destination:tick', 'destination:end']);
+    expect(processor.isComplete).toBe(true);
+  });
+
+  it('ends active actions crossed by a jump', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([rangedTimelineAction(1, 3, 'crossed', events)]);
+    processor.reset(context);
+    processor.tick(1, 1 / 30, context);
+
+    processor.jumpTo(5, 1, context);
+
+    expect(events).toEqual(['crossed:execute', 'crossed:tick', 'crossed:end']);
+    expect(processor.isComplete).toBe(true);
+  });
+
+  it('keeps active actions whose end frame is after a jump destination', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([rangedTimelineAction(1, 8, 'spanning', events)]);
+    processor.reset(context);
+    processor.tick(1, 1 / 30, context);
+
+    processor.jumpTo(5, 1, context);
+    processor.tick(5, 1 / 30, context);
+
+    expect(events).toEqual(['spanning:execute', 'spanning:tick', 'spanning:tick']);
+    expect(processor.isComplete).toBe(false);
+  });
+
+  it('does not skip pending actions at the exact jump destination', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([timelineAction(5, 'exact', events)]);
+    processor.reset(context);
+
+    processor.jumpTo(5, 1, context);
+
+    expect(events).toEqual([]);
+    expect(processor.isComplete).toBe(false);
+    processor.tick(5, 1 / 30, context);
+    expect(events).toEqual(['exact:execute', 'exact:tick', 'exact:end']);
+  });
+
+  it('rejects unsupported backward jumps', () => {
+    const processor = new TimelineActionProcessor([]);
+    expect(() => processor.jumpTo(1, 2, context)).toThrow(
+      'backward timeline jumps are not supported',
+    );
+  });
+
   it('rejects non-integer frames before runtime', () => {
     expect(() => new TimelineActionProcessor([timelineAction(1.5, 'invalid', [])])).toThrow(
       'timeline action 0 must use an integer frame',

@@ -96,6 +96,37 @@ export class TimelineActionProcessor {
     }
   }
 
+  /**
+   * 将调度游标向前移动到目标帧。
+   *
+   * 原生 TimelineActionProcessor.JumpTo 的已确认行为是：起始帧严格早于目标帧、
+   * 且尚未执行的序列直接标记结束；已经开始并在目标帧前结束的序列正常 End；
+   * 跨越目标帧的活动序列继续存活。目标帧上的待执行序列留给下一次 tick 启动。
+   * 当前证据只覆盖向前跳转，因此反向跳转在这里显式拒绝。
+   */
+  jumpTo(destinationFrame: number, currentFrame: number, context: CombatExecutionContext): void {
+    if (!Number.isInteger(destinationFrame)) {
+      throw new TypeError('timeline jump destination must use an integer frame');
+    }
+    if (destinationFrame < currentFrame) {
+      throw new RangeError('backward timeline jumps are not supported');
+    }
+
+    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
+      const indexedAction = this.#active[index]!;
+      if (indexedAction.action.endFrame! > destinationFrame) continue;
+      this.#active.splice(index, 1);
+      this.#end(indexedAction, destinationFrame, context);
+    }
+
+    while (
+      this.#nextPendingIndex < this.#actions.length &&
+      this.#actions[this.#nextPendingIndex]!.action.startFrame < destinationFrame
+    ) {
+      this.#nextPendingIndex += 1;
+    }
+  }
+
   end(currentFrame: number, context: CombatExecutionContext): void {
     for (const indexedAction of this.#active) this.#end(indexedAction, currentFrame, context);
     this.#active.length = 0;
