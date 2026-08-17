@@ -18,7 +18,7 @@
 | 雪绒     | 战技   |   0-51 | `OnAddedBuff`            | 检查 Buff、距离、转存攻击者、跳到 107 帧 | 缺 Buff 事件、目标上下文和技能内跳转                                |
 | 阿列什   | 终结技 |  89-91 | `OnAfterKillEntity`      | `kill_num += 1`                          | 已生成 `enemyDefeated` 监听与黑板加法，完整编译通过                 |
 | 大潘     | 终结技 |   0-89 | `OnAfterKillEntity`      | 检查终结技/击飞伤害与潜能值后施加 Buff   | 已生成 `enemyDefeated` 监听、混合伤害属性条件、黑板比较和 Buff 应用 |
-| 洛茜     | 终结技 | 44-111 | `OnSkillEnd`             | 结束事件上下文中的 Buff                  | 缺技能结束事件的 Buff 上下文                                        |
+| 洛茜     | 终结技 | 44-111 | `OnSkillEnd`             | 对空 ID 列表执行 `FinishBuffAdvanced`    | 已证明为空操作，生成时省略监听器                                    |
 | 骏卫     | 战技   |   0-60 | `OnBeforeTakeDamage`     | 排除伤害标签、转存攻击者、跳到 60 帧     | 缺受击事件、目标上下文和技能内跳转                                  |
 | 骏卫     | 战技   |   0-60 | `OnAddedBuff`            | 检查 Buff、距离、转存攻击者、跳到 60 帧  | 缺 Buff 事件、目标上下文和技能内跳转                                |
 | 萤石     | 连携技 |   0-20 | `OnAfterKillEntity`      | 检查连携伤害标签与潜能值后施加 Buff      | 已完整转换；监听器响应体不再误计为根时间轴动作                      |
@@ -55,5 +55,8 @@
 4. 继续将可证明的中间层动作树编译为 `listenForCombatEvents`，对未知事件、条件和叶子动作严格失败。
 5. 逐个解除剩余入口技能的 `event-listener` 阻塞，并用全量生成审计确认覆盖率提升。
 
-其中技能内跳转会改变当前时间线游标，不能用“立即执行一个普通序列”近似。洛茜的 `OnSkillEnd` 也
-不能先做成无负载的通用结束通知，因为原始 `FinishBuffAdvanced` 读取的是该结束事件携带的 Buff 上下文。
+其中技能内跳转会改变当前时间线游标，不能用“立即执行一个普通序列”近似。洛茜终结技是当前
+`OnSkillEnd` 的唯一入口技能样本：监听体使用 `checkType=Id`，但 `buffIdList` 为空。反编译闭环的
+`FinishBuffAdvanced` Id 分支只会按列表逐项调用 Buff 容器，因此该响应不会结束任何 Buff。生成器只对
+这一精确形状省略监听器；事件载荷在原生结束路径中是 `SkillEndResult`，不能据此把其他
+`OnSkillEnd` 监听器近似成无负载通知。

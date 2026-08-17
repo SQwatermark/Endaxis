@@ -7782,6 +7782,28 @@ def compile_resolved_damage_steps(
     return result
 
 
+def event_listener_is_proven_noop(listener: SkillEventListenerSource) -> bool:
+    """识别原生执行路径已经证明不会产生效果的临时监听器。"""
+    if not listener.sequences:
+        return False
+    for response in listener.sequences:
+        if not response.actions:
+            return False
+        for action in response.actions:
+            finish = action.buffFinish
+            if (
+                action.actionType != "FinishBuffAdvanced"
+                or finish is None
+                or action.nestedCondition is not None
+                or action.onceActions is not None
+                or finish.buffCheckType != "Id"
+                or finish.buffIds
+                or finish.buffTagIds
+            ):
+                return False
+    return True
+
+
 def compile_skill_event_listener(
     listener: SkillEventListenerSource,
     path: str,
@@ -7789,8 +7811,10 @@ def compile_skill_event_listener(
     runtime_blackboard_keys: frozenset[str],
     step_key_prefix: str,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
-) -> str:
+) -> str | None:
     """把已闭环的原生技能临时监听器编译为通用事件监听步骤。"""
+    if event_listener_is_proven_noop(listener):
+        return None
     event = {
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
     }.get(listener.event)
@@ -8119,13 +8143,16 @@ def compile_resolved_sequence(
                 ).splitlines()
         elif item.itemType == "eventListener":
             payload = cast(SkillEventListenerSource, item.payload)
-            step_lines = compile_skill_event_listener(
+            compiled_listener = compile_skill_event_listener(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].eventListener",
                 runtime_blackboard_keys=runtime_blackboard_keys,
                 step_key_prefix=skill.key,
                 buff_definitions=buff_definitions,
-            ).splitlines()
+            )
+            if compiled_listener is None:
+                continue
+            step_lines = compiled_listener.splitlines()
         elif item.itemType == "timeDilation":
             payload = cast(TimedTimeDilationSource, item.payload)
             step_lines = compile_time_dilation(

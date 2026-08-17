@@ -35,6 +35,7 @@ from generate_next_operators import (
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
     compile_skill_event_listener,
+    event_listener_is_proven_noop,
     compile_resource_gain,
     compile_combat_condition,
     compile_combat_condition_group,
@@ -69,6 +70,9 @@ from generate_next_operators import (
     TargetGroupInputSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    BuffFinishPayload,
+    SkillEventActionSequenceSource,
+    SkillEventListenerSource,
     SequenceGuardActionSource,
     ConditionSource,
     EntityCountConditionSource,
@@ -8566,6 +8570,76 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'eventDamageTagsMatch'", compiled)
         self.assertIn("match: 'hasAll'", compiled)
         self.assertIn("tags: ['comboSkill']", compiled)
+
+    def test_empty_id_buff_finish_makes_native_listener_a_proven_noop(self) -> None:
+        finish = BuffFinishPayload(
+            targetSource="Owner",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=(),
+            tagQueryType="hasAny",
+            buffTagIds=(),
+            finishAll=True,
+            limitSource=False,
+            isFinishedEarly=False,
+            isAbsorbed=False,
+        )
+        response = SkillEventActionSequenceSource(
+            onlyMainOperator=False,
+            onlyGuard=False,
+            orderedActionTypes=("FinishBuffAdvanced",),
+            combatActions=(),
+            buffApplications=(),
+            actions=(
+                ConditionalBranchActionSource(
+                    actionType="FinishBuffAdvanced",
+                    actionIndex=0,
+                    buffFinish=finish,
+                ),
+            ),
+        )
+        listener = SkillEventListenerSource(
+            startFrame=44,
+            endFrame=111,
+            actionIndex=1498,
+            priorityLevel="Default",
+            priorityOffset=0,
+            event="OnSkillEnd",
+            sequences=(response,),
+        )
+
+        self.assertTrue(event_listener_is_proven_noop(listener))
+        self.assertIsNone(
+            compile_skill_event_listener(
+                listener,
+                "rossi.ultimate.eventListener",
+                runtime_blackboard_keys=frozenset(),
+                step_key_prefix="ultimate",
+            )
+        )
+
+        nonempty_listener = replace(
+            listener,
+            sequences=(
+                replace(
+                    response,
+                    actions=(
+                        replace(
+                            response.actions[0],
+                            buffFinish=replace(finish, buffIds=("buff_rossi",)),
+                        ),
+                    ),
+                ),
+            ),
+        )
+        self.assertFalse(event_listener_is_proven_noop(nonempty_listener))
+        with self.assertRaisesRegex(ValueError, "unsupported native skill event 'OnSkillEnd'"):
+            compile_skill_event_listener(
+                nonempty_listener,
+                "fixture.eventListener",
+                runtime_blackboard_keys=frozenset(),
+                step_key_prefix="fixture",
+            )
 
     def test_damage_mask_condition_splits_mixed_native_properties(self) -> None:
         condition = SimpleNamespace(

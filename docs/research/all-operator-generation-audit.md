@@ -10,82 +10,83 @@
 
 - 干员：29 名。
 - 技能入口：308 个。
-- 进入严格中间层：299 个。
-- 无角色专用声明即可进入通用 DSL：268 个。
-- 当前整名干员完整直转：8 名。
+- 进入严格中间层：301 个。
+- 无角色专用声明即可进入通用 DSL：270 个。
+- 当前整名干员完整直转：9 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：14 个。
-- 当前技能入口中已结构化的事件监听器：5 个。
+- 当前技能入口中已结构化的事件监听器：6 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
 
 ## 分干员结果
 
-| 干员 | 角色 ID | 入口 | 已解析 | 已编译 | 完整直转 |
-| --- | --- | ---: | ---: | ---: | --- |
-| Tangtang | `chr_0027_tangtang` | 11 | 10 | 9 | 否 |
-| Perlica | `chr_0004_pelica` | 9 | 9 | 8 | 否 |
-| Chen Qianyu | `chr_0005_chen` | 10 | 10 | 9 | 否 |
-| Wulfgard | `chr_0006_wolfgd` | 9 | 9 | 8 | 否 |
-| Arclight | `chr_0007_ikut` | 10 | 10 | 10 | 是 |
-| Ember | `chr_0009_azrila` | 9 | 9 | 8 | 否 |
-| Xaihi | `chr_0011_seraph` | 10 | 10 | 9 | 否 |
-| Avywenna | `chr_0012_avywen` | 10 | 10 | 9 | 否 |
-| Gilberta | `chr_0013_aglina` | 9 | 9 | 9 | 是 |
-| Snowshine | `chr_0014_aurora` | 8 | 7 | 6 | 否 |
-| Lifeng | `chr_0015_lifeng` | 9 | 9 | 9 | 是 |
-| Antal | `chr_0023_antal` | 9 | 9 | 8 | 否 |
-| Laevatain | `chr_0016_laevat` | 15 | 15 | 14 | 否 |
-| Estella | `chr_0021_whiten` | 9 | 9 | 9 | 是 |
-| Alesh | `chr_0024_deepfin` | 10 | 10 | 9 | 否 |
-| Arcane | `chr_0032_lizhiyan` | 11 | 10 | 10 | 否 |
-| Yvonne | `chr_0017_yvonne` | 16 | 15 | 12 | 否 |
-| Da Pan | `chr_0018_dapan` | 9 | 8 | 8 | 否 |
-| Rossi | `chr_0028_wulfa` | 11 | 10 | 9 | 否 |
-| Akekuri | `chr_0019_karin` | 9 | 9 | 9 | 是 |
-| Catcher | `chr_0020_meurs` | 9 | 8 | 7 | 否 |
-| Fluorite | `chr_0022_bounda` | 10 | 10 | 10 | 是 |
-| Endministrator | `chr_9000_endmin` | 20 | 20 | 20 | 是 |
-| Ardelia | `chr_0025_ardelia` | 9 | 9 | 5 | 否 |
-| Last Rite | `chr_0026_lastrite` | 9 | 9 | 9 | 是 |
-| Pogranichnik | `chr_0029_pograni` | 10 | 10 | 9 | 否 |
-| Zhuang Fangyi | `chr_0030_zhuangfy` | 15 | 15 | 11 | 否 |
-| Mifu | `chr_0031_mifu` | 11 | 11 | 8 | 否 |
-| Camille | `chr_0033_camille` | 12 | 10 | 7 | 否 |
+| 干员           | 角色 ID             | 入口 | 已解析 | 已编译 | 完整直转 |
+| -------------- | ------------------- | ---: | -----: | -----: | -------- |
+| Tangtang       | `chr_0027_tangtang` |   11 |     10 |      9 | 否       |
+| Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
+| Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
+| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
+| Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
+| Xaihi          | `chr_0011_seraph`   |   10 |     10 |      9 | 否       |
+| Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
+| Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
+| Snowshine      | `chr_0014_aurora`   |    8 |      7 |      6 | 否       |
+| Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
+| Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
+| Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
+| Alesh          | `chr_0024_deepfin`  |   10 |     10 |      9 | 否       |
+| Arcane         | `chr_0032_lizhiyan` |   11 |     10 |     10 | 否       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     15 |     12 | 否       |
+| Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     10 |      9 | 否       |
+| Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
+| Catcher        | `chr_0020_meurs`    |    9 |      8 |      7 | 否       |
+| Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
+| Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      5 | 否       |
+| Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
+| Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
+| Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
+| Camille        | `chr_0033_camille`  |   12 |     11 |      8 | 否       |
 
 ## 共通阻塞簇
 
 下表按被阻塞技能入口数排序。一个技能只记录首次令严格转换停止的原因，因此数字用于排优先级，
 不等于该机制在原始数据中的完整出现次数。
 
-| 阻塞类别 | 技能数 |
-| --- | ---: |
-| `other` | 12 |
-| `buff-source-or-target` | 9 |
-| `condition-other` | 5 |
-| `conditional-leaf` | 3 |
-| `root-action-coverage` | 3 |
-| `condition-distance` | 2 |
-| `condition-entity-count` | 2 |
-| `projectile-child-actions` | 2 |
-| `projectile-data` | 2 |
+| 阻塞类别                   | 技能数 |
+| -------------------------- | -----: |
+| `buff-source-or-target`    |      9 |
+| `other`                    |      9 |
+| `condition-other`          |      6 |
+| `conditional-leaf`         |      3 |
+| `root-action-coverage`     |      3 |
+| `condition-distance`       |      2 |
+| `condition-entity-count`   |      2 |
+| `projectile-child-actions` |      2 |
+| `projectile-data`          |      2 |
 
 ## 技能事件监听器
 
 监听器只统计已进入严格中间层的技能入口。事件内动作保留原生顺序，
 在事件分发和条件链闭环前不会被提升为无条件时间轴步骤。
 
-| 事件 | 监听器数 |
-| --- | ---: |
-| `OnAfterKillEntity` | 2 |
-| `OnBeforeOutputAirborne` | 1 |
-| `OnBeforeTakeDamage` | 1 |
-| `OnSkillEnd` | 1 |
+| 事件                     | 监听器数 |
+| ------------------------ | -------: |
+| `OnAfterKillEntity`      |        3 |
+| `OnBeforeOutputAirborne` |        1 |
+| `OnBeforeTakeDamage`     |        1 |
+| `OnSkillEnd`             |        1 |
 
 监听器动作类型：
-- `CheckDamageDecorateMask`：2 次。
-- `CreateBuffAction`：2 次。
-- `CompareFloat`：1 次。
+
+- `CheckDamageDecorateMask`：3 次。
+- `CreateBuffAction`：3 次。
+- `CompareFloat`：2 次。
 - `FinishBuffAdvanced`：1 次。
 - `ModifyDynamicBlackboard`：1 次。
 - `SetSkillCdAtOnce`：1 次。
@@ -100,11 +101,11 @@
 静态不可达文件可能是旧变体或孤立数据，不计为 parser 缺口，也不能据此注入回退。
 引用数统计调用图身份；若同一原始动作被多个入口引用，它不必等于唯一动作库存。
 
-| 静态不可达源文件 | Aura 动作 | 直接入边来源 |
-| --- | ---: | --- |
-| `chr_0011_seraph_normal_skill_abentity_onfield.json` | 1 | 无 |
-| `chr_0016_laevat_dung_abilityentity.json` | 1 | `chr_0016_laevat_dung_spawn_abilityentity.json` |
-| `chr_0032_lizhiyan_normal_skill_abilityrange.json` | 1 | 无 |
+| 静态不可达源文件                                     | Aura 动作 | 直接入边来源                                    |
+| ---------------------------------------------------- | --------: | ----------------------------------------------- |
+| `chr_0011_seraph_normal_skill_abentity_onfield.json` |         1 | 无                                              |
+| `chr_0016_laevat_dung_abilityentity.json`            |         1 | `chr_0016_laevat_dung_spawn_abilityentity.json` |
+| `chr_0032_lizhiyan_normal_skill_abilityrange.json`   |         1 | 无                                              |
 
 首轮已补齐原生 `Fire / Cryst / Natural` 伤害枚举映射，零声明编译入口由 24 个增至 33 个。
 第二轮只在根技能上下文折叠 `ActionOwner/Owner`，入口进一步增至 60 个；嵌套分支仍严格拒绝。
@@ -133,68 +134,68 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 该统计直接递归读取 SkillData，不受当前 parser 是否能走到相应条件的影响。
 这些条件既包括命中目标是否存在，也包括能力实体、可命中目标和多目标数量；不能仅凭动作名统一折叠。
 
-| 来源 | 上下文键 | 比较 | 可命中目标 | 排除死亡 | 写入键 | 次数 | 技能数 | 示例 |
-| --- | --- | --- | --- | --- | --- | ---: | ---: | --- |
-| `Target` | `(空)` | `GE 1` | 否 | 否 | `(空)` | 181 | 83 | `chr_0027_tangtang_power_attack`<br>`chr_0027_tangtang_normal_skill`<br>`chr_0004_pelica_normal_skill` |
-| `Context` | `tar` | `GE 1` | 否 | 否 | `(空)` | 120 | 75 | `chr_0027_tangtang_combo_skill`<br>`chr_0027_tangtang_plunging_attack_end`<br>`chr_0006_wolfgd_plunging_attack_end` |
-| `Target` | `(空)` | `GE 1` | 是 | 否 | `(空)` | 97 | 77 | `chr_0027_tangtang_attack1`<br>`chr_0027_tangtang_attack3`<br>`chr_0027_tangtang_attack4` |
-| `Context` | `smart_target` | `GE 1` | 否 | 否 | `(空)` | 81 | 30 | `chr_0027_tangtang_combo_skill`<br>`chr_0006_wolfgd_normal_skill`<br>`chr_0007_ikut_normal_skill` |
-| `Target` | `tar` | `GE 1` | 否 | 否 | `(空)` | 21 | 17 | `chr_0027_tangtang_power_attack`<br>`chr_0004_pelica_power_attack`<br>`chr_0007_ikut_attack4` |
-| `Context` | `targets` | `GE 1` | 否 | 否 | `(空)` | 20 | 11 | `chr_0009_azrila_combo_skill`<br>`chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_normal_skill` |
-| `Context` | `maintar` | `GE 1` | 否 | 否 | `(空)` | 20 | 11 | `chr_0021_whiten_normal_skill`<br>`chr_0024_deepfin_normal_skill`<br>`chr_0017_yvonne_ult_attack2_1` |
-| `InstantSearch` | `(空)` | `GE 1` | 否 | 否 | `(空)` | 17 | 13 | `chr_0027_tangtang_ultimate_skill`<br>`chr_0004_pelica_combo_skill`<br>`chr_0013_aglina_combo_skill` |
-| `Target` | `smart_target` | `GE 1` | 否 | 否 | `(空)` | 11 | 4 | `chr_0016_laevat_normal_skill_during_ult`<br>`chr_0017_yvonne_normal_skill`<br>`chr_0029_pograni_combo_skill` |
-| `Context` | `mainTar` | `GE 1` | 否 | 否 | `(空)` | 10 | 5 | `chr_0021_whiten_normal_skill`<br>`chr_0019_karin_normal_skill`<br>`chr_0002_endminm_normal_skill` |
-| `Context` | `smart_target` | `GE 1` | 是 | 否 | `(空)` | 9 | 5 | `chr_0007_ikut_normal_skill`<br>`chr_0028_wulfa_combo_2_skill`<br>`chr_0028_wulfa_normal_skill` |
-| `Context` | `MainTar` | `GE 1` | 否 | 否 | `(空)` | 6 | 5 | `chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_ultimate_skill`<br>`chr_0014_aurora_normal_skill` |
-| `Context` | `tar1` | `GE 1` | 否 | 否 | `(空)` | 5 | 4 | `chr_0007_ikut_ultimate_skill`<br>`chr_0015_lifeng_ultimate_skill`<br>`chr_0024_deepfin_ultimate_skill` |
-| `Target` | `smart_target` | `GE 1` | 是 | 否 | `(空)` | 3 | 1 | `chr_0033_camille_combo_skill_2` |
-| `Context` | `water` | `GE 1` | 否 | 否 | `(空)` | 2 | 1 | `chr_0027_tangtang_normal_skill` |
-| `InstantSearch` | `(空)` | `GE 1` | 是 | 否 | `(空)` | 2 | 1 | `chr_0009_azrila_normal_skill` |
-| `Context` | `lances` | `GE 1` | 否 | 否 | `(空)` | 2 | 1 | `chr_0012_avywen_normal_skill` |
-| `MainCharacter` | `(空)` | `GE 1` | 否 | 是 | `(空)` | 2 | 2 | `chr_0013_aglina_normal_skill`<br>`chr_0013_aglina_ultimate_skill` |
-| `Context` | `tar` | `LT 1` | 否 | 否 | `(空)` | 2 | 2 | `chr_0021_whiten_attack2`<br>`chr_0021_whiten_attack3` |
-| `Context` | `combo_tar` | `GE 1` | 否 | 否 | `(空)` | 2 | 1 | `chr_0024_deepfin_combo_skill` |
-| `Context` | `trigger` | `GE 1` | 否 | 是 | `(空)` | 2 | 1 | `chr_0032_lizhiyan_combo_skill` |
-| `Target` | `MainTar` | `GE 1` | 否 | 否 | `(空)` | 2 | 1 | `chr_0028_wulfa_normal_skill` |
-| `InstantSearch` | `(空)` | `LE 0` | 否 | 否 | `(空)` | 2 | 2 | `chr_0002_endminm_ultimate_skill`<br>`chr_0003_endminf_ultimate_skill` |
-| `Context` | `smart_target` | `GE 1` | 否 | 是 | `(空)` | 2 | 2 | `chr_0030_zhuangfy_normal_skill`<br>`chr_0030_zhuangfy_normal_skill_ult` |
-| `Context` | `normalwater_move` | `GE 1` | 否 | 否 | `normalskillwatermove_cnt` | 1 | 1 | `chr_0027_tangtang_normal_skill` |
-| `Context` | `ball` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0011_seraph_combo_skill` |
-| `Context` | `ComboLances` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0012_avywen_normal_skill` |
-| `Context` | `UltiLances` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0012_avywen_normal_skill` |
-| `Context` | `Lances` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0012_avywen_normal_skill` |
-| `Context` | `tar` | `GE 2` | 否 | 否 | `(空)` | 1 | 1 | `chr_0013_aglina_combo_skill` |
-| `Context` | `explo` | `GE 2` | 否 | 否 | `(空)` | 1 | 1 | `chr_0013_aglina_normal_skill` |
-| `Context` | `abepos` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0015_lifeng_ultimate_skill` |
-| `Context` | `smart_target` | `Equals 0` | 否 | 否 | `(空)` | 1 | 1 | `chr_0016_laevat_combo_skill` |
-| `MainTarget` | `(空)` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0032_lizhiyan_combo_skill` |
-| `Context` | `trigger` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0032_lizhiyan_combo_skill` |
-| `Context` | `tar` | `Equals 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0018_dapan_normal_skill` |
-| `Context` | `tar2` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0028_wulfa_normal_skill` |
-| `Context` | `smart_target` | `LT 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0022_bounda_combo_skill` |
-| `Context` | `other_cor_tar` | `GE 1` | 否 | 否 | `(空)` | 1 | 1 | `chr_0025_ardelia_normal_skill` |
-| `Context` | `total_tar` | `GE 2` | 否 | 否 | `(空)` | 1 | 1 | `chr_0029_pograni_normal_skill` |
-| `Target` | `(空)` | `GE 1` | 否 | 是 | `(空)` | 1 | 1 | `chr_0031_mifu_normalskill_1` |
+| 来源            | 上下文键           | 比较       | 可命中目标 | 排除死亡 | 写入键                     | 次数 | 技能数 | 示例                                                                                                                |
+| --------------- | ------------------ | ---------- | ---------- | -------- | -------------------------- | ---: | -----: | ------------------------------------------------------------------------------------------------------------------- |
+| `Target`        | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |  181 |     83 | `chr_0027_tangtang_power_attack`<br>`chr_0027_tangtang_normal_skill`<br>`chr_0004_pelica_normal_skill`              |
+| `Context`       | `tar`              | `GE 1`     | 否         | 否       | `(空)`                     |  120 |     75 | `chr_0027_tangtang_combo_skill`<br>`chr_0027_tangtang_plunging_attack_end`<br>`chr_0006_wolfgd_plunging_attack_end` |
+| `Target`        | `(空)`             | `GE 1`     | 是         | 否       | `(空)`                     |   97 |     77 | `chr_0027_tangtang_attack1`<br>`chr_0027_tangtang_attack3`<br>`chr_0027_tangtang_attack4`                           |
+| `Context`       | `smart_target`     | `GE 1`     | 否         | 否       | `(空)`                     |   81 |     30 | `chr_0027_tangtang_combo_skill`<br>`chr_0006_wolfgd_normal_skill`<br>`chr_0007_ikut_normal_skill`                   |
+| `Target`        | `tar`              | `GE 1`     | 否         | 否       | `(空)`                     |   21 |     17 | `chr_0027_tangtang_power_attack`<br>`chr_0004_pelica_power_attack`<br>`chr_0007_ikut_attack4`                       |
+| `Context`       | `targets`          | `GE 1`     | 否         | 否       | `(空)`                     |   20 |     11 | `chr_0009_azrila_combo_skill`<br>`chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_normal_skill`                   |
+| `Context`       | `maintar`          | `GE 1`     | 否         | 否       | `(空)`                     |   20 |     11 | `chr_0021_whiten_normal_skill`<br>`chr_0024_deepfin_normal_skill`<br>`chr_0017_yvonne_ult_attack2_1`                |
+| `InstantSearch` | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |   17 |     13 | `chr_0027_tangtang_ultimate_skill`<br>`chr_0004_pelica_combo_skill`<br>`chr_0013_aglina_combo_skill`                |
+| `Target`        | `smart_target`     | `GE 1`     | 否         | 否       | `(空)`                     |   11 |      4 | `chr_0016_laevat_normal_skill_during_ult`<br>`chr_0017_yvonne_normal_skill`<br>`chr_0029_pograni_combo_skill`       |
+| `Context`       | `mainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |   10 |      5 | `chr_0021_whiten_normal_skill`<br>`chr_0019_karin_normal_skill`<br>`chr_0002_endminm_normal_skill`                  |
+| `Context`       | `smart_target`     | `GE 1`     | 是         | 否       | `(空)`                     |    9 |      5 | `chr_0007_ikut_normal_skill`<br>`chr_0028_wulfa_combo_2_skill`<br>`chr_0028_wulfa_normal_skill`                     |
+| `Context`       | `MainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |    6 |      5 | `chr_0009_azrila_normal_skill`<br>`chr_0012_avywen_ultimate_skill`<br>`chr_0014_aurora_normal_skill`                |
+| `Context`       | `tar1`             | `GE 1`     | 否         | 否       | `(空)`                     |    5 |      4 | `chr_0007_ikut_ultimate_skill`<br>`chr_0015_lifeng_ultimate_skill`<br>`chr_0024_deepfin_ultimate_skill`             |
+| `Target`        | `smart_target`     | `GE 1`     | 是         | 否       | `(空)`                     |    3 |      1 | `chr_0033_camille_combo_skill_2`                                                                                    |
+| `Context`       | `water`            | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0027_tangtang_normal_skill`                                                                                    |
+| `InstantSearch` | `(空)`             | `GE 1`     | 是         | 否       | `(空)`                     |    2 |      1 | `chr_0009_azrila_normal_skill`                                                                                      |
+| `Context`       | `lances`           | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0012_avywen_normal_skill`                                                                                      |
+| `MainCharacter` | `(空)`             | `GE 1`     | 否         | 是       | `(空)`                     |    2 |      2 | `chr_0013_aglina_normal_skill`<br>`chr_0013_aglina_ultimate_skill`                                                  |
+| `Context`       | `tar`              | `LT 1`     | 否         | 否       | `(空)`                     |    2 |      2 | `chr_0021_whiten_attack2`<br>`chr_0021_whiten_attack3`                                                              |
+| `Context`       | `combo_tar`        | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0024_deepfin_combo_skill`                                                                                      |
+| `Context`       | `trigger`          | `GE 1`     | 否         | 是       | `(空)`                     |    2 |      1 | `chr_0032_lizhiyan_combo_skill`                                                                                     |
+| `Target`        | `MainTar`          | `GE 1`     | 否         | 否       | `(空)`                     |    2 |      1 | `chr_0028_wulfa_normal_skill`                                                                                       |
+| `InstantSearch` | `(空)`             | `LE 0`     | 否         | 否       | `(空)`                     |    2 |      2 | `chr_0002_endminm_ultimate_skill`<br>`chr_0003_endminf_ultimate_skill`                                              |
+| `Context`       | `smart_target`     | `GE 1`     | 否         | 是       | `(空)`                     |    2 |      2 | `chr_0030_zhuangfy_normal_skill`<br>`chr_0030_zhuangfy_normal_skill_ult`                                            |
+| `Context`       | `normalwater_move` | `GE 1`     | 否         | 否       | `normalskillwatermove_cnt` |    1 |      1 | `chr_0027_tangtang_normal_skill`                                                                                    |
+| `Context`       | `ball`             | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0011_seraph_combo_skill`                                                                                       |
+| `Context`       | `ComboLances`      | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0012_avywen_normal_skill`                                                                                      |
+| `Context`       | `UltiLances`       | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0012_avywen_normal_skill`                                                                                      |
+| `Context`       | `Lances`           | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0012_avywen_normal_skill`                                                                                      |
+| `Context`       | `tar`              | `GE 2`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0013_aglina_combo_skill`                                                                                       |
+| `Context`       | `explo`            | `GE 2`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0013_aglina_normal_skill`                                                                                      |
+| `Context`       | `abepos`           | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0015_lifeng_ultimate_skill`                                                                                    |
+| `Context`       | `smart_target`     | `Equals 0` | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0016_laevat_combo_skill`                                                                                       |
+| `MainTarget`    | `(空)`             | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0032_lizhiyan_combo_skill`                                                                                     |
+| `Context`       | `trigger`          | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0032_lizhiyan_combo_skill`                                                                                     |
+| `Context`       | `tar`              | `Equals 1` | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0018_dapan_normal_skill`                                                                                       |
+| `Context`       | `tar2`             | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0028_wulfa_normal_skill`                                                                                       |
+| `Context`       | `smart_target`     | `LT 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0022_bounda_combo_skill`                                                                                       |
+| `Context`       | `other_cor_tar`    | `GE 1`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0025_ardelia_normal_skill`                                                                                     |
+| `Context`       | `total_tar`        | `GE 2`     | 否         | 否       | `(空)`                     |    1 |      1 | `chr_0029_pograni_normal_skill`                                                                                     |
+| `Target`        | `(空)`             | `GE 1`     | 否         | 是       | `(空)`                     |    1 |      1 | `chr_0031_mifu_normalskill_1`                                                                                       |
 
 ## 根动作覆盖面
 
-| 动作 | 涉及技能数 |
-| --- | ---: |
-| `DamageAction` | 222 |
-| `IfElseAction` | 166 |
-| `ObtainCostAction` | 159 |
-| `CreateBuffAction` | 121 |
-| `LaunchProjectile` | 72 |
-| `SpawnAbilityEntity` | 26 |
-| `SpellInfliction` | 10 |
-| `CreateTimedMarker` | 7 |
-| `SwitchAction` | 5 |
-| `CheckDistanceCondition` | 3 |
-| `CheckMainCharacterCondition` | 2 |
-| `FractureAction` | 2 |
-| `AddGlobalCDTimer` | 1 |
-| `AuraAction` | 1 |
+| 动作                          | 涉及技能数 |
+| ----------------------------- | ---------: |
+| `DamageAction`                |        224 |
+| `IfElseAction`                |        168 |
+| `ObtainCostAction`            |        160 |
+| `CreateBuffAction`            |        123 |
+| `LaunchProjectile`            |         72 |
+| `SpawnAbilityEntity`          |         26 |
+| `SpellInfliction`             |         11 |
+| `CreateTimedMarker`           |          7 |
+| `SwitchAction`                |          5 |
+| `CheckDistanceCondition`      |          3 |
+| `CheckMainCharacterCondition` |          2 |
+| `FractureAction`              |          2 |
+| `AddGlobalCDTimer`            |          1 |
+| `AuraAction`                  |          1 |
 
 ## 使用方式
 
