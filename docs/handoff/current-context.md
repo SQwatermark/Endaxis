@@ -1,93 +1,128 @@
 # 当前任务快照
 
-> 更新时间：2026-08-10（Asia/Shanghai）  
-> 本文只记录变化最快的短期状态。完全不了解背景时，必须从 [交接文档首页](./README.md) 开始阅读。
+> 更新时间：2026-08-17（Asia/Shanghai）
+> 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-## 当前目标
+## 1. 当前目标与边界
 
-在不修改旧版实现的前提下，继续建设 `src/next`，最终以干员、武器、装备、敌人和用户操作序列为输入，输出完整战斗过程、资源曲线、伤害、状态、诊断和日志。新版 UI 尽可能 1:1 保持旧版布局和交互。
+当前工作位于 `feature/next`，目标是在不修改旧版实现的前提下建设 Endaxis Next：以干员、武器、装备、敌人和用户操作序列为输入，准确模拟战斗过程，并由统一结果生成资源曲线、状态、伤害、诊断和日志。新版 UI 尽可能保持旧版布局与交互。
 
-固定优先级：精准与完备 > 清晰与可维护 > 性能。不得用无证据的猜测填充游戏规则。
+固定优先级：准确与功能完备 > 清晰易维护 > 性能。游戏规则必须有解包、反编译、C# Combat Spec 或已验证游戏样本依据，不用猜测填空。
 
-长期扩展方向已加入[自定义干员设计](../architecture/endaxis-next-custom-operators.md)：项目顶层保存完整自定义 `OperatorDefinition`，轨道只保存定义引用与养成实例；官方与自定义干员通过统一解析边界进入同一套面板、技能库、编译和模拟流程。首个稳定存档版本前不为 Next 中间 schema 编写迁移。
+本轮用户已要求暂停扩展：只完成并提交大潘生成接入，然后完善交接文档。下一会话恢复前不要把未完成方向顺手扩展。
 
-## Git 状态
+## 2. Git 基线
 
 - 仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
-- 分支：`main`
-- 代码基线：`4e886dd6df3d8e1d499ab40682ff29c5b5259f29`
-- `docs/handoff` 是当前新增、尚未提交的交接文档库。
-- 用户已主动搁置梨诺、新武器、本地化、导出脚本和部分架构文档修改；先检查 shelf/stash，不要重新实现或声称丢失。
+- 分支：`feature/next`
+- 当前代码基线：`b6a9b66f feat(next): add generated Da Pan operator`
+- 紧邻提交：`f75ee096 feat(next): resolve source time dilation targets`
+- 再前提交：`1237b4d4 feat(next): compile conditional slow actions`
+- `tmp/` 是未跟踪临时目录，绝对不要提交。
+- 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
-## 最新验证
+大潘代码与生成产物已提交。本文的交接更新会作为独立文档提交；新会话仍应以 Git 实际 HEAD 为准。
 
+## 3. 本轮已经完成
+
+### 条件减速动作
+
+- `keyword_action_parser.py` 暴露可复用的 `parse_keyword_action`。
+- 条件分支可保存和编译 `SlowAction`。
+- 能力实体的条件调度保留编译器内部目标组证据，使子 SkillData 中的 `Context/tar` 能正确解析。
+- 条件减速编译为内联高优先级 `buff_common_affixes_slow`。
+- 编译器内部的 `localTargetGroupWrites` 不进入生成产物和审计文件，避免无意义膨胀。
+- Fluorite 的减速已恢复为 3 次：根动作第 10 帧，以及潜能 3 以上时根时间第 99、159 帧；顺序保持原生伤害后施加。
+
+对应提交：`1237b4d4 feat(next): compile conditional slow actions`。
+
+### 时间膨胀目标
+
+- 根技能 Action 中的 `Source` 和 `Owner` 映射为施法者，符合来源语义。
+- 全量审计从 299/268 个已解析/已编译技能提升到 301/270。
+- 技能主体零特殊缺口干员从 8 名提升到 9 名，大潘 9/9 技能闭环。
+- 诀的连携继续停在“能力实体时间膨胀目标”缺口。不能静默忽略，因为它可能改变子实体命中帧。
+
+对应提交：`f75ee096 feat(next): resolve source time dilation targets`。
+
+### 大潘正式接入
+
+- 在 `scripts/generate_next_operators/operators.json` 中增加 `chr_0018_dapan` 配置。
+- 生成 9 个技能：四段普攻、处决、下落攻击、战技、终结技、连携技。
+- 战技费用、终结技能量与冷却、连携冷却、处决条件和处决回能进入生成结果。
+- 明确保留未建模项：两个天赋、部分潜能、处决免疫 Buff、终结技免伤 Buff。技能主体可完整转换不等于养成和保护效果全部闭环。
+- 新增稳定入口 `src/next/data/operators/da-pan.ts`，并注册到 `nextGameDataRepository`。
+- 生成与注册测试已覆盖大潘。
+
+## 4. 最新验证基线
+
+大潘接入后的验证结果：
+
+- Python 生成器测试：244 项通过；
+- 生成器 `--check`：通过；
 - `npm.cmd run type-check:next`：通过；
-- `npm.cmd exec vitest run src/next`：138 个文件、709 项测试通过；
-- 生成器：202 项 Python 测试通过；
-- 页面：`http://127.0.0.1:5173/next/timeline`。
+- `npm.cmd exec vitest run src/next`：165 个测试文件、938 项测试通过。
 
-## 最近完成
+测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
 
-- 构筑、静态面板、潜能属性和标准玩家伤害场景贯通；
-- 时间轴选择、移动、撤销重做、复制粘贴、平移缩放、技能块连接；
-- 全局技力、轨道初始终结技能量和技能费用补丁；
-- 26 名干员终结技降费潜能生成；
-- 干员资源规则从编译后技能和同一构筑面板统一推导；
-- 光标辅助线与编辑落点分离，按真实鼠标位置采样；
-- **阶段 A：模拟结果进入 UI**（`ScenarioSimulationService` + `useScenarioSimulation`）：
-  - 应用层可缓存、可中止的异步模拟入口，按场景 revision 缓存并冻结运行结果；
-  - 页面编辑后自动重编译与重模拟，防竞态，严格失败时显示错误并丢弃旧结果；
-  - 技力、各干员终结技能量、敌人生命、失衡曲线从同一份回执投影；
-  - 光标辅助线直接采样这些曲线（时间 + SP + 敌人生命 + 各干员终结技能量）；
-  - 合法性警告从同一 receipt/diagnostic reducer 归约到具体技能块（红标 + tooltip）；
-- **标准环境接入失衡与元素附着**：
-  - 连续失衡账本接入 `StandardPlayerDamageEnvironment`：敌人 `CombatVitals` 以帧制失衡规则初始化（满值起始），`CombatVitalsRuntime` 由装配根逐帧推进，`PoiseApplied`/`PoiseRecovered` 进入回执与失衡曲线；节点阈值已保留，节点效果尚未执行；
-  - 注入版本化元素附着目录后 `applyElementalInfliction` 按目录状态机执行（附着/爆发/复合状态），未注入时仍被预检拒绝；
-  - 预检相应放行 stagger 字段、`dealStagger` 与（有目录时的）`applyElementalInfliction`；
-- **元素反应状态接入**（`ElementalReactionContainer` + 执行器）：
-  - 敌人身上的反应（感电/腐蚀）按等级 1-4 与剩余时长记录，`applyElementalReaction` 升级/刷新、`consumeElementalReaction` 消费、`elementalReactionActive` 条件按等级判断；只记录状态事实，反应伤害效果待数据闭环；
-- **法术爆发（同元素附着二次触发）完整实现**：
-  - 4 个同元素爆发 Buff（Fire/Pulse/Cryst/Natural）已从 combat-1.4.4 源数据导入版本化目录：持续 5 秒、1 秒后触发一次，含 `triggerSpellBurst` 动作与爆发伤害参数（倍率来自 SkillSetting"法术爆发伤害倍率"第 1 列），表现动作（动画/特效/声音/镜头/顿帧）经证据确认为 `visualOnly`；
-  - `spellBurstRuntime` 按 combat-spec 已复刻语义执行：倍率 × 增强公式（linear/saturating/none）→ 标准玩家伤害公式（防御/抗性/暴击）→ 敌人生命写入，回执 `SpellBurstApplied`；
-  - **数据缺口**：SkillSetting 数值（法术爆发伤害倍率）是游戏内 ScriptableObject，AKEDB 与本地均无，需从游戏客户端导出（combat-spec 的 `SkillSettingCatalogExportCommand` 已就绪）；导出后放入 `src/next/data/buffs/skill-setting-catalog.combat-1.4.4.json` 并注入服务即生效；缺失时爆发触发明确报错，不假装打出伤害；
-  - 来源附着增强属性（`PhysicalAndSpellInflictionEnhance`）尚未在面板落地，以 0 作中性基线；
-- **敌人效果渲染（附着段 + 爆发/反应标记）**：
-  - 敌人 Buff 结束（到期/消费/驱散）由容器回调记录 `BuffFinished` 回执（buffId、reason、层数）；
-  - `projectEnemyEffectViz` 把附着施加/结束整理成元素段（起止帧、层数），把爆发/反应整理成标记点；
-  - 底部"敌"面板新增敌人效果区：生命读数 + 元素色附着段 + 爆发/反应圆点标记，坐标与资源曲线同一体系并跟随时间轴滚动；
-  - 已知严格缺口：异元素附着组合仍会因复合状态 Buff 定义缺失而失败（与爆发同类的数据问题，等复合状态目录导入）。
-  - 佩丽卡战技、终结技、连携技现已全部可完整模拟；庄方宜等带 `applyStatus`/语义状态条件的干员仍严格失败；
-- **时间轴命中点（对齐旧版样式与交互）**：
-  - 命中点画在技能块底部，红色菱形、hover 金色放大发光，与旧版一致；
-  - 条件分支的命中点只在真的触发过（有对应日志）时显示，与旧版一致；
-  - 点击命中点打开伤害详情弹窗，展示该命中的伤害/暴击/倍率/剩余生命/附着/反应日志；
-  - `DamageApplied` 回执携带可选步骤键，命中点 tooltip 显示伤害/暴击/元素/附着/反应；
-  - 连线工具可拖到命中点端点，创建 `damageHit` 连接并随项目校验；
-- **资源曲线与时间轴对齐**：
-  - 底部曲线改用与时间轴相同的坐标（准备区偏移 + 每帧像素），并跟随时间轴横向滚动，和上方标尺/技能块一一对齐；每 5 秒一条纵向网格线；
-  - 干员终结技能量（充能）移出底部曲线，改为画在各干员轨道上（元素色、底部向上、满能量高亮线，抄旧版 GaugeOverlay）；
-  - 底部曲线只保留全队 SP、敌人生命、失衡三行；每帧自动回复的 SP 不再单独标点（回执带 `source: 'autoRecovery'` 标记，折线保留、圆点跳过）；
-- **术语**：代码注释与文档中"项目文档"统一改为"存档"，避免与 markdown 文档混淆；类型标识符（`ScenarioDocument` 等）暂未改名。
+## 5. 当前生成器状态
 
-## 当前最值得做
+目录：`scripts/generate_next_operators`。
 
-1. 补齐敌人生命/失衡之外尚未投影的诊断面板与战斗日志展示；
-2. 命中点选择/编辑（依赖 per-cast 编译接通，属阶段 B 编辑闭环）；
-3. 继续补齐干员、武器、装备和敌人编辑闭环；
-4. 阶段 C：语义状态（`applyStatus`）、处决、生命汲取等剩余机制接入正式环境。
+生成目录中，除首个佩丽卡样本外，已有九名技能主体可完整转换并注册的干员：Arclight、Gilberta、Lifeng、Estella、大潘、Akekuri、Fluorite、Endministrator、Last Rite。
 
-## 最新数据结论
+当前生成器已经能够处理：
 
-AKEDB CDN `1.4.4@9163343-11`：
+- 根 Action 与递归 Skill/Buff；
+- 原生 Sequence 的分组和顺序；
+- 常见伤害、失衡、附着、资源、状态和条件步骤；
+- 技能费用、冷却、部分潜能/天赋与静态属性；
+- 条件 Buff 伤害修正和条件 SlowAction；
+- 根技能 `Source/Owner` 时间膨胀目标；
+- 严格审计、显式缺口与生成产物校验。
 
-- 梨诺有 CharacterTable、12 个 SkillPatch、天赋潜能文本和 72 项 BuffData，但没有根 SkillData；
-- 曜夜 `wpn_lance_0014` 有基础表、SkillPatch 和 2 项 BuffData，但没有根 SkillData；
-- 可以确认基础面板、描述和逐级参数，不能仅据此闭环技能动作帧和完整执行序列。
+仍不得伪装为已支持的关键内容：
 
-## 恢复工作前
+- 能力实体自身的时间膨胀目标及其对子 SkillData 时间的影响；
+- FractureAction 的完整运行时链，包括层数、消耗、前后物理附着事件、破甲 Buff 和伤害；
+- 根 SequenceAction 守卫的统一短路语义；
+- Rossi 等依赖 `OnSkillEnd` 的监听器，需先核对正式 runtime 的技能结束事件；
+- 隐藏技能、复杂 Buff、混合养成载荷及无法从数据稳定推导的例外。
 
-1. 阅读 [项目与工具总览](./02-projects-and-tools.md) 和 [当前状态与路线图](./06-current-state-and-roadmap.md)；
-2. 运行 `git status --short`、`git log -10 --oneline`；
-3. 阅读与任务对应的 `docs/next`、`docs/research` 或 Combat Spec 文档；
-4. 不修改旧版文件，不回退用户内容；
-5. 新证据同步更新研究文档、C# Spec 和 Next 行为映射。
+## 6. 下一步建议，但本会话不执行
+
+下一会话应先重新确认工作树和提交，再从下列候选中只选一个推进：
+
+1. 调查并实现 `OnSkillEnd` 事件监听闭环，前提是证据与 runtime 事件顺序一致；
+2. 设计根 `SequenceAction` 守卫的统一短路入口，再处理 Avywenna/Mifu 的距离条件；
+3. 继续研究能力实体时间膨胀，不允许通过忽略目标来让诀“转换成功”；
+4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品。
+
+选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
+
+## 7. 恢复工作清单
+
+1. `git status --short`，确认没有把 `tmp/` 或用户文件带入提交；
+2. `git log -10 --oneline`，以实际 HEAD 为准；
+3. 阅读本文、`docs/next/09-status-and-roadmap.md` 和 `scripts/generate_next_operators/README.md`；
+4. 查看最近生成审计，区分“技能主体完整”和“天赋/潜能/保护效果完整”；
+5. 修改前先找到数据或反编译依据；
+6. 新增行为同时更新生成器测试、Next 类型检查、Next 测试和文档；
+7. 不修改旧版代码，不提交 `tmp/`，不为尚未发布的 Next 中间存档保留兼容脚手架。
+
+## 8. 跨项目背景
+
+本项目不是只依赖 Endaxis 自身：
+
+- AKEDB/CDN 提供表格、文本和部分技能/Buff 数据；
+- 本地 VFS 工具与远程 `vfs-index-browser` 用于读取客户端资源；
+- IL2CPP dump 与运行时探针用于确认执行顺序和硬编码逻辑；
+- 独立 C# Combat Spec 仓库用于按证据 1:1 复刻战斗语义；
+- Endaxis Next 只要求行为一致和工程可维护，但新证据应同步回 Combat Spec 与研究文档。
+
+项目位置、连接方式、证据等级和操作命令详见：
+
+- [项目与工具总览](./02-projects-and-tools.md)
+- [证据与研究方法](./03-evidence-and-research-method.md)
+- [战斗系统研究结论](./04-combat-system-findings.md)
+- [操作手册](./07-operations-playbook.md)
