@@ -25,6 +25,26 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
         23,
       ),
       scheduled(
+        0,
+        sequence(
+          branch(
+            { kind: 'casterControlled' },
+            sequence(),
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 1464849466,
+                priority: -593023102,
+                curve: { kind: 'inline', keys: [{ time: 0, value: 0.05, inTangent: 0.000489342, outTangent: 0.000489342, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.61, value: 0.04, inTangent: 0.2945474, outTangent: 0.2945474, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 4.44, outTangent: 4.44, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
+                finishByAction: false,
+                targets: ['caster'],
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
         23,
         sequence(
           step('applyBuff', {
@@ -110,6 +130,26 @@ export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboa
           }),
         ),
         23,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            { kind: 'casterControlled' },
+            sequence(),
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 1464849466,
+                priority: -593023102,
+                curve: { kind: 'inline', keys: [{ time: 0, value: 0.05, inTangent: 0.000489342, outTangent: 0.000489342, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.6112276, value: 0.03604198, inTangent: 0.3674083, outTangent: 0.3674083, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 4.44, outTangent: 4.44, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
+                finishByAction: false,
+                targets: ['caster'],
+              }),
+            ),
+          ),
+        ),
       ),
       scheduled(
         23,

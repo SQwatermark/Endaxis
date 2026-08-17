@@ -39,6 +39,7 @@ from source_models import (
     ConditionSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    ConditionalTimeDilationActionSource,
     DamageDecorateMaskConditionSource,
     DistanceConditionSource,
     DoOnceActionSource,
@@ -65,6 +66,7 @@ from source_utils import (
 )
 from target_parser import parse_target_reference
 from keyword_action_parser import parse_keyword_action
+from time_dilation_parser import parse_time_dilation_action
 
 __all__ = [
     "contains_combat_effect",
@@ -91,6 +93,8 @@ EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
 ORDERED_STATE_EFFECT_ACTION_NAMES = {
     "FinishBuffAdvanced",
     "ModifyDynamicBlackboard",
+    "TimeDilationAction",
+    "UltimateTimeAction",
 }
 
 
@@ -823,6 +827,7 @@ def parse_conditional_actions(
                 ability_entity_spawn = None
                 damage_units = None
                 keyword_action = None
+                time_dilation = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -880,31 +885,45 @@ def parse_conditional_actions(
                         start_frame=start_frame,
                         end_frame=end_frame,
                     )
-                actions.append(
-                    ConditionalBranchActionSource(
-                        actionType=action_type,
-                        actionIndex=index,
-                        actionPath=action_path,
-                        serverActionIndex=optional_server_action_index(
-                            action, source_path
-                        ),
-                        blackboardCalculation=calculation,
-                        blackboardMutation=mutation,
-                        buffBlackboardRead=buff_read,
-                        buffFinish=buff_finish,
-                        buffStackRead=buff_stack_read,
-                        buffApplication=buff_application,
-                        timedMarkerApplication=timed_marker_application,
-                        globalCooldownApplication=global_cooldown_application,
-                        resourceGain=resource_gain,
-                        infliction=infliction,
-                        physicalInfliction=physical_infliction,
-                        projectileLaunch=projectile_launch,
-                        abilityEntitySpawn=ability_entity_spawn,
-                        damageUnits=damage_units,
-                        keywordAction=keyword_action,
+                elif action_type in {"TimeDilationAction", "UltimateTimeAction"}:
+                    time_dilation = parse_time_dilation_action(
+                        action,
+                        source_path,
+                        inherited_blackboard,
+                        start_frame=start_frame,
+                        end_frame=end_frame,
                     )
+                branch_type = (
+                    ConditionalTimeDilationActionSource
+                    if time_dilation is not None
+                    else ConditionalBranchActionSource
                 )
+                branch_arguments = {
+                    "actionType": action_type,
+                    "actionIndex": index,
+                    "actionPath": action_path,
+                    "serverActionIndex": optional_server_action_index(
+                        action, source_path
+                    ),
+                    "blackboardCalculation": calculation,
+                    "blackboardMutation": mutation,
+                    "buffBlackboardRead": buff_read,
+                    "buffFinish": buff_finish,
+                    "buffStackRead": buff_stack_read,
+                    "buffApplication": buff_application,
+                    "timedMarkerApplication": timed_marker_application,
+                    "globalCooldownApplication": global_cooldown_application,
+                    "resourceGain": resource_gain,
+                    "infliction": infliction,
+                    "physicalInfliction": physical_infliction,
+                    "projectileLaunch": projectile_launch,
+                    "abilityEntitySpawn": ability_entity_spawn,
+                    "damageUnits": damage_units,
+                    "keywordAction": keyword_action,
+                }
+                if time_dilation is not None:
+                    branch_arguments["timeDilation"] = time_dilation
+                actions.append(branch_type(**branch_arguments))
         return tuple(actions)
 
     def visit(

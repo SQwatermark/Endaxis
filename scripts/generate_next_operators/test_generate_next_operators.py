@@ -423,7 +423,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(action.targets, ("caster",))
         self.assertEqual(action.ignoredTargets, ("caster",))
 
-    def test_nested_time_dilation_is_rejected_instead_of_silently_omitted(self) -> None:
+    def test_nested_time_dilation_stays_inside_conditional_branch(self) -> None:
+        target = target_settings_fixture("Target")
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -435,13 +436,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
                                     "isEnable": True,
-                                    "succeedActions": [
-                                        {
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckSquadInFight+Data, Example",
+                                                "isEnable": True,
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [{
                                             "$type": "Example.TimeDilationAction+Data, Example",
                                             "isEnable": True,
-                                        }
-                                    ],
-                                    "failActions": [],
+                                            "priorityLevel": "Default",
+                                            "priorityOffset": 0,
+                                            "serverActionIndex": 2,
+                                            "layer": "Entity",
+                                            "slot": {"tagId": 11},
+                                            "timeDilationPriority": {"tagId": 22},
+                                            "duration": {
+                                                "useBlackboardKey": False,
+                                                "value": 0.3,
+                                                "blackboardKey": "",
+                                            },
+                                            "useCurveKey": False,
+                                            "curveKey": "",
+                                            "timeScaleCurve": {
+                                                "preWrapMode": "ClampForever",
+                                                "postWrapMode": "ClampForever",
+                                                "keys": [
+                                                    {
+                                                        "time": 0,
+                                                        "value": 1.5,
+                                                        "inTangent": 0,
+                                                        "outTangent": 0,
+                                                        "tangentMode": 0,
+                                                        "weightedMode": 0,
+                                                        "inWeight": 0,
+                                                        "outWeight": 0,
+                                                    }
+                                                ],
+                                            },
+                                            "finishByAction": False,
+                                            "ignoreTargets": [],
+                                            "effectTargets": [target],
+                                            "useTimeScaleForSkillCdTick": False,
+                                            "influenceSkillCdTime": {
+                                                "useBlackboardKey": False,
+                                                "value": 0,
+                                                "blackboardKey": "",
+                                            },
+                                        }]
+                                    },
+                                    "failActions": {"actionData": []},
                                 }
                             ]
                         },
@@ -450,8 +498,21 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
 
-        with self.assertRaisesRegex(ValueError, "must not be silently omitted"):
-            parse_time_dilations(root, "fixture.json", {})
+        conditional = parse_conditional_actions(root, "fixture.json", {})[0]
+        branch = conditional.succeedActions[0]
+
+        self.assertEqual(parse_time_dilations(root, "fixture.json", {}), ())
+        self.assertEqual(branch.actionType, "TimeDilationAction")
+        self.assertEqual(branch.timeDilation.targets, ("enemy",))
+        self.assertIn(
+            "step('startTimeDilation'",
+            compile_conditional_action(
+                conditional,
+                "fixture",
+                root_skill_context=True,
+                input_target="enemy",
+            ),
+        )
 
     def test_conversion_support_uses_stable_capability_summary(self) -> None:
         self.assertEqual(

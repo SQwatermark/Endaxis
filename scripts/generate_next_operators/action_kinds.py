@@ -73,4 +73,6 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "ModifyDynamicBlackboard",
     "SaveBuffStackNumAdvanced",
     "SimpleCalcBBAction",
+    "TimeDilationAction",
+    "UltimateTimeAction",
 }

@@ -735,6 +735,8 @@ export interface GeneratedConditionalBranchActionSource {
   readonly auraAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
   readonly keywordAction?: GeneratedTimedKeywordActionSource;
+  /** 仅在该条件分支被选中后开始的时间膨胀动作。 */
+  readonly timeDilation?: GeneratedTimedTimeDilationSource;
 }
 
 export interface GeneratedBlackboardCalculationSource

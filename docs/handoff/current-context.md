@@ -9,13 +9,13 @@
 
 固定优先级：准确与功能完备 > 清晰易维护 > 性能。游戏规则必须有解包、反编译、C# Combat Spec 或已验证游戏样本依据，不用猜测填空。
 
-本轮用户已要求暂停扩展：只完成并提交大潘生成接入，然后完善交接文档。下一会话恢复前不要把未完成方向顺手扩展。
+当前继续推进干员 SkillData 到 Next DSL 的完整转换与模拟贯通。每轮只处理能够形成解析、DSL、运行时和测试闭环的机制，避免为了提高统计数字而静默省略动作。
 
 ## 2. Git 基线
 
 - 仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
 - 分支：`feature/next`
-- 当前代码基线：`b6a9b66f feat(next): add generated Da Pan operator`
+- 当前代码基线以 `git HEAD` 为准；最近已提交 `80843cb5 fix(next): omit proven empty skill listeners`。
 - 紧邻提交：`f75ee096 feat(next): resolve source time dilation targets`
 - 再前提交：`1237b4d4 feat(next): compile conditional slow actions`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
@@ -54,11 +54,18 @@
 - 新增稳定入口 `src/next/data/operators/da-pan.ts`，并注册到 `nextGameDataRepository`。
 - 生成与注册测试已覆盖大潘。
 
+### 事件空操作与嵌套时间膨胀
+
+- 洛茜终结技的 `OnSkillEnd -> FinishBuffAdvanced` 已确认使用空 ID 列表；原生实现不会调用 Buff 容器，因此只省略这一种可证明的空监听器。非空列表和其他事件仍严格阻塞。
+- 根时间轴与条件分支共用时间膨胀动作解析器。条件分支中的动作留在原成功/失败序列中，不会被提升成无条件调度。
+- 洛茜第三段连携和卡缪重击已越过嵌套时间膨胀阻塞。全量审计现为 303 个可解析、272 个可编译技能，完整干员仍为 9 名。
+- `CheckEnemyRank` 已确认读取 `EnemyTemplateData.rank`（`Mob/Elite/Boss`），不是五档展示 `tier`。实际值来自敌人实体模板资产，VFS 数据可用前不得猜测映射。
+
 ## 4. 最新验证基线
 
-大潘接入后的验证结果：
+当前验证结果：
 
-- Python 生成器测试：244 项通过；
+- Python 生成器测试：245 项通过；
 - 生成器 `--check`：通过；
 - `npm.cmd run type-check:next`：通过；
 - `npm.cmd exec vitest run src/next`：165 个测试文件、938 项测试通过。
@@ -86,14 +93,14 @@
 - 能力实体自身的时间膨胀目标及其对子 SkillData 时间的影响；
 - FractureAction 的完整运行时链，包括层数、消耗、前后物理附着事件、破甲 Buff 和伤害；
 - 根 SequenceAction 守卫的统一短路语义；
-- Rossi 等依赖 `OnSkillEnd` 的监听器，需先核对正式 runtime 的技能结束事件；
+- `CheckEnemyRank` 需要把 `EnemyTemplateData.rank` 接入敌人定义、项目实例和运行时条件求值；
 - 隐藏技能、复杂 Buff、混合养成载荷及无法从数据稳定推导的例外。
 
-## 6. 下一步建议，但本会话不执行
+## 6. 下一步建议
 
 下一会话应先重新确认工作树和提交，再从下列候选中只选一个推进：
 
-1. 调查并实现 `OnSkillEnd` 事件监听闭环，前提是证据与 runtime 事件顺序一致；
+1. 远程 VFS 恢复后提取敌人 `EnemyTemplateData.rank`，接入 `CheckEnemyRank` 完整链路；
 2. 设计根 `SequenceAction` 守卫的统一短路入口，再处理 Avywenna/Mifu 的距离条件；
 3. 继续研究能力实体时间膨胀，不允许通过忽略目标来让诀“转换成功”；
 4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品。

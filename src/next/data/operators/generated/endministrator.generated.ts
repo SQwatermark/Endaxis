@@ -1296,6 +1296,103 @@ export const endministratorGeneratedSource = {
             }
           ],
           "failActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "actionIndex": 72,
+          "actionPath": [
+            "timelineActions[18]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "TimeDilationAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[18]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 74,
+              "timeDilation": {
+                "startFrame": 0,
+                "endFrame": 4,
+                "actionIndex": 74,
+                "kind": "normal",
+                "priority": -593023102,
+                "scope": "entity",
+                "slot": 1464849466,
+                "duration": {
+                  "value": 0.15,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "namedCurve": null,
+                "inlineCurve": [
+                  {
+                    "time": 0.0,
+                    "value": 0.05,
+                    "inTangent": 0.000489342,
+                    "outTangent": 0.000489342,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 0.61,
+                    "value": 0.04,
+                    "inTangent": 0.2945474,
+                    "outTangent": 0.2945474,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 1.0,
+                    "value": 1.0,
+                    "inTangent": 4.44,
+                    "outTangent": 4.44,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  }
+                ],
+                "finishByAction": false,
+                "ignoredTargets": [],
+                "targets": [
+                  "caster"
+                ],
+                "omittedAbilityEntityTargets": 0,
+                "influenceSkillCooldown": null,
+                "targetScale": null,
+                "sequenceIndex": -1
+              }
+            }
+          ]
         }
       ],
       "inflictions": [],
@@ -2511,6 +2608,103 @@ export const endministratorGeneratedSource = {
               "serverActionIndex": 60
             }
           ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "actionIndex": 72,
+          "actionPath": [
+            "timelineActions[18]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "TimeDilationAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[18]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 74,
+              "timeDilation": {
+                "startFrame": 0,
+                "endFrame": 4,
+                "actionIndex": 74,
+                "kind": "normal",
+                "priority": -593023102,
+                "scope": "entity",
+                "slot": 1464849466,
+                "duration": {
+                  "value": 0.15,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "namedCurve": null,
+                "inlineCurve": [
+                  {
+                    "time": 0.0,
+                    "value": 0.05,
+                    "inTangent": 0.000489342,
+                    "outTangent": 0.000489342,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 0.61,
+                    "value": 0.04,
+                    "inTangent": 0.2945474,
+                    "outTangent": 0.2945474,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 1.0,
+                    "value": 1.0,
+                    "inTangent": 4.44,
+                    "outTangent": 4.44,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  }
+                ],
+                "finishByAction": false,
+                "ignoredTargets": [],
+                "targets": [
+                  "caster"
+                ],
+                "omittedAbilityEntityTargets": 0,
+                "influenceSkillCooldown": null,
+                "targetScale": null,
+                "sequenceIndex": -1
+              }
+            }
+          ]
         }
       ],
       "auraActions": [],
@@ -3133,6 +3327,103 @@ export const endministratorGeneratedSource = {
             }
           ],
           "failActions": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "actionIndex": 70,
+          "actionPath": [
+            "timelineActions[16]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "TimeDilationAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 72,
+              "timeDilation": {
+                "startFrame": 0,
+                "endFrame": 4,
+                "actionIndex": 72,
+                "kind": "normal",
+                "priority": -593023102,
+                "scope": "entity",
+                "slot": 1464849466,
+                "duration": {
+                  "value": 0.15,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "namedCurve": null,
+                "inlineCurve": [
+                  {
+                    "time": 0.0,
+                    "value": 0.05,
+                    "inTangent": 0.000489342,
+                    "outTangent": 0.000489342,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 0.6112276,
+                    "value": 0.03604198,
+                    "inTangent": 0.3674083,
+                    "outTangent": 0.3674083,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 1.0,
+                    "value": 1.0,
+                    "inTangent": 4.44,
+                    "outTangent": 4.44,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  }
+                ],
+                "finishByAction": false,
+                "ignoredTargets": [],
+                "targets": [
+                  "caster"
+                ],
+                "omittedAbilityEntityTargets": 0,
+                "influenceSkillCooldown": null,
+                "targetScale": null,
+                "sequenceIndex": -1
+              }
+            }
+          ]
         }
       ],
       "inflictions": [],
@@ -4346,6 +4637,103 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 58
+            }
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "actionIndex": 70,
+          "actionPath": [
+            "timelineActions[16]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "TimeDilationAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 72,
+              "timeDilation": {
+                "startFrame": 0,
+                "endFrame": 4,
+                "actionIndex": 72,
+                "kind": "normal",
+                "priority": -593023102,
+                "scope": "entity",
+                "slot": 1464849466,
+                "duration": {
+                  "value": 0.15,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "namedCurve": null,
+                "inlineCurve": [
+                  {
+                    "time": 0.0,
+                    "value": 0.05,
+                    "inTangent": 0.000489342,
+                    "outTangent": 0.000489342,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 0.6112276,
+                    "value": 0.03604198,
+                    "inTangent": 0.3674083,
+                    "outTangent": 0.3674083,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  },
+                  {
+                    "time": 1.0,
+                    "value": 1.0,
+                    "inTangent": 4.44,
+                    "outTangent": 4.44,
+                    "weightedMode": 0,
+                    "inWeight": 0.0,
+                    "outWeight": 0.0
+                  }
+                ],
+                "finishByAction": false,
+                "ignoredTargets": [],
+                "targets": [
+                  "caster"
+                ],
+                "omittedAbilityEntityTargets": 0,
+                "influenceSkillCooldown": null,
+                "targetScale": null,
+                "sequenceIndex": -1
+              }
             }
           ]
         }

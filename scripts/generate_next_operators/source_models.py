@@ -69,6 +69,7 @@ __all__ = [
     "ConditionalProjectileProjection",
     "AbilityEntitySpawnPayload",
     "ConditionalBranchActionSource",
+    "ConditionalTimeDilationActionSource",
     "ConditionalActionSource",
     "SequenceGuardActionSource",
     "SwitchActionSource",
@@ -948,6 +949,13 @@ class ConditionalBranchActionSource:
     auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
     keywordAction: TimedKeywordActionSource | None = None
+
+
+@dataclass(frozen=True)
+class ConditionalTimeDilationActionSource(ConditionalBranchActionSource):
+    """仍位于原条件分支中的时间膨胀动作。"""
+
+    timeDilation: TimedTimeDilationSource | None = None
 
 
 @dataclass(frozen=True)
