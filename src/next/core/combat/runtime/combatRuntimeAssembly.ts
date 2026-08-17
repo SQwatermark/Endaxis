@@ -67,6 +67,7 @@ import {
 } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -942,6 +943,36 @@ export class CombatRuntimeAssembly {
         return this.#operatorOrder.filter(candidate =>
           isOperatorControlled(candidate, this.clock.frame),
         );
+      },
+      resolveAbilityEntityTargetIds: query => {
+        if (query.kind !== 'ownerSpawned') {
+          throw new Error(`unsupported ability-entity target query '${String(query.kind)}'`);
+        }
+        return this.abilityEntities
+          .findOwnerSpawned({
+            ownerId: operatorId,
+            ...(query.tagQuery === undefined
+              ? {}
+              : {
+                  tagQuery: {
+                    type: query.tagQuery.type,
+                    tagIds: query.tagQuery.tagIds.map(gameplayTagId),
+                    ...(query.tagQuery.exact === undefined ? {} : { exact: query.tagQuery.exact }),
+                  },
+                }),
+          })
+          .map(target => {
+            if (target.kind !== 'abilityEntity') {
+              throw new Error('owner-spawned AbilityEntity query returned a non-entity target');
+            }
+            return logicalAbilityEntityRuntimeId(target.instanceId);
+          });
+      },
+      resolveContextAbilityEntityId: instanceId => {
+        const target = { kind: 'abilityEntity' as const, instanceId };
+        return this.abilityEntities.isActive(target)
+          ? logicalAbilityEntityRuntimeId(instanceId)
+          : null;
       },
       sourceId: operatorId,
       sourceActionId,

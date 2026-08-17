@@ -15,9 +15,9 @@
 
 - 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 当前 Git HEAD：`9cff1e6d feat(next): model logical ability entities`。
-- 紧邻提交：`659f0786 docs(next): refresh desktop handoff`
-- 再前提交：`7b16107e feat(next): preserve sequence guard boundaries`
+- 当前 Git HEAD：`f22b16e0 feat(next): apply entity time scale to ability entities`。
+- 紧邻提交：`9cff1e6d feat(next): model logical ability entities`
+- 再前提交：`659f0786 docs(next): refresh desktop handoff`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -67,16 +67,17 @@
 - `OwnerSpawnedEntityFinder + TagValidator` 的 Context 来源证据仍完整保留。统一 `findOwnerSpawnedAbilityEntities` 步骤已经能够按当前干员和原生标签查询逻辑目录，把完整组写入本次施法 Context，并可把数量写入动作黑板复用现有比较条件。Avywenna 三组长枪与 Tangtang 水体四个守卫仍需实体目标 Buff、投射物来源和生成器转换，不能提前宣称闭环。完整盘点见 `docs/research/ability-entity-context-target-audit.md`。
 - Context 组现在可按稳定句柄同步迭代；body 通过显式 `currentTarget` 读取、比较或 `Assign` 有限剩余时长。若 body 返回 false，运行时会因原生跨实例短路规则尚未证明而显式失败，不能猜测继续/终止。原始语料共有 10 个时长设置、2 个当前时长检查和 1 个目标设置；当前只接入全部已观察时长动作共有的 `Assign` 子集，目标设置仍阻塞。
 - 同一桌面 `GameAssembly.dll` 的进一步反汇编已确认 `TimeDilationAction` 的 Entity 分支逐个解析 `effectTargets` 并调用 `StartEntityTimeDilation`，实体实例逐帧把曲线倍率安装到目标 Entity。Next 时间膨胀运行时已将局部目标泛化为稳定实体 ID，能力实体有限寿命会消费 `ability-entity:<instanceId>` 对应的实体倍率，并有标准装配回归覆盖。子 SkillData 当前仍静态投影在父技能时间轴上，尚未消费实体时钟，因此生成器阻塞保持不变，不能把这一步误报成能力实体时间膨胀已完整编译。
+- 全局/终结技时间动作原本还会在 `ignoreTargets` 排除 owner-spawned 或命名 Context 中的能力实体；过去丢弃这些目标没有运行时影响，但能力实体开始消费时间后会造成错误减速。生成中间层现已保留这些查询，正式 DSL/执行器会在动作执行时解析 owner/tag 或 Context 稳定句柄并加入全局排除集合；全部生成产物已重建。Entity 作用目标复用同一查询协议并有装配测试，但生成器仍因子 SkillData 调度缺口而拒绝输出。
 
 ## 4. 最新验证基线
 
 当前验证结果：
 
-- Python 生成器测试：258 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；生成器 `--check` 通过；
+- Python 生成器测试：259 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；生成器 `--check` 通过；
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。严格生成已越过全部 11 个登记对象，当前全量审计为 30 名、320 个入口、318 个可解析、280 个可编译；新增的六个可解析入口来自能力实体时间膨胀目标的类型化保留，不代表该运行时已实现。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配的 36 项聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已修复。
-- `npm run test:next`：169 个文件中 168 个、956 项中 954 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
+- `npm run test:next`：169 个文件中 168 个、959 项中 957 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
 - 全仓 `npm test -- --run`：243 个文件中 235 个、1463 项中 1450 项通过。13 项失败里两项是既有 Next 时间线停滞；其余旧版/UI 工作树回归不属于能力实体链路，未在本任务中修改或掩盖。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。

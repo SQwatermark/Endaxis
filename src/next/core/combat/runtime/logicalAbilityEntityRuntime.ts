@@ -103,6 +103,10 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return this.#instances.size;
   }
 
+  isActive(target: RuntimeTargetRef): boolean {
+    return target.kind === 'abilityEntity' && this.#instances.has(target.instanceId);
+  }
+
   spawn(request: LogicalAbilityEntitySpawnRequest): RuntimeTargetRef {
     const template = this.#templates.get(request.templateId);
     if (template === undefined) {

@@ -311,6 +311,36 @@ function validateNonEmptyIntegerArray(
   });
 }
 
+function validateAbilityEntityTargetQueries(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): boolean {
+  if (!Array.isArray(value) || value.length === 0) {
+    push(out, path, 'expected a non-empty array');
+    return false;
+  }
+  value.forEach((entry, index) => {
+    const queryPath = `${path}[${index}]`;
+    const query = asRecord(entry, queryPath, out);
+    if (query === null) return;
+    const kind = requireEnum(query, 'kind', new Set(['ownerSpawned', 'context']), queryPath, out);
+    if (kind === 'context') {
+      requireString(query, 'contextKey', queryPath, out);
+      return;
+    }
+    if (query.tagQuery === undefined) return;
+    const tagQuery = asRecord(query.tagQuery, `${queryPath}.tagQuery`, out);
+    if (tagQuery === null) return;
+    requireEnum(tagQuery, 'type', TAG_QUERY_TYPES_SET, `${queryPath}.tagQuery`, out);
+    validateNonEmptyIntegerArray(tagQuery.tagIds, `${queryPath}.tagQuery.tagIds`, out);
+    if (tagQuery.exact !== undefined) {
+      requireBoolean(tagQuery, 'exact', `${queryPath}.tagQuery`, out);
+    }
+  });
+  return true;
+}
+
 /** 非空字符串数组。 */
 function validateNonEmptyStringArray(
   value: unknown,
@@ -1010,6 +1040,13 @@ function validateCombatStep(
           true,
           TIME_DILATION_IGNORE_TARGETS_SET,
         );
+        if (parameters.ignoredAbilityEntityTargets !== undefined) {
+          validateAbilityEntityTargetQueries(
+            parameters.ignoredAbilityEntityTargets,
+            `${parameterPath}.ignoredAbilityEntityTargets`,
+            out,
+          );
+        }
         if (parameters.influenceSkillCooldownSeconds !== undefined) {
           validateActionValueOperand(
             parameters.influenceSkillCooldownSeconds,
@@ -1018,7 +1055,20 @@ function validateCombatStep(
           );
         }
       } else if (scope === 'entity') {
-        validateCombatTargetArray(parameters.targets, `${parameterPath}.targets`, out, false);
+        const hasAbilityEntityTargets =
+          parameters.abilityEntityTargets === undefined
+            ? false
+            : validateAbilityEntityTargetQueries(
+                parameters.abilityEntityTargets,
+                `${parameterPath}.abilityEntityTargets`,
+                out,
+              );
+        validateCombatTargetArray(
+          parameters.targets,
+          `${parameterPath}.targets`,
+          out,
+          hasAbilityEntityTargets,
+        );
         if (parameters.ignoreSlotCheck !== undefined) {
           requireBoolean(parameters, 'ignoreSlotCheck', parameterPath, out);
         }
@@ -1036,6 +1086,13 @@ function validateCombatStep(
         true,
         TIME_DILATION_IGNORE_TARGETS_SET,
       );
+      if (parameters.ignoredAbilityEntityTargets !== undefined) {
+        validateAbilityEntityTargetQueries(
+          parameters.ignoredAbilityEntityTargets,
+          `${parameterPath}.ignoredAbilityEntityTargets`,
+          out,
+        );
+      }
       break;
     }
     case 'modifyActionValue':

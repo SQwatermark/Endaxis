@@ -946,6 +946,7 @@ export interface GeneratedTimedTimeDilationSource extends GeneratedNativeSequenc
   readonly ignoredTargets: readonly ('caster' | 'enemy' | 'controlled')[];
   readonly targets: readonly ('caster' | 'enemy')[];
   readonly omittedAbilityEntityTargets: number;
+  readonly ignoredAbilityEntityTargets: readonly GeneratedAbilityEntityTimeDilationTargetSource[];
   readonly influenceSkillCooldown: GeneratedScalarSource | null;
   readonly targetScale: number | null;
   readonly effectAbilityEntityTargets: readonly GeneratedAbilityEntityTimeDilationTargetSource[];

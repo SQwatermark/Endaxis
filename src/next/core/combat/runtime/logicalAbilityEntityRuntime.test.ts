@@ -127,7 +127,7 @@ describe('LogicalAbilityEntityRuntime', () => {
       ],
       hooks: { childSkillRequested },
     });
-    runtime.spawn({
+    const entity = runtime.spawn({
       templateId: 'child',
       ownerId: 'a',
       source: { kind: 'operator', operatorId: 'a' },
@@ -136,7 +136,9 @@ describe('LogicalAbilityEntityRuntime', () => {
     });
 
     expect(childSkillRequested).toHaveBeenCalledTimes(1);
+    expect(runtime.isActive(entity)).toBe(true);
     expect(runtime.notifySourceDied({ kind: 'operator', operatorId: 'a' })).toBe(1);
+    expect(runtime.isActive(entity)).toBe(false);
     expect(runtime.activeCount).toBe(0);
   });
 });

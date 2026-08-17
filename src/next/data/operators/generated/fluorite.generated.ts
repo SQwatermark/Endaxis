@@ -7289,6 +7289,28 @@ export const fluoriteGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 17,
@@ -8814,6 +8836,7 @@ export const fluoriteGeneratedSource = {
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 4,
@@ -8834,6 +8857,7 @@ export const fluoriteGeneratedSource = {
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 10,

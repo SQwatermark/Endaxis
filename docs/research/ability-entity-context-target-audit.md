@@ -183,13 +183,30 @@ entity's composed local/global scale when advancing its finite lifetime. An
 assembly-level regression proves that a constant 0.5 entity scale consumes
 only 0.5 seconds of a one-second logical lifetime over 30 raw frames.
 
-This does not yet justify compiling `effectAbilityEntityTargets`. Native time
+The same source actions also exposed a second, previously inert boundary:
+global and ultimate time dilation frequently list owner-spawned AbilityEntities
+in `ignoreTargets`. Dropping those targets had no effect before logical entity
+time existed, but would now incorrectly slow their lifetime. The parser and
+generated audit model therefore preserve the full ignored queries rather than
+only an omitted count. The formal DSL/runtime accepts both owner-spawned
+queries (with an optional single native tag validator) and stable handles from
+a named cast Context. Queries are resolved when the action executes, and every
+resolved entity ID is added to the global exclusion set. Existing generated
+operator skills have been regenerated with these exclusions.
+
+The same query protocol is available to entity-scope time dilation and is
+covered through the standard combat assembly, including owner/tag filtering.
+This closes target selection and finite-lifetime participation without adding
+space or a second entity hierarchy.
+
+This does not yet justify generator compilation of
+`effectAbilityEntityTargets`. Native time
 scale also belongs to the Entity hosting its AbilitySystem, whereas generated
 child SkillData damage is currently a static parent-timeline projection. Until
 those child actions are owned and scheduled by the logical entity clock,
-compiling the action would preserve lifetime but still place hits at the wrong
-times. The generator therefore continues to fail closed and audit coverage
-remains 318 parsed / 280 compiled.
+emitting the entity-scope action would preserve lifetime but still place hits
+at the wrong times. The generator therefore continues to fail closed for those
+effect queries and audit coverage remains 318 parsed / 280 compiled.
 
 The four owner-spawned Context guards still cannot compile end to end because
 their tails apply Buffs to, or launch projectiles from, the selected entity.

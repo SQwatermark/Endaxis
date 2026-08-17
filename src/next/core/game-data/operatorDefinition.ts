@@ -371,6 +371,18 @@ export const SP_GAIN_SOURCES = ['default', 'normalAttack', 'powerAttack', 'skill
 /** 原生共享 SP 获取效率用于区分普攻、重击和其他动作来源。 */
 export type SpGainSource = (typeof SP_GAIN_SOURCES)[number];
 
+/** 原生 OwnerSpawnedEntityFinder 在零空间模型中的可执行能力实体查询。 */
+export type AbilityEntityTargetQuery =
+  | {
+      readonly kind: 'ownerSpawned';
+      readonly tagQuery?: {
+        readonly type: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+        readonly tagIds: readonly number[];
+        readonly exact?: boolean;
+      };
+    }
+  | { readonly kind: 'context'; readonly contextKey: string };
+
 /**
  * 语义战斗状态每层能够贡献的修正。
  * 这些定义由编译器展开，不能携带运行时回调或直接引用 UI 状态。
@@ -529,6 +541,7 @@ export interface CombatStepParameters {
         curve: TimeScaleCurveDefinition;
         finishByAction: boolean;
         ignoredTargets: readonly TimeDilationIgnoreTarget[];
+        ignoredAbilityEntityTargets?: readonly AbilityEntityTargetQuery[];
         influenceSkillCooldownSeconds?: ActionValueOperand;
       }
     | {
@@ -539,6 +552,7 @@ export interface CombatStepParameters {
         curve: TimeScaleCurveDefinition;
         finishByAction: boolean;
         targets: readonly CombatTarget[];
+        abilityEntityTargets?: readonly AbilityEntityTargetQuery[];
         ignoreSlotCheck?: boolean;
       };
   /** 终结技专用恒定全局时间倍率；实例随承载动作结束，施法者自动忽略。 */
@@ -546,6 +560,7 @@ export interface CombatStepParameters {
     priority: number;
     targetScale: ActionValueOperand;
     ignoredTargets: readonly TimeDilationIgnoreTarget[];
+    ignoredAbilityEntityTargets?: readonly AbilityEntityTargetQuery[];
   };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   modifyActionValue: {

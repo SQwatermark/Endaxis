@@ -24218,6 +24218,28 @@
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 2,
@@ -24980,6 +25002,28 @@
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 3,
@@ -25386,6 +25430,7 @@
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 12,
@@ -25406,6 +25451,48 @@
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 2,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "Context",
+                "targetGroupKey": "ult_postmodel_mirror",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": []
+            },
+            {
+              "reference": {
+                "targetSource": "Context",
+                "targetGroupKey": "ult_postmodel",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 13,

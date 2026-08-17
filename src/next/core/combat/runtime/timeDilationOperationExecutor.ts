@@ -3,9 +3,13 @@
  * 曲线存储方式不决定作用范围；目标解析由整场战斗的装配根提供。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { CombatTarget, TimeDilationIgnoreTarget } from '../../game-data/operatorDefinition';
+import type {
+  AbilityEntityTargetQuery,
+  CombatTarget,
+  TimeDilationIgnoreTarget,
+} from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveTimeScaleCurve } from './timeScaleCurve';
 import type { TimeDilationRuntime } from './timeDilationRuntime';
 
@@ -14,6 +18,8 @@ type RuntimeOperation = ResolvedCombatOperationStep;
 export interface TimeDilationOperationDependencies {
   readonly runtime: TimeDilationRuntime;
   readonly resolveTargetIds: (target: TimeDilationIgnoreTarget) => readonly string[];
+  readonly resolveAbilityEntityTargetIds?: (query: AbilityEntityTargetQuery) => readonly string[];
+  readonly resolveContextAbilityEntityId?: (instanceId: number) => string | null;
   readonly sourceId: string;
   readonly sourceActionId: string;
   readonly delegate: CombatOperationExecutor;
@@ -48,6 +54,10 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
         [
           ...this.dependencies.resolveTargetIds('caster'),
           ...step.parameters.ignoredTargets.flatMap(this.dependencies.resolveTargetIds),
+          ...this.#resolveAbilityEntityTargetIds(
+            step.parameters.ignoredAbilityEntityTargets ?? [],
+            context,
+          ),
         ],
         source,
       );
@@ -68,9 +78,14 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
               slot: parameters.slot,
               priority: parameters.priority,
               curve,
-              ignoredOperatorIds: parameters.ignoredTargets.flatMap(
-                this.dependencies.resolveTargetIds,
-              ),
+              ignoredOperatorIds: parameters.ignoredTargets
+                .flatMap(this.dependencies.resolveTargetIds)
+                .concat(
+                  this.#resolveAbilityEntityTargetIds(
+                    parameters.ignoredAbilityEntityTargets ?? [],
+                    context,
+                  ),
+                ),
               source,
               ...(parameters.influenceSkillCooldownSeconds === undefined
                 ? {}
@@ -82,9 +97,12 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
                   }),
             }),
           ]
-        : parameters.targets.map(target =>
+        : [
+            ...parameters.targets.map(target => resolveSingleTargetId(this.dependencies, target)),
+            ...this.#resolveAbilityEntityTargetIds(parameters.abilityEntityTargets ?? [], context),
+          ].map(entityId =>
             this.dependencies.runtime.startEntity({
-              entityId: resolveSingleTargetId(this.dependencies, target),
+              entityId,
               durationSeconds,
               slot: parameters.slot,
               priority: parameters.priority,
@@ -99,6 +117,41 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
       this.#instanceIds.set(step, [...(this.#instanceIds.get(step) ?? []), ...ids]);
     }
     return true;
+  }
+
+  #resolveAbilityEntityTargetIds(
+    queries: readonly AbilityEntityTargetQuery[],
+    context: CombatOperationContext,
+  ): readonly string[] {
+    if (queries.length === 0) return [];
+    const result: string[] = [];
+    for (const query of queries) {
+      if (query.kind === 'context') {
+        if (context.targetContext === undefined) {
+          throw new Error('ability-entity Context query requires a combat target context');
+        }
+        for (const target of context.targetContext.get(query.contextKey)) {
+          if (target.kind !== 'abilityEntity') {
+            throw new Error(
+              `time-dilation Context '${query.contextKey}' contains a non-AbilityEntity target`,
+            );
+          }
+          const resolve = this.dependencies.resolveContextAbilityEntityId;
+          if (resolve === undefined) {
+            throw new Error('ability-entity Context targets require a stable entity resolver');
+          }
+          const entityId = resolve(target.instanceId);
+          if (entityId !== null) result.push(entityId);
+        }
+        continue;
+      }
+      const resolve = this.dependencies.resolveAbilityEntityTargetIds;
+      if (resolve === undefined) {
+        throw new Error('ability-entity time-dilation targets require a logical entity resolver');
+      }
+      result.push(...resolve(query));
+    }
+    return result;
   }
 
   end(

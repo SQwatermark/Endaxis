@@ -284,6 +284,7 @@ class TimedTimeDilationSource:
     ignoredTargets: tuple[Literal["caster", "enemy", "controlled"], ...]
     targets: tuple[Literal["caster", "enemy"], ...]
     omittedAbilityEntityTargets: int
+    ignoredAbilityEntityTargets: tuple[AbilityEntityTimeDilationTargetSource, ...]
     influenceSkillCooldown: ScalarSource | None
     targetScale: float | None
     sequenceIndex: int = -1

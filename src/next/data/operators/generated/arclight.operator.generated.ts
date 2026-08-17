@@ -583,6 +583,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
             influenceSkillCooldownSeconds: { kind: 'constant', value: 0.4 },
           }),
         ),

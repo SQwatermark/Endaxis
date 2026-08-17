@@ -185,11 +185,17 @@ def parse_time_dilation_action(
     ).get("tagId")
     if not isinstance(priority, int) or isinstance(priority, bool):
         raise ValueError(f"{path}.timeDilationPriority.tagId: expected integer")
+    raw_ignored_targets = require_list(action.get("ignoreTargets"), f"{path}.ignoreTargets")
     ignored = tuple(
         parse_time_dilation_target(target, f"{path}.ignoreTargets[{index}]")
-        for index, target in enumerate(
-            require_list(action.get("ignoreTargets"), f"{path}.ignoreTargets")
+        for index, target in enumerate(raw_ignored_targets)
+    )
+    ignored_ability_entity_targets = tuple(
+        parse_ability_entity_time_dilation_target(
+            raw_ignored_targets[index], f"{path}.ignoreTargets[{index}]"
         )
+        for index, target in enumerate(ignored)
+        if target == "abilityEntity"
     )
     omitted = sum(target == "abilityEntity" for target in ignored)
     fixed_ignored = tuple(
@@ -219,6 +225,7 @@ def parse_time_dilation_action(
             ignoredTargets=fixed_ignored,
             targets=(),
             omittedAbilityEntityTargets=omitted,
+            ignoredAbilityEntityTargets=ignored_ability_entity_targets,
             influenceSkillCooldown=None,
             targetScale=require_number(action.get("timeScale"), f"{path}.timeScale"),
             sequenceIndex=sequence_index,
@@ -307,6 +314,7 @@ def parse_time_dilation_action(
             if target != "abilityEntity"
         ),
         omittedAbilityEntityTargets=omitted,
+        ignoredAbilityEntityTargets=ignored_ability_entity_targets,
         influenceSkillCooldown=influence,
         targetScale=None,
         sequenceIndex=sequence_index,

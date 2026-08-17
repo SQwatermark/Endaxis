@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { TimeDilationRuntime } from './timeDilationRuntime';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 const PRIORITY = 20;
 const delegate: CombatOperationExecutor = {
@@ -125,6 +127,90 @@ describe('TimeDilationOperationExecutor', () => {
     ]);
     executor.end(step, context);
     expect(timeDilation.entityInstances).toEqual([]);
+  });
+
+  it('resolves logical AbilityEntity queries for global exclusions and entity effects', () => {
+    const timeDilation = runtime();
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
+      resolveAbilityEntityTargetIds: query => {
+        expect(query).toEqual({ kind: 'ownerSpawned' });
+        return ['ability-entity:1'];
+      },
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    });
+    const context = { blackboard: new ActionBlackboard() };
+    executor.execute(
+      {
+        kind: 'startTimeDilation',
+        parameters: {
+          scope: 'global',
+          durationSeconds: { kind: 'constant', value: 1 },
+          slot: 1,
+          priority: PRIORITY,
+          curve: { kind: 'named', key: 'constant-half' },
+          finishByAction: false,
+          ignoredTargets: [],
+          ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+        },
+      },
+      context,
+    );
+    executor.execute(
+      {
+        kind: 'startTimeDilation',
+        parameters: {
+          scope: 'entity',
+          durationSeconds: { kind: 'constant', value: 1 },
+          slot: 2,
+          priority: PRIORITY,
+          curve: { kind: 'named', key: 'constant-half' },
+          finishByAction: false,
+          targets: [],
+          abilityEntityTargets: [{ kind: 'ownerSpawned' }],
+        },
+      },
+      context,
+    );
+
+    expect(timeDilation.currentGlobalScale).toBe(0.5);
+    expect(timeDilation.getEntityScale('ability-entity:1')).toBe(0.5);
+    expect(timeDilation.entityInstances.map(instance => instance.entityId)).toEqual([
+      'ability-entity:1',
+    ]);
+  });
+
+  it('resolves ability entities already stored in the current target Context', () => {
+    const timeDilation = runtime();
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
+      resolveContextAbilityEntityId: instanceId => logicalAbilityEntityRuntimeId(instanceId),
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('mirror', { kind: 'abilityEntity', instanceId: 7 });
+
+    executor.execute(
+      {
+        kind: 'startUltimateTimeDilation',
+        parameters: {
+          priority: PRIORITY,
+          targetScale: { kind: 'constant', value: 0 },
+          ignoredTargets: [],
+          ignoredAbilityEntityTargets: [{ kind: 'context', contextKey: 'mirror' }],
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+
+    expect(timeDilation.getEntityScale('ability-entity:7')).toBe(1);
+    expect(timeDilation.getEntityScale('enemy')).toBe(0);
   });
 
   it('keeps the ultimate caster running and stops the constant scale with the action', () => {

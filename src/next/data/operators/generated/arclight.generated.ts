@@ -9835,6 +9835,28 @@ export const arclightGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": {
             "value": 0.4,
             "blackboardKey": null,
@@ -10968,6 +10990,7 @@ export const arclightGeneratedSource = {
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 1,
@@ -10988,6 +11011,7 @@ export const arclightGeneratedSource = {
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 5,

@@ -246,6 +246,87 @@ describe('CombatRuntimeAssembly', () => {
     expect(snapshot.elapsedDurationSeconds).toBeCloseTo(0.5);
   });
 
+  it('resolves owner/tag AbilityEntity targets through the assembled time-dilation chain', () => {
+    const marked = gameplayTagIdFromPath('AbilityEntity/Test/Marked');
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'startTimeDilation',
+                parameters: {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 1 },
+                  slot: 1,
+                  priority: 10,
+                  curve: { kind: 'named', key: 'half' },
+                  finishByAction: false,
+                  targets: [],
+                  abilityEntityTargets: [
+                    {
+                      kind: 'ownerSpawned',
+                      tagQuery: { type: 'hasAny', tagIds: [marked] },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [
+        {
+          id: 'marked',
+          bornTagIds: [marked],
+          lifetime: { kind: 'limited', durationSeconds: 2 },
+          maxStackingCount: -1,
+        },
+        {
+          id: 'plain',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 2 },
+          maxStackingCount: -1,
+        },
+      ],
+      {
+        config: {
+          priorities: new Map([[10, 10]]),
+          curves: new Map([['half', () => 0.5]]),
+        },
+        timeManagerDeltaMode: 0,
+      },
+    );
+    const markedEntity = assembly.abilityEntities.spawn({
+      templateId: 'marked',
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    assembly.abilityEntities.spawn({
+      templateId: 'plain',
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    if (markedEntity.kind !== 'abilityEntity') throw new Error('spawn must return an entity');
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+
+    expect(assembly.timeDilation!.entityInstances.map(instance => instance.entityId)).toEqual([
+      logicalAbilityEntityRuntimeId(markedEntity.instanceId),
+    ]);
+  });
+
   it('shares one cooldown ledger across placed casts of the same skill', () => {
     const assembly = createAssembly([
       skill({ castId: 'cast:1', cooldownFrames: 10, costs: [], costFrame: 0 }),

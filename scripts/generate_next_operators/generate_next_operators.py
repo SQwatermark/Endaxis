@@ -31,6 +31,7 @@ from source_models import (
     ProjectileLaunchSource,
     TimedIntervalDamageSource,
     AbilityEntityHitSource,
+    AbilityEntityTimeDilationTargetSource,
     ResolvedDamageHitSource,
     ResolvedScheduleItemSource,
     BuffLifecycleSource,
@@ -5038,6 +5039,62 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
 
 
+def compile_ability_entity_time_dilation_query(
+    target: AbilityEntityTimeDilationTargetSource,
+    path: str,
+) -> str:
+    """只把完整的 owner-spawned 即时查询转换为运行时查询；Context 仍需施法上下文。"""
+    reference = target.reference
+    if reference.targetSource == "Context":
+        if (
+            not reference.targetGroupKey
+            or reference.finderType is not None
+            or reference.validatorTypes
+            or reference.postProcessorTypes
+            or target.spawnedObjectType is not None
+            or target.tagQueries
+        ):
+            raise ValueError(f"{path}: unsupported ability-entity Context query")
+        return (
+            "{ kind: 'context', contextKey: "
+            f"{ts_inline_literal(reference.targetGroupKey)} }}"
+        )
+    if (
+        reference.targetSource != "InstantSearch"
+        or reference.targetGroupKey
+        or reference.selectorOwner != "ActionOwner"
+        or reference.ownerContextKey
+        or reference.centerType != "ActionSource"
+        or reference.centerContextKey
+        or reference.centerToGround
+        or reference.target != "ActionSource"
+        or reference.targetContextKey
+        or reference.enableAdvancedDirection
+        or reference.selectorDirection != "SourceForward"
+        or reference.finderType != "OwnerSpawnedEntityFinder"
+        or target.spawnedObjectType != "AbilityEntity"
+        or reference.postProcessorTypes
+    ):
+        raise ValueError(f"{path}: unsupported ability-entity runtime query")
+    if len(target.tagQueries) > 1:
+        raise ValueError(f"{path}: multiple ability-entity tag validators are not supported")
+    fields = ["kind: 'ownerSpawned'"]
+    if target.tagQueries:
+        query_type, tag_ids = target.tagQueries[0]
+        query_types = {
+            "HasAny": "hasAny",
+            "HasAll": "hasAll",
+            "ExceptAny": "exceptAny",
+            "ExceptAll": "exceptAll",
+        }
+        fields.append(
+            "tagQuery: { type: "
+            f"{ts_inline_literal(query_types[query_type])}, "
+            f"tagIds: {ts_inline_literal(tag_ids)} }}"
+        )
+    return "{ " + ", ".join(fields) + " }"
+
+
 def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
     """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
     if action.effectAbilityEntityTargets:
@@ -5047,13 +5104,22 @@ def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
     if action.kind == "ultimate":
         if action.targetScale is None:
             raise ValueError(f"{path}: ultimate time dilation has no target scale")
+        fields = [
+            f"priority: {action.priority}",
+            "targetScale: { kind: 'constant', value: "
+            f"{ts_inline_literal(action.targetScale)} }}",
+            f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}",
+        ]
+        if action.ignoredAbilityEntityTargets:
+            queries = ", ".join(
+                compile_ability_entity_time_dilation_query(target, f"{path}.ignoreTargets[{index}]")
+                for index, target in enumerate(action.ignoredAbilityEntityTargets)
+            )
+            fields.append(f"ignoredAbilityEntityTargets: [{queries}]")
         return "\n".join(
             [
                 "step('startUltimateTimeDilation', {",
-                f"  priority: {action.priority},",
-                "  targetScale: { kind: 'constant', value: "
-                f"{ts_inline_literal(action.targetScale)} }},",
-                f"  ignoredTargets: {ts_inline_literal(action.ignoredTargets)},",
+                *(f"  {field}," for field in fields),
                 "})",
             ]
         )
@@ -5080,6 +5146,12 @@ def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
     ]
     if action.scope == "global":
         fields.append(f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}")
+        if action.ignoredAbilityEntityTargets:
+            queries = ", ".join(
+                compile_ability_entity_time_dilation_query(target, f"{path}.ignoreTargets[{index}]")
+                for index, target in enumerate(action.ignoredAbilityEntityTargets)
+            )
+            fields.append(f"ignoredAbilityEntityTargets: [{queries}]")
         if action.influenceSkillCooldown is not None:
             fields.append(
                 "influenceSkillCooldownSeconds: "

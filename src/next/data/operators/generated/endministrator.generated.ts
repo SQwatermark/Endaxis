@@ -1377,6 +1377,7 @@ export const endministratorGeneratedSource = {
                   "caster"
                 ],
                 "omittedAbilityEntityTargets": 0,
+                "ignoredAbilityEntityTargets": [],
                 "influenceSkillCooldown": null,
                 "targetScale": null,
                 "sequenceIndex": -1,
@@ -2690,6 +2691,7 @@ export const endministratorGeneratedSource = {
                   "caster"
                 ],
                 "omittedAbilityEntityTargets": 0,
+                "ignoredAbilityEntityTargets": [],
                 "influenceSkillCooldown": null,
                 "targetScale": null,
                 "sequenceIndex": -1,
@@ -2724,6 +2726,28 @@ export const endministratorGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 14,
@@ -3402,6 +3426,7 @@ export const endministratorGeneratedSource = {
                   "caster"
                 ],
                 "omittedAbilityEntityTargets": 0,
+                "ignoredAbilityEntityTargets": [],
                 "influenceSkillCooldown": null,
                 "targetScale": null,
                 "sequenceIndex": -1,
@@ -4715,6 +4740,7 @@ export const endministratorGeneratedSource = {
                   "caster"
                 ],
                 "omittedAbilityEntityTargets": 0,
+                "ignoredAbilityEntityTargets": [],
                 "influenceSkillCooldown": null,
                 "targetScale": null,
                 "sequenceIndex": -1,
@@ -4749,6 +4775,28 @@ export const endministratorGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 12,
@@ -20713,6 +20761,7 @@ export const endministratorGeneratedSource = {
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 1,
@@ -20733,6 +20782,7 @@ export const endministratorGeneratedSource = {
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 11,
@@ -22063,6 +22113,7 @@ export const endministratorGeneratedSource = {
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 1,
@@ -22083,6 +22134,7 @@ export const endministratorGeneratedSource = {
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 11,

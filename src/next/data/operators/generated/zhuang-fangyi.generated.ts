@@ -33929,6 +33929,28 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 2,
@@ -35278,6 +35300,28 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "targets": [],
           "omittedAbilityEntityTargets": 1,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "InstantSearch",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": "OwnerSpawnedEntityFinder",
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 3,
@@ -36131,6 +36175,7 @@ export const zhuangFangyiGeneratedSource = {
             "caster"
           ],
           "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
           "influenceSkillCooldown": null,
           "targetScale": null,
           "sequenceIndex": 12,
@@ -36151,6 +36196,48 @@ export const zhuangFangyiGeneratedSource = {
           "ignoredTargets": [],
           "targets": [],
           "omittedAbilityEntityTargets": 2,
+          "ignoredAbilityEntityTargets": [
+            {
+              "reference": {
+                "targetSource": "Context",
+                "targetGroupKey": "ult_postmodel_mirror",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": []
+            },
+            {
+              "reference": {
+                "targetSource": "Context",
+                "targetGroupKey": "ult_postmodel",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": []
+            }
+          ],
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
           "sequenceIndex": 13,

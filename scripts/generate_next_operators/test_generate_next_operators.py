@@ -538,6 +538,55 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "require runtime support"):
             compile_time_dilation(parsed, "fixture.timeDilation")
 
+    def test_global_time_dilation_preserves_owner_spawned_entity_exclusions(self) -> None:
+        entity_target = target_settings_fixture(
+            "InstantSearch",
+            finder_type="OwnerSpawnedEntityFinder",
+        )
+        entity_target["selectorData"]["finderData"][
+            "spawnedObjectType"
+        ] = "AbilityEntity"
+        action = {
+            "$type": "Example.TimeDilationAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 1,
+            "layer": "Global",
+            "slot": {"tagId": 0},
+            "timeDilationPriority": {"tagId": 22},
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 1,
+                "blackboardKey": "",
+            },
+            "useCurveKey": True,
+            "curveKey": "ComboSkill",
+            "timeScaleCurve": [],
+            "finishByAction": False,
+            "ignoreTargets": [entity_target],
+            "effectTargets": [],
+            "useTimeScaleForSkillCdTick": False,
+            "influenceSkillCdTime": {
+                "useBlackboardKey": False,
+                "value": 0,
+                "blackboardKey": "",
+            },
+        }
+
+        parsed = parse_time_dilation_action(
+            action,
+            "fixture.timeDilation",
+            {},
+            start_frame=0,
+            end_frame=1,
+        )
+        compiled = compile_time_dilation(parsed, "fixture.timeDilation")
+
+        self.assertEqual(len(parsed.ignoredAbilityEntityTargets), 1)
+        self.assertIn("ignoredAbilityEntityTargets", compiled)
+        self.assertIn("kind: 'ownerSpawned'", compiled)
+
     def test_nested_time_dilation_stays_inside_conditional_branch(self) -> None:
         target = target_settings_fixture("Target")
         root = {

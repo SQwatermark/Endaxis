@@ -153,6 +153,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
           }),
         ),
         22,
