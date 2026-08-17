@@ -4445,7 +4445,8 @@ def parse_time_dilation_target(
     """把时间膨胀目标收窄到 Endaxis 当前实际模拟的实体身份。"""
     target = require_dict(value, path)
     source = target.get("targetSource")
-    if source == "Owner":
+    # 根技能动作中的 Source 和 Owner 都指向施法干员。
+    if source in {"Source", "Owner"}:
         return "caster"
     if source == "Target":
         return "enemy"

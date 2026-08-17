@@ -366,6 +366,59 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_time_dilation_source_target_resolves_to_caster(self) -> None:
+        source_target = target_settings_fixture("Source")
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 4,
+                        "_endFrame": 14,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.TimeDilationAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 3,
+                                    "layer": "Entity",
+                                    "slot": {"tagId": 11},
+                                    "timeDilationPriority": {"tagId": 22},
+                                    "duration": {
+                                        "useBlackboardKey": False,
+                                        "value": 1,
+                                        "blackboardKey": "",
+                                    },
+                                    "useCurveKey": True,
+                                    "curveKey": "ComboSkill",
+                                    "timeScaleCurve": {
+                                        "preWrapMode": "ClampForever",
+                                        "postWrapMode": "ClampForever",
+                                        "keys": [],
+                                    },
+                                    "finishByAction": True,
+                                    "ignoreTargets": [source_target],
+                                    "effectTargets": [source_target],
+                                    "useTimeScaleForSkillCdTick": False,
+                                    "influenceSkillCdTime": {
+                                        "useBlackboardKey": False,
+                                        "value": 0,
+                                        "blackboardKey": "",
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_time_dilations(root, "fixture.json", {})[0]
+
+        self.assertEqual(action.targets, ("caster",))
+        self.assertEqual(action.ignoredTargets, ("caster",))
+
     def test_nested_time_dilation_is_rejected_instead_of_silently_omitted(self) -> None:
         root = {
             "actionGroupData": {
