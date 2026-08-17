@@ -153,8 +153,18 @@ exposed an `Owner -> Target` distance condition in the spawned entity skill
 that the earlier audit had skipped. Both endpoints have explicit execution
 identity—the current AbilityEntity and the unique enemy input—so the shared
 zero-distance evaluator now folds this exact plain-selector shape while still
-rejecting missing entity scope and unknown Context targets. The four singleton
-producers and all eight assignments now compile end to end in the battle skill.
+rejecting missing entity scope and unknown Context targets. This restores the
+battle skill's strict compilation after recursive auditing exposed the child.
+
+The four `bunshin1` through `bunshin4` producers and eight assignments belong
+to Li Zhiyan's combo skill. Their spawn targets are `BL`, `BR`, `FL`, and `FR`,
+each produced immediately beforehand by an unfiltered `FixedPointFinder` with
+only positional offsets. The seal child SkillData contains presentation actions
+only. The zero-space compiler therefore drops those four position targets while
+retaining logical entity identity, lifetime, born tags, blackboard and Context
+handles; the same omission is rejected as soon as a child has any combat action.
+The combo skill now advances past these spawns and stops at its later
+`CheckEntityNum(Context/trigger >= 1)` proof gap.
 
 The next parser blocker was also narrowed correctly: `effectTargets` belongs
 to `TimeDilationAction`, not the presentation-only `EffectAction`. The audit

@@ -194,6 +194,14 @@ DEFAULT_TABLES = (
     / "TableCfg-1.4.4-9433094-12"
 )
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "generated"
+DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE = (
+    REPOSITORY_ROOT
+    / "src"
+    / "next"
+    / "data"
+    / "ability-entities"
+    / "ability-entity-templates-1.4.4.json"
+)
 
 # Endaxis 固定为单敌人且命中必然发生；暂不模拟距离、轨迹和碰撞体。
 ASSUMED_PROJECTILE_TRAVEL_FRAMES = 0
@@ -4418,8 +4426,8 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
             sequenceOrder=entity.actionOrder[:-1],
         )
         for entity in skill.abilityEntityHits
-        for payload in (getattr(entity, "spawnPayload", None),)
-        if payload is not None and logical_ability_entity_spawn_can_compile(payload)
+        for payload in (logical_ability_entity_spawn_payload_for_compile(entity, skill),)
+        if payload is not None
     )
     result.extend(
         ResolvedScheduleItemSource(
@@ -5464,9 +5472,14 @@ def compile_ability_entity_time_dilation_query(
     return "{ " + ", ".join(fields) + " }"
 
 
-def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
+def compile_time_dilation(
+    action: TimedTimeDilationSource,
+    path: str,
+    *,
+    effect_ability_entity_targets_proven: bool = False,
+) -> str:
     """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
-    if action.effectAbilityEntityTargets:
+    if action.effectAbilityEntityTargets and not effect_ability_entity_targets_proven:
         raise ValueError(
             f"{path}: ability-entity time-dilation targets require runtime support"
         )
@@ -5528,6 +5541,14 @@ def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
             )
     else:
         fields.append(f"targets: {ts_inline_literal(action.targets)}")
+        if action.effectAbilityEntityTargets:
+            queries = ", ".join(
+                compile_ability_entity_time_dilation_query(
+                    target, f"{path}.effectTargets[{index}]"
+                )
+                for index, target in enumerate(action.effectAbilityEntityTargets)
+            )
+            fields.append(f"abilityEntityTargets: [{queries}]")
     return "\n".join(
         [
             "step('startTimeDilation', {",
@@ -7513,6 +7534,73 @@ def logical_ability_entity_spawn_can_compile(payload: AbilityEntitySpawnPayload)
     )
 
 
+def ability_entity_child_is_gameplay_inert(hit: AbilityEntityHitSource) -> bool:
+    """只接受没有任何已知战斗动作或递归载荷的纯表现子技能。"""
+    return (
+        not hit.cycleTruncated
+        and not hit.combatActions
+        and not hit.directDamageHits
+        and not hit.intervalDamageHits
+        and not hit.explicitFinishes
+        and not hit.timelineJumps
+        and not hit.conditionalActions
+        and not hit.inflictions
+        and not hit.auxiliaryActions
+        and not hit.resourceGains
+        and not hit.projectileLaunches
+        and not hit.projectileTriggeredSkills
+        and not hit.nestedAbilityEntityHits
+        and not hit.blackboardCalculations
+        and not hit.blackboardMutations
+        and not hit.buffBlackboardReads
+        and not hit.buffFinishes
+        and not hit.auraActions
+        and not hit.keywordActions
+    )
+
+
+def logical_ability_entity_spawn_payload_for_compile(
+    hit: AbilityEntityHitSource,
+    skill: SkillSource,
+) -> AbilityEntitySpawnPayload | None:
+    """在零空间模型中把纯位置 Context 从无战斗子实体的生成目标中删除。"""
+    payload = getattr(hit, "spawnPayload", None)
+    if payload is None:
+        return None
+    if logical_ability_entity_spawn_can_compile(payload):
+        return payload
+    target = payload.target
+    if not (
+        ability_entity_child_is_gameplay_inert(hit)
+        and target is not None
+        and target.targetSource == "Context"
+        and target.targetGroupKey
+        and target_reference_has_plain_selector(target)
+    ):
+        return None
+    writes = tuple(
+        write
+        for write in skill.targetGroupWrites
+        if write.targetGroupKey == target.targetGroupKey
+    )
+    if len(writes) != 1:
+        return None
+    write = writes[0]
+    if not (
+        write.startFrame == hit.spawnFrame
+        and hit.actionOrder
+        and write.actionIndex < hit.actionOrder[-1]
+        and write.producerType == "FindTargetAction"
+        and write.finderType == "FixedPointFinder"
+        and not write.validatorTypes
+        and not write.postProcessorTypes
+        and not write.inputTargets
+    ):
+        return None
+    normalized = replace(payload, target=None)
+    return normalized if logical_ability_entity_spawn_can_compile(normalized) else None
+
+
 def compile_logical_ability_entity_spawn(
     payload: AbilityEntitySpawnPayload,
     path: str,
@@ -7795,6 +7883,86 @@ def ability_entity_child_timeline_can_compile(
         and not getattr(hit, "keywordActions", ())
         and ability_entity_child_combat_actions_can_compile(hit)
     )
+
+
+def load_ability_entity_template_evidence() -> dict[str, dict[str, Any]]:
+    """读取与生成器版本配对的能力实体模板事实；格式异常时立即失败。"""
+    raw = require_dict(
+        json.loads(DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE.read_text(encoding="utf-8")),
+        str(DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE),
+    )
+    templates = require_dict(
+        raw.get("templates"), f"{DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE}.templates"
+    )
+    return {
+        template_id: require_dict(value, f"abilityEntityTemplates.{template_id}")
+        for template_id, value in templates.items()
+    }
+
+
+def ability_entity_time_dilation_targets_are_closed(
+    action: TimedTimeDilationSource,
+    skill: SkillSource,
+    reachable_entities: tuple[AbilityEntityHitSource, ...],
+    migrated_entities: tuple[AbilityEntityHitSource, ...],
+    templates: dict[str, dict[str, Any]],
+) -> bool:
+    """证明带标签查询只会命中当前技能已逻辑生成且时钟所有权完整的实体。"""
+    if not action.effectAbilityEntityTargets:
+        return True
+    reachable_source_files = {skill.sourceFile} | {
+        entity.sourceFile for entity in reachable_entities
+    }
+    for query in action.effectAbilityEntityTargets:
+        try:
+            compile_ability_entity_time_dilation_query(query, "effectTargets")
+        except ValueError:
+            return False
+        if (
+            len(query.tagQueries) != 1
+            or query.tagQueries[0][0] != "HasAny"
+            or len(query.tagQueries[0][1]) != 1
+        ):
+            return False
+        required_tag = query.tagQueries[0][1][0]
+        matching_template_ids = {
+            template_id
+            for template_id, evidence in templates.items()
+            if required_tag
+            in require_list(
+                evidence.get("bornTagIds"),
+                f"abilityEntityTemplates.{template_id}.bornTagIds",
+            )
+        }
+        if not matching_template_ids:
+            return False
+        for template_id in matching_template_ids:
+            evidence = templates[template_id]
+            references = set(
+                str(value)
+                for value in require_list(
+                    evidence.get("referencedBySkillFiles"),
+                    f"abilityEntityTemplates.{template_id}.referencedBySkillFiles",
+                )
+            )
+            matching_entities = tuple(
+                entity
+                for entity in reachable_entities
+                if entity.abilityEntityId == template_id
+            )
+            if (
+                not references
+                or not references <= reachable_source_files
+                or not matching_entities
+            ):
+                return False
+            if any(
+                logical_ability_entity_spawn_payload_for_compile(entity, skill) is None
+                or (entity.combatActions and entity not in migrated_entities)
+                for entity in matching_entities
+            ):
+                return False
+    return True
 
 
 def compile_ability_entity_child_skill(
@@ -9198,9 +9366,10 @@ def compile_resolved_sequence(
         visit_projectiles(skill.projectileTriggeredSkills)
         return tuple(result)
 
+    reachable_ability_entities = collect_reachable_ability_entities()
     migrated_ability_entities = tuple(
         entity
-        for entity in collect_reachable_ability_entities()
+        for entity in reachable_ability_entities
         if ability_entity_child_timeline_can_compile(
             entity,
             ignored_auxiliary_classifications=frozenset(
@@ -9210,6 +9379,14 @@ def compile_resolved_sequence(
             unmodeled_buff_ids=unmodeled_buff_ids,
             buff_definitions=buff_definitions,
         )
+    )
+    ability_entity_templates = (
+        load_ability_entity_template_evidence()
+        if any(
+            action.effectAbilityEntityTargets
+            for action in getattr(skill, "timeDilations", ())
+        )
+        else {}
     )
     scheduled_entity_ids = {
         id(item.payload)
@@ -9297,7 +9474,12 @@ def compile_resolved_sequence(
             )
         elif item.itemType == "abilityEntitySpawn":
             entity = cast(AbilityEntityHitSource, item.payload)
-            payload = entity.spawnPayload
+            payload = logical_ability_entity_spawn_payload_for_compile(entity, skill)
+            if payload is None:
+                raise ValueError(
+                    f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn: "
+                    "spawn target is outside the zero-space model"
+                )
             child_skill = (
                 compile_ability_entity_child_skill(
                     entity,
@@ -9465,6 +9647,15 @@ def compile_resolved_sequence(
             step_lines = compile_time_dilation(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].timeDilation",
+                effect_ability_entity_targets_proven=(
+                    ability_entity_time_dilation_targets_are_closed(
+                        payload,
+                        skill,
+                        reachable_ability_entities,
+                        migrated_ability_entities,
+                        ability_entity_templates,
+                    )
+                ),
             ).splitlines()
         elif item.itemType == "keywordAction":
             payload = cast(TimedKeywordActionSource, item.payload)

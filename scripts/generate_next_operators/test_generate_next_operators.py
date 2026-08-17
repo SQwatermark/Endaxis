@@ -46,6 +46,7 @@ from generate_next_operators import (
     compile_conditional_action,
     compile_immediate_projectile_children,
     compile_logical_ability_entity_spawn,
+    logical_ability_entity_spawn_payload_for_compile,
     ability_entity_child_buff_can_compile,
     ability_entity_child_finishes_are_terminal,
     ability_entity_child_timeline_can_compile,
@@ -489,7 +490,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(action.targets, ("caster",))
         self.assertEqual(action.ignoredTargets, ("caster",))
 
-    def test_ability_entity_time_dilation_target_is_typed_but_not_compiled(self) -> None:
+    def test_ability_entity_time_dilation_target_requires_closure_proof(self) -> None:
         entity_target = target_settings_fixture(
             "InstantSearch",
             finder_type="OwnerSpawnedEntityFinder",
@@ -546,6 +547,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "require runtime support"):
             compile_time_dilation(parsed, "fixture.timeDilation")
+        compiled = compile_time_dilation(
+            parsed,
+            "fixture.timeDilation",
+            effect_ability_entity_targets_proven=True,
+        )
+        self.assertIn("abilityEntityTargets", compiled)
+        self.assertIn("kind: 'ownerSpawned'", compiled)
+        self.assertIn("tagIds: [-1480463572]", compiled)
 
     def test_global_time_dilation_preserves_owner_spawned_entity_exclusions(self) -> None:
         entity_target = target_settings_fixture(
@@ -5440,6 +5449,77 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ability_entity_current_target=True,
             ),
             "{ kind: 'singleEnemyPresent' }",
+        )
+
+    def test_inert_ability_entity_omits_fixed_point_spawn_target(self) -> None:
+        target = parse_target_reference(
+            target_settings_fixture("Context", target_group_key="corner"),
+            "fixture.target",
+        )
+        payload = AbilityEntitySpawnPayload(
+            "entity.test",
+            "skill.presentation",
+            sourceType="ActionSource",
+            target=target,
+        )
+        empty_fields = {
+            name: ()
+            for name in (
+                "combatActions",
+                "directDamageHits",
+                "intervalDamageHits",
+                "explicitFinishes",
+                "timelineJumps",
+                "conditionalActions",
+                "inflictions",
+                "auxiliaryActions",
+                "resourceGains",
+                "projectileLaunches",
+                "projectileTriggeredSkills",
+                "nestedAbilityEntityHits",
+                "blackboardCalculations",
+                "blackboardMutations",
+                "buffBlackboardReads",
+                "buffFinishes",
+                "auraActions",
+                "keywordActions",
+            )
+        }
+        hit = SimpleNamespace(
+            spawnFrame=9,
+            actionOrder=(2,),
+            spawnPayload=payload,
+            cycleTruncated=False,
+            **empty_fields,
+        )
+        write = TargetGroupWriteSource(
+            startFrame=9,
+            endFrame=12,
+            actionIndex=1,
+            actionPath=("timelineActions[0]",),
+            targetGroupKey="corner",
+            producerType="FindTargetAction",
+            finderType="FixedPointFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+        skill = SimpleNamespace(targetGroupWrites=(write,))
+
+        normalized = logical_ability_entity_spawn_payload_for_compile(hit, skill)
+
+        self.assertIsNotNone(normalized)
+        assert normalized is not None
+        self.assertIsNone(normalized.target)
+        self.assertIsNone(
+            logical_ability_entity_spawn_payload_for_compile(
+                SimpleNamespace(**{**hit.__dict__, "combatActions": ("DamageAction",)}),
+                skill,
+            )
         )
 
     def test_direct_main_operator_guard_is_assumed_to_pass_for_a_placed_skill(self) -> None:
