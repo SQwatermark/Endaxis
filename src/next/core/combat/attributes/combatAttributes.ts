@@ -55,8 +55,10 @@ export interface AttributeModifierValues {
 
 /** 一组战斗属性的基础值和按槽位计算方式。 */
 export interface CombatAttributeDefinition {
-  readonly minimum: number;
-  readonly maximum: number;
+  /** 省略表示原生 AttributeMeta 没有配置下限。 */
+  readonly minimum?: number;
+  /** 省略表示原生 AttributeMeta 没有配置上限。 */
+  readonly maximum?: number;
   readonly otherAttributeBaseAddition?: number;
   readonly otherAttributeBaseFinalMultiplier?: number;
   readonly otherAttributeFinalMultiplier?: number;
@@ -218,12 +220,19 @@ function product(
 }
 
 function clamp(value: number, definition: CombatAttributeDefinition): number {
-  return Math.min(Math.max(value, definition.minimum), definition.maximum);
+  return Math.min(
+    Math.max(value, definition.minimum ?? Number.NEGATIVE_INFINITY),
+    definition.maximum ?? Number.POSITIVE_INFINITY,
+  );
 }
 
 function assertDefinition(definition: CombatAttributeDefinition): void {
   for (const [name, value] of Object.entries(definition)) assertFinite(value, name);
-  if (definition.minimum > definition.maximum) {
+  if (
+    definition.minimum !== undefined &&
+    definition.maximum !== undefined &&
+    definition.minimum > definition.maximum
+  ) {
     throw new RangeError('minimum attribute value cannot exceed maximum value');
   }
 }

@@ -61,6 +61,9 @@ function createContext(): CombatOperationExecutorContext {
       operatorId: 'operator',
       attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
       attack: 700,
+      attackBeforeAttributeScalar: 700,
+      mainAttribute: 'intellect',
+      secondaryAttribute: 'will',
       health: 5000,
       defense: 0,
       criticalRate: 0.15,
@@ -186,8 +189,9 @@ describe('StandardPlayerDamageEnvironment', () => {
     const createRuntime = environment.runtimeOptions.createOperatorBuffRuntime;
 
     expect(createRuntime).toBeDefined();
-    expect(createRuntime?.('operator')).toBe(createRuntime?.('operator'));
-    expect(createRuntime?.('operator')?.ownerId).toBe('operator');
+    const panel = createContext().panel;
+    expect(createRuntime?.('operator', panel)).toBe(createRuntime?.('operator', panel));
+    expect(createRuntime?.('operator', panel)?.ownerId).toBe('operator');
   });
 
   it('shares the scene-injected vitals instance across damage writes and poise', () => {

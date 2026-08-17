@@ -212,6 +212,12 @@ BUFF_ATTRIBUTE_MODIFIER_SLOTS = {
     "BaseFinalAddition",
     "BaseFinalMultiplier",
 }
+CONNECTED_RUNTIME_ATTRIBUTE_MODIFIERS = {
+    "AtkIncreaseFactorFromStr",
+    "AtkIncreaseFactorFromAgi",
+    "AtkIncreaseFactorFromWisd",
+    "AtkIncreaseFactorFromWill",
+}
 
 
 
@@ -2059,10 +2065,17 @@ def audit_passive_skill_generation(
                 if definition is None:
                     reasons.append(f"missing resolved Buff {buff_id!r}")
                     continue
-                if definition.attributeModifiers:
+                unconnected_attributes = sorted(
+                    {
+                        modifier.attributeType
+                        for modifier in definition.attributeModifiers
+                        if modifier.attributeType not in CONNECTED_RUNTIME_ATTRIBUTE_MODIFIERS
+                    }
+                )
+                if unconnected_attributes:
                     reasons.append(
                         f"Buff {buff_id!r} modifies native attributes whose runtime consumers "
-                        "are not connected"
+                        f"are not connected: {unconnected_attributes!r}"
                     )
                     continue
                 try:

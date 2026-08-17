@@ -619,6 +619,47 @@ export const lifengGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0015_lifeng_talent_1',
+          blackboard: {
+            'atk_up': [0.001, 0.0015],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0015_lifeng_talent_1',
+              definition: {
+                stackingType: 'unique',
+                priority: 0,
+                maxStackCount: 1,
+                triggerIntervalSeconds: 1,
+                waitFirstTriggerInterval: false,
+                maxTriggerCount: -1,
+                blackboard: {
+                  'atk_up': 0,
+                },
+                attributeModifiers: [
+                  {
+                    attribute: 'AtkIncreaseFactorFromWisd',
+                    slot: 'baseAddition',
+                    value: { blackboardKey: 'atk_up' },
+                  },
+                  {
+                    attribute: 'AtkIncreaseFactorFromWill',
+                    slot: 'addition',
+                    value: { blackboardKey: 'atk_up' },
+                  },
+                ],
+              },
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',

@@ -139,6 +139,91 @@ export const lifengGeneratedSource = {
       "auraActions": []
     },
     {
+      "buffId": "buff_chr_0015_lifeng_talent_1",
+      "sourceFile": "buff_chr_0015_lifeng_talent_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "AtkIncreaseFactorFromWisd",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "atk_up",
+            "levelValues": [
+              0.0
+            ]
+          }
+        },
+        {
+          "targetType": "Specific",
+          "attributeType": "AtkIncreaseFactorFromWill",
+          "slot": "Addition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "atk_up",
+            "levelValues": [
+              0.0
+            ]
+          }
+        }
+      ],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": []
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,

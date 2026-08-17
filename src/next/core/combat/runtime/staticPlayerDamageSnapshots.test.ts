@@ -10,6 +10,7 @@ import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createOperatorAttackAttributes } from '../attributes/operatorAttackAttributes';
 
 const enemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
@@ -41,6 +42,9 @@ const panel: ResolvedOperatorPanel = {
   operatorId: 'operator',
   attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
   attack: 700,
+  attackBeforeAttributeScalar: 700,
+  mainAttribute: 'intellect',
+  secondaryAttribute: 'will',
   health: 5000,
   defense: 0,
   criticalRate: 0.15,
@@ -97,7 +101,11 @@ const electricDamage: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
 
 describe('resolveStaticPlayerDamageSnapshots', () => {
   it('从同一构筑面板和敌人程序冻结基础攻防属性', () => {
-    const snapshots = resolveStaticPlayerDamageSnapshots(createContext(), electricDamage);
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext(),
+      electricDamage,
+      createOperatorAttackAttributes(panel),
+    );
 
     expect(snapshots.attacker).toMatchObject({
       attack: 700,
@@ -118,6 +126,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
         program: { ...createContext().program, skillType: 'comboSkill' },
       }),
       electricDamage,
+      createOperatorAttackAttributes(panel),
     );
 
     expect(snapshots.attacker.electricDamageIncrease).toBe(0);
@@ -139,6 +148,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
         },
       }),
       electricDamage,
+      createOperatorAttackAttributes(panel),
     );
 
     expect(snapshots.attacker).toMatchObject({
@@ -152,7 +162,11 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
 
   it('缺少已解析面板时明确失败', () => {
     expect(() =>
-      resolveStaticPlayerDamageSnapshots(createContext({ panel: undefined }), electricDamage),
+      resolveStaticPlayerDamageSnapshots(
+        createContext({ panel: undefined }),
+        electricDamage,
+        createOperatorAttackAttributes(panel),
+      ),
     ).toThrow("operator 'operator' has no resolved panel");
   });
 
@@ -178,7 +192,8 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       targetVitals,
       clock: context.clock,
       receipt: context.receipt,
-      captureAttributeSnapshots: step => resolveStaticPlayerDamageSnapshots(context, step),
+      captureAttributeSnapshots: step =>
+        resolveStaticPlayerDamageSnapshots(context, step, createOperatorAttackAttributes(panel)),
       criticalSamples: { nextCriticalSample: () => 1 },
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,

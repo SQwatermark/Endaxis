@@ -16,6 +16,8 @@ import {
 } from '../damage/damageScaleAttributes';
 import type { PlayerDamageAttributeSnapshots } from '../damage/playerDamageContext';
 import type { CombatOperationExecutorContext } from './combatRuntimeAssembly';
+import type { CombatAttributeSet } from '../attributes/combatAttributes';
+import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -82,6 +84,7 @@ function resolveStaticDamageScales(
 export function resolveStaticPlayerDamageSnapshots(
   context: CombatOperationExecutorContext,
   step: DamageStep,
+  operatorAttributes: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
   const panel = context.panel;
   if (panel === undefined) {
@@ -90,7 +93,7 @@ export function resolveStaticPlayerDamageSnapshots(
   return {
     attacker: {
       ...resolveStaticDamageScales(context, step),
-      attack: panel.attack,
+      attack: resolveOperatorAttack(panel, operatorAttributes),
       criticalRate: panel.criticalRate,
       criticalDamageIncrease: panel.criticalDamage,
       weaknessDamageMultiplier: 1,

@@ -152,7 +152,10 @@ export interface CombatRuntimeAssemblyOptions {
    * 为没有显式 `buffRuntime` 绑定的干员创建本场战斗唯一的 Buff runtime。
    * 伤害环境与技能操作必须共享该实例，不能各自维护同一干员的 Buff 状态。
    */
-  readonly createOperatorBuffRuntime?: (operatorId: string) => OperatorBuffRuntime;
+  readonly createOperatorBuffRuntime?: (
+    operatorId: string,
+    panel?: ResolvedOperatorPanel,
+  ) => OperatorBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
@@ -277,7 +280,8 @@ export class CombatRuntimeAssembly {
         throw new Error(`duplicate combat operator '${operator.operatorId}'`);
       }
       const buffRuntime =
-        operator.buffRuntime ?? options.createOperatorBuffRuntime?.(operator.operatorId);
+        operator.buffRuntime ??
+        options.createOperatorBuffRuntime?.(operator.operatorId, operator.panel);
       const runtimeOperator =
         buffRuntime === operator.buffRuntime ? operator : { ...operator, buffRuntime };
       const entityBlackboard = buffRuntime?.entityBlackboard ?? new ActionBlackboard();

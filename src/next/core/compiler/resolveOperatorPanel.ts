@@ -21,6 +21,10 @@ import type {
 import { resolveActiveOperatorUpgrades } from './compileOperatorUpgrades';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
+import {
+  MAIN_ATTRIBUTE_ATTACK_FACTOR,
+  SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
+} from '../game-data/battleConstants';
 
 const LEVEL_NODES = [1, 20, 40, 60, 80, 90] as const;
 const ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] as const;
@@ -83,6 +87,10 @@ export interface ResolvedOperatorPanel {
   readonly operatorId: string;
   readonly attributes: OperatorPanelAttributes;
   readonly attack: number;
+  /** 运行时重新计算攻击派生倍率所需的、尚未乘四维倍率的攻击值。 */
+  readonly attackBeforeAttributeScalar: number;
+  readonly mainAttribute: OperatorAttribute;
+  readonly secondaryAttribute: OperatorAttribute;
   readonly health: number;
   readonly defense: number;
   readonly criticalRate: number;
@@ -390,12 +398,14 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
 
   const mainAttribute = values.attributes[build.operator.mainAttribute];
   const secondaryAttribute = values.attributes[build.operator.secondaryAttribute];
-  const attributeAttackMultiplier = 1 + mainAttribute * 0.005 + secondaryAttribute * 0.002;
-  const attack = Math.floor(
-    ((values.operatorBaseAttack + values.weaponBaseAttack) * (1 + values.panelStats.attackPercent) +
-      values.panelStats.attackFlat) *
-      attributeAttackMultiplier,
-  );
+  const attributeAttackMultiplier =
+    1 +
+    Math.floor(mainAttribute) * MAIN_ATTRIBUTE_ATTACK_FACTOR +
+    Math.floor(secondaryAttribute) * SECONDARY_ATTRIBUTE_ATTACK_FACTOR;
+  const attackBeforeAttributeScalar =
+    (values.operatorBaseAttack + values.weaponBaseAttack) * (1 + values.panelStats.attackPercent) +
+    values.panelStats.attackFlat;
+  const attack = Math.floor(attackBeforeAttributeScalar * attributeAttackMultiplier);
   const health = Math.floor(
     resolveUpgradeBasePanelStat(
       values.operatorBaseHealth + values.attributes.strength * 5,
@@ -415,6 +425,9 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     operatorId: build.track.id,
     attributes: { ...values.attributes },
     attack,
+    attackBeforeAttributeScalar,
+    mainAttribute: build.operator.mainAttribute,
+    secondaryAttribute: build.operator.secondaryAttribute,
     health,
     defense,
     criticalRate:

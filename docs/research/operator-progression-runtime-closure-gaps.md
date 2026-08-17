@@ -2,7 +2,7 @@
 
 ## 目的
 
-本文记录养成审计中语义已经确认、但当前 Endaxis Next 仍不能无损转换的属性。这里的“不能转换”并非不知道枚举含义，而是 Next 尚未具备与原生方向、公式和生命周期一致的消费链。
+本文记录养成审计中需要运行时消费链才能无损转换的属性，并同步标明已经闭环的项目。这里的“缺口”并非不知道枚举含义，而是 Next 尚未具备与原生方向、公式和生命周期一致的消费链。
 
 结构化结果位于 `all-operator-progression-audit.json`：
 
@@ -12,8 +12,8 @@
 ## AtkIncreaseFactorFromWisd / AtkIncreaseFactorFromWill（attrType 78/79）
 
 当前样本来自黎风第一天赋的隐藏被动 `chr_0015_lifeng_talent_1`。它安装的 Buff 将同一个
-`atk_up` 黑板值以 `BaseAddition` 同时写入智识、意志攻击派生系数；两个天赋等级分别为
-`0.001` 和 `0.0015`。
+`atk_up` 黑板值分别以 `BaseAddition`、`Addition` 写入智识、意志攻击派生系数；两个天赋等级
+分别为 `0.001` 和 `0.0015`。
 
 这不是普通攻击力百分比。原生属性容器先根据干员主、副属性为四种派生系数提供基础值，再允许
 Buff 通过八槽公式修正系数，最后在读取攻击力时动态计算：
@@ -26,24 +26,20 @@ Atk.OtherFinalScalar = 1
   + floor(Will) * AtkIncreaseFactorFromWill
 ```
 
-Next 当前不能无损消费该 Buff，原因不是公式未知，而是运行时接线尚未完成：
+该路径现已闭环：
 
-- `resolveOperatorPanel` 已把主、副属性的 `0.005/0.002` 派生倍率提前乘入并向下取整为可见
-  `panel.attack`，没有保留派生前的攻击值；
-- `StandardPlayerDamageEnvironment` 给每名干员创建的 Buff 容器使用空 `CombatAttributeSet`，
-  因而向派生系数注册属性修正会明确失败；
-- `resolveStaticPlayerDamageSnapshots` 直接复制静态 `panel.attack`，命中时不会读取运行时属性；
-- 法术爆发同样直接读取静态面板攻击，不能只修普通技能命中路径。
+- `resolveOperatorPanel` 同时保留可见整数攻击、派生前攻击值、四维及主副属性身份；
+- 战斗装配为每名有面板的干员创建独占属性集，并与该干员唯一的 Buff 容器共用；
+- 四维按原生边界初始化，四个攻击派生系数使用当前版本的 float32 主副属性常量；
+- 普通伤害和法术爆发都在产生快照时读取同一运行时属性集，Buff 对系数的修正不会污染静态面板；
+- 生成器只对白名单中的四个已接通系数开放转换，其他未知原生属性仍严格阻塞。
 
-正确的闭环方式是让可见面板和运行时属性共享同一份构筑来源、但承担不同职责：面板继续显示战斗
-开始前的静态整数结果；场景编译同时保留派生前攻击与四维，战斗装配用 `AttributeMetaTable` 的边界
-初始化四维和四个攻击派生系数，并把这一属性集交给该干员唯一的 Buff 容器。每次创建伤害快照或
-爆发快照时，再按原生顺序读取修正后的系数并计算攻击。不能用 `panel.attack` 反除旧倍率来恢复
-基础值，因为面板已经向下取整，会永久丢失精度。
+可见面板和运行时属性共享同一份构筑来源、但承担不同职责：面板继续显示战斗开始前的静态整数
+结果；运行时保留派生前攻击，并在每次伤害快照中重新计算。实现没有用 `panel.attack` 反除旧倍率
+恢复基础值，因为面板已经向下取整，那样会永久丢失精度。
 
-在上述路径完成前，生成器会把该隐藏被动记录为
-`modifies native attributes whose runtime consumers are not connected`，不会生成一个启用后报错的
-`passiveSkills` 定义。
+Lifeng 第一天赋现已由生成器输出为隐藏 `passiveSkills` 和内联 Buff。应用层回归测试使用正式场景
+编译、常驻被动启用、Buff 属性槽和标准伤害执行路径，确认静态面板不变而命中伤害随天赋提高。
 
 ## HealOutputIncrease（attrType 29）
 
@@ -82,10 +78,10 @@ Next 已有 `PlayerDamageDefenderSnapshot.resistances.ether.damageTakenMultiplie
 
 `EtherDamageTakenScalar` 只有在 Next 存在干员作为防御方的伤害路径后才能转换；届时应写入干员防御快照，而不能复用现有敌人快照。
 
-`AtkIncreaseFactorFromWisd/Will` 只有在干员运行时属性集、动态攻击快照和爆发攻击快照使用同一属性
-来源后才能转换；届时仍应保留隐藏被动和内联 Buff，不应改写成静态面板 modifier。
+`AtkIncreaseFactorFromWisd/Will` 已满足转换条件，并继续保留隐藏被动和内联 Buff，没有改写成静态
+面板 modifier。
 
-两项在正式闭环前继续使用 `unsupported-next-attribute`，严格生成模式必须报错，宽松审计模式保留同一潜能中已经可以转换的其他 modifier。
+其余两项在正式闭环前继续使用 `unsupported-next-attribute`，严格生成模式必须报错，宽松审计模式保留同一潜能中已经可以转换的其他 modifier。
 
 ## 证据位置
 
@@ -93,5 +89,7 @@ Next 已有 `PlayerDamageDefenderSnapshot.resistances.ether.damageTakenMultiplie
 - `vfs-index-browser/combat-spec/src/EndfieldCombatSpec.Core/Runtime/PlayerActiveDamageAttributeResolver.cs`：以太伤害读取防御方承伤倍率；
 - `vfs-index-browser/combat-spec/docs/derived-attributes.md`：四维派生公式与版本常量；
 - `vfs-index-browser/docs/research/combat/damage-formula.md`：以太抗性因子；
-- `src/next/core/combat/runtime/staticPlayerDamageSnapshots.ts`：Next 当前只组装敌方防御快照；
+- `src/next/core/combat/attributes/operatorAttackAttributes.ts`：四维派生系数属性集和动态攻击读取；
+- `src/next/core/combat/runtime/staticPlayerDamageSnapshots.ts`：普通伤害读取动态攻击；
+- `src/next/core/combat/runtime/standardPlayerDamageEnvironment.ts`：Buff 属性集共享及法术爆发读取；
 - `docs/architecture/endaxis-next-equipment-persistent-effects-extension-plan.md`：治疗执行器仍属于未来能力。

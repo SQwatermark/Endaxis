@@ -7,6 +7,10 @@
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
+import {
+  createOperatorAttackAttributes,
+  resolveOperatorAttack,
+} from '../attributes/operatorAttackAttributes';
 import { CombatBuffContainer, type BuffFinishReason, type CombatBuff } from '../buffs/combatBuffs';
 import {
   compileCombatBuffDefinitions,
@@ -141,7 +145,8 @@ export class StandardPlayerDamageEnvironment {
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
       },
-      createOperatorBuffRuntime: operatorId => this.#operatorBuffRuntime(operatorId),
+      createOperatorBuffRuntime: (operatorId, panel) =>
+        this.#operatorBuffRuntime(operatorId, panel),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
@@ -180,7 +185,10 @@ export class StandardPlayerDamageEnvironment {
     if (context.panel !== undefined) {
       this.#operatorPanels.set(context.program.operatorId, context.panel);
     }
-    const operatorBuffs = this.#operatorBuffRuntime(context.program.operatorId).container;
+    const operatorBuffs = this.#operatorBuffRuntime(
+      context.program.operatorId,
+      context.panel,
+    ).container;
     return new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
       castId: context.program.castId,
@@ -188,7 +196,8 @@ export class StandardPlayerDamageEnvironment {
       targetVitals: this.enemyVitals,
       clock: context.clock,
       receipt: context.receipt,
-      captureAttributeSnapshots: step => resolveStaticPlayerDamageSnapshots(context, step),
+      captureAttributeSnapshots: step =>
+        resolveStaticPlayerDamageSnapshots(context, step, operatorBuffs.attributes),
       criticalSamples: this.options.criticalSamples,
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
@@ -290,11 +299,19 @@ export class StandardPlayerDamageEnvironment {
     });
   }
 
-  #operatorBuffRuntime(operatorId: string): BuffDefinitionOperationTarget<string> {
+  #operatorBuffRuntime(
+    operatorId: string,
+    panel?: ResolvedOperatorPanel,
+  ): BuffDefinitionOperationTarget<string> {
     let runtime = this.#operatorBuffRuntimes.get(operatorId);
     if (runtime === undefined) {
       runtime = new BuffDefinitionOperationTarget(
-        new CombatBuffContainer(operatorId, new CombatAttributeSet<string>()),
+        new CombatBuffContainer(
+          operatorId,
+          panel === undefined
+            ? new CombatAttributeSet<string>()
+            : createOperatorAttackAttributes(panel),
+        ),
         {
           get: () => undefined,
           compile: entry => this.#compileInlineBuffDefinition(entry),
@@ -362,7 +379,10 @@ export class StandardPlayerDamageEnvironment {
     executeSpellBurst({
       definition,
       sourceId: payload.sourceId,
-      attack: panel.attack,
+      attack: resolveOperatorAttack(
+        panel,
+        this.#operatorBuffRuntime(payload.sourceId, panel).container.attributes,
+      ),
       // 来源附着增强属性尚未在面板落地；需要增强公式的爆发会在此明确失败。
       enhance: null,
       criticalRate: panel.criticalRate,

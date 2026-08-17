@@ -4,6 +4,7 @@ import { createEmptyScenario } from '../core/project/createProject';
 import { perlica } from '../data/operators/perlica';
 import { perlicaGeneratedOperator } from '../data/operators/generated/perlica.operator.generated';
 import { arclightGeneratedOperator } from '../data/operators/generated/arclight.operator.generated';
+import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.operator.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -157,7 +158,77 @@ function createGeneratedTeamScenario() {
   );
 }
 
+function createGeneratedLifengScenario(talentLevel: number) {
+  const scenario = createEmptyScenario('scenario:lifeng-talent', '莱锋常驻天赋样本');
+  scenario.tracks[0] = {
+    id: 'track:0',
+    operator: {
+      operatorSlug: lifengGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 1, battleSkill: 1, comboSkill: 1, ultimate: 1 },
+      talentStates: { 0: talentLevel },
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: lifengGeneratedOperator,
+    skillGroupKey: 'plungingAttack',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+}
+
+function runGeneratedLifengScenario(talentLevel: number) {
+  return runStandardPlayerDamageScenarioSimulation({
+    scenario: createGeneratedLifengScenario(talentLevel),
+    endFrame: 60,
+    criticalSamples: new ExplicitCriticalSampleSource([1, 1]),
+    resolveNonRandomRuntimeSnapshot: () => ({
+      runtimeExtensionMultiplier: 1,
+      appliesIgniteDamageMultiplier: false,
+      appliesPhysicalInflictionDamageMultiplier: false,
+    }),
+    options: {
+      ...standardOptions(),
+      index: {
+        getOperator: slug =>
+          slug === lifengGeneratedOperator.slug ? lifengGeneratedOperator : null,
+        getWeapon: () => null,
+        getGear: () => null,
+        getGearSet: () => null,
+      },
+    },
+  });
+}
+
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('applies generated Lifeng talent factors to the runtime attack snapshot', () => {
+    const withoutTalent = runGeneratedLifengScenario(0);
+    const withTalent = runGeneratedLifengScenario(1);
+    const damageValue = (result: typeof withTalent) =>
+      result.receiptEntries.find(entry => entry.event === 'DamageApplied')?.data?.value;
+
+    expect(withTalent.operatorPanels[0]?.attack).toBe(withoutTalent.operatorPanels[0]?.attack);
+    expect(damageValue(withoutTalent)).toBeTypeOf('number');
+    expect(damageValue(withTalent)).toBeTypeOf('number');
+    expect(damageValue(withTalent) as number).toBeGreaterThan(damageValue(withoutTalent) as number);
+    expect(withTalent.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'PassiveSkillEnabled',
+        sourceId: 'track:0',
+        data: expect.objectContaining({ passiveKey: 'chr_0015_lifeng_talent_1' }),
+      }),
+    );
+  });
+
   it('runs generated operators through team events, combo windows and shared resources', () => {
     const definitions = [arclightGeneratedOperator, perlicaGeneratedOperator];
     const result = runStandardPlayerDamageScenarioSimulation({
